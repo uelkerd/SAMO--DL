@@ -19,7 +19,10 @@ def run_command(command, description):
     """Run a command and return success status."""
     print(f"🔧 {description}...")
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        # Convert string command to list for security
+        if isinstance(command, str):
+            command = command.split()
+        result = subprocess.run(command, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             print(f"✅ {description} successful")
             return True, result.stdout
@@ -52,7 +55,7 @@ def check_gpu_availability():
         print(f"PyTorch version: {torch.__version__}")
         
         if torch.cuda.is_available():
-            print(f"✅ CUDA available")
+            print("✅ CUDA available")
             print(f"GPU: {torch.cuda.get_device_name(0)}")
             print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
             print(f"CUDA version: {torch.version.cuda}")
@@ -75,14 +78,14 @@ def check_pytorch_installation():
         # Test basic operations
         x = torch.randn(2, 2)
         y = torch.randn(2, 2)
-        z = torch.mm(x, y)
+        torch.mm(x, y)
         print("✅ Basic PyTorch operations work")
         
         # Test CUDA operations if available
         if torch.cuda.is_available():
             x_cuda = x.cuda()
             y_cuda = y.cuda()
-            z_cuda = torch.mm(x_cuda, y_cuda)
+            torch.mm(x_cuda, y_cuda)
             print("✅ CUDA operations work")
         
         return True
@@ -103,8 +106,8 @@ def check_transformers_installation():
         print("✅ Transformers imports successful")
         
         # Test model loading
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-        model = AutoModel.from_pretrained("bert-base-uncased")
+        AutoTokenizer.from_pretrained("bert-base-uncased")
+        AutoModel.from_pretrained("bert-base-uncased")
         print("✅ Model loading successful")
         
         return True
@@ -208,14 +211,14 @@ def test_model_initialization():
         
         # Test forward pass
         inputs = tokenizer("Hello world", return_tensors="pt")
-        outputs = model(**inputs)
+        model(**inputs)
         print("✅ Forward pass successful")
         
         # Test GPU if available
         if torch.cuda.is_available():
             model = model.cuda()
             inputs = {k: v.cuda() for k, v in inputs.items()}
-            outputs = model(**inputs)
+            model(**inputs)
             print("✅ GPU forward pass successful")
         
         return True
@@ -238,7 +241,7 @@ def check_dataset_loading():
         
         # Test journal dataset
         import json
-        with open('data/journal_test_dataset.json', 'r') as f:
+        with open('data/journal_test_dataset.json') as f:
             journal_data = json.load(f)
         print(f"✅ Journal dataset loaded: {len(journal_data)} samples")
         
@@ -318,4 +321,4 @@ def main():
     print("  3. Check the Colab GPU development guide")
 
 if __name__ == "__main__":
-    main() 
+    main()

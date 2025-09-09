@@ -21,11 +21,11 @@ Features:
 import os
 import sys
 import json
+import shutil
 import warnings
 import subprocess
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass
 
 # Suppress warnings for cleaner output
@@ -107,19 +107,19 @@ class EnvironmentManager:
             # Step 1: Clean slate - remove conflicting packages
             logger.info("🧹 Cleaning existing packages...")
             subprocess.run([
-                "pip", "uninstall", "torch", "torchvision", "torchaudio", 
+                "pip", "uninstall", "torch", "torchvision", "torchaudio",
                 "transformers", "datasets", "-y"
-            ], capture_output=True)
+            ], check=False, capture_output=True)
             
             # Step 2: Install PyTorch with compatible CUDA version
             logger.info("🔥 Installing PyTorch with CUDA support...")
             result = subprocess.run([
-                "pip", "install", f"torch=={dependencies['torch']}", 
-                f"torchvision=={dependencies['torchvision']}", 
+                "pip", "install", f"torch=={dependencies['torch']}",
+                f"torchvision=={dependencies['torchvision']}",
                 f"torchaudio=={dependencies['torchaudio']}",
-                "--index-url", "https://download.pytorch.org/whl/cu118", 
+                "--index-url", "https://download.pytorch.org/whl/cu118",
                 "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=600)
+            ], check=False, capture_output=True, text=True, timeout=600)
             
             if result.returncode != 0:
                 logger.error(f"❌ PyTorch installation failed: {result.stderr}")
@@ -128,9 +128,9 @@ class EnvironmentManager:
             # Step 3: Install Transformers with compatible version
             logger.info("🤗 Installing Transformers...")
             result = subprocess.run([
-                "pip", "install", f"transformers=={dependencies['transformers']}", 
+                "pip", "install", f"transformers=={dependencies['transformers']}",
                 f"datasets=={dependencies['datasets']}", "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=300)
+            ], check=False, capture_output=True, text=True, timeout=300)
             
             if result.returncode != 0:
                 logger.error(f"❌ Transformers installation failed: {result.stderr}")
@@ -139,17 +139,17 @@ class EnvironmentManager:
             # Step 4: Install additional dependencies
             logger.info("📚 Installing additional dependencies...")
             result = subprocess.run([
-                "pip", "install", 
-                f"evaluate=={dependencies['evaluate']}", 
-                f"scikit-learn=={dependencies['scikit-learn']}", 
-                f"pandas=={dependencies['pandas']}", 
-                f"numpy=={dependencies['numpy']}", 
-                f"matplotlib=={dependencies['matplotlib']}", 
-                f"seaborn=={dependencies['seaborn']}", 
-                f"accelerate=={dependencies['accelerate']}", 
-                f"wandb=={dependencies['wandb']}", 
+                "pip", "install",
+                f"evaluate=={dependencies['evaluate']}",
+                f"scikit-learn=={dependencies['scikit-learn']}",
+                f"pandas=={dependencies['pandas']}",
+                f"numpy=={dependencies['numpy']}",
+                f"matplotlib=={dependencies['matplotlib']}",
+                f"seaborn=={dependencies['seaborn']}",
+                f"accelerate=={dependencies['accelerate']}",
+                f"wandb=={dependencies['wandb']}",
                 "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=300)
+            ], check=False, capture_output=True, text=True, timeout=300)
             
             if result.returncode != 0:
                 logger.error(f"❌ Additional dependencies installation failed: {result.stderr}")
@@ -217,7 +217,6 @@ class EnvironmentManager:
                         logger.info("  ✅ Numpy compatibility fix applied")
                     
                     # Try imports again
-                    from transformers import AutoModel, AutoTokenizer
                     logger.info("  ✅ Transformers imports successful after fix")
                 else:
                     raise e
@@ -239,7 +238,6 @@ class EnvironmentManager:
                         logger.info("✅ Numpy compatibility fix applied")
                         
                         # Try verification again
-                        from transformers import AutoModel, AutoTokenizer
                         logger.info("✅ Transformers imports successful after fix")
                         return True
                 except Exception as fix_error:
@@ -257,27 +255,35 @@ class RepositoryManager:
         """Setup the SAMO-DL repository with comprehensive error handling."""
         logger.info("📁 Setting up repository...")
         
-        def run_command_safe(command: str, description: str) -> bool:
-            """Execute command with comprehensive error handling."""
-            logger.info(f"🔄 {description}...")
+        def run_git_command(cmd: List[str], description: str) -> bool:
+            """Safely execute a git command with full path resolution."""
             try:
-                result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=300)
+                # Resolve git path
+                git_path = shutil.which("git")
+                if git_path is None:
+                    logger.error(f"❌ Git is not installed or not in PATH")
+                    return False
+                
+                # Run the git command with full path
+                full_cmd = [git_path] + cmd
+                result = subprocess.run(full_cmd, check=False, capture_output=True, text=True, timeout=300)
+                
                 if result.returncode == 0:
-                    logger.info(f"  ✅ {description} completed")
+                    logger.info(f"✅ {description} completed")
                     return True
                 else:
-                    logger.error(f"  ❌ {description} failed: {result.stderr}")
+                    logger.error(f"❌ {description} failed: {result.stderr}")
                     return False
             except subprocess.TimeoutExpired:
-                logger.error(f"  ❌ {description} timed out")
+                logger.error(f"❌ {description} timed out")
                 return False
             except Exception as e:
-                logger.error(f"  ❌ {description} failed: {e}")
+                logger.error(f"❌ {description} failed: {e}")
                 return False
         
         # Clone repository if not exists
         if not Path('SAMO--DL').exists():
-            if not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
+            if not run_git_command(["clone", "https://github.com/uelkerd/SAMO--DL.git"], "Cloning repository"):
                 return False
         
         # Change to project directory
@@ -290,7 +296,7 @@ class RepositoryManager:
             return False
         
         # Pull latest changes
-        run_command_safe('git pull origin main', 'Pulling latest changes')
+        run_git_command(["pull", "origin", "main"], "Pulling latest changes")
         
         # Verify essential files exist
         essential_files = [
@@ -331,7 +337,7 @@ class DataManager:
             logger.info("✅ GoEmotions dataset loaded")
             
             # Load journal dataset
-            with open('data/journal_test_dataset.json', 'r', encoding='utf-8') as f:
+            with open('data/journal_test_dataset.json', encoding='utf-8') as f:
                 journal_entries = json.load(f)
             
             import pandas as pd
@@ -464,9 +470,7 @@ class ModelManager:
         logger.info(f"🏗️ Initializing model with {num_labels} labels...")
         
         try:
-            import torch
-            import torch.nn as nn
-            from transformers import AutoModel, AutoTokenizer
+            from transformers import AutoTokenizer
             
             # Initialize tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.config.model_name)
@@ -498,7 +502,6 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
-        import torch.nn as nn
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
@@ -531,7 +534,7 @@ class DomainAdaptedEmotionClassifier:
         logger.info(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
         
         try:
-            import torch.nn as nn
+            from torch import nn
             from transformers import AutoModel
             
             self.bert = AutoModel.from_pretrained(model_name)
@@ -589,7 +592,6 @@ class TrainingManager:
         logger.info("🎯 Setting up training components...")
         
         try:
-            import torch
             from torch.optim import AdamW
             from transformers import get_linear_schedule_with_warmup
             
@@ -706,4 +708,4 @@ def main():
 if __name__ == "__main__":
     success = main()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

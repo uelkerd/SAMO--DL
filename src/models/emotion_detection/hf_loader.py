@@ -6,7 +6,7 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict
 
 import requests
 import torch
@@ -59,7 +59,7 @@ class HFEmotionDetector:
 
 
 class HFRemoteInferenceDetector:
-    def __init__(self, endpoint_url: str, token: Optional[str] = None):
+    def __init__(self, endpoint_url: str, token: str | None = None):
         self.endpoint_url = endpoint_url.rstrip("/")
         self.token = token
 
@@ -108,8 +108,8 @@ class HFRemoteInferenceDetector:
 
 def _wrap_local_model(
     local_dir: str,
-    token: Optional[str] = None,
-    force_multi_label: Optional[bool] = None,
+    token: str | None = None,
+    force_multi_label: bool | None = None,
 ) -> HFEmotionDetector:
     cfg = AutoConfig.from_pretrained(local_dir, token=token)
     tok = AutoTokenizer.from_pretrained(local_dir, token=token, use_fast=True)
@@ -128,18 +128,18 @@ def _wrap_local_model(
 
 
 def load_hf_emotion_model(
-    model_id: str, token: Optional[str] = None, force_multi_label: Optional[bool] = None
+    model_id: str, token: str | None = None, force_multi_label: bool | None = None
 ) -> HFEmotionDetector:
     return _wrap_local_model(model_id, token=token, force_multi_label=force_multi_label)
 
 
 def load_emotion_model_multi_source(
-    model_id: Optional[str] = None,
-    token: Optional[str] = None,
-    local_dir: Optional[str] = None,
-    archive_url: Optional[str] = None,
-    endpoint_url: Optional[str] = None,
-    force_multi_label: Optional[bool] = None,
+    model_id: str | None = None,
+    token: str | None = None,
+    local_dir: str | None = None,
+    archive_url: str | None = None,
+    endpoint_url: str | None = None,
+    force_multi_label: bool | None = None,
 ) -> object:
     """Try multiple sources to load the emotion model.
 

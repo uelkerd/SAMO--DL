@@ -7,7 +7,8 @@ Tests for admin endpoint protection and authentication.
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'deployment'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'deployment'))
 
 import unittest
 import json
@@ -16,8 +17,7 @@ import json
 try:
     from secure_api_server import app
     MODEL_AVAILABLE = True
-except (OSError, ImportError) as e:
-    print(f"Warning: Could not import secure_api_server due to missing model: {e}")
+except (OSError, ImportError):
     MODEL_AVAILABLE = False
     app = None
 
@@ -117,4 +117,4 @@ class TestAdminEndpointProtection(unittest.TestCase):
         self.assertIn('IP address required', response.get_json()['error'])
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

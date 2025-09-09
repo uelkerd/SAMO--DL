@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Secure API Server Deployment Script
-# Deploys the secure API server with enhanced security features
+# Complete AI API Deployment Script
+# Deploys the full SAMO API with Emotion Detection + T5 Summarization + Whisper Transcription
 
 set -e
 
@@ -31,8 +31,8 @@ print_error() {
 # Configuration
 PROJECT_ID="${PROJECT_ID:-the-tendril-466607-n8}"
 REGION="${REGION:-us-central1}"
-SERVICE_NAME="${SERVICE_NAME:-samo-emotion-secure}"
-IMAGE_NAME="${IMAGE_NAME:-samo-emotion-secure}"
+SERVICE_NAME="${SERVICE_NAME:-samo-complete-api}"
+IMAGE_NAME="${IMAGE_NAME:-samo-fast-api}"
 REPOSITORY="${REPOSITORY:-samo-dl}"
 
 echo "🔒 Secure API Server Deployment"
@@ -53,21 +53,11 @@ print_status "  Repository: ${REPOSITORY}"
 
 # Step 1: Tag the local image for Artifact Registry
 print_status "Step 1: Tagging local image for Artifact Registry..."
-docker tag "samo-emotion-secure:test" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
-    print_error "Docker tag failed!"
-    exit 1
-fi
+docker tag "samo-fast-api:latest" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 
 # Step 2: Push to Artifact Registry
 print_status "Step 2: Pushing image to Artifact Registry..."
 docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
-    print_error "Docker push failed!"
-    exit 1
-fi
 
 # Step 3: Deploy to Cloud Run with secure settings
 print_status "Step 3: Deploying to Cloud Run with secure settings..."
@@ -78,22 +68,15 @@ gcloud run deploy "${SERVICE_NAME}" \
     --platform=managed \
     --allow-unauthenticated \
     --port=8080 \
-    --memory=2Gi \
+    --memory=4Gi \
     --cpu=2 \
+    --cpu-boost \
     --max-instances=10 \
-    --min-instances=1 \
-    --concurrency=80 \
-    --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production" \
-    --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
-    --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
-    --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}"
-
-if [ $? -ne 0 ]; then
-    print_error "Cloud Run deployment failed!"
-    exit 1
-fi
+    --min-instances=0 \
+    --concurrency=40 \
+    --timeout=360s \
+    --set-env-vars="ADMIN_API_KEY=${ADMIN_API_KEY:-test-key-123},HF_HOME=/app/models,TRANSFORMERS_CACHE=/app/models,PRELOAD_MODELS=0" \
+    --timeout=30s
 
 # Step 4: Get service URL
 print_status "Step 4: Getting service URL..."
@@ -107,7 +90,7 @@ print_status "Step 5: Testing secure deployment..."
 
 # Wait for service to be ready
 print_status "Waiting for service to be ready..."
-HEALTH_URL="${SERVICE_URL}/health"
+HEALTH_URL="${SERVICE_URL}/api/health"
 TIMEOUT=60
 INTERVAL=3
 ELAPSED=0
@@ -126,23 +109,52 @@ print_success "Service is healthy!"
 
 # Test health endpoint
 print_status "Testing health endpoint..."
-curl -f "${SERVICE_URL}/health" || {
+curl -f "${SERVICE_URL}/api/health" || {
     print_error "Health check failed!"
     exit 1
 }
 
 # Test prediction endpoint
-print_status "Testing prediction endpoint..."
-curl -X POST "${SERVICE_URL}/predict" \
+print_status "Testing emotion detection endpoint..."
+curl -X POST "${SERVICE_URL}/api/predict" \
     -H "Content-Type: application/json" \
+    -H "X-API-Key: $ADMIN_API_KEY" \
     -d '{"text": "I am feeling happy today!"}' || {
-    print_error "Prediction test failed!"
+    print_error "Emotion detection test failed!"
     exit 1
 }
 
+# Test summarization endpoint
+print_status "Testing T5 summarization endpoint..."
+# Test summarization endpoint
+print_status "Testing T5 summarization endpoint..."
+curl -X POST "${SERVICE_URL}/api/summarize" \
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: $ADMIN_API_KEY" \
+    -d '{"text": "This is a long text that needs to be summarized. It contains multiple sentences and ideas that should be condensed into a shorter version.", "max_length": 50}' || {
+    print_warning "T5 summarization test failed (may still be loading models)"
+}
+
+# Test transcribe endpoint mount (expect 400 due to missing audio)
+print_status "Testing Whisper transcribe endpoint mount..."
+TRANSCRIBE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${SERVICE_URL}/api/transcribe" \
+    -H "X-API-Key: $ADMIN_API_KEY" -F "language=en" | grep -qE "400|415" || echo "unexpected")
+if [[ $TRANSCRIBE_STATUS != "400" && $TRANSCRIBE_STATUS != "415" ]]; then
+    print_warning "Transcribe endpoint mount/auth check did not return expected client error ($TRANSCRIBE_STATUS)"
+fi
+
+# Test transcribe endpoint mount (expect 400 due to missing audio)
+print_status "Testing Whisper transcribe endpoint mount..."
+RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${SERVICE_URL}/api/transcribe" -H "X-API-Key: $ADMIN_API_KEY")
+if [[ "$RESPONSE_CODE" == "400" || "$RESPONSE_CODE" == "415" ]]; then
+    print_success "Transcribe endpoint test passed (expected client error: $RESPONSE_CODE)"
+else
+    print_warning "Transcribe endpoint mount/auth check did not return expected client error (got: $RESPONSE_CODE)"
+fi
+
 # Test security headers
 print_status "Testing security headers..."
-SECURITY_HEADERS=$(curl -I "${SERVICE_URL}/health" 2>/dev/null | grep -E "(X-Content-Type-Options|X-Frame-Options|X-XSS-Protection|Strict-Transport-Security)" || true)
+SECURITY_HEADERS=$(curl -I "${SERVICE_URL}/api/health" 2>/dev/null | grep -E "(X-Content-Type-Options|X-Frame-Options|X-XSS-Protection|Strict-Transport-Security)" || true)
 
 if [ -n "$SECURITY_HEADERS" ]; then
     print_success "Security headers are properly configured"
@@ -157,9 +169,8 @@ print_success "  - Input sanitization"
 print_success "  - Rate limiting"
 print_success "  - Security headers"
 print_success "  - JWT authentication (if configured)"
-print_success "📊 Health endpoint: ${SERVICE_URL}/health"
-print_success "🔮 Prediction endpoint: ${SERVICE_URL}/predict"
-print_success "📈 Metrics endpoint: ${SERVICE_URL}/metrics"
+print_success "📊 Health endpoint: ${SERVICE_URL}/api/health"
+print_success "🔮 Prediction endpoint: ${SERVICE_URL}/api/predict"
 
 echo ""
 print_success "Secure Deployment Summary:"

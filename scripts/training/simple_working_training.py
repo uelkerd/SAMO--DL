@@ -1,33 +1,29 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # BCE loss
-        # Create data loaders
-        # Create focal loss
-        # Create model
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
+"""Simple Working Training Script"""
+
+# Standard library imports
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
+
+# Third-party imports
+import torch
+from torch import nn
+
+# Local imports
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 
@@ -42,17 +38,13 @@ This script addresses the critical issues:
 3. Proper error handling
 """
 
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
 
 class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
+    def __init__(
+        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+    ):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -60,22 +52,24 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
 
         pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+        focal_loss = (
+            self.alpha * (1 - pt) ** self.gamma * bce_loss
+        )
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def train_simple_model():
     """Train a simple BERT model with focal loss."""
-
     logger.info("🚀 Starting Simple Working Training")
     logger.info("   • Focal Loss: alpha=0.25, gamma=2.0")
     logger.info("   • Learning Rate: 2e-05")
@@ -96,9 +90,9 @@ def train_simple_model():
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
-        logger.info("   • Train: {len(train_dataset)} examples")
-        logger.info("   • Validation: {len(val_dataset)} examples")
-        logger.info("   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: %s examples", len(train_dataset))
+        logger.info("   • Validation: %s examples", len(val_dataset))
+        logger.info("   • Test: %s examples", len(test_dataset))
 
         logger.info("Creating BERT model...")
         model, _ = create_bert_emotion_classifier(
@@ -112,8 +106,12 @@ def train_simple_model():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=16, shuffle=True
+        )
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         best_val_loss = float("in")
         training_history = []
@@ -164,16 +162,17 @@ def train_simple_model():
 
             avg_val_loss = val_loss / val_batches
 
-            logger.info("   • Train Loss: {avg_train_loss:.4f}")
-            logger.info("   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Train Loss: %.4f", avg_train_loss)
+            logger.info("   • Val Loss: %.4f", avg_val_loss)
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {"epoch": epoch + 1, "train_loss": avg_train_loss,
+                 "val_loss": avg_val_loss}
             )
 
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info("   • New best validation loss: {best_val_loss:.4f}")
+                logger.info("   • New best validation loss: %.4f", best_val_loss)
 
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
@@ -199,7 +198,7 @@ def train_simple_model():
         return True
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
+        logger.error("❌ Training failed: %s", e)
         traceback.print_exc()
         return False
 

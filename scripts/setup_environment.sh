@@ -43,7 +43,7 @@ ENV_NAME="$(parse_env_name)" || {
 }
 
 echo "🚀 Setting up SAMO Deep Learning Environment..."
-echo "📄 Environment name: $ENV_NAME"
+echo "📄 Environment name: \"$ENV_NAME\""
 
 # Colors for output
 RED='\033[0;31m'

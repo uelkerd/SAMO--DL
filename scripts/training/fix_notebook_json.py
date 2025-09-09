@@ -9,7 +9,7 @@ def fix_notebook_json():
     """Fix JSON syntax errors in the notebook."""
     
     # Read the notebook as text
-    with open('notebooks/expanded_dataset_training.ipynb', 'r') as f:
+    with open('notebooks/expanded_dataset_training.ipynb') as f:
         content = f.read()
     
     # Fix unescaped quotes in strings
@@ -45,11 +45,11 @@ def fix_notebook_json():
     # Test if the JSON is valid
     try:
         import json
-        with open('notebooks/expanded_dataset_training_fixed.ipynb', 'r') as f:
+        with open('notebooks/expanded_dataset_training_fixed.ipynb') as f:
             json.load(f)
         print("✅ JSON syntax is now valid")
     except Exception as e:
         print(f"❌ JSON still has issues: {e}")
 
 if __name__ == "__main__":
-    fix_notebook_json() 
+    fix_notebook_json()

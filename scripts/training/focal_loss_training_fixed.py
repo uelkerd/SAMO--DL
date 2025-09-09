@@ -165,7 +165,7 @@ def train_with_focal_loss(
         train_loss = 0.0
         num_batches = 0
 
-        for _batch_idx, batch in enumerate(train_loader):
+        for batch_idx, batch in enumerate(train_loader):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].float().to(device)
@@ -183,7 +183,8 @@ def train_with_focal_loss(
 
             if (batch_idx + 1) % 100 == 0:
                 logger.info(
-                    "   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}"
+                    "   Batch %s/%s, Loss: %.4f",
+                    batch_idx + 1, len(train_loader), loss.item()
                 )
 
         avg_train_loss = train_loss / num_batches

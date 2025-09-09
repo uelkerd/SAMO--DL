@@ -13,7 +13,7 @@ def validate_notebook():
     
     # Load the notebook
     try:
-        with open('notebooks/expanded_dataset_training_improved.ipynb', 'r') as f:
+        with open('notebooks/expanded_dataset_training_improved.ipynb') as f:
             notebook = json.load(f)
         print("✅ Notebook JSON is valid")
     except Exception as e:
@@ -108,7 +108,7 @@ def validate_notebook():
             all_passed = False
     
     # Summary
-    print(f"\n📊 Validation Summary:")
+    print("\n📊 Validation Summary:")
     print(f"  Total cells: {len(cells)}")
     print(f"  Code cells: {len(code_cells)}")
     print(f"  Markdown cells: {len(markdown_cells)}")
@@ -127,4 +127,4 @@ def validate_notebook():
     return all_passed
 
 if __name__ == "__main__":
-    validate_notebook() 
+    validate_notebook()

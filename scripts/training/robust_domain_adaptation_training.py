@@ -10,10 +10,11 @@ Target: Achieve 70% F1 score on journal entries through domain adaptation from G
 
 import os
 import json
+import shutil
 import warnings
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -38,28 +39,41 @@ def setup_environment():
     # Install dependencies with proper version management
     print("📦 Installing dependencies with compatibility fixes...")
     
+    def run_command(cmd: List[str], description: str) -> bool:
+        """Safely execute a command with full path resolution."""
+        try:
+            # Resolve executable path
+            executable = cmd[0]
+            executable_path = shutil.which(executable)
+            if executable_path is None:
+                print(f"❌ {executable} is not installed or not in PATH")
+                return False
+            
+            # Run the command with full path
+            full_cmd = [executable_path] + cmd[1:]
+            result = subprocess.run(full_cmd, check=False, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                print(f"✅ {description} completed")
+                return True
+            else:
+                print(f"❌ {description} failed: {result.stderr}")
+                return False
+        except Exception as e:
+            print(f"❌ {description} failed: {e}")
+            return False
+    
     # Step 1: Clean slate - remove conflicting packages
-    subprocess.run([
-        "pip", "uninstall", "torch", "torchvision", "torchaudio", 
-        "transformers", "datasets", "-y"
-    ], capture_output=True)
+    run_command(["pip", "uninstall", "torch", "torchvision", "torchaudio", "transformers", "datasets", "-y"], "Removing conflicting packages")
     
     # Step 2: Install PyTorch with compatible CUDA version
-    subprocess.run([
-        "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
-        "--index-url", "https://download.pytorch.org/whl/cu118", "--no-cache-dir"
-    ])
+    run_command(["pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0", "--index-url", "https://download.pytorch.org/whl/cu118", "--no-cache-dir"], "Installing PyTorch")
     
     # Step 3: Install Transformers with compatible version
-    subprocess.run([
-        "pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"
-    ])
+    run_command(["pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"], "Installing Transformers")
     
     # Step 4: Install additional dependencies
-    subprocess.run([
-        "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy", 
-        "matplotlib", "seaborn", "accelerate", "wandb", "--no-cache-dir"
-    ])
+    run_command(["pip", "install", "evaluate", "scikit-learn", "pandas", "numpy", "matplotlib", "seaborn", "accelerate", "wandb", "--no-cache-dir"], "Installing additional dependencies")
     
     print("✅ Dependencies installed successfully")
     return is_colab
@@ -84,7 +98,6 @@ def verify_installation():
             print("⚠️ No GPU available. Training will be slow on CPU.")
         
         # Test critical imports
-        from transformers import AutoModel, AutoTokenizer
         print("  ✅ Transformers imports successful")
         
         return True
@@ -101,7 +114,10 @@ def setup_repository():
         """Execute command with error handling."""
         print(f"🔄 {description}...")
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            # Convert string command to list for security
+            if isinstance(command, str):
+                command = command.split()
+            result = subprocess.run(command, check=False, capture_output=True, text=True)
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True
@@ -112,16 +128,39 @@ def setup_repository():
             print(f"  ❌ {description} failed: {e}")
             return False
     
+    def run_git_command(cmd: List[str], description: str) -> bool:
+        """Safely execute a git command with full path resolution."""
+        try:
+            # Resolve git path
+            git_path = shutil.which("git")
+            if git_path is None:
+                print(f"❌ Git is not installed or not in PATH")
+                return False
+            
+            # Run the git command with full path
+            full_cmd = [git_path] + cmd
+            result = subprocess.run(full_cmd, check=False, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                print(f"✅ {description} completed")
+                return True
+            else:
+                print(f"❌ {description} failed: {result.stderr}")
+                return False
+        except Exception as e:
+            print(f"❌ {description} failed: {e}")
+            return False
+    
     # Clone repository if not exists
     if not Path('SAMO--DL').exists():
-        run_command('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository')
+        run_git_command(["clone", "https://github.com/uelkerd/SAMO--DL.git"], "Cloning repository")
     
     # Change to project directory
     os.chdir('SAMO--DL')
     print(f"📁 Working directory: {os.getcwd()}")
     
     # Pull latest changes
-    run_command('git pull origin main', 'Pulling latest changes')
+    run_git_command(["pull", "origin", "main"], "Pulling latest changes")
 
 def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Optional[str] = None):
     """Safely load dataset with error handling."""
@@ -140,7 +179,7 @@ def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Op
 def safe_load_json(file_path: str):
     """Safely load JSON file with error handling."""
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             data = json.load(f)
         print(f"✅ Successfully loaded {file_path}")
         return data
@@ -165,8 +204,9 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
     
     avg_length = np.mean([len(text.split()) for text in valid_texts])
     personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
-    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
-                           for text in valid_texts]) / len(valid_texts)
+    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or
+                             'believe' in text.lower()
+                             for text in valid_texts]) / len(valid_texts)
 
     print(f"{domain_name} Style Analysis:")
     print(f"  Average length: {avg_length:.1f} words")
@@ -220,7 +260,6 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
-        import torch.nn as nn
         import torch.nn.functional as F
         self.alpha = alpha
         self.gamma = gamma
@@ -228,6 +267,7 @@ class FocalLoss:
         self.F = F
     
     def __call__(self, inputs, targets):
+        import torch
         ce_loss = self.F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
@@ -243,7 +283,7 @@ class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
-        import torch.nn as nn
+        from torch import nn
         from transformers import AutoModel
         
         # ROBUST: Validate num_labels
@@ -307,7 +347,6 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
         
         # Move to device
-        import torch
         model = model.to(device)
         print(f"✅ Model moved to {device}")
         
@@ -327,7 +366,7 @@ def main():
     print("=" * 70)
     
     # Step 1: Setup environment
-    is_colab = setup_environment()
+    setup_environment()
     
     # Step 2: Verify installation
     if not verify_installation():
@@ -346,7 +385,7 @@ def main():
     
     # Step 5: Initialize model (example)
     import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # This would be called when we have the label encoder ready
     # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, device)
@@ -360,4 +399,4 @@ def main():
     print("  4. Evaluate and save results")
 
 if __name__ == "__main__":
-    main() 
+    main()

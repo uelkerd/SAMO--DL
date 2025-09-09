@@ -33,7 +33,7 @@ summarization_model: Optional[T5SummarizationModel] = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app):  # noqa: ARG001 - FastAPI requires app parameter but not used
     """Manage model lifecycle - load on startup, cleanup on shutdown."""
     global summarization_model
 
@@ -48,12 +48,12 @@ async def lifespan(app: FastAPI):
         )
 
         load_time = time.time() - start_time
-        logger.info(f"✅ Model loaded successfully in {load_time:.2f}s")
-        logger.info(f"Model info: {summarization_model.get_model_info()}")
+        logger.info("✅ Model loaded successfully in %.2fs", load_time)
+        logger.info("Model info: %s", summarization_model.get_model_info())
 
     except Exception as e:
-        logger.error(f"❌ Failed to load summarization model: {e}")
-        raise RuntimeError(f"Model loading failed: {e}")
+        logger.error("❌ Failed to load summarization model: %s", e)
+        raise RuntimeError("Model loading failed: %s" % e)
 
     yield  # App runs here
 
@@ -98,11 +98,11 @@ class BatchSummarizationRequest(BaseModel):
 
     @validator("texts")
     def validate_text_lengths(cls, texts):
-        for _i, text in enumerate(texts):
+        for i, text in enumerate(texts):
             if len(text) < 50:
-                raise ValueError(f"Text {_i + 1} too short (minimum 50 characters)")
+                raise ValueError(f"Text {i + 1} too short (minimum 50 characters)")
             if len(text) > 2000:
-                raise ValueError(f"Text {_i + 1} too long (maximum 2000 characters)")
+                raise ValueError(f"Text {i + 1} too long (maximum 2000 characters)")
         return texts
 
 
@@ -162,8 +162,8 @@ async def summarize_text(request: SummarizeRequest):
         compression_ratio = 1 - (summary_length / original_length) if original_length > 0 else 0
 
         logger.info(
-            "Summarized text: {original_length}→{summary_length} chars in {processing_time:.2f}ms",
-            extra={"format_args": True},
+            "Summarized text: %s→%s chars in %.2fms",
+            original_length, summary_length, processing_time
         )
 
         return SummarizationResponse(
@@ -217,8 +217,8 @@ async def summarize_batch(request: BatchSummarizationRequest):
         average_time = total_processing_time / len(request.texts)
 
         logger.info(
-            "Batch summarized {len(request.texts)} texts in {total_processing_time:.2f}ms (avg: {average_time:.2f}ms)",
-            extra={"format_args": True},
+            "Batch summarized %s texts in %.2fms (avg: %.2fms)",
+            len(request.texts), total_processing_time, average_time
         )
 
         return BatchSummarizationResponse(

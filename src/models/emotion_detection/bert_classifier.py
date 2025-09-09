@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-BERT-based Emotion Classifier for SAMO Deep Learning.
+"""BERT-based Emotion Classifier for SAMO Deep Learning.
 
 This module provides a BERT-based multi-label emotion classification model
 trained on the GoEmotions dataset for journal entry analysis.
@@ -12,10 +11,10 @@ from typing import Optional, Union, List, Dict, Tuple
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
+from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import Dataset, DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
@@ -248,7 +247,7 @@ class BERTEmotionClassifier(nn.Module):
 
             # Get top-k emotions if specified
             if top_k is not None:
-                top_k_probs, top_k_indices = torch.topk(probabilities, top_k, dim=1)
+                _, top_k_indices = torch.topk(probabilities, top_k, dim=1)
                 predictions = torch.zeros_like(probabilities)
                 predictions.scatter_(1, top_k_indices, 1.0)
 

@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 from typing import Optional, List, Tuple
+import contextlib
 
 
 def get_base_model_name(override: Optional[str] = None) -> str:
@@ -57,10 +58,8 @@ def _calculate_directory_size(directory: str) -> int:
     for dirpath, _, filenames in os.walk(directory):
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
-            try:
+            with contextlib.suppress(OSError):
                 total_size += os.path.getsize(filepath)
-            except OSError:
-                pass
     return total_size
 
 

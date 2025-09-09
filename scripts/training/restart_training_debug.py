@@ -1,7 +1,9 @@
-        # Start training
-        # Training configuration with debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-        import traceback
+#!/usr/bin/env python3
+"""Restart Training Debug Script"""
+
+# Start training
+# Training configuration with debugging
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -26,7 +28,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("debug_training.log")],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("debug_training.log")
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -44,12 +49,11 @@ def main():
             "learning_rate": 2e-6,  # Reduced learning rate
             "num_epochs": 2,  # Fewer epochs for debugging
             "dev_mode": True,
-            "debug_mode": True,
         }
 
         logger.info("📋 Training Configuration:")
         for key, value in config.items():
-            logger.info("   {key}: {value}")
+            logger.info("   %s: %s", key, value)
 
         logger.info("\n🔍 Starting training with debugging...")
         logger.info("⚠️  Watch for DEBUG messages to identify the 0.0000 loss issue!")
@@ -57,11 +61,11 @@ def main():
         results = train_emotion_detection_model(**config)
 
         logger.info("✅ Training completed!")
-        logger.info("📊 Final results: {results}")
+        logger.info("📊 Final results: %s", results)
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
-        logger.error("Traceback: {traceback.format_exc()}")
+        logger.error("❌ Training failed: %s", e)
+        logger.error("Traceback: %s", traceback.format_exc())
         return False
 
     return True

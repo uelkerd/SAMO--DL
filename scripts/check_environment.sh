@@ -64,7 +64,16 @@ fi
 echo ""
 echo "📊 Environment Summary:"
 echo "======================="
-echo "• Python: $(python3 --version 2>/dev/null || echo 'Not available')"
+# Capture Python version once
+PYTHON_VER=$(python3 --version 2>/dev/null || echo 'Not available')
+echo "• Python: \"$PYTHON_VER\""
+
 echo "• PyTorch: $(python3 -c "import torch; print(torch.__version__)" 2>/dev/null || echo 'Not installed')"
-echo "• Project Files: $(ls -1 src/models/emotion_detection/*.py 2>/dev/null | wc -l | tr -d ' ') core files"
-echo "• Scripts: $(ls -1 scripts/*.py 2>/dev/null | wc -l | tr -d ' ') scripts"
+
+# Count project files without pipe subshell
+mapfile -t project_files < <(find src/models/emotion_detection -maxdepth 1 -name "*.py" 2>/dev/null || true)
+echo "• Project Files: ${#project_files[@]} core files"
+
+# Count scripts without pipe subshell
+mapfile -t script_files < <(find scripts -maxdepth 1 -name "*.py" 2>/dev/null || true)
+echo "• Scripts: ${#script_files[@]} scripts"

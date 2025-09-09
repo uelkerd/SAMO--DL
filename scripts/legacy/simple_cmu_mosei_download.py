@@ -103,7 +103,7 @@ def map_sentiment_to_emotions(samples):
     emotion_mapping = {
         # Very negative sentiments
         (-3, -2.5): 'sad',
-        (-2.5, -2): 'frustrated', 
+        (-2.5, -2): 'frustrated',
         (-2, -1.5): 'anxious',
         (-1.5, -1): 'tired',
         (-1, -0.5): 'overwhelmed',
@@ -212,7 +212,7 @@ def main():
     print(f"📊 Minimum samples per emotion: {min_samples}")
     
     balanced_samples = []
-    for emotion, samples_list in emotion_samples.items():
+    for _emotion, samples_list in emotion_samples.items():
         selected_samples = np.random.choice(samples_list, size=min_samples, replace=False)
         balanced_samples.extend(selected_samples)
     
@@ -225,4 +225,4 @@ def main():
     print("  3. Upload to Colab and achieve 75-85% F1 score!")
 
 if __name__ == "__main__":
-    main() 
+    main()

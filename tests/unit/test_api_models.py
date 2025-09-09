@@ -25,7 +25,8 @@ Tests Pydantic models, request/response validation, and data transformations.
 class TestAPIModels:
     """Test suite for API data models."""
 
-    def test_emotion_result_validation(self):
+    @staticmethod
+    def test_emotion_result_validation():
         """Test EmotionResult model validation."""
         valid_data = {"emotion": "joy", "confidence": 0.85, "probability": 0.92}
 
@@ -34,7 +35,8 @@ class TestAPIModels:
         assert 0.0 <= valid_data["confidence"] <= 1.0
         assert 0.0 <= valid_data["probability"] <= 1.0
 
-    def test_emotion_result_invalid_confidence(self):
+    @staticmethod
+    def test_emotion_result_invalid_confidence():
         """Test EmotionResult rejects invalid confidence values."""
         invalid_data = {
             "emotion": "joy",
@@ -44,7 +46,8 @@ class TestAPIModels:
 
         assert invalid_data["confidence"] > 1.0  # This should be caught by validation
 
-    def test_summary_result_validation(self):
+    @staticmethod
+    def test_summary_result_validation():
         """Test SummaryResult model validation."""
         valid_data = {
             "summary": "User had a positive day with accomplishments.",
@@ -59,7 +62,8 @@ class TestAPIModels:
         assert valid_data["word_count"] > 0
         assert valid_data["compression_ratio"] < 1.0
 
-    def test_complete_analysis_validation(self):
+    @staticmethod
+    def test_complete_analysis_validation():
         """Test CompleteJournalAnalysis model validation."""
         valid_data = {
             "text": "Original journal entry text...",
@@ -83,7 +87,8 @@ class TestAPIModels:
         assert valid_data["processing_time"] > 0
         assert "timestamp" in valid_data
 
-    def test_text_length_validation(self):
+    @staticmethod
+    def test_text_length_validation():
         """Test text length validation for different endpoints."""
         short_text = "Hi"
         assert len(short_text) >= 2  # Minimum viable input
@@ -94,7 +99,8 @@ class TestAPIModels:
         normal_text = "This is a normal journal entry with reasonable length."
         assert 10 <= len(normal_text) <= 10000
 
-    def test_audio_file_validation(self):
+    @staticmethod
+    def test_audio_file_validation():
         """Test audio file validation for voice endpoints."""
         valid_extensions = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
 
@@ -105,7 +111,8 @@ class TestAPIModels:
         invalid_filename = "audio.txt"
         assert not any(invalid_filename.endswith(e) for e in valid_extensions)
 
-    def test_confidence_threshold_validation(self):
+    @staticmethod
+    def test_confidence_threshold_validation():
         """Test confidence threshold validation."""
         valid_thresholds = [0.1, 0.5, 0.7, 0.9]
 
@@ -116,7 +123,8 @@ class TestAPIModels:
         for threshold in invalid_thresholds:
             assert not (0.0 <= threshold <= 1.0)
 
-    def test_language_code_validation(self):
+    @staticmethod
+    def test_language_code_validation():
         """Test language code validation for voice processing."""
         valid_languages = ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"]
 
@@ -129,7 +137,8 @@ class TestAPIModels:
             if len(lang) == 2:
                 assert not lang.islower() or not lang.isalpha()
 
-    def test_response_format_consistency(self):
+    @staticmethod
+    def test_response_format_consistency():
         """Test API response format consistency."""
         required_fields = ["status", "data", "processing_time", "timestamp"]
 
@@ -147,7 +156,8 @@ class TestAPIModels:
         assert isinstance(mock_response["processing_time"], (int, float))
         assert mock_response["processing_time"] >= 0
 
-    def test_error_response_format(self):
+    @staticmethod
+    def test_error_response_format():
         """Test error response format consistency."""
         error_response = {
             "status": "error",

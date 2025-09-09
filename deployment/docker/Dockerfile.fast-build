@@ -1,0 +1,71 @@
+# FAST BUILD VERSION - Models downloaded at runtime, not build time
+# This version builds much faster but downloads models on first run
+
+FROM python:3.10-slim-bookworm
+
+# Set environment variables for Python
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/app/models \
+    TRANSFORMERS_CACHE=/app/models
+
+# Set working directory
+WORKDIR /app
+
+# Install minimal system dependencies with security updates
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl ffmpeg \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy optimized requirements first for better caching
+COPY deployment/docker/requirements-api-optimized.txt ./requirements.txt
+
+# SECURITY: Update pip and setuptools to latest secure versions
+RUN python -m pip install --upgrade "pip==24.2" "setuptools==72.2.0"
+
+# Install Python dependencies with CPU-only PyTorch
+RUN pip install --no-cache-dir -r requirements.txt && \
+    echo "✓ Python dependencies installed successfully"
+
+# Copy the actual production code from the PRs
+COPY deployment/cloud-run/secure_api_server.py .
+COPY deployment/cloud-run/model_utils.py .
+COPY deployment/cloud-run/security_headers.py .
+COPY deployment/cloud-run/rate_limiter.py .
+
+# Copy source model files for T5 and Whisper
+RUN mkdir -p ./src/models/summarization ./src/models/voice_processing ./src/models/emotion_detection
+COPY src/models/summarization/t5_summarizer.py ./src/models/summarization/
+COPY src/models/summarization/__init__.py ./src/models/summarization/
+COPY src/models/voice_processing/whisper_transcriber.py ./src/models/voice_processing/
+COPY src/models/voice_processing/__init__.py ./src/models/voice_processing/
+COPY src/models/emotion_detection/labels.py ./src/models/emotion_detection/
+COPY src/constants.py ./src/
+COPY src/__init__.py ./src/
+
+# Create models directory (models will be downloaded at runtime)
+RUN mkdir -p /app/models
+
+# Create non-root user for security (Cloud Run best practice)
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port (Cloud Run requirement)
+EXPOSE 8080
+
+# Health check following Cloud Run best practices
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Use exec form for CMD (Docker best practice)
+# Set timeout to 0 for Cloud Run (allows unlimited request timeouts)
+# Run the production Flask-RESTX server
+CMD ["sh", "-c", "exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info secure_api_server:app"]

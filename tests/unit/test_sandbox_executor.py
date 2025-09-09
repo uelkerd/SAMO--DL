@@ -6,8 +6,8 @@ Tests for the refactored sandbox executor with safe builtins.
 """
 
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'models', 'secure_loader'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src' / 'models' / 'secure_loader'))
 
 import unittest
 import threading
@@ -61,7 +61,7 @@ class TestSandboxExecutor(unittest.TestCase):
         def safe_function():
             return "Hello, World!"
         
-        result, meta = executor.execute_safely(safe_function)
+        result, _ = executor.execute_safely(safe_function)
         
         # Check that global builtins are unchanged
         self.assertEqual(builtins.__dict__, original_builtins)
@@ -114,14 +114,14 @@ class TestSandboxExecutor(unittest.TestCase):
         
         def worker_function():
             try:
-                result, meta = self.executor.execute_safely(lambda: f"Worker {threading.current_thread().name}")
+                result, _ = self.executor.execute_safely(lambda: f"Worker {threading.current_thread().name}")
                 results.append(result)
             except Exception as e:
                 errors.append(str(e))
         
         # Create multiple threads
         threads = []
-        for i in range(5):
+        for _i in range(5):
             thread = threading.Thread(target=worker_function)
             threads.append(thread)
             thread.start()
@@ -179,4 +179,4 @@ class TestSandboxExecutor(unittest.TestCase):
         self.assertIn('error', meta)
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

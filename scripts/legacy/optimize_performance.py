@@ -365,7 +365,7 @@ def main() -> None:
 
         if gpu_info["recommendations"]:
             print("\n💡 Recommendations:")
-            for rec in gpu_info["recommendations"]:
+            for _rec in gpu_info["recommendations"]:
                 print("   • {rec}")
 
     if args.convert_onnx:

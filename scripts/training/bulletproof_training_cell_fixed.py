@@ -7,18 +7,16 @@ print("=" * 60)
 
 # Step 1: Clear everything and validate environment
 import os
-import sys
 import json
-import pickle
 import torch
 import torch.nn as nn
-import numpy as np
 import pandas as pd
 from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
+from google.colab import files
 from sklearn.metrics import f1_score, accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
 
 print("✅ Imports successful")
@@ -41,8 +39,9 @@ except Exception as e:
     raise
 
 # Step 2: Clone repository and setup
-!git clone https://github.com/uelkerd/SAMO--DL.git
-%cd SAMO--DL
+# Note: Repository should already be cloned
+# Change to project directory
+os.chdir("SAMO--DL")
 
 # Step 3: Create emotion mapping
 print("\n🔧 Creating emotion mapping...")
@@ -93,18 +92,18 @@ journal_df = pd.DataFrame(journal_entries)
 journal_emotions = set(journal_df['emotion'].unique())
 print(f"📊 Journal emotions: {sorted(list(journal_emotions))}")
 
-# Filter GoEmotions data using mapping
-go_texts = []
-go_labels = []
-for example in go_emotions['train']:
-    if example['labels']:
-        for label in example['labels']:
-            if label in emotion_mapping:
-                mapped_emotion = emotion_mapping[label]
-                if mapped_emotion in journal_emotions:
-                    go_texts.append(example['text'])
-                    go_labels.append(mapped_emotion)
-                    break
+    # Filter GoEmotions data using mapping
+    go_texts = []
+    go_labels = []
+    for example in go_emotions['train']:
+        if example['labels']:
+            for emotion_label in example['labels']:
+                if emotion_label in emotion_mapping:
+                    mapped_emotion = emotion_mapping[emotion_label]
+                    if mapped_emotion in journal_emotions:
+                        go_texts.append(example['text'])
+                        go_labels.append(mapped_emotion)
+                        break
 
 # Prepare journal data
 journal_texts = list(journal_df['content'])
@@ -133,80 +132,89 @@ print(f"📊 Journal label range: {min(journal_label_ids)} to {max(journal_label
 
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, labels, tokenizer_obj, max_length=128):
         self.texts = texts
         self.labels = labels
-        self.tokenizer = tokenizer
+        self.tokenizer = tokenizer_obj
         self.max_length = max_length
-        
+
         # Validate data
         if len(texts) != len(labels):
             raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
-        
+
         # Validate labels
         for i, label in enumerate(labels):
             if not isinstance(label, int) or label < 0:
                 raise ValueError(f"Invalid label at index {i}: {label}")
-    
+
     def __len__(self):
         return len(self.texts)
-    
+
     def __getitem__(self, idx):
-        text = self.texts[idx]
-        label = self.labels[idx]
-        
+        text_item = self.texts[idx]
+        label_item = self.labels[idx]
+
         # Validate inputs
-        if not isinstance(text, str) or not text.strip():
+        if not isinstance(text_item, str) or not text_item.strip():
             raise ValueError(f"Invalid text at index {idx}")
-        
-        if not isinstance(label, int) or label < 0:
-            raise ValueError(f"Invalid label at index {idx}: {label}")
-        
+
+        if not isinstance(label_item, int) or label_item < 0:
+            raise ValueError(f"Invalid label at index {idx}: {label_item}")
+
         encoding = self.tokenizer(
-            text,
+            text_item,
             truncation=True,
             padding='max_length',
             max_length=self.max_length,
             return_tensors='pt'
         )
-        
+
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            'labels': torch.tensor(label_item, dtype=torch.long)
         }
 
 # Step 6: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", num_labels=None):
+    def __init__(self, model_name="bert-base-uncased", num_classes=None):
         super().__init__()
-        
-        if num_labels is None or num_labels <= 0:
-            raise ValueError(f"Invalid num_labels: {num_labels}")
-        
-        self.num_labels = num_labels
+
+        if num_classes is None or num_classes <= 0:
+            raise ValueError(f"Invalid num_classes: {num_classes}")
+
+        self.num_labels = num_classes
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(0.3)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
-        
-        print(f"✅ Model initialized with {num_labels} labels")
-    
-    def forward(self, input_ids, attention_mask):
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
+
+        print(f"✅ Model initialized with {num_classes} labels")
+
+    def forward(self, input_ids_tensor, attention_mask_tensor):
+        """Forward pass through BERT model for emotion classification.
+
+        Args:
+            input_ids_tensor: Tokenized input text tensor
+            attention_mask_tensor: Attention mask tensor for padding tokens
+
+        Returns:
+            Model logits for emotion classification
+        """
         # Validate inputs
-        if input_ids.dim() != 2:
-            raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
-        
-        if attention_mask.dim() != 2:
-            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
-        
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        pooled_output = outputs.pooler_output
+        if input_ids_tensor.dim() != 2:
+            raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
+
+        if attention_mask_tensor.dim() != 2:
+            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
+
+        bert_outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
+        pooled_output = bert_outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
-        
+
         # Validate outputs
         if logits.shape[-1] != self.num_labels:
             raise ValueError(f"Expected {self.num_labels} output classes, got {logits.shape[-1]}")
-        
+
         return logits
 
 # Step 7: Setup training
@@ -218,7 +226,7 @@ print(f"✅ Using device: {device}")
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 num_labels = len(label_encoder.classes_)
-model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=num_labels)
+model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_classes=num_labels)
 model = model.to(device)
 
 # Create datasets
@@ -252,48 +260,48 @@ best_f1 = 0.0
 
 for epoch in range(num_epochs):
     print(f"\n🔄 Epoch {epoch + 1}/{num_epochs}")
-    
+
     # Training
     model.train()
     total_loss = 0
     num_batches = 0
-    
+
     # Train on GoEmotions
     print("  📚 Training on GoEmotions...")
-    for i, batch in enumerate(go_loader):
+    for batch_idx, batch in enumerate(go_loader):
         try:
             # Validate batch
             if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
-                print(f"⚠️ Invalid batch structure at batch {i}")
+                print(f"⚠️ Invalid batch structure at batch {batch_idx}")
                 continue
-            
+
             # Move to device with validation
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            
+
             # Validate labels
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
-                print(f"⚠️ Invalid labels in batch {i}: {labels}")
+                print(f"⚠️ Invalid labels in batch {batch_idx}: {labels}")
                 continue
-            
+
             # Forward pass
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs, labels)
+            model_outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss = criterion(model_outputs, labels)
             loss.backward()
             optimizer.step()
-            
+
             total_loss += loss.item()
             num_batches += 1
-            
+
             if i % 50 == 0:
                 print(f"    Batch {i}/{len(go_loader)}, Loss: {loss.item():.4f}")
-                
+
         except Exception as e:
             print(f"❌ Error in batch {i}: {e}")
             continue
-    
+
     # Train on journal data
     print("  📝 Training on journal data...")
     for i, batch in enumerate(journal_train_loader):
@@ -301,67 +309,67 @@ for epoch in range(num_epochs):
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-            
+
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
                 continue
-            
+
             optimizer.zero_grad()
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-            
+
             total_loss += loss.item()
             num_batches += 1
-            
+
             if i % 10 == 0:
                 print(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
-                
+
         except Exception as e:
             print(f"❌ Error in journal batch {i}: {e}")
             continue
-    
+
     # Validation
     print("  🎯 Validating...")
     model.eval()
     all_preds = []
     all_labels = []
-    
+
     with torch.no_grad():
         for batch in journal_val_loader:
             try:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 labels = batch['labels'].to(device)
-                
+
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                 preds = torch.argmax(outputs, dim=1)
-                
+
                 all_preds.extend(preds.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
-                
+
             except Exception as e:
                 print(f"❌ Error in validation batch: {e}")
                 continue
-    
+
     # Calculate metrics
     if all_preds and all_labels:
         f1_macro = f1_score(all_labels, all_preds, average='macro')
         accuracy = accuracy_score(all_labels, all_preds)
-        
+
         avg_loss = total_loss / num_batches if num_batches > 0 else 0
-        
+
         print(f"  📊 Epoch {epoch + 1} Results:")
         print(f"    Average Loss: {avg_loss:.4f}")
         print(f"    Validation F1 (Macro): {f1_macro:.4f}")
         print(f"    Validation Accuracy: {accuracy:.4f}")
-        
+
         # Save best model
         if f1_macro > best_f1:
             best_f1 = f1_macro
             torch.save(model.state_dict(), 'best_simple_model.pth')
             print(f"    💾 New best model saved! F1: {best_f1:.4f}")
-    
+
     # Clear GPU cache
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
@@ -386,7 +394,6 @@ print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
-from google.colab import files
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 

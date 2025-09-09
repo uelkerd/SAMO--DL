@@ -14,7 +14,7 @@ def fix_model_reconfiguration():
     """Fix the model reconfiguration in the minimal notebook."""
     
     # Read the existing notebook
-    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Find and replace the model setup cell
@@ -89,4 +89,4 @@ def fix_model_reconfiguration():
     print('   ✅ Added detailed logging of the configuration process')
 
 if __name__ == "__main__":
-    fix_model_reconfiguration() 
+    fix_model_reconfiguration()

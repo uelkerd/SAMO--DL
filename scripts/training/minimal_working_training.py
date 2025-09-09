@@ -1,29 +1,26 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 10 batches
-                # Save model
-            # Create mini-batches
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # Create focal loss
-        # Create model
-        # Create synthetic data
-        # Setup optimizer
-        # Training loop
-        from transformers import AutoModel, AutoTokenizer
-        import traceback
-    # Create random input data
-    # Setup device
-# Configure logging
 #!/usr/bin/env python3
-from torch import nn
+"""Minimal Working Training Script"""
+
+# Standard library imports
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
+
+# Third-party imports
+import torch
+from torch import nn
+from transformers import AutoModel, AutoTokenizer
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 
@@ -33,9 +30,6 @@ import traceback
 Minimal Working Training Script
 Uses only working modules to avoid environment issues
 """
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
 
 
 class SimpleBERTClassifier(nn.Module):
@@ -49,6 +43,15 @@ class SimpleBERTClassifier(nn.Module):
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
 
     def forward(self, input_ids, attention_mask=None):
+        """Forward pass through BERT model for emotion classification.
+
+        Args:
+            input_ids: Tokenized input text
+            attention_mask: Attention mask for padding tokens
+
+        Returns:
+            Dictionary containing model logits
+        """
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
         pooled_output = self.dropout(pooled_output)
@@ -66,21 +69,31 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs, targets):
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        """Compute focal loss for handling class imbalance.
+
+        Args:
+            inputs: Model predictions (logits)
+            targets: Ground truth labels
+
+        Returns:
+            Focal loss value
+        """
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_synthetic_data(num_samples=1000, seq_length=128):
     """Create synthetic training data to avoid dataset loading issues."""
-    logger.info("Creating synthetic data: {num_samples} samples")
+    logger.info("Creating synthetic data: %s samples", num_samples)
 
     input_ids = torch.randint(0, 30522, (num_samples, seq_length))  # BERT vocab size
     attention_mask = torch.ones(num_samples, seq_length)
@@ -91,14 +104,13 @@ def create_synthetic_data(num_samples=1000, seq_length=128):
 
 def train_minimal_model():
     """Train a minimal BERT model with synthetic data."""
-
     logger.info("🚀 Starting Minimal Working Training")
     logger.info("   • Using only working modules (PyTorch, NumPy, Transformers)")
     logger.info("   • Synthetic data to avoid dataset loading issues")
     logger.info("   • Focal Loss for class imbalance")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Using device: {device}")
+    logger.info("Using device: %s", device)
 
     try:
         logger.info("Creating BERT model...")
@@ -109,14 +121,16 @@ def train_minimal_model():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_input_ids, train_attention_mask, train_labels = create_synthetic_data(1000)
-        val_input_ids, val_attention_mask, val_labels = create_synthetic_data(200)
+        train_input_ids, train_attention_mask, train_labels = \
+            create_synthetic_data(1000)
+        val_input_ids, val_attention_mask, val_labels = \
+            create_synthetic_data(200)
 
-        best_val_loss = float("in")
+        best_val_loss = float("inf")
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
-            logger.info("\nEpoch {epoch + 1}/3")
+            logger.info("\nEpoch %s/3", epoch + 1)
 
             model.train()
             train_loss = 0.0
@@ -125,7 +139,8 @@ def train_minimal_model():
             batch_size = 16
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
-                batch_attention_mask = train_attention_mask[i : i + batch_size].to(device)
+                batch_attention_mask = \
+                    train_attention_mask[i : i + batch_size].to(device)
                 batch_labels = train_labels[i : i + batch_size].to(device)
 
                 optimizer.zero_grad()
@@ -140,7 +155,10 @@ def train_minimal_model():
                 num_batches += 1
 
                 if num_batches % 10 == 0:
-                    logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
+                    logger.info(
+                        "   • Batch %s: Loss = %.4f",
+                        num_batches, loss.item()
+                    )
 
             avg_train_loss = train_loss / num_batches
 
@@ -151,7 +169,8 @@ def train_minimal_model():
             with torch.no_grad():
                 for i in range(0, len(val_input_ids), batch_size):
                     batch_input_ids = val_input_ids[i : i + batch_size].to(device)
-                    batch_attention_mask = val_attention_mask[i : i + batch_size].to(device)
+                    batch_attention_mask = \
+                        val_attention_mask[i : i + batch_size].to(device)
                     batch_labels = val_labels[i : i + batch_size].to(device)
 
                     outputs = model(batch_input_ids, attention_mask=batch_attention_mask)
@@ -162,16 +181,20 @@ def train_minimal_model():
 
             avg_val_loss = val_loss / val_batches
 
-            logger.info("   • Train Loss: {avg_train_loss:.4f}")
-            logger.info("   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Train Loss: %.4f", avg_train_loss)
+            logger.info("   • Val Loss: %.4f", avg_val_loss)
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {"epoch": epoch + 1, "train_loss": avg_train_loss,
+                 "val_loss": avg_val_loss}
             )
 
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info("   • New best validation loss: {best_val_loss:.4f}")
+                logger.info(
+                    "   • New best validation loss: %.4f",
+                    best_val_loss
+                )
 
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
@@ -188,16 +211,16 @@ def train_minimal_model():
                     model_path,
                 )
 
-                logger.info("   • Model saved to: {model_path}")
+                logger.info("   • Model saved to: %s", model_path)
 
         logger.info("🎉 Training completed successfully!")
-        logger.info("   • Best validation loss: {best_val_loss:.4f}")
+        logger.info("   • Best validation loss: %.4f", best_val_loss)
         logger.info("   • Model saved to: ./models/checkpoints/minimal_working_model.pt")
 
         return True
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
+        logger.error("❌ Training failed: %s", e)
         traceback.print_exc()
         return False
 

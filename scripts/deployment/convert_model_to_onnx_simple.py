@@ -108,7 +108,7 @@ def convert_model_to_onnx(model_path=None, onnx_output_path=None, tokenizer_name
         # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
-            session = ort.InferenceSession(onnx_output_path)
+            ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX model test successful")
         except ImportError:
             logger.error("❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.")
@@ -161,4 +161,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

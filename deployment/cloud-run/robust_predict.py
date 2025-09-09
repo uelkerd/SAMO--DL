@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API FOR CLOUD RUN
+"""🚀 EMOTION DETECTION API FOR CLOUD RUN.
 ======================================
 Robust Flask API optimized for Cloud Run deployment.
+
 """
 
+from typing import Any, Dict
 import os
 import time
 import logging
@@ -38,8 +39,8 @@ EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grate
 # Constants
 MAX_INPUT_LENGTH = 512
 
-def load_model():
-    """Load the emotion detection model"""
+def load_model() -> None:
+    """Load the emotion detection model."""
     global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
     
     with model_lock:
@@ -52,7 +53,7 @@ def load_model():
     try:
         # Get model path
         model_path = Path("/app/model")
-        logger.info(f"📁 Loading model from: {model_path}")
+        logger.info("📁 Loading model from: %s", model_path)
         
         # Check if model files exist
         if not model_path.exists():
@@ -74,8 +75,8 @@ def load_model():
         model_loaded = True
         model_loading = False
         
-        logger.info(f"✅ Model loaded successfully on {device}")
-        logger.info(f"🎯 Supported emotions: {emotion_mapping}")
+        logger.info("✅ Model loaded successfully on %s", device)
+        logger.info("🎯 Supported emotions: %s", emotion_mapping)
         
     except Exception:
         model_loading = False
@@ -84,10 +85,8 @@ def load_model():
     finally:
         model_loading = False
 
-def predict_emotion(text):
-    """Predict emotion for given text"""
-    global model, tokenizer, emotion_mapping
-    
+def predict_emotion(text: str) -> Dict[str, Any]:
+    """Predict emotion for given text."""
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
@@ -116,16 +115,16 @@ def predict_emotion(text):
         "text": text
     }
 
-def ensure_model_loaded():
-    """Ensure model is loaded before processing requests"""
+def ensure_model_loaded() -> None:
+    """Ensure model is loaded before processing requests."""
     if not model_loaded and not model_loading:
         load_model()
     
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
-def create_error_response(message, status_code=500):
-    """Create standardized error response with request ID for debugging"""
+def create_error_response(message: str, status_code: int = 500) -> tuple[dict, int]:
+    """Create standardized error response with request ID for debugging."""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
     return jsonify({
@@ -134,28 +133,28 @@ def create_error_response(message, status_code=500):
     }), status_code
 
 @app.route('/', methods=['GET'])
-def root():
-    """Root endpoint"""
+def root() -> tuple[dict, int]:
+    """Root endpoint."""
     return jsonify({
         "message": "Hello from SAMO Emotion Detection API!",
         "status": "running",
         "timestamp": time.time()
-    })
+    }), 200
 
 @app.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint"""
+def health_check() -> tuple[dict, int]:
+    """Health check endpoint."""
     return jsonify({
         'status': 'healthy',
         'model_loaded': model_loaded,
         'model_loading': model_loading,
         'port': os.environ.get('PORT', '8080'),
         'timestamp': time.time()
-    })
+    }), 200
 
 @app.route('/predict', methods=['POST'])
-def predict():
-    """Predict emotion for given text"""
+def predict() -> tuple[dict, int]:
+    """Predict emotion for given text."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -178,14 +177,14 @@ def predict():
         
         # Make prediction
         result = predict_emotion(text)
-        return jsonify(result)
+        return jsonify(result), 200
     
     except Exception:
         return create_error_response('Prediction processing failed. Please try again later.')
 
 @app.route('/predict_batch', methods=['POST'])
-def predict_batch():
-    """Predict emotions for multiple texts"""
+def predict_batch() -> tuple[dict, int]:
+    """Predict emotions for multiple texts."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -212,14 +211,14 @@ def predict_batch():
             result = predict_emotion(text)
             results.append(result)
         
-        return jsonify({'results': results})
+        return jsonify({'results': results}), 200
     
     except Exception:
         return create_error_response('Batch prediction processing failed. Please try again later.')
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
-    """Get list of supported emotions"""
+    """Get list of supported emotions."""
     return jsonify({
         'emotions': EMOTION_MAPPING,
         'count': len(EMOTION_MAPPING)
@@ -227,7 +226,7 @@ def get_emotions():
 
 @app.route('/model_status', methods=['GET'])
 def model_status():
-    """Get detailed model status"""
+    """Get detailed model status."""
     return jsonify({
         'model_loaded': model_loaded,
         'model_loading': model_loading,
@@ -237,8 +236,8 @@ def model_status():
     })
 
 # Load model on startup
-def initialize_model():
-    """Initialize model before first request"""
+def initialize_model() -> None:
+    """Initialize model before first request."""
     try:
         load_model()
     except Exception:
@@ -274,12 +273,12 @@ if __name__ == '__main__':
     import gunicorn.app.base
     
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
-        def __init__(self, app, options=None):
-            self.options = options or {}
-            self.application = app
+        def __init__(self, local_app, local_options=None) -> None:
+            self.options = local_options or {}
+            self.application = local_app
             super().__init__()
         
-        def load_config(self):
+        def load_config(self) -> None:
             config = {key: value for key, value in self.options.items()
                      if key in self.cfg.settings and value is not None}
             for key, value in config.items():
@@ -301,4 +300,4 @@ if __name__ == '__main__':
         'loglevel': 'info'
     }
     
-    StandaloneApplication(app, options).run() 
+    StandaloneApplication(app, options).run()

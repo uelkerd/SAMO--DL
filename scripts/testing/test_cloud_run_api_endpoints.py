@@ -10,7 +10,7 @@ import time
 import sys
 import os
 import argparse
-from typing import Dict, Any, List
+from typing import Dict, Any, Optional
 import logging
 from test_config import create_api_client, create_test_config
 
@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class CloudRunAPITester:
-    def __init__(self, base_url: str = None):
+    def __init__(self, base_url: Optional[str] = None):
         config = create_test_config()
         self.base_url = base_url or config.base_url
         self.client = create_api_client()
@@ -66,7 +66,7 @@ class CloudRunAPITester:
         except requests.exceptions.RequestException as e:
             return {
                 "success": False,
-                "error": f"Health endpoint failed: {str(e)}"
+                "error": f"Health endpoint failed: {e!s}"
             }
 
     def _validate_emotion_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -91,7 +91,7 @@ class CloudRunAPITester:
             "response_time": 0.0  # Will be measured in performance test
         }
 
-    def _create_test_payload(self, text: str = None) -> Dict[str, str]:
+    def _create_test_payload(self, text: Optional[str] = None) -> Dict[str, str]:
         """Create a test payload for emotion detection"""
         if text is None:
             text = "I am feeling really happy and excited today!"
@@ -111,7 +111,7 @@ class CloudRunAPITester:
         except requests.exceptions.RequestException as e:
             return {
                 "success": False,
-                "error": f"Emotion detection failed: {str(e)}"
+                "error": f"Emotion detection failed: {e!s}"
             }
 
     def test_model_loading(self) -> Dict[str, Any]:
@@ -227,7 +227,7 @@ class CloudRunAPITester:
         for i in range(rate_limit_requests):
             try:
                 payload = {"text": f"Test request {i}"}
-                data = self.client.post("/predict", payload)
+                self.client.post("/predict", payload)
                 rapid_requests.append({
                     "request": i,
                     "success": True,
@@ -257,12 +257,12 @@ class CloudRunAPITester:
                     })
         
         # Check if any requests were rate limited (429 status)
-        rate_limited = any(r.get("status") == "rate_limited" for r in rapid_requests)
+        any(r.get("status") == "rate_limited" for r in rapid_requests)
         
         # Test security headers
         logger.info("Testing security headers...")
         try:
-            data = self.client.get("/")
+            self.client.get("/")
             # Note: We can't easily check headers with our client abstraction
             # This would need to be done with raw requests if needed
             security_headers = {
@@ -294,7 +294,7 @@ class CloudRunAPITester:
             try:
                 payload = {"text": text}
                 start_time = time.time()
-                data = self.client.post("/predict", payload)
+                self.client.post("/predict", payload)
                 end_time = time.time()
                 
                 performance_results.append({

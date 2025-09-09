@@ -1,33 +1,18 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # BCE loss
-        # Create data loaders
-        # Create focal loss
-        # Create model
-        # Create tokenized datasets
-        # Extract raw data
-        # Extract texts and labels from raw datasets
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-        import traceback
-    # Setup device
+# Extract texts and labels from raw datasets
+# Focal loss components
+# Load dataset
+# Setup optimizer
+# Training loop
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from transformers import AutoTokenizer
+import traceback
+# Setup device
 # Add project root to path
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from the current 13.2% to target >50%.
 from torch import nn
 import logging
 import os
@@ -49,7 +34,8 @@ This script implements focal loss training to improve F1 score
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -64,7 +50,9 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
 
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
@@ -97,7 +85,7 @@ def train_with_focal_loss():
         train_raw = datasets["train"]
         val_raw = datasets["validation"]
         test_raw = datasets["test"]
-        class_weights = datasets["class_weights"]
+        _ = datasets["class_weights"]
 
         train_texts = [item["text"] for item in train_raw]
         train_labels = [item["labels"] for item in train_raw]
@@ -112,7 +100,7 @@ def train_with_focal_loss():
 
         train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        test_dataset = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
+        _ = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
 
         logger.info("Dataset loaded successfully:")
         logger.info("   • Train: {len(train_dataset)} examples")
@@ -134,7 +122,7 @@ def train_with_focal_loss():
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
 
-        best_val_loss = float("in")
+        best_val_loss = float("inf")
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
@@ -187,7 +175,8 @@ def train_with_focal_loss():
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {"epoch": epoch + 1, "train_loss": avg_train_loss,
+                 "val_loss": avg_val_loss}
             )
 
             if avg_val_loss < best_val_loss:
@@ -218,7 +207,7 @@ def train_with_focal_loss():
         return True
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
+        logger.error("❌ Training failed: %s", e)
         traceback.print_exc()
         return False
 

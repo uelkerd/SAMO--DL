@@ -468,4 +468,4 @@ def create_fixed_bulletproof_notebook():
     print("  - Robust error handling")
 
 if __name__ == "__main__":
-    create_fixed_bulletproof_notebook() 
+    create_fixed_bulletproof_notebook()

@@ -6,8 +6,8 @@ Tests for refined anomaly detection and user agent analysis.
 """
 
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
 
 import unittest
 import time
@@ -251,4 +251,4 @@ class TestAnomalyDetection(unittest.TestCase):
         self.assertLess(processing_time, 1.0, f"Anomaly detection too slow: {processing_time:.3f}s")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

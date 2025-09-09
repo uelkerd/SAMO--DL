@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""
-Simplified ONNX-Based Emotion Detection API Server
-Uses simple string tokenization - no complex dependencies
+"""Simplified ONNX-Based Emotion Detection API Server.
+
+Uses simple string tokenization - no complex dependencies.
 """
 import logging
 import os
 import time
 import re
-from typing import Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, NoReturn, Optional, Tuple
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import argparse
 import threading
 
 import numpy as np
@@ -71,11 +76,18 @@ SIMPLE_VOCAB = {
 
 
 def load_vocab() -> Dict[str, int]:
-    """Load vocabulary from file or use simple fallback."""
+    """Load vocabulary from file or use simple fallback.
+
+    Attempts to load vocabulary from VOCAB_PATH environment variable.
+    Falls back to a predefined simple vocabulary if file is not found or loading fails.
+
+    Returns:
+        Dict[str, int]: Vocabulary mapping words to token IDs
+    """
     try:
-        if os.path.exists(VOCAB_PATH):
+        if Path(VOCAB_PATH).exists():
             vocab_dict = {}
-            with open(VOCAB_PATH, 'r', encoding='utf-8') as f:
+            with open(VOCAB_PATH, encoding='utf-8') as f:
                 for i, line in enumerate(f):
                     word = line.strip()
                     if word:
@@ -132,7 +144,17 @@ def preprocess_text(text: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 def load_onnx_model() -> ort.InferenceSession:
-    """Load ONNX model with optimized settings."""
+    """Load ONNX model with optimized settings.
+
+    Creates an optimized ONNX Runtime session with graph optimizations enabled
+    and single-threaded execution suitable for Cloud Run environment.
+
+    Returns:
+        ort.InferenceSession: Configured ONNX Runtime inference session
+
+    Raises:
+        Exception: If model loading fails due to file issues or ONNX runtime errors
+    """
     try:
         start_time = time.time()
 
@@ -216,7 +238,7 @@ def predict_emotions(text: str) -> Dict[str, any]:
         raise
 
 
-def initialize_model():
+def initialize_model() -> None:
     """Initialize model and vocabulary."""
     global model_session, vocab, model_loading
 
@@ -241,7 +263,7 @@ initialize_model()
 
 
 @app.route('/health', methods=['GET'])
-def health_check():
+def health_check() -> tuple[dict, int]:
     """Health check endpoint."""
     try:
         # Check model status
@@ -272,7 +294,7 @@ def health_check():
 
 
 @app.route('/predict', methods=['POST'])
-def predict():
+def predict() -> tuple[dict, int]:
     """Predict emotions from text."""
     start_time = time.time()
 
@@ -305,13 +327,13 @@ def predict():
 
 
 @app.route('/metrics', methods=['GET'])
-def metrics():
+def metrics() -> tuple[str, int, dict]:
     """Prometheus metrics endpoint."""
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
 
 @app.route('/', methods=['GET'])
-def root():
+def root() -> tuple[dict, int]:
     """Root endpoint with API information."""
     return jsonify({
         'service': 'SAMO Emotion Detection API',
@@ -331,19 +353,23 @@ if __name__ == '__main__':
         import gunicorn.app.base
 
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
-            def init(self, parser, opts, args):
+            """Standalone Gunicorn application for Flask."""
+            def init(self, parser: "argparse.ArgumentParser", opts: Dict[str, Any], args: List[str]) -> NoReturn:
                 """Initialize the application (abstract method override)."""
                 raise NotImplementedError()
-            def __init__(self, flask_app, gunicorn_options=None):
+            def __init__(self, flask_app: Flask, gunicorn_options: Optional[Dict[str, Any]] = None) -> None:
+                """Initialize the standalone Gunicorn application."""
                 self.options = gunicorn_options or {}
                 self.application = flask_app
                 super().__init__()
 
-            def load_config(self):
+            def load_config(self) -> None:
+                """Load Gunicorn configuration from options dictionary."""
                 for key, value in self.options.items():
                     self.cfg.set(key, value)
 
-            def load(self):
+            def load(self) -> Flask:
+                """Load the Flask application for Gunicorn."""
                 return self.application
 
         # Production configuration
@@ -362,4 +388,4 @@ if __name__ == '__main__':
 
     except ImportError:
         # Development server
-        app.run(host='127.0.0.1', port=8080, debug=False) 
+        app.run(host='127.0.0.1', port=8080, debug=False)

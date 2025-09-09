@@ -16,18 +16,28 @@ Performance Targets:
 - ROUGE Score: >0.4 for extractive quality
 """
 
-from .dataset_loader import SummarizationDataset, create_summarization_loader
-from .t5_summarizer import T5SummarizationModel, create_t5_summarizer
-from .training_pipeline import SummarizationTrainer, train_summarization_model
+# Only import what's actually needed for the API
+try:
+    from .t5_summarizer import create_t5_summarizer
+except ImportError:
+    create_t5_summarizer = None
+
+# Optional imports for training/development
+try:
+    from .dataset_loader import SummarizationDataset, create_summarization_loader
+except ImportError:
+    SummarizationDataset = None
+    create_summarization_loader = None
+
+try:
+    from .training_pipeline import SummarizationTrainer, train_summarization_model
+except ImportError:
+    SummarizationTrainer = None
+    train_summarization_model = None
 
 __version__ = "0.1.0"
 __author__ = "SAMO Deep Learning Team"
 
 __all__ = [
-    "SummarizationDataset",
-    "SummarizationTrainer",
-    "T5SummarizationModel",
-    "create_summarization_loader",
     "create_t5_summarizer",
-    "train_summarization_model",
 ]

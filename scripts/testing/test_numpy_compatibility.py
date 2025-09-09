@@ -43,7 +43,7 @@ def test_numpy_compatibility():
         
         # Test 4: Test basic transformers functionality
         try:
-            tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+            AutoTokenizer.from_pretrained("bert-base-uncased")
             logger.info("✅ Tokenizer loading successful")
         except Exception as e:
             logger.error(f"❌ Tokenizer loading failed: {e}")
@@ -59,4 +59,4 @@ def test_numpy_compatibility():
 if __name__ == "__main__":
     success = test_numpy_compatibility()
     if not success:
-        sys.exit(1) 
+        sys.exit(1)

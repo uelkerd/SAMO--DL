@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🔒 SECURE EMOTION DETECTION API SERVER
+"""🔒 SECURE EMOTION DETECTION API SERVER.
 ======================================
 Production-ready Flask API server with comprehensive security features.
 
@@ -28,10 +27,10 @@ from functools import wraps, lru_cache
 from typing import List, Tuple, Any, Dict
 
 # Import security components using relative imports
-from ..src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from ..src.input_sanitizer import InputSanitizer, SanitizationConfig
-from ..src.security_setup import setup_security_middleware, get_environment
-from ..src.inference.text_emotion_service import HFEmotionService  # type: ignore
+from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from src.input_sanitizer import InputSanitizer, SanitizationConfig
+from src.security_setup import setup_security_middleware, get_environment
+from src.inference.text_emotion_service import HFEmotionService
 
 # Import centralized constants with fallback for non-package environments
 try:
@@ -102,12 +101,12 @@ metrics = {
 
 metrics_lock = threading.Lock()
 
-def update_metrics(response_time, success=True, emotion=None, error_type=None, rate_limited=False, sanitization_warnings=0):
+def update_metrics(response_time, success=True, emotion=None, error_type=None, rate_limited=False, sanitization_warnings=0) -> None:
     """Update monitoring metrics."""
     with metrics_lock:
         metrics['total_requests'] += 1
         metrics['response_times'].append(response_time)
-        
+
         if rate_limited:
             metrics['rate_limited_requests'] += 1
         elif success:
@@ -118,10 +117,10 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None, r
             metrics['failed_requests'] += 1
             if error_type:
                 metrics['error_counts'][error_type] += 1
-        
+
         if sanitization_warnings > 0:
             metrics['sanitization_warnings'] += sanitization_warnings
-        
+
         # Update average response time
         if metrics['response_times']:
             metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
@@ -133,10 +132,10 @@ def secure_endpoint(f):
         start_time = time.time()
         client_ip = request.remote_addr
         user_agent = request.headers.get('User-Agent', '')
-        
+
         try:
             # Rate limiting
-            allowed, reason, rate_limit_meta = rate_limiter.allow_request(client_ip, user_agent)
+            allowed, reason, _ = rate_limiter.allow_request(client_ip, user_agent)
             if not allowed:
                 response_time = time.time() - start_time
                 update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)
@@ -146,7 +145,7 @@ def secure_endpoint(f):
                     'message': reason,
                     'retry_after': rate_limit_config.window_size_seconds
                 }), 429
-            
+
             # Content type validation
             if request.method == 'POST':
                 content_type = request.headers.get('Content-Type', '')
@@ -158,24 +157,24 @@ def secure_endpoint(f):
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
                     }), 400
-            
+
             # Process request
             result = f(*args, **kwargs)
-            
+
             # Release rate limit slot
             rate_limiter.release_request(client_ip, user_agent)
-            
+
             return result
-            
+
         except Exception as e:
             # Release rate limit slot on error
             rate_limiter.release_request(client_ip, user_agent)
-            
+
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.error(f"Endpoint error: {str(e)}")
+            logger.error(f"Endpoint error: {e!s}")
             return jsonify({'error': str(e)}), 500
-    
+
     return decorated_function
 
 
@@ -190,7 +189,7 @@ class _ClientError(Exception):
 
 
 class SecureEmotionDetectionModel:
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the secure emotion detection model."""
         # Resolve model directory (allow override via env var for tests/dev)
         default_model_dir = Path(__file__).resolve().parent.parent / 'model'
@@ -261,15 +260,15 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {str(e)}. Falling back to stub mode.")
+            logger.error("❌ Failed to load secure model: %s. Falling back to stub mode.", e)
             self.tokenizer = None
             self.model = None
             self.loaded = False
-        
+
     def predict(self, text, confidence_threshold=None):
         """Make a secure prediction."""
         start_time = time.time()
-        
+
         try:
             if not getattr(self, 'loaded', False):
                 raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
@@ -282,21 +281,21 @@ class SecureEmotionDetectionModel:
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
-                logger.warning(f"Sanitization warnings: {warnings}")
-            
+                logger.warning("Sanitization warnings: %s", warnings)
+
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-            
+
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
-            
+
             # Get prediction
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 probabilities = torch.softmax(outputs.logits, dim=1)
                 predicted_label = torch.argmax(probabilities, dim=1).item()
                 confidence = probabilities[0][predicted_label].item()
-                
+
                 # Apply confidence threshold if specified
                 if confidence_threshold and confidence < confidence_threshold:
                     predicted_emotion = "uncertain"
@@ -307,13 +306,13 @@ class SecureEmotionDetectionModel:
                     predicted_emotion = self.model.config.id2label[str(predicted_label)]
                 else:
                     predicted_emotion = f"unknown_{predicted_label}"
-                
+
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
-            
+
             prediction_time = time.time() - start_time
-            logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
-            
+            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
+
             # Create secure response
             return {
                 'text': sanitized_text,
@@ -336,10 +335,10 @@ class SecureEmotionDetectionModel:
                     'correlation_id': getattr(g, 'correlation_id', None)
                 }
             }
-            
+
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {str(e)}")
+            logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {e!s}")
             raise
 
 # Secure model factory for explicit creation and testability
@@ -377,7 +376,7 @@ EMOTION_PROVIDER = os.environ.get("EMOTION_PROVIDER", "hf").lower()
 _provider_registry = {}
 
 
-def register_provider(name, factory):
+def register_provider(name, factory) -> None:
     """Register a provider factory by name for emotion services."""
     _provider_registry[name] = factory
 
@@ -570,7 +569,7 @@ def _build_single_response(
 def health_check():
     """Secure health check endpoint."""
     start_time = time.time()
-    
+
     try:
         mdl = get_secure_model()
         response = {
@@ -593,16 +592,16 @@ def health_check():
                 'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2)
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
+        logger.error(f"Health check failed: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
@@ -610,7 +609,7 @@ def health_check():
 def predict():
     """Secure prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         # Parse and validate request data
         try:
@@ -620,28 +619,28 @@ def predict():
             update_metrics(response_time, success=False, error_type='invalid_json')
             logger.error(f"Invalid JSON in request from {request.remote_addr}")
             return jsonify({'error': 'Invalid JSON format'}), 400
-        
+
         if not data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_data')
             return jsonify({'error': 'No data provided'}), 400
-        
+
         # Sanitize and validate request
         try:
             sanitized_data, warnings = input_sanitizer.validate_emotion_request(data)
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Validation error: {str(e)} from {request.remote_addr}")
+            logger.warning(f"Validation error: {e!s} from {request.remote_addr}")
             return jsonify({'error': str(e)}), 400
-        
+
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected: {anomalies}")
             with metrics_lock:
                 metrics['security_violations'] += 1
-        
+
         # Make secure prediction
         model_instance = get_secure_model()
         if not getattr(model_instance, 'loaded', False):
@@ -650,25 +649,25 @@ def predict():
             sanitized_data['text'],
             confidence_threshold=sanitized_data.get('confidence_threshold')
         )
-        
+
         # Add sanitization warnings to response
         if warnings:
             result['security']['sanitization_warnings'] = warnings
-        
+
         response_time = time.time() - start_time
         update_metrics(
-            response_time, 
-            success=True, 
+            response_time,
+            success=True,
             emotion=result['predicted_emotion'],
             sanitization_warnings=len(warnings)
         )
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Secure prediction endpoint error: {str(e)}")
+        logger.error(f"Secure prediction endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
@@ -676,7 +675,7 @@ def predict():
 def predict_batch():
     """Secure batch prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         # Parse and validate request data
         try:
@@ -686,28 +685,28 @@ def predict_batch():
             update_metrics(response_time, success=False, error_type='invalid_json')
             logger.error(f"Invalid JSON in batch request from {request.remote_addr}")
             return jsonify({'error': 'Invalid JSON format'}), 400
-        
+
         if not data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_data')
             return jsonify({'error': 'No data provided'}), 400
-        
+
         # Sanitize and validate request
         try:
             sanitized_data, warnings = input_sanitizer.validate_batch_request(data)
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Batch validation error: {str(e)} from {request.remote_addr}")
+            logger.warning(f"Batch validation error: {e!s} from {request.remote_addr}")
             return jsonify({'error': str(e)}), 400
-        
+
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning(f"Security anomalies detected in batch: {anomalies}")
             with metrics_lock:
                 metrics['security_violations'] += 1
-        
+
         # Make secure batch predictions
         results = []
         model_instance = get_secure_model()
@@ -720,14 +719,14 @@ def predict_batch():
                     confidence_threshold=sanitized_data.get('confidence_threshold')
                 )
                 results.append(result)
-        
+
         response_time = time.time() - start_time
         update_metrics(
-            response_time, 
+            response_time,
             success=True,
             sanitization_warnings=len(warnings)
         )
-        
+
         return jsonify({
             'predictions': results,
             'count': len(results),
@@ -738,7 +737,7 @@ def predict_batch():
                 'correlation_id': getattr(g, 'correlation_id', None)
             }
         })
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(
@@ -930,13 +929,13 @@ def add_to_blacklist():
         data = request.get_json()
         if not data or 'ip' not in data:
             return jsonify({'error': 'IP address required'}), 400
-        
+
         ip = data['ip']
         rate_limiter.add_to_blacklist(ip)
         logger.info(f"Added {ip} to blacklist")
         return jsonify({'message': f'Added {ip} to blacklist'})
     except Exception as e:
-        logger.error(f"Blacklist error: {str(e)}")
+        logger.error(f"Blacklist error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
@@ -947,13 +946,13 @@ def add_to_whitelist():
         data = request.get_json()
         if not data or 'ip' not in data:
             return jsonify({'error': 'IP address required'}), 400
-        
+
         ip = data['ip']
         rate_limiter.add_to_whitelist(ip)
         logger.info(f"Added {ip} to whitelist")
         return jsonify({'message': f'Added {ip} to whitelist'})
     except Exception as e:
-        logger.error(f"Whitelist error: {str(e)}")
+        logger.error(f"Whitelist error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
@@ -961,7 +960,7 @@ def add_to_whitelist():
 def home():
     """Secure home endpoint with API documentation."""
     start_time = time.time()
-    
+
     try:
         response = {
             'message': 'Secure Emotion Detection API',
@@ -1008,35 +1007,35 @@ def home():
                 }
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
+        logger.error(f"Documentation endpoint error: {e!s}")
         return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
+    logger.error(f"BadRequest error: {e!s}")
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
 @app.errorhandler(404)
 def handle_not_found(e):
     """Handle 404 errors."""
-    logger.warning(f"404 error: {request.path} from {request.remote_addr}")
+    logger.warning(f"404 error: {request.path} from {request.remote_addr}, exception: {e}")
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)
 def handle_internal_error(e):
     """Handle 500 errors."""
-    logger.error(f"Internal server error: {str(e)}")
+    logger.error(f"Internal server error: {e!s}")
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
@@ -1066,8 +1065,8 @@ if __name__ == '__main__':
     logger.info("        -H 'Content-Type: application/json' \\")
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
-    logger.info(f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
+    logger.info("🔒 Rate limiting: %s requests per minute", rate_limit_config.requests_per_minute)
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
-    
-    app.run(host='0.0.0.0', port=8000, debug=False) 
+
+    app.run(host='127.0.0.1', port=8000, debug=False)

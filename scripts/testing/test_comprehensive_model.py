@@ -46,7 +46,7 @@ def test_comprehensive_model():
         return
     
     # 2. Analyze configuration
-    print(f"\n📋 COMPREHENSIVE MODEL CONFIGURATION")
+    print("\n📋 COMPREHENSIVE MODEL CONFIGURATION")
     print("-" * 40)
     
     print(f"Model type: {model.config.model_type}")
@@ -62,7 +62,7 @@ def test_comprehensive_model():
         print(f"label2id: {model.config.label2id}")
     
     # 3. Verify emotion classes
-    print(f"\n🎯 EMOTION CLASSES VERIFICATION")
+    print("\n🎯 EMOTION CLASSES VERIFICATION")
     print("-" * 40)
     
     expected_emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
@@ -90,7 +90,7 @@ def test_comprehensive_model():
         return
     
     # 4. Test model architecture
-    print(f"\n🏗️ MODEL ARCHITECTURE TEST")
+    print("\n🏗️ MODEL ARCHITECTURE TEST")
     print("-" * 40)
     
     test_input = tokenizer("I feel happy today", return_tensors='pt', truncation=True, padding=True)
@@ -110,7 +110,7 @@ def test_comprehensive_model():
             return
     
     # 5. Comprehensive inference test
-    print(f"\n🧪 COMPREHENSIVE INFERENCE TEST")
+    print("\n🧪 COMPREHENSIVE INFERENCE TEST")
     print("-" * 40)
     
     # Test cases covering all emotions with various intensities and contexts
@@ -209,7 +209,7 @@ def test_comprehensive_model():
         print()
     
     # 6. Performance analysis
-    print(f"\n📊 PERFORMANCE ANALYSIS")
+    print("\n📊 PERFORMANCE ANALYSIS")
     print("-" * 40)
     
     accuracy = correct_predictions / len(test_cases) * 100
@@ -225,7 +225,7 @@ def test_comprehensive_model():
     print(f"Low confidence predictions (<0.5): {sum(1 for c in confidence_scores if c < 0.5)}/{len(test_cases)}")
     
     # 7. Compare with fallback model
-    print(f"\n🔄 COMPARISON WITH FALLBACK MODEL")
+    print("\n🔄 COMPARISON WITH FALLBACK MODEL")
     print("-" * 40)
     
     try:
@@ -264,11 +264,11 @@ def test_comprehensive_model():
         fallback_accuracy = fallback_correct / 12 * 100
         fallback_avg_confidence = fallback_confidence / 12
         
-        print(f"Comprehensive Model (36 cases):")
+        print("Comprehensive Model (36 cases):")
         print(f"  Accuracy: {accuracy:.2f}%")
         print(f"  Average confidence: {average_confidence:.3f}")
         print()
-        print(f"Fallback Model (12 cases):")
+        print("Fallback Model (12 cases):")
         print(f"  Accuracy: {fallback_accuracy:.2f}%")
         print(f"  Average confidence: {fallback_avg_confidence:.3f}")
         print()
@@ -289,7 +289,7 @@ def test_comprehensive_model():
         print(f"⚠️ Could not compare with fallback model: {e}")
     
     # 8. Configuration persistence verification
-    print(f"\n🔍 CONFIGURATION PERSISTENCE VERIFICATION")
+    print("\n🔍 CONFIGURATION PERSISTENCE VERIFICATION")
     print("-" * 40)
     
     # Check if all critical configuration is preserved
@@ -315,7 +315,7 @@ def test_comprehensive_model():
         print("❌ Configuration persistence issues detected!")
     
     # 9. Final assessment
-    print(f"\n🎯 FINAL ASSESSMENT")
+    print("\n🎯 FINAL ASSESSMENT")
     print("-" * 40)
     
     print("Configuration Status:")
@@ -346,7 +346,7 @@ def test_comprehensive_model():
         print("❌ Low confidence predictions")
     
     # 10. Summary
-    print(f"\n📋 SUMMARY")
+    print("\n📋 SUMMARY")
     print("-" * 40)
     
     print("✅ Comprehensive model loads successfully")
@@ -363,13 +363,13 @@ def test_comprehensive_model():
         print("❌ Configuration persistence issues need attention")
     
     # 11. Update model metadata
-    print(f"\n📝 UPDATING MODEL METADATA")
+    print("\n📝 UPDATING MODEL METADATA")
     print("-" * 40)
     
     metadata_path = os.path.join(comprehensive_model_path, "model_metadata.json")
     if os.path.exists(metadata_path):
         try:
-            with open(metadata_path, 'r') as f:
+            with open(metadata_path) as f:
                 metadata = json.load(f)
             
             # Update with test results
@@ -388,8 +388,8 @@ def test_comprehensive_model():
         except Exception as e:
             print(f"⚠️ Could not update metadata: {e}")
     
-    print(f"\n🎉 COMPREHENSIVE MODEL TESTING COMPLETE!")
+    print("\n🎉 COMPREHENSIVE MODEL TESTING COMPLETE!")
     print("=" * 60)
 
 if __name__ == "__main__":
-    test_comprehensive_model() 
+    test_comprehensive_model()

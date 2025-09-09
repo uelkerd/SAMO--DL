@@ -30,7 +30,7 @@ test_image() {
     echo -e "${BLUE}Testing: ${description}${NC}"
     echo "Command: gcloud compute images list ${image_spec}"
 
-    if gcloud compute images list ${image_spec} --project=${PROJECT_ID} --limit=1 --quiet &>/dev/null; then
+    if gcloud compute images list "${image_spec}" --project="${PROJECT_ID}" --limit=1 --quiet &>/dev/null; then
         echo -e "${GREEN}✅ WORKING: ${description}${NC}"
         return 0
     else

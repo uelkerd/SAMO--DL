@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""
-T5-based Text Summarization for SAMO Deep Learning.
+"""T5-based Text Summarization for SAMO Deep Learning.
 
 This module provides T5-based text summarization capabilities for
 journal entries and other text content.
 """
 
 import logging
+import os
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset
 from transformers import (
     AutoModelForSeq2SeqLM,
@@ -79,8 +79,8 @@ class SummarizationDataset(Dataset):
 
         assert len(texts) == len(summaries), "Texts and summaries must have same length"
         logger.info(
-            "Initialized SummarizationDataset with {len(texts)} examples",
-            extra={"format_args": True},
+            "Initialized SummarizationDataset with %s examples",
+            len(texts)
         )
 
     def __len__(self) -> int:
@@ -143,27 +143,52 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+            "Initializing %s summarization model...",
+            self.model_name
         )
 
-        if "bart" in self.model_name.lower():
-            self.tokenizer = BartTokenizer.from_pretrained(self.model_name)
-            self.model = BartForConditionalGeneration.from_pretrained(self.model_name)
-        elif "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
+        # Use cache directory from environment, check if exists and is writable
+        cache_dir_env = os.environ.get('HF_HOME', '/app/models')
+        if os.path.isdir(cache_dir_env) and os.access(cache_dir_env, os.W_OK):
+            cache_dir = cache_dir_env
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
+            logging.warning(
+                "Cache directory '%s' does not exist or is not writable. "
+                "Using default HuggingFace cache directory.",
+                cache_dir_env
+            )
+            cache_dir = None
+
+        if "bart" in self.model_name.lower():
+            self.tokenizer = BartTokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = BartForConditionalGeneration.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+        elif "t5" in self.model_name.lower():
+            self.tokenizer = T5Tokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = T5ForConditionalGeneration.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(
+                self.model_name, cache_dir=cache_dir
+            )
 
         self.model.to(self.device)
 
         self.num_parameters = self.model.num_parameters()
         logger.info(
-            "Loaded {self.model_name} with {self.num_parameters:,} parameters",
-            extra={"format_args": True},
+            "Loaded %s with %s parameters",
+            self.model_name, self.num_parameters
         )
-        logger.info("Model device: {self.device}", extra={"format_args": True})
+        logger.info("Model device: %s", self.device)
 
     def forward(
         self,
@@ -257,6 +282,17 @@ class T5SummarizationModel(nn.Module):
         )
 
         return summary.strip()
+
+    def summarize(self, text: str) -> str:
+        """Generate summary using the configured model.
+
+        Args:
+            text: Input text to summarize
+
+        Returns:
+            Generated summary text
+        """
+        return self.generate_summary(text)
 
     def generate_batch_summaries(
         self, texts: List[str], batch_size: int = 4, **generation_kwargs
@@ -376,7 +412,7 @@ def create_t5_summarizer(
     )
 
     model = T5SummarizationModel(config)
-    logger.info("Created {model_name} summarization model", extra={"format_args": True})
+    logger.info("Created %s summarization model", model_name)
 
     return model
 
@@ -394,24 +430,31 @@ def test_summarization_model() -> None:
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for %s journal entries...",
+        len(test_texts)
     )
 
     for _i, text in enumerate(test_texts, 1):
-        model.generate_summary(text)
+        summary = model.generate_summary(text)
 
-        logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info("\n--- Journal Entry %s ---", _i)
+        logger.info(
+            "Original (%s chars): %s...",
+            len(text), text[:100]
+        )
+        logger.info(
+            "Summary (%s chars): %s",
+            len(summary), summary
+        )
 
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
 
     for _i, _summary in enumerate(batch_summaries, 1):
-        logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
+        logger.info("Batch Summary %s: %s", _i, _summary)
 
-    model.get_model_info()
-    logger.info("\nModel Info: {info}", extra={"format_args": True})
+    info = model.get_model_info()
+    logger.info("\nModel Info: %s", info)
 
     logger.info("✅ T5 summarization model test complete!")
 

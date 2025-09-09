@@ -9,12 +9,13 @@ Tests the secure model loading functionality including:
 - Audit logging
 """
 
+from pathlib import Path
 import os
 import tempfile
 import unittest
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from src.models.secure_loader import (
     SecureModelLoader,
@@ -60,7 +61,7 @@ class TestIntegrityChecker(unittest.TestCase):
     def setUp(self):
         self.checker = IntegrityChecker()
         self.temp_dir = tempfile.mkdtemp()
-        self.test_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.test_file = Path(self.temp_dir) / "test_model.pt"
         
         # Create a simple test model
         model = TestModel()
@@ -260,15 +261,12 @@ class TestSecureModelLoader(unittest.TestCase):
             'hidden_dropout_prob': 0.1
         }
         
-        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.model_file = Path(self.temp_dir) / "test_model.pt"
         torch.save({
             'state_dict': self.test_model.state_dict(),
             'config': self.test_config,
             'model_name': 'BERTEmotionClassifier'  # Add model_name at top level
-        }, self.model_file)
-        
-        # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
+        }, str(self.model_file))
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
@@ -375,14 +373,11 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             'hidden_dropout_prob': 0.1
         }
         
-        self.model_file = os.path.join(self.temp_dir, "test_model.pt")
+        self.model_file = Path(self.temp_dir) / "test_model.pt"
         torch.save({
             'state_dict': self.test_model.state_dict(),
             'config': self.test_config
-        }, self.model_file)
-        
-        # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
+        }, str(self.model_file))
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
@@ -432,7 +427,7 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         
         # Attempt to load corrupted model
         try:
-            model, info = self.loader.load_model(
+            model, _ = self.loader.load_model(
                 corrupted_model_file,
                 TestModel,
                 input_size=10,
@@ -483,14 +478,14 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         )
         
         # Check audit log file exists
-        audit_log_path = os.path.join(self.temp_dir, "audit.log")
-        self.assertTrue(os.path.exists(audit_log_path))
+        audit_log_path = Path(self.temp_dir) / "audit.log"
+        self.assertTrue(audit_log_path.exists())
         
         # Check audit log contains entries
-        with open(audit_log_path, 'r') as f:
+        with open(audit_log_path) as f:
             log_content = f.read()
             self.assertIn('AUDIT:', log_content)
 
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

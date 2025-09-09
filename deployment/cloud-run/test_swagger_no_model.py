@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""
-Test Swagger docs without model dependencies
-"""
+"""Test Swagger docs without model dependencies."""
 
 import os
 from flask import Flask, jsonify
 from flask_restx import Api, Resource, Namespace
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
+admin_key = os.environ.get('ADMIN_API_KEY') or 'test-key-123'  # skipcq: SCT-A000
+os.environ['ADMIN_API_KEY'] = admin_key
 os.environ['MAX_INPUT_LENGTH'] = '512'
 os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
 os.environ['MODEL_PATH'] = '/app/model'
@@ -38,18 +37,11 @@ api.add_namespace(main_ns)
 # Test endpoint
 @main_ns.route('/health')
 class Health(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         return {'status': 'healthy'}
 
 if __name__ == '__main__':
-    print("=== Routes ===")
-    for rule in app.url_map.iter_rules():
-        print(f"{rule.rule} -> {rule.endpoint}")
     
-    print("\n=== Starting test server ===")
-    print("Test these endpoints:")
-    print("- http://localhost:8083/ (should work)")
-    print("- http://localhost:8083/docs (should work)")
-    print("- http://localhost:8083/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8083)), debug=False)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8083)), debug=False)  # Debug mode disabled for security

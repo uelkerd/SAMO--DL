@@ -1,36 +1,11 @@
-                    # The labels field contains a list of integer indices
-                    # The labels field contains a list of integer indices
-            # Backward pass
-            # Check for 0.0000 loss
-            # Create dummy inputs
-            # Create dummy inputs (in real implementation, use proper tokenization)
-            # Create dummy tensors for validation
-            # Forward pass
-            # Forward pass
-            # Get labels - FIXED: labels are lists, not dict keys
-            # Get labels from batch - FIXED: labels are lists, not dict keys
-            # Log every 50 batches
-        # Apply alpha weighting
-        # Apply sigmoid to get probabilities
-        # Calculate BCE loss
-        # Calculate focal loss
-        # Create optimized components
-        # Epoch summary
-        # Train model
-        # Training loop (simplified for validation)
-        # Validate before training
-        # Validation
-    # Create focal loss
-    # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
-    # Load data to get class weights
-    # Load dataset
-    # Set positive labels to 1
-    # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+# Create simple data loaders (we'll implement proper batching later)
+# Create zero tensor
+# Load data to get class weights
+# Load dataset
+# Set positive labels to 1
+# Use different learning rates for different layers
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -95,10 +70,9 @@ class FocalLoss(nn.Module):
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
@@ -221,10 +195,10 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
 
             labels = torch.zeros(batch_size, 28)
             for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                if _j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
-                    labels[j] = label_tensor
+                    labels[_j] = label_tensor
 
             logits = model(input_ids, attention_mask)
             loss = loss_fn(logits, labels)
@@ -239,12 +213,11 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
     if avg_loss <= 0:
         logger.error("❌ CRITICAL: Validation loss is zero or negative!")
         return {"loss": avg_loss, "status": "failed"}
-    elif avg_loss < 0.1:
+    if avg_loss < 0.1:
         logger.warning("⚠️  Very low validation loss - check for overfitting")
         return {"loss": avg_loss, "status": "warning"}
-    else:
-        logger.info("✅ Validation loss is reasonable")
-        return {"loss": avg_loss, "status": "success"}
+    logger.info("✅ Validation loss is reasonable")
+    return {"loss": avg_loss, "status": "success"}
 
 
 def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer,
@@ -273,10 +246,10 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
 
             labels = torch.zeros(batch_size, 28)
             for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                if _j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
-                    labels[j] = label_tensor
+                    labels[_j] = label_tensor
 
             optimizer.zero_grad()
             logits = model(input_ids, attention_mask)
@@ -296,12 +269,18 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
 
             if num_batches % 50 == 0:
                 avg_loss = epoch_loss / num_batches
-                logger.info("   Batch {num_batches}: Loss = {avg_loss:.6f}")
+                logger.info(
+                    "   Batch %s: Loss = %.6f",
+                    num_batches, avg_loss
+                )
 
         avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float('in')
         training_history.append(avg_epoch_loss)
 
-        logger.info("✅ Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
+        logger.info(
+            "✅ Epoch %s complete: Loss = %.6f",
+            epoch + 1, avg_epoch_loss
+        )
 
         val_results = validate_model(model, loss_fn, val_data, num_samples=100)
 
@@ -352,12 +331,11 @@ def main():
             logger.info("   Final loss: {training_results['final_loss']:.6f}")
             logger.info("   Ready for production deployment!")
             return True
-        else:
-            logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
-            return False
+        logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
+        return False
 
     except Exception as e:
-        logger.error("❌ Training error: {e}")
+        logger.error("❌ Training error: %s", e)
         return False
 
 

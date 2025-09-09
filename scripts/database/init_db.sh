@@ -42,10 +42,10 @@ fi
 
 # Connect and initialize pgvector extension
 echo "Installing pgvector extension..."
-psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS vector;" || echo "Failed to create vector extension. Make sure it's installed."
+psql -d "${DB_NAME}" -c "CREATE EXTENSION IF NOT EXISTS vector;" || echo "Failed to create vector extension. Make sure it's installed."
 
 # Apply schema
 echo "Applying database schema..."
-psql -d ${DB_NAME} -f "$(dirname "$0")/schema.sql"
+psql -d "${DB_NAME}" -f "$(dirname "$0")/schema.sql"
 
 echo "Database setup complete!"

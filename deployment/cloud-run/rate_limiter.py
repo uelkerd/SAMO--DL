@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
-"""Rate Limiter for Flask API"""
+"""Rate Limiter for Flask API."""
 
 import time
 import threading
 from collections import defaultdict, deque
+import flask
 from flask import request, jsonify
+from flask.typing import ResponseValue
 from functools import wraps
+from typing import Any, Callable
 
 class RateLimiter:
-    def __init__(self, requests_per_minute: int = 100):
+    """Thread-safe rate limiter using sliding window algorithm."""
+    def __init__(self, requests_per_minute: int = 100) -> None:
+        """Initialize the rate limiter with specified requests per minute."""
         self.requests_per_minute = requests_per_minute
         self.requests = defaultdict(lambda: deque(maxlen=requests_per_minute))
         self.lock = threading.Lock()
 
     def is_allowed(self, client_id: str) -> bool:
-        """Check if request is allowed"""
+        """Check if request is allowed."""
         current_time = time.time()
 
         with self.lock:
@@ -31,23 +36,23 @@ class RateLimiter:
             return False
 
     @staticmethod
-    def get_client_id(request) -> str:
-        """Get client identifier"""
+    def get_client_id(flask_request: 'flask.Request') -> str:
+        """Get client identifier."""
         # Try API key first
-        api_key = request.headers.get('X-API-Key')
+        api_key = flask_request.headers.get('X-API-Key')
         if api_key:
             return f"api_key:{api_key}"
 
         # Fall back to IP address
-        return f"ip:{request.remote_addr}"
+        return f"ip:{flask_request.remote_addr}"
 
-def rate_limit(requests_per_minute: int = 100):
-    """Rate limiting decorator"""
+def rate_limit(requests_per_minute: int = 100) -> Callable:
+    """Rate limiting decorator."""
     limiter = RateLimiter(requests_per_minute)
 
-    def decorator(f):
+    def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> ResponseValue:
             client_id = limiter.get_client_id(request)
 
             if not limiter.is_allowed(client_id):

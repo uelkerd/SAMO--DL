@@ -13,7 +13,7 @@ def fix_imports():
     """Add missing imports to the ultimate notebook."""
     
     # Read the existing notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
         notebook = json.load(f)
     
     # Find the imports cell and update it
@@ -50,4 +50,4 @@ def fix_imports():
     print('   ✅ CUDA availability check')
 
 if __name__ == "__main__":
-    fix_imports() 
+    fix_imports()

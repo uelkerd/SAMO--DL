@@ -45,7 +45,8 @@ print_status "Current directory: $(pwd)"
 PYTHON_VERSION=$(python3 --version 2>&1 | grep -oE '[0-9]+\.[0-9]+')
 print_status "Python version: $PYTHON_VERSION"
 
-if [ "$(echo "$PYTHON_VERSION >= 3.8" | bc -l 2>/dev/null || echo "0")" -eq 0 ]; then
+# Compare Python version without bc dependency using awk
+if [[ $(awk "BEGIN { if ($PYTHON_VERSION >= 3.8) print 1; else print 0 }") -eq 0 ]]; then
     print_warning "Python 3.8+ is recommended for optimal performance"
 fi
 

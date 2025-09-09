@@ -42,7 +42,7 @@ def create_mock_results():
         "go_samples": 43410,
         "journal_samples": 150,
         "all_emotions": [
-            "anxious", "calm", "content", "excited", "frustrated", 
+            "anxious", "calm", "content", "excited", "frustrated",
             "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
         ],
         "emotion_mapping": {
@@ -101,7 +101,7 @@ def find_model_file():
             # Copy to current directory if not already here
             if location != "best_simple_model.pth":
                 shutil.copy2(location, "best_simple_model.pth")
-                print(f"✅ Copied to: best_simple_model.pth")
+                print("✅ Copied to: best_simple_model.pth")
             
             return True
     
@@ -165,4 +165,4 @@ if __name__ == "__main__":
         print("\n🎉 Ready to test the model!")
         print("📋 Run: python scripts/test_emotion_model.py")
     else:
-        print("\n❌ Setup failed. Please check the issues above.") 
+        print("\n❌ Setup failed. Please check the issues above.")

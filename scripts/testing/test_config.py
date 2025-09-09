@@ -28,8 +28,8 @@ class TestConfig:
             return args.base_url.rstrip('/')
         
         # Check multiple environment variables for flexibility
-        env_url = (os.environ.get("API_BASE_URL") or 
-                  os.environ.get("CLOUD_RUN_API_URL") or 
+        env_url = (os.environ.get("API_BASE_URL") or
+                  os.environ.get("CLOUD_RUN_API_URL") or
                   os.environ.get("MODEL_API_BASE_URL"))
         
         if env_url:
@@ -86,9 +86,9 @@ class APIClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            raise requests.exceptions.RequestException(f"GET {endpoint} failed: {str(e)}")
+            raise requests.exceptions.RequestException(f"GET {endpoint} failed: {e!s}")
         except ValueError as e:
-            raise ValueError(f"Invalid JSON response from {endpoint}: {str(e)}")
+            raise ValueError(f"Invalid JSON response from {endpoint}: {e!s}")
     
     def post(self, endpoint: str, data: dict, **kwargs) -> dict:
         """Make POST request with consistent error handling"""
@@ -102,9 +102,9 @@ class APIClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            raise requests.exceptions.RequestException(f"POST {endpoint} failed: {str(e)}")
+            raise requests.exceptions.RequestException(f"POST {endpoint} failed: {e!s}")
         except ValueError as e:
-            raise ValueError(f"Invalid JSON response from {endpoint}: {str(e)}")
+            raise ValueError(f"Invalid JSON response from {endpoint}: {e!s}")
 
 
 def create_test_config() -> TestConfig:
@@ -115,4 +115,4 @@ def create_test_config() -> TestConfig:
 def create_api_client() -> APIClient:
     """Factory function to create API client"""
     config = create_test_config()
-    return APIClient(config) 
+    return APIClient(config)

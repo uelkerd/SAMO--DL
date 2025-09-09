@@ -30,7 +30,8 @@ COPY deployment/docker/requirements-api-optimized.txt ./requirements.txt
 RUN python -m pip install --upgrade "pip==24.2" "setuptools==72.2.0"
 
 # Install Python dependencies with CPU-only PyTorch
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    echo "✓ Python dependencies installed successfully"
 
 # Copy the actual production code from the PRs
 COPY deployment/cloud-run/secure_api_server.py .
@@ -38,14 +39,40 @@ COPY deployment/cloud-run/model_utils.py .
 COPY deployment/cloud-run/security_headers.py .
 COPY deployment/cloud-run/rate_limiter.py .
 
-# Pre-download the model during build to avoid OOM during startup
+# Copy source model files for T5 and Whisper
+RUN mkdir -p ./src/models/summarization ./src/models/voice_processing ./src/models/emotion_detection
+COPY src/models/summarization/t5_summarizer.py ./src/models/summarization/
+COPY src/models/summarization/__init__.py ./src/models/summarization/
+COPY src/models/voice_processing/whisper_transcriber.py ./src/models/voice_processing/
+COPY src/models/voice_processing/__init__.py ./src/models/voice_processing/
+COPY src/models/emotion_detection/labels.py ./src/models/emotion_detection/
+COPY src/constants.py ./src/
+COPY src/__init__.py ./src/
+
+# Pre-download the models during build to avoid OOM during startup
 RUN mkdir -p /app/models && \
+    echo "Starting model downloads..." && \
+    # Download emotion detection model with progress
     python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
     model_name='j-hartmann/emotion-english-distilroberta-base'; \
-    print(f'Pre-downloading model {model_name}...'); \
+    print(f'Downloading emotion model {model_name}...'); \
     AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
     AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models'); \
-    print('Model pre-downloaded successfully');"
+    print('✓ Emotion model downloaded successfully');" && \
+    # Download T5 summarization model with progress
+    python -c "from transformers import T5Tokenizer, T5ForConditionalGeneration; \
+    model_name='t5-small'; \
+    print(f'Downloading T5 model {model_name}...'); \
+    T5Tokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
+    T5ForConditionalGeneration.from_pretrained(model_name, cache_dir='/app/models'); \
+    print('✓ T5 model downloaded successfully');" && \
+    # Download Whisper transcription model with progress
+    python -c "import whisper; \
+    model_size='base'; \
+    print(f'Downloading Whisper model {model_size}...'); \
+    whisper.load_model(model_size, download_root='/app/models'); \
+    print('✓ Whisper model downloaded successfully');" && \
+    echo "All models downloaded successfully!"
 
 # Create non-root user for security (Cloud Run best practice)
 RUN useradd -m -u 1000 appuser && \

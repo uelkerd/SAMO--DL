@@ -32,7 +32,7 @@ def reorganize_model_directory():
         print(f"✅ Created models directory: {models_dir}")
     
     # 1. Save current model as model_1 (fallback)
-    print(f"\n💾 SAVING CURRENT MODEL AS FALLBACK")
+    print("\n💾 SAVING CURRENT MODEL AS FALLBACK")
     print("-" * 40)
     
     if os.path.exists(current_model_path):
@@ -77,7 +77,7 @@ def reorganize_model_directory():
         return
     
     # 2. Create default model directory structure
-    print(f"\n📂 CREATING DEFAULT MODEL STRUCTURE")
+    print("\n📂 CREATING DEFAULT MODEL STRUCTURE")
     print("-" * 40)
     
     if os.path.exists(default_model_path):
@@ -121,7 +121,7 @@ def reorganize_model_directory():
     print(f"✅ Created default model metadata: {default_metadata_path}")
     
     # 3. Create models index file
-    print(f"\n📋 CREATING MODELS INDEX")
+    print("\n📋 CREATING MODELS INDEX")
     print("-" * 40)
     
     models_index = {
@@ -152,7 +152,7 @@ def reorganize_model_directory():
     print(f"✅ Created models index: {index_path}")
     
     # 4. Create README for models directory
-    print(f"\n📖 CREATING MODELS README")
+    print("\n📖 CREATING MODELS README")
     print("-" * 40)
     
     readme_content = """# Model Versions
@@ -174,7 +174,7 @@ models/
 - **Version**: 1.0
 - **Status**: Ready for deployment
 - **Performance**: 91.67% test accuracy
-- **Features**: 
+- **Features**:
   - Configuration persistence fix
   - DistilRoBERTa architecture
   - 12 emotion classes
@@ -229,7 +229,7 @@ Each model directory contains:
     print(f"✅ Created models README: {readme_path}")
     
     # 5. Create symlink for easy access
-    print(f"\n🔗 CREATING SYMLINKS")
+    print("\n🔗 CREATING SYMLINKS")
     print("-" * 40)
     
     # Create symlink from deployment/model to default model
@@ -254,17 +254,17 @@ Each model directory contains:
         print(f"   You can manually link {symlink_path} to {default_model_path}")
     
     # 6. Summary
-    print(f"\n📋 REORGANIZATION SUMMARY")
+    print("\n📋 REORGANIZATION SUMMARY")
     print("=" * 50)
     
     print("✅ Model directory reorganized successfully!")
     print()
     print("📁 New Structure:")
     print(f"   {models_dir}/")
-    print(f"   ├── model_1_fallback/     # Your working model (91.67% accuracy)")
-    print(f"   ├── default/              # Ready for comprehensive model")
-    print(f"   ├── models_index.json     # Model registry")
-    print(f"   └── README.md             # Documentation")
+    print("   ├── model_1_fallback/     # Your working model (91.67% accuracy)")
+    print("   ├── default/              # Ready for comprehensive model")
+    print("   ├── models_index.json     # Model registry")
+    print("   └── README.md             # Documentation")
     print()
     print("🎯 Next Steps:")
     print("   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
@@ -278,4 +278,4 @@ Each model directory contains:
     print("   - Clear versioning and documentation")
 
 if __name__ == "__main__":
-    reorganize_model_directory() 
+    reorganize_model_directory()

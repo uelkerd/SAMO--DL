@@ -6,7 +6,7 @@ from string import Template
 
 
 def _read(path: str) -> str:
-    with open(path, 'r') as f:
+    with open(path) as f:
         return f.read()
 
 

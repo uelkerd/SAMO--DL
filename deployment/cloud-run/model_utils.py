@@ -1,5 +1,4 @@
-"""
-Shared model utilities for Cloud Run deployment with Hugging Face emotion model.
+"""Shared model utilities for Cloud Run deployment with Hugging Face emotion model.
 
 This module provides common functionality for model loading, inference,
 and error handling to eliminate code duplication between API servers.
@@ -7,6 +6,7 @@ and error handling to eliminate code duplication between API servers.
 
 import logging
 import os
+from pathlib import Path
 import threading
 import time
 from typing import Dict, List, Optional, Tuple, Any
@@ -49,7 +49,7 @@ EMOTION_LABELS = [
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
 
 
-def _create_emotion_pipeline(tokenizer, model) -> TextClassificationPipeline:
+def _create_emotion_pipeline(tokenizer: AutoTokenizer, model: AutoModelForSequenceClassification) -> TextClassificationPipeline:
     """Create an emotion text-classification pipeline from tokenizer and model.
 
     Args:
@@ -84,13 +84,7 @@ def _validate_and_prepare_texts(
     valid_indices = []
 
     for i, text in enumerate(texts):
-        if not isinstance(text, str):
-            results[i] = {
-                'error': 'Text must be a non-empty string',
-                'emotions': [],
-                'confidence': 0.0
-            }
-        elif not text.strip():
+        if not isinstance(text, str) or not text.strip():
             results[i] = {
                 'error': 'Text must be a non-empty string',
                 'emotions': [],
@@ -135,7 +129,7 @@ def ensure_model_loaded() -> bool:
         logger.info("🔄 Loading emotion model from: %s", EMOTION_MODEL_DIR)
 
         # Check if local model directory exists
-        if EMOTION_LOCAL_ONLY and os.path.isdir(EMOTION_MODEL_DIR):
+        if EMOTION_LOCAL_ONLY and Path(EMOTION_MODEL_DIR).is_dir():
             # Load from local directory
             logger.info("📁 Loading from local model directory: %s",
                         EMOTION_MODEL_DIR)
@@ -205,8 +199,7 @@ def ensure_model_loaded() -> bool:
 
 
 def predict_emotions(text: str) -> Dict[str, Any]:
-    """
-    Predict emotions for given text using the emotion model.
+    """Predict emotions for given text using the emotion model.
 
     Args:
         text (str): Input text to analyze
@@ -344,8 +337,7 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
 
 
 def validate_text_input(text: str) -> Tuple[bool, str]:
-    """
-    Validate text input for prediction.
+    """Validate text input for prediction.
 
     Args:
         text (str): Text to validate

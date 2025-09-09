@@ -205,14 +205,18 @@ class WhisperTranscriber:
         logger.info("Device: {self.device}", extra={"format_args": True})
 
         try:
-            self.model = whisper.load_model(self.config.model_size, device=self.device)
+            # Use cache directory from environment
+            cache_dir = os.environ.get('HF_HOME', '/app/models')
+            self.model = whisper.load_model(
+                self.config.model_size, device=self.device, download_root=cache_dir
+            )
             logger.info(
                 "✅ Whisper {self.config.model_size} model loaded successfully",
                 extra={"format_args": True},
             )
 
         except Exception as exc:
-            logger.error(f"❌ Failed to load Whisper model: {exc}")
+            logger.error("❌ Failed to load Whisper model: %s", exc)
             raise RuntimeError(f"Whisper model loading failed: {exc}")
 
         self.preprocessor = AudioPreprocessor()
@@ -262,7 +266,7 @@ class WhisperTranscriber:
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
             processing_time = time.time() - start_time
-            word_count = len(result["text"].split())
+            word_count = len(result.text.split())
             speaking_rate = (
                 (word_count / audio_metadata["duration"]) * 60
                 if audio_metadata["duration"] > 0
@@ -271,19 +275,28 @@ class WhisperTranscriber:
 
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
-            confidence = self._calculate_confidence(result.get("segments", []))
+            # Defensive check for segments to prevent non-subscriptable errors
+            segments = (
+                result.get('segments', [])
+                if hasattr(result, 'segments') and isinstance(result.segments, list)
+                else []
+            )
+            confidence = self._calculate_confidence(segments)
 
             transcription_result = TranscriptionResult(
-                text=result["text"].strip(),
-                language=result["language"],
+                text=(
+                    result['text'].strip()
+                    if isinstance(result.get('text'), str) else ''
+                ),
+                language=result.get('language', 'unknown'),
                 confidence=confidence,
                 duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.get("segments", []),
+                segments=segments,
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
-                no_speech_probability=result.get("no_speech_prob", 0.0),
+                no_speech_probability=getattr(result, 'no_speech_prob', 0.0),
             )
 
             logger.info(
@@ -319,13 +332,15 @@ class WhisperTranscriber:
             List of TranscriptionResult objects
         """
         logger.info(
-            f"Starting batch transcription of {len(audio_paths)} files..."
+            "Starting batch transcription of %s files...",
+            len(audio_paths)
         )
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}"
+                "Processing file %s/%s: %s",
+                _i, len(audio_paths), Path(audio_path).name
             )
 
             try:
@@ -335,7 +350,7 @@ class WhisperTranscriber:
                 results.append(result)
 
             except Exception as e:
-                logger.error(f"Failed to transcribe {audio_path}: {e}")
+                logger.error("Failed to transcribe %s: %s", audio_path, e)
                 results.append(
                     TranscriptionResult(
                         text="",
@@ -355,10 +370,11 @@ class WhisperTranscriber:
         total_processing_time = sum(r.processing_time for r in results)
 
         logger.info(
-            f"✅ Batch transcription complete: {len(results)} files"
+            "✅ Batch transcription complete: %s files", len(results)
         )
         logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
+            "Total audio: %.1fs, Processing: %.1fs",
+            total_duration, total_processing_time
         )
 
         return results
@@ -439,7 +455,9 @@ class WhisperTranscriber:
 
 
 def create_whisper_transcriber(
-    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
+    model_size: str = "base",
+    language: Optional[str] = None,
+    device: Optional[str] = None
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 
@@ -466,7 +484,7 @@ def test_whisper_transcriber() -> None:
     transcriber = create_whisper_transcriber("base")
 
     logger.info("Whisper transcriber initialized successfully")
-    logger.info("Model info:", transcriber.get_model_info())
+    logger.info("Model info: %s", transcriber.get_model_info())
 
 
     logger.info("✅ Whisper transcriber test complete!")

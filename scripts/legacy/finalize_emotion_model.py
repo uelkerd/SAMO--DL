@@ -149,7 +149,7 @@ class EnsembleModel(nn.Module):
         self.temperature = temperature
 
 
-def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:
+def create_augmented_dataset(data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer) -> dict:  # noqa: ARG001
     """Create augmented dataset using back-translation.
 
     Args:
@@ -193,7 +193,7 @@ def train_final_model(
     val_data = data_loader.get_validation_data()
 
     # Create augmented dataset
-    augmented_data = create_augmented_dataset(data_loader, tokenizer)
+    create_augmented_dataset(data_loader, tokenizer)
 
     # Initialize focal loss
     focal_loss = FocalLoss(gamma=2.0)
@@ -290,7 +290,7 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
 
 
 def evaluate_ensemble(
-    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch.device
+    ensemble: EnsembleModel, test_data: dict, tokenizer: AutoTokenizer, device: torch.device  # noqa: ARG001
 ) -> dict[str, float]:
     """Evaluate ensemble model performance.
 
@@ -362,7 +362,7 @@ def save_ensemble_model(
         'threshold': ensemble.threshold,
     }, output_path)
     
-    logger.info(f"Model saved successfully!")
+    logger.info("Model saved successfully!")
     logger.info(f"Final metrics: {metrics}")
 
 

@@ -7,7 +7,7 @@ This script generates the ultimate training notebook that combines ALL gains fro
 previous iterations:
 
 ✅ Configuration preservation (from current notebook)
-✅ Focal loss (from previous iterations)  
+✅ Focal loss (from previous iterations)
 ✅ Class weighting (from previous iterations)
 ✅ Data augmentation (from previous iterations)
 ✅ Advanced validation (from previous iterations)
@@ -417,4 +417,4 @@ def create_ultimate_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_ultimate_notebook() 
+    create_ultimate_notebook()

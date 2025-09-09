@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate Swagger docs issue
-"""
+"""Minimal test to isolate Swagger docs issue."""
 
 import os
 from flask import Flask, jsonify
@@ -35,14 +33,6 @@ class Health(Resource):
         return {'status': 'healthy'}
 
 if __name__ == '__main__':
-    print("=== Routes ===")
-    for rule in app.url_map.iter_rules():
-        print(f"{rule.rule} -> {rule.endpoint}")
     
-    print("\n=== Starting test server ===")
-    print("Test these endpoints:")
-    print("- http://localhost:5003/ (should work)")
-    print("- http://localhost:5003/docs (should work)")
-    print("- http://localhost:5003/api/health (should work)")
     
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5003)), debug=False)  # Debug mode disabled for security 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5003)), debug=False)  # Debug mode disabled for security

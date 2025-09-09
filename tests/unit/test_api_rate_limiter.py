@@ -14,7 +14,8 @@ from src.api_rate_limiter import (
 class TestRateLimitConfig:
     """Test suite for RateLimitConfig."""
 
-    def test_rate_limit_config_initialization(self):
+    @staticmethod
+    def test_rate_limit_config_initialization():
         """Test RateLimitConfig initialization with default values."""
         config = RateLimitConfig()
 
@@ -22,7 +23,8 @@ class TestRateLimitConfig:
         assert config.burst_size == 10
         assert config.max_concurrent_requests == 5
 
-    def test_rate_limit_config_custom_values(self):
+    @staticmethod
+    def test_rate_limit_config_custom_values():
         """Test RateLimitConfig initialization with custom values."""
         config = RateLimitConfig(requests_per_minute=100, burst_size=20)
 
@@ -33,7 +35,8 @@ class TestRateLimitConfig:
 class TestTokenBucketRateLimiter:
     """Test suite for TokenBucketRateLimiter."""
 
-    def test_rate_limiter_initialization(self):
+    @staticmethod
+    def test_rate_limiter_initialization():
         """Test TokenBucketRateLimiter initialization."""
         config = RateLimitConfig()
         rate_limiter = TokenBucketRateLimiter(config)
@@ -42,7 +45,8 @@ class TestTokenBucketRateLimiter:
         assert len(rate_limiter.buckets) == 0
         assert len(rate_limiter.blocked_clients) == 0
 
-    def test_allow_request_success(self):
+    @staticmethod
+    def test_allow_request_success():
         """Test that allow_request returns True for valid requests."""
         config = RateLimitConfig(requests_per_minute=60, burst_size=10)
         rate_limiter = TokenBucketRateLimiter(config)
@@ -53,10 +57,11 @@ class TestTokenBucketRateLimiter:
         assert "allowed" in reason.lower()
         assert "client_key" in meta
 
-    def test_allow_request_rate_limit_exceeded(self):
+    @staticmethod
+    def test_allow_request_rate_limit_exceeded():
         """Test that allow_request returns False when rate limit exceeded."""
         config = RateLimitConfig(
-            requests_per_minute=1, 
+            requests_per_minute=1,
             burst_size=1,
             enable_user_agent_analysis=False,  # Disable abuse detection for testing
             enable_request_pattern_analysis=False
@@ -76,7 +81,8 @@ class TestTokenBucketRateLimiter:
 class TestAddRateLimiting:
     """Test suite for add_rate_limiting function."""
 
-    def test_add_rate_limiting(self):
+    @staticmethod
+    def test_add_rate_limiting():
         """Test that add_rate_limiting adds middleware to app."""
         app = FastAPI()
         

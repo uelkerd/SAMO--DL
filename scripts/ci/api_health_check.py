@@ -54,7 +54,7 @@ def test_api_models():
         logger.info(f"✅ Test request created: {test_request.text[:30]}...")
 
         config = RateLimitConfig(requests_per_minute=60, burst_size=10)
-        rate_limiter = TokenBucketRateLimiter(config)
+        TokenBucketRateLimiter(config)
         logger.info("✅ Rate limiter created successfully")
 
         return True

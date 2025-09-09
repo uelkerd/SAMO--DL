@@ -6,8 +6,8 @@ Tests for hash security and collision resistance.
 """
 
 import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
 
 import unittest
 import hashlib
@@ -202,4 +202,4 @@ class TestHashSecurity(unittest.TestCase):
             self.fail("Client key with special characters is not a valid hex string")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

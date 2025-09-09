@@ -1,5 +1,4 @@
-"""
-Sandbox Executor for Secure Model Loading.
+"""Sandbox Executor for Secure Model Loading.
 
 This module provides sandboxed execution capabilities for model loading,
 preventing potential RCE vulnerabilities and malicious code execution.
@@ -151,7 +150,6 @@ class SandboxExecutor:
         """Disable network access in the sandbox."""
         try:
             import socket
-            original_socket = socket.socket
 
             def blocked_socket(*args, **kwargs):
                 raise PermissionError("Network access is not allowed in sandbox")

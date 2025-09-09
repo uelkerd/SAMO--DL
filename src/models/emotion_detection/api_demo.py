@@ -162,7 +162,7 @@ async def load_model() -> None:
         logger.info("✅ Model loaded successfully!")
 
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error("Failed to load model: %s", e)
         logger.error(traceback.format_exc())
         raise
 
@@ -243,7 +243,9 @@ async def list_emotions():
 )
 async def analyze_emotion(
     request: EmotionRequest,
-    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+    x_api_key: Optional[str] = Header(
+        None, description="API key for authentication"
+    ),  # noqa: ARG001
 ):
     """Analyze emotions in text.
 
@@ -325,7 +327,9 @@ async def analyze_emotion(
 async def analyze_emotions_batch(
     texts: List[str],
     threshold: float = 0.5,
-    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
+    x_api_key: Optional[str] = Header(
+        None, description="API key for authentication"
+    ),
 ):
     """Analyze emotions in multiple texts.
 
@@ -379,6 +383,7 @@ async def analyze_emotions_batch(
         }
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
 
     except Exception:

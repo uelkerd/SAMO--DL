@@ -7,7 +7,7 @@ This script trains the emotion detection model using the expanded dataset
 to achieve the target 75-85% F1 score.
 
 Target: 75-85% F1 Score
-Current: 67% F1 Score  
+Current: 67% F1 Score
 Expected: 8-18% improvement
 """
 
@@ -16,9 +16,9 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from transformers import (
-    AutoTokenizer, 
-    AutoModelForSequenceClassification, 
-    TrainingArguments, 
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
+    TrainingArguments,
     Trainer,
     EarlyStoppingCallback
 )
@@ -33,7 +33,7 @@ print("=" * 50)
 
 # Load expanded dataset
 print("📊 Loading expanded dataset...")
-with open('data/expanded_journal_dataset.json', 'r') as f:
+with open('data/expanded_journal_dataset.json') as f:
     expanded_data = json.load(f)
 
 print(f"✅ Loaded {len(expanded_data)} expanded samples")
@@ -92,7 +92,7 @@ print("🔧 Initializing model...")
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(
-    model_name, 
+    model_name,
     num_labels=num_labels,
     problem_type="single_label_classification"
 )
@@ -154,7 +154,7 @@ trainer.train()
 # Evaluate on test set
 print("🧪 Evaluating model...")
 results = trainer.evaluate()
-print(f"📊 Final Results:")
+print("📊 Final Results:")
 print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
 print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
 
@@ -180,7 +180,7 @@ test_samples = [
     "I'm content with how things are going."
 ]
 
-expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed', 
+expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed',
                     'proud', 'sad', 'excited', 'calm', 'hopeful', 'tired', 'content']
 
 print("📊 Testing Results:")
@@ -213,7 +213,7 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     print(f"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
     print(f"   Expected: {expected}")
     print(f"   {'✅ CORRECT' if is_correct else '❌ WRONG'}")
-    print(f"   Top 3 predictions:")
+    print("   Top 3 predictions:")
     for emotion, prob in zip(top_3_emotions, top_3_probs):
         print(f"     - {emotion}: {prob:.3f}")
     print()
@@ -221,17 +221,17 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
 test_accuracy = correct_predictions / len(test_samples)
 final_f1 = results['eval_f1']
 
-print(f"\n📈 FINAL RESULTS:")
+print("\n📈 FINAL RESULTS:")
 print(f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})")
 print(f"   F1 Score: {final_f1:.4f} ({final_f1*100:.1f}%)")
 print(f"   Target Achieved: {'✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
 
 if final_f1 >= 0.75:
     print(f"\n🎉 SUCCESS! Model achieved {final_f1*100:.1f}% F1 score!")
-    print(f"🚀 Ready for production deployment!")
+    print("🚀 Ready for production deployment!")
 else:
     print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
-    print(f"💡 Consider: more data, hyperparameter tuning, or different model architecture")
+    print("💡 Consider: more data, hyperparameter tuning, or different model architecture")
 
-print(f"\n💾 Model saved to: ./best_emotion_model_final")
-print(f"📊 Training completed successfully!") 
+print("\n💾 Model saved to: ./best_emotion_model_final")
+print("📊 Training completed successfully!")

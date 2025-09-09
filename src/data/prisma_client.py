@@ -6,6 +6,7 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import json
+import shutil
 import subprocess
 
 
@@ -61,9 +62,13 @@ async function main() {{
 main();
 """)
 
+        node_path = shutil.which("node")
+        if node_path is None:
+            raise Exception("Node.js is not installed or not in PATH")
+
         try:
             result = subprocess.run(
-                ["node", "temp_prisma_script.js"],
+                [node_path, "temp_prisma_script.js"],
                 capture_output=True,
                 text=True,
                 check=True,

@@ -7,9 +7,8 @@ settings are present and valid according to the security schema.
 """
 
 import yaml
-import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 class SecurityConfigValidator:
     """Validator for security configuration files."""
@@ -29,7 +28,7 @@ class SecurityConfigValidator:
             return False
         
         try:
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path) as f:
                 config = yaml.safe_load(f)
         except yaml.YAMLError as e:
             self.errors.append(f"Invalid YAML in security configuration: {e}")
@@ -219,7 +218,7 @@ class SecurityConfigValidator:
     
     def print_results(self) -> None:
         """Print validation results."""
-        print(f"\n📊 Security Configuration Validation Results")
+        print("\n📊 Security Configuration Validation Results")
         print("=" * 50)
         
         if self.errors:
@@ -246,12 +245,11 @@ def main():
     if validator.validate():
         validator.print_results()
         if validator.errors:
-            sys.exit(1)
-        else:
-            print("\n✅ Security configuration validation passed!")
+            raise ValueError("Security validation errors found")
+        print("\n✅ Security configuration validation passed!")
     else:
         validator.print_results()
-        sys.exit(1)
+        raise ValueError("Security validation failed")
 
 if __name__ == "__main__":
-    main() 
+    main()

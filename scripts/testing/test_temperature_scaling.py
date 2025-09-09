@@ -1,33 +1,25 @@
-        # Calculate predictions per sample (overprediction metric)
-        # Evaluate with current temperature
-        # This is approximated from the debug output
-        # Track best result
-        # Update model temperature
-    # Display all results
-    # Initialize trainer
-    # Load trained model
-    # Provide recommendations
-    # Save results for CircleCI
-    # Test different temperatures
-# Add src to path
-# Set up logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
-import json
-import logging
-import sys
-
-
-
-
 """
 Temperature Scaling Test for BERT Emotion Classifier.
 
 This script tests different temperature values to find optimal calibration
 that reduces overprediction and improves F1 scores.
 """
+
+from pathlib import Path
+import json
+import logging
+import sys
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Import after path setup
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 

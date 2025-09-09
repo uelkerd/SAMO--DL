@@ -7,7 +7,6 @@ This script deploys the comprehensive emotion detection model locally
 for testing before cloud deployment.
 """
 
-import os
 import json
 import sys
 from datetime import datetime
@@ -413,7 +412,7 @@ exec python3 -u "$SCRIPT_DIR/api_server.py"
     deployment_info_path.write_text(json.dumps(deployment_summary, indent=2))
     print("✅ Deployment info created")
     
-    print(f"\n✅ LOCAL DEPLOYMENT READY!")
+    print("\n✅ LOCAL DEPLOYMENT READY!")
     print("=" * 50)
     print(f"📁 Deployment directory: {local_deployment_dir}")
     print()
@@ -440,4 +439,4 @@ exec python3 -u "$SCRIPT_DIR/api_server.py"
 
 if __name__ == "__main__":
     success = deploy_locally()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

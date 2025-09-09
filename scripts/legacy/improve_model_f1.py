@@ -87,7 +87,7 @@ def create_balanced_training_data():
     texts = []
     labels = []
 
-    for emotion_idx, (emotion, emotion_texts) in enumerate(emotion_data.items()):
+    for emotion_idx, (_emotion, emotion_texts) in enumerate(emotion_data.items()):
         for text in emotion_texts:
             texts.append(text)
             # Create one-hot encoded label

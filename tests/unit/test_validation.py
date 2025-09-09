@@ -11,7 +11,8 @@ from src.data.validation import DataValidator, validate_text_input
 class TestDataValidator:
     """Test suite for DataValidator class."""
 
-    def test_data_validator_initialization(self):
+    @staticmethod
+    def test_data_validator_initialization():
         """Test DataValidator initialization."""
         validator = DataValidator()
 
@@ -20,7 +21,8 @@ class TestDataValidator:
         assert hasattr(validator, 'check_text_quality')
         assert hasattr(validator, 'validate_journal_entries')
 
-    def test_check_missing_values(self):
+    @staticmethod
+    def test_check_missing_values():
         """Test check_missing_values method."""
         validator = DataValidator()
 
@@ -38,7 +40,8 @@ class TestDataValidator:
         assert result['user_id'] == 25.0  # 1 out of 4 is missing
         assert result['content'] == 25.0  # 1 out of 4 is missing
 
-    def test_check_data_types(self):
+    @staticmethod
+    def test_check_data_types():
         """Test check_data_types method."""
         validator = DataValidator()
 
@@ -61,7 +64,8 @@ class TestDataValidator:
         assert result['content'] is True
         assert result['is_private'] is True
 
-    def test_check_text_quality(self):
+    @staticmethod
+    def test_check_text_quality():
         """Test check_text_quality method."""
         validator = DataValidator()
 
@@ -77,7 +81,8 @@ class TestDataValidator:
         assert 'is_empty' in result.columns
         assert 'is_very_short' in result.columns
 
-    def test_validate_journal_entries(self):
+    @staticmethod
+    def test_validate_journal_entries():
         """Test validate_journal_entries method."""
         validator = DataValidator()
 
@@ -111,48 +116,55 @@ class TestDataValidator:
 class TestValidateTextInput:
     """Test suite for validate_text_input function."""
 
-    def test_validate_text_input_valid(self):
+    @staticmethod
+    def test_validate_text_input_valid():
         """Test validate_text_input with valid input."""
         text = "This is a valid text input with reasonable length."
         result = validate_text_input(text)
         assert result['is_valid'] is True
         assert result['error'] is None
 
-    def test_validate_text_input_empty(self):
+    @staticmethod
+    def test_validate_text_input_empty():
         """Test validate_text_input with empty string."""
         text = ""
         result = validate_text_input(text)
         assert result['is_valid'] is False
         assert "empty" in result['error'].lower()
 
-    def test_validate_text_input_none(self):
+    @staticmethod
+    def test_validate_text_input_none():
         """Test validate_text_input with None."""
         result = validate_text_input(None)
         assert result['is_valid'] is False
         assert "none" in result['error'].lower()
 
-    def test_validate_text_input_too_short(self):
+    @staticmethod
+    def test_validate_text_input_too_short():
         """Test validate_text_input with too short text."""
         text = "Hi"
         result = validate_text_input(text, min_length=10)
         assert result['is_valid'] is False
         assert "short" in result['error'].lower()
 
-    def test_validate_text_input_too_long(self):
+    @staticmethod
+    def test_validate_text_input_too_long():
         """Test validate_text_input with too long text."""
         text = "A" * 10001  # 10,001 characters
         result = validate_text_input(text, max_length=10000)
         assert result['is_valid'] is False
         assert "long" in result['error'].lower()
 
-    def test_validate_text_input_invalid_characters(self):
+    @staticmethod
+    def test_validate_text_input_invalid_characters():
         """Test validate_text_input with invalid characters."""
         text = "Text with invalid chars: \x00\x01\x02"
         result = validate_text_input(text)
         assert result['is_valid'] is False
         assert "invalid" in result['error'].lower()
 
-    def test_validate_text_input_whitespace_only(self):
+    @staticmethod
+    def test_validate_text_input_whitespace_only():
         """Test validate_text_input with whitespace-only text."""
         text = "   \n\t   "
         result = validate_text_input(text)

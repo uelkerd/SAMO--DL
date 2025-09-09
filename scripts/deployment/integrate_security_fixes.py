@@ -17,7 +17,7 @@ import shlex
 import time
 import requests
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List
 
 class IntegratedSecurityOptimization:
     def __init__(self):
@@ -31,7 +31,7 @@ class IntegratedSecurityOptimization:
     def get_project_id():
         """Get current GCP project ID dynamically"""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                                   capture_output=True, text=True, check=True)
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -214,7 +214,7 @@ substitutions:
 
         # Test rate limiting
         responses = []
-        for i in range(105):
+        for _i in range(105):
             try:
                 response = requests.post(
                     f"{service_url}/predict",
@@ -288,9 +288,9 @@ substitutions:
             self.log(f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'")
 
         except Exception as e:
-            self.log(f"❌ Integration failed: {str(e)}", "ERROR")
+            self.log(f"❌ Integration failed: {e!s}", "ERROR")
             raise
 
 if __name__ == "__main__":
     integrator = IntegratedSecurityOptimization()
-    integrator.run() 
+    integrator.run()

@@ -385,7 +385,7 @@ CREATE TABLE emotion_requests_2024_02 PARTITION OF emotion_requests_partitioned
 class CacheManager:
     def __init__(self):
         self.l1_cache = {}  # In-memory cache
-        self.l2_cache = redis.Redis(host='localhost', port=6379, db=1)  # Redis cache
+        self.l2_cache = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=int(os.getenv('REDIS_PORT', 6379)), db=1)  # Redis cache
         self.l3_cache = None  # Database cache (if needed)
     
     def get(self, key: str) -> Optional[Any]:

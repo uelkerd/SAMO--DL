@@ -9,20 +9,21 @@ This module tests all the Priority 1 Features implemented:
 5. Comprehensive Monitoring Dashboard
 """
 
-import asyncio
-import json
+BEARER_TOKEN_PREFIX = "Bearer "
+
+from datetime import datetime, timedelta, timezone
 import os
 import tempfile
 from pathlib import Path
 import time
-from typing import Dict, Any
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from src.unified_ai_api import app
 from src.security.jwt_manager import JWTManager
 from src.monitoring.dashboard import MonitoringDashboard
+import contextlib
 
 # Test client with test user agent to bypass rate limiting
 client = TestClient(app, headers={"User-Agent": "pytest-testclient"})
@@ -47,10 +48,8 @@ class to_uploads:
 
     def __exit__(self, exc_type, exc, tb):
         for fh in self._opened:
-            try:
+            with contextlib.suppress(Exception):
                 fh.close()
-            except Exception:
-                pass
         self._opened = []
 
 @pytest.fixture(autouse=True)
@@ -212,7 +211,7 @@ class TestEnhancedVoiceTranscription:
         
         try:
             # Test transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}"}
             with open(temp_file_path, "rb") as audio_file:
                 files = {"audio_file": ("test.txt", audio_file, "text/plain")}
                 data = {"language": "en", "model_size": "base"}
@@ -324,7 +323,7 @@ class TestEnhancedVoiceTranscription:
             access_token = login_response.json()["access_token"]
             
             # Test batch transcription endpoint
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+            headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}", "X-User-Permissions": "batch_processing"}
             data = {"language": "en"}
             with to_uploads(temp_files, "file") as files:
                 response = client.post("/transcribe/batch", files=files, data=data, headers=headers)
@@ -358,7 +357,7 @@ class TestEnhancedVoiceTranscription:
             login_data = {"username": "testuser@example.com", "password": "testpassword123"}
             login_response = client.post("/auth/login", json=login_data)
             access_token = login_response.json()["access_token"]
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+            headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}", "X-User-Permissions": "batch_processing"}
 
             with to_uploads(temp_files, "f") as files:
                 response = client.post("/transcribe/batch", files=files, headers=headers)
@@ -390,7 +389,7 @@ class TestEnhancedVoiceTranscription:
             login_data = {"username": "testuser@example.com", "password": "testpassword123"}
             login_response = client.post("/auth/login", json=login_data)
             access_token = login_response.json()["access_token"]
-            headers = {"Authorization": f"Bearer {access_token}", "X-User-Permissions": "batch_processing"}
+            headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}", "X-User-Permissions": "batch_processing"}
 
             with to_uploads(temp_files, "f") as files:
                 response = client.post("/transcribe/batch", files=files, headers=headers)
@@ -506,7 +505,7 @@ class TestAPIValidation:
         # Create a large file (simulate > 50MB)
         large_content = b"fake audio data" * (50 * 1024 * 1024 // 16 + 1)  # > 50MB
         
-        headers = {"Authorization": f"Bearer {access_token}"}
+        headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}"}
         files = {"audio_file": ("large.wav", large_content, "audio/wav")}
         data = {"language": "en", "model_size": "base"}
         
@@ -595,7 +594,7 @@ class TestCompleteWorkflow:
         
         try:
             # Test complete voice journal analysis
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}"}
             with open(temp_file_path, "rb") as audio_file:
                 files = {"audio_file": ("test.wav", audio_file, "audio/wav")}
                 data = {
@@ -681,7 +680,7 @@ class TestMonitoringDashboard:
         access_token = login_response.json()["access_token"]
         
         # Test performance metrics endpoint
-        headers = {"Authorization": f"Bearer {access_token}"}
+        headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}"}
         response = client.get("/monitoring/performance", headers=headers)
         
         # The endpoint should return 403 if user doesn't have monitoring permission
@@ -710,7 +709,7 @@ class TestMonitoringDashboard:
         access_token = login_response.json()["access_token"]
         
         # Test detailed health check endpoint
-        headers = {"Authorization": f"Bearer {access_token}"}
+        headers = {"Authorization": f"{BEARER_TOKEN_PREFIX}{access_token}"}
         response = client.get("/monitoring/health/detailed", headers=headers)
         
         # Note: This might fail if user doesn't have monitoring permission
@@ -845,14 +844,16 @@ class TestMonitoringDashboardClass:
 class TestJWTManager:
     """Test JWT manager functionality."""
     
-    def test_jwt_manager_initialization(self):
+    @staticmethod
+    def test_jwt_manager_initialization():
         """Test JWT manager initialization."""
         jwt_manager = JWTManager()
         assert jwt_manager.secret_key is not None
         assert jwt_manager.algorithm == "HS256"
         assert isinstance(jwt_manager.blacklisted_tokens, dict)  # Changed to dict for performance
     
-    def test_token_creation(self):
+    @staticmethod
+    def test_token_creation():
         """Test token creation."""
         jwt_manager = JWTManager()
         
@@ -961,15 +962,14 @@ class TestJWTManager:
         
         # Manually create an expired token
         import jwt
-        from datetime import datetime, timedelta
         
         payload = {
             "user_id": user_data["user_id"],
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data["permissions"],
-            "exp": datetime.utcnow() - timedelta(hours=1),  # Expired 1 hour ago
-            "iat": datetime.utcnow() - timedelta(hours=2)
+            "exp": datetime.now(timezone.utc) - timedelta(hours=1),  # Expired 1 hour ago
+            "iat": datetime.now(timezone.utc) - timedelta(hours=2)
         }
         
         expired_token = jwt.encode(payload, jwt_manager.secret_key, algorithm=jwt_manager.algorithm)
@@ -1013,4 +1013,4 @@ class TestJWTManager:
         assert cleaned_count >= 0  # May or may not have expired tokens
 
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

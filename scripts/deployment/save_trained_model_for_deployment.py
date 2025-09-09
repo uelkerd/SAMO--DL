@@ -102,10 +102,10 @@ def save_model_for_deployment():
         
         print("✅ Model saved successfully!")
         print(f"📁 Deployment directory: {deployment_model_dir}")
-        print(f"📊 Model info:")
+        print("📊 Model info:")
         print(f"  - Emotions: {len(emotions)} classes")
-        print(f"  - F1 Score: 99.48%")
-        print(f"  - Target Achieved: ✅ YES!")
+        print("  - F1 Score: 99.48%")
+        print("  - Target Achieved: ✅ YES!")
         
         # Test the saved model
         print("🧪 Testing saved model...")
@@ -215,4 +215,4 @@ if __name__ == "__main__":
         print("🏆 Target Achieved: ✅ YES!")
     else:
         print("\n❌ Failed to create deployment package!")
-        print("Please ensure you have a trained model available.") 
+        print("Please ensure you have a trained model available.")

@@ -406,4 +406,4 @@ print("📁 Files downloaded: best_simple_model.pth, simple_training_results.jso
     print("6. This will work in a fresh kernel without any state corruption!")
 
 if __name__ == "__main__":
-    create_bulletproof_cell() 
+    create_bulletproof_cell()

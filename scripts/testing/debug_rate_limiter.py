@@ -7,11 +7,15 @@ refill, history, and block status to help diagnose rate-limit behavior.
 
 # pylint: disable=protected-access
 
-import sys
+# Standard library imports
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+import sys
 
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
+# Local imports
+from src.api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 
 def debug_rate_limiter():

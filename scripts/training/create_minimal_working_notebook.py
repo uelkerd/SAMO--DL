@@ -379,4 +379,4 @@ def create_minimal_notebook():
     return output_path
 
 if __name__ == "__main__":
-    create_minimal_notebook() 
+    create_minimal_notebook()

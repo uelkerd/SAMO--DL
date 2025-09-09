@@ -1,48 +1,14 @@
-                # Calculate drift score using KL divergence or statistical distance
-                # Check for data drift (if detector is initialized)
-                # Check for degradation
-                # Collect metrics
-                # Initialize tokenizer
-                # Load checkpoint
-                # Sleep for monitoring interval
-            # Calculate mock metrics (in real scenario, these would come from actual evaluation)
-            # Calculate throughput
-            # For now, just log the action
-            # Generate test data
-            # Get GPU utilization if available
-            # Get memory usage
-            # In a real implementation, this would trigger the retraining pipeline
-            # Inference
-            # Load model
-            # Move to device
-            # Tokenize
-            import psutil
-        # Calculate degradation
-        # Calculate overall drift score
-        # Calculate trends
-        # Check each feature for drift
-        # Check if degradation exceeds threshold
-        # Combined drift score
-        # Extract metrics arrays
-        # For now, return mock drift metrics
-        # Get recent alerts
-        # Get recent metrics
-        # In a real implementation, this would analyze actual incoming data
-        # Initialize model
-        # Keep running
-        # Normalize by reference statistics
-        # Print final status
-        # Save alert to file
-        # Set baseline if not set
-        # Use Wasserstein distance as drift measure
-    # Create directory if needed
-    # Create monitor
-    # Save configuration
-    # Start monitoring
+#!/usr/bin/env python3
+"""
+Model Monitoring Script
+
+This script monitors model performance and detects drift.
+"""
+
+import psutil
 # Add src to path
 # Configure logging
 # Constants
-#!/usr/bin/env python3
 from collections import deque
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
@@ -323,8 +289,9 @@ class DataDriftDetector:
             affected_features=affected_features,
         )
 
+    @staticmethod
     def _calculate_drift_score(
-        self, ref_mean: float, ref_std: float, current_mean: float, current_std: float
+        ref_mean: float, ref_std: float, current_mean: float, current_std: float
     ) -> float:
         """Calculate drift score between reference and current distributions.
 
@@ -370,7 +337,8 @@ class ModelHealthMonitor:
         self.tokenizer = None
         self._initialize_model()
 
-    def _load_config(self, config_path: str) -> dict[str, Any]:
+    @staticmethod
+    def _load_config(config_path: str) -> dict[str, Any]:
         """Load monitoring configuration.
 
         Args:
@@ -416,7 +384,7 @@ class ModelHealthMonitor:
             else:
                 logger.warning("Model not found: {model_path}")
         except Exception as e:
-            logger.error("Error initializing model: {e}")
+            logger.error("Error initializing model: %s", e)
 
     def start_monitoring(self) -> None:
         """Start continuous monitoring."""
@@ -469,7 +437,7 @@ class ModelHealthMonitor:
                 time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
 
             except Exception as e:
-                logger.error("Error in monitoring loop: {e}")
+                logger.error("Error in monitoring loop: %s", e)
                 time.sleep(60)  # Wait before retrying
 
     def _collect_metrics(self) -> Optional[ModelMetrics]:
@@ -528,10 +496,11 @@ class ModelHealthMonitor:
             )
 
         except Exception as e:
-            logger.error("Error collecting metrics: {e}")
+            logger.error("Error collecting metrics: %s", e)
             return None
 
-    def _get_memory_usage(self) -> float:
+    @staticmethod
+    def _get_memory_usage() -> float:
         """Get current memory usage in MB.
 
         Returns:
@@ -543,7 +512,8 @@ class ModelHealthMonitor:
         except ImportError:
             return 0.0
 
-    def _get_gpu_utilization(self) -> Optional[float]:
+    @staticmethod
+    def _get_gpu_utilization() -> Optional[float]:
         """Get GPU utilization percentage.
 
         Returns:
@@ -556,7 +526,8 @@ class ModelHealthMonitor:
             pass
         return None
 
-    def _check_data_drift(self) -> DriftMetrics:
+    @staticmethod
+    def _check_data_drift() -> DriftMetrics:
         """Check for data drift in incoming data.
 
         Returns:
@@ -601,9 +572,10 @@ class ModelHealthMonitor:
             self.alerts.append(retrain_alert)
 
         except Exception as e:
-            logger.error("Error triggering retraining: {e}")
+            logger.error("Error triggering retraining: %s", e)
 
-    def _save_alert(self, alert: Alert) -> None:
+    @staticmethod
+    def _save_alert(alert: Alert) -> None:
         """Save alert to file.
 
         Args:
@@ -618,7 +590,7 @@ class ModelHealthMonitor:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
         except Exception as e:
-            logger.error("Error saving alert: {e}")
+            logger.error("Error saving alert: %s", e)
 
     def get_health_status(self) -> dict[str, Any]:
         """Get current model health status.

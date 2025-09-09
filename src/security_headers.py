@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🛡️ Security Headers Middleware
+"""🛡️ Security Headers Middleware.
 ==============================
 Flask middleware for adding security headers and implementing security policies.
 """
@@ -76,7 +76,7 @@ class SecurityHeadersMiddleware:
                     .get("Content-Security-Policy")
                 )
         except Exception as e:
-            logger.warning(f"Could not load CSP from config: {e}")
+            logger.warning("Could not load CSP from config: %s", e)
 
         # Register middleware
         app.before_request(self._before_request)
@@ -216,7 +216,8 @@ class SecurityHeadersMiddleware:
             "block-all-mixed-content"  # Block mixed content
         )
 
-    def _build_permissions_policy(self) -> str:
+    @staticmethod
+    def _build_permissions_policy() -> str:
         """Build Permissions Policy."""
         policies = [
             "accelerometer=()",
@@ -249,7 +250,8 @@ class SecurityHeadersMiddleware:
         ]
         return ", ".join(policies)
 
-    def _add_correlation_headers(self, response: Response):
+    @staticmethod
+    def _add_correlation_headers(response: Response):
         """Add request correlation headers."""
         if hasattr(g, "request_id"):
             response.headers["X-Request-ID"] = g.request_id
@@ -279,7 +281,7 @@ class SecurityHeadersMiddleware:
         suspicious_patterns = self._detect_suspicious_patterns()
         if suspicious_patterns:
             security_info["suspicious_patterns"] = suspicious_patterns
-            logger.warning(f"Security warning: {suspicious_patterns}")
+            logger.warning("Security warning: %s", suspicious_patterns)
 
         logger.info(f"Security audit: {security_info}")
 
@@ -374,28 +376,28 @@ class SecurityHeadersMiddleware:
             if bot in ua_lower:
                 score -= 2
                 patterns.append(f"legitimate_bot:{bot}")
-                logger.debug(f"Legitimate bot detected: {bot}")
+                logger.debug("Legitimate bot detected: %s", bot)
 
         # Check high-risk patterns
         for pattern in high_risk_patterns:
             if pattern in ua_lower:
                 score += 3
                 patterns.append(f"high_risk:{pattern}")
-                logger.debug(f"High-risk UA pattern detected: {pattern}")
+                logger.debug("High-risk UA pattern detected: %s", pattern)
 
         # Check medium-risk patterns
         for pattern in medium_risk_patterns:
             if pattern in ua_lower:
                 score += 2
                 patterns.append(f"medium_risk:{pattern}")
-                logger.debug(f"Medium-risk UA pattern detected: {pattern}")
+                logger.debug("Medium-risk UA pattern detected: %s", pattern)
 
         # Check low-risk patterns
         for pattern in low_risk_patterns:
             if pattern in ua_lower:
                 score += 1
                 patterns.append(f"low_risk:{pattern}")
-                logger.debug(f"Low-risk UA pattern detected: {pattern}")
+                logger.debug("Low-risk UA pattern detected: %s", pattern)
 
         # Bonus for suspicious combinations
         bot_patterns = ["bot", "crawler", "spider"]
@@ -486,14 +488,15 @@ class SecurityHeadersMiddleware:
                 patterns.append(ua_msg)
 
                 # Log detailed analysis
-                logger.warning(f"User agent analysis: {ua_analysis}")
+                logger.warning("User agent analysis: %s", ua_analysis)
 
                 # Note: High-risk user agents are now blocked in _before_request
                 # This is just for logging and pattern detection
 
         return patterns
 
-    def _log_response_security(self, response: Response):
+    @staticmethod
+    def _log_response_security(response: Response):
         """Log security-relevant response information."""
         security_info = {
             "timestamp": time.time(),
@@ -515,7 +518,7 @@ class SecurityHeadersMiddleware:
             },
         }
 
-        logger.info(f"Response security: {security_info}")
+        logger.info("Response security: %s", security_info)
 
     def get_security_stats(self) -> Dict:
         """Get security headers statistics."""

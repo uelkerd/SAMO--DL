@@ -54,7 +54,7 @@ whisper_transcriber: Optional[WhisperTranscriber] = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app):  # noqa: ARG001 - FastAPI requires app parameter but not used
     """Manage model lifecycle - load on startup, cleanup on shutdown."""
     global whisper_transcriber
 
@@ -170,8 +170,10 @@ async def transcribe_audio(
     if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported audio format: {file_extension}. "
-            "Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}",
+            detail=(
+                "Unsupported audio format: {file_extension}. "
+                "Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}"
+            ),
         )
 
     temp_file = None
@@ -212,6 +214,7 @@ async def transcribe_audio(
         return response
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
     except Exception:
         logger.error("Transcription error: {e}", extra={"format_args": True})
@@ -250,16 +253,20 @@ async def transcribe_batch(
     try:
         start_time = time.time()
 
-        for __i, audio_file in enumerate(audio_files):
+        for i, audio_file in enumerate(audio_files):
             try:
                 if not audio_file.filename:
-                    raise ValueError("File {i + 1}: No filename provided")
+                    raise ValueError(f"File {i + 1}: No filename provided")
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError("File {i + 1}: Unsupported format {file_extension}")
+                    raise ValueError(
+                        f"File {i + 1}: Unsupported format {file_extension}"
+                    )
 
-                temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=file_extension, delete=False
+                )
                 temp_files.append(temp_file.name)
 
                 content = await audio_file.read()
@@ -268,7 +275,7 @@ async def transcribe_batch(
 
                 is_valid, error_msg = AudioPreprocessor.validate_audio_file(temp_file.name)
                 if not is_valid:
-                    raise ValueError("File {i + 1}: {error_msg}")
+                    raise ValueError(f"File {i + 1}: {error_msg}")
 
                 result = whisper_transcriber.transcribe_audio(
                     temp_file.name, language=language, initial_prompt=initial_prompt
@@ -328,13 +335,14 @@ async def transcribe_batch(
         )
 
         logger.info(
-            "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
-            "{total_processing_time:.2f}ms total"
+            "Batch transcription complete: %s/%s successful, %.2fms total",
+            success_count, len(audio_files), total_processing_time
         )
 
         return response
 
     except HTTPException:
+        # Re-raise HTTPException as-is to preserve original status code and detail
         raise
     except Exception as e:
         logger.error("Batch transcription error: {e}", extra={"format_args": True})

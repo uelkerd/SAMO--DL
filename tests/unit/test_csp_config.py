@@ -5,11 +5,12 @@
 Tests for Content Security Policy configuration and loading.
 """
 
-import sys
 import os
+import sys
 import tempfile
 import yaml
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / 'src'))
 
 import unittest
 from unittest.mock import patch
@@ -211,7 +212,7 @@ class TestCSPConfiguration(unittest.TestCase):
         
         # Test all directives in a single loop
         for directive, description in required_directives:
-            self.assertIn(directive, csp_policy, 
+            self.assertIn(directive, csp_policy,
                          f"Missing CSP directive: {description} ({directive})")
 
     def test_csp_policy_production_ready(self):
@@ -231,8 +232,8 @@ class TestCSPConfiguration(unittest.TestCase):
         
         # Test all production security features in a single loop
         for directive, description in production_security:
-            self.assertIn(directive, csp_policy, 
+            self.assertIn(directive, csp_policy,
                          f"Production security missing: {description} ({directive})")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()
