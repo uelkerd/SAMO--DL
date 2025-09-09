@@ -33,6 +33,15 @@ DEFAULT_LEARNING_RATE = 2e-5
 def create_focal_loss(alpha: float = 1.0, gamma: float = 2.0):
     """Create focal loss function for handling class imbalance."""
     def focal_loss_fn(inputs, targets):
+        """Compute focal loss for handling class imbalance in multi-class classification.
+
+        Args:
+            inputs: Model predictions (logits)
+            targets: Ground truth labels
+
+        Returns:
+            Focal loss value
+        """
         ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = alpha * (1 - pt) ** gamma * ce_loss

@@ -185,6 +185,15 @@ class SimpleEmotionClassifier(nn.Module):
         print(f"✅ Model initialized with {num_labels} labels")
 
     def forward(self, input_ids, attention_mask):
+        """Forward pass through BERT model for emotion classification.
+
+        Args:
+            input_ids: Tokenized input text tensor
+            attention_mask: Attention mask tensor for padding tokens
+
+        Returns:
+            Model logits for emotion classification
+        """
         # Validate inputs
         if input_ids.dim() != 2:
             raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")

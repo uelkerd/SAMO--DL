@@ -8,18 +8,21 @@ client = TestClient(app)
 # Mock models for testing
 @pytest.fixture
 def mock_roberta():
+    """Create mock RoBERTa emotion classification model for testing."""
     mock = Mock()
     mock.return_value = {"label": "joy", "score": 0.9}
     return mock
 
 @pytest.fixture
 def mock_t5():
+    """Create mock T5 summarization model for testing."""
     mock = Mock()
     mock.return_value = "Summary text"
     return mock
 
 @pytest.fixture
 def mock_whisper():
+    """Create mock Whisper transcription model for testing."""
     mock = Mock()
     mock.return_value = "Transcribed text"
     return mock
@@ -55,6 +58,7 @@ def test_conditional_logic_example():
 
 # Additional basic tests...
 def test_emotion_detection():
+    """Test emotion detection endpoint with valid input."""
     with patch('src.models.emotion_detection.roberta_model') as mock_model:
         mock_model.return_value = {"label": "joy"}
         response = client.post("/emotion/", json={"text": "Happy"})
@@ -62,6 +66,7 @@ def test_emotion_detection():
         assert response.json()["emotion"] == "joy"
 
 def test_summarization():
+    """Test text summarization endpoint with valid input."""
     with patch('src.models.summarization.t5_model') as mock_model:
         mock_model.return_value = "Summary"
         response = client.post("/summarize/", json={"text": "Long text here..."})
@@ -69,6 +74,7 @@ def test_summarization():
         assert "summary" in response.json()
 
 def test_transcription():
+    """Test audio transcription endpoint with valid audio file."""
     with patch('src.models.voice_processing.whisper_model') as mock_model:
         mock_model.return_value = "Transcribed"
         response = client.post("/transcribe/", files={"audio": ("test.wav", b"data")})
@@ -81,6 +87,7 @@ def test_transcription():
     ("I love it", "joy"),
 ])
 def test_parametrized_emotion(input_text, expected_emotion):
+    """Test emotion detection with parametrized inputs."""
     with patch('src.models.emotion_detection.roberta_model') as mock_model:
         mock_model.return_value = {"label": expected_emotion}
         response = client.post("/emotion/", json={"text": input_text})

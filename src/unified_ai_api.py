@@ -13,12 +13,15 @@ app = FastAPI(title="SAMO-DL Unified AI API", version="1.0.0")
 
 # Initialize models for complete analysis (lazy loading in production)
 def get_emotion_classifier():
+    """Get emotion classification model instance."""
     return BERTEmotionClassifier()
 
 def get_summarizer():
+    """Get text summarization model instance."""
     return T5SummarizationModel()
 
 def get_transcriber():
+    """Get audio transcription model instance."""
     return WhisperTranscriber()
 
 logger = logging.getLogger(__name__)

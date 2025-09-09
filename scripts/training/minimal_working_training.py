@@ -42,6 +42,15 @@ class SimpleBERTClassifier(nn.Module):
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
 
     def forward(self, input_ids, attention_mask=None):
+        """Forward pass through BERT model for emotion classification.
+
+        Args:
+            input_ids: Tokenized input text
+            attention_mask: Attention mask for padding tokens
+
+        Returns:
+            Dictionary containing model logits
+        """
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
         pooled_output = self.dropout(pooled_output)
@@ -59,6 +68,15 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs, targets):
+        """Compute focal loss for handling class imbalance.
+
+        Args:
+            inputs: Model predictions (logits)
+            targets: Ground truth labels
+
+        Returns:
+            Focal loss value
+        """
         bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss

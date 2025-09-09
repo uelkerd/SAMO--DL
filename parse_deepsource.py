@@ -18,6 +18,14 @@ for occ in occurences:
     files[path][issue_code].append({'line': line, 'title': title})
 
 def get_severity(issue_code):
+    """Determine severity level for a DeepSource issue code.
+
+    Args:
+        issue_code: DeepSource issue code (e.g., 'PYL-E501', 'FLK-W293')
+
+    Returns:
+        Severity level as string ('Critical', 'Major', or 'Minor')
+    """
     if issue_code.startswith(('PYL-E', 'FLK-E', 'PY-E')):
         return 'Critical'
     elif issue_code.startswith(('PYL-W', 'FLK-W', 'PY-W')):

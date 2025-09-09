@@ -60,6 +60,11 @@ def calibrate_model(model, val_loader, device):
         optimizer = torch.optim.LBFGS([temp_scaling.temperature], lr=0.01, max_iter=50)
         
         def eval_loss():
+            """Evaluate loss for temperature scaling optimization.
+
+            Returns:
+                Loss value for LBFGS optimization
+            """
             optimizer.zero_grad()
             loss = nn.CrossEntropyLoss()(temp_scaling(all_logits), all_labels)
             loss.backward()
