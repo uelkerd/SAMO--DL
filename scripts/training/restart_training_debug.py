@@ -45,7 +45,6 @@ def main():
             "learning_rate": 2e-6,  # Reduced learning rate
             "num_epochs": 2,  # Fewer epochs for debugging
             "dev_mode": True,
-            "debug_mode": True,
         }
 
         logger.info("📋 Training Configuration:")

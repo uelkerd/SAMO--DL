@@ -34,7 +34,7 @@ def debug_validation():
         
         # Test model creation
         logger.info("Testing model creation...")
-        model = create_bert_emotion_classifier(num_labels=28)
+        model = create_bert_emotion_classifier()
         
         logger.info("✅ All validation tests passed!")
         return True

@@ -74,24 +74,16 @@ def improve_with_focal_loss(
         datasets = data_loader.load_data()
 
         # Create model with optimal settings
-        model = create_bert_emotion_classifier(
-            num_labels=len(datasets["train"].label_encoder.classes_),
-            learning_rate=learning_rate
-        )
+        model = create_bert_emotion_classifier()
 
         # Create focal loss function
         focal_loss_fn = create_focal_loss(alpha=alpha, gamma=gamma)
 
         # Create trainer with development mode disabled for better results
         trainer = EmotionDetectionTrainer(
-            model=model,
-            train_dataset=datasets["train"],
-            val_dataset=datasets["val"],
-            test_dataset=datasets["test"],
-            learning_rate=learning_rate,
             batch_size=batch_size,
-            epochs=epochs,
-            custom_loss_fn=focal_loss_fn,
+            learning_rate=learning_rate,
+            num_epochs=epochs,
             early_stopping_patience=3,
         )
 

@@ -48,7 +48,7 @@ def validate_training_setup():
         
         # Validate outputs
         logger.info("🧠 Testing model creation...")
-        model = create_bert_emotion_classifier(num_labels=len(unique_labels))
+        model = create_bert_emotion_classifier()
         logger.info("✅ Model creation successful")
         
         # Test learning rate
