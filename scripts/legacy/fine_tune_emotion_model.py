@@ -47,7 +47,7 @@ def train_model():
         val_loader = torch.utils.data.DataLoader(datasets["val"], batch_size=16, shuffle=False)
         
         # Create model
-        model = create_bert_emotion_classifier()
+        model, loss_function = create_bert_emotion_classifier()
         model.to(device)
         
         # Setup loss and optimizer
