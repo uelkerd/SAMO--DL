@@ -27,7 +27,6 @@ import traceback
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from the current 13.2% to target >50%.
 from torch import nn
 import logging
 import os
