@@ -48,9 +48,9 @@ async def complete_analysis(request: AnalysisRequest):
         if request.text:
             try:
                 validated_text = validate_text_input(request.text)
-                sanitized_text, warnings = InputSanitizer(SanitizationConfig()).sanitize_text(
-                    validated_text, "analysis"
-                )
+                sanitized_text, warnings = InputSanitizer(
+                    SanitizationConfig()
+                ).sanitize_text(validated_text, "analysis")
                 if warnings:
                     logger.warning("Sanitization warnings: %s", warnings)
 
@@ -81,7 +81,9 @@ async def complete_analysis(request: AnalysisRequest):
         if request.audio:
             try:
                 # Save uploaded file temporarily
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".wav"
+                ) as temp_file:
                     temp_file.write(await request.audio.read())
                     temp_audio_path = temp_file.name
 
@@ -100,7 +102,9 @@ async def complete_analysis(request: AnalysisRequest):
         if not any([
             result["emotion"], result["summary"], result["transcription"]
         ]):
-            raise HTTPException(status_code=400, detail="No valid input provided for analysis")
+            raise HTTPException(
+                status_code=400, detail="No valid input provided for analysis"
+            )
 
         return result
 
@@ -122,7 +126,8 @@ if __name__ == "__main__":
 
     # Log Python binary architecture info at startup
     result = subprocess.run(
-        ['file', '/usr/local/bin/python'], capture_output=True, text=True, check=True
+        ['file', '/usr/local/bin/python'],
+        capture_output=True, text=True, check=True
     )
     logger.info("Python binary info: %s", result.stdout)
 
