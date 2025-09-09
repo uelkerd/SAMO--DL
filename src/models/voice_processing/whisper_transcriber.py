@@ -276,11 +276,18 @@ class WhisperTranscriber:
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
             # Defensive check for segments to prevent non-subscriptable errors
-            segments = result.get('segments', []) if hasattr(result, 'segments') and isinstance(result.segments, list) else []
+            segments = (
+                result.get('segments', [])
+                if hasattr(result, 'segments') and isinstance(result.segments, list)
+                else []
+            )
             confidence = self._calculate_confidence(segments)
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip() if isinstance(result.get('text'), str) else '',
+                text=(
+                    result['text'].strip()
+                    if isinstance(result.get('text'), str) else ''
+                ),
                 language=result.get('language', 'unknown'),
                 confidence=confidence,
                 duration=audio_metadata["duration"],
@@ -325,13 +332,15 @@ class WhisperTranscriber:
             List of TranscriptionResult objects
         """
         logger.info(
-            f"Starting batch transcription of {len(audio_paths)} files..."
+            "Starting batch transcription of %s files...",
+            len(audio_paths)
         )
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}"
+                "Processing file %s/%s: %s",
+                _i, len(audio_paths), Path(audio_path).name
             )
 
             try:
@@ -361,10 +370,11 @@ class WhisperTranscriber:
         total_processing_time = sum(r.processing_time for r in results)
 
         logger.info(
-            f"✅ Batch transcription complete: {len(results)} files"
+            "✅ Batch transcription complete: %s files", len(results)
         )
         logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
+            "Total audio: %.1fs, Processing: %.1fs",
+            total_duration, total_processing_time
         )
 
         return results
@@ -445,7 +455,9 @@ class WhisperTranscriber:
 
 
 def create_whisper_transcriber(
-    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
+    model_size: str = "base",
+    language: Optional[str] = None,
+    device: Optional[str] = None
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 
