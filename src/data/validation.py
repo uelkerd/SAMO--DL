@@ -7,7 +7,8 @@ import pandas as pd
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,16 @@ class DataValidator:
             actual_type = df[column].dtype
 
             # Handle numeric types
-            if (expected_type in (int, float) and pd.api.types.is_numeric_dtype(actual_type)) or (expected_type is str and pd.api.types.is_string_dtype(actual_type)) or (expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(actual_type)) or (expected_type is bool and pd.api.types.is_bool_dtype(actual_type)):
+            if (
+                (expected_type in (int, float) and
+                 pd.api.types.is_numeric_dtype(actual_type)) or
+                (expected_type is str and
+                 pd.api.types.is_string_dtype(actual_type)) or
+                (expected_type is pd.Timestamp and
+                 pd.api.types.is_datetime64_any_dtype(actual_type)) or
+                (expected_type is bool and
+                 pd.api.types.is_bool_dtype(actual_type))
+            ):
                 type_check_results[column] = True
             else:
                 is_match = actual_type == expected_type
@@ -176,7 +186,9 @@ class DataValidator:
             }
 
         missing_stats = self.check_missing_values(df, required_columns)
-        has_missing_required = any(missing_stats.get(col, 0) > 0 for col in required_columns)
+        has_missing_required = any(
+            missing_stats.get(col, 0) > 0 for col in required_columns
+        )
 
         type_check_results = self.check_data_types(df, expected_types)
         has_type_mismatch = not all(type_check_results.values())
