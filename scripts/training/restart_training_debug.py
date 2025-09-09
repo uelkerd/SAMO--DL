@@ -10,6 +10,7 @@ from src.models.emotion_detection.training_pipeline import train_emotion_detecti
 from pathlib import Path
 import logging
 import sys
+import traceback
 
 
 
