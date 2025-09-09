@@ -26,7 +26,7 @@ class SummarizationConfig:
     device: Optional[str] = None
     do_sample: bool = False
     temperature: float = 1.0
-    repetition_penalty: float = 1.2
+    repetition_penalty: float = 1.0
     length_penalty: float = 1.0
 
 class T5Summarizer:
@@ -77,17 +77,14 @@ class T5Summarizer:
         Returns:
             Dictionary containing summary, scores, and metadata
         """
-        # Enhanced input validation
-        word_count = len(text.split()) if text else 0
-        if not text or word_count < 20:
+        if not text or len(text.strip()) < 10:
             return {
-                "summary": text.strip() if text and word_count >= 10 else "",
+                "summary": "",
                 "confidence": 0.0,
-                "input_length": word_count,
-                "summary_length": word_count if text and word_count >= 10 else 0,
+                "input_length": 0,
+                "summary_length": 0,
                 "processing_time": 0.0,
-                "scores": {},
-                "note": "Input too short for meaningful summarization" if text and word_count < 20 else "Empty input"
+                "scores": {}
             }
 
         start_time = (
@@ -131,16 +128,9 @@ class T5Summarizer:
                 eos_token_id=self.tokenizer.eos_token_id
             )
 
-        # Decode summary - T5 generates the full sequence, not just the new part
-        # We need to extract only the summary part after "summarize:"
-        full_output = self.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-        
-        # Extract summary by finding the part after "summarize:"
-        if "summarize:" in full_output:
-            summary = full_output.split("summarize:")[-1].strip()
-        else:
-            # Fallback: if no "summarize:" prefix, use the full output
-            summary = full_output.strip()
+        # Decode summary
+        summary_ids = generated_ids[:, input_ids.shape[-1]:]
+        summary = self.tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
         if end_time:
             end_time.record()
