@@ -72,7 +72,7 @@ def validate_training_setup():
         
         # Test scheduler
         logger.info("📈 Testing scheduler...")
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+        _scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
         logger.info("✅ Scheduler creation successful")
         
         logger.info("🎉 All validation tests passed! Training setup is ready.")

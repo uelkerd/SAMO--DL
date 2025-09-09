@@ -30,11 +30,11 @@ def debug_validation():
         # Test data loading
         logger.info("Testing data loading...")
         data_loader = create_goemotions_loader()
-        datasets = data_loader.load_data()
-        
+        _datasets = data_loader.load_data()
+
         # Test model creation
         logger.info("Testing model creation...")
-        model = create_bert_emotion_classifier()
+        _model = create_bert_emotion_classifier()
         
         logger.info("✅ All validation tests passed!")
         return True

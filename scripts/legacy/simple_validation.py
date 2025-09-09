@@ -34,7 +34,7 @@ def validate_environment() -> bool:
         # Test PyTorch
         logger.info("Testing PyTorch...")
         x = torch.randn(1, 10)
-        y = F.relu(x)
+        _y = F.relu(x)
         logger.info("✅ PyTorch working")
 
         # Test scikit-learn

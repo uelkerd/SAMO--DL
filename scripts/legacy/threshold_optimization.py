@@ -55,7 +55,7 @@ def main():
     y_true = np.random.randint(0, 2, 1000)
     y_scores = np.random.random(1000)
     
-    threshold, f1 = optimize_thresholds(y_true, y_scores)
+    threshold, _f1 = optimize_thresholds(y_true, y_scores)
     
     if threshold is not None:
         logger.info("🎉 Threshold optimization completed!")

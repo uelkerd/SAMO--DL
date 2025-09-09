@@ -85,7 +85,7 @@ def main() -> bool:
         data.get('confidence', 0.0)
 
     # Test 2b: Emotion Detection - Missing Input
-    invalid_success, invalid_data = test_endpoint(
+    invalid_success, _invalid_data = test_endpoint(
         "Emotion Detection (Missing Input)",
         "POST",
         f"{API_BASE_URL}/api/predict",
@@ -154,7 +154,7 @@ def main() -> bool:
 
     # Test 3c: T5 Summarization - Text Too Long
     long_text = "This is a very long text. " * 200  # Create text longer than 5000 chars
-    invalid_success, invalid_data = test_endpoint(
+    invalid_success, _invalid_data = test_endpoint(
         "T5 Summarization (Text Too Long)",
         "POST",
         f"{API_BASE_URL}/api/summarize",

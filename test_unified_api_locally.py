@@ -187,7 +187,7 @@ def main():
     # Check if API is running
     print("🔍 Checking if API is running...")
     try:
-        response = requests.get(f"{API_BASE_URL}/health", timeout=5)
+        requests.get(f"{API_BASE_URL}/health", timeout=5)
     except:
         print("❌ API is not running!")
         print("   Please start the API first:")
