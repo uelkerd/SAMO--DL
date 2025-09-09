@@ -47,7 +47,9 @@ class T5Summarizer:
             self.tokenizer = T5Tokenizer.from_pretrained(self.config.model_name)
             self.model = T5ForConditionalGeneration.from_pretrained(
                 self.config.model_name,
-                torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32
+                torch_dtype=(
+                    torch.float16 if self.device.type == "cuda" else torch.float32
+                )
             )
             self.model.to(self.device)
             self.model.eval()
@@ -85,8 +87,14 @@ class T5Summarizer:
                 "scores": {}
             }
 
-        start_time = torch.cuda.Event(enable_timing=True) if self.device.type == "cuda" else None
-        end_time = torch.cuda.Event(enable_timing=True) if self.device.type == "cuda" else None
+        start_time = (
+            torch.cuda.Event(enable_timing=True)
+            if self.device.type == "cuda" else None
+        )
+        end_time = (
+            torch.cuda.Event(enable_timing=True)
+            if self.device.type == "cuda" else None
+        )
 
         if start_time:
             start_time.record()
@@ -94,7 +102,7 @@ class T5Summarizer:
         # Preprocess text
         input_text = self._preprocess_text(text)
         input_ids = self.tokenizer.encode(
-            f"summarize: {input_text}", 
+            f"summarize: {input_text}",
             return_tensors="pt",
             max_length=self.config.max_length,
             truncation=True
@@ -127,7 +135,9 @@ class T5Summarizer:
         if end_time:
             end_time.record()
             torch.cuda.synchronize()
-            processing_time = start_time.elapsed_time(end_time) / 1000.0  # ms to seconds
+            processing_time = (
+                start_time.elapsed_time(end_time) / 1000.0
+            )  # ms to seconds
         else:
             processing_time = 0.0
 
@@ -142,11 +152,15 @@ class T5Summarizer:
             "processing_time": processing_time,
             "scores": scores,
             "input_text": (
-                input_text[:200] + "..." if len(input_text) > 200 else input_text
+                input_text[:200] + "..."
+                if len(input_text) > 200 else input_text
             )
         }
 
-        logger.info("Summarization complete: %s → %s words", result['input_length'], result['summary_length'])
+        logger.info(
+            "Summarization complete: %s → %s words",
+            result['input_length'], result['summary_length']
+        )
         return result
 
     def batch_summarize(
@@ -183,10 +197,15 @@ class T5Summarizer:
 
             loss = outputs.loss.item() if outputs.loss is not None else float('inf')
             # Convert negative log likelihood to confidence (simplified)
-            confidence = max(0.0, 1.0 - (loss / 5.0))  # Normalize roughly
+            confidence = max(
+                0.0, 1.0 - (loss / 5.0)
+            )  # Normalize roughly
 
             # Calculate perplexity
-            perplexity = torch.exp(outputs.loss).item() if outputs.loss is not None else float('inf')
+            perplexity = (
+                torch.exp(outputs.loss).item()
+                if outputs.loss is not None else float('inf')
+            )
 
         return {
             "confidence": confidence,
@@ -221,10 +240,10 @@ def test_t5_summarizer() -> None:
     logger.info("Testing T5 summarizer...")
 
     sample_text = """
-    Artificial intelligence is transforming industries worldwide. Machine learning algorithms 
-    are being used in healthcare for diagnostics, in finance for fraud detection, and in 
-    transportation for autonomous vehicles. The rapid advancement of AI technology presents 
-    both opportunities and challenges for society as we navigate the ethical implications 
+    Artificial intelligence is transforming industries worldwide. Machine learning algorithms
+    are being used in healthcare for diagnostics, in finance for fraud detection, and in
+    transportation for autonomous vehicles. The rapid advancement of AI technology presents
+    both opportunities and challenges for society as we navigate the ethical implications
     and workforce transformations that accompany this digital revolution.
     """
 
