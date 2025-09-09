@@ -54,7 +54,7 @@ whisper_transcriber: Optional[WhisperTranscriber] = None
 
 
 @asynccontextmanager
-async def lifespan(app):  # noqa: ARG001 - FastAPI requires app parameter but not used in our implementation
+async def lifespan(app):  # noqa: ARG001 - FastAPI requires app parameter but not used
     """Manage model lifecycle - load on startup, cleanup on shutdown."""
     global whisper_transcriber
 
@@ -170,8 +170,10 @@ async def transcribe_audio(
     if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported audio format: {file_extension}. "
-            "Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}",
+            detail=(
+                "Unsupported audio format: {file_extension}. "
+                "Supported formats: {list(AudioPreprocessor.SUPPORTED_FORMATS)}"
+            ),
         )
 
     temp_file = None
@@ -260,7 +262,9 @@ async def transcribe_batch(
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
                     raise ValueError(f"File {i + 1}: Unsupported format {file_extension}")
 
-                temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=file_extension, delete=False
+                )
                 temp_files.append(temp_file.name)
 
                 content = await audio_file.read()
@@ -329,8 +333,8 @@ async def transcribe_batch(
         )
 
         logger.info(
-            "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
-            "{total_processing_time:.2f}ms total"
+            "Batch transcription complete: %s/%s successful, %.2fms total",
+            success_count, len(audio_files), total_processing_time
         )
 
         return response
