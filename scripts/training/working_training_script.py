@@ -10,11 +10,11 @@ import traceback
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+# Import modules
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-# Import after path setup
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 logger = logging.getLogger(__name__)
 
 

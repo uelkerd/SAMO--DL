@@ -12,11 +12,11 @@ from torch import nn
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+# Import modules
+from transformers import AutoModel, AutoTokenizer
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-# Import after path setup
-from transformers import AutoModel, AutoTokenizer
 
 
 

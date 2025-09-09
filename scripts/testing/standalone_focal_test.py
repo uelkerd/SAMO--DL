@@ -5,18 +5,16 @@ import logging
 import sys
 import torch
 import torch.nn.functional as F
+from datasets import load_dataset
 from pathlib import Path
 from torch import nn
+from transformers import AutoTokenizer, AutoModel
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-# Import after path setup
-from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModel
 
 
 

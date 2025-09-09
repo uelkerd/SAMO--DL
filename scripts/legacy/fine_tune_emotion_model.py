@@ -7,30 +7,26 @@ This script fine-tunes the emotion detection model.
 
 from pathlib import Path
 import sys
+import torch
 import traceback
 import logging
+from torch.nn import CrossEntropyLoss
+from torch.optim import AdamW
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+# Import modules
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Setup device
-import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info("Using device: %s", device)
-
-# Load dataset
-from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-
-# Create model
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-
-# Setup loss and optimizer
-from torch.optim import AdamW
-from torch.nn import CrossEntropyLoss
 
 # Training loop
 def train_model():

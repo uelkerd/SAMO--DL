@@ -6,14 +6,16 @@ print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012")
 print("=" * 50)
 import os
 import json
+import subprocess
 import torch
 import torch.nn as nn
 import pandas as pd
 from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
+from google.colab import files
 from sklearn.metrics import f1_score, accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModel, AutoTokenizer
 
 print("✅ Imports successful")
@@ -36,8 +38,6 @@ except Exception as e:
     raise
 
 # Step 2: Clone repository and setup
-import subprocess
-
 # Clone repository if not already present
 if not os.path.exists("SAMO--DL"):
     subprocess.run(["git", "clone", "https://github.com/uelkerd/SAMO--DL.git"], check=True)
@@ -387,7 +387,6 @@ print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
-from google.colab import files
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 
