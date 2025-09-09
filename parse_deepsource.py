@@ -37,7 +37,7 @@ for path in sorted(files.keys()):
     issues_by_severity = defaultdict(list)
     for issue_code, occs in files[path].items():
         severity = get_severity(issue_code)
-        lines = sorted(set(occ['line'] for occ in occs))
+        lines = sorted({occ['line'] for occ in occs})
         count = len(occs)
         title = occs[0]['title']
         issues_by_severity[severity].append({
@@ -72,7 +72,7 @@ for path, issues in files.items():
     for issue_code in issues:
         if 'C0301' in issue_code:
             occs = issues[issue_code]
-            lines = sorted(set(occ['line'] for occ in occs))
+            lines = sorted({occ['line'] for occ in occs})
             report += f"\nC0301 example: {len(occs)} instances at lines {', '.join(map(str, lines))} in {path}\n"
             c0301_found = True
             break
