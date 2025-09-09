@@ -1,17 +1,3 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # BCE loss
-        # Create data loaders
-        # Create focal loss
-        # Create model
-        # Create tokenized datasets
-        # Extract raw data
 # Extract texts and labels from raw datasets
 # Focal loss components
 # Load dataset
@@ -20,7 +6,7 @@
 from src.models.emotion_detection.bert_classifier import EmotionDataset
 from transformers import AutoTokenizer
 import traceback
-    # Setup device
+# Setup device
 # Add project root to path
 # Configure logging
 #!/usr/bin/env python3

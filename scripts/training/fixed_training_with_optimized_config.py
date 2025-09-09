@@ -1,27 +1,3 @@
-                    # The labels field contains a list of integer indices
-                    # The labels field contains a list of integer indices
-            # Backward pass
-            # Check for 0.0000 loss
-            # Create dummy inputs
-            # Create dummy inputs (in real implementation, use proper tokenization)
-            # Create dummy tensors for validation
-            # Forward pass
-            # Forward pass
-            # Get labels - FIXED: labels are lists, not dict keys
-            # Get labels from batch - FIXED: labels are lists, not dict keys
-            # Log every 50 batches
-        # Apply alpha weighting
-        # Apply sigmoid to get probabilities
-        # Calculate BCE loss
-        # Calculate focal loss
-        # Create optimized components
-        # Epoch summary
-        # Train model
-        # Training loop (simplified for validation)
-        # Validate before training
-        # Validation
-    # Create focal loss
-    # Create model with class weights
 # Create simple data loaders (we'll implement proper batching later)
 # Create zero tensor
 # Load data to get class weights
