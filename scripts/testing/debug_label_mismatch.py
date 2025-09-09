@@ -115,7 +115,7 @@ def debug_label_mismatch():
         journal_encoded = []
         journal_encoding_errors = []
         
-        for _i, emotion in enumerate(journal_df['emotion'][:100]):  # Test first 100
+        for emotion in journal_df['emotion'][:100]:  # Test first 100
             try:
                 if emotion in label_encoder.classes_:
                     encoded = label_encoder.transform([emotion])[0]
