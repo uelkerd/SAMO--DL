@@ -563,7 +563,11 @@ class EmotionDetectionTrainer:
         Args:
             clip_norm: Gradient norm value after clipping
         """
-        clip_val = float(clip_norm) if not isinstance(clip_norm, (int, float)) else clip_norm
+        clip_val = (
+            float(clip_norm)
+            if not isinstance(clip_norm, (int, float))
+            else clip_norm
+        )
         logger.info("   Gradient norm after clipping: %.6f", clip_val)
 
     def _log_progress(
@@ -581,11 +585,7 @@ class EmotionDetectionTrainer:
         current_lr = self.scheduler.get_last_lr()[0]
         logger.info(
             "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
-            epoch,
-            batch_idx + 1,
-            num_batches,
-            avg_loss,
-            current_lr,
+            epoch, batch_idx + 1, num_batches, avg_loss, current_lr
         )
         if avg_loss < 1e-8:
             logger.error(
@@ -664,8 +664,7 @@ class EmotionDetectionTrainer:
             self.patience_counter += 1
             logger.info(
                 "No improvement. Patience: %d/%d",
-                self.patience_counter,
-                self.early_stopping_patience,
+                self.patience_counter, self.early_stopping_patience
             )
 
         return val_metrics
@@ -824,8 +823,12 @@ def train_emotion_detection_model(
         Dictionary containing training results and metrics
     """
     if dev_mode:
-        logger.info("🚀 DEVELOPMENT MODE ENABLED: Fast training with reduced dataset")
-        logger.info("🚀 Expected training time: 30-60 minutes instead of 9 hours")
+        logger.info(
+            "🚀 DEVELOPMENT MODE ENABLED: Fast training with reduced dataset"
+        )
+        logger.info(
+            "🚀 Expected training time: 30-60 minutes instead of 9 hours"
+        )
     else:
         logger.info("🏭 PRODUCTION MODE: Full dataset training")
 
