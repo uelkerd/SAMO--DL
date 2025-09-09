@@ -79,8 +79,8 @@ class SummarizationDataset(Dataset):
 
         assert len(texts) == len(summaries), "Texts and summaries must have same length"
         logger.info(
-            "Initialized SummarizationDataset with {len(texts)} examples",
-            extra={"format_args": True},
+            "Initialized SummarizationDataset with %s examples",
+            len(texts)
         )
 
     def __len__(self) -> int:
@@ -143,7 +143,8 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+            "Initializing %s summarization model...",
+            self.model_name
         )
 
         # Use cache directory from environment, check if exists and is writable
@@ -152,8 +153,9 @@ class T5SummarizationModel(nn.Module):
             cache_dir = cache_dir_env
         else:
             logging.warning(
-                f"Cache directory '{cache_dir_env}' does not exist or is not writable. "
-                "Using default HuggingFace cache directory."
+                "Cache directory '%s' does not exist or is not writable. "
+                "Using default HuggingFace cache directory.",
+                cache_dir_env
             )
             cache_dir = None
 
@@ -183,10 +185,10 @@ class T5SummarizationModel(nn.Module):
 
         self.num_parameters = self.model.num_parameters()
         logger.info(
-            "Loaded {self.model_name} with {self.num_parameters:,} parameters",
-            extra={"format_args": True},
+            "Loaded %s with %s parameters",
+            self.model_name, self.num_parameters
         )
-        logger.info("Model device: {self.device}", extra={"format_args": True})
+        logger.info("Model device: %s", self.device)
 
     def forward(
         self,
@@ -410,7 +412,7 @@ def create_t5_summarizer(
     )
 
     model = T5SummarizationModel(config)
-    logger.info("Created {model_name} summarization model", extra={"format_args": True})
+    logger.info("Created %s summarization model", model_name)
 
     return model
 
@@ -428,24 +430,31 @@ def test_summarization_model() -> None:
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for %s journal entries...",
+        len(test_texts)
     )
 
     for _i, text in enumerate(test_texts, 1):
         model.generate_summary(text)
 
-        logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info("\n--- Journal Entry %s ---", _i)
+        logger.info(
+            "Original (%s chars): %s...",
+            len(text), text[:100]
+        )
+        logger.info(
+            "Summary (%s chars): %s",
+            len(summary), summary
+        )
 
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)
 
     for _i, _summary in enumerate(batch_summaries, 1):
-        logger.info("Batch Summary {i}: {summary}", extra={"format_args": True})
+        logger.info("Batch Summary %s: %s", _i, _summary)
 
-    model.get_model_info()
-    logger.info("\nModel Info: {info}", extra={"format_args": True})
+    info = model.get_model_info()
+    logger.info("\nModel Info: %s", info)
 
     logger.info("✅ T5 summarization model test complete!")
 

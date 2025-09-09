@@ -50,7 +50,7 @@ def main():
 
         logger.info("📋 Training Configuration:")
         for key, value in config.items():
-            logger.info(f"   {key}: {value}")
+            logger.info("   %s: %s", key, value)
 
         logger.info("\n🔍 Starting training with debugging...")
         logger.info("⚠️  Watch for DEBUG messages to identify the 0.0000 loss issue!")
@@ -58,11 +58,11 @@ def main():
         results = train_emotion_detection_model(**config)
 
         logger.info("✅ Training completed!")
-        logger.info(f"📊 Final results: {results}")
+        logger.info("📊 Final results: %s", results)
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error("❌ Training failed: %s", e)
+        logger.error("Traceback: %s", traceback.format_exc())
         return False
 
     return True

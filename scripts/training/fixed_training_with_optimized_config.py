@@ -269,12 +269,18 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
 
             if num_batches % 50 == 0:
                 avg_loss = epoch_loss / num_batches
-                logger.info(f"   Batch {num_batches}: Loss = {avg_loss:.6f}")
+                logger.info(
+                    "   Batch %s: Loss = %.6f",
+                    num_batches, avg_loss
+                )
 
         avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float('in')
         training_history.append(avg_epoch_loss)
 
-        logger.info(f"✅ Epoch {epoch + 1} complete: Loss = {avg_epoch_loss:.6f}")
+        logger.info(
+            "✅ Epoch %s complete: Loss = %.6f",
+            epoch + 1, avg_epoch_loss
+        )
 
         val_results = validate_model(model, loss_fn, val_data, num_samples=100)
 
@@ -329,7 +335,7 @@ def main():
         return False
 
     except Exception as e:
-        logger.error(f"❌ Training error: {e}")
+        logger.error("❌ Training error: %s", e)
         return False
 
 

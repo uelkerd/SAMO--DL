@@ -72,7 +72,7 @@ class FocalLoss(nn.Module):
 
 def create_synthetic_data(num_samples=1000, seq_length=128):
     """Create synthetic training data to avoid dataset loading issues."""
-    logger.info("Creating synthetic data: {num_samples} samples")
+    logger.info("Creating synthetic data: %s samples", num_samples)
 
     input_ids = torch.randint(0, 30522, (num_samples, seq_length))  # BERT vocab size
     attention_mask = torch.ones(num_samples, seq_length)
@@ -89,7 +89,7 @@ def train_minimal_model():
     logger.info("   • Focal Loss for class imbalance")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info("Using device: {device}")
+    logger.info("Using device: %s", device)
 
     try:
         logger.info("Creating BERT model...")
@@ -107,7 +107,7 @@ def train_minimal_model():
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
-            logger.info("\nEpoch {epoch + 1}/3")
+            logger.info("\nEpoch %s/3", epoch + 1)
 
             model.train()
             train_loss = 0.0
@@ -131,7 +131,10 @@ def train_minimal_model():
                 num_batches += 1
 
                 if num_batches % 10 == 0:
-                    logger.info("   • Batch {num_batches}: Loss = {loss.item():.4f}")
+                    logger.info(
+                        "   • Batch %s: Loss = %.4f",
+                        num_batches, loss.item()
+                    )
 
             avg_train_loss = train_loss / num_batches
 
@@ -153,8 +156,8 @@ def train_minimal_model():
 
             avg_val_loss = val_loss / val_batches
 
-            logger.info("   • Train Loss: {avg_train_loss:.4f}")
-            logger.info("   • Val Loss: {avg_val_loss:.4f}")
+            logger.info("   • Train Loss: %.4f", avg_train_loss)
+            logger.info("   • Val Loss: %.4f", avg_val_loss)
 
             training_history.append(
                 {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
@@ -162,7 +165,10 @@ def train_minimal_model():
 
             if avg_val_loss < best_val_loss:
                 best_val_loss = avg_val_loss
-                logger.info("   • New best validation loss: {best_val_loss:.4f}")
+                logger.info(
+                    "   • New best validation loss: %.4f",
+                    best_val_loss
+                )
 
                 output_dir = "./models/checkpoints"
                 os.makedirs(output_dir, exist_ok=True)
@@ -179,16 +185,16 @@ def train_minimal_model():
                     model_path,
                 )
 
-                logger.info("   • Model saved to: {model_path}")
+                logger.info("   • Model saved to: %s", model_path)
 
         logger.info("🎉 Training completed successfully!")
-        logger.info("   • Best validation loss: {best_val_loss:.4f}")
+        logger.info("   • Best validation loss: %.4f", best_val_loss)
         logger.info("   • Model saved to: ./models/checkpoints/minimal_working_model.pt")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error("❌ Training failed: %s", e)
         traceback.print_exc()
         return False
 

@@ -384,7 +384,7 @@ class ModelHealthMonitor:
             else:
                 logger.warning("Model not found: {model_path}")
         except Exception as e:
-            logger.error(f"Error initializing model: {e}")
+            logger.error("Error initializing model: %s", e)
 
     def start_monitoring(self) -> None:
         """Start continuous monitoring."""
@@ -437,7 +437,7 @@ class ModelHealthMonitor:
                 time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
 
             except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
+                logger.error("Error in monitoring loop: %s", e)
                 time.sleep(60)  # Wait before retrying
 
     def _collect_metrics(self) -> Optional[ModelMetrics]:
@@ -496,7 +496,7 @@ class ModelHealthMonitor:
             )
 
         except Exception as e:
-            logger.error(f"Error collecting metrics: {e}")
+            logger.error("Error collecting metrics: %s", e)
             return None
 
     @staticmethod
@@ -572,7 +572,7 @@ class ModelHealthMonitor:
             self.alerts.append(retrain_alert)
 
         except Exception as e:
-            logger.error(f"Error triggering retraining: {e}")
+            logger.error("Error triggering retraining: %s", e)
 
     @staticmethod
     def _save_alert(alert: Alert) -> None:
@@ -590,7 +590,7 @@ class ModelHealthMonitor:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
         except Exception as e:
-            logger.error(f"Error saving alert: {e}")
+            logger.error("Error saving alert: %s", e)
 
     def get_health_status(self) -> dict[str, Any]:
         """Get current model health status.

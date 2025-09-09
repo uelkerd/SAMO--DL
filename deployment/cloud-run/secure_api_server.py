@@ -383,7 +383,7 @@ def before_request() -> None:
     # Log request headers for debugging (excluding sensitive ones)
     headers_to_log = {k: v for k, v in request.headers.items()
                       if k.lower() not in ['authorization', 'x-api-key', 'cookie']}
-    logger.debug(f"📋 Request headers: {headers_to_log}")
+    logger.debug("📋 Request headers: %s", headers_to_log)
 
 @app.after_request
 def after_request(response):
@@ -412,7 +412,7 @@ class Health(Resource):
     def get(self):
         """Get API health status."""
         try:
-            logger.info(f"Health check from {request.remote_addr}")
+            logger.info("Health check from %s", request.remote_addr)
             model_status = check_model_loaded()
             
             if model_status:
@@ -849,7 +849,10 @@ class CompleteAnalysis(Resource):
             ext_candidate_clean = ext_candidate.lstrip('.').lower()
             ext = allowed_extensions.get(ext_candidate_clean, 'wav')
             if ext_candidate_clean != ext:
-                logger.warning(f"Extension '{ext_candidate_clean}' in filename '{audio_file.filename}' not in allowed set; defaulting to .{ext}")
+                logger.warning(
+                    "Extension '%s' in filename '%s' not in allowed set; defaulting to .%s",
+                    ext_candidate_clean, audio_file.filename, ext
+                )
         else:
             logger.warning("No extension in filename %s, defaulting to .wav", audio_file.filename)
         logger.info("Using validated extension: .%s for temp file in complete analysis", ext)

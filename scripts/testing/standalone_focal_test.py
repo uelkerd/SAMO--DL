@@ -69,9 +69,9 @@ def test_focal_loss():
     loss = focal_loss(inputs, targets)
 
     logger.info("✅ Focal Loss Test PASSED")
-    logger.info(f"   • Loss value: {loss.item():.4f}")
-    logger.info(f"   • Input shape: {inputs.shape}")
-    logger.info(f"   • Target shape: {targets.shape}")
+    logger.info("   • Loss value: %.4f", loss.item())
+    logger.info("   • Input shape: %s", inputs.shape)
+    logger.info("   • Target shape: %s", targets.shape)
 
     return True
 
@@ -96,15 +96,15 @@ def test_bert_import():
             logits = classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
         logger.info("✅ BERT Model Test PASSED")
-        logger.info(f"   • Model: {model_name}")
-        logger.info(f"   • Input text: '{text}'")
-        logger.info(f"   • Output shape: {logits.shape}")
-        logger.info(f"   • Output values: {logits[0, :5].tolist()}...")
+        logger.info("   • Model: %s", model_name)
+        logger.info("   • Input text: '%s'", text)
+        logger.info("   • Output shape: %s", logits.shape)
+        logger.info("   • Output values: %s...", logits[0, :5].tolist())
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ BERT Model Test FAILED: {e}")
+        logger.error("❌ BERT Model Test FAILED: %s", e)
         return False
 
 
@@ -116,15 +116,18 @@ def test_dataset_download():
         dataset = load_dataset("go_emotions", "simplified", split="train[:100]")
 
         logger.info("✅ Dataset Download Test PASSED")
-        logger.info(f"   • Dataset size: {len(dataset)}")
-        logger.info(f"   • Features: {list(dataset.features.keys())}")
-        logger.info(f"   • Sample text: '{dataset[0]['text'][:50]}...'")
-        logger.info(f"   • Sample labels: {dataset[0]['labels']}")
+        logger.info("   • Dataset size: %s", len(dataset))
+        logger.info("   • Features: %s", list(dataset.features.keys()))
+        logger.info(
+            "   • Sample text: '%s...'",
+            dataset[0]['text'][:50]
+        )
+        logger.info("   • Sample labels: %s", dataset[0]['labels'])
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ Dataset Download Test FAILED: {e}")
+        logger.error("❌ Dataset Download Test FAILED: %s", e)
         return False
 
 
@@ -144,11 +147,11 @@ def main():
 
     results = {}
     for test_name, test_func in tests:
-        logger.info(f"\n📋 Running {test_name}...")
+        logger.info("\n📋 Running %s...", test_name)
         try:
             results[test_name] = test_func()
         except Exception as e:
-            logger.error(f"❌ {test_name} failed with exception: {e}")
+            logger.error("❌ %s failed with exception: %s", test_name, e)
             results[test_name] = False
 
     logger.info("\n📊 Test Results Summary:")
