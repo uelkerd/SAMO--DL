@@ -5,20 +5,23 @@ Fine-tune Emotion Model Script
 This script fine-tunes the emotion detection model.
 """
 
-from pathlib import Path
-import sys
-import torch
-import traceback
+# Standard library imports
 import logging
+import sys
+import traceback
+from pathlib import Path
+
+# Third-party imports
+import torch
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-# Import modules
+# Local imports
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

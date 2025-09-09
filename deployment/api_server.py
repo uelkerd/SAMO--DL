@@ -39,6 +39,7 @@ def health_check() -> dict:
         'emotions': list(detector.label_encoder.classes_) if detector else []
     })
 
+
 @app.route('/predict', methods=['POST'])
 def predict_emotion() -> dict:
     """Predict emotion for given text."""
@@ -58,6 +59,7 @@ def predict_emotion() -> dict:
     except Exception as e:
         logger.error(f"Prediction error: {e}")
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch() -> dict:
@@ -79,6 +81,7 @@ def predict_batch() -> dict:
         logger.error(f"Batch prediction error: {e}")
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/emotions', methods=['GET'])
 def get_emotions() -> dict:
     """Get list of supported emotions."""
@@ -89,6 +92,7 @@ def get_emotions() -> dict:
         'emotions': list(detector.label_encoder.classes_),
         'count': len(detector.label_encoder.classes_)
     })
+
 
 if __name__ == '__main__':
 

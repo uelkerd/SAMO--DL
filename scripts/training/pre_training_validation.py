@@ -5,22 +5,25 @@ Pre-training Validation Script
 This script validates the training setup before starting actual training.
 """
 
+# Standard library imports
+import logging
+import shutil
 import sys
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+# Third-party imports
+import pandas as pd
+import torch
+import transformers
+from torch.optim import AdamW
 
-# Import modules
+# Local imports
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from torch.optim import AdamW
-import pandas as pd
-import shutil
-import torch
-import transformers
-import logging
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
 logging.basicConfig(

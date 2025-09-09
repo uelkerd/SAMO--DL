@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Working Training Script based on the successful local validation approach."""
 
-from pathlib import Path
+# Standard library imports
 import logging
 import sys
-import torch
 import traceback
+from pathlib import Path
+
+# Third-party imports
+import torch
+
+# Local imports
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-# Import modules
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
 logging.basicConfig(

@@ -21,6 +21,7 @@ Features:
 import os
 import sys
 import json
+import shutil
 import warnings
 import subprocess
 import logging
@@ -254,30 +255,35 @@ class RepositoryManager:
         """Setup the SAMO-DL repository with comprehensive error handling."""
         logger.info("📁 Setting up repository...")
         
-        def run_command_safe(command: str, description: str) -> bool:
-            """Execute command with comprehensive error handling."""
-            logger.info(f"🔄 {description}...")
+        def run_git_command(cmd: List[str], description: str) -> bool:
+            """Safely execute a git command with full path resolution."""
             try:
-                # Convert string command to list for security
-                if isinstance(command, str):
-                    command = command.split()
-                result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=300)
+                # Resolve git path
+                git_path = shutil.which("git")
+                if git_path is None:
+                    logger.error(f"❌ Git is not installed or not in PATH")
+                    return False
+                
+                # Run the git command with full path
+                full_cmd = [git_path] + cmd
+                result = subprocess.run(full_cmd, check=False, capture_output=True, text=True, timeout=300)
+                
                 if result.returncode == 0:
-                    logger.info(f"  ✅ {description} completed")
+                    logger.info(f"✅ {description} completed")
                     return True
                 else:
-                    logger.error(f"  ❌ {description} failed: {result.stderr}")
+                    logger.error(f"❌ {description} failed: {result.stderr}")
                     return False
             except subprocess.TimeoutExpired:
-                logger.error(f"  ❌ {description} timed out")
+                logger.error(f"❌ {description} timed out")
                 return False
             except Exception as e:
-                logger.error(f"  ❌ {description} failed: {e}")
+                logger.error(f"❌ {description} failed: {e}")
                 return False
         
         # Clone repository if not exists
         if not Path('SAMO--DL').exists():
-            if not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
+            if not run_git_command(["clone", "https://github.com/uelkerd/SAMO--DL.git"], "Cloning repository"):
                 return False
         
         # Change to project directory
@@ -290,7 +296,7 @@ class RepositoryManager:
             return False
         
         # Pull latest changes
-        run_command_safe('git pull origin main', 'Pulling latest changes')
+        run_git_command(["pull", "origin", "main"], "Pulling latest changes")
         
         # Verify essential files exist
         essential_files = [

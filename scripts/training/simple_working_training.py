@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """Simple Working Training Script"""
 
-from pathlib import Path
+# Standard library imports
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
+
+# Third-party imports
+import torch
 from torch import nn
+
+# Local imports
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-# Import modules
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+logger = logging.getLogger(__name__)
 
 
 
@@ -33,14 +37,6 @@ This script addresses the critical issues:
 2. Missing model files
 3. Proper error handling
 """
-
-project_root = Path(__file__).parent.parent.resolve()
-sys.path.append(str(project_root))
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 
 class FocalLoss(nn.Module):
@@ -170,7 +166,8 @@ def train_simple_model():
             logger.info("   • Val Loss: %.4f", avg_val_loss)
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {"epoch": epoch + 1, "train_loss": avg_train_loss,
+                 "val_loss": avg_val_loss}
             )
 
             if avg_val_loss < best_val_loss:

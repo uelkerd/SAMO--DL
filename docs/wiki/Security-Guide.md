@@ -703,7 +703,7 @@ class SecurityMonitor:
         # Example: Send to webhook
         try:
             requests.post(
-                "https://your-alerting-webhook.com/security",
+                os.getenv('SECURITY_ALERT_WEBHOOK', "https://your-alerting-webhook.com/security"),
                 json=alert_data,
                 timeout=5
             )

@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
 """Minimal Working Training Script"""
 
+# Standard library imports
 import logging
 import os
 import sys
-import torch
 import traceback
 from pathlib import Path
+
+# Third-party imports
+import torch
 from torch import nn
+from transformers import AutoModel, AutoTokenizer
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-# Import modules
-from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+logger = logging.getLogger(__name__)
 
 
 
@@ -28,9 +30,6 @@ logging.basicConfig(
 Minimal Working Training Script
 Uses only working modules to avoid environment issues
 """
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
 
 
 class SimpleBERTClassifier(nn.Module):
@@ -122,10 +121,12 @@ def train_minimal_model():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_input_ids, train_attention_mask, train_labels = create_synthetic_data(1000)
-        val_input_ids, val_attention_mask, val_labels = create_synthetic_data(200)
+        train_input_ids, train_attention_mask, train_labels = \
+            create_synthetic_data(1000)
+        val_input_ids, val_attention_mask, val_labels = \
+            create_synthetic_data(200)
 
-        best_val_loss = float("in")
+        best_val_loss = float("inf")
         training_history = []
 
         for epoch in range(3):  # Quick 3 epochs
@@ -138,9 +139,8 @@ def train_minimal_model():
             batch_size = 16
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
-                batch_attention_mask = (
+                batch_attention_mask = \
                     train_attention_mask[i : i + batch_size].to(device)
-                )
                 batch_labels = train_labels[i : i + batch_size].to(device)
 
                 optimizer.zero_grad()
@@ -169,9 +169,8 @@ def train_minimal_model():
             with torch.no_grad():
                 for i in range(0, len(val_input_ids), batch_size):
                     batch_input_ids = val_input_ids[i : i + batch_size].to(device)
-                    batch_attention_mask = (
+                    batch_attention_mask = \
                         val_attention_mask[i : i + batch_size].to(device)
-                    )
                     batch_labels = val_labels[i : i + batch_size].to(device)
 
                     outputs = model(batch_input_ids, attention_mask=batch_attention_mask)
@@ -186,7 +185,8 @@ def train_minimal_model():
             logger.info("   • Val Loss: %.4f", avg_val_loss)
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {"epoch": epoch + 1, "train_loss": avg_train_loss,
+                 "val_loss": avg_val_loss}
             )
 
             if avg_val_loss < best_val_loss:

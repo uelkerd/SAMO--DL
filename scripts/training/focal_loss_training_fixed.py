@@ -183,7 +183,8 @@ def train_with_focal_loss(
 
             if (batch_idx + 1) % 100 == 0:
                 logger.info(
-                    "   Batch %s/%s, Loss: %.4f", batch_idx + 1, len(train_loader), loss.item()
+                    "   Batch %s/%s, Loss: %.4f",
+                    batch_idx + 1, len(train_loader), loss.item()
                 )
 
         avg_train_loss = train_loss / num_batches

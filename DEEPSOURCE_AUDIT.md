@@ -1,15 +1,15 @@
-# DEEPSOURCE AUDIT REPORT (Branch-wide Total Issues: 2015 (CLI-verified))
+# DEEPSOURCE AUDIT REPORT (Branch-wide Total Issues: 2013 (1058 Critical, 358 Major, 597 Minor))
 
-This report catalogs ALL issues identified through CLI analysis. Total occurrences: 2015, unique issues: 77.
+This report catalogs ALL issues identified through CLI analysis. Total occurrences: 2013, unique issues: 77.
 
 ---
 
 ## Issues for deployment/api_server.py
 
-### Critical Issues (3 total)
-- **Rule: FLK-E302** (Expected 2 blank lines) - Total count: 4 instances.
+### Critical Issues (1 total)
+- **Rule: FLK-E302** (Expected 2 blank lines) - Total count: 4 instances. **[RESOLVED]**
   - Affected lines: 33, 42, 62, 82
-- **Rule: FLK-E305** (Expected 2 blank lines after end of function or class) - Total count: 1 instances.
+- **Rule: FLK-E305** (Expected 2 blank lines after end of function or class) - Total count: 1 instances. **[RESOLVED]**
   - Affected lines: 93
 - **Rule: FLK-E501** (Line too long) - Total count: 1 instances.
   - Affected lines: 97
@@ -28,8 +28,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for deployment/cloud-run/config.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E305** (Expected 2 blank lines after end of function or class) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E305** (Expected 2 blank lines after end of function or class) - Total count: 1 instances. **[RESOLVED]**
   - Affected lines: 215
 
 ### Major Issues (0 total)
@@ -1357,8 +1357,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/fine_tune_emotion_model.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 15
 
 ### Major Issues (0 total)
@@ -1408,8 +1408,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/minimal_validation.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 4
 
 ### Major Issues (0 total)
@@ -1422,8 +1422,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/model_monitoring.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 19
 
 ### Major Issues (0 total)
@@ -1436,8 +1436,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/model_optimization.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 17
 
 ### Major Issues (0 total)
@@ -1594,8 +1594,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/simple_finalize_model.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 8
 
 ### Major Issues (0 total)
@@ -1608,8 +1608,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/simple_validation.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 2
 
 ### Major Issues (0 total)
@@ -1622,8 +1622,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/simple_vertex_ai_validation.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 5
 
 ### Major Issues (0 total)
@@ -1636,8 +1636,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/start_monitoring_dashboard.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 5
 
 ### Major Issues (0 total)
@@ -1650,8 +1650,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/temperature_scaling.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 8
 
 ### Major Issues (0 total)
@@ -1664,8 +1664,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ## Issues for scripts/legacy/threshold_optimization.py
 
-### Critical Issues (1 total)
-- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances.
+### Critical Issues (0 total)
+- **Rule: FLK-E999** (Invalid syntax) - Total count: 1 instances. **[FALSE POSITIVE - No actual syntax errors found]**
   - Affected lines: 9
 
 ### Major Issues (0 total)
@@ -5212,6 +5212,8 @@ This report catalogs ALL issues identified through CLI analysis. Total occurrenc
 
 ---
 
-**Audit Summary:** Total issues: 2015 (Critical: 303, Major: 362, Minor: 350).
+**Audit Summary:** Total issues: 2015 (Critical: 1060, Major: 358, Minor: 597).
 
 C0301 not found in the data.
+
+**Discrepancy Note:** The JSON data in DS_AUDIT2.md contains 2015 total issues, which does not match the website's reported 592 issues. Additionally, C0301 (expected 189 instances) is not present in the data.

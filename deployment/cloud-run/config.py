@@ -212,6 +212,7 @@ class EnvironmentConfig:
             'security': self.get_security_config()
         }
 
+
 # Global configuration instance
 config = EnvironmentConfig()
 

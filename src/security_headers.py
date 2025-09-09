@@ -216,7 +216,8 @@ class SecurityHeadersMiddleware:
             "block-all-mixed-content"  # Block mixed content
         )
 
-    def _build_permissions_policy(self) -> str:
+    @staticmethod
+    def _build_permissions_policy() -> str:
         """Build Permissions Policy."""
         policies = [
             "accelerometer=()",
@@ -249,7 +250,8 @@ class SecurityHeadersMiddleware:
         ]
         return ", ".join(policies)
 
-    def _add_correlation_headers(self, response: Response):
+    @staticmethod
+    def _add_correlation_headers(response: Response):
         """Add request correlation headers."""
         if hasattr(g, "request_id"):
             response.headers["X-Request-ID"] = g.request_id
@@ -493,7 +495,8 @@ class SecurityHeadersMiddleware:
 
         return patterns
 
-    def _log_response_security(self, response: Response):
+    @staticmethod
+    def _log_response_security(response: Response):
         """Log security-relevant response information."""
         security_info = {
             "timestamp": time.time(),

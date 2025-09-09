@@ -225,7 +225,8 @@ class DataPipeline:
             Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info("Saved featured data to %s/journal_features_%s.csv", output_dir, timestamp)
+        logger.info("Saved featured data to %s/journal_features_%s.csv",
+                    output_dir, timestamp)
 
         embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
@@ -235,10 +236,12 @@ class DataPipeline:
                 Path(output_dir, f"journal_topics_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved topic data to %s/journal_topics_%s.csv", output_dir, timestamp)
+            logger.info("Saved topic data to %s/journal_topics_%s.csv",
+                        output_dir, timestamp)
 
         if save_intermediates:
-            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False)
+            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(),
+                          index=False)
             logger.info(
                 "Saved raw data to %s/journal_raw_%s.csv",
                 output_dir, timestamp
@@ -248,4 +251,5 @@ class DataPipeline:
                 Path(output_dir, f"journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved processed data to %s/journal_processed_%s.csv", output_dir, timestamp)
+            logger.info("Saved processed data to %s/journal_processed_%s.csv",
+                        output_dir, timestamp)

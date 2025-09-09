@@ -2,23 +2,26 @@
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
+# Standard library imports
+import json
+import os
+
+# Third-party imports
+import pandas as pd
+import torch
+import torch.nn as nn
+from datasets import load_dataset
+from google.colab import files
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import DataLoader, Dataset
+from transformers import AutoModel, AutoTokenizer
+
 print("🚀 FINAL BULLETPROOF TRAINING FOR REQ-DL-012 - PROPER LABEL MAPPING")
 print("=" * 70)
 
 # Step 1: Clear everything and validate environment
-import os
-import json
-import torch
-import torch.nn as nn
-import pandas as pd
-from datasets import load_dataset
-from google.colab import files
-from sklearn.metrics import f1_score, accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from torch.utils.data import Dataset, DataLoader
-from transformers import AutoModel, AutoTokenizer
-
 print("✅ Imports successful")
 
 # Clear GPU memory
