@@ -87,8 +87,9 @@ def test_single_predictions() -> bool:
             return False
     
     # Calculate average performance
-    sum(r['confidence'] for r in results) / len(results)
-    sum(r['prediction_time_ms'] for r in results) / len(results)
+    avg_confidence = sum(r['confidence'] for r in results) / len(results)
+    avg_time = sum(r['prediction_time_ms'] for r in results) / len(results)
+    print(f"Average confidence: {avg_confidence:.3f}, Average time: {avg_time:.2f}ms")
     
     return True
 
@@ -110,7 +111,8 @@ def test_batch_predictions() -> Optional[bool]:
             
             
             for _i, pred in enumerate(predictions, 1):
-                pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
+                truncated_text = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
+                print(f"Prediction {_i}: {truncated_text}")
             
             return True
         else:
@@ -140,11 +142,13 @@ def test_rate_limiting() -> bool:
         futures = [executor.submit(make_request) for _ in range(50)]
         results = [future.result() for future in as_completed(futures)]
     
-    time.time()
-    
-    sum(1 for code in results if code == 200)
+    end_time = time.time()
+
+    successful_requests = sum(1 for code in results if code == 200)
     rate_limited = sum(1 for code in results if code == 429)
-    sum(1 for code in results if code not in [200, 429])
+    other_errors = sum(1 for code in results if code not in [200, 429])
+
+    print(f"Rate limit test results: {successful_requests} successful, {rate_limited} rate limited, {other_errors} other errors")
     
     
     return rate_limited > 0

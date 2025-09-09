@@ -40,7 +40,7 @@ def test_endpoint(name, method, url, timeout=30, **kwargs):
             return False, f"Unsupported method: {method}"
 
         response = handler(url, headers=headers, **kwargs)
-        time.time() - start_time
+        elapsed_time = time.time() - start_time
 
 
         # Use early return pattern to avoid nested conditionals
@@ -55,7 +55,7 @@ def test_endpoint(name, method, url, timeout=30, **kwargs):
             return True, response.text
 
     except requests.exceptions.RequestException as e:
-        time.time() - start_time
+        elapsed_time = time.time() - start_time
         return False, str(e)
 
 def main() -> bool:
@@ -182,7 +182,8 @@ def main() -> bool:
             data['emotion_analysis'].get('primary_emotion', 'unknown')
 
         if data.get('summary'):
-            data['summary'].get('summary', '')[:50] if data.get('summary') else ''
+            summary_text = data['summary'].get('summary', '')[:50] if data.get('summary') else ''
+            print(f"Summary preview: {summary_text}")
 
     # Test 4b: Complete Analysis Pipeline - Audio Input (if available)
     test_audio_path = "test_audio.wav"
@@ -209,13 +210,15 @@ def main() -> bool:
                 data.get('pipeline_status', {})
 
                 if data.get('transcription'):
-                    data['transcription'].get('text', '')[:100] if data.get('transcription') else ''
+                    transcription_text = data['transcription'].get('text', '')[:100] if data.get('transcription') else ''
+                    print(f"Transcription preview: {transcription_text}")
 
                 if data.get('emotion_analysis'):
                     data['emotion_analysis'].get('primary_emotion', 'unknown')
 
                 if data.get('summary'):
-                    data['summary'].get('summary', '')[:50] if data.get('summary') else ''
+                    summary_text = data['summary'].get('summary', '')[:50] if data.get('summary') else ''
+                    print(f"Summary preview: {summary_text}")
     else:
         results['complete_analysis_audio'] = None
 
