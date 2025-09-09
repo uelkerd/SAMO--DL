@@ -29,10 +29,13 @@ class AnalysisRequest(BaseModel):
 
 @app.post("/complete-analysis/")
 async def complete_analysis(request: AnalysisRequest):
-    """Complete analysis endpoint integrating emotion detection, summarization, and transcription."""
+    """Complete analysis endpoint integrating emotion detection, summarization,
+    and transcription."""
     try:
         if not request.text and not request.audio:
-            raise HTTPException(status_code=400, detail="At least text or audio input required")
+            raise HTTPException(
+                status_code=400, detail="At least text or audio input required"
+            )
 
         result = {
             "emotion": None,
@@ -45,13 +48,18 @@ async def complete_analysis(request: AnalysisRequest):
         if request.text:
             try:
                 validated_text = validate_text_input(request.text)
-                sanitized_text, warnings = InputSanitizer(SanitizationConfig()).sanitize_text(validated_text, "analysis")
+                sanitized_text, warnings = InputSanitizer(SanitizationConfig()).sanitize_text(
+                    validated_text, "analysis"
+                )
                 if warnings:
                     logger.warning("Sanitization warnings: %s", warnings)
 
                 classifier = get_emotion_classifier()
                 emotion_results = classifier.predict_emotions([sanitized_text])
-                emotion_result = emotion_results["emotions"][0][0] if emotion_results["emotions"] else {"label": "neutral", "score": 0.0}
+                emotion_result = (
+                    emotion_results["emotions"][0][0] if emotion_results["emotions"]
+                    else {"label": "neutral", "score": 0.0}
+                )
                 result["emotion"] = emotion_result["label"]
                 result["emotion_score"] = emotion_result["score"]
             except Exception as e:
@@ -89,7 +97,9 @@ async def complete_analysis(request: AnalysisRequest):
                 result["transcription"] = "Transcription unavailable"
                 result["transcription_confidence"] = 0.0
 
-        if not any([result["emotion"], result["summary"], result["transcription"]]):
+        if not any([
+            result["emotion"], result["summary"], result["transcription"]
+        ]):
             raise HTTPException(status_code=400, detail="No valid input provided for analysis")
 
         return result
@@ -111,7 +121,9 @@ if __name__ == "__main__":
     import uvicorn
 
     # Log Python binary architecture info at startup
-    result = subprocess.run(['file', '/usr/local/bin/python'], capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        ['file', '/usr/local/bin/python'], capture_output=True, text=True, check=True
+    )
     logger.info("Python binary info: %s", result.stdout)
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -141,7 +141,9 @@ class T5Summarizer:
             "summary_length": len(summary.split()),
             "processing_time": processing_time,
             "scores": scores,
-            "input_text": input_text[:200] + "..." if len(input_text) > 200 else input_text
+            "input_text": (
+                input_text[:200] + "..." if len(input_text) > 200 else input_text
+            )
         }
 
         logger.info("Summarization complete: %s → %s words", result['input_length'], result['summary_length'])

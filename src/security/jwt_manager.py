@@ -66,7 +66,9 @@ class JWTManager:
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data.get("permissions", []),
-            "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "exp": datetime.now(timezone.utc) + timedelta(
+                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+            ),
             "iat": datetime.now(timezone.utc),
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
@@ -78,7 +80,9 @@ class JWTManager:
             "username": user_data["username"],
             "email": user_data["email"],
             "permissions": user_data.get("permissions", []),
-            "exp": datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+            "exp": datetime.now(timezone.utc) + timedelta(
+                days=REFRESH_TOKEN_EXPIRE_DAYS
+            ),
             "iat": datetime.now(timezone.utc),
             "type": "refresh",
         }
@@ -129,7 +133,9 @@ class JWTManager:
     def blacklist_token(self, token: str) -> bool:
         """Add a token to the blacklist."""
         try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            payload = jwt.decode(
+                token, self.secret_key, algorithms=[self.algorithm]
+            )
             exp_timestamp = payload.get("exp")
             exp_datetime = (
                 datetime.fromtimestamp(exp_timestamp, tz=timezone.utc) if exp_timestamp else None
