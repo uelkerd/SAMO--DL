@@ -26,7 +26,7 @@ except ImportError as e:
 
 def validate_environment() -> bool:
     """Validate that all required dependencies are available.
-    
+
     Returns:
         True if all dependencies are available, False otherwise
     """
@@ -36,19 +36,19 @@ def validate_environment() -> bool:
         x = torch.randn(1, 10)
         y = F.relu(x)
         logger.info("✅ PyTorch working")
-        
+
         # Test scikit-learn
         logger.info("Testing scikit-learn...")
         from sklearn.metrics import accuracy_score
         logger.info("✅ scikit-learn working")
-        
+
         # Test transformers
         logger.info("Testing transformers...")
         from transformers import AutoTokenizer
         logger.info("✅ transformers working")
-        
+
         return True
-        
+
     except Exception as e:
         logger.error("❌ Validation failed: %s", e)
         return False
@@ -57,7 +57,7 @@ def validate_environment() -> bool:
 def main():
     """Main function to validate environment."""
     logger.info("🔍 Validating environment...")
-    
+
     if validate_environment():
         logger.info("✅ All dependencies validated successfully")
         sys.exit(0)

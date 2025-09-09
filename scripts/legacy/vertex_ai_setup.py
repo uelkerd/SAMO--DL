@@ -26,11 +26,11 @@ except ImportError as e:
 
 def setup_vertex_ai_environment(project_id: str, region: str = "us-central1") -> Dict[str, Any]:
     """Setup Vertex AI environment for emotion detection model training.
-    
+
     Args:
         project_id: GCP project ID
         region: GCP region for Vertex AI
-        
+
     Returns:
         Dictionary with setup status and configuration
     """
@@ -38,19 +38,19 @@ def setup_vertex_ai_environment(project_id: str, region: str = "us-central1") ->
         # Initialize Vertex AI
         aiplatform.init(project=project_id, location=region)
         logger.info("✅ Vertex AI initialized successfully")
-        
+
         # Verify project access
         storage_client = storage.Client(project=project_id)
         buckets = list(storage_client.list_buckets())
         logger.info("✅ GCP project access verified")
-        
+
         return {
             "status": "success",
             "project_id": project_id,
             "region": region,
             "buckets_count": len(buckets)
         }
-        
+
     except Exception as e:
         logger.error("❌ Vertex AI setup failed: %s", e)
         return {
@@ -65,10 +65,10 @@ def main():
     if not project_id:
         logger.error("❌ GOOGLE_CLOUD_PROJECT environment variable not set")
         sys.exit(1)
-    
+
     logger.info("🚀 Setting up Vertex AI for project: %s", project_id)
     result = setup_vertex_ai_environment(project_id)
-    
+
     if result["status"] == "success":
         logger.info("✅ Vertex AI setup completed successfully")
         logger.info("   Project: %s", result["project_id"])

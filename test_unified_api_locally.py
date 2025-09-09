@@ -5,12 +5,9 @@ Tests all three features: emotion detection, voice transcription, text summariza
 """
 
 import requests
-import json
-import time
 import io
 import numpy as np
 import wave
-from pathlib import Path
 
 # Configuration
 API_BASE_URL = "http://localhost:8000"
@@ -44,9 +41,8 @@ def test_health_check():
                   f"summarizer={data['models']['text_summarization']['loaded']}, "
                   f"voice={data['models']['voice_processing']['loaded']}")
             return True
-        else:
-            print(f"❌ Health check failed: {response.status_code}")
-            return False
+        print(f"❌ Health check failed: {response.status_code}")
+        return False
     except Exception as e:
         print(f"❌ Health check error: {e}")
         return False
@@ -111,9 +107,8 @@ def test_text_summarization():
             print(f"   Summary: {len(summary)} chars")
             print(f"   Content: {summary}")
             return True
-        else:
-            print(f"❌ Text summarization failed: {response.status_code}")
-            return False
+        print(f"❌ Text summarization failed: {response.status_code}")
+        return False
 
     except Exception as e:
         print(f"❌ Text summarization error: {e}")
@@ -146,10 +141,9 @@ def test_voice_transcription():
             print(f"   Confidence: {confidence:.3f}")
             print(f"   Language: {data.get('language', 'unknown')}")
             return True
-        else:
-            print(f"❌ Voice transcription failed: {response.status_code}")
-            print(f"   Response: {response.text}")
-            return False
+        print(f"❌ Voice transcription failed: {response.status_code}")
+        print(f"   Response: {response.text}")
+        return False
 
     except Exception as e:
         print(f"❌ Voice transcription error: {e}")
@@ -178,9 +172,8 @@ def test_complete_pipeline():
             print(f"   📋 Summary: {data['summary']['summary'][:50]}...")
             print(f"   ⏱️ Processing time: {data['processing_time_ms']:.1f}ms")
             return True
-        else:
-            print(f"❌ Complete pipeline failed: {response.status_code}")
-            return False
+        print(f"❌ Complete pipeline failed: {response.status_code}")
+        return False
 
     except Exception as e:
         print(f"❌ Complete pipeline error: {e}")
@@ -232,9 +225,8 @@ def main():
         print("   ✅ Text Summarization")
         print("   ✅ Voice Transcription")
         return 0
-    else:
-        print(f"❌ {total - passed} tests failed. Check the implementation.")
-        return 1
+    print(f"❌ {total - passed} tests failed. Check the implementation.")
+    return 1
 
 if __name__ == "__main__":
     import sys

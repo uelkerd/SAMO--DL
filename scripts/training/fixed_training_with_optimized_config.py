@@ -94,10 +94,9 @@ class FocalLoss(nn.Module):
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
@@ -238,12 +237,11 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
     if avg_loss <= 0:
         logger.error("❌ CRITICAL: Validation loss is zero or negative!")
         return {"loss": avg_loss, "status": "failed"}
-    elif avg_loss < 0.1:
+    if avg_loss < 0.1:
         logger.warning("⚠️  Very low validation loss - check for overfitting")
         return {"loss": avg_loss, "status": "warning"}
-    else:
-        logger.info("✅ Validation loss is reasonable")
-        return {"loss": avg_loss, "status": "success"}
+    logger.info("✅ Validation loss is reasonable")
+    return {"loss": avg_loss, "status": "success"}
 
 
 def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Optimizer,
@@ -351,9 +349,8 @@ def main():
             logger.info("   Final loss: {training_results['final_loss']:.6f}")
             logger.info("   Ready for production deployment!")
             return True
-        else:
-            logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
-            return False
+        logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
+        return False
 
     except Exception as e:
         logger.error("❌ Training error: {e}")
