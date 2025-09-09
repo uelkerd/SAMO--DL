@@ -72,7 +72,7 @@ def simple_temperature_test():
             # Create dataloader for evaluation
             from torch.utils.data import DataLoader, TensorDataset
             from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-            
+
             # Create a simple dataloader for evaluation
             eval_loader = GoEmotionsDataLoader.create_eval_dataloader(
                 texts=test_texts,
@@ -80,7 +80,7 @@ def simple_temperature_test():
                 tokenizer=tokenizer,
                 batch_size=32
             )
-            
+
             results = evaluate_emotion_classifier(
                 model=model,
                 dataloader=eval_loader,

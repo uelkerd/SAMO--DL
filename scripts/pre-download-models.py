@@ -116,7 +116,7 @@ def main():
         raise ValueError("Download completed")
     print(f"⚠️  {success_count}/{len(models)} models downloaded successfully")
     print("❌ Partial failure - exiting with error code")
-    
+
     print(f"⏱️  Total download time: {total_duration:.1f}s")
     # Show cache size
     try:
@@ -128,7 +128,7 @@ def main():
         print(f"📁 Cache size: {cache_size / (1024**3):.2f} GB")
     except Exception as e:
         print(f"ℹ️  Skipped cache size computation: {e}")
-    
+
     raise ValueError("Partial failure")
 
 if __name__ == "__main__":
