@@ -130,7 +130,11 @@ class InputSanitizer:
 
         return text, warnings
 
-    def sanitize_json(self, data: Union[dict, list, str, int, float, bool, None], max_depth: int = 10) -> Tuple[Union[dict, list, str, int, float, bool, None], List[str]]:
+    def sanitize_json(
+        self,
+        data: Union[dict, list, str, int, float, bool, None],
+        max_depth: int = 10
+    ) -> Tuple[Union[dict, list, str, int, float, bool, None], List[str]]:
         """Sanitize JSON data recursively.
 
         Args:
@@ -142,7 +146,10 @@ class InputSanitizer:
         """
         warnings = []
 
-        def _sanitize_recursive(obj: Union[dict, list, str, int, float, bool, None], depth: int = 0) -> Union[dict, list, str, int, float, bool, None]:
+        def _sanitize_recursive(
+            obj: Union[dict, list, str, int, float, bool, None],
+            depth: int = 0
+        ) -> Union[dict, list, str, int, float, bool, None]:
             if depth > max_depth:
                 warnings.append(f"Maximum recursion depth {max_depth} exceeded")
                 return None
@@ -264,7 +271,9 @@ class InputSanitizer:
             return True
 
         # Check for JSON content type
-        return not (not content_type or 'application/json' not in content_type.lower())
+        return not (
+            not content_type or 'application/json' not in content_type.lower()
+        )
 
     def sanitize_headers(self, headers: Dict[str, str]) -> Tuple[Dict[str, str], List[str]]:
         """Sanitize HTTP headers.
@@ -293,7 +302,9 @@ class InputSanitizer:
 
         return sanitized_headers, warnings
 
-    def detect_anomalies(self, data: Union[dict, list, str, int, float, bool, None]) -> List[str]:
+    def detect_anomalies(
+        self, data: Union[dict, list, str, int, float, bool, None]
+    ) -> List[str]:
         """Detect potential security anomalies in data.
 
         Args:
@@ -304,7 +315,10 @@ class InputSanitizer:
         """
         anomalies = []
 
-        def _analyze_recursive(obj: Union[dict, list, str, int, float, bool, None], path: str = ""):
+        def _analyze_recursive(
+            obj: Union[dict, list, str, int, float, bool, None],
+            path: str = ""
+        ):
             if isinstance(obj, str):
                 # Check for suspicious patterns
                 if len(obj) > 1000:
