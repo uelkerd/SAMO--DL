@@ -405,7 +405,6 @@ def after_request(response):
 
 @main_ns.route('/health')
 class Health(Resource):
-    @staticmethod
     @api.doc('get_health')
     @api.response(200, 'Success')
     @api.response(503, 'Service Unavailable')
@@ -442,7 +441,6 @@ class Predict(Resource):
     @api.response(401, 'Unauthorized')
     @api.response(429, 'Too Many Requests')
     @api.response(503, 'Service Unavailable')
-    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post():
@@ -492,7 +490,6 @@ class PredictBatch(Resource):
     @api.response(401, 'Unauthorized')
     @api.response(429, 'Too Many Requests')
     @api.response(503, 'Service Unavailable')
-    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -545,7 +542,6 @@ class PredictBatch(Resource):
 @main_ns.route('/emotions')
 class Emotions(Resource):
     @api.doc('get_emotions')
-    @staticmethod
     @api.response(200, 'Success')
     @api.response(500, 'Internal Server Error')
     def get(self):
@@ -565,7 +561,6 @@ class Emotions(Resource):
 @admin_ns.route('/model_status')
 class ModelStatus(Resource):
     @api.doc('get_model_status', security='apikey')
-    @staticmethod
     @api.response(200, 'Success')
     @api.response(401, 'Unauthorized')
     @api.response(500, 'Internal Server Error')
@@ -584,7 +579,6 @@ class ModelStatus(Resource):
 @admin_ns.route('/security_status')
 class SecurityStatus(Resource):
     @api.doc('get_security_status', security='apikey')
-    @staticmethod
     @api.response(200, 'Success')
     @api.response(401, 'Unauthorized')
     @api.response(500, 'Internal Server Error')
@@ -662,7 +656,6 @@ class Summarize(Resource):
     #     'compression_ratio': fields.Float(description='Compression ratio'),
     #     'processing_time': fields.Float(description='Processing time in seconds')
     # }))
-    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -751,7 +744,6 @@ class Transcribe(Resource):
         'word_count': fields.Integer(description='Number of words'),
         'speaking_rate': fields.Float(description='Words per minute')
     }))
-    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
@@ -845,7 +837,6 @@ class Transcribe(Resource):
 class CompleteAnalysis(Resource):
     """Complete analysis endpoint combining all AI models."""
 
-    @staticmethod
     def _process_transcription(audio_file):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
@@ -886,7 +877,6 @@ class CompleteAnalysis(Resource):
         finally:
             cleanup_temp_file(temp_path)
 
-    @staticmethod
     def _process_emotion(text_to_analyze):
         """Process emotion analysis."""
         logger.info("🔄 Processing emotion analysis...")
@@ -904,7 +894,6 @@ class CompleteAnalysis(Resource):
                 'emotional_intensity': 'neutral'
             }
 
-    @staticmethod
     def _process_summary(text_to_analyze, emotion_result, generate_summary):
         """Process text summarization if requested."""
         logger.info("🔄 Processing text summarization...")
@@ -979,7 +968,6 @@ class CompleteAnalysis(Resource):
         'processing_time': fields.Float(),
         'pipeline_status': fields.Raw()
     }))
-    @staticmethod
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
