@@ -260,7 +260,9 @@ async def transcribe_batch(
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError(f"File {i + 1}: Unsupported format {file_extension}")
+                    raise ValueError(
+                        f"File {i + 1}: Unsupported format {file_extension}"
+                    )
 
                 temp_file = tempfile.NamedTemporaryFile(
                     suffix=file_extension, delete=False

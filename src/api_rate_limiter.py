@@ -86,7 +86,10 @@ def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> boo
     norm_path = _normalize_path(request_path)
     if norm_path in normalized_exclusions:
         return True
-    return any(base != "/" and norm_path.startswith(base + "/") for base in normalized_exclusions)
+    return any(
+        base != "/" and norm_path.startswith(base + "/")
+        for base in normalized_exclusions
+    )
 
 
 class _RateLimitMiddleware(BaseHTTPMiddleware):

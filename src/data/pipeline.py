@@ -97,8 +97,8 @@ class DataPipeline:
             return {"raw": raw_df}
 
         logger.info(
-            "Pipeline processing {len(raw_df)} journal entries",
-            extra={"format_args": True},
+            "Pipeline processing %d journal entries",
+            len(raw_df)
         )
 
         validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
@@ -127,7 +127,7 @@ class DataPipeline:
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info("Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
+        logger.info("Generated %d embeddings using %s", len(embeddings_df), self.embedding_method)
 
         if output_dir:
             self._save_results(
@@ -173,8 +173,8 @@ class DataPipeline:
         """
         if source_type == "dataframe" and isinstance(data_source, pd.DataFrame):
             logger.info(
-                "Using provided DataFrame with {len(data_source)} entries",
-                extra={"format_args": True},
+                "Using provided DataFrame with %d entries",
+                len(data_source)
             )
             return data_source
 
@@ -219,33 +219,33 @@ class DataPipeline:
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
-            Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
+            Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
+        logger.info("Saved featured data to %s/journal_features_%s.csv", output_dir, timestamp)
 
-        embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
+        embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         if topics_df is not None:
             topics_df.to_csv(
-                Path(output_dir, "journal_topics_{timestamp}.csv").as_posix(),
+                Path(output_dir, f"journal_topics_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
+            logger.info("Saved topic data to %s/journal_topics_%s.csv", output_dir, timestamp)
 
         if save_intermediates:
-            raw_df.to_csv(Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False)
+            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False)
             logger.info(
-                "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
-                extra={"format_args": True},
+                "Saved raw data to %s/journal_raw_%s.csv",
+                output_dir, timestamp
             )
 
             processed_df.to_csv(
-                Path(output_dir, "journal_processed_{timestamp}.csv").as_posix(),
+                Path(output_dir, f"journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")
+            logger.info("Saved processed data to %s/journal_processed_%s.csv", output_dir, timestamp)

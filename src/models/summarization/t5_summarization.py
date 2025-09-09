@@ -245,7 +245,7 @@ def test_t5_summarizer() -> None:
     transportation for autonomous vehicles. The rapid advancement of AI technology presents
     both opportunities and challenges for society as we navigate the ethical implications
     and workforce transformations that accompany this digital revolution.
-    """
+    """.strip()
 
     summarizer = create_t5_summarizer()
 

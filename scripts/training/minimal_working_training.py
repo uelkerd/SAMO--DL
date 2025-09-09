@@ -16,7 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 
@@ -77,7 +79,9 @@ class FocalLoss(nn.Module):
         Returns:
             Focal loss value
         """
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
@@ -134,7 +138,9 @@ def train_minimal_model():
             batch_size = 16
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
-                batch_attention_mask = train_attention_mask[i : i + batch_size].to(device)
+                batch_attention_mask = (
+                    train_attention_mask[i : i + batch_size].to(device)
+                )
                 batch_labels = train_labels[i : i + batch_size].to(device)
 
                 optimizer.zero_grad()
@@ -163,7 +169,9 @@ def train_minimal_model():
             with torch.no_grad():
                 for i in range(0, len(val_input_ids), batch_size):
                     batch_input_ids = val_input_ids[i : i + batch_size].to(device)
-                    batch_attention_mask = val_attention_mask[i : i + batch_size].to(device)
+                    batch_attention_mask = (
+                        val_attention_mask[i : i + batch_size].to(device)
+                    )
                     batch_labels = val_labels[i : i + batch_size].to(device)
 
                     outputs = model(batch_input_ids, attention_mask=batch_attention_mask)

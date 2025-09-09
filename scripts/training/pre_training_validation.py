@@ -23,7 +23,9 @@ import transformers
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +40,9 @@ def validate_training_setup():
         datasets = data_loader.load_data()
 
         # Validate first batch
-        train_loader = torch.utils.data.DataLoader(datasets["train"], batch_size=4, shuffle=True)
+        train_loader = torch.utils.data.DataLoader(
+            datasets["train"], batch_size=4, shuffle=True
+        )
         batch = next(iter(train_loader))
         logger.info("✅ Data loading successful - batch shape: %s", batch[0].shape)
 
