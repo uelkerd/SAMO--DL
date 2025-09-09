@@ -96,7 +96,7 @@ def train_with_focal_loss():
         train_raw = datasets["train"]
         val_raw = datasets["validation"]
         test_raw = datasets["test"]
-        class_weights = datasets["class_weights"]
+        _ = datasets["class_weights"]
 
         train_texts = [item["text"] for item in train_raw]
         train_labels = [item["labels"] for item in train_raw]
@@ -111,7 +111,7 @@ def train_with_focal_loss():
 
         train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        test_dataset = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
+        _ = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
 
         logger.info("Dataset loaded successfully:")
         logger.info("   • Train: {len(train_dataset)} examples")
@@ -217,7 +217,7 @@ def train_with_focal_loss():
         return True
 
     except Exception as e:
-        logger.error("❌ Training failed: {e}")
+        logger.error("❌ Training failed: %s", e)
         traceback.print_exc()
         return False
 

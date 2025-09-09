@@ -55,7 +55,7 @@ def test_endpoint(name, method, url, timeout=30, **kwargs):
             return True, response.text
 
     except requests.exceptions.RequestException as e:
-        elapsed_time = time.time() - start_time
+        _ = time.time() - start_time
         return False, str(e)
 
 def main() -> bool:

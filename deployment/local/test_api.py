@@ -141,8 +141,8 @@ def test_rate_limiting() -> bool:
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(make_request) for _ in range(50)]
         results = [future.result() for future in as_completed(futures)]
-    
-    end_time = time.time()
+
+    _ = time.time()
 
     successful_requests = sum(1 for code in results if code == 200)
     rate_limited = sum(1 for code in results if code == 429)
