@@ -219,10 +219,10 @@ def validate_model(model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samp
 
             labels = torch.zeros(batch_size, 28)
             for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                if _j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
-                    labels[j] = label_tensor
+                    labels[_j] = label_tensor
 
             logits = model(input_ids, attention_mask)
             loss = loss_fn(logits, labels)
@@ -270,10 +270,10 @@ def train_model(model: nn.Module, loss_fn: nn.Module, optimizer: torch.optim.Opt
 
             labels = torch.zeros(batch_size, 28)
             for _j, example in enumerate(batch_data):
-                if j < batch_size:
+                if _j < batch_size:
                     example_labels = example["labels"]  # This is a list like [0, 5, 12]
                     label_tensor = convert_labels_to_tensor(example_labels)
-                    labels[j] = label_tensor
+                    labels[_j] = label_tensor
 
             optimizer.zero_grad()
             logits = model(input_ids, attention_mask)
