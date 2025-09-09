@@ -435,7 +435,7 @@ def test_summarization_model() -> None:
     )
 
     for _i, text in enumerate(test_texts, 1):
-        model.generate_summary(text)
+        summary = model.generate_summary(text)
 
         logger.info("\n--- Journal Entry %s ---", _i)
         logger.info(

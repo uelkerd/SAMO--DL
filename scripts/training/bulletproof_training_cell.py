@@ -85,16 +85,16 @@ print("\n📊 Preparing filtered data...")
 
 valid_labels = set(label_encoder.classes_)
 
-# Filter GoEmotions data
-go_texts = []
-go_labels = []
-for example in go_emotions['train']:
-    if example['labels']:
-        for label in example['labels']:
-            if label in valid_labels:
-                go_texts.append(example['text'])
-                go_labels.append(label_to_id[label])
-                break
+    # Filter GoEmotions data
+    go_texts = []
+    go_labels = []
+    for example in go_emotions['train']:
+        if example['labels']:
+            for emotion_label in example['labels']:
+                if emotion_label in valid_labels:
+                    go_texts.append(example['text'])
+                    go_labels.append(label_to_id[emotion_label])
+                    break
 
 # Filter journal data
 journal_texts = []
@@ -126,10 +126,10 @@ print("✅ All labels within expected range")
 
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, labels, tokenizer_obj, max_length=128):
         self.texts = texts
         self.labels = labels
-        self.tokenizer = tokenizer
+        self.tokenizer = tokenizer_obj
         self.max_length = max_length
 
         # Validate data
@@ -262,11 +262,11 @@ for epoch in range(num_epochs):
 
     # Train on GoEmotions
     print("  📚 Training on GoEmotions...")
-    for i, batch in enumerate(go_loader):
+    for batch_idx, batch in enumerate(go_loader):
         try:
             # Validate batch
             if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
-                print(f"⚠️ Invalid batch structure at batch {i}")
+                print(f"⚠️ Invalid batch structure at batch {batch_idx}")
                 continue
 
             # Move to device with validation

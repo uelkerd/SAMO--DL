@@ -160,10 +160,10 @@ else:
 
 # Step 7: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, labels, tokenizer_obj, max_length=128):
         self.texts = texts
         self.labels = labels
-        self.tokenizer = tokenizer
+        self.tokenizer = tokenizer_obj
         self.max_length = max_length
 
         # Validate data
@@ -171,9 +171,9 @@ class SimpleEmotionDataset(Dataset):
             raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
 
         # Validate labels
-        for i, label in enumerate(labels):
-            if not isinstance(label, int) or label < 0:
-                raise ValueError(f"Invalid label at index {i}: {label}")
+        for idx, label_val in enumerate(labels):
+            if not isinstance(label_val, int) or label_val < 0:
+                raise ValueError(f"Invalid label at index {idx}: {label_val}")
 
     def __len__(self):
         return len(self.texts)
@@ -235,8 +235,8 @@ class SimpleEmotionClassifier(nn.Module):
         if attention_mask_tensor.dim() != 2:
             raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
 
-        outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
-        pooled_output = outputs.pooler_output
+        bert_outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
+        pooled_output = bert_outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
 
         # Validate outputs
@@ -296,11 +296,11 @@ for epoch in range(num_epochs):
 
     # Train on GoEmotions
     print("  📚 Training on GoEmotions...")
-    for i, batch in enumerate(go_loader):
+    for batch_idx, batch in enumerate(go_loader):
         try:
             # Validate batch
             if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
-                print(f"⚠️ Invalid batch structure at batch {i}")
+                print(f"⚠️ Invalid batch structure at batch {batch_idx}")
                 continue
 
             # Move to device with validation
@@ -310,13 +310,13 @@ for epoch in range(num_epochs):
 
             # Validate labels
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
-                print(f"⚠️ Invalid labels in batch {i}: {labels}")
+                print(f"⚠️ Invalid labels in batch {batch_idx}: {labels}")
                 continue
 
             # Forward pass
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs, labels)
+            model_outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss = criterion(model_outputs, labels)
             loss.backward()
             optimizer.step()
 
@@ -332,7 +332,7 @@ for epoch in range(num_epochs):
 
     # Train on journal data
     print("  📝 Training on journal data...")
-    for i, batch in enumerate(journal_train_loader):
+    for journal_batch_idx, batch in enumerate(journal_train_loader):
         try:
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
@@ -342,19 +342,19 @@ for epoch in range(num_epochs):
                 continue
 
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs, labels)
+            journal_outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss = criterion(journal_outputs, labels)
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
             num_batches += 1
 
-            if i % 10 == 0:
-                print(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
+            if journal_batch_idx % 10 == 0:
+                print(f"    Batch {journal_batch_idx}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
 
         except Exception as e:
-            print(f"❌ Error in journal batch {i}: {e}")
+            print(f"❌ Error in journal batch {journal_batch_idx}: {e}")
             continue
 
     # Validation
@@ -370,8 +370,8 @@ for epoch in range(num_epochs):
                 attention_mask = batch['attention_mask'].to(device)
                 labels = batch['labels'].to(device)
 
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-                preds = torch.argmax(outputs, dim=1)
+                val_outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                preds = torch.argmax(val_outputs, dim=1)
 
                 all_preds.extend(preds.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())

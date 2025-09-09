@@ -92,18 +92,18 @@ journal_df = pd.DataFrame(journal_entries)
 journal_emotions = set(journal_df['emotion'].unique())
 print(f"📊 Journal emotions: {sorted(list(journal_emotions))}")
 
-# Filter GoEmotions data using mapping
-go_texts = []
-go_labels = []
-for example in go_emotions['train']:
-    if example['labels']:
-        for label in example['labels']:
-            if label in emotion_mapping:
-                mapped_emotion = emotion_mapping[label]
-                if mapped_emotion in journal_emotions:
-                    go_texts.append(example['text'])
-                    go_labels.append(mapped_emotion)
-                    break
+    # Filter GoEmotions data using mapping
+    go_texts = []
+    go_labels = []
+    for example in go_emotions['train']:
+        if example['labels']:
+            for emotion_label in example['labels']:
+                if emotion_label in emotion_mapping:
+                    mapped_emotion = emotion_mapping[emotion_label]
+                    if mapped_emotion in journal_emotions:
+                        go_texts.append(example['text'])
+                        go_labels.append(mapped_emotion)
+                        break
 
 # Prepare journal data
 journal_texts = list(journal_df['content'])
@@ -132,10 +132,10 @@ print(f"📊 Journal label range: {min(journal_label_ids)} to {max(journal_label
 
 # Step 5: Create simple dataset class
 class SimpleEmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, labels, tokenizer_obj, max_length=128):
         self.texts = texts
         self.labels = labels
-        self.tokenizer = tokenizer
+        self.tokenizer = tokenizer_obj
         self.max_length = max_length
 
         # Validate data
@@ -207,8 +207,8 @@ class SimpleEmotionClassifier(nn.Module):
         if attention_mask_tensor.dim() != 2:
             raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
 
-        outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
-        pooled_output = outputs.pooler_output
+        bert_outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
+        pooled_output = bert_outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
 
         # Validate outputs
@@ -268,11 +268,11 @@ for epoch in range(num_epochs):
 
     # Train on GoEmotions
     print("  📚 Training on GoEmotions...")
-    for i, batch in enumerate(go_loader):
+    for batch_idx, batch in enumerate(go_loader):
         try:
             # Validate batch
             if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
-                print(f"⚠️ Invalid batch structure at batch {i}")
+                print(f"⚠️ Invalid batch structure at batch {batch_idx}")
                 continue
 
             # Move to device with validation
@@ -282,13 +282,13 @@ for epoch in range(num_epochs):
 
             # Validate labels
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
-                print(f"⚠️ Invalid labels in batch {i}: {labels}")
+                print(f"⚠️ Invalid labels in batch {batch_idx}: {labels}")
                 continue
 
             # Forward pass
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs, labels)
+            model_outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss = criterion(model_outputs, labels)
             loss.backward()
             optimizer.step()
 

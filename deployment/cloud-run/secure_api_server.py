@@ -443,7 +443,7 @@ class Predict(Resource):
     @api.response(503, 'Service Unavailable')
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
-    def post():
+    def post(self):
         """Predict emotion for a single text input."""
         try:
             # Log rate limiting info for debugging
