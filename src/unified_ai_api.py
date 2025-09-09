@@ -40,7 +40,7 @@ async def complete_analysis(request: AnalysisRequest):
                 status_code=400, detail="At least text or audio input required"
             )
 
-        result = {
+        analysis_result = {
             "emotion": None,
             "summary": None,
             "transcription": None,
@@ -63,22 +63,22 @@ async def complete_analysis(request: AnalysisRequest):
                     emotion_results["emotions"][0][0] if emotion_results["emotions"]
                     else {"label": "neutral", "score": 0.0}
                 )
-                result["emotion"] = emotion_result["label"]
-                result["emotion_score"] = emotion_result["score"]
+                analysis_result["emotion"] = emotion_result["label"]
+                analysis_result["emotion_score"] = emotion_result["score"]
             except Exception as e:
                 logger.error("Emotion detection failed: %s", e)
-                result["emotion"] = "error"
-                result["emotion_score"] = 0.0
+                analysis_result["emotion"] = "error"
+                analysis_result["emotion_score"] = 0.0
 
         # Summarization
         if request.text and len(request.text) > 50:  # Only summarize longer texts
             try:
                 summarizer_instance = get_summarizer()
                 summary = summarizer_instance.generate_summary(request.text)
-                result["summary"] = summary
+                analysis_result["summary"] = summary
             except Exception as e:
                 logger.error("Summarization failed: %s", e)
-                result["summary"] = "Summarization unavailable"
+                analysis_result["summary"] = "Summarization unavailable"
 
         # Transcription
         if request.audio:
@@ -92,24 +92,24 @@ async def complete_analysis(request: AnalysisRequest):
 
                 transcriber_instance = get_transcriber()
                 transcription_result = transcriber_instance.transcribe(temp_audio_path)
-                result["transcription"] = transcription_result.text
-                result["transcription_confidence"] = transcription_result.confidence
+                analysis_result["transcription"] = transcription_result.text
+                analysis_result["transcription_confidence"] = transcription_result.confidence
 
                 # Clean up temp file
                 os.unlink(temp_audio_path)
             except Exception as e:
                 logger.error("Transcription failed: %s", e)
-                result["transcription"] = "Transcription unavailable"
-                result["transcription_confidence"] = 0.0
+                analysis_result["transcription"] = "Transcription unavailable"
+                analysis_result["transcription_confidence"] = 0.0
 
         if not any([
-            result["emotion"], result["summary"], result["transcription"]
+            analysis_result["emotion"], analysis_result["summary"], analysis_result["transcription"]
         ]):
             raise HTTPException(
                 status_code=400, detail="No valid input provided for analysis"
             )
 
-        return result
+        return analysis_result
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

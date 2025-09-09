@@ -178,18 +178,18 @@ class SimpleEmotionDataset(Dataset):
         return len(self.texts)
 
     def __getitem__(self, idx):
-        text = self.texts[idx]
-        label = self.labels[idx]
+        text_item = self.texts[idx]
+        label_item = self.labels[idx]
 
         # Validate inputs
-        if not isinstance(text, str) or not text.strip():
+        if not isinstance(text_item, str) or not text_item.strip():
             raise ValueError(f"Invalid text at index {idx}")
 
-        if not isinstance(label, int) or label < 0:
-            raise ValueError(f"Invalid label at index {idx}: {label}")
+        if not isinstance(label_item, int) or label_item < 0:
+            raise ValueError(f"Invalid label at index {idx}: {label_item}")
 
         encoding = self.tokenizer(
-            text,
+            text_item,
             truncation=True,
             padding='max_length',
             max_length=self.max_length,
@@ -199,42 +199,42 @@ class SimpleEmotionDataset(Dataset):
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            'labels': torch.tensor(label_item, dtype=torch.long)
         }
 
 # Step 8: Create simple model
 class SimpleEmotionClassifier(nn.Module):
-    def __init__(self, model_name="bert-base-uncased", num_labels=None):
+    def __init__(self, model_name="bert-base-uncased", num_classes=None):
         super().__init__()
 
-        if num_labels is None or num_labels <= 0:
-            raise ValueError(f"Invalid num_labels: {num_labels}")
+        if num_classes is None or num_classes <= 0:
+            raise ValueError(f"Invalid num_classes: {num_classes}")
 
-        self.num_labels = num_labels
+        self.num_labels = num_classes
         self.bert = AutoModel.from_pretrained(model_name)
         self.dropout = nn.Dropout(0.3)
-        self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
 
-        print(f"✅ Model initialized with {num_labels} labels")
+        print(f"✅ Model initialized with {num_classes} labels")
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids_tensor, attention_mask_tensor):
         """Forward pass through BERT model for emotion classification.
 
         Args:
-            input_ids: Tokenized input text tensor
-            attention_mask: Attention mask tensor for padding tokens
+            input_ids_tensor: Tokenized input text tensor
+            attention_mask_tensor: Attention mask tensor for padding tokens
 
         Returns:
             Model logits for emotion classification
         """
         # Validate inputs
-        if input_ids.dim() != 2:
-            raise ValueError(f"Expected input_ids to be 2D, got {input_ids.dim()}D")
+        if input_ids_tensor.dim() != 2:
+            raise ValueError(f"Expected input_ids to be 2D, got {input_ids_tensor.dim()}D")
 
-        if attention_mask.dim() != 2:
-            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask.dim()}D")
+        if attention_mask_tensor.dim() != 2:
+            raise ValueError(f"Expected attention_mask to be 2D, got {attention_mask_tensor.dim()}D")
 
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        outputs = self.bert(input_ids=input_ids_tensor, attention_mask=attention_mask_tensor)
         pooled_output = outputs.pooler_output
         logits = self.classifier(self.dropout(pooled_output))
 
@@ -253,7 +253,7 @@ print(f"✅ Using device: {device}")
 # Initialize tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 num_labels = len(label_encoder.classes_)
-model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_labels=num_labels)
+model = SimpleEmotionClassifier(model_name="bert-base-uncased", num_classes=num_labels)
 model = model.to(device)
 
 # Create datasets

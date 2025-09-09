@@ -36,15 +36,15 @@ class RateLimiter:
             return False
 
     @staticmethod
-    def get_client_id(request: 'flask.Request') -> str:
+    def get_client_id(flask_request: 'flask.Request') -> str:
         """Get client identifier."""
         # Try API key first
-        api_key = request.headers.get('X-API-Key')
+        api_key = flask_request.headers.get('X-API-Key')
         if api_key:
             return f"api_key:{api_key}"
 
         # Fall back to IP address
-        return f"ip:{request.remote_addr}"
+        return f"ip:{flask_request.remote_addr}"
 
 def rate_limit(requests_per_minute: int = 100) -> Callable:
     """Rate limiting decorator."""
