@@ -837,7 +837,7 @@ class Transcribe(Resource):
 class CompleteAnalysis(Resource):
     """Complete analysis endpoint combining all AI models."""
 
-    def _process_transcription(audio_file):
+    def _process_transcription(self, audio_file):
         """Process audio transcription if provided."""
         logger.info("🔄 Processing audio transcription...")
         import tempfile
@@ -877,7 +877,7 @@ class CompleteAnalysis(Resource):
         finally:
             cleanup_temp_file(temp_path)
 
-    def _process_emotion(text_to_analyze):
+    def _process_emotion(self, text_to_analyze):
         """Process emotion analysis."""
         logger.info("🔄 Processing emotion analysis...")
         try:
@@ -894,7 +894,7 @@ class CompleteAnalysis(Resource):
                 'emotional_intensity': 'neutral'
             }
 
-    def _process_summary(text_to_analyze, emotion_result, generate_summary):
+    def _process_summary(self, text_to_analyze, emotion_result, generate_summary):
         """Process text summarization if requested."""
         logger.info("🔄 Processing text summarization...")
         summary_result = {}
