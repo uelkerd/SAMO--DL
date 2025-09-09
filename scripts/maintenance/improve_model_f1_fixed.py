@@ -14,11 +14,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from torch import nn
 from typing import Optional
 import argparse
 import logging
-import time
 import torch
 import torch.nn.functional as F
 
@@ -53,7 +51,7 @@ def improve_with_focal_loss(
 ) -> dict:
     """
     Improve model performance using focal loss.
-    
+
     Args:
         model_path: Path to the base model
         output_path: Path to save the improved model
@@ -62,7 +60,7 @@ def improve_with_focal_loss(
         learning_rate: Learning rate for training
         alpha: Focal loss alpha parameter
         gamma: Focal loss gamma parameter
-        
+
     Returns:
         Dictionary containing training results
     """
@@ -70,20 +68,20 @@ def improve_with_focal_loss(
         # Set device
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info("Using device: %s", device)
-        
+
         # Create data loader
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.load_data()
-        
+
         # Create model with optimal settings
         model = create_bert_emotion_classifier(
             num_labels=len(datasets["train"].label_encoder.classes_),
             learning_rate=learning_rate
         )
-        
+
         # Create focal loss function
         focal_loss_fn = create_focal_loss(alpha=alpha, gamma=gamma)
-        
+
         # Create trainer with development mode disabled for better results
         trainer = EmotionDetectionTrainer(
             model=model,
@@ -135,13 +133,13 @@ def main():
     parser.add_argument("--learning_rate", type=float, default=DEFAULT_LEARNING_RATE, help="Learning rate")
     parser.add_argument("--alpha", type=float, default=1.0, help="Focal loss alpha")
     parser.add_argument("--gamma", type=float, default=2.0, help="Focal loss gamma")
-    
+
     args = parser.parse_args()
-    
+
     logger.info("Starting focal loss improvement...")
     logger.info("Model path: %s", args.model_path)
     logger.info("Output path: %s", args.output_path)
-    
+
     result = improve_with_focal_loss(
         model_path=args.model_path,
         output_path=args.output_path,
@@ -151,7 +149,7 @@ def main():
         alpha=args.alpha,
         gamma=args.gamma
     )
-    
+
     if result["success"]:
         logger.info("✅ Focal loss improvement completed successfully!")
         logger.info("Final metrics: %s", result["metrics"])
