@@ -106,7 +106,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
         try:
             if torch.cuda.is_available():
                 device = torch.device("cuda")
-                logger.info(f"Using CUDA device: {torch.cuda.get_device_name()}")
+                logger.info("Using CUDA device: %s", torch.cuda.get_device_name())
             elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
                 device = torch.device("mps")
                 logger.info("Using MPS device (Apple Silicon)")
@@ -115,7 +115,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
                 logger.info("Using CPU device")
             return device
         except Exception as e:
-            logger.warning(f"Device setup failed, falling back to CPU: {e}")
+            logger.warning("Device setup failed, falling back to CPU: %s", e)
             return torch.device("cpu")
 
     def _initialize_bert_model(self) -> None:
@@ -128,9 +128,9 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             self.bert = AutoModel.from_pretrained(self.model_name, config=config)
             self.bert_hidden_size = config.hidden_size
 
-            logger.info(f"BERT model loaded: {self.model_name}")
+            logger.info("BERT model loaded: %s", self.model_name)
         except Exception as e:
-            logger.error(f"Failed to load BERT model: {e}")
+            logger.error("Failed to load BERT model: %s", e)
             raise RuntimeError(f"BERT model initialization failed: {e}") from e
 
     def _initialize_classifier(self) -> None:
@@ -185,7 +185,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             for param in self.bert.encoder.layer[i].parameters():
                 param.requires_grad = False
 
-        logger.info(f"Froze {num_layers} BERT layers")
+        logger.info("Froze %s BERT layers", num_layers)
 
     def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
         """Forward pass with error handling and optimizations."""
@@ -443,9 +443,9 @@ class EnhancedBERTEmotionClassifier(nn.Module):
         if not hasattr(self, '_tokenizer'):
             try:
                 self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-                logger.info(f"Tokenizer loaded: {self.model_name}")
+                logger.info("Tokenizer loaded: %s", self.model_name)
             except Exception as e:
-                logger.error(f"Failed to load tokenizer: {e}")
+                logger.error("Failed to load tokenizer: %s", e)
                 raise RuntimeError(f"Tokenizer loading failed: {e}") from e
         return self._tokenizer
 
@@ -510,9 +510,9 @@ class EnhancedBERTEmotionClassifier(nn.Module):
                     'temperature': float(self.temperature.item()),
                 }
             }, path)
-            logger.info(f"Model saved to: {path}")
+            logger.info("Model saved to: %s", path)
         except Exception as e:
-            logger.error(f"Failed to save model: {e}")
+            logger.error("Failed to save model: %s", e)
             raise RuntimeError(f"Model saving failed: {e}") from e
 
     @classmethod
@@ -525,8 +525,8 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             model = cls(**model_config)
             model.load_state_dict(checkpoint['model_state_dict'])
 
-            logger.info(f"Model loaded from: {path}")
+            logger.info("Model loaded from: %s", path)
             return model
         except Exception as e:
-            logger.error(f"Failed to load model: {e}")
+            logger.error("Failed to load model: %s", e)
             raise RuntimeError(f"Model loading failed: {e}") from e
