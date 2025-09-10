@@ -103,9 +103,9 @@ class SAMOT5Summarizer:
                     user_config = yaml.safe_load(f)
                 # Deep merge user config into default config
                 for key, value in user_config.items():
-                    if (key in default_config and 
-                        isinstance(default_config[key], dict) and 
-                        isinstance(value, dict)):
+                    if (key in default_config and
+                            isinstance(default_config[key], dict) and
+                            isinstance(value, dict)):
                         default_config[key].update(value)
                     else:
                         default_config[key] = value
@@ -130,8 +130,8 @@ class SAMOT5Summarizer:
         if torch.cuda.is_available():
             return "cuda"
 
-        if (getattr(torch.backends, "mps", None) is not None and 
-            getattr(torch.backends.mps, "is_available", lambda: False)()):
+        if (getattr(torch.backends, "mps", None) is not None and
+                getattr(torch.backends.mps, "is_available", lambda: False)()):
             return "mps"
 
         return "cpu"
@@ -250,14 +250,14 @@ class SAMOT5Summarizer:
             prompt_parts.append("journal entry")
         
         # Add emotional context if enabled
-        if (self.config["samo_optimizations"]["emotional_context"] and 
-            emotional_keywords):
+        if (self.config["samo_optimizations"]["emotional_context"] and
+                emotional_keywords):
             emotion_context = f"[emotions: {', '.join(emotional_keywords)}]"
             prompt_parts.append(emotion_context)
         
         # Add tone preservation instruction if enabled
-        if (self.config["samo_optimizations"]["preserve_tone"] and 
-            emotional_keywords):
+        if (self.config["samo_optimizations"]["preserve_tone"] and
+                emotional_keywords):
             tone_instruction = (
                 f"[preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
             )
