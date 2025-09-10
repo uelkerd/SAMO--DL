@@ -9,6 +9,8 @@ to ensure it works correctly before integration.
 import sys
 import os
 from pathlib import Path
+import numpy as np
+import soundfile as sf
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -35,7 +37,7 @@ def test_audio_files():
     return available_audio
 
 
-def test_single_transcription(transcriber, audio_file, file_num, total_files):
+def test_single_transcription(transcriber, audio_file, file_num, total_files, expected_language=None):
     """Test transcription of a single audio file."""
     print(f"\n   Testing file {file_num}: {audio_file}")
     try:
@@ -52,6 +54,12 @@ def test_single_transcription(transcriber, audio_file, file_num, total_files):
         print(f"   Speaking rate: {result.speaking_rate:.1f} WPM")
         print(f"   Audio quality: {result.audio_quality}")
         print(f"   No speech probability: {result.no_speech_probability:.3f}")
+
+        if expected_language is not None:
+            assert result.language == expected_language, (
+                f"Detected language '{result.language}' does not match expected '{expected_language}'"
+            )
+            print(f"   ✅ Language detection correct: {result.language}")
         
     except Exception as e:
         print(f"   ❌ Transcription failed: {e}")
@@ -77,12 +85,49 @@ def test_batch_transcription(transcriber, available_audio):
         print(f"   ❌ Batch transcription failed: {e}")
 
 
+def test_silence_detection(transcriber):
+    """Test silence detection with silent audio."""
+    print("\n6. Testing silence detection...")
+    
+    
+    # Generate 2 seconds of silence at 16kHz
+    silent_wav_path = "silent_test.wav"
+    sr = 16000
+    silence = np.zeros(sr * 2, dtype=np.float32)
+    
+    try:
+        # Create silent audio file
+        sf.write(silent_wav_path, silence, sr)
+        print(f"   Created silent audio file: {silent_wav_path}")
+        
+        # Test transcription
+        result = transcriber.transcribe(silent_wav_path)
+        print(f"   Text: {result.text!r}")
+        print(f"   No speech probability: {result.no_speech_probability:.3f}")
+        print(f"   Audio quality: {result.audio_quality}")
+        
+        
+        # Assert high no speech probability for silence
+        assert result.no_speech_probability > 0.5, f"No speech probability should be high for silence, got {result.no_speech_probability:.3f}"
+        print("   ✅ Silence detection test passed")
+        
+    except Exception as e:
+        print(f"   ❌ Silence detection test failed: {e}")
+        raise
+    finally:
+        # Clean up the test file
+        if os.path.exists(silent_wav_path):
+            os.remove(silent_wav_path)
+            print(f"   Cleaned up: {silent_wav_path}")
+
+
 def test_samo_whisper_transcriber():
     """Test the SAMO Whisper transcriber functionality."""
     print("🎤 Testing SAMO Whisper Transcription Model")
     print("=" * 50)
 
     try:
+        
         # Initialize transcriber
         print("1. Initializing SAMO Whisper Transcriber...")
         transcriber = create_samo_whisper_transcriber("configs/samo_whisper_config.yaml")
@@ -122,6 +167,9 @@ def test_samo_whisper_transcriber():
         # Test batch transcription if multiple files
         if len(available_audio) > 1:
             test_batch_transcription(transcriber, available_audio)
+
+        # Test silence detection
+        test_silence_detection(transcriber)
 
         print("\n" + "=" * 50)
         print("🎉 SAMO Whisper Transcriber test completed successfully!")

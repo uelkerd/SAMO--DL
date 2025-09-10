@@ -16,6 +16,7 @@ Key Features:
 
 import logging
 import os
+import shutil
 import time
 import tempfile
 import warnings
@@ -155,7 +156,8 @@ class AudioPreprocessor:
     @staticmethod
     def preprocess_audio(
         audio_path: Union[str, Path], 
-        output_path: Optional[Union[str, Path]] = None
+        output_path: Optional[Union[str, Path]] = None,
+        normalize: bool = True
     ) -> Tuple[str, Dict[str, Any]]:
         """Preprocess audio for optimal Whisper performance."""
         audio_path = Path(audio_path)
@@ -186,8 +188,15 @@ class AudioPreprocessor:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info("Resampled to %dHz", AudioPreprocessor.TARGET_SAMPLE_RATE)
         
-        # Normalize audio
-        audio = audio.normalize()
+        # Optionally normalize audio if below threshold
+        if normalize:
+            peak_dbfs = audio.max_dBFS
+            # Only normalize if peak is below -1 dBFS (to avoid artifacts)
+            if peak_dbfs < -1.0:
+                audio = audio.normalize()
+                logger.info("Audio normalized (peak dBFS: %.2f)", peak_dbfs)
+            else:
+                logger.info("Audio normalization skipped (peak dBFS: %.2f)", peak_dbfs)
         
         # Create output path if not provided
         if output_path is None:
@@ -240,11 +249,31 @@ class SAMOWhisperTranscriber:
             # Use cache directory from environment or create a local one
             cache_dir = os.environ.get('HF_HOME', os.path.expanduser('~/.cache/whisper'))
             os.makedirs(cache_dir, exist_ok=True)
-            self.model = whisper.load_model(
-                self.config.model_size, 
-                device=self.device,
-                download_root=cache_dir
-            )
+
+            def is_model_corrupted(cache_dir, model_size):
+                # Check for expected model files and their integrity
+                model_file = os.path.join(cache_dir, f"{model_size}.pt")
+                return not (os.path.isfile(model_file) and os.path.getsize(model_file) > 0)
+
+            try:
+                if is_model_corrupted(cache_dir, self.config.model_size):
+                    logger.warning("Detected corrupted or missing model files in cache. Clearing cache directory: %s", cache_dir)
+                    shutil.rmtree(cache_dir)
+                    os.makedirs(cache_dir, exist_ok=True)
+                self.model = whisper.load_model(
+                    self.config.model_size, 
+                    device=self.device,
+                    download_root=cache_dir
+                )
+            except Exception as e:
+                logger.error("Model loading failed, possibly due to cache corruption. Clearing cache and retrying...")
+                shutil.rmtree(cache_dir)
+                os.makedirs(cache_dir, exist_ok=True)
+                self.model = whisper.load_model(
+                    self.config.model_size, 
+                    device=self.device,
+                    download_root=cache_dir
+                )
             logger.info(
                 "✅ SAMO Whisper %s model loaded successfully",
                 self.config.model_size
@@ -295,6 +324,7 @@ class SAMOWhisperTranscriber:
             # Transcribe
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
             
+            
             processing_time = time.time() - start_time
             word_count = len(result['text'].split())
             speaking_rate = (
@@ -304,6 +334,9 @@ class SAMOWhisperTranscriber:
             
             # Calculate confidence from segments
             confidence = self._calculate_confidence(result.get('segments', []))
+            
+            # Calculate no_speech_probability from segments
+            no_speech_probability = self._calculate_no_speech_probability(result.get('segments', []))
             
             # Assess audio quality
             audio_quality = self._assess_audio_quality(result, audio_metadata)
@@ -318,7 +351,7 @@ class SAMOWhisperTranscriber:
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
-                no_speech_probability=getattr(result, 'no_speech_prob', 0.0),
+                no_speech_probability=no_speech_probability,
             )
             
             logger.info(
@@ -401,6 +434,21 @@ class SAMOWhisperTranscriber:
             confidences.append(segment_confidence)
         
         return float(np.mean(confidences)) if confidences else 0.5
+    
+    def _calculate_no_speech_probability(self, segments: List[Dict]) -> float:
+        """Calculate overall no_speech_probability from segment data."""
+        if not segments:
+            # No segments means silence - return high probability
+            return 0.9
+        
+        # Get no_speech_prob from each segment and return the maximum
+        no_speech_probs = []
+        for segment in segments:
+            no_speech_prob = segment.get("no_speech_prob", 0.0)
+            no_speech_probs.append(no_speech_prob)
+        
+        # Return the maximum no_speech_prob across all segments
+        return float(max(no_speech_probs)) if no_speech_probs else 0.9
     
     def _assess_audio_quality(self, result: Dict, metadata: Dict) -> str:
         """Assess audio quality based on transcription results."""
