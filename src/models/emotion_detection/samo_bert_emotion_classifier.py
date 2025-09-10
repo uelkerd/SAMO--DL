@@ -114,7 +114,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.to(self.device)
 
-        logger.info(f"✅ SAMO BERT Emotion Classifier initialized on {self.device}")
+        logger.info("✅ SAMO BERT Emotion Classifier initialized on %s", self.device)
 
     def _init_classification_layers(self) -> None:
         """Initialize classification layers with proper weight initialization."""
@@ -138,7 +138,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
                 param.requires_grad = requires_grad
 
         action = "Unfrozen" if requires_grad else "Frozen"
-        logger.info(f"{action} {num_layers} BERT layers")
+        logger.info("%s %s BERT layers", action, num_layers)
 
     def _freeze_bert_layers(self, num_layers: int) -> None:
         """Freeze the first num_layers of BERT."""
@@ -275,7 +275,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
     def set_temperature(self, temperature: float) -> None:
         """Set temperature scaling parameter."""
         self.temperature.data.fill_(temperature)
-        logger.info(f"Set temperature to {temperature}")
+        logger.info("Set temperature to %s", temperature)
 
     def count_parameters(self) -> int:
         """Count total number of parameters."""

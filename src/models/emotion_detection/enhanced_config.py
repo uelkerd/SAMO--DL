@@ -210,15 +210,15 @@ class EnhancedConfigManager:
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 config_data = yaml.safe_load(f) or {}
 
-            logger.info(f"Configuration loaded from: {self.config_path}")
+            logger.info("Configuration loaded from: %s", self.config_path)
             return self._parse_config(config_data)
 
         except yaml.YAMLError as e:
-            logger.error(f"YAML parsing error: {e}")
+            logger.error("YAML parsing error: %s", e)
             logger.warning("Using default configuration due to YAML error")
             return self._create_default_config()
         except Exception as e:
-            logger.error(f"Configuration loading failed: {e}")
+            logger.error("Configuration loading failed: %s", e)
             logger.warning("Using default configuration due to loading error")
             return self._create_default_config()
 
@@ -277,7 +277,7 @@ class EnhancedConfigManager:
                 development=development_config,
             )
         except Exception as e:
-            logger.error(f"Configuration parsing failed: {e}")
+            logger.error("Configuration parsing failed: %s", e)
             logger.warning("Using default configuration due to parsing error")
             return self._create_default_config()
 
@@ -419,7 +419,7 @@ class EnhancedConfigManager:
     def _validate_string(value: Any, field_name: str) -> str:
         """Validate string value."""
         if not isinstance(value, str):
-            logger.warning(f"Invalid string value for {field_name}: {value}, using default")
+            logger.warning("Invalid string value for %s: %s, using default", field_name, value)
             return ""
         return value
 
@@ -427,7 +427,7 @@ class EnhancedConfigManager:
     def _validate_bool(value: Any, field_name: str) -> bool:
         """Validate boolean value."""
         if not isinstance(value, bool):
-            logger.warning(f"Invalid boolean value for {field_name}: {value}, using default")
+            logger.warning("Invalid boolean value for %s: %s, using default", field_name, value)
             return False
         return value
 
@@ -437,11 +437,11 @@ class EnhancedConfigManager:
         try:
             int_val = int(value)
             if int_val <= 0:
-                logger.warning(f"Non-positive integer for {field_name}: {value}, using default")
+                logger.warning("Non-positive integer for %s: %s, using default", field_name, value)
                 return 1
             return int_val
         except (ValueError, TypeError):
-            logger.warning(f"Invalid integer for {field_name}: {value}, using default")
+            logger.warning("Invalid integer for %s: %s, using default", field_name, value)
             return 1
 
     @staticmethod
@@ -450,11 +450,11 @@ class EnhancedConfigManager:
         try:
             int_val = int(value)
             if int_val < 0:
-                logger.warning(f"Negative integer for {field_name}: {value}, using default")
+                logger.warning("Negative integer for %s: %s, using default", field_name, value)
                 return 0
             return int_val
         except (ValueError, TypeError):
-            logger.warning(f"Invalid integer for {field_name}: {value}, using default")
+            logger.warning("Invalid integer for %s: %s, using default", field_name, value)
             return 0
 
     @staticmethod
@@ -463,11 +463,11 @@ class EnhancedConfigManager:
         try:
             float_val = float(value)
             if float_val <= 0:
-                logger.warning(f"Non-positive float for {field_name}: {value}, using default")
+                logger.warning("Non-positive float for %s: %s, using default", field_name, value)
                 return 1.0
             return float_val
         except (ValueError, TypeError):
-            logger.warning(f"Invalid float for {field_name}: {value}, using default")
+            logger.warning("Invalid float for %s: %s, using default", field_name, value)
             return 1.0
 
     @staticmethod
@@ -476,11 +476,11 @@ class EnhancedConfigManager:
         try:
             float_val = float(value)
             if not min_val <= float_val <= max_val:
-                logger.warning(f"Float out of range for {field_name}: {value}, using default")
+                logger.warning("Float out of range for %s: %s, using default", field_name, value)
                 return (min_val + max_val) / 2
             return float_val
         except (ValueError, TypeError):
-            logger.warning(f"Invalid float for {field_name}: {value}, using default")
+            logger.warning("Invalid float for %s: %s, using default", field_name, value)
             return (min_val + max_val) / 2
 
     @staticmethod
@@ -489,11 +489,11 @@ class EnhancedConfigManager:
         if value is None:
             return None
         if not isinstance(value, str):
-            logger.warning(f"Invalid device value: {value}, using auto")
+            logger.warning("Invalid device value: %s, using auto", value)
             return None
         valid_devices = ["auto", "cpu", "cuda", "mps"]
         if value.lower() not in valid_devices:
-            logger.warning(f"Invalid device: {value}, using auto")
+            logger.warning("Invalid device: %s, using auto", value)
             return None
         return value.lower()
 
@@ -501,11 +501,11 @@ class EnhancedConfigManager:
     def _validate_log_level(value: Any, field_name: str) -> str:
         """Validate log level value."""
         if not isinstance(value, str):
-            logger.warning(f"Invalid log level for {field_name}: {value}, using default")
+            logger.warning("Invalid log level for %s: %s, using default", field_name, value)
             return "INFO"
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if value.upper() not in valid_levels:
-            logger.warning(f"Invalid log level for {field_name}: {value}, using default")
+            logger.warning("Invalid log level for %s: %s, using default", field_name, value)
             return "INFO"
         return value.upper()
 
@@ -513,7 +513,7 @@ class EnhancedConfigManager:
     def _validate_list(value: Any, field_name: str) -> List:
         """Validate list value."""
         if not isinstance(value, list):
-            logger.warning(f"Invalid list for {field_name}: {value}, using default")
+            logger.warning("Invalid list for %s: %s, using default", field_name, value)
             return []
         return value
 
@@ -527,9 +527,9 @@ class EnhancedConfigManager:
         try:
             # This would need more sophisticated merging logic
             # For now, just log the attempt
-            logger.info(f"Configuration update requested: {updates}")
+            logger.info("Configuration update requested: %s", updates)
         except Exception as e:
-            logger.error(f"Configuration update failed: {e}")
+            logger.error("Configuration update failed: %s", e)
 
     def save_config(self, path: Optional[Union[str, Path]] = None) -> None:
         """Save current configuration to file."""
@@ -541,9 +541,9 @@ class EnhancedConfigManager:
             config_dict = self._config_to_dict()
             with open(path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_dict, f, default_flow_style=False, indent=2)
-            logger.info(f"Configuration saved to: {path}")
+            logger.info("Configuration saved to: %s", path)
         except Exception as e:
-            logger.error(f"Failed to save configuration: {e}")
+            logger.error("Failed to save configuration: %s", e)
 
     def _config_to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
