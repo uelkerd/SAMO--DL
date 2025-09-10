@@ -103,12 +103,16 @@ class SAMOWhisperTranscriber:
             )
 
             # Calculate no_speech_probability from segments
-            no_speech_probability = self.result_processor.calculate_no_speech_probability(
-                result.get('segments', [])
+            no_speech_probability = (
+                self.result_processor.calculate_no_speech_probability(
+                    result.get('segments', [])
+                )
             )
 
             # Assess audio quality
-            audio_quality = self.preprocessor.assess_audio_quality(result, audio_metadata)
+            audio_quality = self.preprocessor.assess_audio_quality(
+                result, audio_metadata
+            )
 
             transcription_result = TranscriptionResult(
                 text=result['text'].strip() if isinstance(
