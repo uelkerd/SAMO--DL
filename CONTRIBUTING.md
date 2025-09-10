@@ -1,530 +1,184 @@
 # Contributing to SAMO-DL
 
-## 🎯 Welcome Contributors!
+Thank you for your interest in contributing to SAMO-DL! This document provides guidelines for contributing to the project.
 
-Thank you for your interest in contributing to the SAMO-DL project! This guide will help you get started and ensure your contributions align with our project standards.
+## Development Setup
 
-## 📋 Table of Contents
-
-- [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [Code Standards](#code-standards)
-- [Testing](#testing)
-- [Pull Request Process](#pull-request-process)
-- [Code Review Guidelines](#code-review-guidelines)
-- [Security Guidelines](#security-guidelines)
-- [Documentation](#documentation)
-- [Support](#support)
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Python**: 3.10+
-- **Git**: Latest version
-- **Docker**: 20.10+ (for containerized development)
-- **Make**: For automation scripts
-
-### Quick Start
-
-1. **Fork the repository**
+1. **Clone the repository**
    ```bash
-   # Fork on GitHub, then clone your fork
-   git clone https://github.com/YOUR_USERNAME/SAMO--DL.git
+   git clone https://github.com/uelkerd/SAMO--DL.git
    cd SAMO--DL
    ```
 
 2. **Set up development environment**
    ```bash
-   # Create virtual environment
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   
-   # Install dependencies
-   pip install -r requirements.txt
+   make setup
+   # or manually:
+   # python scripts/setup_dev_environment.py
    ```
 
-3. **Run tests**
+3. **Install pre-commit hooks**
    ```bash
-   # Run all tests
-   pytest
-   
-   # Run with coverage
-   pytest --cov=.
+   pre-commit install
    ```
 
-## 🛠️ Development Setup
+## Code Quality Standards
 
-### Environment Configuration
+### Formatting
+- **Black**: Code formatting (line length: 88)
+- **isort**: Import sorting
+- **Flake8**: Linting
+- **Pylint**: Code analysis
+- **MyPy**: Type checking
 
-Create a `.env` file for local development:
-
+### Running Quality Checks
 ```bash
-# .env
-ENVIRONMENT=development
-DATABASE_URL=postgresql://user:pass@localhost:5432/samo_dl_dev
-SECRET_KEY=dev-secret-key-change-in-production
-API_KEY=dev-api-key
-LOG_LEVEL=DEBUG
-```
+# Run all quality checks
+make quality-check
 
-### Docker Development
-
-```bash
-# Build development container
-docker build -f deployment/cloud-run/Dockerfile -t samo-dl-dev .
-
-# Run with development settings
-docker run -p 8080:8080 \
-  -e ENVIRONMENT=development \
-  -e DATABASE_URL=postgresql://user:pass@host:5432/db \
-  samo-dl-dev
-```
-
-### Database Setup
-
-```bash
-# Install PostgreSQL (Ubuntu)
-sudo apt install postgresql postgresql-contrib
-
-# Create database
-sudo -u postgres createdb samo_dl_dev
-
-# Run migrations
-alembic upgrade head
-```
-
-## 📝 Code Standards
-
-### Python Style Guide
-
-We follow **PEP 8** with some modifications:
-
-```python
-# ✅ Good
-def predict_emotion(text: str) -> Dict[str, Any]:
-    """Predict emotion from text input.
-    
-    Args:
-        text: Input text to analyze
-        
-    Returns:
-        Dictionary containing emotion prediction and confidence
-        
-    Raises:
-        ValueError: If text is empty or invalid
-    """
-    if not text or not isinstance(text, str):
-        raise ValueError("Text must be a non-empty string")
-    
-    # Implementation here
-    return {"emotion": "happy", "confidence": 0.95}
-
-# ❌ Bad
-def predict_emotion(text):
-    if not text:
-        return None
-    # Implementation without type hints or docstrings
-```
-
-### Code Formatting
-
-We use **Black** for code formatting and **Ruff** for linting:
-
-```bash
 # Format code
-black .
+make format
 
-# Lint code
-ruff check .
+# Run tests
+make test
 
-# Auto-fix linting issues
-ruff check --fix .
+# Run specific test types
+make test-unit
+make test-integration
 ```
 
-### Type Hints
-
-All functions should include type hints:
-
-```python
-from typing import Dict, List, Optional, Any
-import torch
-from transformers import AutoTokenizer
-
-def load_model(model_path: str) -> Optional[torch.nn.Module]:
-    """Load PyTorch model from path."""
-    pass
-
-def predict_batch(texts: List[str]) -> List[Dict[str, Any]]:
-    """Predict emotions for multiple texts."""
-    pass
+### Pre-commit Hooks
+All commits are automatically checked with pre-commit hooks. To run manually:
+```bash
+pre-commit run --all-files
 ```
 
-### Documentation Standards
+## Pull Request Guidelines
 
-#### Docstrings
+### PR Size Limits
+- **Maximum 25 files** changed per PR
+- **Maximum 500 lines** changed per PR
+- **Maximum 5 commits** per PR
+- **48-hour maximum** branch lifetime
 
-Use Google-style docstrings:
+### PR Structure
+1. **One clear purpose** per PR
+2. **Descriptive title** (e.g., "feat: add emotion detection endpoint")
+3. **Detailed description** with:
+   - What was changed
+   - Why it was changed
+   - How to test
+   - Any breaking changes
 
-```python
-def process_text(text: str, max_length: int = 512) -> str:
-    """Process and clean input text.
-    
-    Args:
-        text: Raw input text
-        max_length: Maximum allowed text length
-        
-    Returns:
-        Processed and cleaned text
-        
-    Raises:
-        ValueError: If text exceeds maximum length
-        TypeError: If text is not a string
-        
-    Example:
-        >>> process_text("Hello, world!", max_length=10)
-        "Hello, wor"
-    """
-    if not isinstance(text, str):
-        raise TypeError("Text must be a string")
-    
-    if len(text) > max_length:
-        text = text[:max_length]
-    
-    return text.strip()
-```
+### Branch Naming
+- `feat/dl-<description>`: New features
+- `fix/dl-<description>`: Bug fixes
+- `refactor/dl-<description>`: Code refactoring
+- `test/dl-<description>`: Test additions
+- `docs/dl-<description>`: Documentation updates
 
-#### Comments
-
-- Use comments to explain **why**, not **what**
-- Keep comments up-to-date with code changes
-- Use TODO comments for future improvements
-
-```python
-# ✅ Good - explains why
-# Use CPU for inference to avoid GPU memory issues in production
-device = torch.device('cpu')
-
-# ❌ Bad - explains what (obvious from code)
-# Set device to CPU
-device = torch.device('cpu')
-```
-
-## 🧪 Testing
+## Testing
 
 ### Test Structure
-
-```
-tests/
-├── unit/           # Unit tests
-├── integration/    # Integration tests
-├── e2e/           # End-to-end tests
-├── fixtures/      # Test data and fixtures
-└── conftest.py    # Pytest configuration
-```
-
-### Writing Tests
-
-```python
-# tests/unit/test_emotion_detector.py
-import pytest
-from src.emotion_detector import EmotionDetector
-
-class TestEmotionDetector:
-    """Test cases for EmotionDetector class."""
-    
-    @pytest.fixture
-    def detector(self):
-        """Create EmotionDetector instance for testing."""
-        return EmotionDetector()
-    
-    def test_predict_happy_text(self, detector):
-        """Test emotion prediction for happy text."""
-        text = "I'm feeling really happy today!"
-        result = detector.predict(text)
-        
-        assert result["emotion"] == "happy"
-        assert result["confidence"] > 0.8
-        assert "text" in result
-    
-    def test_predict_empty_text(self, detector):
-        """Test emotion prediction with empty text."""
-        with pytest.raises(ValueError, match="Text cannot be empty"):
-            detector.predict("")
-    
-    def test_predict_invalid_input(self, detector):
-        """Test emotion prediction with invalid input."""
-        with pytest.raises(TypeError, match="Text must be a string"):
-            detector.predict(123)
-```
+- **Unit tests**: `tests/test_*.py`
+- **Integration tests**: `tests/test_*_integration.py`
+- **System tests**: `tests/test_system_*.py`
 
 ### Running Tests
-
 ```bash
-# Run all tests
+# All tests
 pytest
 
-# Run specific test file
-pytest tests/unit/test_emotion_detector.py
+# Unit tests only
+pytest -m unit
 
-# Run with coverage
+# Integration tests only
+pytest -m integration
+
+# With coverage
 pytest --cov=src --cov-report=html
-
-# Run integration tests only
-pytest tests/integration/
-
-# Run tests in parallel
-pytest -n auto
 ```
 
-### Test Coverage
+### Test Requirements
+- **80% minimum** code coverage
+- **All tests must pass** before merging
+- **New features require tests**
 
-We aim for **90%+ test coverage**:
+## Security
 
-```bash
-# Generate coverage report
-pytest --cov=src --cov-report=term-missing
+### Security Checks
+- **Bandit**: Security linting
+- **Safety**: Dependency vulnerability scanning
+- **Pre-commit hooks**: Automatic security checks
 
-# View HTML coverage report
-open htmlcov/index.html
+### Reporting Security Issues
+Please report security issues privately to the maintainers.
+
+## Documentation
+
+### Code Documentation
+- **Docstrings**: All public functions and classes
+- **Type hints**: All function parameters and return values
+- **Comments**: Complex logic explanations
+
+### API Documentation
+- **OpenAPI/Swagger**: Auto-generated from code
+- **Examples**: Comprehensive usage examples
+- **README**: Setup and usage instructions
+
+## Commit Guidelines
+
+### Commit Message Format
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
 ```
 
-## 🔄 Pull Request Process
-
-### 1. Create Feature Branch
-
-```bash
-# Create and switch to feature branch
-git checkout -b feature/your-feature-name
-
-# Or use conventional commit format
-git checkout -b feat/add-new-emotion-model
-git checkout -b fix/security-vulnerability
-git checkout -b docs/update-api-documentation
-```
-
-### 2. Make Changes
-
-- Write code following our standards
-- Add tests for new functionality
-- Update documentation
-- Ensure all tests pass
-
-### 3. Commit Changes
-
-Use conventional commit format:
-
-```bash
-# Format: type(scope): description
-git commit -m "feat(api): add batch prediction endpoint"
-git commit -m "fix(security): update dependencies to fix vulnerabilities"
-git commit -m "docs(readme): update installation instructions"
-git commit -m "test(emotion): add comprehensive test coverage"
-```
-
-**Commit Types:**
+### Types
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
+- `style`: Code style changes
 - `refactor`: Code refactoring
-- `test`: Adding or updating tests
+- `test`: Test additions/changes
 - `chore`: Maintenance tasks
 
-### 4. Push and Create PR
-
-```bash
-# Push to your fork
-git push origin feature/your-feature-name
-
-# Create Pull Request on GitHub
+### Examples
+```
+feat(api): add emotion detection endpoint
+fix(model): resolve CUDA memory leak
+docs(readme): update installation instructions
 ```
 
-### 5. PR Template
+## Review Process
 
-Use our PR template:
-
-```markdown
-## Description
-Brief description of changes
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-
-## Testing
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
-
-## Checklist
+### Review Checklist
 - [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Documentation updated
-- [ ] Tests added/updated
-- [ ] No security vulnerabilities introduced
-```
-
-## 👀 Code Review Guidelines
-
-### For Contributors
-
-**Before submitting PR:**
-- [ ] Self-review your code
-- [ ] Ensure all tests pass
-- [ ] Update documentation
-- [ ] Check for security issues
-- [ ] Follow naming conventions
-
-**During review:**
-- Respond to feedback promptly
-- Be open to suggestions
-- Explain your reasoning when needed
-- Make requested changes
-
-### For Reviewers
-
-**Review checklist:**
-- [ ] Code follows project standards
-- [ ] Tests are comprehensive
+- [ ] Tests pass and coverage is adequate
 - [ ] Documentation is updated
-- [ ] No security issues introduced
-- [ ] Performance considerations addressed
-- [ ] Error handling is appropriate
+- [ ] No security vulnerabilities
+- [ ] Performance impact considered
+- [ ] Breaking changes documented
 
-**Review comments:**
-- Be constructive and specific
-- Suggest alternatives when possible
-- Focus on code quality and maintainability
-- Consider security implications
+### Review Timeline
+- **Initial review**: Within 24 hours
+- **Follow-up reviews**: Within 12 hours
+- **Merge decision**: Within 48 hours
 
-## 🔒 Security Guidelines
+## Getting Help
 
-### Security Best Practices
+### Resources
+- **Issues**: GitHub Issues for bug reports
+- **Discussions**: GitHub Discussions for questions
+- **Documentation**: README and code comments
 
-1. **Input Validation**
-   ```python
-   # ✅ Good
-   def validate_text(text: str) -> str:
-       if not isinstance(text, str):
-           raise TypeError("Text must be a string")
-       if len(text) > 1000:
-           raise ValueError("Text too long")
-       return text.strip()
-   ```
+### Contact
+- **Maintainers**: @uelkerd
+- **Project**: SAMO-DL
 
-2. **Secrets Management**
-   ```python
-   # ✅ Good - Use environment variables
-   import os
-   api_key = os.getenv('API_KEY')
-   
-   # ❌ Bad - Hardcoded secrets
-   api_key = "your-api-key-here"  # Never commit real API keys
-   ```
-
-3. **SQL Injection Prevention**
-   ```python
-   # ✅ Good - Use parameterized queries
-   cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-   
-   # ❌ Bad - String concatenation
-   cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
-   ```
-
-### Security Checklist
-
-- [ ] No hardcoded secrets
-- [ ] Input validation implemented
-- [ ] SQL injection prevention
-- [ ] XSS protection
-- [ ] CSRF protection
-- [ ] Rate limiting implemented
-- [ ] Error messages don't leak information
-- [ ] Dependencies are up-to-date
-
-### Reporting Security Issues
-
-**For security vulnerabilities:**
-1. **DO NOT** create a public issue
-2. Email: security@samo-project.com
-3. Include detailed description and reproduction steps
-4. We'll respond within 24 hours
-
-## 📚 Documentation
-
-### Documentation Standards
-
-1. **README Updates**
-   - Update README.md for user-facing changes
-   - Include examples and usage instructions
-   - Update installation steps if needed
-
-2. **API Documentation**
-   - Update OpenAPI specification
-   - Add examples for new endpoints
-   - Document error responses
-
-3. **Code Documentation**
-   - Add docstrings to all functions
-   - Include type hints
-   - Add inline comments for complex logic
-
-### Documentation Checklist
-
-- [ ] README updated
-- [ ] API docs updated
-- [ ] Code docstrings added
-- [ ] Examples provided
-- [ ] Installation instructions current
-- [ ] Troubleshooting section updated
-
-## 🆘 Support
-
-### Getting Help
-
-1. **Check existing issues** on GitHub
-2. **Search documentation** for answers
-3. **Ask in discussions** for general questions
-4. **Create issue** for bugs or feature requests
-
-### Communication Channels
-
-- **GitHub Issues**: Bug reports and feature requests
-- **GitHub Discussions**: General questions and discussions
-- **Email**: security@samo-project.com (security issues only)
-
-### Issue Templates
-
-Use our issue templates:
-- **Bug Report**: For reporting bugs
-- **Feature Request**: For requesting new features
-- **Documentation**: For documentation issues
-
-## 🎉 Recognition
-
-### Contributors
-
-We recognize contributors in several ways:
-- **Contributors list** in README
-- **Release notes** for significant contributions
-- **Special thanks** for major features
-
-### Contribution Levels
-
-- **Bronze**: 1-5 contributions
-- **Silver**: 6-20 contributions
-- **Gold**: 21+ contributions
-- **Platinum**: Core team member
-
-## 📄 License
+## License
 
 By contributing to SAMO-DL, you agree that your contributions will be licensed under the MIT License.
-
----
-
-**Thank you for contributing to SAMO-DL!** 🚀
-
-Your contributions help make this project better for everyone in the community. 
