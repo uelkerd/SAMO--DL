@@ -242,24 +242,35 @@ class SAMOT5Summarizer:
         Returns:
             Optimized input text for T5
         """
-        # Base summarization prompt
-        input_text = f"summarize: {text}"
-
-        # Add emotional context if enabled
-        if self.config["samo_optimizations"]["emotional_context"] and emotional_keywords:
-            emotion_context = f" [emotions: {', '.join(emotional_keywords)}]"
-            input_text = f"summarize{emotion_context}: {text}"
-
+        # Start with base prompt
+        prompt_parts = ["summarize"]
+        
         # Add journal mode context if enabled
         if self.config["samo_optimizations"]["journal_mode"]:
-            input_text = f"summarize journal entry: {text}"
-
+            prompt_parts.append("journal entry")
+        
+        # Add emotional context if enabled
+        if (self.config["samo_optimizations"]["emotional_context"] and 
+            emotional_keywords):
+            emotion_context = f"[emotions: {', '.join(emotional_keywords)}]"
+            prompt_parts.append(emotion_context)
+        
         # Add tone preservation instruction if enabled
-        if self.config["samo_optimizations"]["preserve_tone"] and emotional_keywords:
+        if (self.config["samo_optimizations"]["preserve_tone"] and 
+            emotional_keywords):
             tone_instruction = (
-                f" [preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
+                f"[preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
             )
-            input_text += tone_instruction
+            prompt_parts.append(tone_instruction)
+        
+        # Combine all parts into final prompt
+        if len(prompt_parts) > 1:
+            # Join all parts with spaces
+            prompt = " ".join(prompt_parts)
+            input_text = f"{prompt}: {text}"
+        else:
+            # Fallback to simple summarization
+            input_text = f"summarize: {text}"
 
         return input_text
 
