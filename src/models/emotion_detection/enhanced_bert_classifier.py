@@ -16,7 +16,7 @@ import torch
 import torch.nn as nn
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
-from .labels import GOEMOTIONS_EMOTIONS
+from .emotion_labels import GOEMOTIONS_EMOTIONS
 
 # Configure logging
 logger = logging.getLogger(__name__)
