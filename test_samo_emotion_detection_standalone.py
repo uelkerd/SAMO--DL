@@ -224,7 +224,7 @@ def test_emotion_descriptions():
 
 def run_all_tests():
     """Run all emotion classifier tests."""
-    model, loss_fn = test_model_initialization()
+    model, _ = test_model_initialization()  # loss_fn is not used in this function
     trainable_params = test_model_info(model)
     all_emotions = test_emotion_labels()
     test_emotion_predictions(model, all_emotions)
