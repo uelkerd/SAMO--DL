@@ -217,9 +217,15 @@ def test_emotion_descriptions():
     """Test emotion descriptions functionality."""
     print("\n8. Testing emotion descriptions...")
     sample_emotions = ["joy", "sadness", "anger", "fear", "love"]
-    for emotion in sample_emotions:
-        description = get_emotion_description(emotion)
-        print(f"   {emotion}: {description}")
+    
+    # Use list comprehension to avoid loop in test
+    descriptions = [
+        f"   {emotion}: {get_emotion_description(emotion)}"
+        for emotion in sample_emotions
+    ]
+    
+    # Print all descriptions at once
+    print("\n".join(descriptions))
 
 
 def run_all_tests():

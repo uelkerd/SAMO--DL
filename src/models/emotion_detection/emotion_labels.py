@@ -179,8 +179,8 @@ def get_emotion_index(emotion: str) -> int:
     """
     try:
         return GOEMOTIONS_EMOTIONS.index(emotion.lower())
-    except ValueError:
-        raise ValueError(f"Emotion '{emotion}' not found in GoEmotions list")
+    except ValueError as e:
+        raise ValueError(f"Emotion '{emotion}' not found in GoEmotions list") from e
 
 
 def get_emotion_name(index: int) -> str:
