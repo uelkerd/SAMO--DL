@@ -383,23 +383,26 @@ class SAMOT5Summarizer:
             List of summary dictionaries
         """
         start_time = time.time()
-        results = []
-
+        
         # Validate all inputs first
         valid_texts = []
         valid_indices = []
+        # Preallocate results list to preserve input order
+        results = [None] * len(texts)
+        
         for i, text in enumerate(texts):
             is_valid, error_msg = self._validate_input(text)
             if is_valid:
                 valid_texts.append(text)
                 valid_indices.append(i)
             else:
-                results.append({
+                # Assign error result at original index
+                results[i] = {
                     "summary": "",
                     "error": error_msg,
                     "success": False,
                     "processing_time": 0.0
-                })
+                }
 
         if not valid_texts:
             return results
@@ -480,9 +483,6 @@ class SAMOT5Summarizer:
 
                     # Insert result at correct index
                     result_index = batch_indices[i]
-                    while len(results) <= result_index:
-                        results.append(None)
-
                     results[result_index] = {
                         "summary": summary,
                         "original_length": original_length,
@@ -498,8 +498,6 @@ class SAMOT5Summarizer:
                 logger.error("Batch processing failed: %s", e)
                 # Add error results for this batch
                 for i, idx in enumerate(batch_indices):
-                    while len(results) <= idx:
-                        results.append(None)
                     results[idx] = {
                         "summary": "",
                         "error": str(e),
@@ -509,8 +507,6 @@ class SAMOT5Summarizer:
 
         # Fill in any missing results with errors
         for i in range(len(texts)):
-            if i >= len(results):
-                results.extend([None] * (i - len(results) + 1))
             if results[i] is None:
                 results[i] = {
                     "summary": "",
