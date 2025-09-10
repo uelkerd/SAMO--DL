@@ -143,7 +143,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
-        self.temperature = nn.Parameter(torch.ones(1))
+        self.temperature = nn.Parameter(torch.ones(1) * self.temperature)
         self._init_classification_layers()
 
         # Freeze BERT layers if specified

@@ -171,18 +171,32 @@ class DevelopmentConfig:
 class EnhancedEmotionDetectionConfig:
     """Enhanced configuration container for emotion detection."""
     model: ModelConfig = field(default_factory=ModelConfig)
-    emotion_detection: EmotionDetectionConfig = field(default_factory=EmotionDetectionConfig)
-    architecture: ArchitectureConfig = field(default_factory=ArchitectureConfig)
+    emotion_detection: EmotionDetectionConfig = field(
+        default_factory=EmotionDetectionConfig
+    )
+    architecture: ArchitectureConfig = field(
+        default_factory=ArchitectureConfig
+    )
     training: TrainingConfig = field(default_factory=TrainingConfig)
     data: DataConfig = field(default_factory=DataConfig)
     evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
-    model_saving: ModelSavingConfig = field(default_factory=ModelSavingConfig)
-    performance: PerformanceConfig = field(default_factory=PerformanceConfig)
-    samo_optimizations: SAMOOptimizationsConfig = field(default_factory=SAMOOptimizationsConfig)
-    error_handling: ErrorHandlingConfig = field(default_factory=ErrorHandlingConfig)
+    model_saving: ModelSavingConfig = field(
+        default_factory=ModelSavingConfig
+    )
+    performance: PerformanceConfig = field(
+        default_factory=PerformanceConfig
+    )
+    samo_optimizations: SAMOOptimizationsConfig = field(
+        default_factory=SAMOOptimizationsConfig
+    )
+    error_handling: ErrorHandlingConfig = field(
+        default_factory=ErrorHandlingConfig
+    )
     security: SecurityConfig = field(default_factory=SecurityConfig)
-    development: DevelopmentConfig = field(default_factory=DevelopmentConfig)
+    development: DevelopmentConfig = field(
+        default_factory=DevelopmentConfig
+    )
 
 
 class EnhancedConfigManager:
@@ -247,19 +261,45 @@ class EnhancedConfigManager:
         """Parse configuration data into structured format."""
         try:
             # Parse each section with validation
-            model_config = self._parse_model_config(config_data.get("model", {}))
-            emotion_config = self._parse_emotion_detection_config(config_data.get("emotion_detection", {}))
-            architecture_config = self._parse_architecture_config(config_data.get("architecture", {}))
-            training_config = self._parse_training_config(config_data.get("training", {}))
-            data_config = self._parse_data_config(config_data.get("data", {}))
-            evaluation_config = self._parse_evaluation_config(config_data.get("evaluation", {}))
-            logging_config = self._parse_logging_config(config_data.get("logging", {}))
-            model_saving_config = self._parse_model_saving_config(config_data.get("model_saving", {}))
-            performance_config = self._parse_performance_config(config_data.get("performance", {}))
-            samo_optimizations = self._parse_samo_optimizations(config_data.get("samo_optimizations", {}))
-            error_handling = self._parse_error_handling(config_data.get("error_handling", {}))
-            security_config = self._parse_security_config(config_data.get("security", {}))
-            development_config = self._parse_development_config(config_data.get("development", {}))
+            model_config = self._parse_model_config(
+                config_data.get("model", {})
+            )
+            emotion_config = self._parse_emotion_detection_config(
+                config_data.get("emotion_detection", {})
+            )
+            architecture_config = self._parse_architecture_config(
+                config_data.get("architecture", {})
+            )
+            training_config = self._parse_training_config(
+                config_data.get("training", {})
+            )
+            data_config = self._parse_data_config(
+                config_data.get("data", {})
+            )
+            evaluation_config = self._parse_evaluation_config(
+                config_data.get("evaluation", {})
+            )
+            logging_config = self._parse_logging_config(
+                config_data.get("logging", {})
+            )
+            model_saving_config = self._parse_model_saving_config(
+                config_data.get("model_saving", {})
+            )
+            performance_config = self._parse_performance_config(
+                config_data.get("performance", {})
+            )
+            samo_optimizations = self._parse_samo_optimizations(
+                config_data.get("samo_optimizations", {})
+            )
+            error_handling = self._parse_error_handling(
+                config_data.get("error_handling", {})
+            )
+            security_config = self._parse_security_config(
+                config_data.get("security", {})
+            )
+            development_config = self._parse_development_config(
+                config_data.get("development", {})
+            )
 
             return EnhancedEmotionDetectionConfig(
                 model=model_config,
@@ -284,20 +324,37 @@ class EnhancedConfigManager:
     def _parse_model_config(self, data: Dict[str, Any]) -> ModelConfig:
         """Parse model configuration with validation."""
         return ModelConfig(
-            name=self._validate_string(data.get("name", "bert-base-uncased"), "model.name"),
+            name=self._validate_string(
+                data.get("name", "bert-base-uncased"), "model.name"
+            ),
             device=self._validate_device(data.get("device")),
-            use_mixed_precision=self._validate_bool(data.get("use_mixed_precision", True), "model.use_mixed_precision"),
-            cache_embeddings=self._validate_bool(data.get("cache_embeddings", False), "model.cache_embeddings"),
-            max_sequence_length=self._validate_positive_int(data.get("max_sequence_length", 512), "model.max_sequence_length"),
+            use_mixed_precision=self._validate_bool(
+                data.get("use_mixed_precision", True), "model.use_mixed_precision"
+            ),
+            cache_embeddings=self._validate_bool(
+                data.get("cache_embeddings", False), "model.cache_embeddings"
+            ),
+            max_sequence_length=self._validate_positive_int(
+                data.get("max_sequence_length", 512), "model.max_sequence_length"
+            ),
         )
 
     def _parse_emotion_detection_config(self, data: Dict[str, Any]) -> EmotionDetectionConfig:
         """Parse emotion detection configuration with validation."""
         return EmotionDetectionConfig(
-            num_emotions=self._validate_positive_int(data.get("num_emotions", 28), "emotion_detection.num_emotions"),
-            prediction_threshold=self._validate_float_range(data.get("prediction_threshold", 0.6), 0.0, 1.0, "emotion_detection.prediction_threshold"),
-            temperature=self._validate_positive_float(data.get("temperature", 1.0), "emotion_detection.temperature"),
-            top_k=self._validate_positive_int(data.get("top_k", 5), "emotion_detection.top_k"),
+            num_emotions=self._validate_positive_int(
+                data.get("num_emotions", 28), "emotion_detection.num_emotions"
+            ),
+            prediction_threshold=self._validate_float_range(
+                data.get("prediction_threshold", 0.6), 0.0, 1.0, 
+                "emotion_detection.prediction_threshold"
+            ),
+            temperature=self._validate_positive_float(
+                data.get("temperature", 1.0), "emotion_detection.temperature"
+            ),
+            top_k=self._validate_positive_int(
+                data.get("top_k", 5), "emotion_detection.top_k"
+            ),
         )
 
     def _parse_architecture_config(self, data: Dict[str, Any]) -> ArchitectureConfig:
@@ -387,31 +444,63 @@ class EnhancedConfigManager:
     def _parse_error_handling(self, data: Dict[str, Any]) -> ErrorHandlingConfig:
         """Parse error handling configuration with validation."""
         return ErrorHandlingConfig(
-            max_retries=self._validate_non_negative_int(data.get("max_retries", 3), "error_handling.max_retries"),
-            retry_delay=self._validate_positive_float(data.get("retry_delay", 1.0), "error_handling.retry_delay"),
-            fallback_to_cpu=self._validate_bool(data.get("fallback_to_cpu", True), "error_handling.fallback_to_cpu"),
-            graceful_degradation=self._validate_bool(data.get("graceful_degradation", True), "error_handling.graceful_degradation"),
-            log_errors=self._validate_bool(data.get("log_errors", True), "error_handling.log_errors"),
-            error_log_file=self._validate_string(data.get("error_log_file", "logs/emotion_detection_errors.log"), "error_handling.error_log_file"),
+            max_retries=self._validate_non_negative_int(
+                data.get("max_retries", 3), "error_handling.max_retries"
+            ),
+            retry_delay=self._validate_positive_float(
+                data.get("retry_delay", 1.0), "error_handling.retry_delay"
+            ),
+            fallback_to_cpu=self._validate_bool(
+                data.get("fallback_to_cpu", True), "error_handling.fallback_to_cpu"
+            ),
+            graceful_degradation=self._validate_bool(
+                data.get("graceful_degradation", True), "error_handling.graceful_degradation"
+            ),
+            log_errors=self._validate_bool(
+                data.get("log_errors", True), "error_handling.log_errors"
+            ),
+            error_log_file=self._validate_string(
+                data.get("error_log_file", "logs/emotion_detection_errors.log"),
+                "error_handling.error_log_file"
+            ),
         )
 
     def _parse_security_config(self, data: Dict[str, Any]) -> SecurityConfig:
         """Parse security configuration with validation."""
         return SecurityConfig(
-            sanitize_input=self._validate_bool(data.get("sanitize_input", True), "security.sanitize_input"),
-            filter_sensitive_emotions=self._validate_bool(data.get("filter_sensitive_emotions", False), "security.filter_sensitive_emotions"),
-            rate_limit_requests=self._validate_positive_int(data.get("rate_limit_requests", 1000), "security.rate_limit_requests"),
-            anonymize_predictions=self._validate_bool(data.get("anonymize_predictions", False), "security.anonymize_predictions"),
+            sanitize_input=self._validate_bool(
+                data.get("sanitize_input", True), "security.sanitize_input"
+            ),
+            filter_sensitive_emotions=self._validate_bool(
+                data.get("filter_sensitive_emotions", False),
+                "security.filter_sensitive_emotions"
+            ),
+            rate_limit_requests=self._validate_positive_int(
+                data.get("rate_limit_requests", 1000), "security.rate_limit_requests"
+            ),
+            anonymize_predictions=self._validate_bool(
+                data.get("anonymize_predictions", False), "security.anonymize_predictions"
+            ),
         )
 
     def _parse_development_config(self, data: Dict[str, Any]) -> DevelopmentConfig:
         """Parse development configuration with validation."""
         return DevelopmentConfig(
-            debug_mode=self._validate_bool(data.get("debug_mode", False), "development.debug_mode"),
-            verbose=self._validate_bool(data.get("verbose", False), "development.verbose"),
-            test_mode=self._validate_bool(data.get("test_mode", False), "development.test_mode"),
-            enable_profiling=self._validate_bool(data.get("enable_profiling", False), "development.enable_profiling"),
-            profile_steps=self._validate_positive_int(data.get("profile_steps", 100), "development.profile_steps"),
+            debug_mode=self._validate_bool(
+                data.get("debug_mode", False), "development.debug_mode"
+            ),
+            verbose=self._validate_bool(
+                data.get("verbose", False), "development.verbose"
+            ),
+            test_mode=self._validate_bool(
+                data.get("test_mode", False), "development.test_mode"
+            ),
+            enable_profiling=self._validate_bool(
+                data.get("enable_profiling", False), "development.enable_profiling"
+            ),
+            profile_steps=self._validate_positive_int(
+                data.get("profile_steps", 100), "development.profile_steps"
+            ),
         )
 
     # Validation methods
@@ -419,7 +508,9 @@ class EnhancedConfigManager:
     def _validate_string(value: Any, field_name: str) -> str:
         """Validate string value."""
         if not isinstance(value, str):
-            logger.warning("Invalid string value for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid string value for %s: %s, using default", field_name, value
+            )
             return ""
         return value
 
@@ -427,7 +518,9 @@ class EnhancedConfigManager:
     def _validate_bool(value: Any, field_name: str) -> bool:
         """Validate boolean value."""
         if not isinstance(value, bool):
-            logger.warning("Invalid boolean value for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid boolean value for %s: %s, using default", field_name, value
+            )
             return False
         return value
 
@@ -437,11 +530,15 @@ class EnhancedConfigManager:
         try:
             int_val = int(value)
             if int_val <= 0:
-                logger.warning("Non-positive integer for %s: %s, using default", field_name, value)
+                logger.warning(
+                    "Non-positive integer for %s: %s, using default", field_name, value
+                )
                 return 1
             return int_val
         except (ValueError, TypeError):
-            logger.warning("Invalid integer for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid integer for %s: %s, using default", field_name, value
+            )
             return 1
 
     @staticmethod
@@ -450,11 +547,15 @@ class EnhancedConfigManager:
         try:
             int_val = int(value)
             if int_val < 0:
-                logger.warning("Negative integer for %s: %s, using default", field_name, value)
+                logger.warning(
+                    "Negative integer for %s: %s, using default", field_name, value
+                )
                 return 0
             return int_val
         except (ValueError, TypeError):
-            logger.warning("Invalid integer for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid integer for %s: %s, using default", field_name, value
+            )
             return 0
 
     @staticmethod
@@ -463,24 +564,34 @@ class EnhancedConfigManager:
         try:
             float_val = float(value)
             if float_val <= 0:
-                logger.warning("Non-positive float for %s: %s, using default", field_name, value)
+                logger.warning(
+                    "Non-positive float for %s: %s, using default", field_name, value
+                )
                 return 1.0
             return float_val
         except (ValueError, TypeError):
-            logger.warning("Invalid float for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid float for %s: %s, using default", field_name, value
+            )
             return 1.0
 
     @staticmethod
-    def _validate_float_range(value: Any, min_val: float, max_val: float, field_name: str) -> float:
+    def _validate_float_range(
+        value: Any, min_val: float, max_val: float, field_name: str
+    ) -> float:
         """Validate float value within range."""
         try:
             float_val = float(value)
             if not min_val <= float_val <= max_val:
-                logger.warning("Float out of range for %s: %s, using default", field_name, value)
+                logger.warning(
+                    "Float out of range for %s: %s, using default", field_name, value
+                )
                 return (min_val + max_val) / 2
             return float_val
         except (ValueError, TypeError):
-            logger.warning("Invalid float for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid float for %s: %s, using default", field_name, value
+            )
             return (min_val + max_val) / 2
 
     @staticmethod
@@ -501,11 +612,15 @@ class EnhancedConfigManager:
     def _validate_log_level(value: Any, field_name: str) -> str:
         """Validate log level value."""
         if not isinstance(value, str):
-            logger.warning("Invalid log level for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid log level for %s: %s, using default", field_name, value
+            )
             return "INFO"
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if value.upper() not in valid_levels:
-            logger.warning("Invalid log level for %s: %s, using default", field_name, value)
+            logger.warning(
+                "Invalid log level for %s: %s, using default", field_name, value
+            )
             return "INFO"
         return value.upper()
 
@@ -559,7 +674,9 @@ class EnhancedConfigManager:
             },
             "emotion_detection": {
                 "num_emotions": self.config.emotion_detection.num_emotions,
-                "prediction_threshold": self.config.emotion_detection.prediction_threshold,
+                "prediction_threshold": (
+                    self.config.emotion_detection.prediction_threshold
+                ),
                 "temperature": self.config.emotion_detection.temperature,
                 "top_k": self.config.emotion_detection.top_k,
             },
@@ -567,7 +684,9 @@ class EnhancedConfigManager:
         }
 
 
-def create_enhanced_config_manager(config_path: Optional[Union[str, Path]] = None) -> EnhancedConfigManager:
+def create_enhanced_config_manager(
+    config_path: Optional[Union[str, Path]] = None
+) -> EnhancedConfigManager:
     """Create an enhanced configuration manager.
 
     Args:

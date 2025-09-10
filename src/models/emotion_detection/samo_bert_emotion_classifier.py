@@ -509,7 +509,8 @@ if __name__ == "__main__":
         for i, text in enumerate(test_texts):
             print(f"\nText: {text}")
             print(f"Emotions: {results['emotions'][i]}")
-            print(f"Top probabilities: {[f'{p:.3f}' for p in results['probabilities'][i][:5]]}")
+            top_probs = [f'{p:.3f}' for p in results['probabilities'][i][:5]]
+            print(f"Top probabilities: {top_probs}")
 
         print("\n✅ SAMO BERT Emotion Classifier test completed successfully!")
 
