@@ -206,13 +206,14 @@ class SAMOT5Summarizer:
 
         return found_keywords
 
-    def _sanitize_input(self, text: str) -> str:
+    @staticmethod
+    def _sanitize_input(text: str) -> str:
         """
         Sanitize input text for SAMO optimization.
-
+        
         Args:
             text: Input text to sanitize
-
+            
         Returns:
             Sanitized text
         """
