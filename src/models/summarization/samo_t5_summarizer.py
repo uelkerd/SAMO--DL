@@ -44,10 +44,11 @@ class SAMOT5Summarizer:
         self.config = self._load_config(config_path)
         self.model = None
         self.tokenizer = None
-        self.device = self._get_device()
+        self.device = self._get_device(self.config)
         self._load_model()
         
-    def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
+    @staticmethod
+    def _load_config(config_path: Optional[str]) -> Dict[str, Any]:
         """Load configuration from YAML file."""
         default_config = {
             "model": {
@@ -111,10 +112,11 @@ class SAMOT5Summarizer:
                 
         return default_config
     
-    def _get_device(self) -> str:
+    @staticmethod
+    def _get_device(config: Dict[str, Any]) -> str:
         """Get the best available device, respecting user-specified device override."""
         # Check if user specified a device in config
-        user_device = self.config.get("model", {}).get("device")
+        user_device = config.get("model", {}).get("device")
         if user_device:
             logger.info("Using user-specified device: %s", user_device)
             return user_device
@@ -122,10 +124,11 @@ class SAMOT5Summarizer:
         # Auto-detect best available device
         if torch.cuda.is_available():
             return "cuda"
-        elif getattr(torch.backends, "mps", None) is not None and getattr(torch.backends.mps, "is_available", lambda: False)():
+        
+        if getattr(torch.backends, "mps", None) is not None and getattr(torch.backends.mps, "is_available", lambda: False)():
             return "mps"
-        else:
-            return "cpu"
+        
+        return "cpu"
     
     def _load_model(self) -> None:
         """Load the T5 model and tokenizer."""
@@ -175,12 +178,14 @@ class SAMOT5Summarizer:
         
         return True, ""
     
-    def _extract_emotional_keywords(self, text: str) -> List[str]:
+    @staticmethod
+    def _extract_emotional_keywords(text: str, config: Dict[str, Any]) -> List[str]:
         """
         Extract emotional keywords from text for SAMO optimization.
         
         Args:
             text: Input text
+            config: Configuration dictionary
             
         Returns:
             List of emotional keywords
@@ -188,7 +193,7 @@ class SAMOT5Summarizer:
         import re
         
         # Get configurable emotional keywords
-        emotional_keywords = self.config["samo_optimizations"]["emotional_keywords"]
+        emotional_keywords = config["samo_optimizations"]["emotional_keywords"]
         
         text_lower = text.lower()
         found_keywords = []
@@ -282,7 +287,7 @@ class SAMOT5Summarizer:
             # Extract emotional keywords for SAMO optimization
             emotional_keywords = []
             if self.config["samo_optimizations"]["extract_key_emotions"]:
-                emotional_keywords = self._extract_emotional_keywords(processed_text)
+                emotional_keywords = self._extract_emotional_keywords(processed_text, self.config)
             
             # Prepare input for T5 with SAMO optimizations
             input_text = self._prepare_samo_input(processed_text, emotional_keywords)
@@ -396,7 +401,7 @@ class SAMOT5Summarizer:
                     # Extract emotional keywords
                     emotional_keywords = []
                     if self.config["samo_optimizations"]["extract_key_emotions"]:
-                        emotional_keywords = self._extract_emotional_keywords(processed_text)
+                        emotional_keywords = self._extract_emotional_keywords(processed_text, self.config)
                     
                     batch_emotional_keywords.append(emotional_keywords)
                     
