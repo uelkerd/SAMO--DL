@@ -121,7 +121,8 @@ class SAMOT5Summarizer:
 
         return default_config
 
-    def _configure_logging(self, level_str: str) -> None:
+    @staticmethod
+    def _configure_logging(level_str: str) -> None:
         """Configure logging level from config."""
         level = getattr(logging, str(level_str).upper(), logging.INFO)
         logger.setLevel(level)
