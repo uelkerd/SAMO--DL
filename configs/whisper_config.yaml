@@ -1,0 +1,43 @@
+# SAMO Whisper Transcription Configuration
+# Optimized settings for journal audio processing
+
+model:
+  name: "openai/whisper-base"  # Whisper model variant
+  device: "auto"  # auto, cpu, cuda, mps
+  torch_dtype: "float16"  # float16 for efficiency, float32 for precision
+
+audio:
+  sample_rate: 16000  # Whisper expects 16kHz
+  max_duration: 30.0  # Maximum audio duration in seconds
+  chunk_length: 30.0  # Chunk length for long audio
+  stride_length: 5.0  # Overlap between chunks
+
+transcription:
+  language: "auto"  # Language code or "auto" for detection
+  task: "transcribe"  # "transcribe" or "translate"
+  return_timestamps: true  # Include word-level timestamps
+  return_language: true  # Include detected language
+  chunk_length_s: 30.0  # Chunk length in seconds
+  stride_length_s: 5.0  # Stride length in seconds
+
+samo_optimizations:
+  log_level: "INFO"  # Logging level
+  enable_chunking: true  # Enable audio chunking for long files
+  enable_vad: false  # Voice Activity Detection (future feature)
+  confidence_threshold: 0.5  # Minimum confidence for transcription
+  max_retries: 3  # Maximum retry attempts for failed transcriptions
+
+# Performance settings
+performance:
+  batch_size: 1  # Batch size for processing
+  num_workers: 0  # Number of worker threads
+  pin_memory: true  # Pin memory for faster GPU transfer
+
+# Supported audio formats
+supported_formats:
+  - ".wav"
+  - ".mp3"
+  - ".m4a"
+  - ".flac"
+  - ".ogg"
+  - ".wma"
