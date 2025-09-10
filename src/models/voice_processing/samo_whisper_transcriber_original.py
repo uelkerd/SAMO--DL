@@ -62,19 +62,49 @@ class SAMOWhisperConfig:
         self.device = whisper_config.get('device', None)
 
         # Load transcription parameters from both sections
-        self.task = whisper_config.get('task', transcription_config.get('task', 'transcribe'))
-        self.temperature = whisper_config.get('temperature', transcription_config.get('temperature', 0.0))
-        self.beam_size = whisper_config.get('beam_size', transcription_config.get('beam_size', None))
-        self.best_of = whisper_config.get('best_of', transcription_config.get('best_of', None))
-        self.patience = whisper_config.get('patience', transcription_config.get('patience', None))
-        self.length_penalty = whisper_config.get('length_penalty', transcription_config.get('length_penalty', None))
-        self.suppress_tokens = whisper_config.get('suppress_tokens', transcription_config.get('suppress_tokens', '-1'))
-        self.initial_prompt = whisper_config.get('initial_prompt', transcription_config.get('initial_prompt', None))
-        self.condition_on_previous_text = whisper_config.get('condition_on_previous_text', transcription_config.get('condition_on_previous_text', True))
-        self.fp16 = whisper_config.get('fp16', transcription_config.get('fp16', True))
-        self.compression_ratio_threshold = whisper_config.get('compression_ratio_threshold', transcription_config.get('compression_ratio_threshold', 2.4))
-        self.logprob_threshold = whisper_config.get('logprob_threshold', transcription_config.get('logprob_threshold', -1.0))
-        self.no_speech_threshold = whisper_config.get('no_speech_threshold', transcription_config.get('no_speech_threshold', 0.6))
+        self.task = whisper_config.get(
+            'task', transcription_config.get('task', 'transcribe')
+        )
+        self.temperature = whisper_config.get(
+            'temperature', transcription_config.get('temperature', 0.0)
+        )
+        self.beam_size = whisper_config.get(
+            'beam_size', transcription_config.get('beam_size', None)
+        )
+        self.best_of = whisper_config.get(
+            'best_of', transcription_config.get('best_of', None)
+        )
+        self.patience = whisper_config.get(
+            'patience', transcription_config.get('patience', None)
+        )
+        self.length_penalty = whisper_config.get(
+            'length_penalty', transcription_config.get('length_penalty', None)
+        )
+        self.suppress_tokens = whisper_config.get(
+            'suppress_tokens', transcription_config.get('suppress_tokens', '-1')
+        )
+        self.initial_prompt = whisper_config.get(
+            'initial_prompt', transcription_config.get('initial_prompt', None)
+        )
+        self.condition_on_previous_text = whisper_config.get(
+            'condition_on_previous_text', 
+            transcription_config.get('condition_on_previous_text', True)
+        )
+        self.fp16 = whisper_config.get(
+            'fp16', transcription_config.get('fp16', True)
+        )
+        self.compression_ratio_threshold = whisper_config.get(
+            'compression_ratio_threshold', 
+            transcription_config.get('compression_ratio_threshold', 2.4)
+        )
+        self.logprob_threshold = whisper_config.get(
+            'logprob_threshold', 
+            transcription_config.get('logprob_threshold', -1.0)
+        )
+        self.no_speech_threshold = whisper_config.get(
+            'no_speech_threshold', 
+            transcription_config.get('no_speech_threshold', 0.6)
+        )
 
     def _load_defaults(self):
         """Load default configuration."""
@@ -147,7 +177,10 @@ class AudioPreprocessor:
             duration = len(audio) / 1000.0  # Convert to seconds
 
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return False, (
+                    f"Audio too long: {duration:.1f}s > "
+                    f"{AudioPreprocessor.MAX_DURATION}s"
+                )
 
             if duration < 0.1:  # Too short
                 return False, f"Audio too short: {duration:.1f}s"
@@ -251,17 +284,24 @@ class SAMOWhisperTranscriber:
 
         try:
             # Use cache directory from environment or create a local one
-            cache_dir = os.environ.get('HF_HOME', os.path.expanduser('~/.cache/whisper'))
+            cache_dir = os.environ.get(
+                'HF_HOME', os.path.expanduser('~/.cache/whisper')
+            )
             os.makedirs(cache_dir, exist_ok=True)
 
             def is_model_corrupted(cache_dir, model_size):
                 # Check for expected model files and their integrity
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
-                return not (os.path.isfile(model_file) and os.path.getsize(model_file) > 0)
+                return not (
+                    os.path.isfile(model_file) and os.path.getsize(model_file) > 0
+                )
 
             try:
                 if is_model_corrupted(cache_dir, self.config.model_size):
-                    logger.warning("Detected corrupted or missing model files in cache. Clearing cache directory: %s", cache_dir)
+                    logger.warning(
+                        "Detected corrupted or missing model files in cache. "
+                        "Clearing cache directory: %s", cache_dir
+                    )
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
@@ -270,7 +310,10 @@ class SAMOWhisperTranscriber:
                     download_root=cache_dir
                 )
             except Exception:
-                logger.error("Model loading failed, possibly due to cache corruption. Clearing cache and retrying...")
+                logger.error(
+                    "Model loading failed, possibly due to cache corruption. "
+                    "Clearing cache and retrying..."
+                )
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
@@ -301,7 +344,9 @@ class SAMOWhisperTranscriber:
         logger.info("Starting transcription: %s", audio_path)
 
         # Preprocess audio
-        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
+            audio_path
+        )
 
         try:
             # Prepare transcription options
@@ -323,7 +368,9 @@ class SAMOWhisperTranscriber:
             }
 
             # Remove None values
-            transcribe_options = {k: v for k, v in transcribe_options.items() if v is not None}
+            transcribe_options = {
+                k: v for k, v in transcribe_options.items() if v is not None
+            }
 
             # Transcribe
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
@@ -337,16 +384,22 @@ class SAMOWhisperTranscriber:
             )
 
             # Calculate confidence from segments
-            confidence = self._calculate_confidence(result.get('segments', []))
+            confidence = self._calculate_confidence(
+                result.get('segments', [])
+            )
 
             # Calculate no_speech_probability from segments
-            no_speech_probability = self._calculate_no_speech_probability(result.get('segments', []))
+            no_speech_probability = self._calculate_no_speech_probability(
+                result.get('segments', [])
+            )
 
             # Assess audio quality
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip() if isinstance(result.get('text'), str) else '',
+                text=result['text'].strip() if isinstance(
+                    result.get('text'), str
+                ) else '',
                 language=result.get('language', 'unknown'),
                 confidence=confidence,
                 duration=audio_metadata['duration'],
@@ -419,12 +472,15 @@ class SAMOWhisperTranscriber:
 
         total_duration = sum(r.duration for r in results)
         total_processing_time = sum(r.processing_time for r in results)
-        successful_transcriptions = sum(1 for r in results if not r.text.startswith("[ERROR:"))
+        successful_transcriptions = sum(
+            1 for r in results if not r.text.startswith("[ERROR:")
+        )
 
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results), total_duration, total_processing_time
+            successful_transcriptions, len(results), 
+            total_duration, total_processing_time
         )
 
         if errors:
@@ -446,7 +502,9 @@ class SAMOWhisperTranscriber:
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
             # Calculate segment confidence
-            segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
+            segment_confidence = min(
+                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+            )
             confidences.append(segment_confidence)
 
         return float(np.mean(confidences)) if confidences else 0.5

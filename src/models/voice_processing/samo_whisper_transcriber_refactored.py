@@ -73,7 +73,9 @@ class SAMOWhisperTranscriber:
         logger.info("Starting transcription: %s", audio_path)
 
         # Preprocess audio
-        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
+            audio_path
+        )
 
         try:
             # Prepare transcription options
