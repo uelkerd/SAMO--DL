@@ -269,7 +269,7 @@ class SAMOWhisperTranscriber:
                     device=self.device,
                     download_root=cache_dir
                 )
-            except Exception as e:
+            except Exception:
                 logger.error("Model loading failed, possibly due to cache corruption. Clearing cache and retrying...")
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)

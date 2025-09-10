@@ -209,7 +209,7 @@ def test_samo_whisper_transcriber():
             # Test with a simple audio validation
             test_path = "test_audio.wav"
             if Path(test_path).exists():
-                is_valid, msg = transcriber.preprocessor.validate_audio_file(test_path)
+                _, msg = transcriber.preprocessor.validate_audio_file(test_path)
                 print(f"   Audio validation: {msg}")
             else:
                 print("   ⚠️  No audio files available for testing")
