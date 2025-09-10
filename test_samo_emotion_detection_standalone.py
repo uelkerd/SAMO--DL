@@ -107,7 +107,7 @@ def test_emotion_predictions(model, all_emotions):
             
             # Show top probabilities
             top_indices = sorted(range(len(probabilities)), 
-                               key=lambda i: probabilities[i], reverse=True)[:5]
+                               key=lambda i, probs=probabilities: probs[i], reverse=True)[:5]
             print("   Top probabilities:")
             for idx in top_indices:
                 emotion_name = all_emotions[idx]
