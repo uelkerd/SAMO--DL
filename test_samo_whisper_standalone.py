@@ -12,13 +12,17 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-# Add src to path
+# Add src to path for standalone testing
+# Note: This is necessary for the standalone test script to import modules
+# In production, the project should be installed with pip install -e .
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from models.voice_processing.samo_whisper_transcriber import create_samo_whisper_transcriber
 
 def test_audio_files():
     """Test available audio files."""
+    # Note: These are hardcoded for standalone testing
+    # In CI/CD, consider using synthetic audio or test fixtures
     test_audio_files = [
         "american_sample.wav",
         "french_sample.wav", 
@@ -70,7 +74,7 @@ def test_batch_transcription(transcriber, available_audio):
     print(f"\n5. Testing batch transcription with {len(available_audio)} files...")
     try:
         results = transcriber.transcribe_batch(available_audio)
-        successful = sum(1 for r in results if r.text.strip())
+        successful = sum(bool(r.text.strip()) for r in results)
         print(f"   ✅ Batch transcription complete: {successful}/{len(results)} successful")
         
         total_duration = sum(r.duration for r in results)
@@ -217,7 +221,7 @@ def test_samo_whisper_transcriber():
             # Test transcription with available audio
             print(f"\n4. Testing transcription with {len(available_audio)} audio file(s)...")
             
-            for i, audio_file in enumerate(available_audio[:2], 1):  # Test max 2 files
+            for i, audio_file in enumerate(available_audio, 1):  # Test all available files
                 test_single_transcription(transcriber, audio_file, i, len(available_audio))
 
         # Test batch transcription if multiple files
