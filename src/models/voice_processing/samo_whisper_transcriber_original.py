@@ -375,7 +375,6 @@ class SAMOWhisperTranscriber:
             # Transcribe
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
-
             processing_time = time.time() - start_time
             word_count = len(result['text'].split())
             speaking_rate = (
