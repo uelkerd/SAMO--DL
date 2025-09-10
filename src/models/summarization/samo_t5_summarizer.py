@@ -103,12 +103,17 @@ class SAMOT5Summarizer:
                     user_config = yaml.safe_load(f)
                 # Deep merge user config into default config
                 for key, value in user_config.items():
-                    if key in default_config and isinstance(default_config[key], dict) and isinstance(value, dict):
+                    if (key in default_config and 
+                        isinstance(default_config[key], dict) and 
+                        isinstance(value, dict)):
                         default_config[key].update(value)
                     else:
                         default_config[key] = value
             except Exception as e:
-                logger.warning("Failed to load config from %s: %s. Using default config.", config_path, e)
+                logger.warning(
+                    "Failed to load config from %s: %s. Using default config.",
+                    config_path, e
+                )
 
         return default_config
 
@@ -125,7 +130,8 @@ class SAMOT5Summarizer:
         if torch.cuda.is_available():
             return "cuda"
 
-        if getattr(torch.backends, "mps", None) is not None and getattr(torch.backends.mps, "is_available", lambda: False)():
+        if (getattr(torch.backends, "mps", None) is not None and 
+            getattr(torch.backends.mps, "is_available", lambda: False)()):
             return "mps"
 
         return "cpu"
@@ -250,7 +256,9 @@ class SAMOT5Summarizer:
 
         # Add tone preservation instruction if enabled
         if self.config["samo_optimizations"]["preserve_tone"] and emotional_keywords:
-            tone_instruction = f" [preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
+            tone_instruction = (
+                f" [preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
+            )
             input_text += tone_instruction
 
         return input_text
@@ -288,10 +296,14 @@ class SAMOT5Summarizer:
             # Extract emotional keywords for SAMO optimization
             emotional_keywords = []
             if self.config["samo_optimizations"]["extract_key_emotions"]:
-                emotional_keywords = self._extract_emotional_keywords(processed_text, self.config)
+                emotional_keywords = self._extract_emotional_keywords(
+                    processed_text, self.config
+                )
 
             # Prepare input for T5 with SAMO optimizations
-            input_text = self._prepare_samo_input(processed_text, emotional_keywords)
+            input_text = self._prepare_samo_input(
+                processed_text, emotional_keywords
+            )
 
             # Tokenize
             inputs = self.tokenizer(
@@ -403,12 +415,16 @@ class SAMOT5Summarizer:
                     # Extract emotional keywords
                     emotional_keywords = []
                     if self.config["samo_optimizations"]["extract_key_emotions"]:
-                        emotional_keywords = self._extract_emotional_keywords(processed_text, self.config)
+                        emotional_keywords = self._extract_emotional_keywords(
+                            processed_text, self.config
+                        )
 
                     batch_emotional_keywords.append(emotional_keywords)
 
                     # Prepare SAMO input
-                    input_text = self._prepare_samo_input(processed_text, emotional_keywords)
+                    input_text = self._prepare_samo_input(
+                        processed_text, emotional_keywords
+                    )
                     processed_texts.append(input_text)
 
                 # Tokenize entire batch at once
@@ -439,7 +455,9 @@ class SAMOT5Summarizer:
                 summaries = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
                 # Process each output in the batch
-                for i, (summary, original_text, emotional_keywords) in enumerate(zip(summaries, batch_texts, batch_emotional_keywords)):
+                for i, (summary, original_text, emotional_keywords) in enumerate(
+                    zip(summaries, batch_texts, batch_emotional_keywords)
+                ):
                     # Clean up any potential prefixes or artifacts
                     summary = summary.strip()
 
