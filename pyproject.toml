@@ -4,87 +4,62 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "samo-dl"
-version = "1.0.0"
-description = "A deep learning API for nuanced emotion analysis in reflective text"
+version = "0.1.0"
+description = "SAMO Deep Learning API for emotion detection, summarization, and transcription"
+authors = [{name = "SAMO Team", email = "team@samo.ai"}]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
-authors = [
-    {name = "SAMO Team", email = "samo@techlabs.org"},
-]
-keywords = ["deep learning", "emotion analysis", "nlp", "api", "flask"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-
 dependencies = [
-    "flask>=2.0.0",
-    "flask-restx>=0.5.0",
-    "flask-cors>=3.0.0",
-    "psutil>=5.8.0",
-    "numpy>=1.21.0",
     "torch>=1.9.0",
     "transformers>=4.20.0",
+    "flask>=2.0.0",
+    "flask-restx>=0.5.0",
+    "psutil>=5.8.0",
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
     "scikit-learn>=1.0.0",
     "pandas>=1.3.0",
     "requests>=2.25.0",
     "python-dotenv>=0.19.0",
+    "gunicorn>=20.1.0",
+    "pytest>=6.2.0",
+    "pytest-cov>=2.12.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "pylint>=2.12.0",
+    "mypy>=0.910",
+    "isort>=5.9.0",
+    "bandit>=1.7.0",
+    "safety>=1.10.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=6.0.0",
+    "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
-    "pytest-mock>=3.6.0",
-    "black>=21.0.0",
-    "isort>=5.9.0",
-    "flake8>=3.9.0",
-    "pylint>=2.8.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "pylint>=2.12.0",
     "mypy>=0.910",
+    "isort>=5.9.0",
+    "bandit>=1.7.0",
+    "safety>=1.10.0",
     "pre-commit>=2.15.0",
 ]
 
-test = [
-    "pytest>=6.0.0",
-    "pytest-cov>=2.12.0",
-    "pytest-mock>=3.6.0",
-    "coverage>=5.5.0",
-]
-
-docs = [
-    "sphinx>=4.0.0",
-    "sphinx-rtd-theme>=0.5.0",
-    "myst-parser>=0.15.0",
-]
-
-[project.urls]
-Homepage = "https://github.com/uelkerd/SAMO--DL"
-Documentation = "https://uelkerd.github.io/SAMO--DL/"
-Repository = "https://github.com/uelkerd/SAMO--DL.git"
-Issues = "https://github.com/uelkerd/SAMO--DL/issues"
-
-[project.scripts]
-samo-dl = "src.main:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
-
-[tool.setuptools.package-data]
-"*" = ["*.yaml", "*.yml", "*.json", "*.txt", "*.md"]
-
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 extend-exclude = '''
@@ -103,27 +78,45 @@ extend-exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
 multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-skip_glob = ["*/migrations/*"]
+line_length = 88
+known_first_party = ["src"]
+known_third_party = ["torch", "transformers", "flask", "numpy", "scipy", "sklearn", "pandas"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+]
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-    "api: marks tests as API tests",
-    "model: marks tests as model tests",
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+    "gpu: Tests requiring GPU",
 ]
 
 [tool.coverage.run]
@@ -132,7 +125,6 @@ omit = [
     "*/tests/*",
     "*/test_*",
     "*/__pycache__/*",
-    "*/migrations/*",
     "*/venv/*",
     "*/env/*",
 ]
@@ -151,121 +143,9 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
 ]
 
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "env"]
+skips = ["B101", "B601"]
 
-[[tool.mypy.overrides]]
-module = [
-    "flask.*",
-    "flask_restx.*",
-    "flask_cors.*",
-    "psutil.*",
-    "transformers.*",
-    "sklearn.*",
-    "pandas.*",
-    "requests.*",
-    "dotenv.*",
-]
-ignore_missing_imports = true
-
-[tool.pylint.messages_control]
-disable = [
-    "missing-docstring",
-    "too-few-public-methods",
-    "too-many-arguments",
-    "too-many-locals",
-    "too-many-branches",
-    "too-many-statements",
-    "import-error",
-    "no-member",
-    "broad-except",
-    "bare-except",
-    "unused-argument",
-    "unused-variable",
-    "redefined-outer-name",
-    "global-statement",
-    "invalid-name",
-    "line-too-long",
-    "trailing-whitespace",
-    "missing-final-newline",
-    "mixed-line-endings",
-    "bad-continuation",
-    "bad-indentation",
-    "unexpected-line-ending-format",
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "consider-using-f-string",
-    "consider-using-dict-comprehension",
-    "consider-using-set-comprehension",
-    "consider-using-generator",
-    "consider-using-enumerate",
-    "consider-using-any",
-    "consider-using-all",
-    "consider-using-max-builtin",
-    "consider-using-min-builtin",
-    "consider-using-sum-builtin",
-    "consider-using-join",
-    "consider-using-sys-exit",
-    "consider-using-with",
-    "consider-using-ternary",
-    "consider-using-dict-items",
-    "consider-using-dict-keys",
-    "consider-using-dict-values",
-    "consider-using-dict-get",
-    "consider-using-dict-setdefault",
-    "consider-using-dict-update",
-    "consider-using-dict-clear",
-    "consider-using-dict-copy",
-    "consider-using-dict-pop",
-    "consider-using-dict-popitem",
-    "consider-using-dict-fromkeys",
-]
-
-[tool.pylint.format]
-max-line-length = 100
-ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
-single-line-if-stmt = false
-no-space-check = "trailing-comma,dict-separator"
-max-module-lines = 1000
-indent-string = "    "
-indent-after-paren = 4
-expected-line-ending-format = ""
-
-[tool.pylint.design]
-max-args = 5
-max-attributes = 7
-max-bool-expr = 5
-max-branches = 12
-max-locals = 15
-max-parents = 7
-max-public-methods = 20
-max-returns = 6
-max-statements = 50
-min-similarity-lines = 4
-
-[tool.pylint.basic]
-argument-naming-style = "snake_case"
-attr-naming-style = "snake_case"
-class-naming-style = "PascalCase"
-const-naming-style = "UPPER_CASE"
-function-naming-style = "snake_case"
-method-naming-style = "snake_case"
-module-naming-style = "snake_case"
-variable-naming-style = "snake_case"
-good-names = "i,j,k,ex,Run,_,id,db"
-bad-names = "foo,bar,baz,toto,tutu,tata"
-bad-functions = "print"
-include-naming-hint = false
+[tool.safety]
+output = "json"
