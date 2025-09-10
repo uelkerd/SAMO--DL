@@ -22,8 +22,7 @@ import yaml
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Module logger only; app/config controls level
 logger = logging.getLogger(__name__)
 
 
@@ -43,6 +42,7 @@ class SAMOT5Summarizer:
             config_path: Path to configuration file
         """
         self.config = self._load_config(config_path)
+        self._configure_logging(self.config.get("samo_optimizations", {}).get("log_level", "INFO"))
         self.model = None
         self.tokenizer = None
         self.device = self._get_device(self.config)
@@ -121,9 +121,15 @@ class SAMOT5Summarizer:
 
         return default_config
 
+    def _configure_logging(self, level_str: str) -> None:
+        """Configure logging level from config."""
+        level = getattr(logging, str(level_str).upper(), logging.INFO)
+        logger.setLevel(level)
+
     @staticmethod
     def _get_device(config: Dict[str, Any]) -> str:
-        """Get the best available device, respecting user-specified device override."""
+        """Get the best available device, respecting user-specified device override.
+        """
         # Check if user specified a device in config
         user_device = config.get("model", {}).get("device")
         if user_device:
@@ -157,8 +163,8 @@ class SAMOT5Summarizer:
             logger.info("T5 model loaded successfully on %s", self.device)
 
         except Exception as e:
-            logger.error("Failed to load T5 model: %s", e)
-            raise RuntimeError(f"Model loading failed: {e}") from e
+            logger.exception("Failed to load T5 model")
+            raise RuntimeError("Model loading failed") from e
 
     def _validate_input(self, text: str) -> Tuple[bool, str]:
         """
@@ -330,14 +336,16 @@ class SAMOT5Summarizer:
             ).to(self.device)
 
             # Generate summary
-            with torch.no_grad():
+            with torch.inference_mode():
                 outputs = self.model.generate(
                     inputs.input_ids,
                     max_length=self.config["generation"]["max_length"],
                     min_length=self.config["generation"]["min_length"],
                     num_beams=self.config["generation"]["num_beams"],
                     early_stopping=self.config["generation"]["early_stopping"],
-                    repetition_penalty=self.config["generation"]["repetition_penalty"],
+                    repetition_penalty=self.config["generation"][
+                        "repetition_penalty"
+                    ],
                     length_penalty=self.config["generation"]["length_penalty"],
                     do_sample=self.config["generation"]["do_sample"],
                     temperature=self.config["generation"]["temperature"]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Test script for SAMO T5 Summarization Model
 """
 Standalone test for SAMO T5 Summarization Model
 
@@ -10,13 +10,8 @@ import sys
 from pathlib import Path
 
 # Add src to path - more robust approach
-current_dir = Path(__file__).parent
-src_dir = current_dir / "src"
-if src_dir.exists():
-    sys.path.insert(0, str(src_dir))
-else:
-    # Fallback for different directory structures
-    sys.path.insert(0, str(current_dir))
+repo_root = Path(__file__).resolve().parent
+sys.path.insert(0, str(repo_root / "src"))
 
 try:
     from models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
@@ -27,7 +22,8 @@ except ImportError:
 def test_summarizer_initialization():
     """Test summarizer initialization and model info."""
     print("1. Initializing SAMO T5 Summarizer...")
-    summarizer = create_samo_t5_summarizer("configs/samo_t5_config.yaml")
+    cfg_path = str((Path(__file__).resolve().parent / "configs" / "samo_t5_config.yaml"))
+    summarizer = create_samo_t5_summarizer(cfg_path)
     print("✅ Summarizer initialized successfully")
     
     # Test model info
