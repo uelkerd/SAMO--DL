@@ -59,27 +59,36 @@ class SAMOBERTEmotionClassifier(nn.Module):
         Args:
             model_name: Hugging Face model name
             num_emotions: Number of emotion categories (27 + neutral)
-            hidden_dropout_prob: Dropout rate for BERT hidden layers
-            classifier_dropout_prob: Dropout rate for classification head
-            freeze_bert_layers: Number of BERT layers to freeze initially
-            temperature: Temperature scaling parameter for calibration
-            class_weights: Optional class weights for imbalanced data
+            config: Optional configuration dictionary
         """
         super().__init__()
 
+        # Set default config
+        default_config = {
+            "hidden_dropout_prob": 0.3,
+            "classifier_dropout_prob": 0.5,
+            "freeze_bert_layers": 6,
+            "temperature": 1.0,
+        }
+        
+        if config is None:
+            config = default_config
+        else:
+            config = {**default_config, **config}
+
         self.model_name = model_name
         self.num_emotions = num_emotions
-        self.hidden_dropout_prob = hidden_dropout_prob
-        self.classifier_dropout_prob = classifier_dropout_prob
-        self.freeze_bert_layers = freeze_bert_layers
-        self.temperature = nn.Parameter(torch.ones(1) * temperature)
+        self.hidden_dropout_prob = config["hidden_dropout_prob"]
+        self.classifier_dropout_prob = config["classifier_dropout_prob"]
+        self.freeze_bert_layers = config["freeze_bert_layers"]
+        self.temperature = nn.Parameter(torch.ones(1) * config["temperature"])
         self.class_weights = None
         self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
 
         # Load BERT model and tokenizer
         self.config = AutoConfig.from_pretrained(model_name)
-        self.config.hidden_dropout_prob = hidden_dropout_prob
-        self.config.attention_probs_dropout_prob = hidden_dropout_prob
+        self.config.hidden_dropout_prob = self.hidden_dropout_prob
+        self.config.attention_probs_dropout_prob = self.hidden_dropout_prob
 
         self.bert = AutoModel.from_pretrained(model_name, config=self.config)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -88,10 +97,10 @@ class SAMOBERTEmotionClassifier(nn.Module):
 
         # Classification head
         self.classifier = nn.Sequential(
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.bert_hidden_size),
             nn.ReLU(),
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, num_emotions),
         )
 
@@ -99,8 +108,8 @@ class SAMOBERTEmotionClassifier(nn.Module):
         self._init_classification_layers()
 
         # Freeze BERT layers if specified
-        if freeze_bert_layers > 0:
-            self._freeze_bert_layers(freeze_bert_layers)
+        if self.freeze_bert_layers > 0:
+            self._freeze_bert_layers(self.freeze_bert_layers)
 
         # Set device
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -399,12 +408,18 @@ def create_samo_bert_emotion_classifier(
     if class_weights is not None:
         class_weights_tensor = torch.tensor(class_weights, dtype=torch.float)
 
-    # Create model
+    # Create model with default config
+    config = {
+        "hidden_dropout_prob": 0.3,
+        "classifier_dropout_prob": 0.5,
+        "freeze_bert_layers": freeze_bert_layers,
+        "temperature": 1.0,
+    }
+    
     model = SAMOBERTEmotionClassifier(
         model_name=model_name,
         num_emotions=num_emotions,
-        class_weights=class_weights_tensor,
-        freeze_bert_layers=freeze_bert_layers,
+        config=config,
     )
 
     # Create loss function
