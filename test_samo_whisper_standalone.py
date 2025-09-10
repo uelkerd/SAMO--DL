@@ -8,6 +8,7 @@ to ensure it works correctly before integration.
 
 import sys
 import os
+import logging
 from pathlib import Path
 import numpy as np
 import soundfile as sf
@@ -18,6 +19,8 @@ import soundfile as sf
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from models.voice_processing.samo_whisper_transcriber import create_samo_whisper_transcriber
+
+logger = logging.getLogger(__name__)
 
 def test_audio_files():
     """Test available audio files."""
@@ -43,7 +46,7 @@ def test_audio_files():
     return available_audio
 
 
-def test_single_transcription(transcriber, audio_file, file_num, total_files, expected_language=None):
+def test_single_transcription(transcriber, audio_file, file_num, expected_language=None):
     """Test transcription of a single audio file."""
     print(f"\n   Testing file {file_num}: {audio_file}")
     try:
@@ -226,7 +229,7 @@ def test_samo_whisper_transcriber():
             print(f"\n4. Testing transcription with {len(available_audio)} audio file(s)...")
             
             for i, audio_file in enumerate(available_audio, 1):  # Test all available files
-                test_single_transcription(transcriber, audio_file, i, len(available_audio))
+                test_single_transcription(transcriber, audio_file, i)
 
         # Test batch transcription if multiple files
         if len(available_audio) > 1:
@@ -245,9 +248,8 @@ def test_samo_whisper_transcriber():
         return True
 
     except Exception as e:
+        logger.exception("Test failed")
         print(f"\n❌ Test failed: {e}")
-        import traceback
-        traceback.print_exc()
         return False
 
 if __name__ == "__main__":

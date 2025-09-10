@@ -33,9 +33,9 @@ from pydub import AudioSegment
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Suppress warnings from audio processing
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+# Only suppress specific known warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="whisper")
+warnings.filterwarnings("ignore", category=FutureWarning, module="torch")
 
 
 class SAMOWhisperConfig:
@@ -289,7 +289,7 @@ class SAMOWhisperTranscriber:
             os.makedirs(cache_dir, exist_ok=True)
 
             def is_model_corrupted(cache_dir, model_size):
-                """Check for expected model files and their integrity.
+                """Check for expected model files and their basic integrity.
 
                 Args:
                     cache_dir (str): Path to the cache directory
@@ -299,9 +299,20 @@ class SAMOWhisperTranscriber:
                     bool: True if model is corrupted or missing, False otherwise
                 """
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
-                return not (
-                    os.path.isfile(model_file) and os.path.getsize(model_file) > 0
-                )
+                if not os.path.isfile(model_file):
+                    return True
+                
+                # Check minimum file size based on model size
+                min_sizes = {
+                    "tiny": 39_000_000,    # ~39MB
+                    "base": 74_000_000,    # ~74MB
+                    "small": 244_000_000,  # ~244MB
+                    "medium": 769_000_000, # ~769MB
+                    "large": 1_550_000_000 # ~1.55GB
+                }
+                
+                min_size = min_sizes.get(model_size, 1_000_000)  # Default 1MB
+                return os.path.getsize(model_file) < min_size
 
             try:
                 if is_model_corrupted(cache_dir, self.config.model_size):
@@ -316,8 +327,8 @@ class SAMOWhisperTranscriber:
                     device=self.device,
                     download_root=cache_dir
                 )
-            except Exception:
-                logger.error(
+            except (RuntimeError, OSError) as e:
+                logger.exception(
                     "Model loading failed, possibly due to cache corruption. "
                     "Clearing cache and retrying..."
                 )
@@ -334,8 +345,8 @@ class SAMOWhisperTranscriber:
             )
 
         except Exception as e:
-            logger.error("❌ Failed to load Whisper model: %s", e)
-            raise RuntimeError(f"Whisper model loading failed: {e}")
+            logger.exception("❌ Failed to load Whisper model")
+            raise RuntimeError(f"Whisper model loading failed: {e}") from e
 
         self.preprocessor = AudioPreprocessor()
 
@@ -400,7 +411,7 @@ class SAMOWhisperTranscriber:
             )
 
             # Assess audio quality
-            audio_quality = self._assess_audio_quality(result, audio_metadata)
+            audio_quality = self._assess_audio_quality(result)
 
             transcription_result = TranscriptionResult(
                 text=result['text'].strip() if isinstance(
@@ -457,8 +468,8 @@ class SAMOWhisperTranscriber:
                 results.append(result)
 
             except Exception as e:
+                logger.exception("Failed to transcribe %s", audio_path)
                 error_msg = f"Failed to transcribe {audio_path}: {e}"
-                logger.error(error_msg)
                 errors.append(error_msg)
 
                 # Create error result with detailed error information
@@ -532,7 +543,7 @@ class SAMOWhisperTranscriber:
         return float(max(no_speech_probs)) if no_speech_probs else 0.9
 
     @staticmethod
-    def _assess_audio_quality(result: Dict, metadata: Dict) -> str:
+    def _assess_audio_quality(result: Dict) -> str:
         """Assess audio quality based on transcription results."""
         compression_ratio = result.get("compression_ratio", 2.0)
         avg_logprob = result.get("avg_logprob", -0.5)

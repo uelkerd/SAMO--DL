@@ -168,8 +168,8 @@ class SAMOWhisperTranscriber:
                 results.append(result)
 
             except Exception as e:
+                logger.exception("Failed to transcribe %s", audio_path)
                 error_msg = f"Failed to transcribe {audio_path}: {e}"
-                logger.error(error_msg)
                 errors.append(error_msg)
 
                 # Create error result with detailed error information

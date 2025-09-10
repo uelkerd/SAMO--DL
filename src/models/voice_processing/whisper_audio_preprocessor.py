@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SAMO Whisper Audio Preprocessing Module
 
@@ -10,7 +9,7 @@ import logging
 import tempfile
 import warnings
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, Union
+from typing import Dict, Any, Optional, Tuple, Union, ClassVar, Set
 from pydub import AudioSegment
 
 # Suppress warnings from audio processing
@@ -23,9 +22,9 @@ logger = logging.getLogger(__name__)
 class AudioPreprocessor:
     """Audio preprocessing for optimal Whisper performance."""
 
-    SUPPORTED_FORMATS = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
-    TARGET_SAMPLE_RATE = 16000  # Whisper expects 16kHz
-    MAX_DURATION = 300  # 5 minutes maximum
+    SUPPORTED_FORMATS: ClassVar[Set[str]] = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
+    TARGET_SAMPLE_RATE: ClassVar[int] = 16000  # Whisper expects 16kHz
+    MAX_DURATION: ClassVar[int] = 300  # 5 minutes maximum
 
     @staticmethod
     def validate_audio_file(audio_path: Union[str, Path]) -> Tuple[bool, str]:
@@ -53,8 +52,9 @@ class AudioPreprocessor:
 
             return True, "Valid audio file"
 
-        except Exception as e:
-            return False, f"Error loading audio: {e}"
+        except Exception as exc:
+            logger.exception("Error loading audio during validation")
+            return False, f"Error loading audio: {exc}"
 
     @staticmethod
     def preprocess_audio(
@@ -123,7 +123,7 @@ class AudioPreprocessor:
         return str(output_path), processed_metadata
 
     @staticmethod
-    def assess_audio_quality(result: Dict, metadata: Dict) -> str:
+    def assess_audio_quality(result: Dict, _metadata: Dict) -> str:
         """Assess audio quality based on transcription results."""
         compression_ratio = result.get("compression_ratio", 2.0)
         avg_logprob = result.get("avg_logprob", -0.5)

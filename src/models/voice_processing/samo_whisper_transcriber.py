@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SAMO-Optimized Whisper Voice Transcription Model (Refactored)
 
@@ -7,9 +6,9 @@ journal entries and voice processing in the SAMO-DL system.
 
 Key Features:
 - OpenAI Whisper model integration (tiny, base, small, medium, large)
-- Multi-format audio support (MP3, WAV, M4A, OGG, FLAC)
+- Multi-format audio support (MP3, WAV, M4A, AAC, OGG, FLAC)
 - Confidence scoring and quality assessment
-- Chunk-based processing for long audio files
+- (Planned) chunk-based processing for long audio files
 - Production-ready error handling and logging
 - Batch transcription for multiple audio files
 - Modular architecture for better maintainability
@@ -29,7 +28,7 @@ from .whisper_audio_preprocessor import AudioPreprocessor
 from .whisper_models import WhisperModelManager
 from .whisper_results import TranscriptionResult, ResultProcessor
 
-# Configure logging
+# Module logger only; let the host app configure handlers/levels.
 logger = logging.getLogger(__name__)
 
 
@@ -168,8 +167,8 @@ class SAMOWhisperTranscriber:
                 results.append(result)
 
             except Exception as e:
+                logger.exception("Failed to transcribe %s", audio_path)
                 error_msg = f"Failed to transcribe {audio_path}: {e}"
-                logger.error(error_msg)
                 errors.append(error_msg)
 
                 # Create error result with detailed error information
@@ -210,14 +209,3 @@ def create_samo_whisper_transcriber(
     return SAMOWhisperTranscriber(config, model_size)
 
 
-def test_samo_whisper_transcriber() -> None:
-    """Test SAMO Whisper transcriber with sample audio."""
-    logger.info("Testing SAMO Whisper Transcriber...")
-
-    transcriber = create_samo_whisper_transcriber(model_size="base")
-    logger.info("SAMO Whisper transcriber initialized successfully")
-    logger.info("Model info: %s", transcriber.get_model_info())
-
-
-if __name__ == "__main__":
-    test_samo_whisper_transcriber()

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SAMO Whisper Transcription Results Module
 
@@ -8,52 +7,29 @@ and provides utilities for result processing and analysis.
 
 import logging
 from typing import Dict, List
+from dataclasses import dataclass, asdict
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class TranscriptionResult:
     """Result of audio transcription."""
-
-    def __init__(
-        self,
-        text: str,
-        language: str,
-        confidence: float,
-        duration: float,
-        processing_time: float,
-        segments: List[Dict],
-        audio_quality: str,
-        word_count: int,
-        speaking_rate: float,
-        no_speech_probability: float
-    ):
-        self.text = text
-        self.language = language
-        self.confidence = confidence
-        self.duration = duration
-        self.processing_time = processing_time
-        self.segments = segments
-        self.audio_quality = audio_quality
-        self.word_count = word_count
-        self.speaking_rate = speaking_rate
-        self.no_speech_probability = no_speech_probability
+    text: str
+    language: str
+    confidence: float
+    duration: float
+    processing_time: float
+    segments: List[Dict]
+    audio_quality: str
+    word_count: int
+    speaking_rate: float
+    no_speech_probability: float
 
     def to_dict(self) -> Dict:
         """Convert result to dictionary."""
-        return {
-            "text": self.text,
-            "language": self.language,
-            "confidence": self.confidence,
-            "duration": self.duration,
-            "processing_time": self.processing_time,
-            "segments": self.segments,
-            "audio_quality": self.audio_quality,
-            "word_count": self.word_count,
-            "speaking_rate": self.speaking_rate,
-            "no_speech_probability": self.no_speech_probability,
-        }
+        return asdict(self)
 
     def __str__(self) -> str:
         """String representation of the result."""
