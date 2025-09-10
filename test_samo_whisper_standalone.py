@@ -121,6 +121,62 @@ def test_silence_detection(transcriber):
             print(f"   Cleaned up: {silent_wav_path}")
 
 
+def test_multilingual_language_detection(transcriber):
+    """Test multilingual audio samples for language detection accuracy."""
+    print("\n7. Testing multilingual language detection...")
+    
+    # Define multilingual audio samples and their expected languages
+    multilingual_samples = [
+        {"audio_file": "american_sample.wav", "expected_language": "en"},
+        {"audio_file": "french_sample.wav", "expected_language": "fr"},
+        # Add more samples as they become available
+    ]
+    
+    print("Testing multilingual audio samples for language detection accuracy:")
+    successful_detections = 0
+    total_tests = 0
+    
+    for idx, sample in enumerate(multilingual_samples, 1):
+        audio_file = sample["audio_file"]
+        expected_language = sample["expected_language"]
+        
+        if Path(audio_file).exists():
+            total_tests += 1
+            print(f"\n   Testing file {idx}: {audio_file}")
+            print(f"   Expected language: {expected_language}")
+            
+            try:
+                result = transcriber.transcribe(audio_file)
+                detected_language = result.language
+                confidence = result.confidence
+                
+                print(f"   Detected language: {detected_language}")
+                print(f"   Confidence: {confidence:.3f}")
+                print(f"   Text preview: {result.text[:100]}{'...' if len(result.text) > 100 else ''}")
+                
+                if detected_language == expected_language:
+                    print(f"   ✅ Language detection correct: {detected_language}")
+                    successful_detections += 1
+                else:
+                    print(f"   ❌ Language detection incorrect: expected {expected_language}, got {detected_language}")
+                
+            except Exception as e:
+                print(f"   ❌ Transcription failed: {e}")
+        else:
+            print(f"   ⚠️  Audio file not found: {audio_file}")
+    
+    if total_tests > 0:
+        accuracy = (successful_detections / total_tests) * 100
+        print(f"\n   Language detection accuracy: {successful_detections}/{total_tests} ({accuracy:.1f}%)")
+        
+        if accuracy >= 90:
+            print("   ✅ Language detection accuracy meets target (≥90%)")
+        else:
+            print("   ⚠️  Language detection accuracy below target (≥90%)")
+    else:
+        print("   ⚠️  No multilingual audio samples available for testing")
+
+
 def test_samo_whisper_transcriber():
     """Test the SAMO Whisper transcriber functionality."""
     print("🎤 Testing SAMO Whisper Transcription Model")
@@ -170,6 +226,9 @@ def test_samo_whisper_transcriber():
 
         # Test silence detection
         test_silence_detection(transcriber)
+        
+        # Test multilingual language detection
+        test_multilingual_language_detection(transcriber)
 
         print("\n" + "=" * 50)
         print("🎉 SAMO Whisper Transcriber test completed successfully!")
