@@ -26,6 +26,8 @@ import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
+from .emotion_labels import GOEMOTIONS_EMOTIONS
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -256,7 +258,6 @@ class SAMOBERTEmotionClassifier(nn.Module):
                 batch_probabilities = probabilities.cpu().numpy()
 
                 # Get emotion names for predictions
-                from .emotion_labels import GOEMOTIONS_EMOTIONS
                 for pred in batch_predictions:
                     emotions = [
                         GOEMOTIONS_EMOTIONS[i] for i, p in enumerate(pred) if p > 0
