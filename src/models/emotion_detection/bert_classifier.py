@@ -318,10 +318,11 @@ class WeightedBCELoss(nn.Module):
         # Apply reduction
         if self.reduction == "mean":
             return bce_loss.mean()
-        elif self.reduction == "sum":
+
+        if self.reduction == "sum":
             return bce_loss.sum()
-        else:
-            return bce_loss
+
+        return bce_loss
 
 
 class EmotionDataset(Dataset):
