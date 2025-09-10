@@ -30,7 +30,6 @@ from .whisper_models import WhisperModelManager
 from .whisper_results import TranscriptionResult, ResultProcessor
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
