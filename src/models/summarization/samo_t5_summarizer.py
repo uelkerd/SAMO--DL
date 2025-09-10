@@ -42,7 +42,8 @@ class SAMOT5Summarizer:
             config_path: Path to configuration file
         """
         self.config = self._load_config(config_path)
-        self._configure_logging(self.config.get("samo_optimizations", {}).get("log_level", "INFO"))
+        log_level = self.config.get("samo_optimizations", {}).get("log_level", "INFO")
+        self._configure_logging(log_level)
         self.model = None
         self.tokenizer = None
         self.device = self._get_device(self.config)
