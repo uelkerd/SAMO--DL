@@ -87,22 +87,22 @@ class SAMOWhisperConfig:
             'initial_prompt', transcription_config.get('initial_prompt', None)
         )
         self.condition_on_previous_text = whisper_config.get(
-            'condition_on_previous_text', 
+            'condition_on_previous_text',
             transcription_config.get('condition_on_previous_text', True)
         )
         self.fp16 = whisper_config.get(
             'fp16', transcription_config.get('fp16', True)
         )
         self.compression_ratio_threshold = whisper_config.get(
-            'compression_ratio_threshold', 
+            'compression_ratio_threshold',
             transcription_config.get('compression_ratio_threshold', 2.4)
         )
         self.logprob_threshold = whisper_config.get(
-            'logprob_threshold', 
+            'logprob_threshold',
             transcription_config.get('logprob_threshold', -1.0)
         )
         self.no_speech_threshold = whisper_config.get(
-            'no_speech_threshold', 
+            'no_speech_threshold',
             transcription_config.get('no_speech_threshold', 0.6)
         )
 
@@ -192,7 +192,7 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path], 
+        audio_path: Union[str, Path],
         output_path: Optional[Union[str, Path]] = None,
         normalize: bool = True
     ) -> Tuple[str, Dict[str, Any]]:
@@ -261,7 +261,7 @@ class SAMOWhisperTranscriber:
     """SAMO-optimized Whisper transcriber for journal voice processing."""
 
     def __init__(
-        self, 
+        self,
         config: Optional[SAMOWhisperConfig] = None,
         model_size: Optional[str] = None
     ) -> None:
@@ -305,7 +305,7 @@ class SAMOWhisperTranscriber:
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, 
+                    self.config.model_size,
                     device=self.device,
                     download_root=cache_dir
                 )
@@ -317,7 +317,7 @@ class SAMOWhisperTranscriber:
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, 
+                    self.config.model_size,
                     device=self.device,
                     download_root=cache_dir
                 )
@@ -479,7 +479,7 @@ class SAMOWhisperTranscriber:
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results), 
+            successful_transcriptions, len(results),
             total_duration, total_processing_time
         )
 

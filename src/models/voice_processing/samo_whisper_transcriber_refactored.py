@@ -38,7 +38,7 @@ class SAMOWhisperTranscriber:
     """SAMO-optimized Whisper transcriber for journal voice processing."""
 
     def __init__(
-        self, 
+        self,
         config: Optional[SAMOWhisperConfig] = None,
         model_size: Optional[str] = None
     ) -> None:
@@ -182,7 +182,7 @@ class SAMOWhisperTranscriber:
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results), 
+            successful_transcriptions, len(results),
             total_duration, total_processing_time
         )
 

@@ -58,7 +58,7 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path], 
+        audio_path: Union[str, Path],
         output_path: Optional[Union[str, Path]] = None,
         normalize: bool = True
     ) -> Tuple[str, Dict[str, Any]]:

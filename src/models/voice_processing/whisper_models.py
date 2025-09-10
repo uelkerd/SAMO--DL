@@ -57,7 +57,7 @@ class WhisperModelManager:
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, 
+                    self.config.model_size,
                     device=self.device,
                     download_root=cache_dir
                 )
@@ -69,7 +69,7 @@ class WhisperModelManager:
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, 
+                    self.config.model_size,
                     device=self.device,
                     download_root=cache_dir
                 )
