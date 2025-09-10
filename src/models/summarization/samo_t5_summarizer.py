@@ -463,7 +463,9 @@ class SAMOT5Summarizer:
                         min_length=self.config["generation"]["min_length"],
                         num_beams=self.config["generation"]["num_beams"],
                         early_stopping=self.config["generation"]["early_stopping"],
-                        repetition_penalty=self.config["generation"]["repetition_penalty"],
+                        repetition_penalty=self.config["generation"][
+                            "repetition_penalty"
+                        ],
                         length_penalty=self.config["generation"]["length_penalty"],
                         do_sample=self.config["generation"]["do_sample"],
                         temperature=self.config["generation"]["temperature"]
