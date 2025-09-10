@@ -1,0 +1,69 @@
+# Unified AI API Requirements
+# Complete Deep Learning Pipeline: Emotion Detection + Text Summarization + Voice Transcription
+
+# Core FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# CORS and security
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# HTTP client and async
+httpx==0.25.2
+aiofiles==23.2.1
+
+# Data processing
+numpy==1.24.3
+pandas==2.1.4
+
+# Machine Learning frameworks
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
+transformers==4.36.2
+tokenizers==0.15.0
+datasets==2.15.0
+
+# Audio processing
+librosa==0.10.1
+soundfile==0.12.1
+openai-whisper==20231117
+
+# Text processing and NLP
+sentence-transformers==2.2.2
+scikit-learn==1.3.2
+nltk==3.8.1
+
+# Model optimization
+onnxruntime==1.16.3
+optimum[onnxruntime]==1.14.0
+
+# Monitoring and metrics
+prometheus-client==0.19.0
+
+# Configuration and utilities
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Hugging Face Hub integration
+huggingface-hub==0.19.4
+
+# Rate limiting and security
+slowapi==0.1.9
+
+# Additional dependencies for model loading
+accelerate==0.25.0
+safetensors==0.4.1
+
+# Audio format support
+pydub==0.25.1
+
+# Testing (optional for production)
+# pytest==7.4.3
+# pytest-asyncio==0.21.1
+
+# Production server optimization
+gunicorn==21.2.0
