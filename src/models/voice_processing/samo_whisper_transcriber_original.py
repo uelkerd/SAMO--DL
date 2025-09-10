@@ -291,11 +291,11 @@ class SAMOWhisperTranscriber:
 
             def is_model_corrupted(cache_dir, model_size):
                 """Check for expected model files and their integrity.
-                
+
                 Args:
                     cache_dir (str): Path to the cache directory
                     model_size (str): Size of the model (e.g., 'base', 'small')
-                    
+
                 Returns:
                     bool: True if model is corrupted or missing, False otherwise
                 """
