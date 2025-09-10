@@ -381,7 +381,7 @@ class EmotionDataset(Dataset):
         return {
             "input_ids": encoding["input_ids"].squeeze(0),
             "attention_mask": encoding["attention_mask"].squeeze(0),
-            "token_type_ids": encoding.get("token_type_ids", torch.zeros_like(encoding["input_ids"])).squeeze(0),
+            "token_type_ids": encoding.get("token_type_ids", None),
             "labels": label_tensor,
         }
 

@@ -15,6 +15,13 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from models.emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier
 from models.emotion_detection.emotion_labels import get_all_emotions, get_emotion_description
 
+# Module-level constants for test data
+SAMPLE_TEST_TEXTS = [
+    "I am so happy and excited about this amazing opportunity!",
+    "I feel really sad and disappointed about what happened today.",
+    "I'm feeling anxious and worried about the upcoming presentation.",
+]
+
 def test_model_initialization():
     """Test model initialization and basic info."""
     print("1. Initializing SAMO BERT Emotion Classifier...")
@@ -221,11 +228,7 @@ def run_all_tests():
     trainable_params = test_model_info(model)
     all_emotions = test_emotion_labels()
     test_emotion_predictions(model, all_emotions)
-    test_batch_predictions(model, [
-        "I am so happy and excited about this amazing opportunity!",
-        "I feel really sad and disappointed about what happened today.",
-        "I'm feeling anxious and worried about the upcoming presentation.",
-    ])
+    test_batch_predictions(model, SAMPLE_TEST_TEXTS)
     test_temperature_scaling(model)
     test_prediction_thresholds(model)
     test_emotion_descriptions()
