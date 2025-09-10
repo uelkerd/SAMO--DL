@@ -26,6 +26,7 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class SAMOT5Summarizer:
     """
     SAMO-optimized T5 text summarization model.
@@ -89,7 +90,10 @@ class SAMOT5Summarizer:
         }
 
         def recursive_merge_dicts(default, override):
-            """Recursively merge two dictionaries, with values from override taking precedence."""
+            """Recursively merge two dictionaries.
+
+            Values from override take precedence over default values.
+            """
             for key, value in default.items():
                 if key not in override:
                     override[key] = value
@@ -216,10 +220,10 @@ class SAMOT5Summarizer:
     def _sanitize_input(text: str) -> str:
         """
         Sanitize input text for SAMO optimization.
-        
+
         Args:
             text: Input text to sanitize
-            
+
         Returns:
             Sanitized text
         """
@@ -244,17 +248,17 @@ class SAMOT5Summarizer:
         """
         # Start with base prompt
         prompt_parts = ["summarize"]
-        
+
         # Add journal mode context if enabled
         if self.config["samo_optimizations"]["journal_mode"]:
             prompt_parts.append("journal entry")
-        
+
         # Add emotional context if enabled
         if (self.config["samo_optimizations"]["emotional_context"] and
                 emotional_keywords):
             emotion_context = f"[emotions: {', '.join(emotional_keywords)}]"
             prompt_parts.append(emotion_context)
-        
+
         # Add tone preservation instruction if enabled
         if (self.config["samo_optimizations"]["preserve_tone"] and
                 emotional_keywords):
@@ -262,7 +266,7 @@ class SAMOT5Summarizer:
                 f"[preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
             )
             prompt_parts.append(tone_instruction)
-        
+
         # Combine all parts into final prompt
         if len(prompt_parts) > 1:
             # Join all parts with spaces
@@ -348,7 +352,7 @@ class SAMOT5Summarizer:
             # Calculate metrics
             original_length = len(text.split())
             summary_length = len(summary.split())
-            compression_ratio = (summary_length / original_length 
+            compression_ratio = (summary_length / original_length
                                  if original_length > 0 else 0)
             processing_time = time.time() - start_time
 
@@ -383,13 +387,13 @@ class SAMOT5Summarizer:
             List of summary dictionaries
         """
         start_time = time.time()
-        
+
         # Validate all inputs first
         valid_texts = []
         valid_indices = []
         # Preallocate results list to preserve input order
         results = [None] * len(texts)
-        
+
         for i, text in enumerate(texts):
             is_valid, error_msg = self._validate_input(text)
             if is_valid:
@@ -466,11 +470,13 @@ class SAMOT5Summarizer:
                     )
 
                 # Decode all outputs at once
-                summaries = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                summaries = self.tokenizer.batch_decode(
+                    outputs, skip_special_tokens=True
+                )
 
                 # Process each output in the batch
                 for i, (summary, original_text, emotional_keywords) in enumerate(
-                    zip(summaries, batch_texts, batch_emotional_keywords)
+                        zip(summaries, batch_texts, batch_emotional_keywords)
                 ):
                     # Clean up any potential prefixes or artifacts
                     summary = summary.strip()
@@ -478,8 +484,8 @@ class SAMOT5Summarizer:
                     # Calculate metrics
                     original_length = len(original_text.split())
                     summary_length = len(summary.split())
-                    compression_ratio = (summary_length / original_length 
-                                 if original_length > 0 else 0)
+                    compression_ratio = (summary_length / original_length
+                                         if original_length > 0 else 0)
 
                     # Insert result at correct index
                     result_index = batch_indices[i]
