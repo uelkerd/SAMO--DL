@@ -133,8 +133,8 @@ class SAMOBERTEmotionClassifier(nn.Module):
             param.requires_grad = requires_grad
 
         # Set encoder layers
-        for i in range(min(num_layers, len(self.bert.encoder.layer))):
-            for param in self.bert.encoder.layer[i].parameters():
+        for layer_idx in range(min(num_layers, len(self.bert.encoder.layer))):
+            for param in self.bert.encoder.layer[layer_idx].parameters():
                 param.requires_grad = requires_grad
 
         action = "Unfrozen" if requires_grad else "Frozen"
@@ -219,8 +219,8 @@ class SAMOBERTEmotionClassifier(nn.Module):
         all_predictions = []
 
         with torch.no_grad():
-            for i in range(0, len(texts), batch_size):
-                batch_texts = texts[i : i + batch_size]
+            for batch_idx in range(0, len(texts), batch_size):
+                batch_texts = texts[batch_idx : batch_idx + batch_size]
 
                 # Tokenize batch
                 encoded = self.tokenizer(
@@ -363,12 +363,12 @@ class EmotionDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         """Get item at index."""
-        text = self.texts[idx]
+        sample_text = self.texts[idx]
         labels = self.labels[idx]
 
         # Tokenize text
         encoding = self.tokenizer(
-            text,
+            sample_text,
             truncation=True,
             padding="max_length",
             max_length=self.max_length,
@@ -414,7 +414,7 @@ def create_samo_bert_emotion_classifier(
         "freeze_bert_layers": freeze_bert_layers,
     }
 
-    model = SAMOBERTEmotionClassifier(
+    emotion_classifier = SAMOBERTEmotionClassifier(
         model_name=model_name,
         num_emotions=num_emotions,
         config=config,
@@ -423,11 +423,11 @@ def create_samo_bert_emotion_classifier(
     # Create loss function
     loss_function = WeightedBCELoss(class_weights=class_weights_tensor)
 
-    return model, loss_function
+    return emotion_classifier, loss_function
 
 
 def evaluate_emotion_classifier(
-    model: SAMOBERTEmotionClassifier,
+    emotion_model: SAMOBERTEmotionClassifier,
     dataloader: DataLoader,
     device: torch.device,
 ) -> Dict[str, float]:
@@ -435,7 +435,7 @@ def evaluate_emotion_classifier(
     Evaluate emotion classifier performance.
 
     Args:
-        model: Trained emotion classifier
+        emotion_model: Trained emotion classifier
         dataloader: Data loader for evaluation
         device: Device to run evaluation on
 
@@ -444,7 +444,7 @@ def evaluate_emotion_classifier(
     """
     from .config import EMOTION_CLASSIFICATION_THRESHOLD
     threshold = EMOTION_CLASSIFICATION_THRESHOLD
-    model.eval()
+    emotion_model.eval()
     all_predictions = []
     all_targets = []
 
@@ -458,7 +458,7 @@ def evaluate_emotion_classifier(
             targets = batch["labels"].to(device)
 
             # Get predictions
-            logits = model(input_ids, attention_mask, token_type_ids)
+            logits = emotion_model(input_ids, attention_mask, token_type_ids)
             probabilities = torch.sigmoid(logits)
             predictions = (probabilities > threshold).float()
 

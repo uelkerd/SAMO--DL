@@ -334,8 +334,8 @@ if __name__ == "__main__":
     print(f"Low arousal emotions: {get_emotions_by_arousal('low')}")
 
     print("\nEmotion descriptions:")
-    for emotion in ["joy", "sadness", "anger", "fear"]:
-        print(f"  {emotion}: {get_emotion_description(emotion)}")
+    for emotion_name in ["joy", "sadness", "anger", "fear"]:
+        print(f"  {emotion_name}: {get_emotion_description(emotion_name)}")
 
     print(f"\nEmotion synonyms for 'joy': {get_emotion_synonyms('joy')}")
     print(f"Emotion synonyms for 'sadness': {get_emotion_synonyms('sadness')}")
