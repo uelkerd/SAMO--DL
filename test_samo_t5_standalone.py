@@ -70,6 +70,12 @@ def test_samo_t5_summarizer():
         successful_summaries = sum(r["success"] for r in batch_results)
         
         print(f"✅ Batch processing: {successful_summaries}/{len(test_texts)} successful")
+
+        # Assert each summary is non-empty and emotional keywords are extracted
+        for idx, result in enumerate(batch_results):
+            assert result["success"], f"Batch summary {idx} failed"
+            assert "summary" in result and isinstance(result["summary"], str) and result["summary"].strip(), f"Summary {idx} is empty"
+            assert "emotional_keywords" in result and isinstance(result["emotional_keywords"], list) and result["emotional_keywords"], f"Emotional keywords missing or empty for input {idx}"
         
         # Test error handling
         print("\n5. Testing error handling...")

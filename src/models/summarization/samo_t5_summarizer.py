@@ -84,25 +84,39 @@ class SAMOT5Summarizer:
             }
         }
         
+        def recursive_merge_dicts(default, override):
+            """Recursively merge two dictionaries, with values from override taking precedence."""
+            for key, value in default.items():
+                if key not in override:
+                    override[key] = value
+                elif isinstance(value, dict) and isinstance(override[key], dict):
+                    override[key] = recursive_merge_dicts(value, override[key])
+            return override
+
         if config_path and os.path.exists(config_path):
             try:
                 with open(config_path, 'r', encoding='utf-8') as f:
                     config = yaml.safe_load(f)
-                # Merge with defaults
-                for key, value in default_config.items():
-                    if key not in config:
-                        config[key] = value
-                return config
+                # Recursively merge with defaults
+                merged_config = recursive_merge_dicts(default_config, config)
+                return merged_config
             except Exception as e:
                 logger.warning("Failed to load config from %s: %s", config_path, e)
                 
         return default_config
     
     def _get_device(self) -> str:
-        """Get the best available device."""
+        """Get the best available device, respecting user-specified device override."""
+        # Check if user specified a device in config
+        user_device = self.config.get("model", {}).get("device")
+        if user_device:
+            logger.info("Using user-specified device: %s", user_device)
+            return user_device
+        
+        # Auto-detect best available device
         if torch.cuda.is_available():
             return "cuda"
-        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        elif getattr(torch.backends, "mps", None) is not None and getattr(torch.backends.mps, "is_available", lambda: False)():
             return "mps"
         else:
             return "cpu"
@@ -262,7 +276,7 @@ class SAMOT5Summarizer:
     
     def generate_batch_summaries(self, texts: List[str]) -> List[Dict[str, Any]]:
         """
-        Generate summaries for multiple texts.
+        Generate summaries for multiple texts using batch processing.
         
         Args:
             texts: List of input texts
@@ -270,11 +284,119 @@ class SAMOT5Summarizer:
         Returns:
             List of summary dictionaries
         """
+        start_time = time.time()
         results = []
         
-        for text in texts:
-            result = self.generate_summary(text)
-            results.append(result)
+        # Validate all inputs first
+        valid_texts = []
+        valid_indices = []
+        for i, text in enumerate(texts):
+            is_valid, error_msg = self._validate_input(text)
+            if is_valid:
+                valid_texts.append(text)
+                valid_indices.append(i)
+            else:
+                results.append({
+                    "summary": "",
+                    "error": error_msg,
+                    "success": False,
+                    "processing_time": 0.0
+                })
+        
+        if not valid_texts:
+            return results
+        
+        # Process in batches for efficiency
+        batch_size = self.config["performance"]["batch_size"]
+        timeout_seconds = self.config["performance"]["timeout_seconds"]
+        
+        for batch_start in range(0, len(valid_texts), batch_size):
+            batch_end = min(batch_start + batch_size, len(valid_texts))
+            batch_texts = valid_texts[batch_start:batch_end]
+            batch_indices = valid_indices[batch_start:batch_end]
+            
+            try:
+                # Prepare batch input
+                input_texts = [f"summarize: {text}" for text in batch_texts]
+                
+                # Tokenize batch
+                inputs = self.tokenizer(
+                    input_texts,
+                    return_tensors="pt",
+                    max_length=512,
+                    truncation=True,
+                    padding=True
+                ).to(self.device)
+                
+                # Generate summaries for batch
+                with torch.no_grad():
+                    outputs = self.model.generate(
+                        inputs.input_ids,
+                        max_length=self.config["generation"]["max_length"],
+                        min_length=self.config["generation"]["min_length"],
+                        num_beams=self.config["generation"]["num_beams"],
+                        early_stopping=self.config["generation"]["early_stopping"],
+                        repetition_penalty=self.config["generation"]["repetition_penalty"],
+                        length_penalty=self.config["generation"]["length_penalty"],
+                        do_sample=self.config["generation"]["do_sample"],
+                        temperature=self.config["generation"]["temperature"]
+                    )
+                
+                # Process each output in the batch
+                for i, (output, original_text) in enumerate(zip(outputs, batch_texts)):
+                    # Decode output
+                    summary = self.tokenizer.decode(output, skip_special_tokens=True)
+                    
+                    # Remove "summarize:" prefix if present
+                    if summary.startswith("summarize:"):
+                        summary = summary[10:].strip()
+                    
+                    # Extract emotional keywords
+                    emotional_keywords = self._extract_emotional_keywords(original_text)
+                    
+                    # Calculate metrics
+                    original_length = len(original_text.split())
+                    summary_length = len(summary.split())
+                    compression_ratio = summary_length / original_length if original_length > 0 else 0
+                    
+                    # Insert result at correct index
+                    result_index = batch_indices[i]
+                    while len(results) <= result_index:
+                        results.append(None)
+                    
+                    results[result_index] = {
+                        "summary": summary,
+                        "original_length": original_length,
+                        "summary_length": summary_length,
+                        "compression_ratio": compression_ratio,
+                        "emotional_keywords": emotional_keywords,
+                        "processing_time": time.time() - start_time,
+                        "success": True,
+                        "error": None
+                    }
+                    
+            except Exception as e:
+                logger.error("Batch processing failed: %s", e)
+                # Add error results for this batch
+                for i, idx in enumerate(batch_indices):
+                    while len(results) <= idx:
+                        results.append(None)
+                    results[idx] = {
+                        "summary": "",
+                        "error": str(e),
+                        "success": False,
+                        "processing_time": time.time() - start_time
+                    }
+        
+        # Fill in any missing results with errors
+        for i in range(len(texts)):
+            if i >= len(results) or results[i] is None:
+                results.append({
+                    "summary": "",
+                    "error": "Processing failed",
+                    "success": False,
+                    "processing_time": 0.0
+                })
         
         return results
     

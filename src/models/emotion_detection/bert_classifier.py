@@ -82,10 +82,10 @@ class BERTEmotionClassifier(nn.Module):
         self.bert_hidden_size = config.hidden_size
 
         self.classifier = nn.Sequential(
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.bert_hidden_size),
             nn.ReLU(),
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
