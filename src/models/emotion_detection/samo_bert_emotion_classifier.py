@@ -195,7 +195,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
         threshold: float = None,
         top_k: Optional[int] = None,
         batch_size: int = 32,
-    ) -> Dict[str, Union[List[str], List[float], List[List[int]]]]:
+    ) -> Dict[str, Union[List[List[str]], List[List[float]], List[List[float]]]]:
         """
         Predict emotions for given texts.
 
@@ -317,12 +317,9 @@ class WeightedBCELoss(nn.Module):
         Returns:
             Weighted BCE loss
         """
-        # Apply sigmoid to get probabilities
-        probabilities = torch.sigmoid(logits)
-
-        # Compute BCE loss
-        bce_loss = F.binary_cross_entropy(
-            probabilities, targets.float(), reduction="none"
+        # Compute BCE loss with logits for numerical stability
+        bce_loss = F.binary_cross_entropy_with_logits(
+            logits, targets.float(), reduction="none"
         )
 
         # Apply class weights if provided
@@ -414,12 +411,9 @@ def create_samo_bert_emotion_classifier(
     if class_weights is not None:
         class_weights_tensor = torch.tensor(class_weights, dtype=torch.float)
 
-    # Create model with default config
+    # Create model with only the parameters that override defaults
     config = {
-        "hidden_dropout_prob": 0.3,
-        "classifier_dropout_prob": 0.5,
         "freeze_bert_layers": freeze_bert_layers,
-        "temperature": 1.0,
     }
     
     model = SAMOBERTEmotionClassifier(
