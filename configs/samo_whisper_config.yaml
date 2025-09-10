@@ -8,6 +8,8 @@ whisper:
   language: null      # Auto-detect if null
 
 # Transcription Parameters - Optimized for SAMO use case
+# Note: Both 'whisper' and 'transcription' sections are used by the Python code
+# The code reads from both sections with proper fallback logic
 transcription:
   task: "transcribe"  # transcribe or translate
   temperature: 0.0    # Sampling temperature (0.0 = deterministic)
