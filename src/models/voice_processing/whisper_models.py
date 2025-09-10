@@ -10,8 +10,6 @@ import logging
 import os
 import shutil
 from typing import Dict, Any, Optional
-
-import torch
 import whisper
 
 from .whisper_audio_preprocessor import AudioPreprocessor
@@ -21,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 class WhisperModelManager:
     """Manages Whisper model loading and caching with error handling."""
-    
+
     def __init__(self, config, device):
         """Initialize model manager."""
         self.config = config
         self.device = device
         self.model = None
-    
+
     def load_model(self) -> None:
         """Load Whisper model with cache corruption handling."""
         logger.info(
@@ -35,7 +33,7 @@ class WhisperModelManager:
             self.config.model_size
         )
         logger.info("Device: %s", self.device)
-        
+
         try:
             # Use cache directory from environment or create a local one
             cache_dir = os.environ.get('HF_HOME', os.path.expanduser('~/.cache/whisper'))
@@ -69,17 +67,17 @@ class WhisperModelManager:
                 "✅ SAMO Whisper %s model loaded successfully",
                 self.config.model_size
             )
-        
+
         except Exception as e:
             logger.error("❌ Failed to load Whisper model: %s", e)
             raise RuntimeError(f"Whisper model loading failed: {e}")
-    
+
     def get_model(self):
         """Get the loaded model."""
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
         return self.model
-    
+
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
         return {

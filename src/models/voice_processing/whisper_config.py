@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class SAMOWhisperConfig:
     """Configuration for SAMO Whisper transcription."""
-    
+
     def __init__(self, config_path: Optional[str] = None):
         """Initialize configuration from file or defaults."""
         if config_path and Path(config_path).exists():
@@ -25,17 +25,17 @@ class SAMOWhisperConfig:
                 self._load_from_dict(config_data)
         else:
             self._load_defaults()
-    
+
     def _load_from_dict(self, config_data: Dict[str, Any]):
         """Load configuration from dictionary."""
         whisper_config = config_data.get('whisper', {})
         transcription_config = config_data.get('transcription', {})
-        
+
         # Load from whisper section first, then transcription section as fallback
         self.model_size = whisper_config.get('model_size', 'base')
         self.language = whisper_config.get('language', None)
         self.device = whisper_config.get('device', None)
-        
+
         # Load transcription parameters from both sections
         self.task = whisper_config.get('task', transcription_config.get('task', 'transcribe'))
         self.temperature = whisper_config.get('temperature', transcription_config.get('temperature', 0.0))
@@ -50,7 +50,7 @@ class SAMOWhisperConfig:
         self.compression_ratio_threshold = whisper_config.get('compression_ratio_threshold', transcription_config.get('compression_ratio_threshold', 2.4))
         self.logprob_threshold = whisper_config.get('logprob_threshold', transcription_config.get('logprob_threshold', -1.0))
         self.no_speech_threshold = whisper_config.get('no_speech_threshold', transcription_config.get('no_speech_threshold', 0.6))
-    
+
     def _load_defaults(self):
         """Load default configuration."""
         self.model_size = 'base'
@@ -69,7 +69,7 @@ class SAMOWhisperConfig:
         self.logprob_threshold = -1.0
         self.no_speech_threshold = 0.6
         self.device = None
-    
+
     def get_transcription_options(self) -> Dict[str, Any]:
         """Get transcription options as a dictionary, filtering out None values."""
         options = {
@@ -89,7 +89,7 @@ class SAMOWhisperConfig:
             "no_speech_threshold": self.no_speech_threshold,
         }
         return {k: v for k, v in options.items() if v is not None}
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
         return {
