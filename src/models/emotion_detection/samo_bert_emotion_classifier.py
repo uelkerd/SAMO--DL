@@ -404,11 +404,6 @@ def create_samo_bert_emotion_classifier(
     Returns:
         Tuple of (model, loss_function)
     """
-    # Convert class weights to tensor if provided
-    class_weights_tensor = None
-    if class_weights is not None:
-        class_weights_tensor = torch.tensor(class_weights, dtype=torch.float)
-
     # Create model with only the parameters that override defaults
     config = {
         "freeze_bert_layers": freeze_bert_layers,
@@ -419,6 +414,12 @@ def create_samo_bert_emotion_classifier(
         num_emotions=num_emotions,
         config=config,
     )
+
+    # Convert class weights to tensor if provided and move to model device
+    class_weights_tensor = None
+    if class_weights is not None:
+        class_weights_tensor = torch.tensor(class_weights, dtype=torch.float)
+        class_weights_tensor = class_weights_tensor.to(emotion_classifier.device)
 
     # Create loss function
     loss_function = WeightedBCELoss(class_weights=class_weights_tensor)
