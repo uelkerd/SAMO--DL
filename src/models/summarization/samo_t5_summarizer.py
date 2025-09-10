@@ -480,13 +480,15 @@ class SAMOT5Summarizer:
 
         # Fill in any missing results with errors
         for i in range(len(texts)):
-            if i >= len(results) or results[i] is None:
-                results.append({
+            if i >= len(results):
+                results.extend([None] * (i - len(results) + 1))
+            if results[i] is None:
+                results[i] = {
                     "summary": "",
                     "error": "Processing failed",
                     "success": False,
                     "processing_time": 0.0
-                })
+                }
 
         return results
 
