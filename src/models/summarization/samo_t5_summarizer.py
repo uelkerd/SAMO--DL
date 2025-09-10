@@ -154,7 +154,7 @@ class SAMOT5Summarizer:
 
         except Exception as e:
             logger.error("Failed to load T5 model: %s", e)
-            raise RuntimeError(f"Model loading failed: {e}")
+            raise RuntimeError(f"Model loading failed: {e}") from e
 
     def _validate_input(self, text: str) -> Tuple[bool, str]:
         """
