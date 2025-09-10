@@ -7,7 +7,6 @@ testing including edge cases, performance benchmarks, and error handling.
 """
 
 import sys
-import os
 import logging
 import time
 from pathlib import Path
@@ -15,7 +14,7 @@ from pathlib import Path
 # Add src to path for standalone testing
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from models.emotion_detection.enhanced_bert_classifier import EnhancedBERTEmotionClassifier, EmotionPrediction
+from models.emotion_detection.enhanced_bert_classifier import EnhancedBERTEmotionClassifier
 from models.emotion_detection.enhanced_config import create_enhanced_config_manager
 from models.emotion_detection.emotion_labels import get_all_emotions, get_emotion_description
 

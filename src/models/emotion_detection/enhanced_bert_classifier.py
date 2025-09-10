@@ -14,9 +14,6 @@ from contextlib import contextmanager
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import Dataset, DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
@@ -94,16 +91,17 @@ class EnhancedBERTEmotionClassifier(nn.Module):
 
         # Device setup with fallback
         self.device = self._setup_device()
-        
+
         # Initialize model components
         self._initialize_bert_model()
         self._initialize_classifier()
         self._initialize_utilities()
-        
+
         # Move to device
         self.to(self.device)
 
-    def _setup_device(self) -> torch.device:
+    @staticmethod
+    def _setup_device() -> torch.device:
         """Setup device with fallback handling."""
         try:
             if torch.cuda.is_available():
@@ -129,7 +127,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
 
             self.bert = AutoModel.from_pretrained(self.model_name, config=config)
             self.bert_hidden_size = config.hidden_size
-            
+
             logger.info(f"BERT model loaded: {self.model_name}")
         except Exception as e:
             logger.error(f"Failed to load BERT model: {e}")
@@ -157,11 +155,11 @@ class EnhancedBERTEmotionClassifier(nn.Module):
         # Embedding cache for repeated inputs
         if self.cache_embeddings:
             self._embedding_cache = {}
-        
+
         # Performance tracking
         self._inference_count = 0
         self._total_inference_time = 0.0
-        
+
         # Error tracking
         self._error_count = 0
         self._last_error = None
@@ -198,10 +196,10 @@ class EnhancedBERTEmotionClassifier(nn.Module):
 
             # Classification head
             logits = self.classifier(pooled_output)
-            
+
             # Apply temperature scaling
             logits = logits / self.temperature
-            
+
             return logits
 
         except Exception as e:
@@ -252,7 +250,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             # Handle single text input
             if isinstance(texts, str):
                 return self._predict_single_text(texts, top_k, return_metadata)
-            
+
             # Handle multiple texts
             return self._predict_batch_texts(texts, top_k, return_metadata, batch_size)
 
@@ -288,7 +286,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             max_length=self.max_sequence_length,
             return_tensors="pt"
         )
-        
+
         input_ids = inputs["input_ids"].to(self.device)
         attention_mask = inputs["attention_mask"].to(self.device)
 
@@ -311,12 +309,12 @@ class EnhancedBERTEmotionClassifier(nn.Module):
     ) -> List[EmotionPrediction]:
         """Predict emotions for multiple texts in batches."""
         results = []
-        
+
         for i in range(0, len(texts), batch_size):
             batch_texts = texts[i:i + batch_size]
             batch_results = self._process_batch(batch_texts, top_k, return_metadata)
             results.extend(batch_results)
-        
+
         return results
 
     def _process_batch(
@@ -340,7 +338,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             max_length=self.max_sequence_length,
             return_tensors="pt"
         )
-        
+
         input_ids = inputs["input_ids"].to(self.device)
         attention_mask = inputs["attention_mask"].to(self.device)
 
@@ -410,27 +408,27 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             prediction_metadata=metadata
         )
 
-    def _calculate_emotional_intensity(self, probabilities: np.ndarray) -> str:
+    @staticmethod
+    def _calculate_emotional_intensity(probabilities: np.ndarray) -> str:
         """Calculate emotional intensity based on prediction distribution."""
         max_prob = np.max(probabilities)
         prob_std = np.std(probabilities)
-        
+
         if max_prob >= 0.8 and prob_std >= 0.3:
             return "very_high"
-        elif max_prob >= 0.7 and prob_std >= 0.2:
+        if max_prob >= 0.7 and prob_std >= 0.2:
             return "high"
-        elif max_prob >= 0.5 and prob_std >= 0.1:
+        if max_prob >= 0.5 and prob_std >= 0.1:
             return "moderate"
-        elif max_prob >= 0.3:
+        if max_prob >= 0.3:
             return "low"
-        else:
-            return "very_low"
+        return "very_low"
 
     def _create_empty_prediction(self, return_metadata: bool) -> EmotionPrediction:
         """Create empty prediction for invalid inputs."""
         emotions = {emotion: 0.0 for emotion in self.emotion_labels}
         metadata = {"error": "empty_input"} if return_metadata else {}
-        
+
         return EmotionPrediction(
             emotions=emotions,
             primary_emotion="neutral",
@@ -462,7 +460,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
             self._total_inference_time / self._inference_count 
             if self._inference_count > 0 else 0.0
         )
-        
+
         return {
             "total_inferences": self._inference_count,
             "total_inference_time": self._total_inference_time,
@@ -476,7 +474,7 @@ class EnhancedBERTEmotionClassifier(nn.Module):
         """Get comprehensive model information."""
         total_params = sum(p.numel() for p in self.parameters())
         trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
-        
+
         return {
             "model_name": self.model_name,
             "num_emotions": self.num_emotions,
@@ -523,10 +521,10 @@ class EnhancedBERTEmotionClassifier(nn.Module):
         try:
             checkpoint = torch.load(path, map_location=device or 'cpu')
             model_config = checkpoint['model_config']
-            
+
             model = cls(**model_config)
             model.load_state_dict(checkpoint['model_state_dict'])
-            
+
             logger.info(f"Model loaded from: {path}")
             return model
         except Exception as e:

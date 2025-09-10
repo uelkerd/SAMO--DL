@@ -45,7 +45,7 @@ EMOTION_PREDICTION_THRESHOLD = DEFAULT_CONFIG["prediction"]["threshold"]
 @dataclass
 class EmotionDetectionConfig:
     """Configuration class for emotion detection system."""
-    
+
     # Model configuration
     model_name: str = "bert-base-uncased"
     num_emotions: int = 28
@@ -53,26 +53,26 @@ class EmotionDetectionConfig:
     classifier_dropout_prob: float = 0.5
     freeze_bert_layers: int = 6
     temperature: float = 1.0
-    
+
     # Training configuration
     batch_size: int = 16
     learning_rate: float = 2e-5
     num_epochs: int = 10
     weight_decay: float = 0.01
-    
+
     # Evaluation configuration
     evaluation_threshold: float = 0.2
     top_k: int = 5
-    
+
     # Prediction configuration
     prediction_threshold: float = 0.6
     max_length: int = 512
-    
+
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> 'EmotionDetectionConfig':
         """Create config from dictionary."""
         return cls(**config_dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -101,12 +101,12 @@ def get_default_config() -> EmotionDetectionConfig:
 def get_config_from_dict(config_dict: Dict[str, Any]) -> EmotionDetectionConfig:
     """Get configuration from dictionary with defaults."""
     default_config = get_default_config()
-    
+
     # Update with provided values
     for key, value in config_dict.items():
         if hasattr(default_config, key):
             setattr(default_config, key, value)
-    
+
     return default_config
 
 
