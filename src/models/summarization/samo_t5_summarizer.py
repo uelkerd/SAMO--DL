@@ -185,11 +185,21 @@ class SAMOT5Summarizer:
         Returns:
             List of emotional keywords
         """
+        import re
+        
         # Get configurable emotional keywords
         emotional_keywords = self.config["samo_optimizations"]["emotional_keywords"]
         
         text_lower = text.lower()
-        return [kw for kw in emotional_keywords if kw in text_lower]
+        found_keywords = []
+        
+        for keyword in emotional_keywords:
+            # Use word boundary matching to avoid false positives
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            if re.search(pattern, text_lower):
+                found_keywords.append(keyword)
+        
+        return found_keywords
     
     def _sanitize_input(self, text: str) -> str:
         """
@@ -303,9 +313,8 @@ class SAMOT5Summarizer:
             # Decode output
             summary = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # Remove "summarize:" prefix if present
-            if summary.startswith("summarize:"):
-                summary = summary[10:].strip()
+            # Clean up any potential prefixes or artifacts
+            summary = summary.strip()
             
             # Calculate metrics
             original_length = len(text.split())
@@ -424,9 +433,8 @@ class SAMOT5Summarizer:
                 
                 # Process each output in the batch
                 for i, (summary, original_text, emotional_keywords) in enumerate(zip(summaries, batch_texts, batch_emotional_keywords)):
-                    # Remove "summarize:" prefix if present
-                    if summary.startswith("summarize:"):
-                        summary = summary[10:].strip()
+                    # Clean up any potential prefixes or artifacts
+                    summary = summary.strip()
                     
                     # Calculate metrics
                     original_length = len(original_text.split())
