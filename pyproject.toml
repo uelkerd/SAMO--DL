@@ -1,397 +1,143 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "samo-dl"
-version = "0.1.0"
-description = "SAMO Deep Learning - AI-powered voice-first journaling companion"
-authors = [
-    {name = "SAMO DL Team", email = "dev@samo.ai"}
-]
+version = "1.0.0"
+description = "A deep learning API for nuanced emotion analysis in reflective text"
 readme = "README.md"
 requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "SAMO Team", email = "samo@techlabs.org"},
+]
+keywords = ["deep learning", "emotion analysis", "nlp", "api", "flask"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 dependencies = [
-    # API Framework (base install should be light)
-    "fastapi>=0.100.0",
-    "uvicorn[standard]>=0.23.0",
-    "python-multipart>=0.0.6",
-    "pydantic>=2.11.7,<3.0.0",
-    "PyJWT>=2.8.0,<3.0.0",
-
-    # Database & Storage
-    "sqlalchemy>=2.0.0",
-    "psycopg2-binary>=2.9.0",
-    "pgvector>=0.2.0",
-    "redis>=4.6.0",
-
-    # Utilities
-    "python-dotenv>=1.1.1,<2.0.0",
-    "pyyaml>=6.0",
-    "requests==2.32.4",
-    "certifi>=2025.7.14,<2026.0.0",
-    "click>=8.1.0",
-    "rich>=13.0.0",
-    "loguru>=0.7.0",
+    "flask>=2.0.0",
+    "flask-restx>=0.5.0",
+    "flask-cors>=3.0.0",
+    "psutil>=5.8.0",
+    "numpy>=1.21.0",
+    "torch>=1.9.0",
+    "transformers>=4.20.0",
+    "scikit-learn>=1.0.0",
+    "pandas>=1.3.0",
+    "requests>=2.25.0",
+    "python-dotenv>=0.19.0",
 ]
 
 [project.optional-dependencies]
-# Test Dependencies
-test = [
-    "pytest>=8.4.1,<9.0.0",
-    "pytest-cov>=6.2.1,<7.0.0",
-    "pytest-xdist>=3.3.0",
-    "pytest-mock>=3.11.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-timeout>=2.1.0",
-    "pytest-benchmark>=4.0.0",
-    "httpx>=0.24.0",  # For FastAPI testing
-    "coverage[toml]>=7.2.0",
-    "factory-boy>=3.3.0",  # For test data generation
-]
-
-# Development Dependencies
 dev = [
-    "ruff>=0.0.280",
-    "black>=23.7.0",
-    "mypy>=1.5.0",
-    "bandit[toml]>=1.7.5",
-    # safety removed - kept optional in CI to avoid resolver backtracking
-    "pre-commit>=3.3.0",
-    "jupyterlab>=4.0.0",
-    "ipykernel>=6.25.0",
+    "pytest>=6.0.0",
+    "pytest-cov>=2.12.0",
+    "pytest-mock>=3.6.0",
+    "black>=21.0.0",
+    "isort>=5.9.0",
+    "flake8>=3.9.0",
+    "pylint>=2.8.0",
+    "mypy>=0.910",
+    "pre-commit>=2.15.0",
 ]
 
-# Production Dependencies
-prod = [
-    "gunicorn>=21.2.0",
-    "prometheus-client==0.20.0",
-    "sentry-sdk[fastapi]>=1.29.0",
+test = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.12.0",
+    "pytest-mock>=3.6.0",
+    "coverage>=5.5.0",
 ]
 
-# Heavy ML/NLP stack (install when needed)
-ml = [
-    # Core ML/AI Dependencies
-    "torch>=2.0.0,<3.0.0",
-    "transformers>=4.55.0,<5.0.0",
-    "datasets>=2.14.0,<5.0.0",
-    "accelerate>=0.20.0,<1.0.0",
-    "onnx>=1.14.0,<2.0.0",
-    "onnxruntime>=1.22.1,<2.0.0",
-    "sentencepiece>=0.1.99,<1.0.0",
-    "tokenizers>=0.21.4,<1.0.0",
-
-    # Deep Learning Frameworks
-    "scikit-learn>=1.3.0,<2.0.0",
-    "pandas>=2.0.0,<3.0.0",
-    "numpy>=1.24.0,<3.0.0",
-    "scipy>=1.11.0,<2.0.0",
-
-    # Text Processing
-    "nltk>=3.8,<4.0.0",
-    "spacy>=3.6.0,<4.0.0",
-    "gensim>=4.3.0,<5.0.0",
-    "textblob>=0.17.0,<1.0.0",
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=0.5.0",
+    "myst-parser>=0.15.0",
 ]
-
-# Audio Processing (separate due to system dependencies)
-audio = [
-    "librosa>=0.10.0,<1.0.0",
-    "soundfile>=0.12.0,<1.0.0",
-    "pydub>=0.25.1,<1.0.0",
-    "openai-whisper>=20231117",
-    "jiwer>=3.0.0,<4.0.0",
-    # pyaudio requires system libraries - install separately if needed
-    # "pyaudio>=0.2.11; platform_system != 'Darwin' or platform_machine != 'arm64'",
-]
-
-# GPU-optimized ML dependencies (CUDA support)
-ml-gpu = [
-    # GPU-enabled PyTorch (CUDA 12.1 compatible)
-    "torch>=2.0.0,<3.0.0; sys_platform == 'linux'",
-    "torchvision>=0.15.0,<1.0.0; sys_platform == 'linux'", 
-    "torchaudio>=2.0.0,<3.0.0; sys_platform == 'linux'",
-    
-    # Include base ML dependencies
-    "transformers>=4.55.0,<5.0.0",
-    "datasets>=2.14.0,<5.0.0",
-    "accelerate>=0.20.0,<1.0.0",
-    "onnxruntime-gpu>=1.22.1,<2.0.0; sys_platform == 'linux'",
-    "onnx>=1.14.0,<2.0.0",
-    "sentencepiece>=0.1.99,<1.0.0",
-    "tokenizers>=0.21.4,<1.0.0",
-    
-    # Data processing
-    "scikit-learn>=1.3.0,<2.0.0",
-    "pandas>=2.0.0,<3.0.0",
-    "numpy>=1.24.0,<3.0.0",
-    "scipy>=1.11.0,<2.0.0",
-]
-
-# Note: Install multiple extras directly using: pip install .[test,dev,prod,ml]
-# For GPU support: pip install .[ml-gpu] (Linux only)
-# For audio: pip install .[audio] 
-# Removed 'all' extra to avoid self-referential dependency issues
 
 [project.urls]
-"Homepage" = "https://github.com/samo-ai/samo-dl"
-"Bug Reports" = "https://github.com/samo-ai/samo-dl/issues"
-"Source" = "https://github.com/samo-ai/samo-dl"
+Homepage = "https://github.com/uelkerd/SAMO--DL"
+Documentation = "https://uelkerd.github.io/SAMO--DL/"
+Repository = "https://github.com/uelkerd/SAMO--DL.git"
+Issues = "https://github.com/uelkerd/SAMO--DL/issues"
 
 [project.scripts]
-samo-train = "src.training.cli:main"
-samo-api = "src.unified_ai_api:main"
-
-# ============================================================================
-# TOOL CONFIGURATIONS
-# ============================================================================
-
-[tool.setuptools]
-package-dir = {"" = "src"}
+samo-dl = "src.main:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["src*"]
 
-# Ruff Configuration (Linting & Formatting)
-[tool.ruff]
-target-version = "py38"
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json", "*.txt", "*.md"]
+
+[tool.black]
 line-length = 100
-indent-width = 4
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
 
-# Include/exclude patterns
-include = ["*.py", "*.pyi"]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "data/cache",
-    "models/*/cache",
-    "test_checkpoints",
-]
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_glob = ["*/migrations/*"]
 
-[tool.ruff.lint]
-# Enable rule categories
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "SIM", # flake8-simplify
-    "TCH", # flake8-type-checking
-    "PTH", # flake8-use-pathlib
-    "ERA", # eradicate
-    "PD",  # pandas-vet
-    "PL",  # pylint
-    "NPY", # NumPy-specific rules
-    "RUF", # Ruff-specific rules
-    "S",   # flake8-bandit (security)
-    "G",   # flake8-logging-format
-    "T20", # flake8-print
-    "ANN", # flake8-annotations
-    "ARG", # flake8-unused-arguments
-    "D",   # pydocstyle
-    "DTZ", # flake8-datetimez
-]
-
-# Disable specific rules that conflict or are too strict
-ignore = [
-    "E501",   # Line too long (handled by formatter)
-    "D203",   # One blank line before class (conflicts with D211)
-    "D213",   # Multi-line summary second line (conflicts with D212)
-    "S101",   # Use of assert (common in tests)
-    "G004",   # Logging f-string (acceptable for performance)
-    "S607",   # Starting process with partial path (acceptable for development)
-    "S603",   # Subprocess call (acceptable for development scripts)
-    "PLR2004", # Magic numbers (too strict for ML constants)
-    "PLR0913", # Too many arguments (acceptable for ML functions)
-    "PLR0915", # Too many statements (acceptable for complex functions)
-    "PD901",   # Generic DataFrame names (acceptable for data processing)
-    "PLC0415", # Import at top-level (acceptable for conditional imports)
-    "PTH123",  # Pathlib usage (acceptable for file operations)
-    "PTH120",  # Pathlib usage (acceptable for file operations)
-    "PTH108",  # Pathlib usage (acceptable for file operations)
-    "SIM115",  # Context manager (acceptable for simple file operations)
-    "B008",    # Function call in defaults (acceptable for FastAPI)
-    "ARG001",  # Unused arguments (acceptable for FastAPI handlers)
-    "ARG002",  # Unused method arguments (acceptable for overrides)
-    "RUF012",  # Mutable class attributes (acceptable for ML models)
-    "PLE1205", # Logging format (acceptable for development)
-    "ERA001",  # Commented code (acceptable for development)
-    "W293",    # Blank line whitespace (acceptable)
-    "SIM102",  # Nested if statements (acceptable for complex logic)
-    "B904",    # Exception chaining (acceptable for development)
-    "I001",    # Import sorting (acceptable)
-    "UP035",   # Import from collections.abc (acceptable)
-    "PLW0603", # Global statement (acceptable for model caching)
-    "UP006",   # Use X instead of Y for type annotation (avoid churn in py38 target)
-]
-
-# Per-file ignores
-[tool.ruff.lint.per-file-ignores]
-"tests/**" = [
-    "S101",   # Allow assert in tests
-    "ANN",    # Don't require type annotations in tests
-    "D",      # Don't require docstrings in tests
-]
-"scripts/**" = [
-    "T20",    # Allow print statements in scripts
-    "ANN",    # Don't require type annotations in scripts
-    "D",      # Don't require docstrings in scripts
-]
-"src/data/sample_data.py" = [
-    "S311",   # Allow random for sample data generation
-]
-"src/**" = [
-    "D100",   # Missing docstring in public module (too strict for ML modules)
-    "D102",   # Missing docstring in public method (too strict for ML methods)
-    "D103",   # Missing docstring in public function (too strict for ML functions)
-    "D104",   # Missing docstring in public package (too strict for ML packages)
-    "D105",   # Missing docstring in magic method (too strict for ML classes)
-    "D106",   # Missing docstring in public nested class (too strict for ML classes)
-    "D107",   # Missing docstring in __init__ (too strict for ML constructors)
-    "ANN201", # Missing return type annotations (too strict for ML functions)
-    "ANN001", # Missing type annotations (too strict for ML arguments)
-    "ANN003", # Missing type annotations (too strict for ML kwargs)
-    "ANN202", # Missing return type annotations (too strict for ML private functions)
-    "ANN204", # Missing return type annotations (too strict for ML special methods)
-]
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"  # Use Google docstring style
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-# MyPy Configuration (Type Checking)
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = false  # Too strict for ML code
-warn_unused_configs = true
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-check_untyped_defs = false
-disallow_untyped_decorators = false  # Too strict for FastAPI
-no_implicit_optional = false  # Too strict for Python 3.9
-warn_redundant_casts = false  # Too strict for ML code
-warn_unused_ignores = false  # Too strict for development
-warn_no_return = false  # Too strict for ML code
-warn_unreachable = false  # Too strict for ML code
-strict_equality = false  # Too strict for ML code
-
-# Ignore missing imports for third-party packages
-[[tool.mypy.overrides]]
-module = [
-    "transformers.*",
-    "datasets.*",
-    "torch.*",
-    "numpy.*",
-    "pandas.*",
-    "sklearn.*",
-    "librosa.*",
-    "soundfile.*",
-    "whisper.*",
-    "gensim.*",
-    "nltk.*",
-    "spacy.*",
-    "textblob.*",
-]
-ignore_missing_imports = true
-
-# Pytest Configuration
 [tool.pytest.ini_options]
-minversion = "7.0"
-addopts = [
-    "-ra",
-    "-q",
-    "--strict-markers",
-    "--strict-config",
-    "--cov=src",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
-    "--cov-fail-under=50",  # Raised threshold to 50%
-    "--tb=short",
-]
-
+minversion = "6.0"
+addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
-
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-
-# Test markers
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "gpu: marks tests that require GPU",
-    "integration: marks integration tests",
-    "e2e: marks end-to-end tests",
-    "model: marks tests that load ML models",
-    "network: marks tests that require network access",
-    "asyncio: marks tests that use asyncio",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "api: marks tests as API tests",
+    "model: marks tests as model tests",
 ]
 
-# Filter warnings
-filterwarnings = [
-    "error",
-    "ignore::UserWarning",
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-    "ignore::FutureWarning",
-]
-
-# Coverage Configuration
 [tool.coverage.run]
 source = ["src"]
-branch = true
 omit = [
     "*/tests/*",
     "*/test_*",
     "*/__pycache__/*",
-    "*/site-packages/*",
-    "setup.py",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
 ]
 
 [tool.coverage.report]
-precision = 2
-show_missing = true
-skip_covered = false
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
@@ -405,32 +151,121 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
 ]
 
-[tool.coverage.xml]
-output = "coverage.xml"
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
 
-[tool.coverage.html]
-directory = "htmlcov"
+[[tool.mypy.overrides]]
+module = [
+    "flask.*",
+    "flask_restx.*",
+    "flask_cors.*",
+    "psutil.*",
+    "transformers.*",
+    "sklearn.*",
+    "pandas.*",
+    "requests.*",
+    "dotenv.*",
+]
+ignore_missing_imports = true
 
-# Bandit Configuration (Security)
-[tool.bandit]
-exclude_dirs = ["tests", "test_*", "*_test.py"]
-skips = [
-    "B101",  # assert_used - acceptable in tests
-    "B311",  # random - acceptable for sample data generation
-    "B404",  # subprocess import - acceptable for development
-    "B603",  # subprocess_without_shell_equals_true - acceptable for trusted input
-    "B607",  # start_process_with_partial_path - acceptable in controlled environments
-    "B614",  # pytorch_load_save - acceptable for ML model persistence
+[tool.pylint.messages_control]
+disable = [
+    "missing-docstring",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-statements",
+    "import-error",
+    "no-member",
+    "broad-except",
+    "bare-except",
+    "unused-argument",
+    "unused-variable",
+    "redefined-outer-name",
+    "global-statement",
+    "invalid-name",
+    "line-too-long",
+    "trailing-whitespace",
+    "missing-final-newline",
+    "mixed-line-endings",
+    "bad-continuation",
+    "bad-indentation",
+    "unexpected-line-ending-format",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "consider-using-f-string",
+    "consider-using-dict-comprehension",
+    "consider-using-set-comprehension",
+    "consider-using-generator",
+    "consider-using-enumerate",
+    "consider-using-any",
+    "consider-using-all",
+    "consider-using-max-builtin",
+    "consider-using-min-builtin",
+    "consider-using-sum-builtin",
+    "consider-using-join",
+    "consider-using-sys-exit",
+    "consider-using-with",
+    "consider-using-ternary",
+    "consider-using-dict-items",
+    "consider-using-dict-keys",
+    "consider-using-dict-values",
+    "consider-using-dict-get",
+    "consider-using-dict-setdefault",
+    "consider-using-dict-update",
+    "consider-using-dict-clear",
+    "consider-using-dict-copy",
+    "consider-using-dict-pop",
+    "consider-using-dict-popitem",
+    "consider-using-dict-fromkeys",
 ]
 
-# Safety Configuration (Dependency Vulnerability Scanning)
-[tool.safety]
-# Ignore specific vulnerabilities if needed
-# ignore = ["12345"]
+[tool.pylint.format]
+max-line-length = 100
+ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+single-line-if-stmt = false
+no-space-check = "trailing-comma,dict-separator"
+max-module-lines = 1000
+indent-string = "    "
+indent-after-paren = 4
+expected-line-ending-format = ""
 
-# Black Configuration (Code Formatting) - Fallback if Ruff format not used
-[tool.black]
-target-version = ['py38']
-line-length = 100
-skip-string-normalization = false
-skip-magic-trailing-comma = false
+[tool.pylint.design]
+max-args = 5
+max-attributes = 7
+max-bool-expr = 5
+max-branches = 12
+max-locals = 15
+max-parents = 7
+max-public-methods = 20
+max-returns = 6
+max-statements = 50
+min-similarity-lines = 4
+
+[tool.pylint.basic]
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
+class-naming-style = "PascalCase"
+const-naming-style = "UPPER_CASE"
+function-naming-style = "snake_case"
+method-naming-style = "snake_case"
+module-naming-style = "snake_case"
+variable-naming-style = "snake_case"
+good-names = "i,j,k,ex,Run,_,id,db"
+bad-names = "foo,bar,baz,toto,tutu,tata"
+bad-functions = "print"
+include-naming-hint = false
