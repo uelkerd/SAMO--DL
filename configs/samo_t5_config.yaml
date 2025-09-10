@@ -1,0 +1,49 @@
+# SAMO-DL T5 Summarization Configuration
+# Optimized parameters for journal entry and emotional text summarization
+
+# Model Configuration
+model:
+  name: "t5-small"  # Fast, efficient model for real-time processing
+  device: null      # Auto-detect (CPU/GPU)
+
+# Generation Parameters - Optimized for SAMO use case
+generation:
+  # Length settings - optimized for journal entries
+  max_length: 100        # Shorter summaries for emotional content
+  min_length: 20         # Meaningful minimum for journal entries
+
+  # Quality settings - balanced for speed and quality
+  num_beams: 4           # Good quality/speed balance
+  early_stopping: true   # Stop when all beams finish
+
+  # Repetition control - important for emotional text
+  repetition_penalty: 1.2  # Reduce repetitive emotional phrases
+  length_penalty: 1.0      # Neutral length preference
+
+  # Sampling settings
+  do_sample: false       # Use beam search for consistency
+  temperature: 1.0       # Deterministic generation
+
+# Input Validation
+validation:
+  min_words: 20          # Minimum words for meaningful summarization
+  max_words: 1000        # Maximum words to prevent timeout
+
+# Performance Settings
+performance:
+  batch_size: 4          # Batch processing for multiple texts
+  timeout_seconds: 30    # Maximum processing time
+
+# SAMO-Specific Optimizations
+samo_optimizations:
+  # Emotional content handling
+  emotional_context: true
+  preserve_tone: true
+
+  # Journal entry specific
+  journal_mode: true
+  extract_key_emotions: true
+
+  # Privacy and security
+  sanitize_input: true
+  log_level: "INFO"
