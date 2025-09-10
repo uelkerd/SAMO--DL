@@ -21,7 +21,7 @@ import time
 import tempfile
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 
 import torch
 
