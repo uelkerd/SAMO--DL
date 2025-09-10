@@ -442,8 +442,8 @@ def evaluate_emotion_classifier(
     Returns:
         Dictionary with evaluation metrics
     """
-    from .config import EMOTION_CLASSIFICATION_THRESHOLD
-    threshold = EMOTION_CLASSIFICATION_THRESHOLD
+    from .config import get_evaluation_threshold
+    threshold = get_evaluation_threshold()
     emotion_model.eval()
     all_predictions = []
     all_targets = []

@@ -35,11 +35,15 @@ DEFAULT_CONFIG = {
     }
 }
 
-# Emotion classification threshold (used in evaluation)
-EMOTION_CLASSIFICATION_THRESHOLD = DEFAULT_CONFIG["evaluation"]["threshold"]
 
-# Prediction threshold (used in inference)
-EMOTION_PREDICTION_THRESHOLD = DEFAULT_CONFIG["prediction"]["threshold"]
+def get_evaluation_threshold() -> float:
+    """Get current evaluation threshold from global config."""
+    return _config.evaluation_threshold
+
+
+def get_prediction_threshold() -> float:
+    """Get current prediction threshold from global config."""
+    return _config.prediction_threshold
 
 
 @dataclass
