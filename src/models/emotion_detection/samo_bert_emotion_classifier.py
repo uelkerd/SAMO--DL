@@ -174,7 +174,12 @@ class SAMOBERTEmotionClassifier(nn.Module):
         )
 
         # Use [CLS] token representation for classification
-        pooled_output = bert_outputs.pooler_output
+        # Check if pooler_output exists, fallback to first token if not
+        if bert_outputs.pooler_output is not None:
+            pooled_output = bert_outputs.pooler_output
+        else:
+            # Fallback to first token ([CLS]) hidden state
+            pooled_output = bert_outputs.last_hidden_state[:, 0, :]
 
         # Pass through classification head
         logits = self.classifier(pooled_output)
@@ -252,9 +257,10 @@ class SAMOBERTEmotionClassifier(nn.Module):
                 batch_probabilities = probabilities.cpu().numpy()
 
                 # Get emotion names for predictions
+                from .emotion_labels import GOEMOTIONS_EMOTIONS
                 for pred in batch_predictions:
                     emotions = [
-                        f"emotion_{i}" for i, p in enumerate(pred) if p > 0
+                        GOEMOTIONS_EMOTIONS[i] for i, p in enumerate(pred) if p > 0
                     ]
                     all_emotions.append(emotions)
 
@@ -432,7 +438,6 @@ def evaluate_emotion_classifier(
     model: SAMOBERTEmotionClassifier,
     dataloader: DataLoader,
     device: torch.device,
-    threshold: float = 0.2,  # Lowered from 0.5 to capture more predictions
 ) -> Dict[str, float]:
     """
     Evaluate emotion classifier performance.
@@ -441,11 +446,12 @@ def evaluate_emotion_classifier(
         model: Trained emotion classifier
         dataloader: Data loader for evaluation
         device: Device to run evaluation on
-        threshold: Prediction threshold
 
     Returns:
         Dictionary with evaluation metrics
     """
+    from .config import EMOTION_CLASSIFICATION_THRESHOLD
+    threshold = EMOTION_CLASSIFICATION_THRESHOLD
     model.eval()
     all_predictions = []
     all_targets = []
