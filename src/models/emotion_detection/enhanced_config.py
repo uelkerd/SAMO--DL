@@ -6,7 +6,6 @@ for the emotion detection system with comprehensive error handling and fallbacks
 """
 
 import logging
-import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, Union, List
@@ -191,7 +190,7 @@ class EnhancedConfigManager:
 
     def __init__(self, config_path: Optional[Union[str, Path]] = None):
         """Initialize configuration manager.
-        
+
         Args:
             config_path: Path to configuration file. If None, uses default.
         """
@@ -202,7 +201,7 @@ class EnhancedConfigManager:
         """Load configuration with comprehensive error handling."""
         if self.config_path is None:
             self.config_path = self._find_default_config()
-        
+
         if self.config_path is None or not Path(self.config_path).exists():
             logger.warning("No configuration file found, using defaults")
             return self._create_default_config()
@@ -210,10 +209,10 @@ class EnhancedConfigManager:
         try:
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 config_data = yaml.safe_load(f) or {}
-            
+
             logger.info(f"Configuration loaded from: {self.config_path}")
             return self._parse_config(config_data)
-            
+
         except yaml.YAMLError as e:
             logger.error(f"YAML parsing error: {e}")
             logger.warning("Using default configuration due to YAML error")
@@ -223,21 +222,23 @@ class EnhancedConfigManager:
             logger.warning("Using default configuration due to loading error")
             return self._create_default_config()
 
-    def _find_default_config(self) -> Optional[Path]:
+    @staticmethod
+    def _find_default_config() -> Optional[Path]:
         """Find default configuration file."""
         possible_paths = [
             Path("configs/samo_emotion_detection_config.yaml"),
             Path("configs/emotion_detection_config.yaml"),
             Path("emotion_detection_config.yaml"),
         ]
-        
+
         for path in possible_paths:
             if path.exists():
                 return path
-        
+
         return None
 
-    def _create_default_config(self) -> EnhancedEmotionDetectionConfig:
+    @staticmethod
+    def _create_default_config() -> EnhancedEmotionDetectionConfig:
         """Create default configuration."""
         logger.info("Creating default configuration")
         return EnhancedEmotionDetectionConfig()
@@ -414,21 +415,24 @@ class EnhancedConfigManager:
         )
 
     # Validation methods
-    def _validate_string(self, value: Any, field_name: str) -> str:
+    @staticmethod
+    def _validate_string(value: Any, field_name: str) -> str:
         """Validate string value."""
         if not isinstance(value, str):
             logger.warning(f"Invalid string value for {field_name}: {value}, using default")
             return ""
         return value
 
-    def _validate_bool(self, value: Any, field_name: str) -> bool:
+    @staticmethod
+    def _validate_bool(value: Any, field_name: str) -> bool:
         """Validate boolean value."""
         if not isinstance(value, bool):
             logger.warning(f"Invalid boolean value for {field_name}: {value}, using default")
             return False
         return value
 
-    def _validate_positive_int(self, value: Any, field_name: str) -> int:
+    @staticmethod
+    def _validate_positive_int(value: Any, field_name: str) -> int:
         """Validate positive integer value."""
         try:
             int_val = int(value)
@@ -440,7 +444,8 @@ class EnhancedConfigManager:
             logger.warning(f"Invalid integer for {field_name}: {value}, using default")
             return 1
 
-    def _validate_non_negative_int(self, value: Any, field_name: str) -> int:
+    @staticmethod
+    def _validate_non_negative_int(value: Any, field_name: str) -> int:
         """Validate non-negative integer value."""
         try:
             int_val = int(value)
@@ -452,7 +457,8 @@ class EnhancedConfigManager:
             logger.warning(f"Invalid integer for {field_name}: {value}, using default")
             return 0
 
-    def _validate_positive_float(self, value: Any, field_name: str) -> float:
+    @staticmethod
+    def _validate_positive_float(value: Any, field_name: str) -> float:
         """Validate positive float value."""
         try:
             float_val = float(value)
@@ -464,11 +470,12 @@ class EnhancedConfigManager:
             logger.warning(f"Invalid float for {field_name}: {value}, using default")
             return 1.0
 
-    def _validate_float_range(self, value: Any, min_val: float, max_val: float, field_name: str) -> float:
+    @staticmethod
+    def _validate_float_range(value: Any, min_val: float, max_val: float, field_name: str) -> float:
         """Validate float value within range."""
         try:
             float_val = float(value)
-            if not (min_val <= float_val <= max_val):
+            if not min_val <= float_val <= max_val:
                 logger.warning(f"Float out of range for {field_name}: {value}, using default")
                 return (min_val + max_val) / 2
             return float_val
@@ -476,7 +483,8 @@ class EnhancedConfigManager:
             logger.warning(f"Invalid float for {field_name}: {value}, using default")
             return (min_val + max_val) / 2
 
-    def _validate_device(self, value: Any) -> Optional[str]:
+    @staticmethod
+    def _validate_device(value: Any) -> Optional[str]:
         """Validate device value."""
         if value is None:
             return None
@@ -489,7 +497,8 @@ class EnhancedConfigManager:
             return None
         return value.lower()
 
-    def _validate_log_level(self, value: Any, field_name: str) -> str:
+    @staticmethod
+    def _validate_log_level(value: Any, field_name: str) -> str:
         """Validate log level value."""
         if not isinstance(value, str):
             logger.warning(f"Invalid log level for {field_name}: {value}, using default")
@@ -500,7 +509,8 @@ class EnhancedConfigManager:
             return "INFO"
         return value.upper()
 
-    def _validate_list(self, value: Any, field_name: str) -> List:
+    @staticmethod
+    def _validate_list(value: Any, field_name: str) -> List:
         """Validate list value."""
         if not isinstance(value, list):
             logger.warning(f"Invalid list for {field_name}: {value}, using default")
@@ -511,7 +521,8 @@ class EnhancedConfigManager:
         """Get the current configuration."""
         return self.config
 
-    def update_config(self, updates: Dict[str, Any]) -> None:
+    @staticmethod
+    def update_config(updates: Dict[str, Any]) -> None:
         """Update configuration with new values."""
         try:
             # This would need more sophisticated merging logic
@@ -524,7 +535,7 @@ class EnhancedConfigManager:
         """Save current configuration to file."""
         if path is None:
             path = self.config_path or "configs/samo_emotion_detection_config.yaml"
-        
+
         try:
             # Convert config to dictionary and save as YAML
             config_dict = self._config_to_dict()
@@ -558,10 +569,10 @@ class EnhancedConfigManager:
 
 def create_enhanced_config_manager(config_path: Optional[Union[str, Path]] = None) -> EnhancedConfigManager:
     """Create an enhanced configuration manager.
-    
+
     Args:
         config_path: Path to configuration file
-        
+
     Returns:
         Enhanced configuration manager instance
     """

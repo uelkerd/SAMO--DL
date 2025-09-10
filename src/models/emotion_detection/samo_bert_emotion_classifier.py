@@ -17,7 +17,6 @@ Key Features:
 import logging
 import warnings
 from typing import Optional, Union, List, Dict, Tuple
-from pathlib import Path
 
 import numpy as np
 import torch
@@ -70,7 +69,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
             "freeze_bert_layers": 6,
             "temperature": 1.0,
         }
-        
+
         if config is None:
             config = default_config
         else:
@@ -332,10 +331,9 @@ class WeightedBCELoss(nn.Module):
         # Apply reduction
         if self.reduction == "mean":
             return bce_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return bce_loss.sum()
-        else:
-            return bce_loss
+        return bce_loss
 
 
 class EmotionDataset(Dataset):
@@ -421,7 +419,7 @@ def create_samo_bert_emotion_classifier(
         "freeze_bert_layers": freeze_bert_layers,
         "temperature": 1.0,
     }
-    
+
     model = SAMOBERTEmotionClassifier(
         model_name=model_name,
         num_emotions=num_emotions,
@@ -513,7 +511,7 @@ if __name__ == "__main__":
         ]
 
         results = model.predict_emotions(test_texts, threshold=0.3)
-        
+
         for i, text in enumerate(test_texts):
             print(f"\nText: {text}")
             print(f"Emotions: {results['emotions'][i]}")
