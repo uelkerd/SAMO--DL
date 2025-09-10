@@ -36,17 +36,24 @@ class WhisperModelManager:
 
         try:
             # Use cache directory from environment or create a local one
-            cache_dir = os.environ.get('HF_HOME', os.path.expanduser('~/.cache/whisper'))
+            cache_dir = os.environ.get(
+                'HF_HOME', os.path.expanduser('~/.cache/whisper')
+            )
             os.makedirs(cache_dir, exist_ok=True)
 
             def is_model_corrupted(cache_dir, model_size):
                 """Check for expected model files and their integrity."""
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
-                return not (os.path.isfile(model_file) and os.path.getsize(model_file) > 0)
+                return not (
+                    os.path.isfile(model_file) and os.path.getsize(model_file) > 0
+                )
 
             try:
                 if is_model_corrupted(cache_dir, self.config.model_size):
-                    logger.warning("Detected corrupted or missing model files in cache. Clearing cache directory: %s", cache_dir)
+                    logger.warning(
+                        "Detected corrupted or missing model files in cache. "
+                        "Clearing cache directory: %s", cache_dir
+                    )
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
@@ -55,7 +62,10 @@ class WhisperModelManager:
                     download_root=cache_dir
                 )
             except Exception:
-                logger.error("Model loading failed, possibly due to cache corruption. Clearing cache and retrying...")
+                logger.error(
+                    "Model loading failed, possibly due to cache corruption. "
+                    "Clearing cache and retrying..."
+                )
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(

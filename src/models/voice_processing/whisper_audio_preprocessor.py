@@ -43,7 +43,10 @@ class AudioPreprocessor:
             duration = len(audio) / 1000.0  # Convert to seconds
 
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return False, (
+                    f"Audio too long: {duration:.1f}s > "
+                    f"{AudioPreprocessor.MAX_DURATION}s"
+                )
 
             if duration < 0.1:  # Too short
                 return False, f"Audio too short: {duration:.1f}s"

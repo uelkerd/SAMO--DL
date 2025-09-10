@@ -57,7 +57,10 @@ class TranscriptionResult:
 
     def __str__(self) -> str:
         """String representation of the result."""
-        return f"TranscriptionResult(text='{self.text[:50]}...', language='{self.language}', confidence={self.confidence:.3f})"
+        return (
+            f"TranscriptionResult(text='{self.text[:50]}...', "
+            f"language='{self.language}', confidence={self.confidence:.3f})"
+        )
 
 
 class ResultProcessor:
@@ -75,7 +78,9 @@ class ResultProcessor:
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
             # Calculate segment confidence
-            segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
+            segment_confidence = min(
+                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+            )
             confidences.append(segment_confidence)
 
         return float(np.mean(confidences)) if confidences else 0.5

@@ -37,19 +37,49 @@ class SAMOWhisperConfig:
         self.device = whisper_config.get('device', None)
 
         # Load transcription parameters from both sections
-        self.task = whisper_config.get('task', transcription_config.get('task', 'transcribe'))
-        self.temperature = whisper_config.get('temperature', transcription_config.get('temperature', 0.0))
-        self.beam_size = whisper_config.get('beam_size', transcription_config.get('beam_size', None))
-        self.best_of = whisper_config.get('best_of', transcription_config.get('best_of', None))
-        self.patience = whisper_config.get('patience', transcription_config.get('patience', None))
-        self.length_penalty = whisper_config.get('length_penalty', transcription_config.get('length_penalty', None))
-        self.suppress_tokens = whisper_config.get('suppress_tokens', transcription_config.get('suppress_tokens', '-1'))
-        self.initial_prompt = whisper_config.get('initial_prompt', transcription_config.get('initial_prompt', None))
-        self.condition_on_previous_text = whisper_config.get('condition_on_previous_text', transcription_config.get('condition_on_previous_text', True))
-        self.fp16 = whisper_config.get('fp16', transcription_config.get('fp16', True))
-        self.compression_ratio_threshold = whisper_config.get('compression_ratio_threshold', transcription_config.get('compression_ratio_threshold', 2.4))
-        self.logprob_threshold = whisper_config.get('logprob_threshold', transcription_config.get('logprob_threshold', -1.0))
-        self.no_speech_threshold = whisper_config.get('no_speech_threshold', transcription_config.get('no_speech_threshold', 0.6))
+        self.task = whisper_config.get(
+            'task', transcription_config.get('task', 'transcribe')
+        )
+        self.temperature = whisper_config.get(
+            'temperature', transcription_config.get('temperature', 0.0)
+        )
+        self.beam_size = whisper_config.get(
+            'beam_size', transcription_config.get('beam_size', None)
+        )
+        self.best_of = whisper_config.get(
+            'best_of', transcription_config.get('best_of', None)
+        )
+        self.patience = whisper_config.get(
+            'patience', transcription_config.get('patience', None)
+        )
+        self.length_penalty = whisper_config.get(
+            'length_penalty', transcription_config.get('length_penalty', None)
+        )
+        self.suppress_tokens = whisper_config.get(
+            'suppress_tokens', transcription_config.get('suppress_tokens', '-1')
+        )
+        self.initial_prompt = whisper_config.get(
+            'initial_prompt', transcription_config.get('initial_prompt', None)
+        )
+        self.condition_on_previous_text = whisper_config.get(
+            'condition_on_previous_text', 
+            transcription_config.get('condition_on_previous_text', True)
+        )
+        self.fp16 = whisper_config.get(
+            'fp16', transcription_config.get('fp16', True)
+        )
+        self.compression_ratio_threshold = whisper_config.get(
+            'compression_ratio_threshold', 
+            transcription_config.get('compression_ratio_threshold', 2.4)
+        )
+        self.logprob_threshold = whisper_config.get(
+            'logprob_threshold', 
+            transcription_config.get('logprob_threshold', -1.0)
+        )
+        self.no_speech_threshold = whisper_config.get(
+            'no_speech_threshold', 
+            transcription_config.get('no_speech_threshold', 0.6)
+        )
 
     def _load_defaults(self):
         """Load default configuration."""
