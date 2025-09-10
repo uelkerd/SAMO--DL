@@ -165,7 +165,8 @@ class SAMOUnifiedAPIServer:
 
         try:
             logger.info("Loading BERT Emotion Detection Model...")
-            self.models["emotion_detector"] = create_samo_bert_emotion_classifier()
+            model, loss_fn = create_samo_bert_emotion_classifier()
+            self.models["emotion_detector"] = model
             logger.info("✅ BERT Emotion Detection Model loaded")
 
         except Exception as e:
@@ -430,17 +431,13 @@ class SAMOUnifiedAPIServer:
 server = SAMOUnifiedAPIServer()
 
 if __name__ == "__main__":
-    # Test the server
-    print("🧪 Testing SAMO Unified API Server")
+    # Start the server
+    print("🚀 Starting SAMO Unified API Server")
+    print("=" * 50)
+    print("📖 API Documentation: http://localhost:8000/docs")
+    print("🔄 ReDoc Documentation: http://localhost:8000/redoc")
+    print("💚 Health Check: http://localhost:8000/health")
+    print("\nPress Ctrl+C to stop the server")
     print("=" * 50)
 
-    # Test health endpoint
-    from fastapi.testclient import TestClient
-    client = TestClient(server.app)
-
-    response = client.get("/health")
-    print(f"Health check: {response.status_code}")
-    print(f"Response: {response.json()}")
-
-    print("\n✅ SAMO Unified API Server test complete!")
-    print("Run with: python unified_api_server.py")
+    server.run()
