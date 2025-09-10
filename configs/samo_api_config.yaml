@@ -1,86 +1,65 @@
-# SAMO Unified API Server Configuration
-# Configuration file for the unified API server integrating T5, Whisper, and BERT models
-
-server:
-  host: "0.0.0.0"
-  port: 8000
-  workers: 1
-  reload: false
-  log_level: "info"
-
-models:
-  summarizer:
-    model_name: "t5-small"  # Options: t5-small, t5-base, t5-large, facebook/bart-base
-    max_source_length: 512
-    max_target_length: 128
-    min_target_length: 30
-    num_beams: 4
-    device: null  # null for auto-detect, "cuda" or "cpu"
-
-  transcriber:
-    model_size: "base"  # Options: tiny, base, small, medium, large
-    language: null  # null for auto-detect
-    task: "transcribe"  # transcribe or translate
-    device: null  # null for auto-detect
-    temperature: 0.0
-    beam_size: null
-    compression_ratio_threshold: 2.4
-    logprob_threshold: -1.0
-    no_speech_threshold: 0.6
-
-  emotion_detector:
-    model_name: "bert-base-uncased"
-    num_emotions: 28
-    hidden_dropout_prob: 0.3
-    classifier_dropout_prob: 0.5
-    freeze_bert_layers: 6
-    temperature: 1.0
-    prediction_threshold: 0.6
-    device: null  # null for auto-detect
+# SAMO API Configuration
+# This file configures the unified API server for SAMO-DL
 
 api:
-  cors_origins:
-    - "http://localhost:3000"
-    - "http://localhost:8080"
-    - "https://your-frontend-domain.com"
-  max_upload_size: 100  # MB
-  request_timeout: 300  # seconds
-  rate_limit: 100  # requests per minute per IP
-
-processing:
-  batch_size: 32
-  max_concurrent_requests: 10
-  cleanup_temp_files: true
-  temp_file_retention: 3600  # seconds
-
-logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/samo_api.log"
-  max_file_size: 10485760  # 10MB
-  backup_count: 5
-
-monitoring:
-  enable_health_checks: true
-  enable_metrics: true
-  metrics_port: 9090
-  health_check_interval: 30  # seconds
+  host: "0.0.0.0"
+  port: 8080
+  debug: false  # Never enable in production
+  version: "1.0.0"
+  docs_enabled: true  # Enable Swagger docs in dev
 
 security:
-  enable_rate_limiting: true
-  enable_cors: true
-  trusted_hosts: []
-  api_keys_required: false  # Set to true for production
-  allowed_file_types:
-    - ".mp3"
-    - ".wav"
-    - ".m4a"
-    - ".ogg"
-    - ".flac"
-    - ".aac"
+  api_key_required: true
+  rate_limit:
+    requests_per_minute: 100
+    burst_size: 10
+  cors:
+    allowed_origins: ["*"]  # Restrict to specific domains in production
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["Content-Type", "Authorization", "X-API-Key", "X-Requested-With"]
 
-development:
-  debug_mode: false
-  enable_docs: true
-  enable_redoc: true
-  reload_on_change: false
+models:
+  emotion:
+    provider: "hf"  # Hugging Face
+    model_name: "j-hartmann/emotion-english-distilroberta-base"
+    local_only: false  # Use local if true, fallback to HF Hub
+    model_dir: "/app/models/emotion"
+    batch_size: 32
+  whisper:
+    provider: "openai"  # OpenAI Whisper
+    model_name: "openai/whisper-base"
+    local_only: false
+    model_dir: "/app/models/whisper"
+    max_audio_duration: 30  # seconds
+  t5:
+    provider: "hf"  # Hugging Face T5
+    model_name: "t5-small"
+    local_only: false
+    model_dir: "/app/models/t5"
+    max_input_length: 512
+    max_output_length: 128
+
+logging:
+  level: "INFO"  # DEBUG for development
+  format: "json"  # json or human-readable
+  include_request_id: true
+
+server:
+  workers: 4  # Gunicorn workers
+  timeout: 120  # Request timeout in seconds
+
+# Environment-specific overrides
+environments:
+  development:
+    api:
+      debug: true
+      docs_enabled: true
+    security:
+      api_key_required: false  # Disable in dev for easier testing
+  production:
+    api:
+      debug: false
+      docs_enabled: false
+    security:
+      cors:
+        allowed_origins: ["https://yourdomain.com"]
