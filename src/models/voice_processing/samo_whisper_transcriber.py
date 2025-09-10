@@ -73,7 +73,9 @@ class SAMOWhisperTranscriber:
         logger.info("Starting transcription: %s", audio_path)
 
         # Preprocess audio
-        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
+            audio_path
+        )
 
         try:
             # Prepare transcription options
@@ -96,16 +98,22 @@ class SAMOWhisperTranscriber:
             )
 
             # Calculate confidence from segments
-            confidence = self.result_processor.calculate_confidence(result.get('segments', []))
+            confidence = self.result_processor.calculate_confidence(
+                result.get('segments', [])
+            )
 
             # Calculate no_speech_probability from segments
-            no_speech_probability = self.result_processor.calculate_no_speech_probability(result.get('segments', []))
+            no_speech_probability = self.result_processor.calculate_no_speech_probability(
+                result.get('segments', [])
+            )
 
             # Assess audio quality
             audio_quality = self.preprocessor.assess_audio_quality(result, audio_metadata)
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip() if isinstance(result.get('text'), str) else '',
+                text=result['text'].strip() if isinstance(
+                    result.get('text'), str
+                ) else '',
                 language=result.get('language', 'unknown'),
                 confidence=confidence,
                 duration=audio_metadata['duration'],
@@ -167,12 +175,15 @@ class SAMOWhisperTranscriber:
 
         total_duration = sum(r.duration for r in results)
         total_processing_time = sum(r.processing_time for r in results)
-        successful_transcriptions = sum(1 for r in results if not r.text.startswith("[ERROR:"))
+        successful_transcriptions = sum(
+            1 for r in results if not r.text.startswith("[ERROR:")
+        )
 
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results), total_duration, total_processing_time
+            successful_transcriptions, len(results), 
+            total_duration, total_processing_time
         )
 
         if errors:
