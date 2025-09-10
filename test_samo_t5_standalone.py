@@ -10,10 +10,20 @@ import sys
 import os
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+# Add src to path - more robust approach
+current_dir = Path(__file__).parent
+src_dir = current_dir / "src"
+if src_dir.exists():
+    sys.path.insert(0, str(src_dir))
+else:
+    # Fallback for different directory structures
+    sys.path.insert(0, str(current_dir))
 
-from models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
+try:
+    from models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
+except ImportError:
+    # Alternative import path
+    from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
 
 def test_samo_t5_summarizer():
     """Test the SAMO T5 summarizer functionality."""
@@ -61,9 +71,9 @@ def test_samo_t5_summarizer():
         # Test batch processing
         print("\n4. Testing batch processing...")
         test_texts = [
-            "I'm feeling really happy today because I accomplished my goals.",
-            "This has been a challenging week with many obstacles to overcome.",
-            "I'm grateful for all the support I've received from my friends and family."
+            "I'm feeling really happy today because I accomplished my goals and I'm excited about the future possibilities that lie ahead.",
+            "This has been a challenging week with many obstacles to overcome but I'm grateful for the lessons learned and the growth I've experienced.",
+            "I'm grateful for all the support I've received from my friends and family during this difficult time and I know I can count on them."
         ]
         
         batch_results = summarizer.generate_batch_summaries(test_texts)

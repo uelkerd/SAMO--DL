@@ -18,11 +18,9 @@ import os
 import time
 from typing import Dict, List, Optional, Tuple, Any
 import yaml
-from pathlib import Path
 
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
-import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -80,7 +78,12 @@ class SAMOT5Summarizer:
                 "journal_mode": True,
                 "extract_key_emotions": True,
                 "sanitize_input": True,
-                "log_level": "INFO"
+                "log_level": "INFO",
+                "emotional_keywords": [
+                    'happy', 'sad', 'angry', 'excited', 'worried', 'grateful',
+                    'anxious', 'proud', 'confident', 'overwhelmed', 'peaceful',
+                    'frustrated', 'hopeful', 'disappointed', 'relieved', 'nervous'
+                ]
             }
         }
         
@@ -96,12 +99,15 @@ class SAMOT5Summarizer:
         if config_path and os.path.exists(config_path):
             try:
                 with open(config_path, 'r', encoding='utf-8') as f:
-                    config = yaml.safe_load(f)
-                # Recursively merge with defaults
-                merged_config = recursive_merge_dicts(default_config, config)
-                return merged_config
+                    user_config = yaml.safe_load(f)
+                # Deep merge user config into default config
+                for key, value in user_config.items():
+                    if key in default_config and isinstance(default_config[key], dict) and isinstance(value, dict):
+                        default_config[key].update(value)
+                    else:
+                        default_config[key] = value
             except Exception as e:
-                logger.warning("Failed to load config from %s: %s", config_path, e)
+                logger.warning("Failed to load config from %s: %s. Using default config.", config_path, e)
                 
         return default_config
     
@@ -179,15 +185,59 @@ class SAMOT5Summarizer:
         Returns:
             List of emotional keywords
         """
-        # Simple emotional keyword extraction
-        emotional_keywords = [
-            'happy', 'sad', 'angry', 'excited', 'worried', 'grateful',
-            'anxious', 'proud', 'confident', 'overwhelmed', 'peaceful',
-            'frustrated', 'hopeful', 'disappointed', 'relieved', 'nervous'
-        ]
+        # Get configurable emotional keywords
+        emotional_keywords = self.config["samo_optimizations"]["emotional_keywords"]
         
         text_lower = text.lower()
         return [kw for kw in emotional_keywords if kw in text_lower]
+    
+    def _sanitize_input(self, text: str) -> str:
+        """
+        Sanitize input text for SAMO optimization.
+        
+        Args:
+            text: Input text to sanitize
+            
+        Returns:
+            Sanitized text
+        """
+        # Basic sanitization - remove excessive whitespace and normalize
+        import re
+        # Remove multiple spaces and normalize line breaks
+        text = re.sub(r'\s+', ' ', text)
+        # Remove leading/trailing whitespace
+        text = text.strip()
+        return text
+    
+    def _prepare_samo_input(self, text: str, emotional_keywords: List[str]) -> str:
+        """
+        Prepare input text with SAMO-specific optimizations.
+        
+        Args:
+            text: Input text
+            emotional_keywords: List of detected emotional keywords
+            
+        Returns:
+            Optimized input text for T5
+        """
+        # Base summarization prompt
+        input_text = f"summarize: {text}"
+        
+        # Add emotional context if enabled
+        if self.config["samo_optimizations"]["emotional_context"] and emotional_keywords:
+            emotion_context = f" [emotions: {', '.join(emotional_keywords)}]"
+            input_text = f"summarize{emotion_context}: {text}"
+        
+        # Add journal mode context if enabled
+        if self.config["samo_optimizations"]["journal_mode"]:
+            input_text = f"summarize journal entry: {text}"
+        
+        # Add tone preservation instruction if enabled
+        if self.config["samo_optimizations"]["preserve_tone"] and emotional_keywords:
+            tone_instruction = f" [preserve emotional tone: {', '.join(emotional_keywords[:3])}]"
+            input_text += tone_instruction
+        
+        return input_text
     
     def generate_summary(self, text: str) -> Dict[str, Any]:
         """
@@ -212,11 +262,20 @@ class SAMOT5Summarizer:
             }
         
         try:
-            # Extract emotional keywords for SAMO optimization
-            emotional_keywords = self._extract_emotional_keywords(text)
+            # Apply SAMO optimizations
+            processed_text = text
             
-            # Prepare input for T5
-            input_text = f"summarize: {text}"
+            # Sanitize input if enabled
+            if self.config["samo_optimizations"]["sanitize_input"]:
+                processed_text = self._sanitize_input(processed_text)
+            
+            # Extract emotional keywords for SAMO optimization
+            emotional_keywords = []
+            if self.config["samo_optimizations"]["extract_key_emotions"]:
+                emotional_keywords = self._extract_emotional_keywords(processed_text)
+            
+            # Prepare input for T5 with SAMO optimizations
+            input_text = self._prepare_samo_input(processed_text, emotional_keywords)
             
             # Tokenize
             inputs = self.tokenizer(
@@ -276,7 +335,7 @@ class SAMOT5Summarizer:
     
     def generate_batch_summaries(self, texts: List[str]) -> List[Dict[str, Any]]:
         """
-        Generate summaries for multiple texts using batch processing.
+        Generate summaries for multiple texts using true batch processing.
         
         Args:
             texts: List of input texts
@@ -308,7 +367,6 @@ class SAMOT5Summarizer:
         
         # Process in batches for efficiency
         batch_size = self.config["performance"]["batch_size"]
-        timeout_seconds = self.config["performance"]["timeout_seconds"]
         
         for batch_start in range(0, len(valid_texts), batch_size):
             batch_end = min(batch_start + batch_size, len(valid_texts))
@@ -316,22 +374,41 @@ class SAMOT5Summarizer:
             batch_indices = valid_indices[batch_start:batch_end]
             
             try:
-                # Prepare batch input
-                input_texts = [f"summarize: {text}" for text in batch_texts]
+                # Apply SAMO optimizations to each text in batch
+                processed_texts = []
+                batch_emotional_keywords = []
                 
-                # Tokenize batch
+                for text in batch_texts:
+                    # Apply SAMO optimizations
+                    processed_text = text
+                    if self.config["samo_optimizations"]["sanitize_input"]:
+                        processed_text = self._sanitize_input(processed_text)
+                    
+                    # Extract emotional keywords
+                    emotional_keywords = []
+                    if self.config["samo_optimizations"]["extract_key_emotions"]:
+                        emotional_keywords = self._extract_emotional_keywords(processed_text)
+                    
+                    batch_emotional_keywords.append(emotional_keywords)
+                    
+                    # Prepare SAMO input
+                    input_text = self._prepare_samo_input(processed_text, emotional_keywords)
+                    processed_texts.append(input_text)
+                
+                # Tokenize entire batch at once
                 inputs = self.tokenizer(
-                    input_texts,
+                    processed_texts,
                     return_tensors="pt",
                     max_length=512,
                     truncation=True,
                     padding=True
                 ).to(self.device)
                 
-                # Generate summaries for batch
+                # Generate summaries for entire batch
                 with torch.no_grad():
                     outputs = self.model.generate(
                         inputs.input_ids,
+                        attention_mask=inputs.attention_mask,
                         max_length=self.config["generation"]["max_length"],
                         min_length=self.config["generation"]["min_length"],
                         num_beams=self.config["generation"]["num_beams"],
@@ -342,17 +419,14 @@ class SAMOT5Summarizer:
                         temperature=self.config["generation"]["temperature"]
                     )
                 
+                # Decode all outputs at once
+                summaries = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                
                 # Process each output in the batch
-                for i, (output, original_text) in enumerate(zip(outputs, batch_texts)):
-                    # Decode output
-                    summary = self.tokenizer.decode(output, skip_special_tokens=True)
-                    
+                for i, (summary, original_text, emotional_keywords) in enumerate(zip(summaries, batch_texts, batch_emotional_keywords)):
                     # Remove "summarize:" prefix if present
                     if summary.startswith("summarize:"):
                         summary = summary[10:].strip()
-                    
-                    # Extract emotional keywords
-                    emotional_keywords = self._extract_emotional_keywords(original_text)
                     
                     # Calculate metrics
                     original_length = len(original_text.split())
