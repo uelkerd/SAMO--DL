@@ -290,7 +290,15 @@ class SAMOWhisperTranscriber:
             os.makedirs(cache_dir, exist_ok=True)
 
             def is_model_corrupted(cache_dir, model_size):
-                # Check for expected model files and their integrity
+                """Check for expected model files and their integrity.
+                
+                Args:
+                    cache_dir (str): Path to the cache directory
+                    model_size (str): Size of the model (e.g., 'base', 'small')
+                    
+                Returns:
+                    bool: True if model is corrupted or missing, False otherwise
+                """
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
                 return not (
                     os.path.isfile(model_file) and os.path.getsize(model_file) > 0
