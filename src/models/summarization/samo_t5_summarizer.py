@@ -130,8 +130,7 @@ class SAMOT5Summarizer:
 
     @staticmethod
     def _get_device(config: Dict[str, Any]) -> str:
-        """Get the best available device, respecting user-specified device override.
-        """
+        """Get the best available device, respecting user-specified device override."""
         # Check if user specified a device in config
         user_device = config.get("model", {}).get("device")
         if user_device:
