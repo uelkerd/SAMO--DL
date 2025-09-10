@@ -324,7 +324,8 @@ class SAMOT5Summarizer:
             # Calculate metrics
             original_length = len(text.split())
             summary_length = len(summary.split())
-            compression_ratio = summary_length / original_length if original_length > 0 else 0
+            compression_ratio = (summary_length / original_length 
+                                 if original_length > 0 else 0)
             processing_time = time.time() - start_time
 
             return {
@@ -444,7 +445,8 @@ class SAMOT5Summarizer:
                     # Calculate metrics
                     original_length = len(original_text.split())
                     summary_length = len(summary.split())
-                    compression_ratio = summary_length / original_length if original_length > 0 else 0
+                    compression_ratio = (summary_length / original_length 
+                                 if original_length > 0 else 0)
 
                     # Insert result at correct index
                     result_index = batch_indices[i]
@@ -517,11 +519,13 @@ if __name__ == "__main__":
     summarizer = create_samo_t5_summarizer()
 
     test_text = """
-    Today I had an amazing experience at the conference. I learned so much about AI and machine learning.
-    The speakers were incredibly knowledgeable and the networking opportunities were fantastic. I met
-    several people who share my passion for deep learning and we exchanged contact information. I'm
-    feeling really excited about the future possibilities and can't wait to implement some of the
-    techniques I learned. This has been one of the most productive days I've had in months.
+    Today I had an amazing experience at the conference. I learned so much about
+    AI and machine learning. The speakers were incredibly knowledgeable and the
+    networking opportunities were fantastic. I met several people who share my
+    passion for deep learning and we exchanged contact information. I'm feeling
+    really excited about the future possibilities and can't wait to implement
+    some of the techniques I learned. This has been one of the most productive
+    days I've had in months.
     """
 
     result = summarizer.generate_summary(test_text)
