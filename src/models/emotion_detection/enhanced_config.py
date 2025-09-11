@@ -385,60 +385,119 @@ class EnhancedConfigManager:
     def _parse_data_config(self, data: Dict[str, Any]) -> DataConfig:
         """Parse data configuration with validation."""
         return DataConfig(
-            max_length=self._validate_positive_int(data.get("max_length", 512), "data.max_length"),
-            truncation=self._validate_bool(data.get("truncation", True), "data.truncation"),
-            padding=self._validate_string(data.get("padding", "max_length"), "data.padding"),
-            enable_augmentation=self._validate_bool(data.get("enable_augmentation", False), "data.enable_augmentation"),
-            validation_split=self._validate_float_range(data.get("validation_split", 0.2), 0.0, 1.0, "data.validation_split"),
-            test_split=self._validate_float_range(data.get("test_split", 0.1), 0.0, 1.0, "data.test_split"),
+            max_length=self._validate_positive_int(
+                data.get("max_length", 512), "data.max_length"
+            ),
+            truncation=self._validate_bool(
+                data.get("truncation", True), "data.truncation"
+            ),
+            padding=self._validate_string(
+                data.get("padding", "max_length"), "data.padding"
+            ),
+            enable_augmentation=self._validate_bool(
+                data.get("enable_augmentation", False), "data.enable_augmentation"
+            ),
+            validation_split=self._validate_float_range(
+                data.get("validation_split", 0.2), 0.0, 1.0, "data.validation_split"
+            ),
+            test_split=self._validate_float_range(
+                data.get("test_split", 0.1), 0.0, 1.0, "data.test_split"
+            ),
         )
 
     def _parse_evaluation_config(self, data: Dict[str, Any]) -> EvaluationConfig:
         """Parse evaluation configuration with validation."""
         return EvaluationConfig(
-            metrics=self._validate_list(data.get("metrics", ["precision", "recall", "f1_micro", "f1_macro", "accuracy"]), "evaluation.metrics"),
-            threshold=self._validate_float_range(data.get("threshold", 0.2), 0.0, 1.0, "evaluation.threshold"),
-            top_k_evaluation=self._validate_bool(data.get("top_k_evaluation", True), "evaluation.top_k_evaluation"),
-            top_k_values=self._validate_list(data.get("top_k_values", [1, 3, 5]), "evaluation.top_k_values"),
+            metrics=self._validate_list(
+                data.get("metrics", ["precision", "recall", "f1_micro", "f1_macro", "accuracy"]), 
+                "evaluation.metrics"
+            ),
+            threshold=self._validate_float_range(
+                data.get("threshold", 0.2), 0.0, 1.0, "evaluation.threshold"
+            ),
+            top_k_evaluation=self._validate_bool(
+                data.get("top_k_evaluation", True), "evaluation.top_k_evaluation"
+            ),
+            top_k_values=self._validate_list(
+                data.get("top_k_values", [1, 3, 5]), "evaluation.top_k_values"
+            ),
         )
 
     def _parse_logging_config(self, data: Dict[str, Any]) -> LoggingConfig:
         """Parse logging configuration with validation."""
         return LoggingConfig(
-            level=self._validate_log_level(data.get("level", "INFO"), "logging.level"),
-            log_interval=self._validate_positive_int(data.get("log_interval", 100), "logging.log_interval"),
-            save_interval=self._validate_positive_int(data.get("save_interval", 1000), "logging.save_interval"),
-            enable_tensorboard=self._validate_bool(data.get("enable_tensorboard", True), "logging.enable_tensorboard"),
-            log_dir=self._validate_string(data.get("log_dir", "logs/emotion_detection"), "logging.log_dir"),
+            level=self._validate_log_level(
+                data.get("level", "INFO"), "logging.level"
+            ),
+            log_interval=self._validate_positive_int(
+                data.get("log_interval", 100), "logging.log_interval"
+            ),
+            save_interval=self._validate_positive_int(
+                data.get("save_interval", 1000), "logging.save_interval"
+            ),
+            enable_tensorboard=self._validate_bool(
+                data.get("enable_tensorboard", True), "logging.enable_tensorboard"
+            ),
+            log_dir=self._validate_string(
+                data.get("log_dir", "logs/emotion_detection"), "logging.log_dir"
+            ),
         )
 
     def _parse_model_saving_config(self, data: Dict[str, Any]) -> ModelSavingConfig:
         """Parse model saving configuration with validation."""
         return ModelSavingConfig(
-            save_dir=self._validate_string(data.get("save_dir", "models/emotion_detection"), "model_saving.save_dir"),
-            save_best_metric=self._validate_string(data.get("save_best_metric", "f1_macro"), "model_saving.save_best_metric"),
-            save_checkpoints=self._validate_bool(data.get("save_checkpoints", True), "model_saving.save_checkpoints"),
-            checkpoint_interval=self._validate_positive_int(data.get("checkpoint_interval", 1), "model_saving.checkpoint_interval"),
+            save_dir=self._validate_string(
+                data.get("save_dir", "models/emotion_detection"), "model_saving.save_dir"
+            ),
+            save_best_metric=self._validate_string(
+                data.get("save_best_metric", "f1_macro"), "model_saving.save_best_metric"
+            ),
+            save_checkpoints=self._validate_bool(
+                data.get("save_checkpoints", True), "model_saving.save_checkpoints"
+            ),
+            checkpoint_interval=self._validate_positive_int(
+                data.get("checkpoint_interval", 1), "model_saving.checkpoint_interval"
+            ),
         )
 
     def _parse_performance_config(self, data: Dict[str, Any]) -> PerformanceConfig:
         """Parse performance configuration with validation."""
         return PerformanceConfig(
-            use_amp=self._validate_bool(data.get("use_amp", True), "performance.use_amp"),
-            num_workers=self._validate_non_negative_int(data.get("num_workers", 4), "performance.num_workers"),
-            pin_memory=self._validate_bool(data.get("pin_memory", True), "performance.pin_memory"),
-            gradient_checkpointing=self._validate_bool(data.get("gradient_checkpointing", False), "performance.gradient_checkpointing"),
-            use_torchscript=self._validate_bool(data.get("use_torchscript", False), "performance.use_torchscript"),
+            use_amp=self._validate_bool(
+                data.get("use_amp", True), "performance.use_amp"
+            ),
+            num_workers=self._validate_non_negative_int(
+                data.get("num_workers", 4), "performance.num_workers"
+            ),
+            pin_memory=self._validate_bool(
+                data.get("pin_memory", True), "performance.pin_memory"
+            ),
+            gradient_checkpointing=self._validate_bool(
+                data.get("gradient_checkpointing", False), "performance.gradient_checkpointing"
+            ),
+            use_torchscript=self._validate_bool(
+                data.get("use_torchscript", False), "performance.use_torchscript"
+            ),
         )
 
     def _parse_samo_optimizations(self, data: Dict[str, Any]) -> SAMOOptimizationsConfig:
         """Parse SAMO optimizations configuration with validation."""
         return SAMOOptimizationsConfig(
-            journal_entry_mode=self._validate_bool(data.get("journal_entry_mode", True), "samo_optimizations.journal_entry_mode"),
-            context_awareness=self._validate_bool(data.get("context_awareness", True), "samo_optimizations.context_awareness"),
-            multi_label_mode=self._validate_bool(data.get("multi_label_mode", True), "samo_optimizations.multi_label_mode"),
-            calibration_enabled=self._validate_bool(data.get("calibration_enabled", True), "samo_optimizations.calibration_enabled"),
-            intensity_scaling=self._validate_bool(data.get("intensity_scaling", True), "samo_optimizations.intensity_scaling"),
+            journal_entry_mode=self._validate_bool(
+                data.get("journal_entry_mode", True), "samo_optimizations.journal_entry_mode"
+            ),
+            context_awareness=self._validate_bool(
+                data.get("context_awareness", True), "samo_optimizations.context_awareness"
+            ),
+            multi_label_mode=self._validate_bool(
+                data.get("multi_label_mode", True), "samo_optimizations.multi_label_mode"
+            ),
+            calibration_enabled=self._validate_bool(
+                data.get("calibration_enabled", True), "samo_optimizations.calibration_enabled"
+            ),
+            intensity_scaling=self._validate_bool(
+                data.get("intensity_scaling", True), "samo_optimizations.intensity_scaling"
+            ),
         )
 
     def _parse_error_handling(self, data: Dict[str, Any]) -> ErrorHandlingConfig:
