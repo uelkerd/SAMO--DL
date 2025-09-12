@@ -7,14 +7,8 @@ testing individual endpoints and combined processing pipelines.
 """
 
 import pytest
-import json
-import tempfile
 import io
-from pathlib import Path
 from unittest.mock import Mock, patch
-
-import torch
-import numpy as np
 from fastapi.testclient import TestClient
 
 # Import the API server
@@ -35,7 +29,8 @@ class TestSAMOUnifiedAPIServer:
         """Create test client."""
         return TestClient(api_server.app)
 
-    def test_health_endpoint(self, client):
+    @staticmethod
+    def test_health_endpoint(client):
         """Test health check endpoint."""
         response = client.get("/health")
 
@@ -53,7 +48,8 @@ class TestSAMOUnifiedAPIServer:
         assert "transcriber" in models_loaded
         assert "emotion_detector" in models_loaded
 
-    def test_summarize_endpoint_success(self, client):
+    @staticmethod
+    def test_summarize_endpoint_success(client):
         """Test successful text summarization."""
         test_text = """
         Today was such a rollercoaster of emotions. I started the morning feeling anxious about my job interview,
@@ -87,7 +83,8 @@ class TestSAMOUnifiedAPIServer:
         assert data["original_length"] == len(test_text)
         assert data["summary_length"] <= data["original_length"]
 
-    def test_summarize_endpoint_validation(self, client):
+    @staticmethod
+    def test_summarize_endpoint_validation(client):
         """Test summarization endpoint validation."""
         # Test empty text
         response = client.post("/summarize", json={"text": ""})
@@ -102,7 +99,8 @@ class TestSAMOUnifiedAPIServer:
         response = client.post("/summarize", json={"text": long_text})
         assert response.status_code == 422
 
-    def test_detect_emotions_endpoint_success(self, client):
+    @staticmethod
+    def test_detect_emotions_endpoint_success(client):
         """Test successful emotion detection."""
         test_text = "I am so happy today! This is amazing!"
 
@@ -127,7 +125,8 @@ class TestSAMOUnifiedAPIServer:
         assert isinstance(data["probabilities"], list)
         assert isinstance(data["predictions"], list)
 
-    def test_detect_emotions_endpoint_validation(self, client):
+    @staticmethod
+    def test_detect_emotions_endpoint_validation(client):
         """Test emotion detection endpoint validation."""
         # Test empty text
         response = client.post("/detect-emotions", json={"text": ""})
@@ -140,7 +139,8 @@ class TestSAMOUnifiedAPIServer:
         })
         assert response.status_code == 422
 
-    def test_transcribe_endpoint_validation(self, client):
+    @staticmethod
+    def test_transcribe_endpoint_validation(client):
         """Test transcription endpoint validation."""
         # Test without file
         response = client.post("/transcribe")
@@ -192,7 +192,8 @@ class TestSAMOUnifiedAPIServer:
         assert data["speaking_rate"] == 150.0
         assert data["no_speech_probability"] == 0.1
 
-    def test_combined_processing_validation(self, client):
+    @staticmethod
+    def test_combined_processing_validation(client):
         """Test combined processing endpoint validation."""
         # Test without file
         response = client.post("/process-audio")
@@ -269,7 +270,8 @@ class TestSAMOUnifiedAPIServer:
         assert "summarization" in data["pipeline_steps"]
         assert "emotion_detection" in data["pipeline_steps"]
 
-    def test_model_unavailable_errors(self, client):
+    @staticmethod
+    def test_model_unavailable_errors(client):
         """Test error handling when models are not available."""
         # Temporarily set models to None
         original_models = client.app.state.models.copy()

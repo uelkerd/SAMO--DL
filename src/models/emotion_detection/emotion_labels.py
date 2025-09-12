@@ -167,13 +167,13 @@ EMOTION_SYNONYMS = {
 def get_emotion_index(emotion: str) -> int:
     """
     Get the index of an emotion in the GoEmotions list.
-    
+
     Args:
         emotion: Emotion name
-        
+
     Returns:
         Index of the emotion (0-27)
-        
+
     Raises:
         ValueError: If emotion is not found
     """
@@ -186,29 +186,28 @@ def get_emotion_index(emotion: str) -> int:
 def get_emotion_name(index: int) -> str:
     """
     Get the emotion name from its index.
-    
+
     Args:
         index: Emotion index (0-27)
-        
+
     Returns:
         Emotion name
-        
+
     Raises:
         IndexError: If index is out of range
     """
     if 0 <= index < len(GOEMOTIONS_EMOTIONS):
         return GOEMOTIONS_EMOTIONS[index]
-    else:
-        raise IndexError(f"Index {index} out of range for GoEmotions list")
+    raise IndexError(f"Index {index} out of range for GoEmotions list")
 
 
 def get_emotions_by_valence(valence: str) -> List[str]:
     """
     Get emotions by valence group.
-    
+
     Args:
         valence: Valence group ('positive', 'negative', 'neutral')
-        
+
     Returns:
         List of emotions in the valence group
     """
@@ -218,10 +217,10 @@ def get_emotions_by_valence(valence: str) -> List[str]:
 def get_emotions_by_arousal(arousal: str) -> List[str]:
     """
     Get emotions by arousal group.
-    
+
     Args:
         arousal: Arousal group ('high', 'medium', 'low')
-        
+
     Returns:
         List of emotions in the arousal group
     """
@@ -231,10 +230,10 @@ def get_emotions_by_arousal(arousal: str) -> List[str]:
 def get_emotions_by_dominance(dominance: str) -> List[str]:
     """
     Get emotions by dominance group.
-    
+
     Args:
         dominance: Dominance group ('high', 'medium', 'low')
-        
+
     Returns:
         List of emotions in the dominance group
     """
@@ -244,10 +243,10 @@ def get_emotions_by_dominance(dominance: str) -> List[str]:
 def get_emotion_description(emotion: str) -> str:
     """
     Get description of an emotion.
-    
+
     Args:
         emotion: Emotion name
-        
+
     Returns:
         Description of the emotion
     """
@@ -257,10 +256,10 @@ def get_emotion_description(emotion: str) -> str:
 def get_emotion_synonyms(emotion: str) -> List[str]:
     """
     Get synonyms for an emotion.
-    
+
     Args:
         emotion: Emotion name
-        
+
     Returns:
         List of synonyms for the emotion
     """
@@ -270,7 +269,7 @@ def get_emotion_synonyms(emotion: str) -> List[str]:
 def get_all_emotions() -> List[str]:
     """
     Get all emotion names.
-    
+
     Returns:
         List of all emotion names
     """
@@ -280,7 +279,7 @@ def get_all_emotions() -> List[str]:
 def get_emotion_count() -> int:
     """
     Get total number of emotions.
-    
+
     Returns:
         Number of emotions (28)
     """
@@ -290,10 +289,10 @@ def get_emotion_count() -> int:
 def validate_emotion(emotion: str) -> bool:
     """
     Check if an emotion is valid.
-    
+
     Args:
         emotion: Emotion name to validate
-        
+
     Returns:
         True if emotion is valid, False otherwise
     """
@@ -303,7 +302,7 @@ def validate_emotion(emotion: str) -> bool:
 def get_emotion_statistics() -> Dict[str, int]:
     """
     Get statistics about emotion categories.
-    
+
     Returns:
         Dictionary with emotion statistics
     """
@@ -322,25 +321,25 @@ if __name__ == "__main__":
     # Test the emotion labels module
     print("🧪 Testing Emotion Labels Module")
     print("=" * 50)
-    
+
     print(f"Total emotions: {get_emotion_count()}")
     print(f"All emotions: {get_all_emotions()}")
-    
+
     print(f"\nPositive emotions: {get_emotions_by_valence('positive')}")
     print(f"Negative emotions: {get_emotions_by_valence('negative')}")
     print(f"Neutral emotions: {get_emotions_by_valence('neutral')}")
-    
+
     print(f"\nHigh arousal emotions: {get_emotions_by_arousal('high')}")
     print(f"Medium arousal emotions: {get_emotions_by_arousal('medium')}")
     print(f"Low arousal emotions: {get_emotions_by_arousal('low')}")
-    
-    print(f"\nEmotion descriptions:")
+
+    print("\nEmotion descriptions:")
     for emotion in ["joy", "sadness", "anger", "fear"]:
         print(f"  {emotion}: {get_emotion_description(emotion)}")
-    
+
     print(f"\nEmotion synonyms for 'joy': {get_emotion_synonyms('joy')}")
     print(f"Emotion synonyms for 'sadness': {get_emotion_synonyms('sadness')}")
-    
+
     print(f"\nEmotion statistics: {get_emotion_statistics()}")
-    
+
     print("\n✅ Emotion labels module test completed successfully!")
