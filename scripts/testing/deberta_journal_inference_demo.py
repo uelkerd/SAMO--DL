@@ -42,7 +42,7 @@ class DeBERTaJournalDemo:
         print(f"🤖 Model: {self.model_name}")
         print(f"🎭 Emotions: {len(self.emotion_labels)} (GoEmotions)")
         print(f"🎯 Device: {self.device}")
-        print(f"⏱️  Training: 2 months of fine-tuning!")
+        print("⏱️  Training: 2 months of fine-tuning!")
 
     def load_model(self) -> bool:
         """Load your trained DeBERTa-v3 model."""
@@ -62,10 +62,10 @@ class DeBERTaJournalDemo:
             self.model.eval()
 
             print("✅ DeBERTa-v3 model loaded successfully!")
-            print(f"🏗️  Architecture: DeBERTa-v3-large")
+            print("🏗️  Architecture: DeBERTa-v3-large")
             print(f"📊 Parameters: {sum(p.numel() for p in self.model.parameters()):,}")
             print(f"🎭 Labels: {self.model.num_labels} emotions")
-            print(f"🎯 Training: Fine-tuned on GoEmotions for 2 months!")
+            print("🎯 Training: Fine-tuned on GoEmotions for 2 months!")
 
             return True
 
@@ -142,7 +142,8 @@ class DeBERTaJournalDemo:
                 "processing_time_ms": 0.0
             }
 
-    def create_journal_entries(self) -> List[Dict[str, str]]:
+    @staticmethod
+    def create_journal_entries() -> List[Dict[str, str]]:
         """Create diverse journal entries for testing your trained model."""
         return [
             {
@@ -223,7 +224,7 @@ class DeBERTaJournalDemo:
             print(f"🏷️  Predicted Emotions: {', '.join(prediction['predicted_emotions'][:5])}")
             print(f"⚡ Processing Time: {prediction['processing_time_ms']:.2f}ms")
             # Show top emotions with scores
-            print(f"\n🏆 Top Emotions:")
+            print("\n🏆 Top Emotions:")
             for emotion, score in zip(prediction['predicted_emotions'][:3], prediction['emotion_scores'][:3]):
                 print(f"      - {emotion}: {score:.3f}")
 
@@ -232,7 +233,7 @@ class DeBERTaJournalDemo:
             predicted = set(prediction['predicted_emotions'])
             overlap = expected.intersection(predicted)
 
-            print(f"\n📊 Expected vs Predicted:")
+            print("\n📊 Expected vs Predicted:")
             print(f"   Expected: {', '.join(expected)}")
             print(f"   Predicted: {', '.join(predicted)}")
             print(f"   Overlap: {', '.join(overlap)} ({len(overlap)}/{len(expected)})")
@@ -277,28 +278,29 @@ class DeBERTaJournalDemo:
 
         print(f"\n{'='*80}")
         print("📊 DeBERTa-v3 DEMO SUMMARY")
-        print(f"🏆 Your 2-Month Training Results")
+        print("🏆 Your 2-Month Training Results")
         print(f"{'='*80}")
         print(f"📝 Total Journal Entries: {len(journal_entries)}")
         print(f"🎯 Perfect Matches: {perfect_matches}/{len(journal_entries)} ({(perfect_matches / len(journal_entries)) * 100:.1f}%)")
         print(f"🏷️  Unique Emotions Detected: {len(unique_emotions)}")
         print(f"⚡ Average Processing Time: {avg_time:.2f}ms")
-        print(f"🏗️  Architecture: DeBERTa-v3-large (435M parameters)")
+        print("🏗️  Architecture: DeBERTa-v3-large (435M parameters)")
         print(f"🎭 Emotions: {len(self.emotion_labels)} granular categories")
-        print(f"⏱️  Training: 2 months on GoEmotions dataset")
+        print("⏱️  Training: 2 months on GoEmotions dataset")
 
-        print(f"\n🎯 All Emotions Detected:")
+        print("\n🎯 All Emotions Detected:")
         for emotion in sorted(unique_emotions):
             count = all_predicted_emotions.count(emotion)
             print(f"   {emotion}: {count} times")
 
-        print(f"\n✅ Demo completed successfully!")
-        print(f"🎉 Your DeBERTa-v3 model is WORKING BEAUTIFULLY!")
-        print(f"📁 Results saved to: deberta_journal_demo_results.json")
+        print("\n✅ Demo completed successfully!")
+        print("🎉 Your DeBERTa-v3 model is WORKING BEAUTIFULLY!")
+        print("📁 Results saved to: deberta_journal_demo_results.json")
 
         return results
 
-    def save_results(self, results: Dict[str, Any], filename: str = None) -> str:
+    @staticmethod
+    def save_results(results: Dict[str, Any], filename: str = None) -> str:
         """Save demo results to JSON file."""
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")

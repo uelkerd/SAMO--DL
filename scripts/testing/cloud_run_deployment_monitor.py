@@ -30,15 +30,14 @@ class CloudRunMonitor:
                 "--format", "value(status.url)"
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=True)
 
             if result.returncode == 0 and result.stdout.strip():
                 url = result.stdout.strip()
                 print(f"✅ Service URL found: {url}")
                 return url
-            else:
-                print(f"❌ Failed to get service URL: {result.stderr}")
-                return None
+            print(f"❌ Failed to get service URL: {result.stderr}")
+            return None
 
         except subprocess.TimeoutExpired:
             print("⏱️  Timeout getting service URL")
@@ -47,7 +46,8 @@ class CloudRunMonitor:
             print(f"❌ Error getting service URL: {e}")
             return None
 
-    def test_service_health(self, url: str) -> bool:
+    @staticmethod
+    def test_service_health(url: str) -> bool:
         """Test if the service is responding and healthy."""
         try:
             # Test root endpoint
@@ -56,9 +56,8 @@ class CloudRunMonitor:
             if response.status_code == 200:
                 print("✅ Service is responding (HTTP 200)")
                 return True
-            else:
-                print(f"⚠️  Service responding but not healthy (HTTP {response.status_code})")
-                return False
+            print(f"⚠️  Service responding but not healthy (HTTP {response.status_code})")
+            return False
 
         except requests.exceptions.ConnectionError:
             print("🔌 Service not yet accessible (connection error)")
@@ -70,7 +69,8 @@ class CloudRunMonitor:
             print(f"❌ Service health check error: {e}")
             return False
 
-    def test_api_endpoint(self, url: str) -> bool:
+    @staticmethod
+    def test_api_endpoint(url: str) -> bool:
         """Test the actual API endpoint with a sample request."""
         try:
             api_url = f"{url}/analyze"  # Assuming standard endpoint
@@ -85,9 +85,8 @@ class CloudRunMonitor:
                     print("🎯 API endpoint working correctly!")
                     print(f"   Primary emotion: {data.get('primary_emotion', 'unknown')}")
                     return True
-                else:
-                    print("⚠️  API responding but unexpected response format")
-                    return False
+                print("⚠️  API responding but unexpected response format")
+                return False
             else:
                 print(f"❌ API endpoint error (HTTP {response.status_code})")
                 return False
@@ -128,8 +127,7 @@ class CloudRunMonitor:
                         print("🎉 DEPLOYMENT COMPLETE AND FULLY FUNCTIONAL!")
                         print(f"🌐 Service URL: {service_url}")
                         return service_url
-                    else:
-                        print("⚠️  Service healthy but API not working yet")
+                    print("⚠️  Service healthy but API not working yet")
                 else:
                     print("⏳ Service found but not healthy yet")
             else:
@@ -141,7 +139,8 @@ class CloudRunMonitor:
         print("❌ DEPLOYMENT TIMEOUT - Service not ready within time limit")
         return None
 
-    def trigger_comprehensive_testing(self, service_url: str):
+    @staticmethod
+    def trigger_comprehensive_testing(service_url: str):
         """Trigger the comprehensive scientific testing suite."""
         print("\n🚀 INITIATING COMPREHENSIVE SCIENTIFIC TESTING")
         print("=" * 60)
@@ -171,7 +170,7 @@ class CloudRunMonitor:
             env["CLOUD_RUN_URL"] = service_url
 
             print("⚡ EXECUTING COMPREHENSIVE TEST SUITE...")
-            result = subprocess.run(cmd, env=env, timeout=600)  # 10 minute timeout
+            result = subprocess.run(cmd, env=env, timeout=600, check=True)  # 10 minute timeout
 
             if result.returncode == 0:
                 print("🎉 COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY!")
@@ -217,7 +216,7 @@ def main():
             monitor.trigger_comprehensive_testing(service_url)
         else:
             print("⏸️  Testing postponed. You can run testing manually later.")
-            print(f"💡 When ready, run: python scripts/testing/scientific_cloud_run_testing.py")
+            print("💡 When ready, run: python scripts/testing/scientific_cloud_run_testing.py")
     else:
         print("\n❌ DEPLOYMENT FAILED OR TIMED OUT")
         print("🔍 Check Cloud Run console for deployment status")

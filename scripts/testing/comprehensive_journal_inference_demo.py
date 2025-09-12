@@ -8,7 +8,6 @@ This script verifies the model's ability to handle complex emotional narratives.
 """
 
 import sys
-import os
 import torch
 import json
 import time
@@ -141,7 +140,8 @@ class JournalInferenceDemo:
                 "processing_time_ms": 0.0
             }
 
-    def create_journal_entries(self) -> List[Dict[str, str]]:
+    @staticmethod
+    def create_journal_entries() -> List[Dict[str, str]]:
         """Create diverse journal entries for testing."""
         return [
             {
@@ -218,7 +218,7 @@ class JournalInferenceDemo:
             print(f"🏷️  Predicted Emotions: {', '.join(prediction['predicted_emotions'][:5])}")
             print(f"⚡ Processing Time: {prediction['processing_time_ms']:.2f}ms")
             # Show top emotions with scores
-            print(f"\n🏆 Top Emotions:")
+            print("\n🏆 Top Emotions:")
             for emotion, score in zip(prediction['predicted_emotions'][:3], prediction['emotion_scores'][:3]):
                 print(f"      - {emotion}: {score:.3f}")
             # Compare with expected emotions
@@ -226,7 +226,7 @@ class JournalInferenceDemo:
             predicted = set(prediction['predicted_emotions'])
             overlap = expected.intersection(predicted)
 
-            print(f"\n📊 Expected vs Predicted:")
+            print("\n📊 Expected vs Predicted:")
             print(f"   Expected: {', '.join(expected)}")
             print(f"   Predicted: {', '.join(predicted)}")
             print(f"   Overlap: {', '.join(overlap)} ({len(overlap)}/{len(expected)})")
@@ -260,17 +260,18 @@ class JournalInferenceDemo:
         print(f"📝 Total Journal Entries: {len(journal_entries)}")
         print(f"🏷️  Unique Emotions Detected: {len(unique_emotions)}")
         print(f"⚡ Average Processing Time: {avg_time:.2f}ms")
-        print(f"\n🎯 All Emotions Detected:")
+        print("\n🎯 All Emotions Detected:")
         for emotion in sorted(unique_emotions):
             count = all_predicted_emotions.count(emotion)
             print(f"   {emotion}: {count} times")
 
-        print(f"\n✅ Demo completed successfully!")
-        print(f"📁 Results saved to: comprehensive_journal_demo_results.json")
+        print("\n✅ Demo completed successfully!")
+        print("📁 Results saved to: comprehensive_journal_demo_results.json")
 
         return results
 
-    def save_results(self, results: Dict[str, Any], filename: str = None) -> str:
+    @staticmethod
+    def save_results(results: Dict[str, Any], filename: str = None) -> str:
         """Save demo results to JSON file."""
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
