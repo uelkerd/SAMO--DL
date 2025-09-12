@@ -801,10 +801,10 @@ class EmotionDetectionTrainer:
         return results
 
 
-def train_emotion_detection_model(
+def train_emotion_model(
     model_name: str = "bert-base-uncased",
     cache_dir: str = "./data/cache",
-    output_dir: str = "./models/emotion_detection",
+    output_dir: str = "./models/emotion",
     batch_size: int = 16,
     learning_rate: float = 2e-6,  # Reduced from 2e-5 to 2e-6 for debugging
     num_epochs: int = 3,
@@ -850,7 +850,7 @@ def train_emotion_detection_model(
 
 def main():
     """Main function to run emotion detection training."""
-    results = train_emotion_detection_model(
+    results = train_emotion_model(
         batch_size=8, num_epochs=1, output_dir="./test_checkpoints"
     )
     return results
