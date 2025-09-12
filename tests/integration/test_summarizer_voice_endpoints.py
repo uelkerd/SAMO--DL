@@ -136,7 +136,7 @@ def test_voice_returns_503_when_transcriber_unavailable(monkeypatch, client: Tes
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
         """Mock import hook to raise when creating Whisper transcriber."""
-        if name == "src.models.voice_processing.whisper_transcriber":
+        if name == "src.models.voice.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
 
@@ -179,7 +179,7 @@ def test_voice_returns_200_when_lazy_load_succeeds(monkeypatch, client: TestClie
 
     def _mock_import(name: str, *args, **kwargs):  # type: ignore
         """Mock import hook to return a FakeTranscriber creator."""
-        if name == "src.models.voice_processing.whisper_transcriber":
+        if name == "src.models.voice.whisper_transcriber":
             class M:
                 """Module shim exposing a Whisper transcriber factory for tests."""
 

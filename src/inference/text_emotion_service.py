@@ -4,7 +4,7 @@ import os
 import logging
 from typing import List, Dict, Any, Optional, Union
 
-from .constants import EMOTION_MODEL_DIR
+from src.constants import EMOTION_MODEL_DIR
 
 logger = logging.getLogger(__name__)
 

@@ -617,8 +617,8 @@ class TestCompleteWorkflow:
             assert "insights" in data
             
             # Check pipeline status
-            assert data["pipeline_status"]["voice_processing"] is True
-            assert data["pipeline_status"]["emotion_detection"] is True
+            assert data["pipeline_status"]["voice"] is True
+            assert data["pipeline_status"]["emotion"] is True
             assert data["pipeline_status"]["text_summarization"] is True
             
         finally:
@@ -1013,4 +1013,4 @@ class TestJWTManager:
         assert cleaned_count >= 0  # May or may not have expired tokens
 
 if __name__ == "__main__":
-    pytest.main([__file__]) 
+    pytest.main([__file__])

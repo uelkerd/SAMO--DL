@@ -67,7 +67,7 @@ def sample_audio_data():
 @pytest.fixture
 def mock_bert_model():
     """Mock BERT model for testing without loading actual weights."""
-    with patch("src.models.emotion_detection.bert_classifier.BertModel") as mock_model:
+    with patch("src.models.emotion.bert_classifier.BertModel") as mock_model:
         mock_instance = Mock()
         mock_instance.config.hidden_size = 768
         mock_model.from_pretrained.return_value = mock_instance
@@ -86,7 +86,7 @@ def mock_t5_model():
 @pytest.fixture
 def mock_whisper_model():
     """Mock Whisper model for testing without loading actual weights."""
-    with patch("src.models.voice_processing.whisper_transcriber.whisper") as mock_whisper:
+    with patch("src.models.voice.whisper_transcriber.whisper") as mock_whisper:
         mock_model = Mock()
         mock_model.transcribe.return_value = {"text": "test transcription"}
         mock_whisper.load_model.return_value = mock_model

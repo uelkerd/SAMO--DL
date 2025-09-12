@@ -324,7 +324,7 @@ class TestSAMOUnifiedAPIServer:
         # Check pipeline steps
         assert "transcription" in data["pipeline_steps"]
         assert "summarization" in data["pipeline_steps"]
-        assert "emotion_detection" in data["pipeline_steps"]
+        assert "emotion" in data["pipeline_steps"]
 
     def test_model_unavailable_errors(self, api_server, client):
         """Test error handling when models are not available."""

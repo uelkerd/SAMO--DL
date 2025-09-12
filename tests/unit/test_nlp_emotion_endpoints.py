@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from deployment.secure_api_server import app  # type: ignore
+from deployment.api.secure_api_server import app  # type: ignore
 
 
 def _fake_pipeline(*args, **kwargs):

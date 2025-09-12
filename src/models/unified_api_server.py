@@ -34,9 +34,9 @@ from pydantic import BaseModel, Field
 import torch
 
 # Import SAMO models
-from summarization.t5_summarizer import create_t5_summarizer
-from voice.whisper_transcriber import create_whisper_transcriber
-from emotion.samo_bert_emotion_classifier import (
+from src.models.summarization.t5_summarizer import create_t5_summarizer
+from src.models.voice.whisper_transcriber import create_whisper_transcriber
+from src.models.emotion.samo_bert_emotion_classifier import (
     create_samo_bert_emotion_classifier
 )
 

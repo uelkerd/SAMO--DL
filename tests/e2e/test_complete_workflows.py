@@ -82,7 +82,7 @@ class TestCompleteWorkflows:
                 data = {"language": "en", "generate_summary": True, "emotion_threshold": 0.5}
 
                 with patch(
-                    "src.models.voice_processing.whisper_transcriber.whisper"
+                    "src.models.voice.whisper_transcriber.whisper"
                 ) as mock_whisper:
                     mock_model = mock_whisper.load_model.return_value
                     mock_model.transcribe.return_value = {
@@ -230,5 +230,5 @@ class TestCompleteWorkflows:
         # Verify pipeline status shows model availability
         pipeline_status = data["pipeline_status"]
         assert isinstance(pipeline_status, dict)
-        assert "emotion_detection" in pipeline_status
+        assert "emotion" in pipeline_status
         assert "text_summarization" in pipeline_status

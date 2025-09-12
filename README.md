@@ -6,7 +6,6 @@
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
 [![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/70411)
 
-
 # SAMO Deep Learning Track
 ## Production-Grade Emotion Detection System for Voice-First Journaling
 
@@ -113,127 +112,53 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 - **Throughput**: 1000+ requests/minute capacity
 - **Error Rate**: <0.1% system errors
 
-## 🏗️ Project Structure
+## 🏗️ Reorganized Project Structure
 
-```
-SAMO--DL/
-├── notebooks/
-│   └── training/              # Colab training notebooks & experiments
-├── deployment/
-│   ├── cloud-run/            # Production ONNX API server
-│   └── local/                # Development environment
-├── scripts/
-│   ├── testing/              # Comprehensive test suite
-│   ├── deployment/           # Deployment automation  
-│   └── optimization/         # Model optimization tools
-├── docs/
-│   ├── api/                  # API documentation
-│   ├── deployment/           # Production deployment guides
-│   └── architecture/         # System design documentation
-└── models/
-    ├── emotion_detection/    # Fine-tuned emotion models
-    ├── summarization/        # T5 summarization models  
-    └── optimization/         # ONNX optimized models
-```
+The project has been reorganized following Python best practices for better modularity, maintainability, and scalability. Key changes:
 
-## 🛠️ Development Workflow
+- **configs/**: Consolidated configuration files (.coveragerc, .pre-commit-config.yaml, environment.yml)
+- **requirements/**: Merged all dependency files into base.txt, dev.txt, ml.txt, prod.txt
+- **deployment/**: Subdivided into api/, cloud/, docker/, local/ for clear separation
+- **scripts/**: Flattened and categorized into bin/, ci/, maintenance/, validation/, database/
+- **src/models/**: Grouped by feature (emotion/, summarization/, voice/) with updated imports
+- **src/inference/**: Dedicated layer for service integrations (text_emotion_service.py)
 
-### Model Training (Google Colab)
-```python
-# Fine-tuning DistilRoBERTa for emotion detection
-trainer = EmotionTrainer(
-    model_name='distilroberta-base',
-    dataset='goemotions',
-    loss_function='focal_loss',  # Handle class imbalance
-    epochs=5,
-    learning_rate=2e-5
-)
-trainer.train()  # Achieved 90.70% F1 score
-```
-
-### Production Deployment
-```bash
-# Deploy optimized model to Google Cloud Run
-gcloud run deploy samo-emotion-api \
-  --source ./deployment/cloud-run \
-  --platform managed \
-  --region us-central1 \
-  --memory 2Gi \
-  --cpu 2 \
-  --max-instances 100
+### New Directory Structure
+```mermaid
+graph TD
+    A[Root] --> B[configs/]
+    A --> C[docs/]
+    A --> D[requirements/]
+    A --> E[deployment/]
+    E --> E1[docker/]
+    E --> E2[cloud/]
+    E --> E3[local/]
+    E --> E4[api/]
+    A --> F[scripts/]
+    F --> F1[bin/]
+    F --> F2[ci/]
+    F --> F3[maintenance/]
+    F --> F4[validation/]
+    F --> F5[database/]
+    A --> G[src/]
+    G --> G1[common/]
+    G --> G2[data/]
+    G --> G3[models/]
+    G3 --> G3a[emotion/]
+    G3 --> G3b[summarization/]
+    G3 --> G3c[voice/]
+    G --> G4[inference/]
+    A --> H[tests/]
+    H --> H1[unit/]
+    H --> H2[integration/]
+    H --> H3[e2e/]
+    A --> I[notebooks/]
+    A --> J[prisma/]
+    A --> K[samples/]
+    A --> L[website/]
 ```
 
-### Performance Monitoring
-```python
-# Real-time model performance tracking
-from prometheus_client import Counter, Histogram
-
-prediction_counter = Counter('predictions_total', 'Total predictions')
-latency_histogram = Histogram('prediction_latency_seconds', 'Prediction latency')
-
-@latency_histogram.time()
-def predict_emotion(text):
-    prediction_counter.inc()
-    return model.predict(text)
-```
-
-## 🎯 Key Challenges Solved
-
-### 1. **Severe Class Imbalance** (27 emotions)
-- **Problem**: Standard cross-entropy loss yielding 5.20% F1 score
-- **Solution**: Implemented focal loss + strategic data augmentation
-- **Result**: 90.70% F1 score (+1,630% improvement)
-
-### 2. **Production Latency Requirements**
-- **Problem**: PyTorch inference too slow for real-time use (>1s)
-- **Solution**: ONNX optimization + dynamic quantization
-- **Result**: <500ms response time (2.3x speedup)
-
-### 3. **Memory Efficiency for Scaling**
-- **Problem**: 500MB model size limiting concurrent users
-- **Solution**: Model compression + efficient batching
-- **Result**: 75% size reduction, 4x memory efficiency
-
-### 4. **Production Reliability**
-- **Problem**: Research prototype → production system
-- **Solution**: Comprehensive MLOps infrastructure
-- **Result**: >99.5% uptime with automated monitoring
-
-## 📈 Impact & Metrics
-
-**Model Performance**
-- Emotion detection accuracy: **90.70% F1 score**
-- Voice transcription: **<10% Word Error Rate**  
-- Summarization quality: **>4.0/5.0 human evaluation**
-
-**System Performance**  
-- Average response time: **287ms**
-- 95th percentile latency: **<500ms**
-- Production uptime: **>99.5%**
-- Error rate: **<0.1%**
-
-**Engineering Impact**
-- Model size optimization: **75% reduction**
-- Inference speedup: **2.3x faster**
-- Memory efficiency: **4x improvement**
-- Deployment automation: **Zero-downtime deployments**
-
-## 🔬 Research & Experimentation
-
-### Model Architecture Experiments
-- **Baseline**: BERT-base (F1: 5.20%)
-- **Optimization 1**: Focal loss implementation (+15% F1)
-- **Optimization 2**: Data augmentation pipeline (+25% F1)
-- **Optimization 3**: Temperature calibration (+45% F1)
-- **Final**: DistilRoBERTa + ensemble (F1: 90.70%)
-
-### Production Optimization Journey
-- **Phase 1**: PyTorch prototype (300ms inference)
-- **Phase 2**: ONNX conversion (130ms inference, 2.3x speedup)
-- **Phase 3**: Dynamic quantization (75% size reduction)
-- **Phase 4**: Production deployment (enterprise reliability)
-
-## 🚀 Getting Started
+## 🚀 Getting Started (Updated for New Structure)
 
 ### Quick Test (Production API)
 ```bash
@@ -247,17 +172,25 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 ```bash
 git clone https://github.com/uelkerd/SAMO--DL.git
 cd SAMO--DL
-pip install -r deployment/local/requirements.txt
-python deployment/local/api_server.py
+
+# Setup environment with new structure
+pip install -r requirements/base.txt
+pip install -r requirements/dev.txt  # For testing/linting
+
+# Run local API server
+python scripts/bin/start_api_server.py
+
+# Test locally
+curl http://localhost:8080/health
 ```
 
 ### Model Training
 ```bash
 # Open training notebook in Google Colab
 # Follow notebooks/training/emotion_detection_training.ipynb
-# Experiment with hyperparameters and architectures
+# Use scripts/bin/ for environment setup
+python scripts/bin/setup_environment.sh
 ```
-
 
 ## 📅 Project Roadmap
 
@@ -312,7 +245,6 @@ async function detectEmotion(text) {
 }
 ```
 
-
 ---
 
 ## Support & Resources
@@ -330,9 +262,9 @@ async function detectEmotion(text) {
 - [Vue Component](examples/VueEmotionDetector.vue)
 
 ### Testing
-- [API Test Suite](scripts/testing/)
-- [Performance Benchmarks](scripts/testing/benchmarks.py)
-- [Integration Tests](scripts/testing/integration_tests.py)
+- [API Test Suite](tests/integration/)
+- [Performance Benchmarks](scripts/ci/)
+- [Integration Tests](tests/)
 
 ---
 

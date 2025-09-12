@@ -68,7 +68,7 @@ print(f"Confidence: {result['primary_emotion']['confidence']:.3f}")
 
 ---
 
-## **🔧 Local Development Setup**
+## **🔧 Local Development Setup (Updated Structure)**
 
 ### **1. Clone Repository**
 ```bash
@@ -78,18 +78,24 @@ cd SAMO--DL
 
 ### **2. Setup Environment**
 ```bash
-# Create conda environment
-conda env create -f environment.yml
+# Create conda environment from configs/
+conda env create -f configs/environment.yml
 conda activate samo-dl
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies from new structure
+pip install -r requirements/base.txt
+pip install -r requirements/dev.txt  # For testing/linting
+pip install -r requirements/ml.txt   # For ML models
 ```
 
 ### **3. Run Local API Server**
 ```bash
-cd deployment/cloud-run
-python minimal_api_server.py
+# Use new scripts/bin/ structure
+python scripts/bin/start_api_server.py
+
+# Or from deployment/api/
+cd deployment/api
+python secure_api_server.py
 ```
 
 ### **4. Test Locally**
@@ -101,6 +107,27 @@ curl http://localhost:8080/health
 curl -X POST http://localhost:8080/predict \
   -H "Content-Type: application/json" \
   -d '{"text": "I am feeling really happy today!"}'
+```
+
+### **5. Run Tests**
+```bash
+# Full test suite with new structure
+pytest tests/ -v
+
+# Or specific categories
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+pytest tests/e2e/ -v
+```
+
+### **6. Code Quality**
+```bash
+# Use configs/ for linting
+ruff check src/
+ruff format src/
+
+# Pre-commit hooks from configs/
+pre-commit run --all-files
 ```
 
 ---
@@ -118,6 +145,21 @@ Your model is already deployed and operational at:
 - **CPU**: 2 vCPUs
 - **Concurrency**: 80 requests/instance
 - **Uptime**: 100% since deployment
+
+### **Deploy Updates (New Structure)**
+```bash
+# Build from new deployment/docker/
+docker build -f deployment/docker/Dockerfile.prod -t samo-api .
+
+# Deploy from deployment/cloud/
+gcloud run deploy samo-emotion-api \
+  --source deployment/cloud \
+  --platform managed \
+  --region us-central1 \
+  --memory 2Gi \
+  --cpu 2 \
+  --max-instances 100
+```
 
 ---
 
@@ -192,6 +234,7 @@ Your model is already deployed and operational at:
 - ✅ Trained a DistilRoBERTa model with 90.70% accuracy
 - ✅ Deployed it to production on Google Cloud Run
 - ✅ Created a fully operational API service
+- ✅ Reorganized project for enterprise scalability
 - ✅ Achieved 100% project completion
 
 **Your model is now serving real users in production!** 🎉
@@ -205,6 +248,7 @@ Your model is already deployed and operational at:
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Project Completion Summary](docs/reports/PROJECT_COMPLETION_SUMMARY.md)
+- [New Structure Guide](README.md#reorganized-project-structure)
 
 ### **Code Repository**
 - [GitHub Repository](https://github.com/uelkerd/SAMO--DL)
@@ -213,6 +257,7 @@ Your model is already deployed and operational at:
 ### **Model Training**
 - Your Colab notebooks are preserved for future training
 - Training pipeline is documented and reproducible
+- Use scripts/bin/ for environment management
 - Model metadata is tracked for versioning
 
 ---

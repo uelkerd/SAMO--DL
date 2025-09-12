@@ -1,0 +1,4 @@
+flask==3.0.3
+fastapi==0.115.0
+uvicorn==0.30.6
+pytest==8.4.1

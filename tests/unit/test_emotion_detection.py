@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
 
 try:
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+    from src.models.emotion.bert_classifier import BERTEmotionClassifier
 except ImportError as e:
     raise RuntimeError(
         f"Failed to import BERTEmotionClassifier: {e}. "
