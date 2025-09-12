@@ -9,7 +9,9 @@ to ensure it works correctly before API integration.
 import sys
 from pathlib import Path
 
-# Add src to path
+# Add src to path for standalone execution
+# Note: For proper package structure, use: export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+# or install the package in editable mode: pip install -e .
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from models.emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier

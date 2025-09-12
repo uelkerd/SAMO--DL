@@ -230,7 +230,7 @@ echo "  - Model Status: ${SERVICE_URL}/admin/model_status"
 echo ""
 print_success "🔐 Authentication:"
 echo "  - API Key required for admin endpoints"
-echo "  - Admin API Key: ${ADMIN_API_KEY:-test123}"
+echo "  - Admin API Key: [REDACTED - check environment variable]"
 echo ""
 print_success "🚀 PRODUCTION READY - DeBERTa API is live!"
 
