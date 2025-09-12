@@ -487,10 +487,10 @@ class SAMOUnifiedAPIServer:
             memory_usage=memory_usage
         )
 
-    def run(self, host: str = "0.0.0.0", port: int = 8000):
+    def run(self, host: str = "0.0.0.0", port: int = 8000, workers: int = 1, reload: bool = False):
         """Run the API server."""
-        logger.info(f"Starting SAMO Unified API Server on {host}:{port}")
-        uvicorn.run(self.app, host=host, port=port)
+        logger.info(f"Starting SAMO Unified API Server on {host}:{port} with {workers} worker(s)")
+        uvicorn.run(self.app, host=host, port=port, workers=workers, reload=reload)
 
 
 # Global server instance

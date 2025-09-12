@@ -103,7 +103,7 @@ def main():
         logger.info("💚 Health Check: http://localhost:8000/health")
 
         # Start the server
-        server.run(host=args.host, port=args.port)
+        server.run(host=args.host, port=args.port, workers=args.workers, reload=args.reload)
 
     except KeyboardInterrupt:
         logger.info("🛑 Server shutdown requested by user")

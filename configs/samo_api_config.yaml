@@ -70,7 +70,7 @@ security:
   enable_rate_limiting: true
   enable_cors: true
   trusted_hosts: []
-  api_keys_required: false  # Set to true for production
+  api_keys_required: true  # Override with environment variable for development
   allowed_file_types:
     - ".mp3"
     - ".wav"

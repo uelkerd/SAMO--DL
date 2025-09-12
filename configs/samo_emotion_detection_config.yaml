@@ -3,7 +3,7 @@
 
 # Model Configuration
 model:
-  name: "bert-base-uncased"  # Robust BERT model for emotion understanding
+  name: "duelker/samo-goemotions-deberta-v3-large"  # DeBERTa model for emotion understanding
   device: null               # Auto-detect (CPU/GPU)
 
 # Emotion Detection Parameters

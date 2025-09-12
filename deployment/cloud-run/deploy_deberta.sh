@@ -34,7 +34,7 @@ print_deberta() {
 }
 
 # Configuration
-PROJECT_ID="${PROJECT_ID:-the-tendril-466607-n8}"
+PROJECT_ID="${PROJECT_ID?PROJECT_ID environment variable must be set}"
 REGION="${REGION:-us-central1}"
 SERVICE_NAME="${SERVICE_NAME:-samo-emotion-deberta}"
 IMAGE_NAME="${IMAGE_NAME:-samo-emotion-api-deberta}"
@@ -135,7 +135,7 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
     --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
     --set-env-vars="DEBERTA_MODEL_NAME=duelker/samo-goemotions-deberta-v3-large" \
-    --set-env-vars="ADMIN_API_KEY=${ADMIN_API_KEY:-test123}"
+    --set-env-vars="ADMIN_API_KEY=${ADMIN_API_KEY?ADMIN_API_KEY environment variable must be set}"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"
@@ -182,7 +182,7 @@ curl -f "${SERVICE_URL}/api/health" || {
 
 # Test model status endpoint
 print_status "Testing model status endpoint..."
-MODEL_STATUS=$(curl -s "${SERVICE_URL}/admin/model_status" -H "X-API-Key: ${ADMIN_API_KEY:-test123}")
+MODEL_STATUS=$(curl -s "${SERVICE_URL}/admin/model_status" -H "X-API-Key: ${ADMIN_API_KEY}")
 
 if echo "$MODEL_STATUS" | grep -q "28"; then
     print_deberta "✅ DeBERTa model confirmed (28 emotions detected)"
@@ -194,7 +194,7 @@ fi
 print_status "Testing DeBERTa prediction endpoint..."
 PREDICTION_RESPONSE=$(curl -s -X POST "${SERVICE_URL}/api/predict" \
     -H "Content-Type: application/json" \
-    -H "X-API-Key: ${ADMIN_API_KEY:-test123}" \
+    -H "X-API-Key: ${ADMIN_API_KEY}" \
     -d '{"text": "I am so happy today!"}')
 
 if echo "$PREDICTION_RESPONSE" | grep -q "joy\|admiration\|amusement"; then
@@ -207,7 +207,7 @@ fi
 print_status "Testing batch predictions..."
 BATCH_RESPONSE=$(curl -s -X POST "${SERVICE_URL}/api/predict_batch" \
     -H "Content-Type: application/json" \
-    -H "X-API-Key: ${ADMIN_API_KEY:-test123}" \
+    -H "X-API-Key: ${ADMIN_API_KEY}" \
     -d '{"texts": ["I am happy", "I am sad", "This is amazing"]}')
 
 if echo "$BATCH_RESPONSE" | grep -q "results"; then

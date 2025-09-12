@@ -39,7 +39,7 @@ docker run -p 8080:8080 samo-deberta
 ### 4. Test Deployment
 ```bash
 # Test emotion detection
-curl -X POST http://localhost:8080/detect-emotions \
+curl -X POST http://localhost:8080/api/predict \
      -H "Content-Type: application/json" \
      -d '{"text": "I am feeling happy today!"}'
 
