@@ -36,7 +36,9 @@ import torch
 # Import SAMO models
 from summarization.t5_summarizer import create_t5_summarizer
 from voice_processing.whisper_transcriber import create_whisper_transcriber
-from emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier
+from emotion_detection.samo_bert_emotion_classifier import (
+    create_samo_bert_emotion_classifier
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,10 +47,18 @@ logger = logging.getLogger(__name__)
 # API Models
 class SummarizationRequest(BaseModel):
     """Request model for text summarization."""
-    text: str = Field(..., min_length=10, max_length=10000, description="Text to summarize")
-    max_length: Optional[int] = Field(128, ge=30, le=512, description="Maximum summary length")
-    min_length: Optional[int] = Field(30, ge=10, le=100, description="Minimum summary length")
-    num_beams: Optional[int] = Field(4, ge=1, le=8, description="Beam search size")
+    text: str = Field(
+        ..., min_length=10, max_length=10000, description="Text to summarize"
+    )
+    max_length: Optional[int] = Field(
+        128, ge=30, le=512, description="Maximum summary length"
+    )
+    min_length: Optional[int] = Field(
+        30, ge=10, le=100, description="Minimum summary length"
+    )
+    num_beams: Optional[int] = Field(
+        4, ge=1, le=8, description="Beam search size"
+    )
 
 class SummarizationResponse(BaseModel):
     """Response model for summarization."""
@@ -60,8 +70,12 @@ class SummarizationResponse(BaseModel):
 
 class TranscriptionRequest(BaseModel):
     """Request model for audio transcription."""
-    language: Optional[str] = Field(None, description="Language code (auto-detect if None)")
-    initial_prompt: Optional[str] = Field(None, description="Context prompt for better accuracy")
+    language: Optional[str] = Field(
+        None, description="Language code (auto-detect if None)"
+    )
+    initial_prompt: Optional[str] = Field(
+        None, description="Context prompt for better accuracy"
+    )
 
 class TranscriptionResponse(BaseModel):
     """Response model for transcription."""
@@ -77,9 +91,15 @@ class TranscriptionResponse(BaseModel):
 
 class EmotionDetectionRequest(BaseModel):
     """Request model for emotion detection."""
-    text: str = Field(..., min_length=10, max_length=10000, description="Text to analyze")
-    threshold: Optional[float] = Field(0.5, ge=0.1, le=0.9, description="Prediction threshold")
-    top_k: Optional[int] = Field(None, ge=1, le=10, description="Return top-k emotions")
+    text: str = Field(
+        ..., min_length=10, max_length=10000, description="Text to analyze"
+    )
+    threshold: Optional[float] = Field(
+        0.5, ge=0.1, le=0.9, description="Prediction threshold"
+    )
+    top_k: Optional[int] = Field(
+        None, ge=1, le=10, description="Return top-k emotions"
+    )
 
 class EmotionDetectionResponse(BaseModel):
     """Response model for emotion detection."""
@@ -211,7 +231,9 @@ class SAMOUnifiedAPIServer:
 
             except Exception as e:
                 logger.error(f"Summarization error: {e}")
-                raise HTTPException(status_code=500, detail=f"Summarization failed: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Summarization failed: {str(e)}"
+                )
 
         @self.app.post("/transcribe", response_model=TranscriptionResponse)
         async def transcribe_audio(
@@ -222,7 +244,9 @@ class SAMOUnifiedAPIServer:
         ):
             """Transcribe audio using Whisper model."""
             if not self.models["transcriber"]:
-                raise HTTPException(status_code=503, detail="Transcription model not available")
+                raise HTTPException(
+                    status_code=503, detail="Transcription model not available"
+                )
 
             # Validate file type using MIME type
             import magic
@@ -279,13 +303,17 @@ class SAMOUnifiedAPIServer:
 
             except Exception as e:
                 logger.error(f"Transcription error: {e}")
-                raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Transcription failed: {str(e)}"
+                )
 
         @self.app.post("/detect-emotions", response_model=EmotionDetectionResponse)
         async def detect_emotions(request: EmotionDetectionRequest):
             """Detect emotions using BERT model."""
             if not self.models["emotion_detector"]:
-                raise HTTPException(status_code=503, detail="Emotion detection model not available")
+                raise HTTPException(
+                    status_code=503, detail="Emotion detection model not available"
+                )
 
             start_time = time.time()
             try:
@@ -298,9 +326,12 @@ class SAMOUnifiedAPIServer:
                 processing_time = time.time() - start_time
 
                 return EmotionDetectionResponse(
-                    emotions=results["emotions"][0] if results["emotions"] else [],
-                    probabilities=results["probabilities"][0] if results["probabilities"] else [],
-                    predictions=results["predictions"][0] if results["predictions"] else [],
+                    emotions=results["emotions"][0] 
+                    if results["emotions"] else [],
+                    probabilities=results["probabilities"][0] 
+                    if results["probabilities"] else [],
+                    predictions=results["predictions"][0] 
+                    if results["predictions"] else [],
                     processing_time=processing_time,
                     model_info={
                         "model_name": "SAMO BERT Emotion Classifier",
@@ -311,7 +342,9 @@ class SAMOUnifiedAPIServer:
 
             except Exception as e:
                 logger.error(f"Emotion detection error: {e}")
-                raise HTTPException(status_code=500, detail=f"Emotion detection failed: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Emotion detection failed: {str(e)}"
+                )
 
         @self.app.post("/process-audio", response_model=CombinedProcessingResponse)
         async def process_audio_completely(
@@ -329,7 +362,9 @@ class SAMOUnifiedAPIServer:
                 # Step 1: Transcribe audio
                 pipeline_steps.append("transcription")
                 if not self.models["transcriber"]:
-                    raise HTTPException(status_code=503, detail="Transcription model not available")
+                    raise HTTPException(
+                    status_code=503, detail="Transcription model not available"
+                )
 
                 # Generate unique temporary filename
                 unique_suffix = uuid.uuid4().hex
@@ -388,9 +423,12 @@ class SAMOUnifiedAPIServer:
                     )
 
                     emotion_response = EmotionDetectionResponse(
-                        emotions=emotion_results["emotions"][0] if emotion_results["emotions"] else [],
-                        probabilities=emotion_results["probabilities"][0] if emotion_results["probabilities"] else [],
-                        predictions=emotion_results["predictions"][0] if emotion_results["predictions"] else [],
+                        emotions=emotion_results["emotions"][0] 
+                        if emotion_results["emotions"] else [],
+                        probabilities=emotion_results["probabilities"][0] 
+                        if emotion_results["probabilities"] else [],
+                        predictions=emotion_results["predictions"][0] 
+                        if emotion_results["predictions"] else [],
                         processing_time=0.0,
                         model_info={
                             "model_name": "SAMO BERT Emotion Classifier",
@@ -422,7 +460,9 @@ class SAMOUnifiedAPIServer:
 
             except Exception as e:
                 logger.error(f"Combined processing error: {e}")
-                raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Processing failed: {str(e)}"
+                )
 
     def _get_health_status(self) -> HealthResponse:
         """Get comprehensive health status."""
