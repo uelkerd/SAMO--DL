@@ -4,18 +4,29 @@ Standalone test for SAMO Emotion Detection Model
 
 This script tests the BERT emotion detection model independently
 to ensure it works correctly before API integration.
+
+PREREQUISITES:
+- Run from project root: python test_samo_emotion_detection_standalone.py
+- Or set PYTHONPATH: export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+- Or install package: pip install -e .
 """
 
 import sys
 from pathlib import Path
 
-# Add src to path for standalone execution
-# Note: For proper package structure, use: export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
-# or install the package in editable mode: pip install -e .
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from models.emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier
-from models.emotion_detection.emotion_labels import get_all_emotions, get_emotion_description
+# Ensure proper package structure - avoid fragile sys.path manipulation
+# This test requires the package to be properly structured or PYTHONPATH set
+try:
+    from models.emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier
+    from models.emotion_detection.emotion_labels import get_all_emotions, get_emotion_description
+except ImportError as e:
+    print("❌ Import Error: Cannot import SAMO emotion detection modules")
+    print("📋 To fix this, run one of the following:")
+    print("   1. Set PYTHONPATH: export PYTHONPATH=\"${PYTHONPATH}:$(pwd)/src\"")
+    print("   2. Install package: pip install -e .")
+    print("   3. Run from project root with proper package structure")
+    print(f"   Error details: {e}")
+    sys.exit(1)
 
 def test_model_initialization():
     """Test model initialization and basic info."""
