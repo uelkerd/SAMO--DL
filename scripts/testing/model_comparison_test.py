@@ -26,7 +26,6 @@ from datetime import datetime
 
 # Import model classes
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from transformers.pipelines import TextClassificationPipeline
 import os
 import sys
 
@@ -136,7 +135,8 @@ class ModelBenchmark:
             logger.warning(f"⚠️ Failed to load production model (this is expected if network issues): {e}")
             return False
 
-    def get_memory_usage(self) -> Dict[str, float]:
+    @staticmethod
+    def get_memory_usage() -> Dict[str, float]:
         """Get current memory usage."""
         process = psutil.Process()
         memory_info = process.memory_info()
@@ -248,7 +248,6 @@ class ModelBenchmark:
 
     def run_comprehensive_benchmark(self, test_texts: List[str] = None, test_data: List[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Run comprehensive benchmark comparing all models."""
-
         # Default test data
         if test_texts is None:
             test_texts = [
@@ -284,14 +283,14 @@ class ModelBenchmark:
         logger.info("Starting comprehensive model comparison...")
 
         # Run inference benchmarks
-        for model_key in self.models.keys():
+        for model_key in self.models:
             logger.info(f"Running inference benchmark for {model_key}...")
             results['inference_benchmarks'][model_key] = self.benchmark_inference_speed(
                 model_key, test_texts, num_runs=5
             )
 
         # Run accuracy benchmarks
-        for model_key in self.models.keys():
+        for model_key in self.models:
             logger.info(f"Running accuracy benchmark for {model_key}...")
             results['accuracy_benchmarks'][model_key] = self.benchmark_accuracy(
                 model_key, test_data
@@ -307,7 +306,8 @@ class ModelBenchmark:
         logger.info(f"✅ Benchmark results saved to {results_file}")
         return results
 
-    def print_summary(self, results: Dict[str, Any]):
+    @staticmethod
+    def print_summary(results: Dict[str, Any]):
         """Print benchmark summary."""
         print("\n" + "="*80)
         print("MODEL COMPARISON RESULTS")

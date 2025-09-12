@@ -94,9 +94,8 @@ def compare_with_production():
         print("   - Better emotional granularity")
 
         return True
-    else:
-        print("❌ DeBERTa still has issues")
-        return False
+    print("❌ DeBERTa still has issues")
+    return False
 
 def main():
     """Main test function."""

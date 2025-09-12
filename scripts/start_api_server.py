@@ -87,7 +87,7 @@ def main():
 
         # Create and start server with configuration
         server = SAMOUnifiedAPIServer()
-        
+
         # Apply configuration if available
         if config:
             # Apply server configuration

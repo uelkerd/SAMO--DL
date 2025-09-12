@@ -51,7 +51,7 @@ def check_dependencies():
 
     try:
         import google.protobuf as protobuf
-        print(f"✅ Protobuf: Available (google.protobuf)")
+        print("✅ Protobuf: Available (google.protobuf)")
     except ImportError:
         print("❌ Protobuf not found")
         return False
@@ -134,7 +134,7 @@ def create_deployment_instructions():
     """Create deployment instructions."""
     print("\\n📋 Creating Deployment Instructions...")
 
-    instructions = f"""
+    instructions = """
 # DeBERTa Model Deployment Instructions
 
 ## 🎯 Model Comparison Results

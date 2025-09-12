@@ -5,8 +5,6 @@ DeBERTa Workaround - Manual Safetensors Loading
 This script manually downloads and loads the DeBERTa model using safetensors
 to bypass the PyTorch vulnerability issue.
 """
-
-import os
 import sys
 from pathlib import Path
 from huggingface_hub import hf_hub_download

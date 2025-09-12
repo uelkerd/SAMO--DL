@@ -5,8 +5,6 @@ DeBERTa Safetensors Test - Working Solution
 This script loads the DeBERTa model using safetensors format
 to bypass the PyTorch vulnerability issue.
 """
-
-import os
 import sys
 import time
 from pathlib import Path

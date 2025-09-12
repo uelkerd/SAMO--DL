@@ -108,15 +108,14 @@ def _create_emotion_pipeline(tokenizer, model) -> TextClassificationPipeline:
                 return results
 
         return CustomPipeline(model=model, tokenizer=tokenizer, return_all_scores=True)
-    else:
-        # Use standard pipeline for production model
-        return pipeline(
-            task="text-classification",
-            model=model,
-            tokenizer=tokenizer,
-            return_all_scores=True,
-            device=0 if torch.cuda.is_available() else -1
-        )
+    # Use standard pipeline for production model
+    return pipeline(
+        task="text-classification",
+        model=model,
+        tokenizer=tokenizer,
+        return_all_scores=True,
+        device=0 if torch.cuda.is_available() else -1
+    )
 
 
 def _predict_emotions_deberta(text: str) -> List[Dict[str, Any]]:
@@ -128,7 +127,6 @@ def _predict_emotions_deberta(text: str) -> List[Dict[str, Any]]:
     Returns:
         List of emotion predictions with labels and scores
     """
-    global emotion_tokenizer, emotion_model
 
     if emotion_tokenizer is None or emotion_model is None:
         raise RuntimeError("DeBERTa model not loaded")
@@ -433,30 +431,29 @@ def predict_emotions(text: str) -> Dict[str, Any]:
                 'confidence': overall_confidence,
                 'timestamp': time.time()
             }
-        else:
-            # Use the emotion pipeline for production model
-            results = emotion_pipeline(text)
+        # Use the emotion pipeline for production model
+        results = emotion_pipeline(text)
 
-            # Format results to match expected output
-            emotions = []
-            for result in results[0]:  # results is a list with one item for single text
-                emotions.append({
-                    'emotion': result['label'],
-                    'confidence': result['score']
-                })
+        # Format results to match expected output
+        emotions = []
+        for result in results[0]:  # results is a list with one item for single text
+            emotions.append({
+                'emotion': result['label'],
+                'confidence': result['score']
+            })
 
-            # Sort by confidence (highest first)
-            emotions.sort(key=lambda x: x['confidence'], reverse=True)
+        # Sort by confidence (highest first)
+        emotions.sort(key=lambda x: x['confidence'], reverse=True)
 
-            # Overall confidence is the highest confidence score
-            overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+        # Overall confidence is the highest confidence score
+        overall_confidence = emotions[0]['confidence'] if emotions else 0.0
 
-            return {
-                'text': text,
-                'emotions': emotions,
-                'confidence': overall_confidence,
-                'timestamp': time.time()
-            }
+        return {
+            'text': text,
+            'emotions': emotions,
+            'confidence': overall_confidence,
+            'timestamp': time.time()
+        }
 
     except Exception as e:
         logger.exception("❌ Emotion prediction failed: %s", e)
@@ -542,45 +539,44 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
                         })
 
             return results
-        else:
-            # Use pipeline for production model
-            # Validate and prepare texts for processing
-            results, valid_texts_to_process, valid_indices = \
+        # Use pipeline for production model
+        # Validate and prepare texts for processing
+        results, valid_texts_to_process, valid_indices = \
                 _validate_and_prepare_texts(texts)
 
-            # Only run pipeline if there are valid texts
-            if valid_texts_to_process:
-                # Process valid texts in a single batch
-                batch_results = emotion_pipeline(valid_texts_to_process)
+        # Only run pipeline if there are valid texts
+        if valid_texts_to_process:
+            # Process valid texts in a single batch
+            batch_results = emotion_pipeline(valid_texts_to_process)
 
-                # Place successful results back into the correctly ordered list
-                for i, result in enumerate(batch_results):
-                    original_idx = valid_indices[i]
-                    text = valid_texts_to_process[i]
+            # Place successful results back into the correctly ordered list
+            for i, result in enumerate(batch_results):
+                original_idx = valid_indices[i]
+                text = valid_texts_to_process[i]
 
-                    # Convert emotion results to list comprehension
-                    emotions = [
-                        {
-                            'emotion': emotion_result['label'],
-                            'confidence': emotion_result['score']
-                        }
-                        for emotion_result in result
-                    ]
-
-                    # Sort by confidence (highest first)
-                    emotions.sort(key=lambda x: x['confidence'], reverse=True)
-
-                    # Overall confidence is the highest confidence score
-                    overall_confidence = emotions[0]['confidence'] if emotions else 0.0
-
-                    results[original_idx] = {
-                        'text': text,
-                        'emotions': emotions,
-                        'confidence': overall_confidence,
-                        'timestamp': time.time()
+                # Convert emotion results to list comprehension
+                emotions = [
+                    {
+                        'emotion': emotion_result['label'],
+                        'confidence': emotion_result['score']
                     }
+                    for emotion_result in result
+                ]
 
-            return results
+                # Sort by confidence (highest first)
+                emotions.sort(key=lambda x: x['confidence'], reverse=True)
+
+                # Overall confidence is the highest confidence score
+                overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+
+                results[original_idx] = {
+                    'text': text,
+                    'emotions': emotions,
+                    'confidence': overall_confidence,
+                    'timestamp': time.time()
+                }
+
+        return results
 
     except Exception as e:
         logger.exception("❌ Batch emotion prediction failed: %s", e)

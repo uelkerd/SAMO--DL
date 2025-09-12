@@ -8,7 +8,6 @@ the full integration works correctly.
 
 import os
 import sys
-import json
 import requests
 import logging
 from typing import Dict, Any
@@ -32,10 +31,9 @@ def test_api_health():
         if response.status_code == 200:
             logger.info("✅ API health check passed")
             return True
-        else:
-            logger.error(f"❌ API health check failed: {response.status_code}")
-            logger.error(f"Response: {response.text}")
-            return False
+        logger.error(f"❌ API health check failed: {response.status_code}")
+        logger.error(f"Response: {response.text}")
+        return False
 
     except Exception as e:
         logger.error(f"❌ API health check error: {e}")
@@ -74,10 +72,9 @@ def test_emotion_prediction():
                     logger.warning("⚠️ Only production emotions detected (6 emotions)")
 
             return True
-        else:
-            logger.error(f"❌ Emotion prediction failed: {response.status_code}")
-            logger.error(f"Response: {response.text}")
-            return False
+        logger.error(f"❌ Emotion prediction failed: {response.status_code}")
+        logger.error(f"Response: {response.text}")
+        return False
 
     except Exception as e:
         logger.error(f"❌ Emotion prediction error: {e}")
@@ -105,9 +102,8 @@ def test_model_status():
                 logger.warning("⚠️ Production model detected (6 emotion labels)")
 
             return True
-        else:
-            logger.error(f"❌ Model status failed: {response.status_code}")
-            return False
+        logger.error(f"❌ Model status failed: {response.status_code}")
+        return False
 
     except Exception as e:
         logger.error(f"❌ Model status error: {e}")
@@ -147,10 +143,9 @@ def test_multiple_predictions():
                     logger.info(f"📝 Text {i+1}: {top_emotion['emotion']}:{top_emotion['confidence']:.3f}")
 
             return True
-        else:
-            logger.error(f"❌ Batch prediction failed: {response.status_code}")
-            logger.error(f"Response: {response.text}")
-            return False
+        logger.error(f"❌ Batch prediction failed: {response.status_code}")
+        logger.error(f"Response: {response.text}")
+        return False
 
     except Exception as e:
         logger.error(f"❌ Batch prediction error: {e}")
@@ -197,9 +192,8 @@ def main():
     if passed == total:
         logger.info("🎉 ALL TESTS PASSED! DeBERTa integration successful!")
         return True
-    else:
-        logger.error("💥 SOME TESTS FAILED. Check logs above.")
-        return False
+    logger.error("💥 SOME TESTS FAILED. Check logs above.")
+    return False
 
 if __name__ == "__main__":
     success = main()

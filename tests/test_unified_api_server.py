@@ -125,7 +125,8 @@ class TestSAMOUnifiedAPIServer:
         assert isinstance(data["probabilities"], list)
         assert isinstance(data["predictions"], list)
 
-    def test_detect_emotions_edge_cases(self, client):
+    @staticmethod
+    def test_detect_emotions_edge_cases(client):
         """Test emotion detection with edge-case inputs."""
         # Test ambiguous text (multiple emotions)
         ambiguous_text = "I'm feeling both excited and nervous about this opportunity, but also a bit sad to leave my current job."

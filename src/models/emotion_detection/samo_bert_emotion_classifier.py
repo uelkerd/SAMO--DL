@@ -82,14 +82,14 @@ class SAMOBERTEmotionClassifier(nn.Module):
         self.classifier_dropout_prob = config["classifier_dropout_prob"]
         self.freeze_bert_layers = config["freeze_bert_layers"]
         self.trainable_temperature = config["trainable_temperature"]
-        
+
         # Create temperature parameter based on configuration
         if self.trainable_temperature:
             self.temperature = nn.Parameter(torch.ones(1) * config["temperature"])
         else:
             self.temperature = torch.ones(1) * config["temperature"]
             self.register_buffer('temperature', self.temperature)
-        
+
         self.class_weights = None
         self.prediction_threshold = config.get("prediction_threshold", 0.6)  # Configurable threshold, default 0.6
 
