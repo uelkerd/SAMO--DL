@@ -19,7 +19,7 @@ REPO_ROOT="$(resolve_repo_path)"
 
 # Parse environment name from environment.yml
 parse_env_name() {
-    local env_file="$REPO_ROOT/environment.yml"
+    local env_file="$REPO_ROOT/configs/environment.yml"
     if [ ! -f "$env_file" ]; then
         echo "Environment file not found at: $env_file" >&2
         return 1
