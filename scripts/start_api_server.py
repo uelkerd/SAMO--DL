@@ -4,6 +4,11 @@ SAMO Unified API Server Startup Script
 
 This script provides a convenient way to start the SAMO unified API server
 with proper configuration and error handling.
+
+PREREQUISITES:
+- Run from project root: python scripts/start_api_server.py
+- Or set PYTHONPATH: export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+- Or install package: pip install -e .
 """
 
 import argparse
@@ -12,10 +17,17 @@ import os
 import sys
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from models.unified_api_server import SAMOUnifiedAPIServer
+# Ensure proper package structure - avoid fragile sys.path manipulation
+try:
+    from models.unified_api_server import SAMOUnifiedAPIServer
+except ImportError as e:
+    print("❌ Import Error: Cannot import SAMO unified API server modules")
+    print("📋 To fix this, run one of the following:")
+    print("   1. Set PYTHONPATH: export PYTHONPATH=\"${PYTHONPATH}:$(pwd)/src\"")
+    print("   2. Install package: pip install -e .")
+    print("   3. Run from project root with proper package structure")
+    print(f"   Error details: {e}")
+    sys.exit(1)
 
 
 def main():
