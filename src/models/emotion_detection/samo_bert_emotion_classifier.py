@@ -369,6 +369,7 @@ class EmotionDataset(Dataset):
         labels: List[List[int]],
         tokenizer: AutoTokenizer,
         max_length: int = 512,
+        num_emotions: int = 28,
     ) -> None:
         """
         Initialize emotion dataset.
@@ -378,11 +379,13 @@ class EmotionDataset(Dataset):
             labels: List of label lists (multi-label)
             tokenizer: BERT tokenizer
             max_length: Maximum sequence length
+            num_emotions: Number of emotion classes
         """
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
+        self.num_emotions = num_emotions
 
     def __len__(self) -> int:
         """Return dataset length."""
