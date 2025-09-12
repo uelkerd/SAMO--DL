@@ -7,7 +7,6 @@ to ensure it works correctly before API integration.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add src to path

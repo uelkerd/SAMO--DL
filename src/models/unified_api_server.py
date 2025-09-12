@@ -30,14 +30,13 @@ from datetime import datetime
 import uvicorn
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 import torch
 
 # Import SAMO models
-from summarization.t5_summarizer import create_t5_summarizer, T5SummarizationModel
-from voice_processing.whisper_transcriber import create_whisper_transcriber, WhisperTranscriber
-from emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier, SAMOBERTEmotionClassifier
+from summarization.t5_summarizer import create_t5_summarizer
+from voice_processing.whisper_transcriber import create_whisper_transcriber
+from emotion_detection.samo_bert_emotion_classifier import create_samo_bert_emotion_classifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
