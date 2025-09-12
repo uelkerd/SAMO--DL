@@ -325,15 +325,16 @@ class TestSAMOUnifiedAPIServer:
         assert "summarization" in data["pipeline_steps"]
         assert "emotion_detection" in data["pipeline_steps"]
 
-    @staticmethod
-    def test_model_unavailable_errors(client):
+    def test_model_unavailable_errors(self, api_server, client):
         """Test error handling when models are not available."""
+        import copy
+        
         # Temporarily set models to None
-        original_models = client.app.state.models.copy()
+        original_models = copy.deepcopy(api_server.models)
 
         try:
             # Mock unavailable models
-            client.app.state.models = {
+            api_server.models = {
                 "summarizer": None,
                 "transcriber": None,
                 "emotion_detector": None
@@ -351,7 +352,7 @@ class TestSAMOUnifiedAPIServer:
 
         finally:
             # Restore original models
-            client.app.state.models = original_models
+            api_server.models = original_models
 
 
 if __name__ == "__main__":
