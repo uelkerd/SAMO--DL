@@ -87,9 +87,8 @@ class CloudRunMonitor:
                     return True
                 print("⚠️  API responding but unexpected response format")
                 return False
-            else:
-                print(f"❌ API endpoint error (HTTP {response.status_code})")
-                return False
+            print(f"❌ API endpoint error (HTTP {response.status_code})")
+            return False
 
         except Exception as e:
             print(f"❌ API test error: {e}")

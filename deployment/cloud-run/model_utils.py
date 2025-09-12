@@ -127,7 +127,6 @@ def _predict_emotions_deberta(text: str) -> List[Dict[str, Any]]:
     Returns:
         List of emotion predictions with labels and scores
     """
-
     if emotion_tokenizer is None or emotion_model is None:
         raise RuntimeError("DeBERTa model not loaded")
 
