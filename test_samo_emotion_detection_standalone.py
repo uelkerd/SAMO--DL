@@ -84,6 +84,30 @@ def test_emotion_predictions(model, all_emotions):
             print(f"     {emotion_name}: {prob:.3f}")
 
 
+def test_invalid_input_types(model):
+    """Test emotion prediction with invalid input types."""
+    print("\n4.5. Testing invalid input types...")
+    
+    invalid_inputs = [
+        None,
+        123,
+        [],
+        {},
+        "",
+        "   ",  # Only whitespace
+    ]
+    
+    for i, invalid_input in enumerate(invalid_inputs, 1):
+        print(f"\n   Invalid input {i}: {type(invalid_input).__name__} = {repr(invalid_input)}")
+        
+        try:
+            results = model.predict_emotions(invalid_input, threshold=0.3)
+            print(f"   Result: {results}")
+        except Exception as e:
+            print(f"   Expected error: {type(e).__name__}: {e}")
+            # This is expected behavior for invalid inputs
+
+
 def test_batch_predictions(model, test_texts):
     """Test batch prediction functionality."""
     print("\n5. Testing batch prediction...")
@@ -136,6 +160,7 @@ def run_all_tests():
     trainable_params = test_model_info(model)
     all_emotions = test_emotion_labels()
     test_emotion_predictions(model, all_emotions)
+    test_invalid_input_types(model)
     test_batch_predictions(model, [
         "I am so happy and excited about this amazing opportunity!",
         "I feel really sad and disappointed about what happened today.",
@@ -200,6 +225,59 @@ def test_performance():
     except Exception as e:
         print(f"❌ Error in performance test: {e}")
 
+
+def test_batch_performance():
+    """Test batch prediction performance with large input sets."""
+    print("\n🚀 Testing Batch Performance")
+    print("=" * 50)
+
+    try:
+        model, _ = create_samo_bert_emotion_classifier()
+        
+        # Generate large batch of test texts
+        base_texts = [
+            "I am so happy today!",
+            "I feel really sad about this.",
+            "I'm excited for the future!",
+            "I'm worried about the outcome.",
+            "I love spending time with family.",
+            "I'm angry about the situation.",
+            "I feel grateful for everything.",
+            "I'm confused about what to do.",
+            "I'm proud of my achievements.",
+            "I feel anxious about the test.",
+        ]
+        
+        # Create large batch (1000+ texts)
+        large_batch = []
+        for i in range(100):
+            for base_text in base_texts:
+                large_batch.append(f"{base_text} (Batch {i+1})")
+        
+        print(f"Testing batch prediction with {len(large_batch)} texts...")
+        
+        import time
+        start_time = time.time()
+        results = model.predict_emotions(large_batch, threshold=0.3, batch_size=32)
+        end_time = time.time()
+        
+        total_time = end_time - start_time
+        avg_time_per_text = total_time / len(large_batch)
+        texts_per_second = len(large_batch) / total_time
+        
+        print(f"  Total processing time: {total_time:.3f}s")
+        print(f"  Average time per text: {avg_time_per_text:.4f}s")
+        print(f"  Texts per second: {texts_per_second:.2f}")
+        print(f"  Total results: {len(results['emotions'])}")
+        
+        # Verify all texts were processed
+        assert len(results['emotions']) == len(large_batch)
+        print("  ✅ All texts processed successfully")
+
+    except Exception as e:
+        print(f"❌ Error in batch performance test: {e}")
+
 if __name__ == "__main__":
     test_emotion_classifier()
     test_performance()
+    test_batch_performance()

@@ -69,6 +69,7 @@ class SAMOBERTEmotionClassifier(nn.Module):
             "classifier_dropout_prob": 0.5,
             "freeze_bert_layers": 6,
             "temperature": 1.0,
+            "trainable_temperature": False,  # Whether temperature should be trainable
         }
         
         if config is None:
@@ -81,9 +82,17 @@ class SAMOBERTEmotionClassifier(nn.Module):
         self.hidden_dropout_prob = config["hidden_dropout_prob"]
         self.classifier_dropout_prob = config["classifier_dropout_prob"]
         self.freeze_bert_layers = config["freeze_bert_layers"]
-        self.temperature = nn.Parameter(torch.ones(1) * config["temperature"])
+        self.trainable_temperature = config["trainable_temperature"]
+        
+        # Create temperature parameter based on configuration
+        if self.trainable_temperature:
+            self.temperature = nn.Parameter(torch.ones(1) * config["temperature"])
+        else:
+            self.temperature = torch.ones(1) * config["temperature"]
+            self.register_buffer('temperature', self.temperature)
+        
         self.class_weights = None
-        self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
+        self.prediction_threshold = config.get("prediction_threshold", 0.6)  # Configurable threshold, default 0.6
 
         # Load BERT model and tokenizer
         self.config = AutoConfig.from_pretrained(model_name)
@@ -111,8 +120,11 @@ class SAMOBERTEmotionClassifier(nn.Module):
         if self.freeze_bert_layers > 0:
             self._freeze_bert_layers(self.freeze_bert_layers)
 
-        # Set device
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Set device - check for user-specified device in config
+        if "device" in config and config["device"] is not None:
+            self.device = torch.device(config["device"])
+        else:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.to(self.device)
 
         logger.info(f"✅ SAMO BERT Emotion Classifier initialized on {self.device}")
@@ -175,6 +187,9 @@ class SAMOBERTEmotionClassifier(nn.Module):
 
         # Use [CLS] token representation for classification
         pooled_output = bert_outputs.pooler_output
+        if pooled_output is None:
+            # Fallback to first token's hidden state if pooler_output is unavailable
+            pooled_output = bert_outputs.last_hidden_state[:, 0, :]
 
         # Pass through classification head
         logits = self.classifier(pooled_output)
@@ -251,10 +266,19 @@ class SAMOBERTEmotionClassifier(nn.Module):
                 batch_predictions = predictions.cpu().numpy()
                 batch_probabilities = probabilities.cpu().numpy()
 
+                # Define descriptive emotion labels (28 emotions)
+                emotion_labels = [
+                    "admiration", "amusement", "anger", "annoyance", "approval", "caring",
+                    "confusion", "curiosity", "desire", "disappointment", "disapproval",
+                    "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+                    "joy", "love", "nervousness", "optimism", "pride", "realization",
+                    "relief", "remorse", "sadness", "surprise", "neutral"
+                ]
+
                 # Get emotion names for predictions
                 for pred in batch_predictions:
                     emotions = [
-                        f"emotion_{i}" for i, p in enumerate(pred) if p > 0
+                        emotion_labels[i] for i, p in enumerate(pred) if p > 0 and i < len(emotion_labels)
                     ]
                     all_emotions.append(emotions)
 
@@ -321,6 +345,12 @@ class WeightedBCELoss(nn.Module):
 
         # Apply class weights if provided
         if self.class_weights is not None:
+            # Ensure class weights are properly shaped for broadcasting
+            if self.class_weights.shape[0] != bce_loss.shape[1]:
+                raise ValueError(
+                    f"Class weights shape {self.class_weights.shape} does not match "
+                    f"number of classes {bce_loss.shape[1]}"
+                )
             bce_loss = bce_loss * self.class_weights.unsqueeze(0)
 
         # Apply reduction
@@ -373,6 +403,12 @@ class EmotionDataset(Dataset):
             max_length=self.max_length,
             return_tensors="pt",
         )
+
+        # Validate label length
+        if len(labels) != self.num_emotions:
+            raise ValueError(
+                f"Label list length ({len(labels)}) does not match expected number of emotions ({self.num_emotions})."
+            )
 
         # Convert labels to tensor
         label_tensor = torch.tensor(labels, dtype=torch.float)

@@ -1,5 +1,5 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-deberta', '-f', 'deployment/cloud-run/Dockerfile.deberta', '.']
 images:
-  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure'
+  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-deberta'

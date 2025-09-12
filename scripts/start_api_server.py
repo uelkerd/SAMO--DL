@@ -8,6 +8,7 @@ with proper configuration and error handling.
 
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -56,6 +57,18 @@ def main():
 
     args = parser.parse_args()
 
+    # Load configuration file if it exists
+    config = {}
+    if Path(args.config).exists():
+        try:
+            import yaml
+            with open(args.config, 'r') as f:
+                config = yaml.safe_load(f) or {}
+            logger.info(f"✅ Loaded configuration from {args.config}")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load config file {args.config}: {e}")
+            logger.info("Using default configuration")
+
     # Configure logging
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
@@ -72,8 +85,17 @@ def main():
         logger.info(f"Reload: {args.reload}")
         logger.info(f"Config: {args.config}")
 
-        # Create and start server
+        # Create and start server with configuration
         server = SAMOUnifiedAPIServer()
+        
+        # Apply configuration if available
+        if config:
+            # Apply server configuration
+            if 'server' in config:
+                server_config = config['server']
+                if 'cors_origins' in server_config:
+                    os.environ['API_ALLOWED_ORIGINS'] = ','.join(server_config['cors_origins'])
+                logger.info("✅ Applied server configuration")
 
         logger.info("✅ Server initialized successfully")
         logger.info("📖 API Documentation: http://localhost:8000/docs")

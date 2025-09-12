@@ -127,6 +127,42 @@ class TestSAMOUnifiedAPIServer:
         assert isinstance(data["probabilities"], list)
         assert isinstance(data["predictions"], list)
 
+    def test_detect_emotions_edge_cases(self, client):
+        """Test emotion detection with edge-case inputs."""
+        # Test ambiguous text (multiple emotions)
+        ambiguous_text = "I'm feeling both excited and nervous about this opportunity, but also a bit sad to leave my current job."
+        
+        response = client.post("/detect-emotions", json={
+            "text": ambiguous_text,
+            "threshold": 0.3
+        })
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["emotions"]) > 1  # Should detect multiple emotions
+        
+        # Test very short text
+        short_text = "Happy!"
+        response = client.post("/detect-emotions", json={
+            "text": short_text,
+            "threshold": 0.3
+        })
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert "emotions" in data
+        
+        # Test text with mixed emotions
+        mixed_text = "I love this but hate that. I'm excited yet anxious. Joy and fear together."
+        response = client.post("/detect-emotions", json={
+            "text": mixed_text,
+            "threshold": 0.2
+        })
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["emotions"]) >= 2  # Should detect multiple conflicting emotions
+
     def test_detect_emotions_endpoint_validation(self, client):
         """Test emotion detection endpoint validation."""
         # Test empty text
@@ -139,6 +175,17 @@ class TestSAMOUnifiedAPIServer:
             "threshold": 1.5  # Invalid threshold
         })
         assert response.status_code == 422
+
+        # Test maximum allowed text length (10,000 characters)
+        long_text = "a" * 10000
+        response = client.post("/detect-emotions", json={"text": long_text})
+        assert response.status_code == 200
+        data = response.json()
+        assert "emotions" in data
+        assert "probabilities" in data
+        assert "predictions" in data
+        assert "processing_time" in data
+        assert "model_info" in data
 
     def test_transcribe_endpoint_validation(self, client):
         """Test transcription endpoint validation."""
@@ -153,6 +200,14 @@ class TestSAMOUnifiedAPIServer:
         response = client.post("/transcribe", files=files)
         assert response.status_code == 400
         assert "Unsupported audio format" in response.json()["detail"]
+
+        # Test with valid audio file type but empty content
+        empty_audio_content = b""
+        files = {"file": ("empty.wav", empty_audio_content, "audio/wav")}
+        response = client.post("/transcribe", files=files)
+        # Adjust the expected status code and error message as per your API's behavior
+        assert response.status_code in (400, 422)
+        assert "empty" in response.json()["detail"].lower() or "no audio" in response.json()["detail"].lower()
 
     @patch('src.models.unified_api_server.create_whisper_transcriber')
     def test_transcribe_endpoint_success(self, mock_create_transcriber, client):

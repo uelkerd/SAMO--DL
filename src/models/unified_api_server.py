@@ -125,10 +125,14 @@ class SAMOUnifiedAPIServer:
             redoc_url="/redoc"
         )
 
-        # Configure CORS
+        # Configure CORS with environment-based origins
+        import os
+        allowed_origins = os.getenv("API_ALLOWED_ORIGINS", "https://your-production-domain.com")
+        allowed_origins_list = [origin.strip() for origin in allowed_origins.split(",")]
+
         self.app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # Configure for production
+            allow_origins=allowed_origins_list,
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
@@ -221,16 +225,36 @@ class SAMOUnifiedAPIServer:
             if not self.models["transcriber"]:
                 raise HTTPException(status_code=503, detail="Transcription model not available")
 
-            # Validate file type
-            if not file.filename.lower().endswith(('.mp3', '.wav', '.m4a', '.ogg', '.flac')):
-                raise HTTPException(status_code=400, detail="Unsupported audio format")
+            # Validate file type using MIME type
+            import magic
+
+            supported_mime_types = {
+                "audio/mpeg",
+                "audio/wav",
+                "audio/x-wav",
+                "audio/x-m4a",
+                "audio/mp4",
+                "audio/ogg",
+                "audio/flac",
+                "audio/x-flac",
+            }
+
+            file_content = await file.read()
+            mime_type = magic.from_buffer(file_content, mime=True)
+            await file.seek(0)  # Reset file pointer for downstream use
+
+            if mime_type not in supported_mime_types:
+                raise HTTPException(status_code=400, detail=f"Unsupported audio format: {mime_type}")
+
+            import uuid
 
             try:
-                # Save uploaded file temporarily
-                temp_path = f"/tmp/{file.filename}"
+                # Save uploaded file temporarily with a unique name
+                unique_suffix = uuid.uuid4().hex
+                extension = file.filename.split('.')[-1] if '.' in file.filename else ''
+                temp_path = f"/tmp/{unique_suffix}.{extension}" if extension else f"/tmp/{unique_suffix}"
                 with open(temp_path, "wb") as buffer:
-                    content = await file.read()
-                    buffer.write(content)
+                    buffer.write(file_content)
 
                 # Transcribe
                 result = self.models["transcriber"].transcribe(
@@ -308,7 +332,10 @@ class SAMOUnifiedAPIServer:
                 if not self.models["transcriber"]:
                     raise HTTPException(status_code=503, detail="Transcription model not available")
 
-                temp_path = f"/tmp/{file.filename}"
+                # Generate unique temporary filename
+                unique_suffix = uuid.uuid4().hex
+                extension = file.filename.split('.')[-1] if '.' in file.filename else ''
+                temp_path = f"/tmp/{unique_suffix}.{extension}" if extension else f"/tmp/{unique_suffix}"
                 with open(temp_path, "wb") as buffer:
                     content = await file.read()
                     buffer.write(content)
