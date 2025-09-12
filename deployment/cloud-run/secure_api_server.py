@@ -87,6 +87,14 @@ admin_ns = Namespace('/admin', description='Admin operations', authorizations={
 api.add_namespace(main_ns)
 api.add_namespace(admin_ns)
 
+# Register resources with namespaces
+main_ns.add_resource(Health, '/health')
+main_ns.add_resource(Predict, '/predict')
+main_ns.add_resource(PredictBatch, '/predict/batch')
+main_ns.add_resource(Emotions, '/emotions')
+admin_ns.add_resource(ModelStatus, '/model/status')
+admin_ns.add_resource(SecurityStatus, '/security/status')
+
 # Define request/response models for Swagger
 text_input_model = api.model('TextInput', {
     'text': fields.String(required=True, description='Text to analyze for emotion', example='I am feeling happy today!')
@@ -126,6 +134,11 @@ MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
 RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
 MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
 PORT = int(os.environ.get("PORT", "8080"))
+
+# DeBERTa configuration - set environment variables for proper model loading
+os.environ.setdefault('USE_DEBERTA', 'true')
+os.environ.setdefault('PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION', 'python')
+logger.info(f"🔧 DeBERTa configuration: USE_DEBERTA={os.environ.get('USE_DEBERTA')}, PROTOCOL_BUFFERS={os.environ.get('PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION')}")
 
 # Global variables for model state (thread-safe with locks)
 model = None

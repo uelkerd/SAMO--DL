@@ -1,0 +1,80 @@
+# DeBERTa-optimized Dockerfile for Cloud Run deployment
+# Security-hardened with SentencePiece and protobuf support
+FROM python:3.10-slim-bookworm
+
+# Set environment variables for Python and DeBERTa
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/app/models \
+    TRANSFORMERS_CACHE=/app/models \
+    USE_DEBERTA=true \
+    PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
+# Set working directory
+WORKDIR /app
+
+# Install minimal system dependencies with security updates
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies including SentencePiece
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    build-essential \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy requirements first for better caching
+COPY deployment/docker/requirements-api-optimized.txt ./requirements.txt
+
+# SECURITY: Update pip and setuptools to latest secure versions
+RUN python -m pip install --upgrade "pip==24.2" "setuptools==72.2.0"
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install SentencePiece for DeBERTa support
+RUN pip install --no-cache-dir sentencepiece==0.2.1
+
+# Install compatible protobuf version for DeBERTa
+RUN pip install --no-cache-dir protobuf==3.20.3
+
+# Copy the production code
+COPY deployment/cloud-run/secure_api_server.py .
+COPY deployment/cloud-run/model_utils.py .
+COPY deployment/cloud-run/security_headers.py .
+COPY deployment/cloud-run/rate_limiter.py .
+
+# Pre-download the DeBERTa model during build to avoid OOM during startup
+RUN mkdir -p /app/models && \
+    python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
+    import os; \
+    os.environ['USE_DEBERTA'] = 'true'; \
+    os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'; \
+    model_name='duelker/samo-goemotions-deberta-v3-large'; \
+    print(f'Pre-downloading DeBERTa model {model_name}...'); \
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False, cache_dir='/app/models'); \
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models'); \
+    print('DeBERTa model pre-downloaded successfully');"
+
+# Create non-root user for security (Cloud Run best practice)
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port (Cloud Run requirement)
+EXPOSE 8080
+
+# Health check following Cloud Run best practices
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Use exec form for CMD (Docker best practice)
+# Set timeout to 0 for Cloud Run (allows unlimited request timeouts)
+CMD ["sh", "-c", "exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --log-level info secure_api_server:app"]
