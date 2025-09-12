@@ -12,7 +12,6 @@ PREREQUISITES:
 """
 
 import sys
-from pathlib import Path
 
 # Ensure proper package structure - avoid fragile sys.path manipulation
 # This test requires the package to be properly structured or PYTHONPATH set
