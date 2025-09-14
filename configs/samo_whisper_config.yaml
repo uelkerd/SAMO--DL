@@ -1,0 +1,77 @@
+# SAMO-DL Whisper Transcription Configuration
+# Optimized parameters for journal entry and voice transcription
+
+# Whisper Model Configuration
+whisper:
+  model_size: "base"  # tiny, base, small, medium, large
+  device: null        # Auto-detect (CPU/GPU)
+  language: null      # Auto-detect if null
+
+# Transcription Parameters - Optimized for SAMO use case
+# Note: Both 'whisper' and 'transcription' sections are used by the Python code
+# The code reads from both sections with proper fallback logic
+transcription:
+  task: "transcribe"  # transcribe or translate
+  temperature: 0.0    # Sampling temperature (0.0 = deterministic)
+  
+  # Beam search parameters
+  beam_size: null     # Beam search size (null = auto)
+  best_of: null       # Number of candidates to consider
+  patience: null      # Patience for beam search
+  
+  # Length and repetition control
+  length_penalty: null      # Length penalty (null = auto)
+  suppress_tokens: "-1"     # Tokens to suppress (comma-separated)
+  
+  # Context and prompts
+  initial_prompt: null      # Initial context prompt
+  condition_on_previous_text: true  # Use previous text as context
+  
+  # Quality thresholds - Optimized for journal entries
+  compression_ratio_threshold: 2.4  # Higher = more compressed
+  logprob_threshold: -1.0           # Lower = more confident
+  no_speech_threshold: 0.6          # Higher = more speech required
+  
+  # Performance settings
+  fp16: true  # Use half precision for speed
+
+# Audio Processing Configuration
+audio:
+  target_sample_rate: 16000  # Whisper expects 16kHz
+  max_duration: 300          # 5 minutes maximum
+  supported_formats:
+    - ".mp3"
+    - ".wav"
+    - ".m4a"
+    - ".aac"
+    - ".ogg"
+    - ".flac"
+  
+  # Quality assessment thresholds
+  quality_thresholds:
+    excellent: 5  # Quality score >= 5
+    good: 3       # Quality score >= 3
+    fair: 1       # Quality score >= 1
+    poor: 0       # Quality score < 1
+
+# SAMO-Specific Optimizations
+samo_optimizations:
+  # Journal entry specific settings
+  journal_entry_prompts:
+    - "This is a personal journal entry about my thoughts and feelings."
+    - "I'm recording my daily experiences and reflections."
+    - "This is a voice note about my day and emotions."
+  
+  # Emotional context awareness
+  emotional_keywords:
+    - "feeling"
+    - "emotion"
+    - "mood"
+    - "thoughts"
+    - "experience"
+    - "reflection"
+  
+  # Quality expectations for journal entries
+  expected_quality: "good"  # good, fair, excellent
+  min_confidence: 0.7       # Minimum confidence threshold
+  max_processing_time: 30   # Maximum processing time in seconds

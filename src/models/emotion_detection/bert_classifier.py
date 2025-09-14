@@ -82,10 +82,10 @@ class BERTEmotionClassifier(nn.Module):
         self.bert_hidden_size = config.hidden_size
 
         self.classifier = nn.Sequential(
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.bert_hidden_size),
             nn.ReLU(),
-            nn.Dropout(classifier_dropout_prob),
+            nn.Dropout(self.classifier_dropout_prob),
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
@@ -248,7 +248,7 @@ class BERTEmotionClassifier(nn.Module):
 
             # Get top-k emotions if specified
             if top_k is not None:
-                top_k_probs, top_k_indices = torch.topk(probabilities, top_k, dim=1)
+                _, top_k_indices = torch.topk(probabilities, top_k, dim=1)
                 predictions = torch.zeros_like(probabilities)
                 predictions.scatter_(1, top_k_indices, 1.0)
 
@@ -318,10 +318,11 @@ class WeightedBCELoss(nn.Module):
         # Apply reduction
         if self.reduction == "mean":
             return bce_loss.mean()
-        elif self.reduction == "sum":
+
+        if self.reduction == "sum":
             return bce_loss.sum()
-        else:
-            return bce_loss
+
+        return bce_loss
 
 
 class EmotionDataset(Dataset):
