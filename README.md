@@ -131,7 +131,7 @@ SAMO--DL/
 │   ├── deployment/           # Production deployment guides
 │   └── architecture/         # System design documentation
 └── models/
-    ├── emotion_detection/    # Fine-tuned emotion models
+    ├── emotion/    # Fine-tuned emotion models
     ├── summarization/        # T5 summarization models  
     └── optimization/         # ONNX optimized models
 ```
@@ -254,7 +254,7 @@ python deployment/local/api_server.py
 ### Model Training
 ```bash
 # Open training notebook in Google Colab
-# Follow notebooks/training/emotion_detection_training.ipynb
+# Follow notebooks/training/emotion_training.ipynb
 # Experiment with hyperparameters and architectures
 ```
 

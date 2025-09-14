@@ -135,7 +135,7 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         # Adapter for BERTEmotionClassifier.predict_emotions
         if hasattr(emotion_detector, "predict_emotions"):
             # Import labels lazily to avoid heavy deps at import time
-            from src.models.emotion_detection.labels import (
+            from src.models.emotion.labels import (
                 GOEMOTIONS_EMOTIONS as _LABELS
             )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
@@ -399,7 +399,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
-                from src.models.emotion_detection.hf_loader import (
+                from src.models.emotion.hf_loader import (
                     load_emotion_model_multi_source
                 )
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
@@ -428,7 +428,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     exc_info=True,
                 )
                 logger.info("Falling back to local BERT emotion classifier...")
-                from src.models.emotion_detection.bert_classifier import (
+                from src.models.emotion.bert_classifier import (
                     create_bert_emotion_classifier,
                 )
                 model, _ = create_bert_emotion_classifier()
@@ -448,7 +448,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.info("Loading voice processing model...")
         try:
-            from src.models.voice_processing.whisper_transcriber import (
+            from src.models.voice.whisper_transcriber import (
                 create_whisper_transcriber,
             )
 
@@ -582,7 +582,7 @@ def _ensure_voice_transcriber_loaded() -> None:
     if voice_transcriber is not None:
         return
     try:
-        from src.models.voice_processing.whisper_transcriber import (
+        from src.models.voice.whisper_transcriber import (
             create_whisper_transcriber as _wcreate,
         )
         logger.info("Lazy-loading Whisper transcriber: small")
@@ -865,7 +865,7 @@ class CompleteJournalAnalysis(BaseModel):
         example={
             "emotion_detection": True,
             "text_summarization": True,
-            "voice_processing": False
+            "voice": False
         },
     )
     insights: Dict[str, Any] = Field(
@@ -894,7 +894,7 @@ async def health_check() -> Dict[str, Any]:
                     "available" if text_summarizer is not None else "unavailable"
                 )
             },
-            "voice_processing": {
+            "voice": {
                 "loaded": voice_transcriber is not None,
                 "status": (
                     "available" if voice_transcriber is not None else "unavailable"
@@ -1333,7 +1333,7 @@ async def analyze_journal_entry(
             pipeline_status={
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
-                "voice_processing": False,
+                "voice": False,
             },
             insights={
                 "word_count": len(request.text.split()),
@@ -1481,7 +1481,7 @@ async def analyze_voice_journal(
             pipeline_status={
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
-                "voice_processing": voice_transcriber is not None,
+                "voice": voice_transcriber is not None,
             },
             insights={
                 **text_analysis.insights,
@@ -1972,7 +1972,7 @@ async def get_performance_metrics(
                 "last_used": time.time() if text_summarizer else None,
                 "total_requests": 0
             },
-            "voice_processing": {
+            "voice": {
                 "loaded": voice_transcriber is not None,
                 "last_used": time.time() if voice_transcriber else None,
                 "total_requests": 0
@@ -2050,9 +2050,9 @@ async def detailed_health_check(
     if voice_transcriber is None:
         health_status = "degraded"
         issues.append("Voice processing model not loaded")
-        model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not loaded"}
+        model_checks["voice"] = {"status": "unavailable", "error": "Model not loaded"}
     else:
-        model_checks["voice_processing"] = {"status": "healthy", "test_passed": True}
+        model_checks["voice"] = {"status": "healthy", "test_passed": True}
 
     # Check system resources
     try:
