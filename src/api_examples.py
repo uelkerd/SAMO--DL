@@ -25,6 +25,7 @@ class APIExamples(Resource):
     """API examples and usage demonstrations."""
 
     def __init__(self):
+        super().__init__()
         self.examples = {
             "emotion_analysis": {
                 "endpoint": "/api/analyze/journal",

@@ -35,6 +35,7 @@ class APIDocumentation(Resource):
     """API documentation and information endpoints."""
 
     def __init__(self):
+        super().__init__()
         self.api_info = {
             "title": "SAMO-DL API",
             "version": "1.0.0",
