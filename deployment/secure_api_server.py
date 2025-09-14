@@ -170,11 +170,12 @@ def secure_endpoint(f):
         except Exception as e:
             # Release rate limit slot on error
             rate_limiter.release_request(client_ip, user_agent)
-            
+
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
-            logger.error(f"Endpoint error: {str(e)}")
-            return jsonify({'error': str(e)}), 500
+            # Log detailed error on server but return generic message to user
+            logger.error(f"Endpoint error: {str(e)}", exc_info=True)
+            return jsonify({'error': 'Internal server error occurred'}), 500
     
     return decorated_function
 
