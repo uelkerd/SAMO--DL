@@ -7,6 +7,7 @@ Installs dependencies and sets up pre-commit hooks.
 import subprocess
 import sys
 from pathlib import Path
+from typing import List
 
 def run_command(cmd: List[str], description: str) -> bool:
     """Run a command and return success status."""

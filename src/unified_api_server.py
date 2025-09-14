@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from auth import require_api_key
-from rate_limiter import rate_limit
+from src.auth import require_api_key
+from src.rate_limiter import rate_limit
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
