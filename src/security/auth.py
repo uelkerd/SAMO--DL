@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # Security settings
-SECRET_KEY = "your-secret-key"  # Should be loaded from config
+SECRET_KEY = "REPLACE_WITH_ACTUAL_SECRET_KEY"  # Should be loaded from config
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
