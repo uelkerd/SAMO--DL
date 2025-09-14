@@ -328,7 +328,7 @@ class UserLogin(BaseModel):
     """User login request model."""
     username: str = Field(..., description="Username", example="user@example.com")
     password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
+        ..., description="Password", min_length=6, example="your_password_here"
     )
 
 class UserRegister(BaseModel):
@@ -336,7 +336,7 @@ class UserRegister(BaseModel):
     username: str = Field(..., description="Username", example="user@example.com")
     email: str = Field(..., description="Email address", example="user@example.com")
     password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
+        ..., description="Password", min_length=6, example="your_password_here"
     )
     full_name: str = Field(..., description="Full name", example="John Doe")
 
