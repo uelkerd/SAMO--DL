@@ -34,6 +34,7 @@ class TranscribeEndpoint(Resource):
     """Audio transcription endpoint for voice recordings."""
 
     def __init__(self):
+        super().__init__()
         self.model_loaded = False
         self.model = None
 

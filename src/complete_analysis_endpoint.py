@@ -40,6 +40,7 @@ class CompleteAnalysisEndpoint(Resource):
     """Complete analysis endpoint combining emotion, summarization, and transcription."""
 
     def __init__(self):
+        super().__init__()
         self.emotion_model_loaded = False
         self.summarization_model_loaded = False
         self.transcription_model_loaded = False
