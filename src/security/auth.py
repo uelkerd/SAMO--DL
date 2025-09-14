@@ -4,9 +4,12 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 
 # Security settings
-SECRET_KEY = "REPLACE_WITH_ACTUAL_SECRET_KEY"  # Should be loaded from config
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("JWT secret missing; set JWT_SECRET_KEY env var")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

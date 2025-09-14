@@ -97,19 +97,26 @@ class TestHealthMonitor(unittest.TestCase):
     def test_increment_request_count(self):
         """Test incrementing request count."""
         initial_count = self.health_monitor.request_count
-        self.health_monitor.increment_request_count()
+        self.health_monitor.record_request(success=True)
         self.assertEqual(self.health_monitor.request_count, initial_count + 1)
     
     def test_increment_error_count(self):
         """Test incrementing error count."""
         initial_count = self.health_monitor.error_count
-        self.health_monitor.increment_error_count()
+        self.health_monitor.record_request(success=False)
         self.assertEqual(self.health_monitor.error_count, initial_count + 1)
     
     def test_update_last_health_check(self):
         """Test updating last health check timestamp."""
-        self.health_monitor.update_last_health_check()
-        self.assertIsNotNone(self.health_monitor.last_health_check)
+        with patch('psutil.cpu_percent', return_value=10), \
+             patch('psutil.virtual_memory') as mock_memory, \
+             patch('psutil.disk_usage') as mock_disk, \
+             patch('psutil.Process') as mock_process:
+            mock_memory.return_value = MagicMock(percent=20, available=8 * 1024**3)
+            mock_disk.return_value = MagicMock(percent=10, free=100 * 1024**3)
+            mock_process.return_value.memory_info.return_value.rss = 64 * 1024**2
+            self.health_monitor.get_system_health()
+            self.assertIsNotNone(self.health_monitor.last_health_check)
 
 if __name__ == '__main__':
     unittest.main()
