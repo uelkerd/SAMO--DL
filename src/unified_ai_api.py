@@ -1713,11 +1713,12 @@ async def batch_transcribe_voice(
                     Path(temp_file_path).unlink(missing_ok=True)
 
             except Exception as exc:
+                logger.error(f"Batch transcription failed for file {i}: {str(exc)}", exc_info=True)
                 results.append({
                     "file_index": i,
                     "filename": audio_file.filename,
                     "success": False,
-                    "error": str(exc)
+                    "error": "Transcription failed"
                 })
 
         processing_time = (time.time() - start_time) * 1000
@@ -1843,7 +1844,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             return
 
     except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        logger.error(f"WebSocket authentication failed: {str(e)}", exc_info=True)
+        await websocket.close(code=4001, reason="Authentication failed")
         return
 
     await websocket.accept()
@@ -1919,9 +1921,10 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         Path(temp_file_path).unlink(missing_ok=True)
 
                 except Exception as exc:
+                    logger.error(f"WebSocket voice processing failed: {str(exc)}", exc_info=True)
                     await websocket.send_json({
                         "type": "error",
-                        "message": str(exc)
+                        "message": "Voice processing failed"
                     })
             else:
                 await websocket.send_json({
@@ -2031,7 +2034,7 @@ async def detailed_health_check(
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Emotion detection model error: {exc}")
-            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+            model_checks["emotion_detection"] = {"status": "error", "error": "Model test failed"}
 
     if text_summarizer is None:
         health_status = "degraded"
@@ -2045,7 +2048,7 @@ async def detailed_health_check(
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Text summarization model error: {exc}")
-            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+            model_checks["text_summarization"] = {"status": "error", "error": "Model test failed"}
 
     if voice_transcriber is None:
         health_status = "degraded"
@@ -2074,7 +2077,7 @@ async def detailed_health_check(
             "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
         }
     except Exception as exc:
-        system_checks = {"status": "error", "error": str(exc)}
+        system_checks = {"status": "error", "error": "System check failed"}
         health_status = "degraded"
         issues.append(f"System check failed: {exc}")
 
