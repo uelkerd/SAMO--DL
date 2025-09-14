@@ -38,6 +38,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.websockets import WebSocketDisconnect
+from websockets.exceptions import ConnectionClosedError
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
@@ -1933,8 +1934,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 "type": "error",
                 "message": "Internal server error"
             })
-        except:
-            pass
+        except (WebSocketDisconnect, ConnectionClosedError, RuntimeError) as send_error:
+            logger.warning("Failed to send error message to WebSocket client: %s", send_error)
 
 # Monitoring and Analytics Endpoints
 @app.get(

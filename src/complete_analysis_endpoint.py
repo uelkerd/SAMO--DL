@@ -51,14 +51,19 @@ class CompleteAnalysisEndpoint(Resource):
     def load_models(self):
         """Load all required models for complete analysis."""
         try:
-            # TODO: Replace with actual model loading
-            # from models.emotion_detection import EmotionDetector
-            # from models.t5_summarization import T5Summarizer
-            # from models.whisper_transcription import WhisperTranscriber
-
-
+            # Load emotion detection model
+            from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+            self.emotion_model = BERTEmotionClassifier()
             self.emotion_model_loaded = True
+            
+            # Load summarization model
+            from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
+            self.summarization_model = create_samo_t5_summarizer()
             self.summarization_model_loaded = True
+            
+            # Load transcription model
+            from src.models.voice_processing.samo_whisper_transcriber import SAMOWhisperTranscriber
+            self.transcription_model = SAMOWhisperTranscriber()
             self.transcription_model_loaded = True
 
             logger.info("All models loaded successfully for complete analysis")
@@ -123,9 +128,29 @@ class CompleteAnalysisEndpoint(Resource):
             transcription = ""
             if audio_data and include_transcription:
                 if self.transcription_model_loaded and self.transcription_model:
-                    # TODO: Replace with actual transcription
-                    # transcription = self.transcription_model.transcribe(audio_data, language)
-                    transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
+                    try:
+                        import base64
+                        import tempfile
+                        import os
+                        
+                        # Decode base64 audio data
+                        audio_bytes = base64.b64decode(audio_data)
+                        
+                        # Create temporary file for audio processing
+                        with tempfile.NamedTemporaryFile(suffix=f'.{audio_format}', delete=False) as temp_file:
+                            temp_file.write(audio_bytes)
+                            temp_file_path = temp_file.name
+                        
+                        # Transcribe using the model
+                        result = self.transcription_model.transcribe_audio(temp_file_path, language=language)
+                        
+                        # Clean up temporary file
+                        os.unlink(temp_file_path)
+                        
+                        transcription = result.get('text', f"[ERROR] Transcription failed for {language} audio")
+                    except Exception as e:
+                        logger.error(f"Transcription failed: {e}")
+                        transcription = f"[ERROR] Transcription failed: {str(e)}"
                 else:
                     transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
 
@@ -138,12 +163,16 @@ class CompleteAnalysisEndpoint(Resource):
             confidence_scores = []
             if text and include_emotion:
                 if self.emotion_model_loaded and self.emotion_model:
-                    # TODO: Replace with actual emotion analysis
-                    # result = self.emotion_model.analyze(text)
-                    # emotions = result['emotions']
-                    # confidence_scores = result['confidence_scores']
-                    emotions = ["joy", "sadness", "anger"]
-                    confidence_scores = [0.8, 0.6, 0.3]
+                    try:
+                        # Note: BERTEmotionClassifier needs to be adapted for inference
+                        # This is a placeholder for the actual emotion analysis
+                        result = {"emotions": ["joy", "sadness", "anger"], "confidence_scores": [0.8, 0.6, 0.3]}
+                        emotions = result.get('emotions', ["neutral"])
+                        confidence_scores = result.get('confidence_scores', [0.5])
+                    except Exception as e:
+                        logger.error(f"Emotion analysis failed: {e}")
+                        emotions = ["neutral"]
+                        confidence_scores = [0.5]
                 else:
                     emotions = ["joy", "sadness", "anger"]
                     confidence_scores = [0.8, 0.6, 0.3]
@@ -152,9 +181,12 @@ class CompleteAnalysisEndpoint(Resource):
             summary = ""
             if text and include_summary:
                 if self.summarization_model_loaded and self.summarization_model:
-                    # TODO: Replace with actual summarization
-                    # summary = self.summarization_model.summarize(text)
-                    summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
+                    try:
+                        result = self.summarization_model.generate_summary(text)
+                        summary = result.get("summary", f"[ERROR] Failed to generate summary for {len(text)} characters")
+                    except Exception as e:
+                        logger.error(f"Summarization failed: {e}")
+                        summary = f"[ERROR] Summarization failed: {str(e)}"
                 else:
                     summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
 
