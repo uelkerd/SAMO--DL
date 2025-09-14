@@ -65,7 +65,7 @@ class APIExamples(Resource):
                 "endpoint": "/api/transcribe/",
                 "description": "Transcribe audio recording to text",
                 "request": {
-                    "audio_data": "UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=",
+                    "audio_data": "base64_encoded_audio_data_here",
                     "audio_format": "wav",
                     "language": "en",
                     "task": "transcribe"
