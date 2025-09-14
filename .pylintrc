@@ -116,17 +116,6 @@ disable=missing-docstring,
         consider-using-dict-copy,
         consider-using-dict-pop,
         consider-using-dict-popitem,
-        consider-using-dict-fromkeys,
-        consider-using-dict-keys,
-        consider-using-dict-values,
-        consider-using-dict-items,
-        consider-using-dict-get,
-        consider-using-dict-setdefault,
-        consider-using-dict-update,
-        consider-using-dict-clear,
-        consider-using-dict-copy,
-        consider-using-dict-pop,
-        consider-using-dict-popitem,
         consider-using-dict-fromkeys
 
 [REPORTS]

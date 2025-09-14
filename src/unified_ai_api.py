@@ -448,7 +448,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.info("Loading voice processing model...")
         try:
-            from src.models.voice.whisper_transcriber import (
+            from src.models.voice_processing.whisper_transcriber import (
                 create_whisper_transcriber,
             )
 
