@@ -1,7 +1,7 @@
 import unittest
 import json
 import base64
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import Flask
 from src.emotion_endpoint import emotion_bp
 from src.summarize_endpoint import summarize_bp

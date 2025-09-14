@@ -23,7 +23,7 @@ example_response = api.model('ExampleResponse', {
 
 class APIExamples(Resource):
     """API examples and usage demonstrations."""
-    
+
     def __init__(self):
         self.examples = {
             "emotion_analysis": {
@@ -119,7 +119,7 @@ class APIExamples(Resource):
                 "curl_command": 'curl -X GET "http://localhost:5000/api/health/"'
             }
         }
-    
+
     @api.marshal_with(example_response)
     def get(self, example_type: str = None):
         """Get API examples for specific endpoint or all endpoints."""
@@ -127,7 +127,7 @@ class APIExamples(Resource):
             if example_type:
                 if example_type not in self.examples:
                     return {"error": "Example type not found"}, 404
-                
+
                 example = self.examples[example_type]
                 return {
                     "endpoint": example["endpoint"],
@@ -136,22 +136,21 @@ class APIExamples(Resource):
                     "response": json.dumps(example["response"], indent=2),
                     "curl_command": example["curl_command"]
                 }
-            else:
-                # Return all examples
-                all_examples = []
-                for example_type, example in self.examples.items():
-                    all_examples.append({
-                        "endpoint": example["endpoint"],
-                        "description": example["description"],
-                        "request": json.dumps(example["request"], indent=2),
-                        "response": json.dumps(example["response"], indent=2),
-                        "curl_command": example["curl_command"]
-                    })
-                return all_examples
+            # Return all examples
+            all_examples = []
+            for example_type, example in self.examples.items():
+                all_examples.append({
+                    "endpoint": example["endpoint"],
+                    "description": example["description"],
+                    "request": json.dumps(example["request"], indent=2),
+                    "response": json.dumps(example["response"], indent=2),
+                    "curl_command": example["curl_command"]
+                })
+            return all_examples
         except Exception as e:
             logger.error(f"Failed to get examples: {e}")
             return {"error": "Failed to get examples"}, 500
-    
+
     def get_example_types(self):
         """Get list of available example types."""
         try:

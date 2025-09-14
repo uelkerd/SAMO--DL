@@ -1,6 +1,6 @@
 import unittest
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import Flask
 from src.summarize_endpoint import summarize_bp, SummarizeEndpoint
 

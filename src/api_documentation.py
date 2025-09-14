@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template_string
+from flask import Blueprint, jsonify
 from flask_restx import Api, Resource, fields
 import logging
 from typing import Dict, Any, List
@@ -33,7 +33,7 @@ endpoint_info_response = api.model('EndpointInfoResponse', {
 
 class APIDocumentation(Resource):
     """API documentation and information endpoints."""
-    
+
     def __init__(self):
         self.api_info = {
             "title": "SAMO-DL API",
@@ -54,7 +54,7 @@ class APIDocumentation(Resource):
             ],
             "status": "operational"
         }
-        
+
         self.endpoints_info = {
             "/api/analyze/journal": {
                 "method": "POST",
@@ -107,7 +107,7 @@ class APIDocumentation(Resource):
                 }
             }
         }
-    
+
     @api.marshal_with(api_info_response)
     def get(self):
         """Get API information and overview."""
@@ -116,14 +116,14 @@ class APIDocumentation(Resource):
         except Exception as e:
             logger.error(f"Failed to get API info: {e}")
             return {"error": "Failed to get API information"}, 500
-    
+
     @api.marshal_with(endpoint_info_response)
     def get_endpoint(self, endpoint_path: str):
         """Get detailed information about a specific endpoint."""
         try:
             if endpoint_path not in self.endpoints_info:
                 return {"error": "Endpoint not found"}, 404
-            
+
             endpoint_info = self.endpoints_info[endpoint_path]
             return {
                 "endpoint": endpoint_path,
@@ -331,7 +331,7 @@ def openapi_spec():
                 }
             }
         }
-        
+
         return jsonify(openapi_spec)
     except Exception as e:
         logger.error(f"Failed to generate OpenAPI spec: {e}")

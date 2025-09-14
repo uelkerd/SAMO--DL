@@ -2,14 +2,13 @@ import unittest
 import json
 import base64
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import Flask
 from src.emotion_endpoint import emotion_bp
 from src.summarize_endpoint import summarize_bp
 from src.transcribe_endpoint import transcribe_bp
 from src.complete_analysis_endpoint import complete_analysis_bp
 from src.health_endpoints import health_bp
-from src.health_monitor import HealthMonitor
 
 class TestSystemIntegration(unittest.TestCase):
     """System-wide integration tests."""

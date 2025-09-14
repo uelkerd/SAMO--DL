@@ -1,7 +1,7 @@
 import unittest
 import json
 import base64
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import Flask
 from src.complete_analysis_endpoint import complete_analysis_bp, CompleteAnalysisEndpoint
 

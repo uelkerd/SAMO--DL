@@ -4,7 +4,6 @@ import logging
 from typing import Dict, Any, Optional
 import time
 import base64
-import io
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +32,11 @@ transcribe_response = api.model('TranscribeResponse', {
 
 class TranscribeEndpoint(Resource):
     """Audio transcription endpoint for voice recordings."""
-    
+
     def __init__(self):
         self.model_loaded = False
         self.model = None
-        
+
     def load_model(self):
         """Load the Whisper transcription model."""
         try:
@@ -49,25 +48,26 @@ class TranscribeEndpoint(Resource):
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
             self.model_loaded = False
-    
-    def validate_audio_data(self, audio_data: str, audio_format: str) -> bool:
+
+    @staticmethod
+    def validate_audio_data(audio_data: str, audio_format: str) -> bool:
         """Validate audio data format and size."""
         try:
             # Decode base64 data
             decoded_data = base64.b64decode(audio_data)
-            
+
             # Check file size (max 25MB)
             if len(decoded_data) > 25 * 1024 * 1024:
                 return False
-            
+
             # Check format
             if audio_format.lower() not in ['wav', 'mp3', 'flac', 'm4a']:
                 return False
-            
+
             return True
         except Exception:
             return False
-    
+
     @api.expect(transcribe_request)
     @api.marshal_with(transcribe_response)
     def post(self):
@@ -76,32 +76,32 @@ class TranscribeEndpoint(Resource):
             data = request.get_json()
             if not data:
                 return {"error": "No JSON data provided"}, 400
-            
+
             audio_data = data.get('audio_data', '').strip()
             if not audio_data:
                 return {"error": "Audio data is required"}, 400
-            
+
             audio_format = data.get('audio_format', 'wav').lower()
             language = data.get('language', 'en')
             task = data.get('task', 'transcribe')
-            
+
             # Validate parameters
             if task not in ['transcribe', 'translate']:
                 return {"error": "Task must be 'transcribe' or 'translate'"}, 400
-            
+
             if language not in ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh']:
                 return {"error": "Unsupported language code"}, 400
-            
+
             # Validate audio data
             if not self.validate_audio_data(audio_data, audio_format):
                 return {"error": "Invalid audio data or format"}, 400
-            
+
             start_time = time.time()
-            
+
             # Load model if not already loaded
             if not self.model_loaded:
                 self.load_model()
-            
+
             # Transcribe audio
             if self.model_loaded and self.model:
                 # TODO: Replace with actual model inference
@@ -110,7 +110,7 @@ class TranscribeEndpoint(Resource):
                 # confidence = result['confidence']
                 # detected_language = result['language']
                 # duration = result['duration']
-                
+
                 # Mock transcription result
                 text = f"[MOCK] Transcribed audio in {language}: This is a sample transcription of audio data."
                 confidence = 0.85
@@ -122,9 +122,9 @@ class TranscribeEndpoint(Resource):
                 confidence = 0.75
                 detected_language = language
                 duration = 5.0
-            
+
             processing_time = time.time() - start_time
-            
+
             return {
                 "text": text,
                 "language": detected_language,
@@ -133,7 +133,7 @@ class TranscribeEndpoint(Resource):
                 "processing_time": processing_time,
                 "model_used": "whisper-base" if self.model_loaded else "mock"
             }
-            
+
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             return {"error": "Transcription failed"}, 500

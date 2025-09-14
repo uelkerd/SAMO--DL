@@ -1,7 +1,7 @@
 import unittest
 import json
 import base64
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import Flask
 from src.transcribe_endpoint import transcribe_bp, TranscribeEndpoint
 

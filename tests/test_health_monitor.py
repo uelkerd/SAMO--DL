@@ -1,5 +1,4 @@
 import unittest
-import time
 from unittest.mock import patch, MagicMock
 from src.health_monitor import HealthMonitor
 

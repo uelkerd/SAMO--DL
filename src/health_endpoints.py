@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from health_monitor import health_monitor
 import logging
 
@@ -42,8 +42,7 @@ def readiness_check():
         health_data = health_monitor.get_system_health()
         if health_data["status"] in ["healthy", "warning"]:
             return jsonify({"ready": True}), 200
-        else:
-            return jsonify({"ready": False, "reason": health_data["status"]}), 503
+        return jsonify({"ready": False, "reason": health_data["status"]}), 503
     except Exception as e:
         logger.error(f"Readiness check failed: {e}")
         return jsonify({"ready": False, "reason": "error"}), 503

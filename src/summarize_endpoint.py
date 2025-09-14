@@ -31,11 +31,11 @@ summarize_response = api.model('SummarizeResponse', {
 
 class SummarizeEndpoint(Resource):
     """Text summarization endpoint for journal entries."""
-    
+
     def __init__(self):
         self.model_loaded = False
         self.model = None
-        
+
     def load_model(self):
         """Load the T5 summarization model."""
         try:
@@ -47,7 +47,7 @@ class SummarizeEndpoint(Resource):
         except Exception as e:
             logger.error(f"Failed to load T5 model: {e}")
             self.model_loaded = False
-    
+
     @api.expect(summarize_request)
     @api.marshal_with(summarize_response)
     def post(self):
@@ -56,31 +56,31 @@ class SummarizeEndpoint(Resource):
             data = request.get_json()
             if not data:
                 return {"error": "No JSON data provided"}, 400
-            
+
             text = data.get('text', '').strip()
             if not text:
                 return {"error": "Text is required"}, 400
-            
+
             if len(text) < 50:
                 return {"error": "Text must be at least 50 characters"}, 400
-            
+
             max_length = data.get('max_length', 150)
             min_length = data.get('min_length', 30)
             temperature = data.get('temperature', 0.7)
-            
+
             # Validate parameters
             if max_length < min_length:
                 return {"error": "max_length must be greater than min_length"}, 400
-            
-            if not (0.1 <= temperature <= 2.0):
+
+            if not 0.1 <= temperature <= 2.0:
                 return {"error": "temperature must be between 0.1 and 2.0"}, 400
-            
+
             start_time = time.time()
-            
+
             # Load model if not already loaded
             if not self.model_loaded:
                 self.load_model()
-            
+
             # Generate summary
             if self.model_loaded and self.model:
                 # TODO: Replace with actual model inference
@@ -89,9 +89,9 @@ class SummarizeEndpoint(Resource):
             else:
                 # Fallback mock summary
                 summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
-            
+
             processing_time = time.time() - start_time
-            
+
             return {
                 "summary": summary,
                 "original_length": len(text),
@@ -100,7 +100,7 @@ class SummarizeEndpoint(Resource):
                 "processing_time": processing_time,
                 "model_used": "t5-base" if self.model_loaded else "mock"
             }
-            
+
         except Exception as e:
             logger.error(f"Summarization failed: {e}")
             return {"error": "Summarization failed"}, 500

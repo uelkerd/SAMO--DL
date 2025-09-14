@@ -38,7 +38,7 @@ complete_analysis_response = api.model('CompleteAnalysisResponse', {
 
 class CompleteAnalysisEndpoint(Resource):
     """Complete analysis endpoint combining emotion, summarization, and transcription."""
-    
+
     def __init__(self):
         self.emotion_model_loaded = False
         self.summarization_model_loaded = False
@@ -46,7 +46,7 @@ class CompleteAnalysisEndpoint(Resource):
         self.emotion_model = None
         self.summarization_model = None
         self.transcription_model = None
-        
+
     def load_models(self):
         """Load all required models for complete analysis."""
         try:
@@ -54,33 +54,31 @@ class CompleteAnalysisEndpoint(Resource):
             # from models.emotion_detection import EmotionDetector
             # from models.t5_summarization import T5Summarizer
             # from models.whisper_transcription import WhisperTranscriber
-            
-            # self.emotion_model = EmotionDetector()
-            # self.summarization_model = T5Summarizer()
-            # self.transcription_model = WhisperTranscriber()
-            
+
+
             self.emotion_model_loaded = True
             self.summarization_model_loaded = True
             self.transcription_model_loaded = True
-            
+
             logger.info("All models loaded successfully for complete analysis")
         except Exception as e:
             logger.error(f"Failed to load models: {e}")
             self.emotion_model_loaded = False
             self.summarization_model_loaded = False
             self.transcription_model_loaded = False
-    
-    def validate_input(self, data: Dict[str, Any]) -> tuple[bool, str]:
+
+    @staticmethod
+    def validate_input(data: Dict[str, Any]) -> tuple[bool, str]:
         """Validate input data for complete analysis."""
         text = data.get('text', '').strip()
         audio_data = data.get('audio_data', '').strip()
-        
+
         if not text and not audio_data:
             return False, "Either text or audio_data must be provided"
-        
+
         if text and len(text) < 50:
             return False, "Text must be at least 50 characters"
-        
+
         if audio_data:
             try:
                 decoded_data = base64.b64decode(audio_data)
@@ -88,9 +86,9 @@ class CompleteAnalysisEndpoint(Resource):
                     return False, "Audio file too large (max 25MB)"
             except Exception:
                 return False, "Invalid audio data format"
-        
+
         return True, ""
-    
+
     @api.expect(complete_analysis_request)
     @api.marshal_with(complete_analysis_response)
     def post(self):
@@ -99,18 +97,18 @@ class CompleteAnalysisEndpoint(Resource):
             data = request.get_json()
             if not data:
                 return {"error": "No JSON data provided"}, 400
-            
+
             # Validate input
             is_valid, error_msg = self.validate_input(data)
             if not is_valid:
                 return {"error": error_msg}, 400
-            
+
             start_time = time.time()
-            
+
             # Load models if not already loaded
             if not (self.emotion_model_loaded and self.summarization_model_loaded and self.transcription_model_loaded):
                 self.load_models()
-            
+
             # Extract parameters
             text = data.get('text', '').strip()
             audio_data = data.get('audio_data', '').strip()
@@ -119,7 +117,7 @@ class CompleteAnalysisEndpoint(Resource):
             include_summary = data.get('include_summary', True)
             include_emotion = data.get('include_emotion', True)
             include_transcription = data.get('include_transcription', False)
-            
+
             # Process audio if provided
             transcription = ""
             if audio_data and include_transcription:
@@ -129,11 +127,11 @@ class CompleteAnalysisEndpoint(Resource):
                     transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
                 else:
                     transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
-            
+
             # Use transcribed text if no text provided
             if not text and transcription:
                 text = transcription
-            
+
             # Perform emotion analysis
             emotions = []
             confidence_scores = []
@@ -148,7 +146,7 @@ class CompleteAnalysisEndpoint(Resource):
                 else:
                     emotions = ["joy", "sadness", "anger"]
                     confidence_scores = [0.8, 0.6, 0.3]
-            
+
             # Perform summarization
             summary = ""
             if text and include_summary:
@@ -158,9 +156,9 @@ class CompleteAnalysisEndpoint(Resource):
                     summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
                 else:
                     summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
-            
+
             processing_time = time.time() - start_time
-            
+
             # Determine models used
             models_used = []
             if include_emotion and self.emotion_model_loaded:
@@ -169,7 +167,7 @@ class CompleteAnalysisEndpoint(Resource):
                 models_used.append("t5-summarization")
             if include_transcription and self.transcription_model_loaded:
                 models_used.append("whisper-transcription")
-            
+
             return {
                 "text": text,
                 "emotions": emotions,
@@ -181,7 +179,7 @@ class CompleteAnalysisEndpoint(Resource):
                 "models_used": models_used,
                 "analysis_timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
             }
-            
+
         except Exception as e:
             logger.error(f"Complete analysis failed: {e}")
             return {"error": "Complete analysis failed"}, 500

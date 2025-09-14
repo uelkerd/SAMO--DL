@@ -108,11 +108,11 @@ class SurgicalBreakdownExecutor:
 
         print("Surgical Breakdown Status:")
         print(f"Total PRs: {len(self.prs)}")
-        print(f"Completed: 5")
-        print(f"Pending: 4")
-        print(f"Open: 6")
-        print(f"\nNext PR to Advance: PR-7 (feat/dl-add-api-health-checks)")
-        print(f"\nCurrent Progress: 6 PRs open, total 5 completed, 6 open.")
+        print("Completed: 5")
+        print("Pending: 4")
+        print("Open: 6")
+        print("\nNext PR to Advance: PR-7 (feat/dl-add-api-health-checks)")
+        print("\nCurrent Progress: 6 PRs open, total 5 completed, 6 open.")
 
         # Output as JSON for potential parsing
         status_data = {

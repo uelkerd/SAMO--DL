@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from flask import abort, current_app
+from flask import abort
 
 # Simple rate limiter using memory (use Redis for production)
 rate_limit = defaultdict(list)
