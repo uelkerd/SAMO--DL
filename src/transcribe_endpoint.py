@@ -41,9 +41,8 @@ class TranscribeEndpoint(Resource):
     def load_model(self):
         """Load the Whisper transcription model."""
         try:
-            # TODO: Replace with actual Whisper model loading
-            # from models.whisper_transcription import WhisperTranscriber
-            # self.model = WhisperTranscriber()
+            from src.models.voice_processing.samo_whisper_transcriber import SAMOWhisperTranscriber
+            self.model = SAMOWhisperTranscriber()
             self.model_loaded = True
             logger.info("Whisper transcription model loaded successfully")
         except Exception as e:
@@ -105,18 +104,35 @@ class TranscribeEndpoint(Resource):
 
             # Transcribe audio
             if self.model_loaded and self.model:
-                # TODO: Replace with actual model inference
-                # result = self.model.transcribe(audio_data, language, task)
-                # text = result['text']
-                # confidence = result['confidence']
-                # detected_language = result['language']
-                # duration = result['duration']
-
-                # Mock transcription result
-                text = f"[MOCK] Transcribed audio in {language}: This is a sample transcription of audio data."
-                confidence = 0.85
-                detected_language = language
-                duration = 5.0
+                try:
+                    # Decode base64 audio data
+                    import base64
+                    audio_bytes = base64.b64decode(audio_data)
+                    
+                    # Create temporary file for audio processing
+                    import tempfile
+                    with tempfile.NamedTemporaryFile(suffix=f'.{audio_format}', delete=False) as temp_file:
+                        temp_file.write(audio_bytes)
+                        temp_file_path = temp_file.name
+                    
+                    # Transcribe using the model
+                    result = self.model.transcribe_audio(temp_file_path, language=language)
+                    
+                    # Clean up temporary file
+                    import os
+                    os.unlink(temp_file_path)
+                    
+                    text = result.get('text', f"[ERROR] Transcription failed for {language} audio")
+                    confidence = result.get('confidence', 0.0)
+                    detected_language = result.get('language', language)
+                    duration = result.get('duration', 0.0)
+                    
+                except Exception as e:
+                    logger.error(f"Transcription failed: {e}")
+                    text = f"[ERROR] Transcription failed: {str(e)}"
+                    confidence = 0.0
+                    detected_language = language
+                    duration = 0.0
             else:
                 # Fallback mock transcription
                 text = f"[MOCK] Transcribed audio in {language}: This is a sample transcription of audio data."

@@ -40,9 +40,8 @@ class SummarizeEndpoint(Resource):
     def load_model(self):
         """Load the T5 summarization model."""
         try:
-            # TODO: Replace with actual T5 model loading
-            # from models.t5_summarization import T5Summarizer
-            # self.model = T5Summarizer()
+            from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
+            self.model = create_samo_t5_summarizer()
             self.model_loaded = True
             logger.info("T5 summarization model loaded successfully")
         except Exception as e:
@@ -84,9 +83,12 @@ class SummarizeEndpoint(Resource):
 
             # Generate summary
             if self.model_loaded and self.model:
-                # TODO: Replace with actual model inference
-                # summary = self.model.summarize(text, max_length, min_length, temperature)
-                summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
+                try:
+                    result = self.model.generate_summary(text)
+                    summary = result.get("summary", f"[ERROR] Failed to generate summary for {len(text)} characters")
+                except Exception as e:
+                    logger.error(f"Summary generation failed: {e}")
+                    summary = f"[ERROR] Summary generation failed: {str(e)}"
             else:
                 # Fallback mock summary
                 summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
