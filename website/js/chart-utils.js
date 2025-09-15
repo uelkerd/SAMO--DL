@@ -118,7 +118,8 @@ class ChartUtils {
                         borderSkipped: false,
                     }
                 }
-            });
+            }
+        });
             console.log('Chart created successfully');
             return true;
         } catch (error) {
