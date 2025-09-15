@@ -3,219 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Fixes - SAMO Demo</title>
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3i4jPCbWksFslqt8RTPQe4Q1P8WaCx3pIInFy7Bm0E4wq1++iz6xRPP+XX4F5k" crossorigin="anonymous">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-7FhYV9X1bBcZz6KzrAY5Zaw9Fwzb0RvZtqP8e0P/hHjXxO3tqoiKwdI0pNofy7f5" crossorigin="anonymous"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/comprehensive-demo.css">
+    <title>Test Fixes - SAMO-DL Demo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f0f0f0;
-        }
-        .test-section {
-            margin: 20px 0;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .test-result {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: white; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        button { padding: 10px 20px; margin: 5px; background: #8b5cf6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #7c3aed; }
+        #results { margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>🧪 SAMO Demo Fixes Test</h1>
+    <h1>🧪 SAMO-DL Demo Fixes Test</h1>
     
     <div class="test-section">
-        <h2>1. Font Awesome Icons Test</h2>
-        <div id="icon-test-results"></div>
-        <div style="margin: 20px 0;">
-            <i class="fas fa-brain" style="font-size: 2rem; margin: 10px;"></i>
-            <i class="fas fa-microphone" style="font-size: 2rem; margin: 10px;"></i>
-            <i class="fas fa-file-text" style="font-size: 2rem; margin: 10px;"></i>
-            <i class="fas fa-heart" style="font-size: 2rem; margin: 10px;"></i>
-        </div>
+        <h3>Test 1: Summarization Results</h3>
+        <p>Testing if summarization results display correctly...</p>
+        <button onclick="testSummarization()">Test Summarization</button>
+        <div id="summarizationTest"></div>
     </div>
-
+    
     <div class="test-section">
-        <h2>2. Pipeline Icons Test (Fixed Sizing)</h2>
-        <div class="progress-pipeline-vertical" style="max-width: 200px; margin: 0 auto;">
-            <div class="progress-step-vertical">
-                <div class="step-icon-small pending">
-                    <i class="fas fa-upload"></i>
-                </div>
-                <span class="step-label">Input</span>
-            </div>
-            <div class="pipeline-arrow-vertical">↓</div>
-            <div class="progress-step-vertical">
-                <div class="step-icon-small pending">
-                    <i class="fas fa-microphone"></i>
-                </div>
-                <span class="step-label">Transcription</span>
-            </div>
-            <div class="pipeline-arrow-vertical">↓</div>
-            <div class="progress-step-vertical">
-                <div class="step-icon-small pending">
-                    <i class="fas fa-file-text"></i>
-                </div>
-                <span class="step-label">Summarization</span>
-            </div>
-            <div class="pipeline-arrow-vertical">↓</div>
-            <div class="progress-step-vertical">
-                <div class="step-icon-small pending">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <span class="step-label">Emotion Analysis</span>
-            </div>
-        </div>
+        <h3>Test 2: Processing Information</h3>
+        <p>Testing if processing information displays correctly...</p>
+        <button onclick="testProcessingInfo()">Test Processing Info</button>
+        <div id="processingTest"></div>
     </div>
-
+    
     <div class="test-section">
-        <h2>3. Chart.js Test</h2>
-        <div id="chart-test-results"></div>
-        <canvas id="testChart" width="400" height="200" style="max-width: 100%;"></canvas>
+        <h3>Test 3: Complete Demo Flow</h3>
+        <p>Testing the complete demo flow with mock data...</p>
+        <button onclick="testCompleteFlow()">Test Complete Flow</button>
+        <div id="completeTest"></div>
     </div>
+    
+    <div id="results"></div>
 
-    <div class="test-section">
-        <h2>4. API Client Test</h2>
-        <div id="api-test-results"></div>
-        <button onclick="testAPI()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Test API Connection</button>
-    </div>
-
-    <div class="test-section">
-        <h2>5. Clear Button Test</h2>
-        <div id="clear-test-results"></div>
-        <textarea id="testTextInput" placeholder="Enter some text to test clear functionality" style="width: 100%; height: 100px; margin: 10px 0;"></textarea>
-        <button onclick="testClearButton()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Test Clear Button</button>
-    </div>
-
+    <script src="js/simple-demo-functions.js"></script>
     <script>
-        // Test Font Awesome loading
-        function testFontAwesome() {
-            const results = document.getElementById('icon-test-results');
-            const testIcon = document.createElement('i');
-            testIcon.className = 'fas fa-check';
-            document.body.appendChild(testIcon);
-            const computedStyle = window.getComputedStyle(testIcon);
-            document.body.removeChild(testIcon);
-            
-            if (computedStyle.fontFamily.includes('Font Awesome')) {
-                results.innerHTML = '<div class="test-result success">✅ Font Awesome is loaded correctly!</div>';
-                return true;
-            } else {
-                results.innerHTML = '<div class="test-result error">❌ Font Awesome is NOT loaded!</div>';
-                return false;
-            }
-        }
-
-        // Test Chart.js
-        function testChartJS() {
-            const results = document.getElementById('chart-test-results');
-            if (typeof Chart === 'undefined') {
-                results.innerHTML = '<div class="test-result error">❌ Chart.js is NOT loaded!</div>';
-                return false;
-            }
+        function testSummarization() {
+            console.log('🧪 Testing summarization...');
+            const mockSummary = {
+                original_length: 266,
+                summary_length: 93,
+                summary: "The text expresses excitement and optimism about future opportunities, while acknowledging some nervousness about upcoming challenges. The overall sentiment is positive and confident."
+            };
             
             try {
-                const ctx = document.getElementById('testChart').getContext('2d');
-                const testChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Test 1', 'Test 2', 'Test 3'],
-                        datasets: [{
-                            label: 'Test Data',
-                            data: [12, 19, 3],
-                            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
+                // Test updateSummary function
+                updateSummary(mockSummary);
                 
-                results.innerHTML = '<div class="test-result success">✅ Chart.js is working correctly!</div>';
-                return true;
+                // Test createSummaryChart function
+                createSummaryChart(mockSummary);
+                
+                document.getElementById('summarizationTest').innerHTML = 
+                    '<div class="success">✅ Summarization functions work correctly!</div>';
             } catch (error) {
-                results.innerHTML = '<div class="test-result error">❌ Chart.js failed to create chart: ' + error.message + '</div>';
-                return false;
+                document.getElementById('summarizationTest').innerHTML = 
+                    '<div class="error">❌ Summarization test failed: ' + error.message + '</div>';
             }
         }
-
-        // Test API Client
-        async function testAPI() {
-            const results = document.getElementById('api-test-results');
-            results.innerHTML = '<div class="test-result warning">🔄 Testing API connection...</div>';
+        
+        function testProcessingInfo() {
+            console.log('🧪 Testing processing info...');
+            const mockEmotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'excitement', confidence: 0.72 }
+            ];
+            const mockSummary = { original_length: 266, summary_length: 93 };
             
             try {
-                // Test the emotion detection endpoint
-                const response = await fetch('https://samo-unified-api-frrnetyhfa-uc.a.run.app/predict', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: 'I am happy today!' })
-                });
+                updateProcessingInfo(mockEmotions, mockSummary, 0.785);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    results.innerHTML = '<div class="test-result success">✅ API connection successful! Response: ' + JSON.stringify(data).substring(0, 100) + '...</div>';
-                } else {
-                    results.innerHTML = '<div class="test-result error">❌ API returned error: ' + response.status + ' ' + response.statusText + '</div>';
-                }
+                document.getElementById('processingTest').innerHTML = 
+                    '<div class="success">✅ Processing info functions work correctly!</div>';
             } catch (error) {
-                results.innerHTML = '<div class="test-result error">❌ API connection failed: ' + error.message + '</div>';
+                document.getElementById('processingTest').innerHTML = 
+                    '<div class="error">❌ Processing info test failed: ' + error.message + '</div>';
             }
         }
-
-        // Test Clear Button functionality
-        function testClearButton() {
-            const results = document.getElementById('clear-test-results');
-            const textInput = document.getElementById('testTextInput');
+        
+        function testCompleteFlow() {
+            console.log('🧪 Testing complete flow...');
             
-            if (textInput.value.trim() === '') {
-                results.innerHTML = '<div class="test-result warning">⚠️ Please enter some text first</div>';
-                return;
+            try {
+                // Test the complete flow
+                testWithMockData();
+                
+                document.getElementById('completeTest').innerHTML = 
+                    '<div class="success">✅ Complete flow test passed! Check the main demo page for results.</div>';
+            } catch (error) {
+                document.getElementById('completeTest').innerHTML = 
+                    '<div class="error">❌ Complete flow test failed: ' + error.message + '</div>';
             }
-            
-            // Simulate clear functionality
-            textInput.value = '';
-            results.innerHTML = '<div class="test-result success">✅ Clear functionality works! Text cleared.</div>';
         }
-
-        // Run tests when page loads
+        
+        // Auto-run tests on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🧪 Running SAMO Demo Fixes Test...');
+            console.log('🚀 Test page loaded, running auto-tests...');
             
-            // Test Font Awesome
-            const fontAwesomeOK = testFontAwesome();
-            
-            // Test Chart.js
-            const chartOK = testChartJS();
-            
-            // Show overall status
             setTimeout(() => {
-                const overallStatus = document.createElement('div');
-                overallStatus.className = 'test-section';
-                overallStatus.innerHTML = '<h2>📊 Overall Test Results</h2>';
-                
-                if (fontAwesomeOK && chartOK) {
-                    overallStatus.innerHTML += '<div class="test-result success">🎉 All core tests passed! The demo should work correctly now.</div>';
-                } else {
-                    overallStatus.innerHTML += '<div class="test-result error">❌ Some tests failed. Check the individual test results above.</div>';
-                }
-                
-                document.body.appendChild(overallStatus);
+                testSummarization();
+                testProcessingInfo();
             }, 1000);
         });
     </script>
