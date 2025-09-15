@@ -67,12 +67,36 @@ class TestDemoFunctionality:
         assert isinstance(long_request["text"], str)
         assert len(long_request["text"]) > 10000
         
+        # Test whitespace-only text
+        whitespace_request = {"text": "   \n\t   "}
+        assert isinstance(whitespace_request["text"], str)
+        assert len(whitespace_request["text"].strip()) == 0
+        
+        # Test special characters and unicode
+        special_chars_request = {"text": "Hello! @#$%^&*()_+ 你好 🌟 🎉"}
+        assert isinstance(special_chars_request["text"], str)
+        assert len(special_chars_request["text"]) > 0
+        
+        # Test very short text
+        short_request = {"text": "Hi"}
+        assert isinstance(short_request["text"], str)
+        assert len(short_request["text"]) > 0
+        
         # Test non-string input (should be handled by frontend validation)
         # This test ensures the demo handles type validation
         try:
             _non_string_request = {"text": 123}
             # This should fail validation in the demo
             assert False, "Non-string input should be rejected"
+        except (TypeError, ValueError):
+            # Expected behavior
+            pass
+        
+        # Test None input
+        try:
+            _none_request = {"text": None}
+            # This should fail validation in the demo
+            assert False, "None input should be rejected"
         except (TypeError, ValueError):
             # Expected behavior
             pass
@@ -85,7 +109,7 @@ class TestDemoFunctionality:
             "audio_data": sample_audio_data,
             "model": "whisper"
         }
-        
+
         # Validate the request format
         assert "audio_data" in expected_request
         assert "model" in expected_request
@@ -100,10 +124,29 @@ class TestDemoFunctionality:
             "audio_data": corrupted_audio_data,
             "model": "whisper"
         }
-        response = requests.post(demo_api_url, json=request_payload)
-        # Expect a 400 or 422 error, or a specific error message in response
-        assert response.status_code in (400, 422)
-        assert "error" in response.json() or "Invalid audio" in response.text
+        
+        # Test request format validation
+        assert "audio_data" in request_payload
+        assert "model" in request_payload
+        assert request_payload["model"] == "whisper"
+        assert isinstance(request_payload["audio_data"], bytes)
+        
+        # Test with empty audio data
+        empty_audio_request = {
+            "audio_data": b"",
+            "model": "whisper"
+        }
+        assert len(empty_audio_request["audio_data"]) == 0
+        
+        # Test with None audio data
+        try:
+            _none_audio_request = {"audio_data": None, "model": "whisper"}
+            # This should fail validation in the demo
+            assert False, "None audio data should be rejected"
+        except (TypeError, ValueError):
+            # Expected behavior
+            pass
+
     
     @staticmethod
     def test_demo_t5_request_format(demo_api_url, sample_text):

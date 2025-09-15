@@ -134,7 +134,9 @@ class UIController {
         content.className = 'result-content';
         
         const title = document.createElement('p');
-        title.innerHTML = '<strong>Transcribed Text:</strong>';
+        const strong = document.createElement('strong');
+        strong.textContent = 'Transcribed Text:';
+        title.appendChild(strong);
         content.appendChild(title);
         
         const text = document.createElement('p');
@@ -143,16 +145,13 @@ class UIController {
         
         const stats = document.createElement('div');
         stats.className = 'transcription-stats';
-        stats.innerHTML = `
-            <small class="text-muted">
-                Duration: ${transcription.duration || 'N/A'} | 
-                Confidence: ${((transcription.confidence || 0) * 100).toFixed(1)}% |
-                Language: ${transcription.language || 'en'}
-            </small>
-        `;
+        const statsText = document.createElement('small');
+        statsText.className = 'text-muted';
+        statsText.textContent = `Duration: ${transcription.duration || 'N/A'} | Confidence: ${((transcription.confidence || 0) * 100).toFixed(1)}% | Language: ${transcription.language || 'en'}`;
+        stats.appendChild(statsText);
         content.appendChild(stats);
         
-        this.transcriptionResult.innerHTML = '';
+        this.transcriptionResult.textContent = '';
         this.transcriptionResult.appendChild(content);
     }
 
@@ -161,7 +160,9 @@ class UIController {
         content.className = 'result-content';
         
         const title = document.createElement('p');
-        title.innerHTML = '<strong>Summary:</strong>';
+        const strong = document.createElement('strong');
+        strong.textContent = 'Summary:';
+        title.appendChild(strong);
         content.appendChild(title);
         
         const summaryContent = document.createElement('div');
@@ -199,7 +200,7 @@ class UIController {
         
         content.appendChild(stats);
         
-        this.summaryResult.innerHTML = '';
+        this.summaryResult.textContent = '';
         this.summaryResult.appendChild(content);
     }
 
@@ -208,7 +209,9 @@ class UIController {
         content.className = 'result-content';
         
         const title = document.createElement('p');
-        title.innerHTML = '<strong>Detected Emotions:</strong>';
+        const strong = document.createElement('strong');
+        strong.textContent = 'Detected Emotions:';
+        title.appendChild(strong);
         content.appendChild(title);
         
         // Handle different response formats
@@ -253,13 +256,13 @@ class UIController {
             content.appendChild(emotionItem);
         });
         
-        this.emotionResult.innerHTML = '';
+        this.emotionResult.textContent = '';
         this.emotionResult.appendChild(content);
     }
 
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
-        return div.innerHTML;
+        return div.textContent;
     }
 }

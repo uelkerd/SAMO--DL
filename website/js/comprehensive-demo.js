@@ -236,7 +236,7 @@ class ComprehensiveDemo {
         const text = this.textInput.value.trim();
 
         if (!audioFile && !text) {
-            alert('Please upload an audio file or enter text to process.');
+            this.showError('Please upload an audio file or enter text to process.');
             return;
         }
 
@@ -276,7 +276,7 @@ class ComprehensiveDemo {
         } catch (error) {
             console.error('Processing failed:', error);
             this.hideLoading();
-            alert(`Processing failed: ${error.message}`);
+            this.showError(`Processing failed: ${error.message}`);
         }
     }
 
@@ -371,7 +371,7 @@ class ComprehensiveDemo {
 
         // Create emotion badges
         const badgesContainer = document.getElementById('emotionBadges');
-        badgesContainer.innerHTML = '';
+        badgesContainer.textContent = '';
         
         normalizedEmotions.forEach(emotion => {
             const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
@@ -466,7 +466,11 @@ class ComprehensiveDemo {
 
     showEmotionDetails(emotionData) {
         const detailsContainer = document.getElementById('emotionDetails');
-        detailsContainer.innerHTML = '<h6 class="fw-bold mb-3">Top Emotions</h6>';
+        const title = document.createElement('h6');
+        title.className = 'fw-bold mb-3';
+        title.textContent = 'Top Emotions';
+        detailsContainer.textContent = '';
+        detailsContainer.appendChild(title);
         
         // Sort by confidence and show top 5
         const sortedEmotions = emotionData
@@ -479,19 +483,35 @@ class ComprehensiveDemo {
             
             const detailItem = document.createElement('div');
             detailItem.className = 'mb-3';
-            detailItem.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-bold">${index + 1}. ${emotionName}</span>
-                    <span class="badge" style="background-color: ${this.getEmotionColor(emotionName)}">
-                        ${Math.round(confidence)}%
-                    </span>
-                </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar" 
-                         style="width: ${confidence}%; background-color: ${this.getEmotionColor(emotionName)}">
-                    </div>
-                </div>
-            `;
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'd-flex justify-content-between align-items-center mb-1';
+            
+            const emotionLabel = document.createElement('span');
+            emotionLabel.className = 'fw-bold';
+            emotionLabel.textContent = `${index + 1}. ${emotionName}`;
+            
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.style.backgroundColor = this.getEmotionColor(emotionName);
+            badge.textContent = `${Math.round(confidence)}%`;
+            
+            headerDiv.appendChild(emotionLabel);
+            headerDiv.appendChild(badge);
+            
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'progress';
+            progressDiv.style.height = '8px';
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.style.width = `${confidence}%`;
+            progressBar.style.backgroundColor = this.getEmotionColor(emotionName);
+            
+            progressDiv.appendChild(progressBar);
+            
+            detailItem.appendChild(headerDiv);
+            detailItem.appendChild(progressDiv);
             detailsContainer.appendChild(detailItem);
         });
     }
@@ -585,7 +605,7 @@ class ComprehensiveDemo {
             
         } catch (error) {
             console.error('Error starting recording:', error);
-            alert('Could not start recording. Please check microphone permissions.');
+            this.showError('Could not start recording. Please check microphone permissions.');
         }
     }
 
@@ -605,6 +625,30 @@ class ComprehensiveDemo {
             this.textInput.value = '';
         }
     }
+
+    showError(message) {
+        if (!this.errorMsgEl) {
+            // Create error message element if it doesn't exist
+            this.errorMsgEl = document.createElement('div');
+            this.errorMsgEl.className = 'error-message';
+            this.errorMsgEl.style.color = '#dc3545';
+            this.errorMsgEl.style.background = '#f8d7da';
+            this.errorMsgEl.style.border = '1px solid #f5c6cb';
+            this.errorMsgEl.style.borderRadius = '8px';
+            this.errorMsgEl.style.padding = '0.75rem';
+            this.errorMsgEl.style.marginTop = '0.5rem';
+            this.textInput.parentNode.insertBefore(this.errorMsgEl, this.textInput.nextSibling);
+        }
+        this.errorMsgEl.textContent = message;
+        this.errorMsgEl.style.display = 'block';
+    }
+
+    clearError() {
+        if (this.errorMsgEl) {
+            this.errorMsgEl.textContent = '';
+            this.errorMsgEl.style.display = 'none';
+        }
+    }
 }
 
 // Initialize the demo when the page loads
@@ -612,16 +656,20 @@ document.addEventListener('DOMContentLoaded', function() {
     new ComprehensiveDemo();
 });
 
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+// Smooth scrolling for in-page navigation links
+// Only applies to anchors within the main navigation to avoid interfering with external or footer anchors
+document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+        // Only handle if the link is for the current page
+        if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
     });
 });
