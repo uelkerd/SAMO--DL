@@ -336,12 +336,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    padding: 30px 20px;
+    gap: 12px; /* Reduced from 20px for tighter spacing */
+    padding: 25px 15px; /* Reduced padding */
     background: var(--glass-bg);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    min-height: 500px;
+    min-height: 450px; /* Reduced height */
     justify-content: center;
     width: 100%;
 }
@@ -351,25 +351,26 @@ body {
     flex-direction: row;
     align-items: center;
     text-align: left;
-    padding: 12px 16px;
+    padding: 16px 20px; /* Increased padding for better touch targets */
     border-radius: 15px;
     transition: var(--transition-smooth);
-    min-width: 140px;
+    min-width: 160px; /* Increased width */
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 8px;
+    margin-bottom: 4px; /* Reduced margin */
+    width: 100%; /* Full width for better appearance */
 }
 
 .progress-step-vertical .step-icon-small {
-    width: 18px !important;
-    height: 18px !important;
+    width: 24px !important; /* Increased from 18px */
+    height: 24px !important; /* Increased from 18px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
+    margin-right: 16px; /* Increased margin */
     margin-bottom: 0;
-    font-size: 0.6rem !important;
+    font-size: 0.8rem !important; /* Increased from 0.6rem */
     transition: var(--transition-smooth);
     background: rgba(255, 255, 255, 0.1) !important;
     color: #e2e8f0 !important;
@@ -378,11 +379,12 @@ body {
 }
 
 .progress-step-vertical .step-label {
-    font-size: 0.7rem;
+    font-size: 0.9rem; /* Increased from 0.7rem */
     font-weight: 600;
     color: #e2e8f0;
     transition: var(--transition-smooth);
-    text-align: center;
+    text-align: left; /* Changed from center to left for better alignment */
+    flex: 1; /* Take remaining space */
 }
 
 .progress-step-vertical.active .step-icon-small {
@@ -402,9 +404,11 @@ body {
 }
 
 .pipeline-arrow-vertical {
-    font-size: 1.5rem;
-    color: var(--text-muted);
-    margin: 5px 0;
+    font-size: 1.2rem; /* Slightly smaller */
+    color: #94a3b8; /* Better color */
+    margin: 2px 0; /* Reduced margin */
+    opacity: 0.7; /* Subtle appearance */
+    transition: var(--transition-smooth);
 }
 
 .progress-step.completed {

@@ -15,6 +15,40 @@ function processText() {
     testWithRealAPI();
 }
 
+function generateSampleText() {
+    console.log('✨ Generating sample journal text...');
+    
+    const sampleTexts = [
+        "Today has been absolutely incredible! I woke up feeling energized and optimistic about the future. The morning sun streaming through my window filled me with such warmth and joy. I had a productive meeting with my team where we discussed our exciting new project, and I could feel the enthusiasm radiating from everyone. There's something magical about working with passionate people who share your vision. I'm genuinely excited about the possibilities ahead, though I must admit I'm also feeling a bit nervous about the challenges we might face. But you know what? I'm confident we can overcome anything together. This sense of gratitude and anticipation is exactly what I needed to fuel my motivation for the coming weeks.",
+        
+        "I'm feeling a complex mix of emotions right now. On one hand, I'm incredibly proud of the progress we've made on our latest project. The team has been working tirelessly, and seeing our hard work pay off fills me with such satisfaction and pride. However, I'm also experiencing some anxiety about the upcoming deadline. The pressure is mounting, and I can feel the weight of responsibility on my shoulders. I'm excited about the potential impact of what we're building, but I'm also worried about whether we can deliver everything on time. It's this strange combination of anticipation and apprehension that keeps me up at night. I know I should be more confident, but sometimes the fear of failure creeps in. I'm trying to stay positive and focus on the amazing opportunity we have.",
+        
+        "What a rollercoaster of a day! I started the morning feeling frustrated and overwhelmed by all the tasks piling up on my desk. The constant interruptions and unexpected problems were really testing my patience. I felt angry and stressed, wondering why everything had to be so complicated. But then something beautiful happened - a colleague reached out with words of encouragement, and suddenly my perspective shifted. I felt grateful for their kindness and support. The afternoon brought some exciting news about a potential promotion, and I found myself feeling hopeful and optimistic again. It's amazing how quickly emotions can change when you're surrounded by good people and positive energy. I'm ending the day feeling much more balanced and ready to tackle whatever comes next.",
+        
+        "I'm in such a peaceful state of mind right now. After a long week of intense work and constant decision-making, I finally took some time for myself this weekend. I went for a long walk in the park, and the simple act of being in nature filled me with such calm and contentment. I feel grateful for these quiet moments of reflection. There's something deeply satisfying about slowing down and appreciating the little things - the sound of birds chirping, the gentle breeze, the way the sunlight filters through the trees. I'm feeling optimistic about the future and confident in my ability to handle whatever challenges come my way. This sense of inner peace is exactly what I needed to recharge and refocus on what truly matters.",
+        
+        "Today I'm feeling incredibly motivated and determined! I had a breakthrough moment during my morning workout where I pushed myself harder than I thought possible. The sense of accomplishment and strength I felt was absolutely exhilarating. I'm excited about the new goals I've set for myself, both personally and professionally. There's this fire burning inside me that's driving me to be better, to do more, to achieve things I never thought possible. I'm feeling confident and ready to take on any challenge that comes my way. The support from my friends and family has been incredible, and their belief in me fills me with such gratitude and love. I know there will be obstacles ahead, but I'm feeling prepared and optimistic about overcoming them."
+    ];
+    
+    // Pick a random sample text
+    const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+    
+    // Update the text input
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = randomText;
+        console.log('✅ Sample text generated and inserted');
+        
+        // Add a subtle animation to show the text was updated
+        textInput.style.borderColor = '#10b981';
+        textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+        setTimeout(() => {
+            textInput.style.borderColor = '';
+            textInput.style.boxShadow = '';
+        }, 1000);
+    }
+}
+
 function testWithMockData() {
     console.log('🧪 Testing with mock data...');
     
@@ -432,6 +466,7 @@ function clearAll() {
 
 // Make functions globally available
 window.processText = processText;
+window.generateSampleText = generateSampleText;
 window.testWithMockData = testWithMockData;
 window.testWithRealAPI = testWithRealAPI;
 window.createSimpleChart = createSimpleChart;

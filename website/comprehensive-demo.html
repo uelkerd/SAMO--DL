@@ -216,6 +216,10 @@
                                 <span class="material-icons me-2">auto_fix_high</span>
                                 Process
                             </button>
+                            <button class="btn btn-success btn-lg px-5" id="generateBtn">
+                                <span class="material-icons me-2">auto_awesome</span>
+                                Generate
+                            </button>
                             <button class="btn btn-outline-secondary btn-lg" id="clearBtn">
                                 <span class="material-icons me-2">delete</span>
                                 Clear All
@@ -470,6 +474,22 @@
                 });
             } else {
                 console.error('❌ Process button not found');
+            }
+            
+            // Add click listener for Generate button
+            const generateBtn = document.getElementById('generateBtn');
+            if (generateBtn) {
+                console.log('✅ Generate button found, adding click listener');
+                generateBtn.addEventListener('click', function() {
+                    console.log('🔘 Generate button clicked!');
+                    if (typeof generateSampleText === 'function') {
+                        generateSampleText();
+                    } else {
+                        console.error('❌ generateSampleText function not available');
+                    }
+                });
+            } else {
+                console.error('❌ Generate button not found');
             }
             
             // Add click listener for Clear button
