@@ -36,7 +36,10 @@ class TestDemoFunctionality:
         try:
             response = requests.get(f"{demo_api_url}/health", timeout=10)
             # We expect either 200 (success) or 429 (rate limited)
-            assert response.status_code in {200, 429}, f"Unexpected status code: {response.status_code}"
+            assert response.status_code in {200, 429}, f"Unexpected status code: {response.status_code}. Response: {response.text[:200]}"
+            if response.status_code == 200:
+                data = response.json()
+                assert "status" in data, "Health response missing 'status' field"
         except requests.exceptions.RequestException as e:
             pytest.skip(f"API not accessible: {e}")
     

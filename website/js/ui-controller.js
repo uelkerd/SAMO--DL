@@ -316,11 +316,16 @@ class UIController {
         let chartCreated = false;
         if (this.chartUtils && this.chartUtils.createEmotionChart) {
             try {
-                chartCreated = this.chartUtils.createEmotionChart('emotionChart', topEmotions);
-                if (chartCreated) {
-                    console.log('Chart created successfully');
+                const chartCanvas = document.getElementById('emotionChart');
+                if (chartCanvas && chartCanvas.tagName === 'CANVAS') {
+                    chartCreated = this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+                    if (chartCreated) {
+                        console.log('Chart created successfully');
+                    } else {
+                        console.log('Chart creation failed, using fallback');
+                    }
                 } else {
-                    console.log('Chart creation failed, using fallback');
+                    console.error('Chart canvas element not found or is not a canvas');
                 }
             } catch (error) {
                 console.error('Chart creation failed:', error);

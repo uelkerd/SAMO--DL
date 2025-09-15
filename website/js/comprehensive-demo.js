@@ -703,7 +703,9 @@ document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[h
         // Only handle if the link is for the current page
         if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const href = this.getAttribute('href');
+            if (!href) return;
+            const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',

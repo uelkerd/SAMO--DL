@@ -131,6 +131,7 @@ class ChartUtils {
     createSummaryChart(containerId, summaryData) {
         const ctx = document.getElementById(containerId);
         if (!ctx) {
+            console.error('Chart container not found:', containerId);
             return false;
         }
 
