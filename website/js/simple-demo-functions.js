@@ -114,17 +114,26 @@ async function generateSampleText() {
 async function generateWithOpenAI(prompt) {
     console.log('🤖 Calling OpenAI API with prompt:', prompt);
     
-    // Get configuration from secure config file
-    if (!window.SAMO_CONFIG || !window.SAMO_CONFIG.OPENAI || !window.SAMO_CONFIG.OPENAI.API_KEY) {
-        throw new Error('OpenAI API key not configured. Please check config.js file.');
+    // Get configuration from centralized config
+    if (!window.SAMO_CONFIG) {
+        throw new Error('SAMO configuration not loaded. Please ensure config.js is included.');
     }
     
-    // OpenAI API configuration
-    const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+    // Check if OpenAI is enabled and configured
+    if (!window.SAMO_CONFIG.FEATURES.ENABLE_OPENAI) {
+        throw new Error('OpenAI integration is disabled. Enable it in config.js or use server-side generation.');
+    }
+    
+    if (!window.SAMO_CONFIG.OPENAI.API_KEY) {
+        throw new Error('OpenAI API key not configured. Please set SAMO_CONFIG.OPENAI.API_KEY.');
+    }
+    
+    // OpenAI API configuration from centralized config
+    const OPENAI_API_URL = window.SAMO_CONFIG.OPENAI.API_URL;
     const OPENAI_API_KEY = window.SAMO_CONFIG.OPENAI.API_KEY;
-    const MODEL = window.SAMO_CONFIG.OPENAI.MODEL || 'gpt-3.5-turbo';
-    const MAX_TOKENS = window.SAMO_CONFIG.OPENAI.MAX_TOKENS || 200;
-    const TEMPERATURE = window.SAMO_CONFIG.OPENAI.TEMPERATURE || 0.8;
+    const MODEL = window.SAMO_CONFIG.OPENAI.MODEL;
+    const MAX_TOKENS = window.SAMO_CONFIG.OPENAI.MAX_TOKENS;
+    const TEMPERATURE = window.SAMO_CONFIG.OPENAI.TEMPERATURE;
     
     try {
         const response = await fetch(OPENAI_API_URL, {

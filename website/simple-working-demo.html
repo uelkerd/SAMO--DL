@@ -139,6 +139,8 @@
         </div>
     </div>
 
+    <!-- Load configuration first -->
+    <script src="js/config.js"></script>
     <script>
         // Simple working functions - no complex dependencies
         function testWithMockData() {
@@ -277,8 +279,9 @@
                 // Test text
                 const testText = "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future. I can't wait to see what amazing opportunities await us. However, I'm also a bit nervous about the challenges ahead, but I'm confident we can overcome them together.";
                 
-                // Call the real API
-                const response = await fetch('https://samo-dl-unified-ai-api-7q3q3q3q3q-uc.a.run.app/analyze/journal', {
+                // Call the real API using centralized configuration
+                const apiUrl = window.SAMO_CONFIG?.API?.BASE_URL + window.SAMO_CONFIG?.API?.ENDPOINTS?.JOURNAL || 'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal';
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -5,23 +5,36 @@
 
 class SAMOAPIClient {
     constructor() {
-        // Use configuration from config.js if available, otherwise fallback to demo mode
-        this.baseURL = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.baseURL : 'https://samo-unified-api-71517823771.us-central1.run.app';
-        this.apiKey = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.apiKey : 'demo-key-123';
+        // Use centralized configuration
+        if (!window.SAMO_CONFIG) {
+            console.warn('⚠️ SAMO_CONFIG not found, using fallback configuration');
+        }
+        
+        this.baseURL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
+        this.endpoints = window.SAMO_CONFIG?.API?.ENDPOINTS || {
+            EMOTION: '/analyze/emotion',
+            JOURNAL: '/analyze/journal',
+            HEALTH: '/health',
+            TRANSCRIBE: '/transcribe'
+        };
+        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 20000;
+        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
     }
 
-    async makeRequest(endpoint, data, method = 'POST', isFormData = false, timeoutMs = 20000) {
+    async makeRequest(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null) {
         const config = {
             method,
             headers: {}
         };
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(new Error('Request timeout')), timeoutMs);
+        const timeout = timeoutMs || this.timeout;
+        const timer = setTimeout(() => controller.abort(new Error('Request timeout')), timeout);
         config.signal = controller.signal;
 
-        if (this.apiKey) {
-            config.headers['X-API-Key'] = this.apiKey;
-        }
+        // Remove API key requirement for now - using public endpoints
+        // if (this.apiKey) {
+        //     config.headers['X-API-Key'] = this.apiKey;
+        // }
 
         if (data && method === 'POST') {
             if (isFormData) {
@@ -62,7 +75,7 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
         
         try {
-            return await this.makeRequest('/transcribe/voice', formData, 'POST', true);
+            return await this.makeRequest(this.endpoints.TRANSCRIBE, formData, 'POST', true);
         } catch (error) {
             console.error('Transcription error:', error);
             throw error;
@@ -71,7 +84,7 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            return await this.makeRequest('/summarize/text', { text });
+            return await this.makeRequest(this.endpoints.JOURNAL, { text, generate_summary: true });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -101,7 +114,7 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            return await this.makeRequest('/analyze/journal', { text });
+            return await this.makeRequest(this.endpoints.JOURNAL, { text });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
