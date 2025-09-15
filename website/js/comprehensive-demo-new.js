@@ -27,13 +27,15 @@ class ComprehensiveDemo {
             // Step 1: Transcribe audio if provided
             if (audioFile) {
                 try {
+                    this.uiController.updateProgressStep('step2', 'active');
                     results.transcription = await this.apiClient.transcribeAudio(audioFile);
-                    results.modelsUsed.push('Whisper');
-                    this.uiController.updateProgressStep('step1', 'completed');
+                    results.modelsUsed.push('SAMO Whisper');
+                    this.uiController.updateProgressStep('step2', 'completed');
                     this.uiController.showTranscriptionResults(results.transcription);
                 } catch (error) {
                     console.error('Transcription failed:', error);
-                    this.uiController.updateProgressStep('step1', 'error');
+                    this.uiController.updateProgressStep('step2', 'error');
+                    // Continue without transcription - voice processing is currently unavailable
                 }
             }
 
@@ -45,14 +47,14 @@ class ComprehensiveDemo {
 
             if (currentText) {
                 try {
-                    this.uiController.updateProgressStep('step2', 'active');
+                    this.uiController.updateProgressStep('step3', 'active');
                     results.summary = await this.apiClient.summarizeText(currentText);
-                    results.modelsUsed.push('T5');
-                    this.uiController.updateProgressStep('step2', 'completed');
+                    results.modelsUsed.push('SAMO T5');
+                    this.uiController.updateProgressStep('step3', 'completed');
                     this.uiController.showSummaryResults(results.summary);
                 } catch (error) {
                     console.error('Summarization failed:', error);
-                    this.uiController.updateProgressStep('step2', 'error');
+                    this.uiController.updateProgressStep('step3', 'error');
                     // Continue without summary
                 }
             }
@@ -60,20 +62,22 @@ class ComprehensiveDemo {
             // Step 3: Detect emotions
             if (currentText) {
                 try {
-                    this.uiController.updateProgressStep('step3', 'active');
+                    this.uiController.updateProgressStep('step4', 'active');
                     results.emotions = await this.apiClient.detectEmotions(currentText);
                     results.modelsUsed.push('SAMO DeBERTa v3 Large');
-                    this.uiController.updateProgressStep('step3', 'completed');
+                    this.uiController.updateProgressStep('step4', 'completed');
                     this.uiController.showEmotionResults(results.emotions);
                 } catch (error) {
                     console.error('Emotion detection failed:', error);
-                    this.uiController.updateProgressStep('step3', 'error');
+                    this.uiController.updateProgressStep('step4', 'error');
                     // Continue without emotion detection - don't throw error
                 }
             }
 
-            // Step 4: Complete
-            this.uiController.updateProgressStep('step4', 'completed');
+            // Complete input step
+            this.uiController.updateProgressStep('step1', 'completed');
+
+            // Finalize results
             results.processingTime = Date.now() - startTime;
             this.uiController.updateProcessingInfo(results);
             this.uiController.hideLoading();

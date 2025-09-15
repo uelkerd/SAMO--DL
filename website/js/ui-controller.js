@@ -143,36 +143,39 @@ class UIController {
     }
 
     showTranscriptionResults(transcription) {
-        // Show the transcription results section
+        // Show the transcription results section by replacing class
         this.transcriptionResults.className = 'row mb-4 result-section-visible';
-        
+
         // Update the transcription text
         this.transcriptionText.textContent = transcription.text || 'No transcription available';
-        
+        this.transcriptionText.style.color = '#e2e8f0';
+
         // Update confidence and duration
         const confidence = ((transcription.confidence || 0) * 100).toFixed(1);
         const duration = transcription.duration || 'N/A';
-        
+
         document.getElementById('transcriptionConfidence').textContent = `${confidence}%`;
         document.getElementById('transcriptionDuration').textContent = duration;
     }
 
     showSummaryResults(summary) {
         console.log('showSummaryResults called with:', summary);
-        // Show the summarization results section
+        // Show the summarization results section by replacing class
         this.summarizationResults.className = 'row mb-4 result-section-visible';
-        
+
         // Update the summary text
-        this.summaryText.textContent = summary.summary || 'No summary available';
-        
+        const summaryText = summary.summary || summary.text || 'No summary available';
+        this.summaryText.textContent = summaryText;
+        this.summaryText.style.color = '#e2e8f0';
+
         // Update length statistics
         document.getElementById('originalLength').textContent = summary.original_length || '0';
-        document.getElementById('summaryLength').textContent = summary.summary_length || '0';
+        document.getElementById('summaryLength').textContent = summary.summary_length || summaryText.length || '0';
     }
 
     showEmotionResults(emotions) {
         console.log('showEmotionResults called with:', emotions);
-        // Show the emotion results section
+        // Show the emotion results section by replacing class
         this.emotionResults.className = 'row mb-4 result-section-visible';
         
         // Handle different response formats
@@ -263,25 +266,32 @@ class UIController {
         
         // Update the emotion chart if available
         console.log('Creating emotion chart with data:', topEmotions);
+        let chartCreated = false;
         if (this.chartUtils && this.chartUtils.createEmotionChart) {
             try {
-                this.chartUtils.createEmotionChart('emotionChart', topEmotions);
-                console.log('Chart creation attempted');
+                chartCreated = this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+                if (chartCreated) {
+                    console.log('Chart created successfully');
+                } else {
+                    console.log('Chart creation failed, using fallback');
+                }
             } catch (error) {
                 console.error('Chart creation failed:', error);
-                // Fallback: show a simple text representation
-                this.showEmotionChartFallback(topEmotions);
+                chartCreated = false;
             }
-        } else {
-            console.log('Chart utils not available, using fallback');
-            // Fallback: show a simple text representation
+        }
+
+        if (!chartCreated) {
+            console.log('Using fallback chart display');
             this.showEmotionChartFallback(topEmotions);
         }
     }
 
     showEmotionChartFallback(emotions) {
         const chartContainer = document.getElementById('emotionChart');
-        if (!chartContainer) return;
+        if (!chartContainer) {
+            return;
+        }
         
         // Create a simple visual representation
         chartContainer.innerHTML = '';

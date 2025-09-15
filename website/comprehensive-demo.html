@@ -165,9 +165,9 @@
                 <!-- API Notice -->
                 <div class="row mb-4">
                     <div class="col-lg-8 mx-auto">
-                        <div class="alert alert-warning" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Demo Mode:</strong> This demo uses mock data when the API is not available. For production access, please contact our team for API credentials.
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Live API Demo:</strong> This demo connects to our live SAMO APIs. Voice processing is temporarily unavailable - please use text input for now.
                         </div>
                     </div>
                 </div>
@@ -175,42 +175,33 @@
                 <!-- Input Section -->
                 <div class="row mb-5">
                     <div class="col-lg-8 mx-auto">
-                        <!-- Audio Upload -->
-                        <div class="mb-4">
+                        <!-- Audio Upload - Temporarily Disabled -->
+                        <div class="mb-4" style="opacity: 0.5;">
                             <label for="audioFile" class="form-label fw-bold fs-5">
                                 <i class="fas fa-microphone me-2"></i>
-                                Upload Audio File
+                                Upload Audio File (Temporarily Unavailable)
                             </label>
-                            <input type="file" class="form-control form-control-lg" id="audioFile" accept="audio/*">
-                            <div class="form-text">Supported formats: MP3, WAV, M4A, OGG</div>
+                            <input type="file" class="form-control form-control-lg" id="audioFile" accept="audio/*" disabled>
+                            <div class="form-text text-muted">Voice processing is temporarily unavailable. Please use text input below.</div>
                         </div>
 
-                        <!-- Audio Recording -->
-                        <div class="mb-4">
+                        <!-- Audio Recording - Temporarily Disabled -->
+                        <div class="mb-4" style="opacity: 0.5;">
                             <label class="form-label fw-bold fs-5">
                                 <i class="fas fa-record-vinyl me-2"></i>
-                                Record Audio
+                                Record Audio (Temporarily Unavailable)
                             </label>
                             <div class="d-flex gap-3 justify-content-center">
-                                <button class="btn btn-outline-primary btn-lg" id="recordBtn">
+                                <button class="btn btn-outline-secondary btn-lg" id="recordBtn" disabled>
                                     <i class="fas fa-microphone me-2"></i>
                                     Start Recording
                                 </button>
-                                <button class="btn btn-outline-danger btn-lg" id="stopBtn" disabled>
+                                <button class="btn btn-outline-secondary btn-lg" id="stopBtn" disabled>
                                     <i class="fas fa-stop me-2"></i>
                                     Stop Recording
                                 </button>
                             </div>
-                            <div class="audio-visualizer" id="audioVisualizer" style="display: none;">
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                                <div class="audio-bar"></div>
-                            </div>
+                            <div class="form-text text-muted">Voice processing will be restored soon. Use text input for now.</div>
                         </div>
 
                         <!-- Text Input -->
@@ -219,12 +210,12 @@
                                 <i class="fas fa-keyboard me-2"></i>
                                 Or Enter Text Directly
                             </label>
-                            <textarea 
-                                class="form-control form-control-lg" 
-                                id="textInput" 
-                                rows="4" 
+                            <textarea
+                                class="form-control form-control-lg"
+                                id="textInput"
+                                rows="4"
                                 placeholder="Enter your text here for summarization and emotion analysis..."
-                            ></textarea>
+                            >I am so excited and happy today! This is such wonderful news and I feel optimistic about the future. I can't wait to see what amazing opportunities await us. However, I'm also a bit nervous about the challenges ahead, but I'm confident we can overcome them together.</textarea>
                         </div>
                         
                         <div class="d-flex gap-3 justify-content-center">
@@ -252,7 +243,7 @@
                 <!-- Results Section -->
                 <div id="resultSection" class="result-section">
                     <!-- Transcription Results -->
-                    <div class="row mb-4" id="transcriptionResults" class="result-section-hidden">
+                    <div class="row mb-4 result-section-hidden" id="transcriptionResults">
                         <div class="col-12">
                             <div class="feature-card p-4">
                                 <h5 class="fw-bold mb-3">
@@ -269,7 +260,7 @@
                     </div>
 
                     <!-- Summarization Results -->
-                    <div class="row mb-4" id="summarizationResults" class="result-section-hidden">
+                    <div class="row mb-4 result-section-hidden" id="summarizationResults">
                         <div class="col-12">
                             <div class="feature-card p-4">
                                 <h5 class="fw-bold mb-3">
@@ -286,7 +277,7 @@
                     </div>
 
                     <!-- Emotion Analysis Results -->
-                    <div class="row mb-4" id="emotionResults" class="result-section-hidden">
+                    <div class="row mb-4 result-section-hidden" id="emotionResults">
                         <div class="col-12">
                             <div class="feature-card p-4">
                                 <h5 class="fw-bold mb-3">

@@ -39,6 +39,7 @@ body {
 
 .result-section-visible {
     display: block !important;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure all text is visible */
@@ -48,6 +49,19 @@ body {
 
 .text-dark {
     color: #e2e8f0 !important;
+}
+
+/* Feature card text improvements */
+.feature-card .text-muted {
+    color: #cbd5e1 !important;
+}
+
+.feature-card h5, .feature-card h6 {
+    color: #f1f5f9 !important;
+}
+
+.feature-card small {
+    color: #cbd5e1 !important;
 }
 
 .form-control {

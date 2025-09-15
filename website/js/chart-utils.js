@@ -11,7 +11,13 @@ class ChartUtils {
         const ctx = document.getElementById(containerId);
         if (!ctx) {
             console.error('Chart container not found:', containerId);
-            return;
+            return false;
+        }
+
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not available, chart creation will fail');
+            return false;
         }
 
         // Destroy existing chart if it exists
@@ -19,41 +25,48 @@ class ChartUtils {
             this.charts[containerId].destroy();
         }
 
-        const labels = emotions.map(e => e.emotion || e.label);
-        const data = emotions.map(e => (e.confidence || e.score || 0) * 100);
-        
+        // Validate emotions data
+        if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
+            console.error('Invalid emotions data for chart:', emotions);
+            return false;
+        }
+
+        const labels = emotions.map(e => e.emotion || e.label || 'Unknown');
+        const data = emotions.map(e => Math.max(0, Math.min(100, (e.confidence || e.score || 0) * 100)));
+
         console.log('Creating emotion chart with data:', { labels, data, emotions });
 
-        this.charts[containerId] = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Confidence (%)',
-                    data: data,
-                    backgroundColor: [
-                        'rgba(102, 126, 234, 0.8)',
-                        'rgba(168, 85, 247, 0.8)',
-                        'rgba(192, 132, 252, 0.8)',
-                        'rgba(34, 197, 94, 0.8)',
-                        'rgba(251, 191, 36, 0.8)',
-                        'rgba(239, 68, 68, 0.8)',
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(16, 185, 129, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(102, 126, 234, 1)',
-                        'rgba(168, 85, 247, 1)',
-                        'rgba(192, 132, 252, 1)',
-                        'rgba(34, 197, 94, 1)',
-                        'rgba(251, 191, 36, 1)',
-                        'rgba(239, 68, 68, 1)',
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(16, 185, 129, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            },
+        try {
+            this.charts[containerId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Confidence (%)',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(192, 132, 252, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(192, 132, 252, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(251, 191, 36, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -105,13 +118,20 @@ class ChartUtils {
                         borderSkipped: false,
                     }
                 }
-            }
-        });
+            });
+            console.log('Chart created successfully');
+            return true;
+        } catch (error) {
+            console.error('Failed to create chart:', error);
+            return false;
+        }
     }
 
     createSummaryChart(containerId, summaryData) {
         const ctx = document.getElementById(containerId);
-        if (!ctx) return;
+        if (!ctx) {
+            return false;
+        }
 
         // Destroy existing chart if it exists
         if (this.charts[containerId]) {

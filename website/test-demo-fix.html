@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMO-DL Demo Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a2e;
+            color: #e2e8f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+        }
+        button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #7c3aed;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 5px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="test-container">
+        <h1>SAMO-DL Demo Fix Test</h1>
+
+        <div class="test-section">
+            <h2>Test Input</h2>
+            <textarea id="testInput" placeholder="Enter text to analyze...">I am so excited and happy today! This is wonderful news and I feel optimistic about the future. However, I'm also a bit nervous about the challenges ahead.</textarea>
+            <button onclick="runCompleteTest()">Test Complete Workflow</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="testStatus">Ready to test...</div>
+
+            <div id="summaryResults" class="results hidden">
+                <h3>📝 Text Summarization</h3>
+                <div id="summaryText"></div>
+                <div id="summaryStats"></div>
+            </div>
+
+            <div id="emotionResults" class="results hidden">
+                <h3>❤️ Emotion Analysis (SAMO DeBERTa v3 Large)</h3>
+                <div id="emotionBadges"></div>
+                <div id="emotionChart" style="height: 300px; margin: 20px 0;"></div>
+            </div>
+
+            <div id="processingInfo" class="results hidden">
+                <h3>⚙️ Processing Information</h3>
+                <div id="processingDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the demo modules -->
+    <script src="config.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/chart-utils.js"></script>
+    <script src="js/comprehensive-demo-new.js"></script>
+
+    <script>
+        // Test functions
+        function clearResults() {
+            document.getElementById('summaryResults').className = 'results hidden';
+            document.getElementById('emotionResults').className = 'results hidden';
+            document.getElementById('processingInfo').className = 'results hidden';
+            document.getElementById('testStatus').textContent = 'Ready to test...';
+            document.getElementById('testStatus').className = '';
+        }
+
+        function showError(message) {
+            const status = document.getElementById('testStatus');
+            status.textContent = `❌ Error: ${message}`;
+            status.className = 'error';
+        }
+
+        function showSuccess(message) {
+            const status = document.getElementById('testStatus');
+            status.textContent = `✅ ${message}`;
+            status.className = 'success';
+        }
+
+        function showProgress(message) {
+            const status = document.getElementById('testStatus');
+            status.textContent = `⏳ ${message}`;
+            status.className = '';
+        }
+
+        async function runCompleteTest() {
+            const text = document.getElementById('testInput').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            clearResults();
+            showProgress('Starting complete workflow test...');
+
+            try {
+                // Initialize API client
+                const apiClient = new SAMOAPIClient();
+
+                // Test summarization
+                showProgress('Testing text summarization...');
+                let summaryResult;
+                try {
+                    summaryResult = await apiClient.summarizeText(text);
+                    document.getElementById('summaryResults').className = 'results visible';
+                    document.getElementById('summaryText').textContent = summaryResult.summary || 'No summary available';
+                    document.getElementById('summaryStats').innerHTML =
+                        `<small>Original: ${summaryResult.original_length || 0} chars | Summary: ${summaryResult.summary_length || 0} chars</small>`;
+                    console.log('Summary result:', summaryResult);
+                } catch (error) {
+                    console.error('Summarization failed:', error);
+                    showError('Summarization failed: ' + error.message);
+                }
+
+                // Test emotion detection
+                showProgress('Testing emotion detection...');
+                let emotionResult;
+                try {
+                    emotionResult = await apiClient.detectEmotions(text);
+                    console.log('Emotion result:', emotionResult);
+
+                    // Handle different response formats
+                    let emotions = [];
+                    if (Array.isArray(emotionResult)) {
+                        emotions = emotionResult;
+                    } else if (emotionResult.emotions) {
+                        emotions = emotionResult.emotions;
+                    } else {
+                        emotions = [];
+                    }
+
+                    if (emotions.length > 0) {
+                        document.getElementById('emotionResults').className = 'results visible';
+
+                        // Show badges
+                        const badges = emotions.slice(0, 5).map(e =>
+                            `<span style="background: #8b5cf6; padding: 4px 8px; margin: 2px; border-radius: 12px; display: inline-block; font-size: 0.8em;">
+                                ${e.emotion || e.label} (${((e.confidence || e.score || 0) * 100).toFixed(1)}%)
+                            </span>`
+                        ).join(' ');
+                        document.getElementById('emotionBadges').innerHTML = badges;
+
+                        // Try to create chart
+                        const chartUtils = new ChartUtils();
+                        const chartCreated = chartUtils.createEmotionChart('emotionChart', emotions.slice(0, 5));
+                        if (!chartCreated) {
+                            console.log('Chart creation failed, emotions:', emotions);
+                            document.getElementById('emotionChart').innerHTML = '<p>Chart visualization unavailable</p>';
+                        }
+                    } else {
+                        document.getElementById('emotionResults').className = 'results visible';
+                        document.getElementById('emotionBadges').innerHTML = '<p>No emotions detected</p>';
+                    }
+                } catch (error) {
+                    console.error('Emotion detection failed:', error);
+                    showError('Emotion detection failed: ' + error.message);
+                }
+
+                // Show processing info
+                document.getElementById('processingInfo').className = 'results visible';
+                const modelsUsed = [];
+                if (summaryResult) modelsUsed.push('SAMO T5');
+                if (emotionResult) modelsUsed.push('SAMO DeBERTa v3 Large');
+
+                document.getElementById('processingDetails').innerHTML = `
+                    <div><strong>Models Used:</strong> ${modelsUsed.join(', ')}</div>
+                    <div><strong>Status:</strong> ${modelsUsed.length > 0 ? 'Success' : 'Partial'}</div>
+                    <div><strong>Summary Mock:</strong> ${summaryResult && summaryResult.mock ? 'Yes' : 'No'}</div>
+                    <div><strong>Emotion Mock:</strong> ${emotionResult && emotionResult.mock ? 'Yes' : 'No'}</div>
+                `;
+
+                if (modelsUsed.length > 0) {
+                    showSuccess(`Workflow completed! Used: ${modelsUsed.join(', ')}`);
+                } else {
+                    showError('No models responded successfully');
+                }
+
+            } catch (error) {
+                console.error('Test failed:', error);
+                showError('Complete workflow failed: ' + error.message);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page loaded, modules available:', {
+                SAMOAPIClient: typeof SAMOAPIClient !== 'undefined',
+                UIController: typeof UIController !== 'undefined',
+                ChartUtils: typeof ChartUtils !== 'undefined',
+                Chart: typeof Chart !== 'undefined',
+                SAMO_CONFIG: typeof SAMO_CONFIG !== 'undefined'
+            });
+        });
+    </script>
+</body>
+</html>
