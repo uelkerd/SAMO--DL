@@ -22,10 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 # Copy requirements
-COPY requirements-api.txt .
+COPY dependencies/requirements-api.txt .
+COPY dependencies/requirements-ml.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-api.txt
+RUN pip install --no-cache-dir -r requirements-api.txt -r requirements-ml.txt
 
 # Copy the unified API source code
 COPY src/ ./src/
