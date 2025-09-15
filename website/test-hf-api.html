@@ -21,9 +21,10 @@
     <h1>🤗 Hugging Face API Test</h1>
     
     <div class="test-section">
-        <h3>Step 1: Enter Your HF Token</h3>
-        <p>Paste your Hugging Face API token below:</p>
-        <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        <h3>Step 1: Token Configuration</h3>
+        <p>Your token is loaded from config.js. If you need to test with a different token, enter it below:</p>
+        <div id="configStatus"></div>
+        <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (optional)">
         <button onclick="testHuggingFaceAPI()">Test API Connection</button>
         <div id="tokenTest"></div>
     </div>
@@ -51,6 +52,28 @@
     
     <script>
         let hfToken = '';
+        
+        // Check config status on page load
+        window.addEventListener('load', function() {
+            checkConfigStatus();
+        });
+        
+        function checkConfigStatus() {
+            const configStatus = document.getElementById('configStatus');
+            
+            if (window.SAMO_CONFIG && window.SAMO_CONFIG.HUGGING_FACE) {
+                const token = window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN;
+                
+                if (token && token !== 'YOUR_HF_TOKEN_HERE') {
+                    configStatus.innerHTML = '<div class="success">✅ Config loaded! Token: ' + token.substring(0, 10) + '...</div>';
+                    hfToken = token; // Set global token
+                } else {
+                    configStatus.innerHTML = '<div class="warning">⚠️ Config loaded but token not set. Please update config.js or enter token below.</div>';
+                }
+            } else {
+                configStatus.innerHTML = '<div class="error">❌ Config not loaded. Check if config.js exists and is accessible.</div>';
+            }
+        }
         
         function testHuggingFaceModel(model, token) {
             console.log(`🧪 Testing model: ${model}`);
@@ -110,24 +133,33 @@
         }
         
         function testHuggingFaceAPI() {
-            hfToken = document.getElementById('hfToken').value.trim();
+            // First try to get token from config
+            let configToken = window.SAMO_CONFIG?.HUGGING_FACE?.API_TOKEN;
             
-            if (!hfToken) {
-                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Please enter your HF token first</div>';
-                return;
-            }
-            
-            if (!hfToken.startsWith('hf_')) {
-                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Token should start with "hf_"</div>';
-                return;
+            // If config token is placeholder, try input field
+            if (!configToken || configToken === 'YOUR_HF_TOKEN_HERE') {
+                hfToken = document.getElementById('hfToken').value.trim();
+                
+                if (!hfToken) {
+                    document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Please enter your HF token first OR update config.js</div>';
+                    return;
+                }
+                
+                if (!hfToken.startsWith('hf_')) {
+                    document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Token should start with "hf_"</div>';
+                    return;
+                }
+                
+                // Update config with the token from input
+                if (window.SAMO_CONFIG) {
+                    window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN = hfToken;
+                }
+            } else {
+                hfToken = configToken;
+                console.log('✅ Using token from config.js');
             }
             
             console.log('🧪 Testing HF API with token:', hfToken.substring(0, 10) + '...');
-            
-            // Update config with the token
-            if (window.SAMO_CONFIG) {
-                window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN = hfToken;
-            }
             
             // Test with a simple prompt
             testHuggingFaceModel('gpt2', hfToken);
