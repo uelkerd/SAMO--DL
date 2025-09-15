@@ -420,8 +420,10 @@ function updateElement(id, value) {
     }
 }
 
-// Make the function globally available
+// Make the functions globally available
 window.displayDetailedModelAnalysis = displayDetailedModelAnalysis;
+window.updateDetailedAnalysisFromSimpleDemo = updateDetailedAnalysisFromSimpleDemo;
+window.updateElement = updateElement;
 
 // Debug test functions
 function testDetailedAnalysis() {
@@ -453,5 +455,7 @@ function clearDetailedAnalysis() {
     updateElement('modelDetails', '-');
 }
 
-// Also make demo available immediately for testing
+// Also make demo and debug functions available immediately for testing
 window.ComprehensiveDemo = ComprehensiveDemo;
+window.testDetailedAnalysis = testDetailedAnalysis;
+window.clearDetailedAnalysis = clearDetailedAnalysis;
