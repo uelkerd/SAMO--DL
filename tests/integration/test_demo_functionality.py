@@ -169,13 +169,13 @@ class TestDemoFunctionality:
             {"status": 503, "message": "Service Unavailable"}
         ]
         
-        for scenario in error_scenarios:
-            # This would be tested in the actual demo JavaScript
-            # For now, we just validate the error structure
-            assert "status" in scenario
-            assert "message" in scenario
-            assert isinstance(scenario["status"], int)
-            assert isinstance(scenario["message"], str)
+        # Validate all error scenarios have required structure
+        # This would be tested in the actual demo JavaScript
+        # For now, we just validate the error structure
+        assert all("status" in scenario for scenario in error_scenarios)
+        assert all("message" in scenario for scenario in error_scenarios)
+        assert all(isinstance(scenario["status"], int) for scenario in error_scenarios)
+        assert all(isinstance(scenario["message"], str) for scenario in error_scenarios)
     
     @staticmethod
     def test_demo_ui_components():
@@ -191,9 +191,9 @@ class TestDemoFunctionality:
             "results-display"
         ]
         
-        for component in expected_components:
-            assert isinstance(component, str)
-            assert len(component) > 0
+        # Validate all components are non-empty strings
+        assert all(isinstance(component, str) for component in expected_components)
+        assert all(len(component) > 0 for component in expected_components)
     
     @staticmethod
     def test_demo_goemotions_labels():
@@ -210,10 +210,9 @@ class TestDemoFunctionality:
         # Validate that we have the correct number of emotions
         assert len(expected_emotions) == 28, f"Expected 28 emotions, got {len(expected_emotions)}"
         
-        # Validate that all emotions are strings
-        for emotion in expected_emotions:
-            assert isinstance(emotion, str)
-            assert len(emotion) > 0
+        # Validate that all emotions are non-empty strings
+        assert all(isinstance(emotion, str) for emotion in expected_emotions)
+        assert all(len(emotion) > 0 for emotion in expected_emotions)
     
     @pytest.mark.skip(reason="Requires actual API call - may hit rate limits")
     def test_demo_full_workflow(self, demo_api_url, sample_text, sample_audio_data):
@@ -232,9 +231,9 @@ class TestDemoFunctionality:
             "results_display"
         ]
         
-        for step in workflow_steps:
-            assert isinstance(step, str)
-            assert len(step) > 0
+        # Validate all workflow steps are non-empty strings
+        assert all(isinstance(step, str) for step in workflow_steps)
+        assert all(len(step) > 0 for step in workflow_steps)
 
 if __name__ == "__main__":
     pytest.main([__file__])
