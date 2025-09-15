@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Process Button</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px; 
+            font-size: 16px;
+        }
+        button:hover { background: #4f46e5; }
+        #textInput {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 16px;
+        }
+        .result-section-hidden {
+            display: none !important;
+        }
+        .result-section-visible {
+            display: block !important;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .model-detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .model-detail-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .model-detail-value {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+        .emotion-bar-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .emotion-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .emotion-bar-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+        .emotion-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Process Button</h1>
+    
+    <div class="test-section">
+        <h2>Text Input</h2>
+        <textarea id="textInput" rows="4" placeholder="Enter some text...">I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.</textarea>
+        <br>
+        <button onclick="processText()">Process Text</button>
+        <button onclick="testWithMockData()">Test with Mock Data</button>
+        <button onclick="clearAll()">Clear All</button>
+    </div>
+    
+    <!-- Results Section (initially hidden) -->
+    <div class="test-section result-section-hidden" id="emotionResults">
+        <h2>📊 Emotion Analysis Results</h2>
+        <div id="emotionChart">
+            <p>Click "Process Text" to see the chart</p>
+        </div>
+        
+        <h3>🧠 Detailed Model Analysis</h3>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Primary Emotion</div>
+            <div class="model-detail-value" id="primaryEmotion">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Emotional Intensity</div>
+            <div class="model-detail-value" id="emotionalIntensity">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Sentiment Score</div>
+            <div class="model-detail-value" id="sentimentScore">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Confidence Range</div>
+            <div class="model-detail-value" id="confidenceRange">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Model Processing Details</div>
+            <div class="model-detail-value" id="modelDetails">-</div>
+        </div>
+    </div>
+
+    <!-- Load the simple demo functions -->
+    <script src="js/simple-demo-functions.js"></script>
+    
+    <script>
+        // Test if functions are loaded
+        console.log('🚀 Test page loaded');
+        console.log('processText available:', typeof processText === 'function');
+        console.log('showResultsSections available:', typeof showResultsSections === 'function');
+        
+        // Test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM loaded');
+            console.log('textInput element found:', !!document.getElementById('textInput'));
+            console.log('emotionResults element found:', !!document.getElementById('emotionResults'));
+        });
+    </script>
+</body>
+</html>

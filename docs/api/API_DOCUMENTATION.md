@@ -51,19 +51,24 @@ curl -X GET https://samo-emotion-api-xxxxx-ew.a.run.app/health
 
 ### 2. Emotion Detection
 
-**Endpoint**: `POST /predict`
+**Endpoint**: `POST /analyze/journal`
 
 **Description**: Analyze text and return detected emotions with confidence scores
 
+**Authentication**: Required (JWT Bearer token)
+
 **Request Headers**:
 ```
+Authorization: Bearer YOUR_TOKEN
 Content-Type: application/json
 ```
 
 **Request Body**:
 ```json
 {
-  "text": "I am feeling really happy today!"
+  "text": "I am feeling really happy today!",
+  "generate_summary": true,
+  "emotion_threshold": 0.1
 }
 ```
 
@@ -109,12 +114,156 @@ EMOTIONS = [
 
 **Example Usage**:
 ```bash
-curl -X POST https://samo-emotion-api-xxxxx-ew.a.run.app/predict \
+curl -X POST https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"text": "I am feeling really happy today!"}'
+  -d '{"text": "I am feeling really happy today!", "generate_summary": true}'
 ```
 
-### 3. Metrics
+### 3. Voice Transcription
+
+**Endpoint**: `POST /transcribe/voice`
+
+**Description**: Transcribe audio files to text with detailed analysis
+
+**Authentication**: Required (JWT Bearer token)
+
+**Request Format**: `multipart/form-data` (NOT JSON)
+
+**Request Headers**:
+```
+Authorization: Bearer YOUR_TOKEN
+```
+
+**Request Parameters**:
+- `audio_file` (file, required): Audio file to transcribe
+- `language` (form data, optional): Language code (e.g., "en")
+- `model_size` (form data, optional): Whisper model size ("base", "small", "medium")
+- `timestamp` (form data, optional): Include timestamps ("true"/"false")
+
+**Example Usage**:
+```bash
+curl -X POST https://samo-unified-api-frrnetyhfa-uc.a.run.app/transcribe/voice \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "audio_file=@audio.wav" \
+  -F "language=en" \
+  -F "model_size=base"
+```
+
+**Response**:
+```json
+{
+  "text": "Transcribed audio content",
+  "language": "en",
+  "confidence": 0.85,
+  "duration": 15.4,
+  "word_count": 12,
+  "speaking_rate": 120.5,
+  "audio_quality": "good"
+}
+```
+
+### 4. Text Summarization
+
+**Endpoint**: `POST /summarize/text`
+
+**Description**: Generate summaries from text input
+
+**Authentication**: Required (JWT Bearer token)
+
+**Request Format**: `application/x-www-form-urlencoded` (NOT JSON)
+
+**Request Headers**:
+```
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/x-www-form-urlencoded
+```
+
+**Request Parameters**:
+- `text` (form data, required): Text to summarize
+- `model` (form data, optional): Model to use ("t5-small", "t5-base")
+- `max_length` (form data, optional): Maximum summary length
+- `min_length` (form data, optional): Minimum summary length
+
+**Example Usage**:
+```bash
+curl -X POST https://samo-unified-api-frrnetyhfa-uc.a.run.app/summarize/text \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d "text=Long text to summarize..." \
+  -d "model=t5-small" \
+  -d "max_length=150"
+```
+
+**Response**:
+```json
+{
+  "summary": "Generated summary text",
+  "key_emotions": ["neutral"],
+  "compression_ratio": 0.7,
+  "emotional_tone": "neutral"
+}
+```
+
+### 5. Voice Journal Analysis
+
+**Endpoint**: `POST /analyze/voice-journal`
+
+**Description**: Complete pipeline - transcribe audio and analyze emotions
+
+**Authentication**: Required (JWT Bearer token)
+
+**Request Format**: `multipart/form-data` (NOT JSON)
+
+**Request Parameters**:
+- `audio_file` (file, required): Audio file to process
+- `language` (form data, optional): Language for transcription
+- `generate_summary` (form data, optional): Generate summary ("true"/"false")
+- `emotion_threshold` (form data, optional): Emotion detection threshold
+
+**Example Usage**:
+```bash
+curl -X POST https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/voice-journal \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "audio_file=@journal.wav" \
+  -F "language=en" \
+  -F "generate_summary=true"
+```
+
+### 6. Authentication
+
+**Registration Endpoint**: `POST /auth/register`
+
+**Request Body**:
+```json
+{
+  "username": "user@example.com",
+  "email": "user@example.com",
+  "password": "YourPassword123!",
+  "full_name": "Your Name"
+}
+```
+
+**Login Endpoint**: `POST /auth/login`
+
+**Request Body**:
+```json
+{
+  "username": "user@example.com",
+  "password": "YourPassword123!"
+}
+```
+
+**Response** (both endpoints):
+```json
+{
+  "access_token": "JWT_ACCESS_TOKEN_HERE",
+  "refresh_token": "JWT_REFRESH_TOKEN_HERE",
+  "token_type": "bearer",
+  "expires_in": 1800
+}
+```
+
+### 7. Metrics
 
 **Endpoint**: `GET /metrics`
 

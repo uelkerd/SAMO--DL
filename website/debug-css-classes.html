@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug CSS Classes</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px; 
+            font-size: 16px;
+        }
+        button:hover { background: #4f46e5; }
+        
+        /* Test the exact CSS classes from comprehensive-demo.css */
+        .result-section-hidden {
+            display: none !important;
+        }
+        .result-section-visible {
+            display: block !important;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .debug-info {
+            background: rgba(255,255,0,0.1);
+            border: 1px solid yellow;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug CSS Classes</h1>
+    
+    <div class="test-section">
+        <h2>Test CSS Class Toggle</h2>
+        <button onclick="testClassToggle()">Test Class Toggle</button>
+        <button onclick="inspectElement()">Inspect Element Classes</button>
+        <button onclick="forceShow()">Force Show Element</button>
+    </div>
+    
+    <!-- Test element with hidden class -->
+    <div class="test-section result-section-hidden" id="testResults">
+        <h2>🎯 This Should Be Hidden Initially</h2>
+        <p>If you can see this, the CSS class isn't working!</p>
+        <div class="debug-info">
+            <strong>Debug Info:</strong>
+            <div id="debugInfo">Click "Inspect Element Classes" to see current classes</div>
+        </div>
+    </div>
+    
+    <script>
+        function testClassToggle() {
+            console.log('🧪 Testing class toggle...');
+            const element = document.getElementById('testResults');
+            
+            console.log('Element found:', !!element);
+            console.log('Current classes:', element.className);
+            console.log('Has hidden class:', element.classList.contains('result-section-hidden'));
+            console.log('Has visible class:', element.classList.contains('result-section-visible'));
+            
+            // Remove hidden, add visible
+            element.classList.remove('result-section-hidden');
+            element.classList.add('result-section-visible');
+            
+            console.log('After toggle - classes:', element.className);
+            console.log('Has hidden class:', element.classList.contains('result-section-hidden'));
+            console.log('Has visible class:', element.classList.contains('result-section-visible'));
+            
+            // Check computed styles
+            const computedStyle = window.getComputedStyle(element);
+            console.log('Computed display:', computedStyle.display);
+            console.log('Computed visibility:', computedStyle.visibility);
+            console.log('Computed opacity:', computedStyle.opacity);
+        }
+        
+        function inspectElement() {
+            const element = document.getElementById('testResults');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            const info = `
+                Element ID: ${element.id}
+                Classes: ${element.className}
+                Has hidden: ${element.classList.contains('result-section-hidden')}
+                Has visible: ${element.classList.contains('result-section-visible')}
+                Computed display: ${window.getComputedStyle(element).display}
+                Computed visibility: ${window.getComputedStyle(element).visibility}
+                Computed opacity: ${window.getComputedStyle(element).opacity}
+            `;
+            
+            debugInfo.innerHTML = info.replace(/\n/g, '<br>');
+            console.log('Element inspection:', info);
+        }
+        
+        function forceShow() {
+            const element = document.getElementById('testResults');
+            element.style.display = 'block';
+            element.style.visibility = 'visible';
+            element.style.opacity = '1';
+            console.log('🚀 Forced element to show with inline styles');
+        }
+    </script>
+</body>
+</html>

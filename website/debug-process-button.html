@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Process Button</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #4f46e5; }
+        #results { 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Process Button</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check if Functions are Loaded</h2>
+        <button onclick="checkFunctions()">Check Functions</button>
+        <div id="function-check-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Test Process Button Directly</h2>
+        <button onclick="testProcessButton()">Test Process Button</button>
+        <div id="process-test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Load Simple Demo Functions</h2>
+        <button onclick="loadSimpleFunctions()">Load Simple Functions</button>
+        <div id="load-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Test with Text Input</h2>
+        <textarea id="testTextInput" rows="3" style="width: 100%; margin: 10px 0; padding: 10px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">I am so excited and happy today!</textarea>
+        <button onclick="testWithText()">Test with Text</button>
+        <div id="text-test-results"></div>
+    </div>
+
+    <script>
+        function checkFunctions() {
+            console.log('🔍 Checking functions...');
+            const functions = [
+                'processText',
+                'testWithMockData', 
+                'testWithRealAPI',
+                'createSimpleChart',
+                'updateDetailedAnalysis',
+                'updateElement',
+                'clearAll'
+            ];
+            
+            let results = '<h3>Function Check Results:</h3>';
+            functions.forEach(funcName => {
+                const exists = typeof window[funcName] === 'function';
+                results += `<p>${funcName}: ${exists ? '✅ Available' : '❌ Missing'}</p>`;
+                console.log(`${funcName}: ${exists ? 'Available' : 'Missing'}`);
+            });
+            
+            document.getElementById('function-check-results').innerHTML = results;
+        }
+        
+        function testProcessButton() {
+            console.log('🧪 Testing process button...');
+            
+            if (typeof window.processText === 'function') {
+                console.log('✅ processText function exists, calling it...');
+                try {
+                    window.processText();
+                    document.getElementById('process-test-results').innerHTML = '<p>✅ Process button function called successfully!</p>';
+                } catch (error) {
+                    console.error('❌ Error calling processText:', error);
+                    document.getElementById('process-test-results').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                }
+            } else {
+                console.log('❌ processText function not available');
+                document.getElementById('process-test-results').innerHTML = '<p>❌ processText function not available</p>';
+            }
+        }
+        
+        function loadSimpleFunctions() {
+            console.log('🔄 Loading simple functions...');
+            
+            const script = document.createElement('script');
+            script.src = 'js/simple-demo-functions.js';
+            script.onload = () => {
+                console.log('✅ Simple functions loaded');
+                document.getElementById('load-results').innerHTML = '<p>✅ Simple functions loaded successfully!</p>';
+                
+                // Check functions again
+                setTimeout(checkFunctions, 100);
+            };
+            script.onerror = () => {
+                console.error('❌ Failed to load simple functions');
+                document.getElementById('load-results').innerHTML = '<p>❌ Failed to load simple functions</p>';
+            };
+            document.head.appendChild(script);
+        }
+        
+        function testWithText() {
+            console.log('📝 Testing with text input...');
+            
+            const text = document.getElementById('testTextInput').value;
+            console.log('Text input:', text);
+            
+            if (typeof window.processText === 'function') {
+                // Temporarily set the textInput element
+                const originalTextInput = document.getElementById('textInput');
+                if (originalTextInput) {
+                    originalTextInput.value = text;
+                } else {
+                    // Create a temporary textInput element
+                    const tempInput = document.createElement('textarea');
+                    tempInput.id = 'textInput';
+                    tempInput.value = text;
+                    document.body.appendChild(tempInput);
+                }
+                
+                try {
+                    window.processText();
+                    document.getElementById('text-test-results').innerHTML = '<p>✅ Processed text successfully!</p>';
+                } catch (error) {
+                    console.error('❌ Error processing text:', error);
+                    document.getElementById('text-test-results').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                }
+            } else {
+                document.getElementById('text-test-results').innerHTML = '<p>❌ processText function not available</p>';
+            }
+        }
+        
+        // Initialize
+        console.log('🚀 Debug page loaded');
+        checkFunctions();
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Main Demo</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #4f46e5; }
+        #textInput {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Main Demo Functions</h1>
+    
+    <div class="test-section">
+        <h2>Test Process Button</h2>
+        <textarea id="textInput" rows="3" placeholder="Enter some text...">I am so excited and happy today!</textarea>
+        <br>
+        <button onclick="processText()">Process Text</button>
+        <button onclick="testWithMockData()">Test with Mock Data</button>
+        <button onclick="clearAll()">Clear All</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Results</h2>
+        <div id="emotionChart">
+            <p>Click "Process Text" to see results</p>
+        </div>
+    </div>
+
+    <!-- Load the simple demo functions -->
+    <script src="js/simple-demo-functions.js"></script>
+    
+    <script>
+        // Test if functions are loaded
+        console.log('🚀 Test page loaded');
+        console.log('processText available:', typeof processText === 'function');
+        console.log('testWithMockData available:', typeof testWithMockData === 'function');
+        console.log('clearAll available:', typeof clearAll === 'function');
+        
+        // Test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM loaded');
+            console.log('textInput element found:', !!document.getElementById('textInput'));
+        });
+    </script>
+</body>
+</html>

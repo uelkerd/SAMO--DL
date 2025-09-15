@@ -133,7 +133,7 @@ function testWithRealAPI() {
 }
 
 function createSimpleChart(emotions) {
-    console.log('📊 Creating simple chart...');
+    console.log('📊 Creating SIMPLE chart...');
     const container = document.getElementById('emotionChart');
     
     if (!container) {
@@ -144,33 +144,38 @@ function createSimpleChart(emotions) {
     // Sort emotions by confidence
     const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
     
-    let chartHTML = '<h6 class="text-center mb-3">📊 Emotion Confidence Levels</h6>';
+    // Create a SUPER SIMPLE chart with basic HTML and inline styles
+    let chartHTML = '<div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 10px 0;">';
+    chartHTML += '<h6 style="text-align: center; margin-bottom: 20px; color: white;">📊 Emotion Confidence Levels</h6>';
     
-    sortedEmotions.forEach(emotion => {
+    sortedEmotions.forEach((emotion, index) => {
         const percentage = Math.round(emotion.confidence * 100);
         const color = getEmotionColor(emotion.emotion);
         
         chartHTML += `
-            <div class="emotion-bar-item">
-                <div class="emotion-bar-label">
-                    <span class="emotion-bar-name">${emotion.emotion}</span>
-                    <span class="emotion-bar-percentage">${percentage}%</span>
+            <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: bold; color: white; text-transform: capitalize;">${emotion.emotion}</span>
+                    <span style="color: #94a3b8;">${percentage}%</span>
                 </div>
-                <div class="emotion-bar-progress">
-                    <div class="emotion-bar-fill" style="width: ${percentage}%; background: ${color};"></div>
+                <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden; position: relative;">
+                    <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;"></div>
                 </div>
             </div>
         `;
     });
     
     chartHTML += `
-        <div class="text-center mt-3 text-muted" style="font-size: 0.85rem;">
+        <div style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;">
             Based on ${emotions.length} detected emotions
         </div>
-    `;
+    </div>`;
     
     container.innerHTML = chartHTML;
-    console.log('✅ Chart created successfully');
+    console.log('✅ SIMPLE Chart created successfully');
+    console.log('📊 Chart HTML length:', chartHTML.length);
+    console.log('📊 Container after update:', container.innerHTML.substring(0, 200));
+    console.log('📊 Emotion bars found:', container.querySelectorAll('div').length);
 }
 
 function updateDetailedAnalysis(emotions, summary) {

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripped Demo - Main Demo Issues</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .row { 
+            display: flex; 
+            gap: 20px; 
+        }
+        .col { 
+            flex: 1; 
+        }
+        .card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 10px 0; 
+        }
+        .model-detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .model-detail-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .model-detail-value {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover { background: #4f46e5; }
+        #emotionChart { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            min-height: 300px; 
+        }
+        .emotion-bar {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .emotion-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .emotion-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+        .emotion-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Stripped Demo - Main Demo Issues</h1>
+        
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <h2>📊 Emotion Chart</h2>
+                    <div id="emotionChart">
+                        <p>Click "Process Text" to see the chart</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card">
+                    <h2>🧠 Detailed Model Analysis</h2>
+                    <div class="model-detail-card">
+                        <div class="model-detail-label">Primary Emotion</div>
+                        <div class="model-detail-value" id="primaryEmotion">-</div>
+                    </div>
+                    <div class="model-detail-card">
+                        <div class="model-detail-label">Emotional Intensity</div>
+                        <div class="model-detail-value" id="emotionalIntensity">-</div>
+                    </div>
+                    <div class="model-detail-card">
+                        <div class="model-detail-label">Sentiment Score</div>
+                        <div class="model-detail-value" id="sentimentScore">-</div>
+                    </div>
+                    <div class="model-detail-card">
+                        <div class="model-detail-label">Confidence Range</div>
+                        <div class="model-detail-value" id="confidenceRange">-</div>
+                    </div>
+                    <div class="model-detail-card">
+                        <div class="model-detail-label">Model Processing Details</div>
+                        <div class="model-detail-value" id="modelDetails">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔧 Test Controls</h2>
+            <button onclick="testWithMockData()">Test with Mock Data</button>
+            <button onclick="testWithMainDemoFunction()">Test with Main Demo Function</button>
+            <button onclick="clearAll()">Clear All</button>
+        </div>
+    </div>
+
+    <script>
+        // EXACT copy of working functions from Simple Demo
+        function testWithMockData() {
+            console.log('🧪 Testing with mock data...');
+            
+            const mockEmotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'excitement', confidence: 0.72 },
+                { emotion: 'optimism', confidence: 0.68 },
+                { emotion: 'gratitude', confidence: 0.45 },
+                { emotion: 'neutral', confidence: 0.15 }
+            ];
+            
+            const mockSummary = {
+                original_length: 266,
+                summary_length: 93
+            };
+            
+            // Create chart
+            createSimpleChart(mockEmotions);
+            
+            // Update detailed analysis
+            updateDetailedAnalysis(mockEmotions, mockSummary);
+            
+            console.log('✅ Mock data test completed');
+        }
+        
+        function testWithMainDemoFunction() {
+            console.log('🧪 Testing with main demo function...');
+            
+            // Try to load the main demo function
+            if (typeof updateDetailedAnalysisFromSimpleDemo === 'function') {
+                console.log('✅ Main demo function exists, calling it...');
+                const mockEmotions = [
+                    { emotion: 'joy', confidence: 0.85 },
+                    { emotion: 'excitement', confidence: 0.72 },
+                    { emotion: 'optimism', confidence: 0.68 }
+                ];
+                const mockSummary = { original_length: 150, summary_length: 45 };
+                
+                updateDetailedAnalysisFromSimpleDemo(mockEmotions, mockSummary);
+                console.log('✅ Main demo function called successfully');
+            } else {
+                console.log('❌ Main demo function not available');
+                alert('Main demo function not available - loading scripts...');
+                loadMainDemoScripts();
+            }
+        }
+        
+        function createSimpleChart(emotions) {
+            console.log('📊 Creating simple chart...');
+            const container = document.getElementById('emotionChart');
+            
+            if (!container) {
+                console.error('❌ Chart container not found');
+                return;
+            }
+            
+            // Sort emotions by confidence
+            const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
+            
+            let chartHTML = '<h3>📊 Emotion Confidence Levels</h3>';
+            
+            sortedEmotions.forEach(emotion => {
+                const percentage = Math.round(emotion.confidence * 100);
+                const color = getEmotionColor(emotion.emotion);
+                
+                chartHTML += `
+                    <div class="emotion-bar">
+                        <div class="emotion-label">
+                            <span>${emotion.emotion}</span>
+                            <span>${percentage}%</span>
+                        </div>
+                        <div class="emotion-progress">
+                            <div class="emotion-fill" style="width: ${percentage}%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = chartHTML;
+            console.log('✅ Chart created successfully');
+        }
+        
+        function updateDetailedAnalysis(emotions, summary) {
+            console.log('🧠 Updating detailed analysis...');
+            
+            // Calculate values
+            const primaryEmotion = emotions[0];
+            const avgConfidence = emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length;
+            const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
+            
+            // Sentiment calculation
+            const sentimentWeights = {
+                'joy': 1, 'happiness': 1, 'excitement': 1, 'optimism': 0.8, 'gratitude': 0.9,
+                'sadness': -1, 'anger': -1, 'fear': -0.8, 'anxiety': -0.7, 'frustration': -0.9,
+                'neutral': 0, 'calm': 0.2
+            };
+            
+            const sentimentScore = emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0);
+            const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
+            
+            // Confidence range (top 3 emotions)
+            const top3 = emotions.slice(0, 3);
+            const confidences = top3.map(e => e.confidence);
+            const minConf = Math.min(...confidences);
+            const maxConf = Math.max(...confidences);
+            const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
+            
+            // Model details
+            const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summary.original_length} characters.`;
+            
+            // Update DOM elements
+            updateElement('primaryEmotion', `${primaryEmotion.emotion} (${Math.round(primaryEmotion.confidence * 100)}%)`);
+            updateElement('emotionalIntensity', intensity);
+            updateElement('sentimentScore', `${sentimentLabel} (${sentimentScore.toFixed(2)})`);
+            updateElement('confidenceRange', confidenceRange);
+            updateElement('modelDetails', modelDetails);
+            
+            console.log('✅ Detailed analysis updated');
+        }
+        
+        function updateElement(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+                console.log(`✅ Updated ${id}: ${value}`);
+            } else {
+                console.error(`❌ Element not found: ${id}`);
+            }
+        }
+        
+        function getEmotionColor(emotion) {
+            const colors = {
+                'joy': 'linear-gradient(90deg, #10b981, #34d399)',
+                'excitement': 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                'optimism': 'linear-gradient(90deg, #3b82f6, #60a5fa)',
+                'gratitude': 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                'neutral': 'linear-gradient(90deg, #6b7280, #9ca3af)',
+                'sadness': 'linear-gradient(90deg, #1f2937, #374151)',
+                'anger': 'linear-gradient(90deg, #dc2626, #ef4444)'
+            };
+            return colors[emotion] || 'linear-gradient(90deg, #6366f1, #8b5cf6)';
+        }
+        
+        function loadMainDemoScripts() {
+            console.log('🔄 Loading main demo scripts...');
+            
+            const scripts = [
+                'js/api-client.js',
+                'js/ui-controller.js', 
+                'js/chart-utils.js',
+                'js/comprehensive-demo-new.js'
+            ];
+            
+            scripts.forEach(script => {
+                const scriptEl = document.createElement('script');
+                scriptEl.src = script;
+                scriptEl.onload = () => {
+                    console.log(`✅ ${script}: Loaded`);
+                };
+                scriptEl.onerror = () => {
+                    console.error(`❌ ${script}: Failed to load`);
+                };
+                document.head.appendChild(scriptEl);
+            });
+        }
+        
+        function clearAll() {
+            console.log('🧹 Clearing all data...');
+            document.getElementById('emotionChart').innerHTML = '<p>Click "Process Text" to see the chart</p>';
+            updateElement('primaryEmotion', '-');
+            updateElement('emotionalIntensity', '-');
+            updateElement('sentimentScore', '-');
+            updateElement('confidenceRange', '-');
+            updateElement('modelDetails', '-');
+            console.log('✅ All data cleared');
+        }
+        
+        // Initialize
+        console.log('🚀 Stripped Demo loaded');
+    </script>
+</body>
+</html>

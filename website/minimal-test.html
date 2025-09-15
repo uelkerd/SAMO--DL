@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test - Main Demo Issues</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        .model-detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .model-detail-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .model-detail-value {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #4f46e5; }
+        #emotionChart { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            min-height: 200px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 MINIMAL TEST - Main Demo Issues</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct DOM Update (No Dependencies)</h2>
+        <button onclick="testDirectDOMUpdate()">Test Direct DOM Update</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Check if Elements Exist</h2>
+        <button onclick="checkElements()">Check Elements</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Main Demo Elements (Same IDs)</h2>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Primary Emotion</div>
+            <div class="model-detail-value" id="primaryEmotion">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Emotional Intensity</div>
+            <div class="model-detail-value" id="emotionalIntensity">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Sentiment Score</div>
+            <div class="model-detail-value" id="sentimentScore">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Confidence Range</div>
+            <div class="model-detail-value" id="confidenceRange">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Model Processing Details</div>
+            <div class="model-detail-value" id="modelDetails">-</div>
+        </div>
+        <button onclick="testMainDemoElements()">Test Main Demo Elements</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Load Main Demo Scripts</h2>
+        <button onclick="loadMainDemoScripts()">Load Main Demo Scripts</button>
+        <div id="test4-result"></div>
+    </div>
+
+    <script>
+        // Test 1: Direct DOM Update
+        function testDirectDOMUpdate() {
+            console.log('🧪 Testing direct DOM update...');
+            
+            const elements = {
+                'primaryEmotion': 'joy (85%)',
+                'emotionalIntensity': 'High',
+                'sentimentScore': 'Positive (2.1)',
+                'confidenceRange': '68% - 85%',
+                'modelDetails': 'Test data - 3 emotions processed'
+            };
+            
+            let result = '<h3>Direct DOM Update Results:</h3>';
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                    result += `<p>✅ ${id}: Updated to "${value}"</p>`;
+                    console.log(`✅ Updated ${id}: ${value}`);
+                } else {
+                    result += `<p>❌ ${id}: Element not found</p>`;
+                    console.error(`❌ Element not found: ${id}`);
+                }
+            });
+            
+            document.getElementById('test1-result').innerHTML = result;
+        }
+        
+        // Test 2: Check Elements
+        function checkElements() {
+            console.log('🧪 Checking elements...');
+            
+            const elements = [
+                'primaryEmotion', 'emotionalIntensity', 'sentimentScore', 
+                'confidenceRange', 'modelDetails'
+            ];
+            
+            let result = '<h3>Element Check Results:</h3>';
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                const exists = !!el;
+                result += `<p>${id}: ${exists ? '✅ Found' : '❌ Missing'}</p>`;
+                console.log(`${id}: ${exists ? 'Found' : 'Missing'}`);
+            });
+            
+            document.getElementById('test2-result').innerHTML = result;
+        }
+        
+        // Test 3: Main Demo Elements
+        function testMainDemoElements() {
+            console.log('🧪 Testing main demo elements...');
+            
+            // Use the EXACT same function from main demo
+            if (typeof updateDetailedAnalysisFromSimpleDemo === 'function') {
+                console.log('✅ Function exists, calling it...');
+                const mockEmotions = [
+                    { emotion: 'joy', confidence: 0.85 },
+                    { emotion: 'excitement', confidence: 0.72 },
+                    { emotion: 'optimism', confidence: 0.68 }
+                ];
+                const mockSummary = { original_length: 150, summary_length: 45 };
+                
+                updateDetailedAnalysisFromSimpleDemo(mockEmotions, mockSummary);
+                console.log('✅ Function called successfully');
+            } else {
+                console.log('❌ Function does not exist');
+            }
+        }
+        
+        // Test 4: Load Main Demo Scripts
+        function loadMainDemoScripts() {
+            console.log('🧪 Loading main demo scripts...');
+            
+            const scripts = [
+                'js/api-client.js',
+                'js/ui-controller.js', 
+                'js/chart-utils.js',
+                'js/comprehensive-demo-new.js'
+            ];
+            
+            let loadedCount = 0;
+            let result = '<h3>Script Loading Results:</h3>';
+            
+            scripts.forEach(script => {
+                const scriptEl = document.createElement('script');
+                scriptEl.src = script;
+                scriptEl.onload = () => {
+                    loadedCount++;
+                    result += `<p>✅ ${script}: Loaded</p>`;
+                    console.log(`✅ ${script}: Loaded`);
+                    
+                    if (loadedCount === scripts.length) {
+                        result += '<p><strong>🎉 All scripts loaded! Testing functions...</strong></p>';
+                        
+                        // Test if functions are available
+                        if (typeof updateDetailedAnalysisFromSimpleDemo === 'function') {
+                            result += '<p>✅ updateDetailedAnalysisFromSimpleDemo: Available</p>';
+                        } else {
+                            result += '<p>❌ updateDetailedAnalysisFromSimpleDemo: Not available</p>';
+                        }
+                        
+                        if (typeof updateElement === 'function') {
+                            result += '<p>✅ updateElement: Available</p>';
+                        } else {
+                            result += '<p>❌ updateElement: Not available</p>';
+                        }
+                    }
+                    
+                    document.getElementById('test4-result').innerHTML = result;
+                };
+                scriptEl.onerror = () => {
+                    result += `<p>❌ ${script}: Failed to load</p>`;
+                    console.error(`❌ ${script}: Failed to load`);
+                    document.getElementById('test4-result').innerHTML = result;
+                };
+                document.head.appendChild(scriptEl);
+            });
+        }
+        
+        // Initialize
+        console.log('🚀 Minimal Test loaded');
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Chart HTML</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px; 
+            font-size: 16px;
+        }
+        button:hover { background: #4f46e5; }
+        
+        /* Test the exact CSS classes from comprehensive-demo.css */
+        .emotion-bar {
+            margin-bottom: 20px;
+            animation: slideInLeft 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-30px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .emotion-bar-bg {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            height: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .emotion-bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .emotion-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .debug-info {
+            background: rgba(255,255,0,0.1);
+            border: 1px solid yellow;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Chart HTML Generation</h1>
+    
+    <div class="test-section">
+        <h2>Test Chart Generation</h2>
+        <button onclick="testChartGeneration()">Generate Test Chart</button>
+        <button onclick="inspectChartHTML()">Inspect Generated HTML</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Generated Chart HTML:</h2>
+        <div id="chartContainer">
+            <p>Click "Generate Test Chart" to see the chart</p>
+        </div>
+    </div>
+    
+    <div class="debug-info" id="debugInfo">
+        <strong>Debug Info:</strong>
+        <div>Click "Inspect Chart HTML" to see the generated HTML</div>
+    </div>
+    
+    <script>
+        function testChartGeneration() {
+            console.log('🧪 Testing chart generation...');
+            
+            const mockEmotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'excitement', confidence: 0.72 },
+                { emotion: 'optimism', confidence: 0.68 },
+                { emotion: 'gratitude', confidence: 0.45 },
+                { emotion: 'neutral', confidence: 0.15 }
+            ];
+            
+            createTestChart(mockEmotions);
+        }
+        
+        function createTestChart(emotions) {
+            console.log('📊 Creating test chart...');
+            const container = document.getElementById('chartContainer');
+            
+            if (!container) {
+                console.error('❌ Chart container not found');
+                return;
+            }
+            
+            // Sort emotions by confidence
+            const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
+            
+            let chartHTML = '<h6 class="text-center mb-3">📊 Emotion Confidence Levels</h6>';
+            
+            sortedEmotions.forEach(emotion => {
+                const percentage = Math.round(emotion.confidence * 100);
+                const color = getEmotionColor(emotion.emotion);
+                
+                chartHTML += `
+                    <div class="emotion-bar">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-capitalize">${emotion.emotion}</span>
+                            <span class="text-muted">${percentage}%</span>
+                        </div>
+                        <div class="emotion-bar-bg">
+                            <div class="emotion-bar-fill" style="width: ${percentage}%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            chartHTML += `
+                <div class="text-center mt-3 text-muted" style="font-size: 0.85rem;">
+                    Based on ${emotions.length} detected emotions
+                </div>
+            `;
+            
+            container.innerHTML = chartHTML;
+            console.log('✅ Test chart created successfully');
+            console.log('Generated HTML length:', chartHTML.length);
+        }
+        
+        function getEmotionColor(emotion) {
+            const colors = {
+                'joy': 'linear-gradient(135deg, #10b981, #34d399)',
+                'excitement': 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+                'optimism': 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                'gratitude': 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                'neutral': 'linear-gradient(135deg, #6b7280, #9ca3af)',
+                'sadness': 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                'anger': 'linear-gradient(135deg, #ef4444, #f87171)',
+                'fear': 'linear-gradient(135deg, #7c3aed, #9333ea)'
+            };
+            return colors[emotion] || 'linear-gradient(135deg, #6b7280, #9ca3af)';
+        }
+        
+        function inspectChartHTML() {
+            const container = document.getElementById('chartContainer');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            const info = `
+                Container innerHTML length: ${container.innerHTML.length}
+                Container has emotion-bar elements: ${container.querySelectorAll('.emotion-bar').length}
+                Container HTML preview: ${container.innerHTML.substring(0, 200)}...
+            `;
+            
+            debugInfo.innerHTML = info.replace(/\n/g, '<br>');
+            console.log('Chart HTML inspection:', info);
+        }
+    </script>
+</body>
+</html>
