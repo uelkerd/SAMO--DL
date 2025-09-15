@@ -631,7 +631,7 @@ def _write_temp_audio(content: bytes, filename: Optional[str] = None, content_ty
     """Persist uploaded audio bytes to a temporary file with correct extension and return its path."""
     # Determine file extension from filename or content_type
     suffix = ".bin"  # Default fallback
-    
+
     if filename:
         # Extract extension from filename
         if "." in filename:
@@ -652,7 +652,7 @@ def _write_temp_audio(content: bytes, filename: Optional[str] = None, content_ty
             "audio/aac": ".aac"
         }
         suffix = content_type_map.get(content_type.lower(), ".bin")
-    
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
         temp_file.write(content)
         temp_file.flush()

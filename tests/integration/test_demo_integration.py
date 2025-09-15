@@ -121,11 +121,8 @@ class TestDemoIntegration:
     def test_ui_state_management_integration():
         """Test UI state management during processing"""
         ui_states = {
-            'idle': True,
-            'loading': False,
-            'processing': False,
             'error': False,
-            'success': False, 'idle': False, 'loading': True, 'loading': False, 'processing': True, 'processing': False, 'success': True
+            'idle': False, 'loading': False, 'processing': False, 'success': True
         }
         
         # Validate state transitions
@@ -379,7 +376,6 @@ class TestDemoPerformance:
             import psutil
             return psutil.Process().memory_info().rss
         except ImportError:
-            import pytest
             pytest.skip("psutil is not available in this environment")
     
     @staticmethod

@@ -53,7 +53,6 @@ class RobustWhisperTranscriber:
         except ImportError:
             if os.getenv("ALLOW_RUNTIME_PIP") == "1":
                 try:
-                    import subprocess
                     import sys
                     subprocess.check_call([sys.executable, "-m", "pip", "install", "openai-whisper"], timeout=180)
                     import whisper  # noqa: F401
@@ -155,7 +154,7 @@ class RobustWhisperTranscriber:
             if not ffprobe_path:
                 logger.debug("FFprobe not found in PATH, skipping duration extraction")
                 return None
-            
+
             # Build argv as list with safe filename handling
             argv = [
                 ffprobe_path,
@@ -164,7 +163,7 @@ class RobustWhisperTranscriber:
                 '-of', 'csv=p=0',
                 '-i', str(audio_path)  # Use -i flag to safely pass filename
             ]
-            
+
             result = subprocess.run(
                 argv,
                 capture_output=True,
@@ -172,10 +171,10 @@ class RobustWhisperTranscriber:
                 check=True,
                 timeout=10  # 10 second timeout
             )
-            
+
             if result.returncode == 0 and result.stdout.strip():
                 return float(result.stdout.strip())
-                
+
         except subprocess.TimeoutExpired:
             logger.debug("FFprobe duration extraction timed out")
         except subprocess.CalledProcessError as e:

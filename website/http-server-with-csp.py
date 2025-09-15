@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-"""
-HTTP Server with proper CSP headers
-"""
+"""HTTP Server with proper CSP headers"""
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-import os
 
 class CSPHTTPRequestHandler(SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -27,7 +24,7 @@ if __name__ == '__main__':
     server = HTTPServer(('localhost', port), CSPHTTPRequestHandler)
     print(f"HTTP Server with CSP running on http://localhost:{port}")
     print("Press Ctrl+C to stop")
-    
+
     try:
         server.serve_forever()
     except KeyboardInterrupt:

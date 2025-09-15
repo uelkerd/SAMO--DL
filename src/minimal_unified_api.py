@@ -67,12 +67,12 @@ async def analyze_emotion(text: str):
             model = AutoModelForSequenceClassification.from_pretrained(model_name)
             emotion_model = {"tokenizer": tokenizer, "model": model}
             logger.info("Emotion model loaded successfully")
-        
+
         # Perform emotion analysis
         inputs = emotion_model["tokenizer"](text, return_tensors="pt", truncation=True, max_length=512)
         outputs = emotion_model["model"](**inputs)
         predictions = outputs.logits.sigmoid()  # Use sigmoid for multi-label classification
-        
+
         # Get emotion labels (28 emotions from our DeBERTa-v3 model)
         emotion_labels = [
             'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
@@ -82,15 +82,15 @@ async def analyze_emotion(text: str):
             'relief', 'remorse', 'sadness', 'surprise', 'neutral'
         ]
         emotion_scores = predictions[0].tolist()
-        
+
         result = {
             "text": text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
             "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))]
         }
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Error in emotion analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Emotion analysis failed: {str(e)}")
@@ -108,14 +108,14 @@ async def summarize_text(text: str):
             except ImportError:
                 logger.error("sentencepiece not installed. Please install it: pip install sentencepiece")
                 raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.")
-            
+
             from transformers import T5Tokenizer, T5ForConditionalGeneration
             model_name = 't5-small'
             tokenizer = T5Tokenizer.from_pretrained(model_name)
             model = T5ForConditionalGeneration.from_pretrained(model_name)
             summarization_model = {"tokenizer": tokenizer, "model": model}
             logger.info("Summarization model loaded successfully")
-        
+
         # Perform summarization
         inputs = summarization_model["tokenizer"](f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True)
         outputs = summarization_model["model"].generate(
@@ -127,12 +127,12 @@ async def summarize_text(text: str):
             early_stopping=True
         )
         summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
-        
+
         return {
             "original_text": text,
             "summary": summary
         }
-        
+
     except Exception as e:
         logger.error(f"Error in text summarization: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Text summarization failed: {str(e)}")
@@ -148,18 +148,18 @@ async def transcribe_audio(audio_file: bytes):
             import whisper
             whisper_model = whisper.load_model("base")
             logger.info("Whisper model loaded successfully")
-        
+
         # Save audio file temporarily
         import tempfile
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
             tmp_file.write(audio_file)
             tmp_file_path = tmp_file.name
-        
+
         try:
             # Perform transcription
             result = whisper_model.transcribe(tmp_file_path)
             transcription = result["text"]
-            
+
             return {
                 "transcription": transcription,
                 "language": result.get("language", "unknown")
@@ -167,7 +167,7 @@ async def transcribe_audio(audio_file: bytes):
         finally:
             # Clean up temporary file
             os.unlink(tmp_file_path)
-        
+
     except Exception as e:
         logger.error(f"Error in audio transcription: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Audio transcription failed: {str(e)}")
