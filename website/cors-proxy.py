@@ -16,7 +16,7 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, Accept, Origin, X-Requested-With')
         self.end_headers()
     
     def do_GET(self):
@@ -40,11 +40,17 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
                 
+                # Debug: Print what we received
+                print(f"Received data: {post_data.decode('utf-8')}")
+                
                 # Forward the request to the real API
                 api_url = 'https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict'
                 
                 req = urllib.request.Request(api_url, data=post_data, method='POST')
                 req.add_header('Content-Type', 'application/json')
+                
+                # Debug: Print what we're sending
+                print(f"Sending to API: {post_data.decode('utf-8')}")
                 
                 with urllib.request.urlopen(req) as response:
                     api_response = response.read()
@@ -58,6 +64,15 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                     # Send the API response
                     self.wfile.write(api_response)
                     
+            except urllib.error.HTTPError as e:
+                print(f"HTTP Error {e.code}: {e.reason}")
+                # Forward the original error status code instead of converting to 500
+                self.send_response(e.code)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                error_response = json.dumps({"error": f"API Error {e.code}: {e.reason}"})
+                self.wfile.write(error_response.encode())
             except Exception as e:
                 print(f"Error: {e}")
                 self.send_response(500)
@@ -71,8 +86,8 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
             self.end_headers()
     
     def log_message(self, format, *args):
-        # Suppress default logging
-        pass
+        # Enable logging to see requests
+        print(f"[{self.date_time_string()}] {format % args}")
 
 if __name__ == '__main__':
     port = 8081

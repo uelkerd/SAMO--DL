@@ -18,11 +18,14 @@
 function processText() {
     console.log('🚀 Processing text...');
     const text = document.getElementById('textInput').value;
+    console.log('🔍 Text from input:', text);
+    console.log('🔍 Text length:', text.length);
     if (!text.trim()) {
         alert('Please enter some text to analyze');
         return;
     }
     // Try real API first, fallback to mock data
+    console.log('🔍 About to call testWithRealAPI from processText');
     testWithRealAPI();
 }
 
@@ -252,7 +255,31 @@ function testWithRealAPI() {
         updateElement('modelDetails', 'Loading...');
         
         // Test text
-        const testText = document.getElementById('textInput').value || "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.";
+        let testText = document.getElementById('textInput').value || "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.";
+        
+        // Check text length limit (API seems to have ~400 character limit)
+        const MAX_TEXT_LENGTH = 400;
+        if (testText.length > MAX_TEXT_LENGTH) {
+            console.log(`⚠️ Text too long (${testText.length} chars), truncating to ${MAX_TEXT_LENGTH} chars`);
+            testText = testText.substring(0, MAX_TEXT_LENGTH) + "...";
+            
+            // Show user-friendly warning
+            const textInput = document.getElementById('textInput');
+            if (textInput) {
+                textInput.style.borderColor = '#f59e0b';
+                textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
+                setTimeout(() => {
+                    textInput.style.borderColor = '';
+                    textInput.style.boxShadow = '';
+                }, 3000);
+            }
+            
+            // Show warning in console and potentially in UI
+            console.warn(`⚠️ Text truncated from ${testText.length + 3} to ${MAX_TEXT_LENGTH} characters due to API limitations`);
+        }
+        
+        console.log('🔍 testWithRealAPI - testText:', testText);
+        console.log('🔍 testWithRealAPI - testText length:', testText.length);
         
         // Try the LIVE emotion API first (no auth required)
         console.log('🔥 Calling LIVE emotion API...');
@@ -280,7 +307,15 @@ function testWithRealAPI() {
             if (!response.ok) {
                 console.error('❌ API call failed with status:', response.status);
                 console.error('❌ Response status text:', response.statusText);
-                throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                
+                // Handle specific error cases
+                if (response.status === 400) {
+                    throw new Error(`Bad Request: Text may be too long or invalid. Please try shorter text (under 400 characters).`);
+                } else if (response.status === 500) {
+                    throw new Error(`Server Error: The API server encountered an error. Please try again.`);
+                } else {
+                    throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                }
             }
             return response.json();
         })
