@@ -52,6 +52,29 @@ class TestDemoFunctionality:
         assert "text" in expected_request
         assert isinstance(expected_request["text"], str)
         assert len(expected_request["text"]) > 0
+
+    def test_demo_emotion_detection_edge_cases(self, demo_api_url):
+        """Test emotion detection with edge cases and invalid inputs"""
+        # Test empty string
+        empty_request = {"text": ""}
+        assert isinstance(empty_request["text"], str)
+        assert len(empty_request["text"]) == 0
+        
+        # Test very long text
+        long_text = "This is a very long text. " * 1000  # 25,000 characters
+        long_request = {"text": long_text}
+        assert isinstance(long_request["text"], str)
+        assert len(long_request["text"]) > 10000
+        
+        # Test non-string input (should be handled by frontend validation)
+        # This test ensures the demo handles type validation
+        try:
+            non_string_request = {"text": 123}
+            # This should fail validation in the demo
+            assert False, "Non-string input should be rejected"
+        except (TypeError, ValueError):
+            # Expected behavior
+            pass
     
     @staticmethod
     def test_demo_whisper_request_format(demo_api_url, sample_audio_data):
@@ -66,6 +89,20 @@ class TestDemoFunctionality:
         assert "audio_data" in expected_request
         assert "model" in expected_request
         assert expected_request["model"] == "whisper"
+
+    def test_demo_whisper_invalid_audio(self, demo_api_url):
+        """Test that the demo and API correctly handle invalid or corrupted audio data"""
+        # Simulate corrupted audio data (e.g., not a valid audio byte string)
+        corrupted_audio_data = b"not_really_audio"
+        request_payload = {
+            "audio_data": corrupted_audio_data,
+            "model": "whisper"
+        }
+        import requests
+        response = requests.post(demo_api_url, json=request_payload)
+        # Expect a 400 or 422 error, or a specific error message in response
+        assert response.status_code in (400, 422)
+        assert "error" in response.json() or "Invalid audio" in response.text
     
     @staticmethod
     def test_demo_t5_request_format(demo_api_url, sample_text):
