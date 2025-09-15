@@ -440,6 +440,12 @@ function createSimpleChart(emotions) {
         return;
     }
     
+    // Validate emotions array
+    if (!Array.isArray(emotions) || emotions.length === 0) {
+        console.warn('⚠️ Invalid or empty emotions array, showing no emotions message');
+        emotions = [];
+    }
+    
     // Sort emotions by confidence
     const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
     
@@ -484,7 +490,13 @@ function createSimpleChart(emotions) {
 function updateDetailedAnalysis(emotions, summary) {
     console.log('🧠 Updating detailed analysis...');
     
-    // Calculate values
+    // Validate emotions array
+    if (!Array.isArray(emotions) || emotions.length === 0) {
+        console.warn('⚠️ Invalid or empty emotions array, using defaults');
+        emotions = [{ emotion: 'unknown', confidence: 0 }];
+    }
+    
+    // Calculate values safely
     const primaryEmotion = emotions[0] || { emotion: 'unknown', confidence: 0 };
     const avgConfidence = emotions.length > 0 ? emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length : 0;
     const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
@@ -502,7 +514,7 @@ function updateDetailedAnalysis(emotions, summary) {
     const sentimentScore = emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0);
     const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
     
-    // Confidence range (all emotions, or single emotion)
+    // Confidence range (all emotions, or single emotion) - safe calculation
     const confidences = emotions.map(e => e.confidence);
     const minConf = confidences.length > 0 ? Math.min(...confidences) : 0;
     const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
@@ -510,8 +522,9 @@ function updateDetailedAnalysis(emotions, summary) {
         `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%` : 
         `${Math.round(maxConf * 100)}%`;
     
-    // Model details
-    const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summary.original_length} characters.`;
+    // Model details - safe length access
+    const summaryLength = summary && typeof summary.original_length === 'number' ? summary.original_length : 0;
+    const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summaryLength} characters.`;
     
     // Update DOM elements
     updateElement('primaryEmotion', `${primaryEmotion.emotion} (${Math.round(primaryEmotion.confidence * 100)}%)`);
@@ -683,6 +696,14 @@ function createSummaryChart(summary) {
 function updateProcessingInfo(emotions, summary, avgConfidence) {
     console.log('ℹ️ Updating processing information...');
     
+    // Validate inputs
+    if (!Array.isArray(emotions) || emotions.length === 0) {
+        console.warn('⚠️ Invalid emotions array in updateProcessingInfo');
+    }
+    
+    // Validate avgConfidence
+    const safeAvgConfidence = typeof avgConfidence === 'number' && !isNaN(avgConfidence) ? avgConfidence : 0;
+    
     // Calculate processing time (mock)
     const processingTime = Math.round(Math.random() * 2000 + 1000); // 1-3 seconds
     
@@ -690,7 +711,7 @@ function updateProcessingInfo(emotions, summary, avgConfidence) {
     updateElement('totalTime', `${processingTime}ms`);
     updateElement('processingStatus', 'Completed');
     updateElement('modelsUsed', 'SAMO DeBERTa v3 Large, SAMO T5');
-    updateElement('avgConfidence', `${Math.round(avgConfidence * 100)}%`);
+    updateElement('avgConfidence', `${Math.round(safeAvgConfidence * 100)}%`);
     
     console.log('✅ Processing information updated');
 }
