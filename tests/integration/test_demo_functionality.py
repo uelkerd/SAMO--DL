@@ -70,7 +70,7 @@ class TestDemoFunctionality:
         # Test non-string input (should be handled by frontend validation)
         # This test ensures the demo handles type validation
         try:
-            non_string_request = {"text": 123}
+            _non_string_request = {"text": 123}
             # This should fail validation in the demo
             assert False, "Non-string input should be rejected"
         except (TypeError, ValueError):
