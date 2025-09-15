@@ -322,10 +322,11 @@ function displayDetailedModelAnalysis(emotionData, summaryData) {
         normalizedEmotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
     const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
     
-    // Calculate confidence range
-    const confidences = normalizedEmotions.map(e => e.confidence);
-    const minConf = Math.min(...confidences);
-    const maxConf = Math.max(...confidences);
+    // Calculate confidence range (focus on top 3 emotions for more reasonable range)
+    const topEmotions = normalizedEmotions.slice(0, 3);
+    const confidences = topEmotions.map(e => e.confidence);
+    const minConf = confidences.length > 0 ? Math.min(...confidences) : 0;
+    const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
     const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
     
     // Model processing details
