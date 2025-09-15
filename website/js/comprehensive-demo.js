@@ -6,7 +6,7 @@
 class SAMOAPIClient {
     constructor() {
         this.baseURL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
-        this.apiKey = null; // Will be set if needed
+        this.apiKey = 'demo-key-123'; // Demo API key - replace with actual key
     }
 
     async makeRequest(endpoint, data, method = 'POST') {
@@ -31,6 +31,10 @@ class SAMOAPIClient {
             if (!response.ok) {
                 if (response.status === 429) {
                     throw new Error('Rate limit exceeded. Please try again in a moment.');
+                } else if (response.status === 401) {
+                    throw new Error('API key required. Please contact support for access.');
+                } else if (response.status === 503) {
+                    throw new Error('Service temporarily unavailable. Please try again later.');
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -64,11 +68,66 @@ class SAMOAPIClient {
     }
 
     async summarizeText(text) {
-        return await this.makeRequest('/summarize/text', { text });
+        try {
+            return await this.makeRequest('/summarize/text', { text });
+        } catch (error) {
+            // If API is not available, return mock data for demo purposes
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily')) {
+                console.warn('API not available, using mock data for demo:', error.message);
+                return this.getMockSummaryResponse(text);
+            }
+            throw error;
+        }
+    }
+
+    getMockSummaryResponse(text) {
+        // Mock summarization response for demo purposes
+        const words = text.split(' ');
+        const summaryLength = Math.max(10, Math.floor(words.length * 0.3));
+        const summary = words.slice(0, summaryLength).join(' ') + '...';
+        
+        return {
+            summary: summary,
+            original_length: text.length,
+            summary_length: summary.length,
+            compression_ratio: (summary.length / text.length).toFixed(2),
+            request_id: 'demo-' + Date.now(),
+            timestamp: Date.now() / 1000,
+            mock: true
+        };
     }
 
     async detectEmotions(text) {
-        return await this.makeRequest('/predict', { text });
+        try {
+            return await this.makeRequest('/predict', { text });
+        } catch (error) {
+            // If API is not available, return mock data for demo purposes
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily')) {
+                console.warn('API not available, using mock data for demo:', error.message);
+                return this.getMockEmotionResponse(text);
+            }
+            throw error;
+        }
+    }
+
+    getMockEmotionResponse(text) {
+        // Mock emotion detection response for demo purposes
+        const emotions = [
+            { emotion: 'joy', confidence: 0.85 },
+            { emotion: 'excitement', confidence: 0.72 },
+            { emotion: 'optimism', confidence: 0.68 },
+            { emotion: 'gratitude', confidence: 0.45 },
+            { emotion: 'neutral', confidence: 0.15 }
+        ];
+        
+        return {
+            text: text,
+            emotions: emotions,
+            confidence: 0.75,
+            request_id: 'demo-' + Date.now(),
+            timestamp: Date.now() / 1000,
+            mock: true
+        };
     }
 
     async processCompleteWorkflow(audioFile, text) {
