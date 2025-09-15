@@ -104,9 +104,9 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
 
-    def log_message(self, format, *args):
+    def log_message(self, fmt, *args):
         # Enable logging to see requests
-        print(f"[{self.date_time_string()}] {format % args}")
+        print(f"[{self.date_time_string()}] {fmt % args}")
 
 if __name__ == '__main__':
     port = 8081
