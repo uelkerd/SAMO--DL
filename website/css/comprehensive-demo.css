@@ -30,6 +30,7 @@ body {
     background: var(--dark-gradient);
     background-attachment: fixed;
     min-height: 100vh;
+    padding-top: 80px; /* Account for fixed navbar */
 }
 
 /* Result sections */

@@ -11,11 +11,12 @@ class SAMOAPIClient {
         this.retryAttempts = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.retryAttempts : 3;
     }
 
-    async makeRequest(endpoint, data, method = 'POST') {
+    async makeRequest(endpoint, data, method = 'POST', retryAttempt = 0) {
         const config = {
             method,
             headers: {
                 'Content-Type': 'application/json',
+                'User-Agent': 'SAMO-Demo-Website/1.0'
             }
         };
 
@@ -29,20 +30,32 @@ class SAMOAPIClient {
 
         try {
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
-            
+
             if (!response.ok) {
                 if (response.status === 429) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Rate limit exceeded. Please try again in a moment.');
+
+                    // If we have retry attempts left and a retry_after value
+                    if (retryAttempt < this.retryAttempts && errorData.retry_after) {
+                        const delayMs = Math.min(errorData.retry_after * 1000, 5000); // Max 5 seconds
+                        console.log(`Rate limited, retrying in ${delayMs}ms (attempt ${retryAttempt + 1}/${this.retryAttempts})`);
+
+                        await new Promise(resolve => setTimeout(resolve, delayMs));
+                        return this.makeRequest(endpoint, data, method, retryAttempt + 1);
+                    }
+
+                    throw new Error(errorData.message || 'Rate limit exceeded. Using demo data instead.');
                 } else if (response.status === 401) {
-                    throw new Error('API key required. Please contact support for access.');
+                    throw new Error('API authentication required for this endpoint.');
+                } else if (response.status === 403) {
+                    throw new Error('API access forbidden. Using demo data instead.');
                 } else if (response.status === 503) {
-                    throw new Error('Service temporarily unavailable. Please try again later.');
+                    throw new Error('Service temporarily unavailable. Using demo data instead.');
                 }
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
-            
+
             return await response.json();
         } catch (error) {
             console.error('API request failed:', error);

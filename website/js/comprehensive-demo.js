@@ -333,7 +333,7 @@ class ComprehensiveDemo {
 
     showSummarizationResults(summary, originalText) {
         const summaryText = summary.summary || summary.text || 'Summary not available';
-        const originalLength = originalText.length;
+        const originalLength = originalText ? originalText.length : 0;
         const summaryLength = summaryText.length;
         
         document.getElementById('summaryText').textContent = summaryText;

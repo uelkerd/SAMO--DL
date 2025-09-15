@@ -93,8 +93,53 @@ class ComprehensiveDemo {
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    window.demo = new ComprehensiveDemo();
-    console.log('Demo initialized:', window.demo);
+    try {
+        console.log('🚀 Initializing SAMO Demo...');
+
+        // Check dependencies first
+        const deps = {
+            SAMOAPIClient: typeof SAMOAPIClient !== 'undefined',
+            UIController: typeof UIController !== 'undefined',
+            ChartUtils: typeof ChartUtils !== 'undefined'
+        };
+
+        console.log('📋 Dependencies check:', deps);
+
+        const missingDeps = Object.entries(deps).filter(([name, loaded]) => !loaded);
+        if (missingDeps.length > 0) {
+            console.error('❌ Missing dependencies:', missingDeps.map(([name]) => name));
+            throw new Error(`Missing dependencies: ${missingDeps.map(([name]) => name).join(', ')}`);
+        }
+
+        window.demo = new ComprehensiveDemo();
+        console.log('✅ Demo initialized successfully:', window.demo);
+
+        // Verify processCompleteWorkflow exists
+        if (typeof window.demo.processCompleteWorkflow === 'function') {
+            console.log('✅ processCompleteWorkflow method available');
+        } else {
+            console.error('❌ processCompleteWorkflow method missing');
+        }
+
+    } catch (error) {
+        console.error('❌ Demo initialization failed:', error);
+
+        // Show user-friendly error
+        setTimeout(() => {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 9999;
+                background: #ef4444; color: white; padding: 15px; border-radius: 8px;
+                font-family: Arial, sans-serif; font-size: 14px; max-width: 300px;
+            `;
+            errorDiv.innerHTML = `
+                <strong>Demo Initialization Failed</strong><br>
+                ${error.message}<br>
+                <small>Please refresh the page</small>
+            `;
+            document.body.appendChild(errorDiv);
+        }, 100);
+    }
     
     // Smooth scrolling for in-page navigation links
     document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
