@@ -62,7 +62,7 @@ class ComprehensiveDemo {
                 try {
                     this.uiController.updateProgressStep('step3', 'active');
                     results.emotions = await this.apiClient.detectEmotions(currentText);
-                    results.modelsUsed.push('DeBERTa v3 Large');
+                    results.modelsUsed.push('SAMO DeBERTa v3 Large');
                     this.uiController.updateProgressStep('step3', 'completed');
                     this.uiController.showEmotionResults(results.emotions);
                 } catch (error) {

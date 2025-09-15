@@ -261,8 +261,70 @@ class UIController {
         
         // Update the emotion chart if available
         if (this.chartUtils && this.chartUtils.createEmotionChart) {
-            this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+            try {
+                this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+            } catch (error) {
+                console.error('Chart creation failed:', error);
+                // Fallback: show a simple text representation
+                this.showEmotionChartFallback(topEmotions);
+            }
+        } else {
+            // Fallback: show a simple text representation
+            this.showEmotionChartFallback(topEmotions);
         }
+    }
+
+    showEmotionChartFallback(emotions) {
+        const chartContainer = document.getElementById('emotionChart');
+        if (!chartContainer) return;
+        
+        // Create a simple visual representation
+        chartContainer.innerHTML = '';
+        
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'emotion-chart-fallback';
+        chartDiv.style.cssText = `
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        `;
+        
+        const title = document.createElement('h6');
+        title.textContent = 'Emotion Confidence Levels';
+        title.style.cssText = 'color: #e2e8f0; margin-bottom: 15px; font-weight: bold;';
+        chartDiv.appendChild(title);
+        
+        emotions.forEach((emotion, index) => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100;
+            const emotionName = emotion.emotion || 'Unknown';
+            
+            const emotionBar = document.createElement('div');
+            emotionBar.style.cssText = 'margin-bottom: 10px;';
+            
+            const label = document.createElement('div');
+            label.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 5px; color: #e2e8f0; font-size: 0.9rem;';
+            label.innerHTML = `<span>${emotionName}</span><span>${confidence.toFixed(1)}%</span>`;
+            
+            const barContainer = document.createElement('div');
+            barContainer.style.cssText = 'background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 4px; overflow: hidden;';
+            
+            const bar = document.createElement('div');
+            bar.style.cssText = `
+                height: 100%;
+                width: ${confidence}%;
+                background: linear-gradient(90deg, #8b5cf6, #a855f7);
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            `;
+            
+            barContainer.appendChild(bar);
+            emotionBar.appendChild(label);
+            emotionBar.appendChild(barContainer);
+            chartDiv.appendChild(emotionBar);
+        });
+        
+        chartContainer.appendChild(chartDiv);
     }
 
     escapeHtml(text) {

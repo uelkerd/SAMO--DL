@@ -32,6 +32,32 @@ body {
     min-height: 100vh;
 }
 
+/* Ensure all text is visible */
+.text-muted {
+    color: #cbd5e1 !important;
+}
+
+.text-dark {
+    color: #e2e8f0 !important;
+}
+
+.form-control {
+    color: #e2e8f0 !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+.form-control:focus {
+    color: #e2e8f0 !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25) !important;
+}
+
+.form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
 /* Hero Section */
 .hero-section::before {
     content: '';
@@ -60,9 +86,9 @@ body {
     border-radius: 30px;
     box-shadow: var(--shadow-glass);
     padding: 50px;
-    margin: -80px 0 50px 0;
+    margin: 50px 0;
     position: relative;
-    z-index: 10;
+    z-index: 1;
     color: #e2e8f0;
 }
 

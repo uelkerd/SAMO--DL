@@ -9,7 +9,10 @@ class ChartUtils {
 
     createEmotionChart(containerId, emotions) {
         const ctx = document.getElementById(containerId);
-        if (!ctx) return;
+        if (!ctx) {
+            console.error('Chart container not found:', containerId);
+            return;
+        }
 
         // Destroy existing chart if it exists
         if (this.charts[containerId]) {
@@ -18,6 +21,8 @@ class ChartUtils {
 
         const labels = emotions.map(e => e.emotion || e.label);
         const data = emotions.map(e => (e.confidence || e.score || 0) * 100);
+        
+        console.log('Creating emotion chart with data:', { labels, data, emotions });
 
         this.charts[containerId] = new Chart(ctx, {
             type: 'bar',
@@ -93,6 +98,12 @@ class ChartUtils {
                 animation: {
                     duration: 1000,
                     easing: 'easeInOutQuart'
+                },
+                elements: {
+                    bar: {
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    }
                 }
             }
         });
