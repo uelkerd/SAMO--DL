@@ -93,7 +93,7 @@ class SAMOAPIClient {
      */
     async transcribe(audioFile, language = null) {
         const formData = new FormData();
-        formData.append('audio', audioFile);
+        formData.append('audio_file', audioFile);
         if (language) {
             formData.append('language', language);
         }
@@ -118,6 +118,19 @@ class SAMOAPIClient {
      */
     isConfigured() {
         return !!(this.baseURL && this.endpoints);
+    }
+
+    // Backward-compatibility aliases
+    async analyzeText(text) {
+        return this.analyzeJournal(text);
+    }
+
+    async transcribeAudio(audioFile) {
+        return this.transcribe(audioFile);
+    }
+
+    async detectEmotions(text) {
+        return this.analyzeEmotion(text);
     }
 }
 

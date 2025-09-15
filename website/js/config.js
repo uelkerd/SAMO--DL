@@ -65,4 +65,34 @@ if (window.SAMO_SERVER_CONFIG) {
     Object.assign(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
 }
 
-console.log('🔧 SAMO Configuration loaded:', window.SAMO_CONFIG);
+// Only log config in debug mode and redact sensitive fields
+if (window.SAMO_CONFIG && window.SAMO_CONFIG.DEBUG) {
+    const sanitizedConfig = { ...window.SAMO_CONFIG };
+    const sensitiveKeys = ['apiKey', 'secret', 'token', 'password', 'clientSecret'];
+    
+    // Redact sensitive fields
+    sensitiveKeys.forEach(key => {
+        if (sanitizedConfig[key]) {
+            sanitizedConfig[key] = 'REDACTED';
+        }
+    });
+    
+    // Also check nested objects
+    if (sanitizedConfig.API) {
+        sensitiveKeys.forEach(key => {
+            if (sanitizedConfig.API[key]) {
+                sanitizedConfig.API[key] = 'REDACTED';
+            }
+        });
+    }
+    
+    if (sanitizedConfig.OPENAI) {
+        sensitiveKeys.forEach(key => {
+            if (sanitizedConfig.OPENAI[key]) {
+                sanitizedConfig.OPENAI[key] = 'REDACTED';
+            }
+        });
+    }
+    
+    console.log('🔧 SAMO Configuration loaded (debug mode):', sanitizedConfig);
+}

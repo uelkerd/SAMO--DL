@@ -28,7 +28,8 @@ class ComprehensiveDemo {
             if (audioFile) {
                 try {
                     this.uiController.updateProgressStep('step2', 'active');
-                    results.transcription = await this.apiClient.transcribeAudio(audioFile);
+                    results.processingStartTime = Date.now();
+                    results.transcription = await this.apiClient.transcribe(audioFile);
                     results.modelsUsed.push('SAMO Whisper');
                     this.uiController.updateProgressStep('step2', 'completed');
                     this.uiController.showTranscriptionResults(results.transcription);
@@ -59,7 +60,8 @@ class ComprehensiveDemo {
                     this.uiController.updateProgressStep('step4', 'active');
                     
                     // Call the unified analysis endpoint that returns both summary and emotions
-                    const analysisResponse = await this.apiClient.analyzeText(currentText);
+                    results.processingStartTime = Date.now();
+                    const analysisResponse = await this.apiClient.analyzeJournal(currentText);
                     
                     // Extract summary results
                     if (analysisResponse.summary) {

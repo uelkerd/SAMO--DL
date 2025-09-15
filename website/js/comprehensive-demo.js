@@ -15,7 +15,8 @@ class SAMOAPIClient {
             EMOTION: '/analyze/emotion',
             JOURNAL: '/analyze/journal',
             HEALTH: '/health',
-            TRANSCRIBE: '/transcribe'
+            TRANSCRIBE: '/transcribe/voice',
+            VOICE_JOURNAL: '/analyze/voice-journal'
         };
         this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 20000;
         this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
@@ -75,13 +76,12 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
         
         try {
-            // Add API key header if available
+            // Use VOICE_JOURNAL endpoint for audio analysis flows (no auth header)
             const config = {
                 method: 'POST',
-                body: formData,
-                headers: this.apiKey ? { 'X-API-Key': this.apiKey } : undefined
+                body: formData
             };
-            const response = await fetch(`${this.baseURL}${this.endpoints.TRANSCRIBE}`, config);
+            const response = await fetch(`${this.baseURL}${this.endpoints.VOICE_JOURNAL}`, config);
             
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -98,7 +98,8 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            return await this.makeRequest(this.endpoints.JOURNAL, { text, generate_summary: true });
+            const response = await this.makeRequest(this.endpoints.JOURNAL, { text, generate_summary: true });
+            return response.data?.summary || response;
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -128,7 +129,8 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            return await this.makeRequest(this.endpoints.JOURNAL, { text, model: 'deberta-goemotions' });
+            const response = await this.makeRequest(this.endpoints.JOURNAL, { text, model: 'deberta-goemotions' });
+            return response.data?.emotion_analysis || response;
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -174,8 +176,13 @@ class SAMOAPIClient {
         // Step 1: Transcribe audio if provided
         if (audioFile) {
             try {
-                results.transcription = await this.transcribeAudio(audioFile);
-                // Some API responses use 'text', others use 'transcription'. Normalize here for consistency.
+                const audioResponse = await this.transcribeAudio(audioFile);
+                // Map transcription, summary and emotion_analysis from unified response
+                results.transcription = audioResponse.transcription || audioResponse;
+                results.summary = audioResponse.summary || null;
+                results.emotions = audioResponse.emotion_analysis || null;
+                
+                // Extract transcribed text for further processing if needed
                 const transcribedText = results.transcription.text || results.transcription.transcription;
                 currentText = transcribedText;
                 results.modelsUsed.push('SAMO Whisper');
@@ -185,8 +192,8 @@ class SAMOAPIClient {
             }
         }
 
-        // Step 2: Summarize text
-        if (currentText) {
+        // Step 2: Summarize text (if not already done in audio processing)
+        if (currentText && !results.summary) {
             try {
                 results.summary = await this.summarizeText(currentText);
                 results.modelsUsed.push('SAMO T5');
@@ -196,8 +203,8 @@ class SAMOAPIClient {
             }
         }
 
-        // Step 3: Detect emotions
-        if (currentText) {
+        // Step 3: Detect emotions (if not already done in audio processing)
+        if (currentText && !results.emotions) {
             try {
                 results.emotions = await this.detectEmotions(currentText);
                 results.modelsUsed.push('SAMO DeBERTa v3 Large');
