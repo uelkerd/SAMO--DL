@@ -39,17 +39,25 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         
         // Call Hugging Face Inference API
-        const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
+        const hfToken = window.SAMO_CONFIG?.HUGGING_FACE?.API_TOKEN;
+        
+        if (!hfToken || hfToken === 'YOUR_HF_TOKEN_HERE') {
+            console.warn('⚠️ Hugging Face token not configured, falling back to static samples');
+            generateStaticSampleText();
+            return;
+        }
+        
+        const response = await fetch(`https://api-inference.huggingface.co/models/${window.SAMO_CONFIG.HUGGING_FACE.MODEL}`, {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer YOUR_HF_TOKEN_HERE', // Replace with your actual HF token
+                'Authorization': `Bearer ${hfToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 inputs: randomPrompt,
                 parameters: {
-                    max_length: 150,
-                    temperature: 0.8,
+                    max_length: window.SAMO_CONFIG.HUGGING_FACE.MAX_LENGTH,
+                    temperature: window.SAMO_CONFIG.HUGGING_FACE.TEMPERATURE,
                     do_sample: true,
                     top_p: 0.9
                 }
@@ -376,7 +384,7 @@ function updateSummary(summary) {
     // Create summary chart
     createSummaryChart(summary);
     
-    console.log('✅ Summary updated');
+        console.log('✅ Summary updated');
 }
 
 function updateElement(id, value) {

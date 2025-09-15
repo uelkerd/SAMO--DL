@@ -46,29 +46,19 @@
     
     <div id="results"></div>
 
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
     <script>
         let hfToken = '';
         
-        function testHuggingFaceAPI() {
-            hfToken = document.getElementById('hfToken').value.trim();
+        function testHuggingFaceModel(model, token) {
+            console.log(`🧪 Testing model: ${model}`);
             
-            if (!hfToken) {
-                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Please enter your HF token first</div>';
-                return;
-            }
-            
-            if (!hfToken.startsWith('hf_')) {
-                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Token should start with "hf_"</div>';
-                return;
-            }
-            
-            console.log('🧪 Testing HF API with token:', hfToken.substring(0, 10) + '...');
-            
-            // Test with a simple prompt
-            fetch('https://api-inference.huggingface.co/models/gpt2', {
+            fetch(`https://api-inference.huggingface.co/models/${model}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${hfToken}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -89,7 +79,7 @@
                 console.log('✅ HF API response:', data);
                 
                 let resultHTML = '<div class="api-response">';
-                resultHTML += '<h4>API Response:</h4>';
+                resultHTML += `<h4>API Response (${model}):</h4>`;
                 resultHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
                 resultHTML += '</div>';
                 
@@ -103,10 +93,44 @@
                 document.getElementById('tokenTest').innerHTML = resultHTML;
             })
             .catch(error => {
-                console.error('❌ HF API test failed:', error);
-                document.getElementById('tokenTest').innerHTML = 
-                    '<div class="error">❌ API test failed: ' + error.message + '</div>';
+                console.error(`❌ HF API test failed for ${model}:`, error);
+                
+                // Try next model
+                const models = ['gpt2', 'distilgpt2', 'microsoft/DialoGPT-medium'];
+                const currentIndex = models.indexOf(model);
+                
+                if (currentIndex < models.length - 1) {
+                    console.log(`🔄 Trying next model: ${models[currentIndex + 1]}`);
+                    testHuggingFaceModel(models[currentIndex + 1], token);
+                } else {
+                    document.getElementById('tokenTest').innerHTML = 
+                        '<div class="error">❌ All models failed. Check your token or try again later.</div>';
+                }
             });
+        }
+        
+        function testHuggingFaceAPI() {
+            hfToken = document.getElementById('hfToken').value.trim();
+            
+            if (!hfToken) {
+                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Please enter your HF token first</div>';
+                return;
+            }
+            
+            if (!hfToken.startsWith('hf_')) {
+                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Token should start with "hf_"</div>';
+                return;
+            }
+            
+            console.log('🧪 Testing HF API with token:', hfToken.substring(0, 10) + '...');
+            
+            // Update config with the token
+            if (window.SAMO_CONFIG) {
+                window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN = hfToken;
+            }
+            
+            // Test with a simple prompt
+            testHuggingFaceModel('gpt2', hfToken);
         }
         
         function generateTestText(emotion) {
@@ -125,7 +149,7 @@
             
             document.getElementById('generationTest').innerHTML = '<div class="warning">🔄 Generating text...</div>';
             
-            fetch('https://api-inference.huggingface.co/models/gpt2', {
+            fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${hfToken}`,
@@ -187,15 +211,17 @@
             }
             
             let instructions = '<div class="api-response">';
-            instructions += '<h4>📝 Update Instructions:</h4>';
+            instructions += '<h4>🔒 SECURE Setup Instructions:</h4>';
             instructions += '<ol>';
-            instructions += '<li>Open <code>website/js/simple-demo-functions.js</code></li>';
-            instructions += '<li>Find line 45: <code>\'Authorization\': \'Bearer YOUR_HF_TOKEN_HERE\',</code></li>';
+            instructions += '<li>Open <code>website/config.js</code></li>';
+            instructions += '<li>Find line 7: <code>API_TOKEN: \'YOUR_HF_TOKEN_HERE\',</code></li>';
             instructions += '<li>Replace <code>YOUR_HF_TOKEN_HERE</code> with your token:</li>';
-            instructions += `<li><code>\'Authorization\': \'Bearer ${hfToken}\',</code></li>`;
+            instructions += `<li><code>API_TOKEN: '${hfToken}',</code></li>`;
+            instructions += '<li><strong>IMPORTANT:</strong> Add <code>config.js</code> to <code>.gitignore</code> to prevent committing tokens!</li>';
             instructions += '<li>Save the file and refresh the demo</li>';
             instructions += '</ol>';
-            instructions += '<div class="success">✅ Your token is ready to use!</div>';
+            instructions += '<div class="success">✅ Your token is ready to use securely!</div>';
+            instructions += '<div class="warning">⚠️ Remember: Never commit real tokens to version control!</div>';
             instructions += '</div>';
             
             document.getElementById('updateInstructions').innerHTML = instructions;

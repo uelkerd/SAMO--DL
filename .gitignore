@@ -386,4 +386,7 @@ coverage.xml
 bandit-report.json
 ci_pipeline.log
 
+# Configuration files with sensitive data
+website/config.js
+
 
