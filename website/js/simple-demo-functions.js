@@ -6,10 +6,12 @@
  * To enable real AI text generation, you need an OpenAI API key:
  * 1. Go to https://platform.openai.com/api-keys
  * 2. Create a new API key
- * 3. Replace 'your_openai_api_key_here' in the generateWithOpenAI function below
+ * 3. Add it to website/config.js in the OPENAI.API_KEY field
  * 4. Save the file and refresh the demo
  * 
  * Without an API key, the demo will use static sample texts as fallback.
+ * 
+ * 🔒 SECURITY: API keys are stored in config.js, not hardcoded in this file!
  */
 
 // EXACT copy of working functions from working-main-demo.html
@@ -58,7 +60,9 @@ async function generateSampleText() {
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
         }
         
-        // Try to use REAL OpenAI API for text generation
+        // Try to use REAL 
+        // 
+        //  API for text generation
         try {
             const generatedText = await generateWithOpenAI(randomPrompt);
             
@@ -108,9 +112,17 @@ async function generateSampleText() {
 async function generateWithOpenAI(prompt) {
     console.log('🤖 Calling OpenAI API with prompt:', prompt);
     
+    // Get configuration from secure config file
+    if (!window.SAMO_CONFIG || !window.SAMO_CONFIG.OPENAI || !window.SAMO_CONFIG.OPENAI.API_KEY) {
+        throw new Error('OpenAI API key not configured. Please check config.js file.');
+    }
+    
     // OpenAI API configuration
     const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
-    const OPENAI_API_KEY = 'your_openai_api_key_here'; // Replace with actual API key
+    const OPENAI_API_KEY = window.SAMO_CONFIG.OPENAI.API_KEY;
+    const MODEL = window.SAMO_CONFIG.OPENAI.MODEL || 'gpt-3.5-turbo';
+    const MAX_TOKENS = window.SAMO_CONFIG.OPENAI.MAX_TOKENS || 200;
+    const TEMPERATURE = window.SAMO_CONFIG.OPENAI.TEMPERATURE || 0.8;
     
     try {
         const response = await fetch(OPENAI_API_URL, {
@@ -120,7 +132,7 @@ async function generateWithOpenAI(prompt) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo', // Using GPT-3.5-turbo for cost efficiency
+                model: MODEL,
                 messages: [
                     {
                         role: 'system',
@@ -131,8 +143,8 @@ async function generateWithOpenAI(prompt) {
                         content: prompt
                     }
                 ],
-                max_tokens: 200,
-                temperature: 0.8,
+                max_tokens: MAX_TOKENS,
+                temperature: TEMPERATURE,
                 top_p: 0.9
             })
         });
