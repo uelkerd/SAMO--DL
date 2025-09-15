@@ -81,7 +81,7 @@ def create_mock_results():
     
     print("✅ Created mock results file: simple_training_results.json")
 
-def find_model_file():
+def find_model_file(min_size_bytes: int = 0):
     """Find the model file in common locations."""
     print("\n🔍 Searching for model file...")
     
@@ -96,12 +96,16 @@ def find_model_file():
     for location in search_locations:
         if os.path.exists(location):
             size = os.path.getsize(location)
+            if size < min_size_bytes:
+                print(f"⚠️  Skipping {location} - too small ({size:,} bytes < {min_size_bytes:,} bytes)")
+                continue
+                
             print(f"✅ Found model: {location} ({size:,} bytes)")
             
             # Copy to current directory if not already here
             if location != "best_simple_model.pth":
                 shutil.copy2(location, "best_simple_model.pth")
-                print(f"✅ Copied to: best_simple_model.pth")
+                print("✅ Copied to: best_simple_model.pth")
             
             return True
     
@@ -116,10 +120,24 @@ def setup_testing():
     # Check existing files
     existing_files, missing_files = check_model_files()
     
-    # Find model file if missing
-    if 'model' in missing_files and not find_model_file():
+    # Define minimum size for model files (10KB)
+    min_size_bytes = 10 * 1024
+    
+    # Check if model file is missing or too small
+    model_missing = 'model' in missing_files
+    model_exists = os.path.exists('best_simple_model.pth')
+    
+    if model_exists:
+        model_size = os.path.getsize('best_simple_model.pth')
+        model_too_small = model_size < min_size_bytes
+    else:
+        model_too_small = False
+    
+    needs_model = model_missing or model_too_small
+    
+    if needs_model and not find_model_file(min_size_bytes=min_size_bytes):
         print("\n❌ Cannot proceed without model file!")
-        print("📋 Please download best_simple_model.pth from Colab and place it in this directory")
+        print("📋 Please download best_simple_model.pth and place it in this directory")
         return False
     
     # Create mock results if missing
@@ -127,6 +145,19 @@ def setup_testing():
         create_mock_results()
     
     print("\n✅ Setup complete! Ready for testing.")
+    return True
+
+def test_model_loading():
+    """Test loading the model file to verify it's valid."""
+    if not os.path.exists('best_simple_model.pth'):
+        return False
+        
+    print("✅ Model file exists")
+    
+    # Try to load a small part to verify it's valid
+    import torch
+    checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
+    print(f"✅ Model checkpoint loaded with {len(checkpoint)} layers")
     return True
 
 def run_quick_test():
@@ -139,16 +170,7 @@ def run_quick_test():
         from sklearn.preprocessing import LabelEncoder
         
         print("✅ All required libraries available")
-        
-        # Test model loading
-        if os.path.exists('best_simple_model.pth'):
-            print("✅ Model file exists")
-            
-            # Try to load a small part to verify it's valid
-            checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
-            print(f"✅ Model checkpoint loaded with {len(checkpoint)} layers")
-            
-        return True
+        return test_model_loading()
         
     except ImportError as e:
         print(f"❌ Missing library: {e}")
