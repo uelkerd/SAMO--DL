@@ -71,7 +71,8 @@
         
         // Check config status on page load
         window.addEventListener('load', function() {
-            checkConfigStatus();
+            // Add a small delay to ensure config is loaded
+            setTimeout(checkConfigStatus, 100);
         });
         
         function checkConfigStatus() {
@@ -79,6 +80,25 @@
             
             console.log('🔍 Checking config status...');
             console.log('window.SAMO_CONFIG:', window.SAMO_CONFIG);
+            console.log('typeof window.SAMO_CONFIG:', typeof window.SAMO_CONFIG);
+            
+            // Force check if config exists
+            if (typeof window.SAMO_CONFIG === 'undefined') {
+                console.log('❌ SAMO_CONFIG is undefined, fallback should have loaded');
+                configStatus.innerHTML = '<div class="error">❌ Config not loaded. Using fallback config.</div>';
+                // Force load fallback
+                window.SAMO_CONFIG = {
+                    HUGGING_FACE: {
+                        API_TOKEN: 'YOUR_HF_TOKEN_HERE',
+                        MODEL: 'microsoft/DialoGPT-small',
+                        MAX_LENGTH: 150,
+                        TEMPERATURE: 0.8
+                    }
+                };
+                hfToken = window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN;
+                configStatus.innerHTML = '<div class="success">✅ Using fallback config! Token: ' + hfToken.substring(0, 10) + '...</div>';
+                return;
+            }
             
             if (window.SAMO_CONFIG && window.SAMO_CONFIG.HUGGING_FACE) {
                 const token = window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN;
@@ -141,8 +161,8 @@
             .catch(error => {
                 console.error(`❌ HF API test failed for ${model}:`, error);
                 
-                // Try next model
-                const models = ['gpt2', 'distilgpt2', 'microsoft/DialoGPT-medium'];
+                // Try next model - use working models
+                const models = ['microsoft/DialoGPT-small', 'microsoft/DialoGPT-medium', 'distilgpt2', 'gpt2'];
                 const currentIndex = models.indexOf(model);
                 
                 if (currentIndex < models.length - 1) {
@@ -184,8 +204,8 @@
             
             console.log('🧪 Testing HF API with token:', hfToken.substring(0, 10) + '...');
             
-            // Test with a simple prompt
-            testHuggingFaceModel('gpt2', hfToken);
+            // Test with a simple prompt - try working models
+            testHuggingFaceModel('microsoft/DialoGPT-small', hfToken);
         }
         
         function generateTestText(emotion) {
@@ -204,7 +224,7 @@
             
             document.getElementById('generationTest').innerHTML = '<div class="warning">🔄 Generating text...</div>';
             
-            fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+            fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-small', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${hfToken}`,

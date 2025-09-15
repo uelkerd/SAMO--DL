@@ -47,7 +47,7 @@ async function generateSampleText() {
             return;
         }
         
-        const response = await fetch(`https://api-inference.huggingface.co/models/${window.SAMO_CONFIG.HUGGING_FACE.MODEL}`, {
+        const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-small', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${hfToken}`,
