@@ -183,7 +183,8 @@
             try {
                 // Wait for demo to be initialized
                 let attempts = 0;
-                while (!window.demo && attempts < 50) {
+                const maxAttempts = 20; // 2 seconds total
+                while (!window.demo && attempts < maxAttempts) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     attempts++;
                 }
@@ -193,7 +194,7 @@
                     await window.demo.processCompleteWorkflow(null, "I am feeling very happy and excited about this project!");
                     log('✅ Complete workflow finished successfully', 'success');
                 } else {
-                    log('⚠️ Demo object not found, creating new instance...', 'info');
+                    log(`⚠️ Demo object not found after ${maxAttempts * 100}ms, creating new instance...`, 'info');
                     const demo = new ComprehensiveDemo();
                     await demo.processCompleteWorkflow(null, "I am feeling very happy and excited about this project!");
                     log('✅ Complete workflow finished successfully with new instance', 'success');

@@ -209,7 +209,8 @@
             log('🏥 Testing API health...', 'info');
             
             try {
-                const response = await fetch('https://samo-unified-api-71517823771.us-central1.run.app/health');
+                const apiClient = new SAMOAPIClient();
+                const response = await fetch(`${apiClient.baseURL}/health`);
                 if (response.ok) {
                     const data = await response.json();
                     log('✅ API is healthy', 'success');
@@ -276,8 +277,14 @@
             
             try {
                 const apiClient = new SAMOAPIClient();
-                // Create a mock audio file for testing
-                const mockAudioFile = new File(['mock audio data'], 'test.wav', { type: 'audio/wav' });
+                // Create a minimal WAV file header for more realistic testing
+                const wavHeader = new ArrayBuffer(44);
+                const view = new DataView(wavHeader);
+                // Basic WAV header structure
+                view.setUint32(0, 0x52494646, false); // "RIFF"
+                view.setUint32(4, 36, true); // file size - 8
+                view.setUint32(8, 0x57415645, false); // "WAVE"
+                const mockAudioFile = new File([wavHeader], 'test.wav', { type: 'audio/wav' });
                 const result = await apiClient.transcribeAudio(mockAudioFile);
                 log('✅ Audio transcription completed successfully', 'success');
                 log(`📊 Result: ${JSON.stringify(result, null, 2)}`, 'info');
@@ -293,7 +300,8 @@
             try {
                 // Wait for demo to be initialized
                 let attempts = 0;
-                while (!window.demo && attempts < 50) {
+                const maxAttempts = 100; // Increased timeout
+                while (!window.demo && attempts < maxAttempts) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     attempts++;
                 }
@@ -303,7 +311,7 @@
                     await window.demo.processCompleteWorkflow(null, "I am feeling very happy and excited about this project!");
                     log('✅ Complete workflow finished successfully', 'success');
                 } else {
-                    log('⚠️ Demo object not found, creating new instance...', 'warning');
+                    log(`⚠️ Demo object not found after ${maxAttempts * 100}ms, creating new instance...`, 'warning');
                     const demo = new ComprehensiveDemo();
                     await demo.processCompleteWorkflow(null, "I am feeling very happy and excited about this project!");
                     log('✅ Complete workflow finished successfully with new instance', 'success');
@@ -479,7 +487,18 @@
         // Log when page loads
         window.addEventListener('load', () => {
             log('🎯 Debug console loaded successfully', 'success');
-            log(`🔧 Available objects: ${Object.keys(window).filter(k => k.includes('demo') || k.includes('Demo') || k.includes('API') || k.includes('UIController')).join(', ')}`, 'info');
+            const relevantObjects = Object.keys(window).filter(k => 
+                k.includes('demo') || k.includes('Demo') || k.includes('API') || 
+                k.includes('UIController') || k.includes('SAMO') || k.includes('Chart')
+            );
+            log(`🔧 Available objects: ${relevantObjects.length > 0 ? relevantObjects.join(', ') : 'None found'}`, 'info');
+            
+            // Log configuration status
+            if (typeof SAMO_CONFIG !== 'undefined') {
+                log('🔧 SAMO_CONFIG detected', 'success');
+            } else {
+                log('⚠️ SAMO_CONFIG not available, using defaults', 'warning');
+            }
             
             // Auto-check API health
             testAPIHealth();

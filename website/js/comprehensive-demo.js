@@ -10,11 +10,14 @@ class SAMOAPIClient {
         this.apiKey = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.apiKey : 'demo-key-123';
     }
 
-    async makeRequest(endpoint, data, method = 'POST', isFormData = false) {
+    async makeRequest(endpoint, data, method = 'POST', isFormData = false, timeoutMs = 20000) {
         const config = {
             method,
             headers: {}
         };
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(new Error('Request timeout')), timeoutMs);
+        config.signal = controller.signal;
 
         if (this.apiKey) {
             config.headers['X-API-Key'] = this.apiKey;
@@ -33,24 +36,24 @@ class SAMOAPIClient {
         }
 
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, config);
+            const url = `${this.baseURL}${endpoint}`;
+            const response = await fetch(url, config);
             
             if (!response.ok) {
-                if (response.status === 429) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Rate limit exceeded. Please try again in a moment.');
-                } else if (response.status === 401) {
-                    throw new Error('API key required. Please contact support for access.');
-                } else if (response.status === 503) {
-                    throw new Error('Service temporarily unavailable. Please try again later.');
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                if (response.status === 429) throw new Error(msg || 'Rate limit exceeded. Please try again shortly.');
+                if (response.status === 401) throw new Error(msg || 'API key required.');
+                if (response.status === 503) throw new Error(msg || 'Service temporarily unavailable.');
+                throw new Error(msg);
             }
             
             return await response.json();
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
+        } finally {
+            clearTimeout(timer);
         }
     }
 
@@ -280,6 +283,8 @@ class ComprehensiveDemo {
     showLoading() {
         this.loadingSection.classList.add('show');
         this.resultSection.classList.remove('show');
+        this.loadingSection.setAttribute('aria-busy', 'true');
+        this.resultSection.setAttribute('aria-busy', 'false');
     }
 
     hideLoading() {
@@ -341,7 +346,7 @@ class ComprehensiveDemo {
         if (results) {
             // Try to get original text from various sources in order of preference
             if (results.originalText) {
-                originalLength = results.originalText.length;
+                originalLength = (results.originalText || '').length;
             } else if (results.transcription) {
                 const transcribedText = results.transcription.text || results.transcription.transcription;
                 originalLength = transcribedText ? transcribedText.length : 0;
@@ -424,7 +429,11 @@ class ComprehensiveDemo {
                     label: 'Confidence (%)',
                     data: data,
                     backgroundColor: colors,
-                    borderColor: colors.map(color => color.replace('0.8', '1')),
+                    borderColor: colors.map((c) =>
+                        c.startsWith('rgba(')
+                          ? c.replace(/rgba\((\d+\s*,\s*\d+\s*,\s*\d+),\s*[\d.]+\)/, 'rgba($1, 1)')
+                          : c
+                    ),
                     borderWidth: 2,
                     borderRadius: 8,
                     borderSkipped: false,
@@ -595,6 +604,7 @@ class ComprehensiveDemo {
 
     hideResults() {
         this.resultSection.classList.remove('show');
+        this.resultSection.setAttribute('aria-busy', 'false');
         this.transcriptionResults.style.display = 'none';
         this.summarizationResults.style.display = 'none';
         this.emotionResults.style.display = 'none';
@@ -610,6 +620,10 @@ class ComprehensiveDemo {
 
     async startRecording() {
         try {
+            if (typeof window.MediaRecorder === 'undefined') {
+                this.showError('Recording not supported in this browser.');
+                return;
+            }
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             this.mediaRecorder = new MediaRecorder(stream);
             this.audioChunks = [];
@@ -671,22 +685,18 @@ class ComprehensiveDemo {
             // Create error message element if it doesn't exist
             this.errorMsgEl = document.createElement('div');
             this.errorMsgEl.className = 'error-message';
-            this.errorMsgEl.style.color = '#dc3545';
-            this.errorMsgEl.style.background = '#f8d7da';
-            this.errorMsgEl.style.border = '1px solid #f5c6cb';
-            this.errorMsgEl.style.borderRadius = '8px';
-            this.errorMsgEl.style.padding = '0.75rem';
-            this.errorMsgEl.style.marginTop = '0.5rem';
+            this.errorMsgEl.setAttribute('role', 'alert');
+            this.errorMsgEl.setAttribute('aria-live', 'assertive');
             this.textInput.parentNode.insertBefore(this.errorMsgEl, this.textInput.nextSibling);
         }
         this.errorMsgEl.textContent = message;
-        this.errorMsgEl.style.display = 'block';
+        this.errorMsgEl.classList.add('show');
     }
 
     clearError() {
         if (this.errorMsgEl) {
             this.errorMsgEl.textContent = '';
-            this.errorMsgEl.style.display = 'none';
+            this.errorMsgEl.classList.remove('show');
         }
     }
 }

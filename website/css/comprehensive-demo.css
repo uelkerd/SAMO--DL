@@ -461,6 +461,50 @@ body {
     animation: fadeInUp 0.3s ease-out;
 }
 
+/* Error Message Styles */
+.error-message {
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+/* Keyboard Focus Indicators */
+.btn-primary:focus-visible {
+    outline: 3px solid #c084fc;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.45);
+}
+
+.demo-container .form-control:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+    * { 
+        animation: none !important; 
+        transition: none !important; 
+    }
+    .hero-section::before { 
+        animation: none !important; 
+    }
+    .floating-card { 
+        animation: none !important; 
+    }
+    .audio-bar { 
+        animation: none !important; 
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .demo-container {
