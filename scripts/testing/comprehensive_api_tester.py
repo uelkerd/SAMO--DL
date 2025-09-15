@@ -10,7 +10,6 @@ import time
 import sys
 import os
 import logging
-import tempfile
 import io
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, asdict
@@ -88,7 +87,6 @@ class ComprehensiveAPITester:
     def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None,
                     files: Optional[Dict] = None, auth_required: bool = False) -> TestResult:
         """Make HTTP request with proper error handling and rate limiting"""
-
         url = f"{self.base_url}{endpoint}"
         headers = self.session.headers.copy()
 
@@ -370,7 +368,7 @@ class ComprehensiveAPITester:
         failed_tests = total_tests - passed_tests
 
         # Determine features tested
-        features_tested = list(set([r.feature for r in self.test_results if r.feature]))
+        features_tested = list({r.feature for r in self.test_results if r.feature})
 
         # Check for rate limiting
         rate_limited = any(r.status_code == 429 for r in self.test_results)
@@ -398,7 +396,7 @@ class ComprehensiveAPITester:
             recommendations.append("Authentication should be implemented for secure testing")
 
         if failed_tests > 0:
-            failed_features = set([r.feature for r in self.test_results if not r.success and r.feature])
+            failed_features = {r.feature for r in self.test_results if not r.success and r.feature}
             if failed_features:
                 recommendations.append(f"The following features need attention: {', '.join(failed_features)}")
 
@@ -506,7 +504,7 @@ def main():
         if result.response_time_ms:
             print(f"    Response Time: {result.response_time_ms:.0f}ms")
 
-    print(f"\n💡 RECOMMENDATIONS:")
+    print("\n💡 RECOMMENDATIONS:")
     print("-" * 20)
     for i, rec in enumerate(report.recommendations, 1):
         print(f"{i}. {rec}")

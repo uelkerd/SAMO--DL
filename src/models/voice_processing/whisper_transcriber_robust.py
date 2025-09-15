@@ -5,9 +5,6 @@ Fixes the voice model loading issues for production deployment
 """
 
 import logging
-import os
-import tempfile
-import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -124,7 +121,8 @@ class RobustWhisperTranscriber:
             "error": error
         }
 
-    def _get_audio_duration(self, audio_path: Union[str, Path]) -> float:
+    @staticmethod
+    def _get_audio_duration(audio_path: Union[str, Path]) -> float:
         """Get audio duration with multiple fallback methods."""
         try:
             # Try with pydub
@@ -152,7 +150,7 @@ class RobustWhisperTranscriber:
             result = subprocess.run([
                 'ffprobe', '-v', 'quiet', '-show_entries', 'format=duration',
                 '-of', 'csv=p=0', str(audio_path)
-            ], capture_output=True, text=True)
+            ], capture_output=True, text=True, check=True)
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except Exception as e:

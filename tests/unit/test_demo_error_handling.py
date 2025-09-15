@@ -6,9 +6,6 @@ and fallback mechanisms implemented in the demo website.
 """
 
 import pytest
-import asyncio
-import json
-from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime
 import sys
 import os
@@ -28,7 +25,8 @@ class TestDemoErrorHandling:
             'retryAttempts': 3
         }
     
-    def test_abort_controller_timeout_handling(self):
+    @staticmethod
+    def test_abort_controller_timeout_handling():
         """Test that AbortController properly handles request timeouts"""
         # This would test the JavaScript AbortController implementation
         # Since we're testing Python, we'll simulate the timeout behavior
@@ -56,7 +54,8 @@ class TestDemoErrorHandling:
         assert isinstance(self.mock_config['timeout'], int)
         assert self.mock_config['timeout'] > 0
     
-    def test_error_message_normalization(self):
+    @staticmethod
+    def test_error_message_normalization():
         """Test that error messages are properly normalized and displayed"""
         # Test different error message formats
         error_cases = [
@@ -80,7 +79,8 @@ class TestDemoErrorHandling:
             
             assert processed_msg == case['expected']
     
-    def test_mock_data_fallback_mechanism(self):
+    @staticmethod
+    def test_mock_data_fallback_mechanism():
         """Test that mock data fallback works correctly when API fails"""
         # Test emotion detection mock data
         mock_emotion_response = {
@@ -118,7 +118,8 @@ class TestDemoErrorHandling:
         assert 'compression_ratio' in mock_summary_response
         assert mock_summary_response['mock'] is True
     
-    def test_confidence_normalization(self):
+    @staticmethod
+    def test_confidence_normalization():
         """Test that confidence values are properly normalized to 0-100 range"""
         # Test confidence normalization
         test_cases = [
@@ -133,7 +134,8 @@ class TestDemoErrorHandling:
             confidence = max(0, min(1, case['input'])) * 100
             assert confidence == case['expected']
     
-    def test_emotion_data_normalization(self):
+    @staticmethod
+    def test_emotion_data_normalization():
         """Test that emotion data is properly normalized across different API response formats"""
         # Test different API response formats
         api_responses = [
@@ -166,7 +168,8 @@ class TestDemoErrorHandling:
                 assert 'confidence' in emotion
                 assert isinstance(emotion['confidence'], (int, float))
     
-    def test_dom_element_validation(self):
+    @staticmethod
+    def test_dom_element_validation():
         """Test that DOM elements are properly validated before manipulation"""
         # Simulate DOM element validation
         def validate_dom_element(element_id, required_class=None):
@@ -199,7 +202,8 @@ class TestDemoErrorHandling:
         assert not validate_dom_element(None)
         assert not validate_dom_element('nonExistentElement')
     
-    def test_configuration_system_validation(self):
+    @staticmethod
+    def test_configuration_system_validation():
         """Test that the configuration system properly handles different environments"""
         # Test local development config
         local_config = {
@@ -224,7 +228,8 @@ class TestDemoErrorHandling:
                 assert key in config
                 assert config[key] is not None or key == 'apiKey'  # apiKey can be None
     
-    def test_error_recovery_time_measurement(self):
+    @staticmethod
+    def test_error_recovery_time_measurement():
         """Test that error recovery time is properly measured and reported"""
         # Simulate error recovery timing
         start_time = datetime.now()
@@ -244,7 +249,8 @@ class TestDemoErrorHandling:
         assert recovery_time < 2.0
         assert recovery_time > 0
     
-    def test_api_success_rate_calculation(self):
+    @staticmethod
+    def test_api_success_rate_calculation():
         """Test that API success rate is properly calculated"""
         # Simulate API call results with high success rate (96% success)
         api_results = [
@@ -284,7 +290,8 @@ class TestDemoErrorHandling:
         assert success_rate > 95.0
         assert success_rate == 96.0  # 24 out of 25 successful
     
-    def test_accessibility_attributes_validation(self):
+    @staticmethod
+    def test_accessibility_attributes_validation():
         """Test that accessibility attributes are properly set"""
         # Test ARIA attributes
         aria_attributes = {
@@ -298,7 +305,8 @@ class TestDemoErrorHandling:
             assert attr.startswith('aria-') or attr == 'role'
             assert value in ['true', 'false', 'assertive', 'polite', 'alert', 'status']
     
-    def test_keyboard_navigation_support(self):
+    @staticmethod
+    def test_keyboard_navigation_support():
         """Test that keyboard navigation is properly supported"""
         # Test focus management
         focusable_elements = [
@@ -315,7 +323,8 @@ class TestDemoErrorHandling:
             assert element is not None
             assert len(element) > 0
     
-    def test_reduced_motion_preference_handling(self):
+    @staticmethod
+    def test_reduced_motion_preference_handling():
         """Test that reduced motion preferences are properly handled"""
         # Test CSS media query simulation
         reduced_motion_cases = [
@@ -332,7 +341,8 @@ class TestDemoErrorHandling:
 class TestTimeoutMechanisms:
     """Test timeout mechanisms and AbortController implementation"""
     
-    def test_request_timeout_configuration(self):
+    @staticmethod
+    def test_request_timeout_configuration():
         """Test that request timeouts are properly configured"""
         timeout_configs = {
             'transcription': 20000,  # 20 seconds
@@ -346,7 +356,8 @@ class TestTimeoutMechanisms:
             assert timeout > 0
             assert timeout <= 30000  # Max 30 seconds
     
-    def test_abort_controller_cleanup(self):
+    @staticmethod
+    def test_abort_controller_cleanup():
         """Test that AbortController is properly cleaned up after requests"""
         # Simulate AbortController cleanup
         active_controllers = []
@@ -374,7 +385,8 @@ class TestTimeoutMechanisms:
         cleanup_controller(controller2)
         assert len(active_controllers) == 0
     
-    def test_timeout_error_handling(self):
+    @staticmethod
+    def test_timeout_error_handling():
         """Test that timeout errors are properly handled and reported"""
         timeout_errors = [
             {'error': 'Request timeout', 'should_retry': True},

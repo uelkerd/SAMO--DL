@@ -7,10 +7,8 @@ Tests all 3 core features with proper request structures
 import requests
 import json
 import time
-import sys
 import os
 import logging
-import tempfile
 import io
 from typing import Dict, Any, List, Optional, Tuple
 
@@ -295,7 +293,7 @@ def main():
     print(f"\n💾 Results saved to: {report_file}")
 
     # Generate recommendations
-    print(f"\n💡 ANALYSIS:")
+    print("\n💡 ANALYSIS:")
     print("-" * 15)
 
     if passed_tests == total_tests:

@@ -12,12 +12,9 @@ This script performs comprehensive security analysis of the demo website includi
 Usage:
     python scripts/security_audit_demo.py [--verbose] [--output-format json|html]
 """
-
-import os
 import sys
 import json
 import re
-import subprocess
 import argparse
 from datetime import datetime
 from pathlib import Path
@@ -29,7 +26,7 @@ sys.path.insert(0, str(project_root))
 
 class DemoSecurityAuditor:
     """Security auditor for demo website"""
-    
+
     def __init__(self, verbose=False, output_format='json'):
         self.verbose = verbose
         self.output_format = output_format
@@ -42,17 +39,17 @@ class DemoSecurityAuditor:
             'security_score': 0,
             'summary': {}
         }
-    
+
     def run_security_audit(self):
         """Run comprehensive security audit"""
         print("🔒 Starting SAMO-DL Demo Website Security Audit")
         print("=" * 60)
-        
+
         # Check if website directory exists
         if not self.website_path.exists():
             print(f"❌ Website directory not found: {self.website_path}")
             return
-        
+
         # Run security checks
         self.check_xss_vulnerabilities()
         self.check_input_sanitization()
@@ -62,17 +59,17 @@ class DemoSecurityAuditor:
         self.check_file_permissions()
         self.check_sensitive_data_exposure()
         self.check_authentication_security()
-        
+
         # Calculate security score
         self.calculate_security_score()
-        
+
         # Generate report
         self.generate_security_report()
-    
+
     def check_xss_vulnerabilities(self):
         """Check for XSS vulnerabilities in JavaScript files"""
         print("\n🔍 Checking for XSS vulnerabilities...")
-        
+
         js_files = list(self.website_path.glob("**/*.js"))
         xss_patterns = [
             r'innerHTML\s*=',
@@ -84,13 +81,13 @@ class DemoSecurityAuditor:
             r'Function\s*\(',
             r'new\s+Function\s*\('
         ]
-        
+
         for js_file in js_files:
             try:
                 with open(js_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     lines = content.split('\n')
-                    
+
                     for i, line in enumerate(lines, 1):
                         for pattern in xss_patterns:
                             if re.search(pattern, line, re.IGNORECASE):
@@ -104,15 +101,15 @@ class DemoSecurityAuditor:
                                     'recommendation': 'Use textContent instead of innerHTML, avoid eval(), and sanitize user input'
                                 }
                                 self.audit_results['vulnerabilities'].append(vulnerability)
-                                
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {js_file}: {e}")
-    
+
     def check_input_sanitization(self):
         """Check input sanitization in form handling"""
         print("🔍 Checking input sanitization...")
-        
+
         js_files = list(self.website_path.glob("**/*.js"))
         input_patterns = [
             r'\.value\s*=',
@@ -121,13 +118,13 @@ class DemoSecurityAuditor:
             r'JSON\.parse\(',
             r'JSON\.stringify\('
         ]
-        
+
         for js_file in js_files:
             try:
                 with open(js_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     lines = content.split('\n')
-                    
+
                     for i, line in enumerate(lines, 1):
                         for pattern in input_patterns:
                             if re.search(pattern, line, re.IGNORECASE):
@@ -138,7 +135,7 @@ class DemoSecurityAuditor:
                                     'validate' in lines[j].lower()
                                     for j in range(max(0, i-3), min(len(lines), i+3))
                                 )
-                                
+
                                 if not sanitization_found:
                                     warning = {
                                         'type': 'INPUT_SANITIZATION',
@@ -150,15 +147,15 @@ class DemoSecurityAuditor:
                                         'recommendation': 'Implement input validation and sanitization'
                                     }
                                     self.audit_results['warnings'].append(warning)
-                                    
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {js_file}: {e}")
-    
+
     def check_api_security(self):
         """Check API communication security"""
         print("🔍 Checking API security...")
-        
+
         js_files = list(self.website_path.glob("**/*.js"))
         api_patterns = [
             r'fetch\s*\(',
@@ -167,13 +164,13 @@ class DemoSecurityAuditor:
             r'\.post\s*\(',
             r'\.get\s*\('
         ]
-        
+
         for js_file in js_files:
             try:
                 with open(js_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     lines = content.split('\n')
-                    
+
                     for i, line in enumerate(lines, 1):
                         for pattern in api_patterns:
                             if re.search(pattern, line, re.IGNORECASE):
@@ -189,45 +186,49 @@ class DemoSecurityAuditor:
                                         'recommendation': 'Use HTTPS for all API communications'
                                     }
                                     self.audit_results['vulnerabilities'].append(vulnerability)
-                                
+
                                 # Check for API key exposure
-                                if 'api' in line.lower() and 'key' in line.lower():
-                                    if 'process.env' not in line and 'config' not in line.lower():
-                                        warning = {
-                                            'type': 'API_KEY_EXPOSURE',
-                                            'severity': 'HIGH',
-                                            'file': str(js_file.relative_to(project_root)),
-                                            'line': i,
-                                            'code': line.strip(),
-                                            'description': 'Potential API key exposure in client-side code',
-                                            'recommendation': 'Use environment variables or secure configuration'
-                                        }
-                                        self.audit_results['vulnerabilities'].append(warning)
-                                        
+                                if (
+                                    'api' in line.lower()
+                                    and 'key' in line.lower()
+                                    and 'process.env' not in line
+                                    and 'config' not in line.lower()
+                                ):
+                                    warning = {
+                                        'type': 'API_KEY_EXPOSURE',
+                                        'severity': 'HIGH',
+                                        'file': str(js_file.relative_to(project_root)),
+                                        'line': i,
+                                        'code': line.strip(),
+                                        'description': 'Potential API key exposure in client-side code',
+                                        'recommendation': 'Use environment variables or secure configuration'
+                                    }
+                                    self.audit_results['vulnerabilities'].append(warning)
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {js_file}: {e}")
-    
+
     def check_csp_headers(self):
         """Check Content Security Policy implementation"""
         print("🔍 Checking Content Security Policy...")
-        
+
         html_files = list(self.website_path.glob("**/*.html"))
         csp_found = False
-        
+
         for html_file in html_files:
             try:
                 with open(html_file, 'r', encoding='utf-8') as f:
                     content = f.read()
-                    
+
                     if 'Content-Security-Policy' in content or 'content-security-policy' in content:
                         csp_found = True
                         break
-                        
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {html_file}: {e}")
-        
+
         if not csp_found:
             warning = {
                 'type': 'MISSING_CSP',
@@ -239,25 +240,25 @@ class DemoSecurityAuditor:
                 'recommendation': 'Implement CSP headers to prevent XSS attacks'
             }
             self.audit_results['warnings'].append(warning)
-    
+
     def check_dependency_security(self):
         """Check for security vulnerabilities in dependencies"""
         print("🔍 Checking dependency security...")
-        
+
         # Check package.json if it exists
         package_json = self.website_path / "package.json"
         if package_json.exists():
             try:
                 with open(package_json, 'r') as f:
                     package_data = json.load(f)
-                    
+
                 # Check for known vulnerable packages
                 vulnerable_packages = [
                     'jquery@1.x',
                     'lodash@4.17.0',
                     'moment@2.19.0'
                 ]
-                
+
                 dependencies = package_data.get('dependencies', {})
                 for package_name, version in dependencies.items():
                     if any(vuln_pkg.split('@')[0] in package_name for vuln_pkg in vulnerable_packages):
@@ -271,25 +272,25 @@ class DemoSecurityAuditor:
                             'recommendation': 'Update to latest secure version'
                         }
                         self.audit_results['warnings'].append(warning)
-                        
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading package.json: {e}")
-        
+
         # Check CDN dependencies in HTML files
         html_files = list(self.website_path.glob("**/*.html"))
         for html_file in html_files:
             try:
                 with open(html_file, 'r', encoding='utf-8') as f:
                     content = f.read()
-                    
+
                     # Check for CDN links
                     cdn_patterns = [
                         r'https://cdn\.jsdelivr\.net',
                         r'https://cdnjs\.cloudflare\.com',
                         r'https://unpkg\.com'
                     ]
-                    
+
                     for pattern in cdn_patterns:
                         if re.search(pattern, content):
                             # Check for integrity attributes
@@ -304,22 +305,22 @@ class DemoSecurityAuditor:
                                     'recommendation': 'Add integrity attributes to CDN resources'
                                 }
                                 self.audit_results['warnings'].append(warning)
-                                
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {html_file}: {e}")
-    
+
     def check_file_permissions(self):
         """Check file permissions for sensitive files"""
         print("🔍 Checking file permissions...")
-        
+
         sensitive_files = [
             'config.js',
             'api-key.js',
             'secrets.js',
             '.env'
         ]
-        
+
         for file_name in sensitive_files:
             file_path = self.website_path / file_name
             if file_path.exists():
@@ -337,15 +338,15 @@ class DemoSecurityAuditor:
                             'recommendation': 'Restrict file permissions to owner only'
                         }
                         self.audit_results['warnings'].append(warning)
-                        
+
                 except Exception as e:
                     if self.verbose:
                         print(f"⚠️ Error checking permissions for {file_path}: {e}")
-    
+
     def check_sensitive_data_exposure(self):
         """Check for sensitive data exposure in client-side code"""
         print("🔍 Checking for sensitive data exposure...")
-        
+
         js_files = list(self.website_path.glob("**/*.js"))
         sensitive_patterns = [
             r'password\s*[:=]',
@@ -354,13 +355,13 @@ class DemoSecurityAuditor:
             r'token\s*[:=]',
             r'private[_-]?key\s*[:=]'
         ]
-        
+
         for js_file in js_files:
             try:
                 with open(js_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     lines = content.split('\n')
-                    
+
                     for i, line in enumerate(lines, 1):
                         for pattern in sensitive_patterns:
                             if re.search(pattern, line, re.IGNORECASE):
@@ -376,15 +377,15 @@ class DemoSecurityAuditor:
                                         'recommendation': 'Move sensitive data to server-side or use environment variables'
                                     }
                                     self.audit_results['vulnerabilities'].append(vulnerability)
-                                    
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {js_file}: {e}")
-    
+
     def check_authentication_security(self):
         """Check authentication and authorization security"""
         print("🔍 Checking authentication security...")
-        
+
         js_files = list(self.website_path.glob("**/*.js"))
         auth_patterns = [
             r'localStorage\.setItem',
@@ -393,13 +394,13 @@ class DemoSecurityAuditor:
             r'jwt\s*[:=]',
             r'token\s*[:=]'
         ]
-        
+
         for js_file in js_files:
             try:
                 with open(js_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                     lines = content.split('\n')
-                    
+
                     for i, line in enumerate(lines, 1):
                         for pattern in auth_patterns:
                             if re.search(pattern, line, re.IGNORECASE):
@@ -415,25 +416,25 @@ class DemoSecurityAuditor:
                                         'recommendation': 'Use httpOnly cookies or secure session storage'
                                     }
                                     self.audit_results['warnings'].append(warning)
-                                    
+
             except Exception as e:
                 if self.verbose:
                     print(f"⚠️ Error reading {js_file}: {e}")
-    
+
     def calculate_security_score(self):
         """Calculate overall security score"""
         total_issues = len(self.audit_results['vulnerabilities']) + len(self.audit_results['warnings'])
         high_severity = len([v for v in self.audit_results['vulnerabilities'] if v['severity'] == 'HIGH'])
         medium_severity = len([v for v in self.audit_results['vulnerabilities'] if v['severity'] == 'MEDIUM'])
-        
+
         # Calculate score (100 - penalties)
         score = 100
         score -= high_severity * 20  # -20 points per high severity issue
         score -= medium_severity * 10  # -10 points per medium severity issue
         score -= len(self.audit_results['warnings']) * 5  # -5 points per warning
-        
+
         self.audit_results['security_score'] = max(0, score)
-        
+
         # Add summary
         self.audit_results['summary'] = {
             'total_vulnerabilities': len(self.audit_results['vulnerabilities']),
@@ -443,31 +444,31 @@ class DemoSecurityAuditor:
             'security_score': self.audit_results['security_score'],
             'security_rating': self.get_security_rating(self.audit_results['security_score'])
         }
-    
-    def get_security_rating(self, score):
+
+    @staticmethod
+    def get_security_rating(score):
         """Get security rating based on score"""
         if score >= 90:
             return 'EXCELLENT'
-        elif score >= 80:
+        if score >= 80:
             return 'GOOD'
-        elif score >= 70:
+        if score >= 70:
             return 'FAIR'
-        elif score >= 60:
+        if score >= 60:
             return 'POOR'
-        else:
-            return 'CRITICAL'
-    
+        return 'CRITICAL'
+
     def generate_security_report(self):
         """Generate comprehensive security report"""
         print("\n" + "=" * 60)
         print("🔒 SECURITY AUDIT REPORT")
         print("=" * 60)
-        
+
         summary = self.audit_results['summary']
         print(f"📊 Security Score: {summary['security_score']}/100 ({summary['security_rating']})")
         print(f"🚨 Vulnerabilities: {summary['total_vulnerabilities']} (High: {summary['high_severity']}, Medium: {summary['medium_severity']})")
         print(f"⚠️  Warnings: {summary['total_warnings']}")
-        
+
         # Print vulnerabilities
         if self.audit_results['vulnerabilities']:
             print("\n🚨 VULNERABILITIES:")
@@ -476,7 +477,7 @@ class DemoSecurityAuditor:
                 print(f"    {vuln['description']}")
                 print(f"    Recommendation: {vuln['recommendation']}")
                 print()
-        
+
         # Print warnings
         if self.audit_results['warnings']:
             print("\n⚠️  WARNINGS:")
@@ -485,13 +486,13 @@ class DemoSecurityAuditor:
                 print(f"    {warning['description']}")
                 print(f"    Recommendation: {warning['recommendation']}")
                 print()
-        
+
         # Generate recommendations
         self.generate_recommendations()
-        
+
         # Save report
         self.save_security_report()
-        
+
         print("=" * 60)
         if summary['security_score'] >= 80:
             print("✅ Security audit completed. Demo website has good security posture.")
@@ -500,15 +501,15 @@ class DemoSecurityAuditor:
         else:
             print("❌ Security audit completed. Critical security issues found.")
         print("=" * 60)
-    
+
     def generate_recommendations(self):
         """Generate security recommendations"""
         recommendations = []
-        
+
         # Check for common issues and generate recommendations
         vuln_types = [v['type'] for v in self.audit_results['vulnerabilities']]
         warning_types = [w['type'] for w in self.audit_results['warnings']]
-        
+
         if 'XSS' in vuln_types:
             recommendations.append({
                 'priority': 'HIGH',
@@ -521,7 +522,7 @@ class DemoSecurityAuditor:
                     'Validate and escape user input'
                 ]
             })
-        
+
         if 'INSECURE_HTTP' in vuln_types:
             recommendations.append({
                 'priority': 'HIGH',
@@ -533,7 +534,7 @@ class DemoSecurityAuditor:
                     'Use secure API endpoints only'
                 ]
             })
-        
+
         if 'MISSING_CSP' in warning_types:
             recommendations.append({
                 'priority': 'MEDIUM',
@@ -545,7 +546,7 @@ class DemoSecurityAuditor:
                     'Test CSP implementation'
                 ]
             })
-        
+
         if 'VULNERABLE_DEPENDENCY' in warning_types:
             recommendations.append({
                 'priority': 'HIGH',
@@ -557,9 +558,9 @@ class DemoSecurityAuditor:
                     'Remove unused dependencies'
                 ]
             })
-        
+
         self.audit_results['recommendations'] = recommendations
-        
+
         if recommendations:
             print("\n💡 SECURITY RECOMMENDATIONS:")
             for rec in recommendations:
@@ -568,25 +569,25 @@ class DemoSecurityAuditor:
                 print("    Actions:")
                 for action in rec['actions']:
                     print(f"      - {action}")
-    
+
     def save_security_report(self):
         """Save security report to file"""
         report_file = project_root / "artifacts" / "security-reports" / f"demo_security_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         report_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(report_file, 'w') as f:
             json.dump(self.audit_results, f, indent=2)
-        
+
         print(f"\n📄 Security report saved to: {report_file}")
-        
+
         # Generate HTML report if requested
         if self.output_format == 'html':
             self.generate_html_report(report_file)
-    
+
     def generate_html_report(self, json_file):
         """Generate HTML security report"""
         html_file = json_file.with_suffix('.html')
-        
+
         html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -636,17 +637,17 @@ class DemoSecurityAuditor:
 </body>
 </html>
         """
-        
+
         with open(html_file, 'w') as f:
             f.write(html_content)
-        
+
         print(f"📄 HTML report saved to: {html_file}")
-    
+
     def _generate_html_vulnerabilities(self):
         """Generate HTML for vulnerabilities section"""
         if not self.audit_results['vulnerabilities']:
             return "<p>No vulnerabilities found.</p>"
-        
+
         html = ""
         for vuln in self.audit_results['vulnerabilities']:
             html += f"""
@@ -659,12 +660,12 @@ class DemoSecurityAuditor:
             </div>
             """
         return html
-    
+
     def _generate_html_warnings(self):
         """Generate HTML for warnings section"""
         if not self.audit_results['warnings']:
             return "<p>No warnings found.</p>"
-        
+
         html = ""
         for warning in self.audit_results['warnings']:
             html += f"""
@@ -677,12 +678,12 @@ class DemoSecurityAuditor:
             </div>
             """
         return html
-    
+
     def _generate_html_recommendations(self):
         """Generate HTML for recommendations section"""
         if not self.audit_results['recommendations']:
             return "<p>No recommendations available.</p>"
-        
+
         html = ""
         for rec in self.audit_results['recommendations']:
             html += f"""
@@ -703,15 +704,15 @@ def main():
     parser = argparse.ArgumentParser(description='Run SAMO-DL Demo Website Security Audit')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
     parser.add_argument('--output-format', '-f', choices=['json', 'html'], default='json', help='Output format')
-    
+
     args = parser.parse_args()
-    
+
     # Create security auditor
     auditor = DemoSecurityAuditor(
         verbose=args.verbose,
         output_format=args.output_format
     )
-    
+
     # Run security audit
     auditor.run_security_audit()
 

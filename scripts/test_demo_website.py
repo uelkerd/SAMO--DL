@@ -13,7 +13,6 @@ Usage:
 """
 
 import sys
-import os
 import subprocess
 import argparse
 import time
@@ -125,18 +124,16 @@ class DemoWebsiteTestRunner:
         """Run a test command and return results"""
         try:
             print(f"Running: {' '.join(cmd)}")
-            result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root)
+            result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, check=True)
             
             if result.returncode == 0:
                 print(f"✅ {test_type} passed")
                 return {'passed': 1, 'failed': 0, 'skipped': 0}
-            else:
-                print(f"❌ {test_type} failed")
-                if self.verbose:
-                    print("STDOUT:", result.stdout)
-                    print("STDERR:", result.stderr)
-                return {'passed': 0, 'failed': 1, 'skipped': 0}
-                
+            print(f"❌ {test_type} failed")
+            if self.verbose:
+                print("STDOUT:", result.stdout)
+                print("STDERR:", result.stderr)
+            return {'passed': 0, 'failed': 1, 'skipped': 0}
         except Exception as e:
             print(f"❌ Error running {test_type}: {e}")
             return {'passed': 0, 'failed': 1, 'skipped': 0}
@@ -210,7 +207,8 @@ class DemoWebsiteTestRunner:
         
         print(f"📄 Detailed report saved to: {report_file}")
     
-    def _validate_success_metrics(self, total_passed, total_failed):
+    @staticmethod
+    def _validate_success_metrics(total_passed, total_failed):
         """Validate success metrics against requirements"""
         print("\n🎯 Success Metrics Validation:")
         
