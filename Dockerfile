@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl=7.74.0-1.3
 WORKDIR /app
 
 # Copy requirements and install core dependencies only
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY dependencies/requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
 
 # Copy source code
 COPY src/ ./src/
