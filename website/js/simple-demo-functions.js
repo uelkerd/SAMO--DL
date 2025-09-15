@@ -41,7 +41,19 @@ async function generateSampleText() {
         // Since Hugging Face API is currently returning 404 errors for all models,
         // we'll use static samples for now
         console.warn('⚠️ Hugging Face API is currently down (404 errors), using static samples');
-        generateStaticSampleText();
+        
+        // Show loading state
+        const textInput = document.getElementById('textInput');
+        if (textInput) {
+            textInput.value = '🤖 Generating AI text...';
+            textInput.style.borderColor = '#8b5cf6';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
+        }
+        
+        // Simulate API delay then generate static text
+        setTimeout(() => {
+            generateStaticSampleText();
+        }, 1000);
         
     } catch (error) {
         console.error('❌ AI text generation failed:', error);

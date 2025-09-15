@@ -482,10 +482,15 @@
                 console.log('✅ Generate button found, adding click listener');
                 generateBtn.addEventListener('click', function() {
                     console.log('🔘 Generate button clicked!');
+                    console.log('🔍 generateSampleText type:', typeof generateSampleText);
+                    console.log('🔍 generateSampleText function:', generateSampleText);
+                    
                     if (typeof generateSampleText === 'function') {
+                        console.log('✅ Calling generateSampleText...');
                         generateSampleText();
                     } else {
                         console.error('❌ generateSampleText function not available');
+                        console.log('🔍 Available functions:', Object.keys(window).filter(key => key.includes('generate')));
                     }
                 });
             } else {
