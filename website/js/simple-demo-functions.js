@@ -255,8 +255,11 @@ function testWithRealAPI() {
         const testText = document.getElementById('textInput').value || "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.";
         
         // Try the LIVE emotion API first (no auth required)
+        const apiUrl = 'https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text=' + encodeURIComponent(testText);
         console.log('🔥 Calling LIVE emotion API...');
-        fetch('https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text=' + encodeURIComponent(text), {
+        console.log('🔗 API URL:', apiUrl);
+        console.log('📝 Text being analyzed:', testText);
+        fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
