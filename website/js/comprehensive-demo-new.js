@@ -75,6 +75,11 @@ class ComprehensiveDemo {
                         results.modelsUsed.push('SAMO DeBERTa v3 Large');
                         this.uiController.updateProgressStep('step4', 'completed');
                         this.uiController.showEmotionResults(results.emotions);
+                        
+                        // Display detailed model analysis
+                        if (typeof window.displayDetailedModelAnalysis === 'function') {
+                            window.displayDetailedModelAnalysis(results.emotions, results.summary);
+                        }
                     }
                 } catch (error) {
                     console.error('Text analysis failed:', error);
@@ -272,17 +277,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Display detailed model analysis
 function displayDetailedModelAnalysis(emotionData, summaryData) {
-    console.log('Displaying detailed model analysis...');
+    console.log('Displaying detailed model analysis...', emotionData, summaryData);
+    
+    // Normalize emotion data (same logic as UI controller)
+    let normalizedEmotions = [];
+    if (Array.isArray(emotionData)) {
+        normalizedEmotions = emotionData.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
+    } else if (emotionData.emotions && Array.isArray(emotionData.emotions)) {
+        normalizedEmotions = emotionData.emotions.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
+    } else if (emotionData.probabilities) {
+        normalizedEmotions = Object.entries(emotionData.probabilities).map(([label, prob]) => ({
+            emotion: label,
+            confidence: prob
+        }));
+    }
+    
+    // Sort by confidence (highest first)
+    normalizedEmotions = normalizedEmotions.sort((a, b) => b.confidence - a.confidence);
     
     // Calculate primary emotion
-    const emotions = emotionData.emotions || [];
-    const primaryEmotion = emotions.length > 0 ? emotions[0] : null;
+    const primaryEmotion = normalizedEmotions.length > 0 ? normalizedEmotions[0] : null;
     const primaryEmotionName = primaryEmotion ? primaryEmotion.emotion : 'Unknown';
     const primaryEmotionConfidence = primaryEmotion ? Math.round(primaryEmotion.confidence * 100) : 0;
     
     // Calculate emotional intensity (average confidence)
-    const avgConfidence = emotions.length > 0 ? 
-        emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length : 0;
+    const avgConfidence = normalizedEmotions.length > 0 ? 
+        normalizedEmotions.reduce((sum, e) => sum + e.confidence, 0) / normalizedEmotions.length : 0;
     const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
     
     // Calculate sentiment score (weighted average)
@@ -292,18 +318,18 @@ function displayDetailedModelAnalysis(emotionData, summaryData) {
         'neutral': 0, 'calm': 0.2
     };
     
-    const sentimentScore = emotions.length > 0 ? 
-        emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
+    const sentimentScore = normalizedEmotions.length > 0 ? 
+        normalizedEmotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
     const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
     
     // Calculate confidence range
-    const confidences = emotions.map(e => e.confidence);
+    const confidences = normalizedEmotions.map(e => e.confidence);
     const minConf = Math.min(...confidences);
     const maxConf = Math.max(...confidences);
     const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
     
     // Model processing details
-    const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. ` +
+    const modelDetails = `Processed ${normalizedEmotions.length} emotions using SAMO DeBERTa v3 Large. ` +
         `Model confidence: ${Math.round(avgConfidence * 100)}%. ` +
         `Processing time: ${Date.now() - window.processingStartTime || 0}ms. ` +
         `Text length: ${summaryData?.original_length || 0} characters.`;
