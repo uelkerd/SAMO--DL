@@ -153,7 +153,9 @@ def secure_endpoint(f):
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
                     update_metrics(response_time, success=False, error_type='invalid_content_type')
-                    logger.warning("Invalid content type: %s from %s", content_type, client_ip)
+                    logger.warning(
+                        "Invalid content type: %s from %s", content_type, client_ip
+                    )
                     return jsonify({
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
@@ -262,7 +264,10 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error("❌ Failed to load secure model: %s. Falling back to stub mode.", str(e))
+            logger.error(
+                "❌ Failed to load secure model: %s. Falling back to stub mode.", 
+                str(e)
+            )
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -313,7 +318,10 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
+            logger.info(
+                "Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", 
+                prediction_time, sanitized_text[:50], predicted_emotion, confidence
+            )
             
             # Create secure response
             return {
@@ -340,7 +348,9 @@ class SecureEmotionDetectionModel:
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
+            logger.error(
+                "Secure prediction failed after %.3fs: %s", prediction_time, str(e)
+            )
             raise
 
 # Secure model factory for explicit creation and testability
@@ -445,7 +455,9 @@ def require_admin_api_key(f):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
         if not expected_key or api_key != expected_key:
-            logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
+            logger.warning(
+                "Unauthorized admin access attempt from %s", request.remote_addr
+            )
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -699,7 +711,9 @@ def predict_batch():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning("Batch validation error: %s from %s", str(e), request.remote_addr)
+            logger.warning(
+                "Batch validation error: %s from %s", str(e), request.remote_addr
+            )
             return jsonify({'error': str(e)}), 400
         
         # Detect anomalies
@@ -1067,7 +1081,10 @@ if __name__ == '__main__':
     logger.info("        -H 'Content-Type: application/json' \\")
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
-    logger.info("🔒 Rate limiting: %s requests per minute", rate_limit_config.requests_per_minute)
+    logger.info(
+        "🔒 Rate limiting: %s requests per minute", 
+        rate_limit_config.requests_per_minute
+    )
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
     
