@@ -1,6 +1,6 @@
 /**
  * Comprehensive Demo for SAMO Deep Learning Platform
- * Demonstrates Whisper (transcription), T5 (summarization), and DeBERTa v3 Large (emotion detection)
+ * Demonstrates Whisper (transcription), T5 (summarization), and SAMO DeBERTa v3 Large (emotion detection)
  */
 
 class ComprehensiveDemo {

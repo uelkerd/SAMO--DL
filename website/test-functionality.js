@@ -60,7 +60,7 @@ function testConfidenceCalculation() {
             ]
         },
         processingTime: 1500,
-        modelsUsed: ['DeBERTa v3 Large']
+        modelsUsed: ['SAMO DeBERTa v3 Large']
     };
     
     const uiController = new UIController();

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Validation Test - SAMO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 SAMO Demo Validation Test</h1>
+    
+    <div class="test-container">
+        <h2>Validation Results</h2>
+        <button class="test-button" onclick="runValidationTests()">Run All Validation Tests</button>
+        <div id="validationResults"></div>
+    </div>
+
+    <!-- Include the same scripts as the main demo -->
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/chart-utils.js"></script>
+    <script src="js/comprehensive-demo-new.js"></script>
+
+    <script>
+        function runValidationTests() {
+            const resultsDiv = document.getElementById('validationResults');
+            resultsDiv.innerHTML = '<p>Running validation tests...</p>';
+            
+            const tests = [];
+            
+            // Test 1: Check if all classes are available
+            try {
+                if (typeof SAMOAPIClient === 'undefined') throw new Error('SAMOAPIClient not found');
+                if (typeof UIController === 'undefined') throw new Error('UIController not found');
+                if (typeof ChartUtils === 'undefined') throw new Error('ChartUtils not found');
+                if (typeof ComprehensiveDemo === 'undefined') throw new Error('ComprehensiveDemo not found');
+                tests.push({ name: 'All Classes Available', status: 'success', message: 'All required classes loaded successfully' });
+            } catch (error) {
+                tests.push({ name: 'All Classes Available', status: 'error', message: error.message });
+            }
+            
+            // Test 2: Test API Client initialization
+            try {
+                const apiClient = new SAMOAPIClient();
+                tests.push({ name: 'API Client Initialization', status: 'success', message: 'API Client created successfully' });
+            } catch (error) {
+                tests.push({ name: 'API Client Initialization', status: 'error', message: error.message });
+            }
+            
+            // Test 3: Test UI Controller initialization
+            try {
+                const uiController = new UIController();
+                tests.push({ name: 'UI Controller Initialization', status: 'success', message: 'UI Controller created successfully' });
+            } catch (error) {
+                tests.push({ name: 'UI Controller Initialization', status: 'error', message: error.message });
+            }
+            
+            // Test 4: Test Chart Utils initialization
+            try {
+                const chartUtils = new ChartUtils();
+                tests.push({ name: 'Chart Utils Initialization', status: 'success', message: 'Chart Utils created successfully' });
+            } catch (error) {
+                tests.push({ name: 'Chart Utils Initialization', status: 'error', message: error.message });
+            }
+            
+            // Test 5: Test emotion detection with mock data
+            try {
+                const apiClient = new SAMOAPIClient();
+                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work.";
+                
+                apiClient.detectEmotions(mockText).then(emotions => {
+                    if (emotions && emotions.emotions && Array.isArray(emotions.emotions)) {
+                        tests.push({ name: 'Emotion Detection API', status: 'success', message: `Detected ${emotions.emotions.length} emotions` });
+                    } else {
+                        tests.push({ name: 'Emotion Detection API', status: 'warning', message: 'Emotion data structure unexpected' });
+                    }
+                    displayResults();
+                }).catch(error => {
+                    tests.push({ name: 'Emotion Detection API', status: 'error', message: error.message });
+                    displayResults();
+                });
+            } catch (error) {
+                tests.push({ name: 'Emotion Detection API', status: 'error', message: error.message });
+                displayResults();
+            }
+            
+            // Test 6: Test text summarization with mock data
+            try {
+                const apiClient = new SAMOAPIClient();
+                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work, and I've lost hours of progress.";
+                
+                apiClient.summarizeText(mockText).then(summary => {
+                    if (summary && summary.summary) {
+                        tests.push({ name: 'Text Summarization API', status: 'success', message: 'Summary generated successfully' });
+                    } else {
+                        tests.push({ name: 'Text Summarization API', status: 'warning', message: 'Summary data structure unexpected' });
+                    }
+                    displayResults();
+                }).catch(error => {
+                    tests.push({ name: 'Text Summarization API', status: 'error', message: error.message });
+                    displayResults();
+                });
+            } catch (error) {
+                tests.push({ name: 'Text Summarization API', status: 'error', message: error.message });
+                displayResults();
+            }
+            
+            function displayResults() {
+                let html = '<h3>Validation Test Results</h3>';
+                let successCount = 0;
+                let warningCount = 0;
+                let errorCount = 0;
+                
+                tests.forEach(test => {
+                    const statusClass = test.status === 'success' ? 'success' : test.status === 'warning' ? 'warning' : 'error';
+                    const statusIcon = test.status === 'success' ? '✅' : test.status === 'warning' ? '⚠️' : '❌';
+                    
+                    html += `<div class="result ${statusClass}">
+                        <strong>${statusIcon} ${test.name}:</strong> ${test.message}
+                    </div>`;
+                    
+                    if (test.status === 'success') successCount++;
+                    else if (test.status === 'warning') warningCount++;
+                    else errorCount++;
+                });
+                
+                html += `<div class="result ${errorCount === 0 ? 'success' : 'warning'}">
+                    <strong>Summary:</strong> ${successCount} passed, ${warningCount} warnings, ${errorCount} errors
+                </div>`;
+                
+                if (errorCount === 0) {
+                    html += '<div class="result success"><strong>🎉 All critical tests passed! The demo should be working correctly.</strong></div>';
+                } else {
+                    html += '<div class="result error"><strong>⚠️ Some tests failed. Check the errors above.</strong></div>';
+                }
+                
+                resultsDiv.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>

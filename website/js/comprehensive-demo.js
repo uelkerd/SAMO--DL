@@ -168,7 +168,7 @@ class SAMOAPIClient {
         if (currentText) {
             try {
                 results.emotions = await this.detectEmotions(currentText);
-                results.modelsUsed.push('DeBERTa v3 Large');
+                results.modelsUsed.push('SAMO DeBERTa v3 Large');
             } catch (error) {
                 console.error('Emotion detection failed:', error);
                 throw new Error('Emotion detection failed. Please try again.');
