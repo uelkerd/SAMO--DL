@@ -5,8 +5,9 @@
 
 class SAMOAPIClient {
     constructor() {
-        this.baseURL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
-        this.apiKey = 'demo-key-123'; // Demo API key - replace with actual key
+        // Use configuration from config.js if available, otherwise fallback to demo mode
+        this.baseURL = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.baseURL : 'https://samo-unified-api-71517823771.us-central1.run.app';
+        this.apiKey = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.apiKey : 'demo-key-123';
     }
 
     async makeRequest(endpoint, data, method = 'POST') {
