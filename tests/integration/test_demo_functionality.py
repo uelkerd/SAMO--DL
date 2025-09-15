@@ -44,7 +44,7 @@ class TestDemoFunctionality:
             pytest.skip(f"API not accessible: {e}")
     
     @staticmethod
-    def test_demo_emotion_detection_request_format(demo_api_url, sample_text):
+    def test_demo_emotion_detection_request_format(_demo_api_url, sample_text):
         """Test that the demo sends correctly formatted emotion detection requests"""
         # Test the request format without actually calling the API (to avoid rate limits)
         expected_request = {
@@ -101,7 +101,7 @@ class TestDemoFunctionality:
                 raise ValueError("text is required and cannot be None")
     
     @staticmethod
-    def test_demo_whisper_request_format(demo_api_url, sample_audio_data):
+    def test_demo_whisper_request_format(_demo_api_url, sample_audio_data):
         """Test that the demo sends correctly formatted Whisper requests"""
         # Test the request format for audio transcription
         expected_request = {
@@ -148,7 +148,7 @@ class TestDemoFunctionality:
 
     
     @staticmethod
-    def test_demo_t5_request_format(demo_api_url, sample_text):
+    def test_demo_t5_request_format(_demo_api_url, sample_text):
         """Test that the demo sends correctly formatted T5 summarization requests"""
         # Test the request format for text summarization
         expected_request = {
@@ -218,7 +218,7 @@ class TestDemoFunctionality:
         assert all(len(emotion) > 0 for emotion in expected_emotions)
     
     @pytest.mark.skip(reason="Requires actual API call - may hit rate limits")
-    def test_demo_full_workflow(self, demo_api_url, sample_text, sample_audio_data):
+    def test_demo_full_workflow(self, _demo_api_url, _sample_text, _sample_audio_data):
         """Test the complete demo workflow (skipped to avoid rate limits)"""
         # This would test the full workflow:
         # 1. Audio transcription

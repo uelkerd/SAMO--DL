@@ -75,7 +75,21 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
         
         try {
-            return await this.makeRequest(this.endpoints.TRANSCRIBE, formData, 'POST', true);
+            // Add API key header if available
+            const config = {
+                method: 'POST',
+                body: formData,
+                headers: this.apiKey ? { 'X-API-Key': this.apiKey } : undefined
+            };
+            const response = await fetch(`${this.baseURL}${this.endpoints.TRANSCRIBE}`, config);
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+            
+            return await response.json();
         } catch (error) {
             console.error('Transcription error:', error);
             throw error;
@@ -114,7 +128,7 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            return await this.makeRequest(this.endpoints.JOURNAL, { text });
+            return await this.makeRequest(this.endpoints.JOURNAL, { text, model: 'deberta-goemotions' });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -600,25 +614,20 @@ class ComprehensiveDemo {
         document.getElementById('modelsUsed').textContent = results.modelsUsed.join(', ');
         
         // Calculate average confidence - handle different response formats
-        const normalizeEmotions = (emotions) => {
-            // Handle different API response formats
-            if (Array.isArray(emotions)) {
-                return emotions;
-            } else if (emotions && Array.isArray(emotions.emotions)) {
-                return emotions.emotions;
-            } else if (emotions && Array.isArray(emotions.predictions)) {
-                return emotions.predictions;
-            } else if (emotions && Array.isArray(emotions.scores)) {
-                return emotions.scores;
+        const em = results.emotions;
+        if (em) {
+            let avg = null;
+            if (Array.isArray(em)) {
+                avg = em.reduce((s, e) => s + (e.confidence || e.score || 0), 0) / Math.max(em.length, 1);
+            } else if (em.probabilities && typeof em.probabilities === 'object') {
+                const vals = Object.values(em.probabilities);
+                avg = vals.reduce((s, v) => s + (Number(v) || 0), 0) / Math.max(vals.length, 1);
             }
-            return [];
-        };
-
-        const normalizedEmotions = normalizeEmotions(results.emotions);
-        if (normalizedEmotions.length > 0) {
-            const avgConfidence = normalizedEmotions.reduce((sum, e) => sum + (e.confidence || e.score || 0), 0) / normalizedEmotions.length;
-            document.getElementById('avgConfidence').textContent = 
-                `${Math.round(avgConfidence * 100)}%`;
+            if (avg != null) {
+                document.getElementById('avgConfidence').textContent = `${Math.round(avg * 100)}%`;
+            } else {
+                document.getElementById('avgConfidence').textContent = 'N/A';
+            }
         } else {
             document.getElementById('avgConfidence').textContent = 'N/A';
         }

@@ -754,13 +754,13 @@ def predict_batch():
             }
         })
         
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(
             response_time, success=False, error_type='batch_prediction_error'
         )
-        logger.error("NLP emotion batch error: %s", e)
-        return jsonify({'error': 'An internal server error occurred.'}), 500
+        logger.exception("NLP emotion batch error")
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @app.route('/nlp/emotion', methods=['POST'])
