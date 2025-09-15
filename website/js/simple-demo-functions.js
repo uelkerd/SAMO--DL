@@ -256,7 +256,7 @@ function testWithRealAPI() {
         
         // Try the LIVE emotion API first (no auth required)
         console.log('🔥 Calling LIVE emotion API...');
-        console.log('🔗 API URL: https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict');
+        console.log('🔗 API URL: http://localhost:8081/emotion (CORS proxy)');
         console.log('📝 Text being analyzed:', testText);
         console.log('📝 Text length:', testText.length);
         console.log('📝 Text hash:', testText.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
