@@ -60,10 +60,9 @@ async function generateSampleText() {
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
         }
         
-        // Try to use REAL 
-        // 
-        //  API for text generation
+        // Try to use REAL OpenAI API for text generation
         try {
+            console.log('🚀 Starting AI text generation with prompt:', randomPrompt);
             const generatedText = await generateWithOpenAI(randomPrompt);
             
             if (textInput) {
@@ -79,7 +78,12 @@ async function generateSampleText() {
                 }, 2000);
             }
         } catch (error) {
-            console.warn('⚠️ OpenAI API failed:', error.message);
+            console.error('❌ OpenAI API failed:', error);
+            console.error('❌ Error details:', {
+                message: error.message,
+                stack: error.stack,
+                config: window.SAMO_CONFIG
+            });
             
             // Show user-friendly error message
             if (textInput) {
@@ -112,8 +116,18 @@ async function generateSampleText() {
 async function generateWithOpenAI(prompt) {
     console.log('🤖 Calling OpenAI API with prompt:', prompt);
     
+    // Debug: Check what's in the config
+    console.log('🔍 Debug - window.SAMO_CONFIG:', window.SAMO_CONFIG);
+    console.log('🔍 Debug - OPENAI config:', window.SAMO_CONFIG?.OPENAI);
+    console.log('🔍 Debug - API key exists:', !!window.SAMO_CONFIG?.OPENAI?.API_KEY);
+    
     // Get configuration from secure config file
     if (!window.SAMO_CONFIG || !window.SAMO_CONFIG.OPENAI || !window.SAMO_CONFIG.OPENAI.API_KEY) {
+        console.error('❌ Config check failed:', {
+            SAMO_CONFIG: !!window.SAMO_CONFIG,
+            OPENAI: !!window.SAMO_CONFIG?.OPENAI,
+            API_KEY: !!window.SAMO_CONFIG?.OPENAI?.API_KEY
+        });
         throw new Error('OpenAI API key not configured. Please check config.js file.');
     }
     
