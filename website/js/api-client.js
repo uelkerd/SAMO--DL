@@ -76,13 +76,18 @@ class SAMOAPIClient {
 
     async fetchServerConfig() {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout for config
+            
             const response = await fetch('/api/config', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Cache-Control': 'no-cache'
-                }
+                },
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 throw new Error(`Server config fetch failed: ${response.status}`);
@@ -90,7 +95,11 @@ class SAMOAPIClient {
             
             return await response.json();
         } catch (error) {
-            console.warn('Server configuration not available:', error.message);
+            if (error.name === 'AbortError') {
+                console.warn('Server configuration timeout after 5s');
+            } else {
+                console.warn('Server configuration not available:', error.message);
+            }
             return null;
         }
     }
@@ -217,21 +226,30 @@ class SAMOAPIClient {
 
     async transcribeAudio(audioFile) {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+            
             const formData = new FormData();
             formData.append('audio', audioFile);
 
             const response = await fetch(`${this.baseURL}/transcribe/voice`, {
                 method: 'POST',
                 body: formData,
-                headers: this.apiKey ? { 'X-API-Key': this.apiKey } : {}
+                headers: this.apiKey ? { 'X-API-Key': this.apiKey } : {},
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
-                throw new Error(`Transcription failed: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Transcription failed: ${response.status}`);
             }
 
             return await response.json();
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error(`Transcription timeout after ${this.timeout}ms`);
+            }
             console.error('Transcription error:', error);
             throw error;
         }
