@@ -55,12 +55,12 @@ class CompleteAnalysisEndpoint(Resource):
             from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
             self.emotion_model = BERTEmotionClassifier()
             self.emotion_model_loaded = True
-            
+
             # Load summarization model
             from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
             self.summarization_model = create_samo_t5_summarizer()
             self.summarization_model_loaded = True
-            
+
             # Load transcription model
             from src.models.voice_processing.samo_whisper_transcriber import SAMOWhisperTranscriber
             self.transcription_model = SAMOWhisperTranscriber()
@@ -129,24 +129,23 @@ class CompleteAnalysisEndpoint(Resource):
             if audio_data and include_transcription:
                 if self.transcription_model_loaded and self.transcription_model:
                     try:
-                        import base64
                         import tempfile
                         import os
-                        
+
                         # Decode base64 audio data
                         audio_bytes = base64.b64decode(audio_data)
-                        
+
                         # Create temporary file for audio processing
                         with tempfile.NamedTemporaryFile(suffix=f'.{audio_format}', delete=False) as temp_file:
                             temp_file.write(audio_bytes)
                             temp_file_path = temp_file.name
-                        
+
                         # Transcribe using the model
                         result = self.transcription_model.transcribe_audio(temp_file_path, language=language)
-                        
+
                         # Clean up temporary file
                         os.unlink(temp_file_path)
-                        
+
                         transcription = result.get('text', f"[ERROR] Transcription failed for {language} audio")
                     except Exception as e:
                         logger.error(f"Transcription failed: {e}")

@@ -105,28 +105,26 @@ class TranscribeEndpoint(Resource):
             # Transcribe audio
             if self.model_loaded and self.model:
                 try:
-                    # Decode base64 audio data
-                    import base64
                     audio_bytes = base64.b64decode(audio_data)
-                    
+
                     # Create temporary file for audio processing
                     import tempfile
                     with tempfile.NamedTemporaryFile(suffix=f'.{audio_format}', delete=False) as temp_file:
                         temp_file.write(audio_bytes)
                         temp_file_path = temp_file.name
-                    
+
                     # Transcribe using the model
                     result = self.model.transcribe_audio(temp_file_path, language=language)
-                    
+
                     # Clean up temporary file
                     import os
                     os.unlink(temp_file_path)
-                    
+
                     text = result.get('text', f"[ERROR] Transcription failed for {language} audio")
                     confidence = result.get('confidence', 0.0)
                     detected_language = result.get('language', language)
                     duration = result.get('duration', 0.0)
-                    
+
                 except Exception as e:
                     logger.error(f"Transcription failed: {e}")
                     text = f"[ERROR] Transcription failed: {str(e)}"
