@@ -67,11 +67,12 @@
     <script src="js/comprehensive-demo-new.js"></script>
 
     <script>
-        function runValidationTests() {
+        async function runValidationTests() {
             const resultsDiv = document.getElementById('validationResults');
             resultsDiv.innerHTML = '<p>Running validation tests...</p>';
             
             const tests = [];
+            const asyncPromises = [];
             
             // Test 1: Check if all classes are available
             try {
@@ -109,46 +110,50 @@
             }
             
             // Test 5: Test emotion detection with mock data
-            try {
-                const apiClient = new SAMOAPIClient();
-                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work.";
-                
-                apiClient.detectEmotions(mockText).then(emotions => {
+            const emotionTestPromise = (async () => {
+                try {
+                    const apiClient = new SAMOAPIClient();
+                    const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work.";
+                    
+                    const emotions = await apiClient.detectEmotions(mockText);
                     if (emotions && emotions.emotions && Array.isArray(emotions.emotions)) {
                         tests.push({ name: 'Emotion Detection API', status: 'success', message: `Detected ${emotions.emotions.length} emotions` });
                     } else {
                         tests.push({ name: 'Emotion Detection API', status: 'warning', message: 'Emotion data structure unexpected' });
                     }
-                    displayResults();
-                }).catch(error => {
+                } catch (error) {
                     tests.push({ name: 'Emotion Detection API', status: 'error', message: error.message });
-                    displayResults();
-                });
-            } catch (error) {
-                tests.push({ name: 'Emotion Detection API', status: 'error', message: error.message });
-                displayResults();
-            }
+                }
+            })();
+            asyncPromises.push(emotionTestPromise);
             
             // Test 6: Test text summarization with mock data
-            try {
-                const apiClient = new SAMOAPIClient();
-                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work, and I've lost hours of progress.";
-                
-                apiClient.summarizeText(mockText).then(summary => {
+            const summarizationTestPromise = (async () => {
+                try {
+                    const apiClient = new SAMOAPIClient();
+                    const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work, and I've lost hours of progress.";
+                    
+                    const summary = await apiClient.summarizeText(mockText);
                     if (summary && summary.summary) {
                         tests.push({ name: 'Text Summarization API', status: 'success', message: 'Summary generated successfully' });
                     } else {
                         tests.push({ name: 'Text Summarization API', status: 'warning', message: 'Summary data structure unexpected' });
                     }
-                    displayResults();
-                }).catch(error => {
+                } catch (error) {
                     tests.push({ name: 'Text Summarization API', status: 'error', message: error.message });
-                    displayResults();
-                });
+                }
+            })();
+            asyncPromises.push(summarizationTestPromise);
+            
+            // Wait for all async tests to complete
+            try {
+                await Promise.all(asyncPromises);
             } catch (error) {
-                tests.push({ name: 'Text Summarization API', status: 'error', message: error.message });
-                displayResults();
+                console.error('Error during async test execution:', error);
             }
+            
+            // Display results after all tests complete
+            displayResults();
             
             function displayResults() {
                 let html = '<h3>Validation Test Results</h3>';

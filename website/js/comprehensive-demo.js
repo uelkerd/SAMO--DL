@@ -582,8 +582,14 @@ class ComprehensiveDemo {
             };
             
             this.mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-                const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+                // Use the actual MediaRecorder MIME type instead of hardcoded 'audio/wav'
+                const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+                const fileExtension = mimeType.includes('webm') ? 'webm' : 
+                                    mimeType.includes('mp4') ? 'mp4' : 
+                                    mimeType.includes('ogg') ? 'ogg' : 'wav';
+                
+                const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+                const audioFile = new File([audioBlob], `recording.${fileExtension}`, { type: mimeType });
                 
                 // Create a new FileList-like object
                 const dataTransfer = new DataTransfer();
