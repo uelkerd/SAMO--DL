@@ -121,42 +121,35 @@
                 </div>
 
                 <!-- Progress Steps -->
-                <div class="row mb-5">
-                    <div class="col-12">
-                        <div class="progress-step" id="step1">
-                            <div class="step-icon pending" id="step1-icon">
-                                <i class="fas fa-upload"></i>
+                <div class="row mb-4">
+                    <div class="col-lg-10 mx-auto">
+                        <div class="progress-pipeline">
+                            <div class="progress-step-horizontal" id="step1">
+                                <div class="step-icon-small pending" id="step1-icon">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                                <span class="step-label">Input</span>
                             </div>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Input</h6>
-                                <small class="text-muted">Upload audio or enter text</small>
+                            <div class="pipeline-arrow">→</div>
+                            <div class="progress-step-horizontal" id="step2">
+                                <div class="step-icon-small pending" id="step2-icon">
+                                    <i class="fas fa-microphone"></i>
+                                </div>
+                                <span class="step-label">Transcription</span>
                             </div>
-                        </div>
-                        <div class="progress-step" id="step2">
-                            <div class="step-icon pending" id="step2-icon">
-                                <i class="fas fa-microphone"></i>
+                            <div class="pipeline-arrow">→</div>
+                            <div class="progress-step-horizontal" id="step3">
+                                <div class="step-icon-small pending" id="step3-icon">
+                                    <i class="fas fa-file-text"></i>
+                                </div>
+                                <span class="step-label">Summarization</span>
                             </div>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Transcription</h6>
-                                <small class="text-muted">Convert speech to text (if audio)</small>
-                            </div>
-                        </div>
-                        <div class="progress-step" id="step3">
-                            <div class="step-icon pending" id="step3-icon">
-                                <i class="fas fa-file-text"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Summarization</h6>
-                                <small class="text-muted">Generate text summary</small>
-                            </div>
-                        </div>
-                        <div class="progress-step" id="step4">
-                            <div class="step-icon pending" id="step4-icon">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Emotion Analysis</h6>
-                                <small class="text-muted">Detect 28 emotions using SAMO DeBERTa v3 Large</small>
+                            <div class="pipeline-arrow">→</div>
+                            <div class="progress-step-horizontal" id="step4">
+                                <div class="step-icon-small pending" id="step4-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <span class="step-label">Emotion Analysis</span>
                             </div>
                         </div>
                     </div>
@@ -221,7 +214,7 @@
                         <div class="d-flex gap-3 justify-content-center">
                             <button class="btn btn-primary btn-lg px-5" id="processBtn">
                                 <i class="fas fa-magic me-2"></i>
-                                Process with AI
+                                Process
                             </button>
                             <button class="btn btn-outline-secondary btn-lg" id="clearBtn">
                                 <i class="fas fa-trash me-2"></i>

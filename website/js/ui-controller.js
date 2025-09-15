@@ -15,17 +15,25 @@ class UIController {
         this.audioFileInput = document.getElementById('audioFile');
         this.textInput = document.getElementById('textInput');
         this.processBtn = document.getElementById('processBtn');
-        
+
+        // Log if critical elements are missing
+        if (!this.processBtn) {
+            console.error('Critical element missing: processBtn');
+        }
+        if (!this.textInput) {
+            console.error('Critical element missing: textInput');
+        }
+
         // Progress elements
         this.loadingSection = document.getElementById('loadingSection');
         this.progressSteps = document.querySelectorAll('.progress-step');
-        
+
         // Result elements
         this.resultSection = document.getElementById('resultSection');
         this.transcriptionResults = document.getElementById('transcriptionResults');
         this.summarizationResults = document.getElementById('summarizationResults');
         this.emotionResults = document.getElementById('emotionResults');
-        
+
         // Individual result containers
         this.transcriptionText = document.getElementById('transcriptionText');
         this.summaryText = document.getElementById('summaryText');
@@ -34,26 +42,48 @@ class UIController {
     }
 
     setupEventListeners() {
-        this.processBtn.addEventListener('click', () => this.handleProcessClick());
-        this.audioFileInput.addEventListener('change', () => this.clearError());
-        this.textInput.addEventListener('input', () => this.clearError());
+        // Only set up event listeners if elements exist
+        if (this.processBtn) {
+            this.processBtn.addEventListener('click', () => this.handleProcessClick());
+            console.log('Process button event listener attached');
+        } else {
+            console.error('Cannot attach event listener: processBtn not found');
+        }
+
+        if (this.audioFileInput) {
+            this.audioFileInput.addEventListener('change', () => this.clearError());
+        }
+
+        if (this.textInput) {
+            this.textInput.addEventListener('input', () => this.clearError());
+        }
     }
 
     handleProcessClick() {
-        const audioFile = this.audioFileInput.files[0];
-        const text = this.textInput.value.trim();
+        console.log('Process button clicked!');
+
+        const audioFile = this.audioFileInput ? this.audioFileInput.files[0] : null;
+        const text = this.textInput ? this.textInput.value.trim() : '';
+
+        console.log('Audio file:', audioFile);
+        console.log('Text input:', text);
 
         // Clear previous error message
         this.clearError();
 
         if (!audioFile && !text) {
+            console.log('No input provided, showing error');
             this.showError('Please upload an audio file or enter text to process.');
             return;
         }
 
         // Trigger the main processing workflow
         if (window.demo) {
+            console.log('Calling demo.processCompleteWorkflow with:', { audioFile, text });
             window.demo.processCompleteWorkflow(audioFile, text);
+        } else {
+            console.error('window.demo not available');
+            this.showError('Demo system not initialized. Please refresh the page.');
         }
     }
 
@@ -97,7 +127,24 @@ class UIController {
     updateProgressStep(stepId, status) {
         const step = document.getElementById(stepId);
         if (step) {
-            step.className = `progress-step ${status}`;
+            // Update the step container class
+            if (step.classList.contains('progress-step-horizontal')) {
+                // New horizontal design
+                step.className = `progress-step-horizontal ${status}`;
+
+                // Also update the icon
+                const icon = step.querySelector('.step-icon-small');
+                if (icon) {
+                    icon.className = `step-icon-small ${status}`;
+                }
+            } else {
+                // Legacy vertical design
+                step.className = `progress-step ${status}`;
+            }
+
+            console.log(`Updated step ${stepId} to status: ${status}`);
+        } else {
+            console.warn(`Step element not found: ${stepId}`);
         }
     }
 

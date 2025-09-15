@@ -140,7 +140,7 @@ def secure_endpoint(f):
             if not allowed:
                 response_time = time.time() - start_time
                 update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)
-                logger.warning(f"Rate limit exceeded: {reason} from {client_ip}")
+                logger.warning("Rate limit exceeded: %s from %s", reason, client_ip)
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'message': reason,
@@ -153,7 +153,7 @@ def secure_endpoint(f):
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
                     update_metrics(response_time, success=False, error_type='invalid_content_type')
-                    logger.warning(f"Invalid content type: {content_type} from {client_ip}")
+                    logger.warning("Invalid content type: %s from %s", content_type, client_ip)
                     return jsonify({
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
@@ -174,7 +174,7 @@ def secure_endpoint(f):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='endpoint_error')
             # Log detailed error on server but return generic message to user
-            logger.error(f"Endpoint error: {str(e)}", exc_info=True)
+            logger.error("Endpoint error: %s", str(e), exc_info=True)
             return jsonify({'error': 'Internal server error occurred'}), 500
     
     return decorated_function
@@ -197,7 +197,7 @@ class SecureEmotionDetectionModel:
         default_model_dir = Path(__file__).resolve().parent.parent / 'model'
         env_model_dir = os.environ.get("SECURE_MODEL_DIR")
         self.model_path = Path(env_model_dir).expanduser().resolve() if env_model_dir else default_model_dir
-        logger.info(f"Loading secure model from: {self.model_path}")
+        logger.info("Loading secure model from: %s", self.model_path)
 
         # Default emotions list available even if model isn't loaded
         self.emotions = [
@@ -262,7 +262,7 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to load secure model: {str(e)}. Falling back to stub mode.")
+            logger.error("❌ Failed to load secure model: %s. Falling back to stub mode.", str(e))
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -283,7 +283,7 @@ class SecureEmotionDetectionModel:
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
-                logger.warning(f"Sanitization warnings: {warnings}")
+                logger.warning("Sanitization warnings: %s", warnings)
             
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
@@ -313,7 +313,7 @@ class SecureEmotionDetectionModel:
                 all_probs = probabilities[0].cpu().numpy()
             
             prediction_time = time.time() - start_time
-            logger.info(f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", prediction_time, sanitized_text[:50], predicted_emotion, confidence)
             
             # Create secure response
             return {
@@ -340,7 +340,7 @@ class SecureEmotionDetectionModel:
             
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error(f"Secure prediction failed after {prediction_time:.3f}s: {str(e)}")
+            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
             raise
 
 # Secure model factory for explicit creation and testability
@@ -445,7 +445,7 @@ def require_admin_api_key(f):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
         if not expected_key or api_key != expected_key:
-            logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
+            logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
@@ -603,7 +603,7 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
+        logger.error("Health check failed: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
@@ -619,7 +619,7 @@ def predict():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error(f"Invalid JSON in request from {request.remote_addr}")
+            logger.error("Invalid JSON in request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
         
         if not data:
@@ -633,13 +633,13 @@ def predict():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Validation error: {str(e)} from {request.remote_addr}")
+            logger.warning("Validation error: %s from %s", str(e), request.remote_addr)
             return jsonify({'error': str(e)}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
-            logger.warning(f"Security anomalies detected: {anomalies}")
+            logger.warning("Security anomalies detected: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
         
@@ -669,7 +669,7 @@ def predict():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Secure prediction endpoint error: {str(e)}")
+        logger.error("Secure prediction endpoint error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
@@ -685,7 +685,7 @@ def predict_batch():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error(f"Invalid JSON in batch request from {request.remote_addr}")
+            logger.error("Invalid JSON in batch request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
         
         if not data:
@@ -699,13 +699,13 @@ def predict_batch():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(f"Batch validation error: {str(e)} from {request.remote_addr}")
+            logger.warning("Batch validation error: %s from %s", str(e), request.remote_addr)
             return jsonify({'error': str(e)}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
-            logger.warning(f"Security anomalies detected in batch: {anomalies}")
+            logger.warning("Security anomalies detected in batch: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
         
@@ -934,10 +934,10 @@ def add_to_blacklist():
         
         ip = data['ip']
         rate_limiter.add_to_blacklist(ip)
-        logger.info(f"Added {ip} to blacklist")
+        logger.info("Added %s to blacklist", ip)
         return jsonify({'message': f'Added {ip} to blacklist'})
     except Exception as e:
-        logger.error(f"Blacklist error: {str(e)}")
+        logger.error("Blacklist error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
@@ -951,10 +951,10 @@ def add_to_whitelist():
         
         ip = data['ip']
         rate_limiter.add_to_whitelist(ip)
-        logger.info(f"Added {ip} to whitelist")
+        logger.info("Added %s to whitelist", ip)
         return jsonify({'message': f'Added {ip} to whitelist'})
     except Exception as e:
-        logger.error(f"Whitelist error: {str(e)}")
+        logger.error("Whitelist error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
@@ -1018,26 +1018,26 @@ def home():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
+        logger.error("Documentation endpoint error: %s", str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
+    logger.error("BadRequest error: %s", str(e))
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
 @app.errorhandler(404)
 def handle_not_found(e):
     """Handle 404 errors."""
-    logger.warning(f"404 error: {request.path} from {request.remote_addr}")
+    logger.warning("404 error: %s from %s", request.path, request.remote_addr)
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)
 def handle_internal_error(e):
     """Handle 500 errors."""
-    logger.error(f"Internal server error: {str(e)}")
+    logger.error("Internal server error: %s", str(e))
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
@@ -1067,7 +1067,7 @@ if __name__ == '__main__':
     logger.info("        -H 'Content-Type: application/json' \\")
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
-    logger.info(f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute")
+    logger.info("🔒 Rate limiting: %s requests per minute", rate_limit_config.requests_per_minute)
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
     
