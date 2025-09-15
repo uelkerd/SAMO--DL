@@ -233,5 +233,5 @@ else:
     print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
     print("💡 Consider: more data, hyperparameter tuning, or different model architecture")
 
-print(f"\n💾 Model saved to: ./best_emotion_model_final")
-print(f"📊 Training completed successfully!") 
+print("\n💾 Model saved to: ./best_emotion_model_final")
+print("📊 Training completed successfully!") 

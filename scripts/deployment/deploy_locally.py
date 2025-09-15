@@ -12,6 +12,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+
 def deploy_locally():
     """Deploy the model locally for testing."""
     print("🚀 LOCAL DEPLOYMENT")
@@ -63,7 +64,9 @@ class EmotionDetectionModel:
         print(f"Loading model from: {self.model_path}")
         
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            self.model_path
+        )
         
         # Move to GPU if available
         if torch.cuda.is_available():
@@ -72,13 +75,19 @@ class EmotionDetectionModel:
         else:
             print("⚠️ CUDA not available, using CPU")
         
-        self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        self.emotions = [
+            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+        ]
         print("✅ Model loaded successfully")
         
     def predict(self, text):
         """Make a prediction."""
         # Tokenize input
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+        inputs = self.tokenizer(
+            text, return_tensors='pt', truncation=True,
+            padding=True, max_length=512
+        )
         
         if torch.cuda.is_available():
             inputs = {k: v.to('cuda') for k, v in inputs.items()}

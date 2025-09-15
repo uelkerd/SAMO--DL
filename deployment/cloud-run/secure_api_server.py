@@ -271,9 +271,9 @@ class Health(Resource):
                     'port': PORT,
                     'timestamp': time.time()
                 }
-            else:
-                logger.warning("Health check failed - model not ready")
-                return create_error_response('Service unavailable - model not ready', 503)
+
+            logger.warning("Health check failed - model not ready")
+            return create_error_response('Service unavailable - model not ready', 503)
                 
         except Exception as _:
             logger.exception("Health check error")
@@ -447,22 +447,22 @@ class SecurityStatus(Resource):
             return create_error_response('Internal server error', 500)
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
-def rate_limit_exceeded(error):
+def rate_limit_exceeded(_error):
     """Handle rate limit exceeded errors"""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response('Rate limit exceeded - too many requests', 429)
 
-def internal_error(error):
+def internal_error(_error):
     """Handle internal server errors"""
     logger.exception("Internal server error")
     return create_error_response('Internal server error', 500)
 
-def not_found(error):
+def not_found(_error):
     """Handle not found errors"""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response('Endpoint not found', 404)
 
-def method_not_allowed(error):
+def method_not_allowed(_error):
     """Handle method not allowed errors"""
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
@@ -502,7 +502,9 @@ def initialize_model():
 if __name__ == '__main__':
     initialize_model()
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+    # Use localhost for local development, 0.0.0.0 for production/cloud deployment
+    host = '127.0.0.1' if os.getenv('ENVIRONMENT') == 'development' else '0.0.0.0'
+    app.run(host=host, port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts

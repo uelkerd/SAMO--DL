@@ -129,9 +129,9 @@ def main():
         if checker.unused_deps:
             print("\n⚠️  Found potentially unused dependencies")
             return 0  # Don't fail the build, just warn
-        else:
-            print("\n✅ Dependency usage check passed!")
-            return 0
+
+        print("\n✅ Dependency usage check passed!")
+        return 0
     else:
         checker.print_results()
         return 1
