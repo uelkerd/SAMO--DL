@@ -4,9 +4,7 @@ Tests the integration between the demo frontend and the Cloud Run API
 """
 
 import pytest
-import json
 import requests
-from unittest.mock import patch, MagicMock
 import sys
 import os
 
@@ -32,7 +30,8 @@ class TestDemoFunctionality:
         # This is a minimal WAV file header for testing
         return "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
     
-    def test_demo_api_connectivity(self, demo_api_url):
+    @staticmethod
+    def test_demo_api_connectivity(demo_api_url):
         """Test that the demo can connect to the API"""
         try:
             response = requests.get(f"{demo_api_url}/health", timeout=10)
@@ -41,7 +40,8 @@ class TestDemoFunctionality:
         except requests.exceptions.RequestException as e:
             pytest.skip(f"API not accessible: {e}")
     
-    def test_demo_emotion_detection_request_format(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_emotion_detection_request_format(demo_api_url, sample_text):
         """Test that the demo sends correctly formatted emotion detection requests"""
         # Test the request format without actually calling the API (to avoid rate limits)
         expected_request = {
@@ -53,7 +53,8 @@ class TestDemoFunctionality:
         assert isinstance(expected_request["text"], str)
         assert len(expected_request["text"]) > 0
     
-    def test_demo_whisper_request_format(self, demo_api_url, sample_audio_data):
+    @staticmethod
+    def test_demo_whisper_request_format(demo_api_url, sample_audio_data):
         """Test that the demo sends correctly formatted Whisper requests"""
         # Test the request format for audio transcription
         expected_request = {
@@ -66,7 +67,8 @@ class TestDemoFunctionality:
         assert "model" in expected_request
         assert expected_request["model"] == "whisper"
     
-    def test_demo_t5_request_format(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_t5_request_format(demo_api_url, sample_text):
         """Test that the demo sends correctly formatted T5 summarization requests"""
         # Test the request format for text summarization
         expected_request = {
@@ -79,7 +81,8 @@ class TestDemoFunctionality:
         assert "model" in expected_request
         assert expected_request["model"] == "t5"
     
-    def test_demo_error_handling(self):
+    @staticmethod
+    def test_demo_error_handling():
         """Test that the demo handles API errors gracefully"""
         # Test error handling for various scenarios
         error_scenarios = [
@@ -97,7 +100,8 @@ class TestDemoFunctionality:
             assert isinstance(scenario["status"], int)
             assert isinstance(scenario["message"], str)
     
-    def test_demo_ui_components(self):
+    @staticmethod
+    def test_demo_ui_components():
         """Test that the demo has all required UI components"""
         # This would test the HTML structure
         # For now, we validate the expected components exist
@@ -114,7 +118,8 @@ class TestDemoFunctionality:
             assert isinstance(component, str)
             assert len(component) > 0
     
-    def test_demo_goemotions_labels(self):
+    @staticmethod
+    def test_demo_goemotions_labels():
         """Test that the demo uses the correct GoEmotions labels"""
         # Expected GoEmotions labels (27 emotions + neutral)
         expected_emotions = [
