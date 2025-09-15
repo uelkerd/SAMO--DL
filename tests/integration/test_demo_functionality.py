@@ -53,7 +53,8 @@ class TestDemoFunctionality:
         assert isinstance(expected_request["text"], str)
         assert len(expected_request["text"]) > 0
 
-    def test_demo_emotion_detection_edge_cases(self, demo_api_url):
+    @staticmethod
+    def test_demo_emotion_detection_edge_cases(demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
         # Test empty string
         empty_request = {"text": ""}
@@ -90,7 +91,8 @@ class TestDemoFunctionality:
         assert "model" in expected_request
         assert expected_request["model"] == "whisper"
 
-    def test_demo_whisper_invalid_audio(self, demo_api_url):
+    @staticmethod
+    def test_demo_whisper_invalid_audio(demo_api_url):
         """Test that the demo and API correctly handle invalid or corrupted audio data"""
         # Simulate corrupted audio data (e.g., not a valid audio byte string)
         corrupted_audio_data = b"not_really_audio"
@@ -98,7 +100,6 @@ class TestDemoFunctionality:
             "audio_data": corrupted_audio_data,
             "model": "whisper"
         }
-        import requests
         response = requests.post(demo_api_url, json=request_payload)
         # Expect a 400 or 422 error, or a specific error message in response
         assert response.status_code in (400, 422)
