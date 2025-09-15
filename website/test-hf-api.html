@@ -50,6 +50,22 @@
     <!-- Configuration -->
     <script src="config.js"></script>
     
+    <!-- Fallback config if external file fails -->
+    <script>
+        // Fallback config if config.js fails to load
+        if (typeof window.SAMO_CONFIG === 'undefined') {
+            console.warn('⚠️ config.js not loaded, using fallback config');
+            window.SAMO_CONFIG = {
+                HUGGING_FACE: {
+                    API_TOKEN: 'YOUR_HF_TOKEN_HERE',
+                    MODEL: 'distilgpt2',
+                    MAX_LENGTH: 150,
+                    TEMPERATURE: 0.8
+                }
+            };
+        }
+    </script>
+    
     <script>
         let hfToken = '';
         
@@ -61,17 +77,24 @@
         function checkConfigStatus() {
             const configStatus = document.getElementById('configStatus');
             
+            console.log('🔍 Checking config status...');
+            console.log('window.SAMO_CONFIG:', window.SAMO_CONFIG);
+            
             if (window.SAMO_CONFIG && window.SAMO_CONFIG.HUGGING_FACE) {
                 const token = window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN;
+                console.log('Token from config:', token);
                 
                 if (token && token !== 'YOUR_HF_TOKEN_HERE') {
                     configStatus.innerHTML = '<div class="success">✅ Config loaded! Token: ' + token.substring(0, 10) + '...</div>';
                     hfToken = token; // Set global token
+                    console.log('✅ Token set successfully');
                 } else {
                     configStatus.innerHTML = '<div class="warning">⚠️ Config loaded but token not set. Please update config.js or enter token below.</div>';
+                    console.log('⚠️ Token not set in config');
                 }
             } else {
                 configStatus.innerHTML = '<div class="error">❌ Config not loaded. Check if config.js exists and is accessible.</div>';
+                console.log('❌ SAMO_CONFIG not found');
             }
         }
         
