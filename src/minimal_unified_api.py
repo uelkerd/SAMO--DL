@@ -103,6 +103,12 @@ async def summarize_text(text: str):
         global summarization_model
         if summarization_model is None:
             logger.info("Loading summarization model...")
+            try:
+                import sentencepiece  # Required for T5 tokenizer
+            except ImportError:
+                logger.error("sentencepiece not installed. Please install it: pip install sentencepiece")
+                raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.")
+            
             from transformers import T5Tokenizer, T5ForConditionalGeneration
             model_name = 't5-small'
             tokenizer = T5Tokenizer.from_pretrained(model_name)
