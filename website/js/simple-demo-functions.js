@@ -31,6 +31,9 @@ function testWithMockData() {
         summary: "The text expresses excitement and optimism about future opportunities, while acknowledging some nervousness about upcoming challenges. The overall sentiment is positive and confident."
     };
     
+    // Show the results sections
+    showResultsSections();
+    
     // Create chart
     createSimpleChart(mockEmotions);
     
@@ -88,6 +91,9 @@ function testWithRealAPI() {
                 summary_length: data.summary?.length || 0,
                 summary: data.summary || "No summary available"
             };
+            
+            // Show the results sections
+            showResultsSections();
             
             // Create chart with real data
             createSimpleChart(emotions);
@@ -246,21 +252,61 @@ function getEmotionColor(emotion) {
     return colors[emotion] || 'linear-gradient(90deg, #6366f1, #8b5cf6)';
 }
 
+function showResultsSections() {
+    console.log('👁️ Showing results sections...');
+    
+    // Show emotion analysis results
+    const emotionResults = document.getElementById('emotionResults');
+    if (emotionResults) {
+        emotionResults.classList.remove('result-section-hidden');
+        emotionResults.classList.add('result-section-visible');
+        console.log('✅ Emotion results section shown');
+    }
+    
+    // Show summarization results
+    const summarizationResults = document.getElementById('summarizationResults');
+    if (summarizationResults) {
+        summarizationResults.classList.remove('result-section-hidden');
+        summarizationResults.classList.add('result-section-visible');
+        console.log('✅ Summarization results section shown');
+    }
+}
+
 function clearAll() {
     console.log('🧹 Clearing all data...');
+    
+    // Hide results sections
+    const emotionResults = document.getElementById('emotionResults');
+    if (emotionResults) {
+        emotionResults.classList.add('result-section-hidden');
+        emotionResults.classList.remove('result-section-visible');
+    }
+    
+    const summarizationResults = document.getElementById('summarizationResults');
+    if (summarizationResults) {
+        summarizationResults.classList.add('result-section-hidden');
+        summarizationResults.classList.remove('result-section-visible');
+    }
+    
+    // Clear chart content
     const chartContainer = document.getElementById('emotionChart');
     if (chartContainer) {
         chartContainer.innerHTML = '<p class="text-center text-muted">Click "Process Text" to see the emotion analysis chart</p>';
     }
+    
+    // Clear summary content
     const summaryContainer = document.getElementById('summaryResults');
     if (summaryContainer) {
         summaryContainer.innerHTML = '<p class="text-center text-muted">Click "Process Text" to see the text summary</p>';
     }
+    
+    // Clear detailed analysis
     updateElement('primaryEmotion', '-');
     updateElement('emotionalIntensity', '-');
     updateElement('sentimentScore', '-');
     updateElement('confidenceRange', '-');
     updateElement('modelDetails', '-');
+    
     console.log('✅ All data cleared');
 }
 
@@ -274,5 +320,6 @@ window.updateSummary = updateSummary;
 window.updateElement = updateElement;
 window.getEmotionColor = getEmotionColor;
 window.clearAll = clearAll;
+window.showResultsSections = showResultsSections;
 
 console.log('🚀 Simple Demo Functions loaded and ready!');
