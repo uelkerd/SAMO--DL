@@ -76,14 +76,14 @@ class ComprehensiveDemo {
                         this.uiController.updateProgressStep('step4', 'completed');
                         this.uiController.showEmotionResults(results.emotions);
                         
-                        // Display detailed model analysis - SIMPLIFIED APPROACH
+                        // Display detailed model analysis - WORKING SOLUTION FROM SIMPLE DEMO
                         console.log('🔍 About to update detailed model analysis with:', {
                             emotions: results.emotions,
                             summary: results.summary
                         });
                         
-                        // Direct update instead of complex function call
-                        updateDetailedAnalysisDirectly(results.emotions, results.summary);
+                        // Use the EXACT same working function from simple demo
+                        updateDetailedAnalysisFromSimpleDemo(results.emotions, results.summary);
                     }
                 } catch (error) {
                     console.error('Text analysis failed:', error);
@@ -365,86 +365,93 @@ function displayDetailedModelAnalysis(emotionData, summaryData) {
     console.log('✅ UI update completed');
 }
 
-// Simplified direct update function
-function updateDetailedAnalysisDirectly(emotionData, summaryData) {
-    console.log('🔧 Updating detailed analysis directly...', emotionData, summaryData);
+// EXACT COPY OF WORKING FUNCTION FROM SIMPLE DEMO
+function updateDetailedAnalysisFromSimpleDemo(emotions, summary) {
+    console.log('🔧 Using EXACT working function from Simple Demo...', emotions, summary);
     
-    // Normalize emotion data
-    let normalizedEmotions = [];
-    if (Array.isArray(emotionData)) {
-        normalizedEmotions = emotionData.map(emotion => ({
-            emotion: emotion.emotion || emotion.label || 'Unknown',
-            confidence: emotion.confidence || emotion.score || 0
-        }));
-    } else if (emotionData.emotions && Array.isArray(emotionData.emotions)) {
-        normalizedEmotions = emotionData.emotions.map(emotion => ({
-            emotion: emotion.emotion || emotion.label || 'Unknown',
-            confidence: emotion.confidence || emotion.score || 0
-        }));
-    } else if (emotionData.probabilities) {
-        normalizedEmotions = Object.entries(emotionData.probabilities).map(([label, prob]) => ({
-            emotion: label,
-            confidence: prob
-        }));
-    }
-    
-    // Sort by confidence
-    normalizedEmotions = normalizedEmotions.sort((a, b) => b.confidence - a.confidence);
-    
-    // Calculate values
-    const primaryEmotion = normalizedEmotions[0];
+    // Calculate values - EXACT same logic as Simple Demo
+    const primaryEmotion = emotions[0];
     const primaryEmotionName = primaryEmotion ? primaryEmotion.emotion : 'Unknown';
     const primaryEmotionConfidence = primaryEmotion ? Math.round(primaryEmotion.confidence * 100) : 0;
     
-    const avgConfidence = normalizedEmotions.length > 0 ? 
-        normalizedEmotions.reduce((sum, e) => sum + e.confidence, 0) / normalizedEmotions.length : 0;
+    const avgConfidence = emotions.length > 0 ? 
+        emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length : 0;
     const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
     
-    // Sentiment calculation
+    // Sentiment calculation - EXACT same as Simple Demo
     const sentimentWeights = {
         'joy': 1, 'happiness': 1, 'excitement': 1, 'optimism': 0.8, 'gratitude': 0.9,
         'sadness': -1, 'anger': -1, 'fear': -0.8, 'anxiety': -0.7, 'frustration': -0.9,
         'neutral': 0, 'calm': 0.2
     };
     
-    const sentimentScore = normalizedEmotions.length > 0 ? 
-        normalizedEmotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
+    const sentimentScore = emotions.length > 0 ? 
+        emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
     const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
     
-    // Confidence range (top 3 emotions)
-    const top3 = normalizedEmotions.slice(0, 3);
+    // Confidence range (top 3 emotions) - EXACT same as Simple Demo
+    const top3 = emotions.slice(0, 3);
     const confidences = top3.map(e => e.confidence);
     const minConf = confidences.length > 0 ? Math.min(...confidences) : 0;
     const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
     const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
     
-    // Model details
-    const modelDetails = `Processed ${normalizedEmotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summaryData?.original_length || 0} characters.`;
+    // Model details - EXACT same as Simple Demo
+    const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summary?.original_length || 0} characters.`;
     
-    // Update DOM elements directly
-    const elements = {
-        'primaryEmotion': `${primaryEmotionName} (${primaryEmotionConfidence}%)`,
-        'emotionalIntensity': intensity,
-        'sentimentScore': `${sentimentLabel} (${sentimentScore.toFixed(2)})`,
-        'confidenceRange': confidenceRange,
-        'modelDetails': modelDetails
-    };
+    // Update DOM elements - EXACT same as Simple Demo
+    updateElement('primaryEmotion', `${primaryEmotionName} (${primaryEmotionConfidence}%)`);
+    updateElement('emotionalIntensity', intensity);
+    updateElement('sentimentScore', `${sentimentLabel} (${sentimentScore.toFixed(2)})`);
+    updateElement('confidenceRange', confidenceRange);
+    updateElement('modelDetails', modelDetails);
     
-    Object.entries(elements).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            console.log(`✅ Updated ${id}: ${value}`);
-        } else {
-            console.error(`❌ Element not found: ${id}`);
-        }
-    });
-    
-    console.log('✅ Direct update completed');
+    console.log('✅ Simple Demo function completed successfully');
+}
+
+// Helper function - EXACT copy from Simple Demo
+function updateElement(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value;
+        console.log(`✅ Updated ${id}: ${value}`);
+    } else {
+        console.error(`❌ Element not found: ${id}`);
+    }
 }
 
 // Make the function globally available
 window.displayDetailedModelAnalysis = displayDetailedModelAnalysis;
+
+// Debug test functions
+function testDetailedAnalysis() {
+    console.log('🧪 Testing detailed analysis with mock data...');
+    
+    const mockEmotions = [
+        { emotion: 'joy', confidence: 0.85 },
+        { emotion: 'excitement', confidence: 0.72 },
+        { emotion: 'optimism', confidence: 0.68 },
+        { emotion: 'gratitude', confidence: 0.45 },
+        { emotion: 'neutral', confidence: 0.15 }
+    ];
+    
+    const mockSummary = {
+        original_length: 266,
+        summary_length: 93
+    };
+    
+    // Use the EXACT same working function
+    updateDetailedAnalysisFromSimpleDemo(mockEmotions, mockSummary);
+}
+
+function clearDetailedAnalysis() {
+    console.log('🧹 Clearing detailed analysis...');
+    updateElement('primaryEmotion', '-');
+    updateElement('emotionalIntensity', '-');
+    updateElement('sentimentScore', '-');
+    updateElement('confidenceRange', '-');
+    updateElement('modelDetails', '-');
+}
 
 // Also make demo available immediately for testing
 window.ComprehensiveDemo = ComprehensiveDemo;
