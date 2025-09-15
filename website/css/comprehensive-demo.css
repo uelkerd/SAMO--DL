@@ -104,7 +104,7 @@ body {
     z-index: 2;
 }
 
-/* Demo Container - Compact Professional Design */
+/* Demo Container - Full Width Professional Design */
 .demo-container {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -112,8 +112,8 @@ body {
     border-radius: 20px;
     box-shadow: var(--shadow-glass);
     padding: 3rem;
-    margin: 2rem auto;
-    max-width: 900px;
+    margin: 2rem 0;
+    width: 100%;
     position: relative;
     z-index: 1;
     color: #e2e8f0;
@@ -310,13 +310,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    padding: 30px 20px;
+    gap: 25px;
+    padding: 40px 25px;
     background: var(--glass-bg);
-    border-radius: 15px;
+    border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    min-height: 500px;
+    min-height: 600px;
     justify-content: center;
+    width: 100%;
 }
 
 .progress-step-vertical {
@@ -333,17 +334,17 @@ body {
 }
 
 .progress-step-vertical .step-icon-small {
-    width: 60px;
-    height: 60px;
+    width: 60px !important;
+    height: 60px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    font-size: 1.5rem;
+    font-size: 1.5rem !important;
     transition: var(--transition-smooth);
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -356,19 +357,19 @@ body {
 }
 
 .progress-step-vertical.active .step-icon-small {
-    background: var(--primary-gradient);
-    color: white;
+    background: var(--primary-gradient) !important;
+    color: white !important;
     box-shadow: var(--shadow-glow);
 }
 
 .progress-step-vertical.completed .step-icon-small {
-    background: var(--success-color);
-    color: white;
+    background: var(--success-color) !important;
+    color: white !important;
 }
 
 .progress-step-vertical.error .step-icon-small {
-    background: var(--error-color);
-    color: white;
+    background: var(--error-color) !important;
+    color: white !important;
 }
 
 .pipeline-arrow-vertical {
