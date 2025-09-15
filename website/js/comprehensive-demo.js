@@ -31,7 +31,8 @@ class SAMOAPIClient {
             
             if (!response.ok) {
                 if (response.status === 429) {
-                    throw new Error('Rate limit exceeded. Please try again in a moment.');
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Rate limit exceeded. Please try again in a moment.');
                 } else if (response.status === 401) {
                     throw new Error('API key required. Please contact support for access.');
                 } else if (response.status === 503) {
@@ -73,7 +74,7 @@ class SAMOAPIClient {
             return await this.makeRequest('/summarize/text', { text });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
-            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected')) {
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
                 return this.getMockSummaryResponse(text);
             }
@@ -100,10 +101,10 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            return await this.makeRequest('/predict', { text });
+            return await this.makeRequest('/analyze/journal', { text });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
-            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected')) {
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
                 return this.getMockEmotionResponse(text);
             }
