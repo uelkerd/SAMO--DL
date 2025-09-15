@@ -327,7 +327,7 @@ class SAMOWhisperTranscriber:
                     device=self.device,
                     download_root=cache_dir
                 )
-            except (RuntimeError, OSError) as e:
+            except (RuntimeError, OSError):
                 logger.exception(
                     "Model loading failed, possibly due to cache corruption. "
                     "Clearing cache and retrying..."

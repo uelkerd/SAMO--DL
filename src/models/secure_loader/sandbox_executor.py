@@ -151,7 +151,7 @@ class SandboxExecutor:
         """Disable network access in the sandbox."""
         try:
             import socket
-            original_socket = socket.socket
+            # original_socket = socket.socket  # Currently unused - for future restoration
 
             def blocked_socket(*args, **kwargs):
                 raise PermissionError("Network access is not allowed in sandbox")

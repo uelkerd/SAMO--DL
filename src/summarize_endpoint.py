@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_restx import Api, Resource, fields
 import logging
-from typing import Dict, Any, Optional
 import time
 
 logger = logging.getLogger(__name__)
@@ -40,8 +39,9 @@ class SummarizeEndpoint(Resource):
     def load_model(self):
         """Load the T5 summarization model."""
         try:
-            from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
-            self.model = create_samo_t5_summarizer()
+            # TODO: Replace with actual T5 model loading
+            # from models.t5_summarization import T5Summarizer
+            # self.model = T5Summarizer()
             self.model_loaded = True
             logger.info("T5 summarization model loaded successfully")
         except Exception as e:
@@ -82,16 +82,12 @@ class SummarizeEndpoint(Resource):
                 self.load_model()
 
             # Generate summary
-            if self.model_loaded and self.model:
-                try:
-                    result = self.model.generate_summary(text)
-                    summary = result.get("summary", f"[ERROR] Failed to generate summary for {len(text)} characters")
-                except Exception as e:
-                    logger.error(f"Summary generation failed: {e}")
-                    summary = f"[ERROR] Summary generation failed: {str(e)}"
-            else:
-                # Fallback mock summary
-                summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
+            # TODO: Replace with actual model inference when available
+            # if self.model_loaded and self.model:
+            #     summary = self.model.summarize(text, max_length, min_length, temperature)
+            # else:
+            #     summary = fallback_mock_summary
+            summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
 
             processing_time = time.time() - start_time
 

@@ -6,7 +6,6 @@ Common security configuration and middleware setup for deployment scripts.
 """
 
 import os
-from typing import Optional
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
 

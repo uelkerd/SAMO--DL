@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_restx import Api, Resource, fields
 import logging
-from typing import Dict, Any, List
 import json
 
 logger = logging.getLogger(__name__)

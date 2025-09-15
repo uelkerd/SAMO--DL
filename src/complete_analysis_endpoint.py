@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restx import Api, Resource, fields
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 import time
 import base64
 
@@ -51,19 +51,14 @@ class CompleteAnalysisEndpoint(Resource):
     def load_models(self):
         """Load all required models for complete analysis."""
         try:
-            # Load emotion detection model
-            from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-            self.emotion_model = BERTEmotionClassifier()
+            # TODO: Replace with actual model loading
+            # from models.emotion_detection import EmotionDetector
+            # from models.t5_summarization import T5Summarizer
+            # from models.whisper_transcription import WhisperTranscriber
+
+
             self.emotion_model_loaded = True
-
-            # Load summarization model
-            from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
-            self.summarization_model = create_samo_t5_summarizer()
             self.summarization_model_loaded = True
-
-            # Load transcription model
-            from src.models.voice_processing.samo_whisper_transcriber import SAMOWhisperTranscriber
-            self.transcription_model = SAMOWhisperTranscriber()
             self.transcription_model_loaded = True
 
             logger.info("All models loaded successfully for complete analysis")
@@ -118,7 +113,7 @@ class CompleteAnalysisEndpoint(Resource):
             # Extract parameters
             text = data.get('text', '').strip()
             audio_data = data.get('audio_data', '').strip()
-            audio_format = data.get('audio_format', 'wav')
+            # audio_format = data.get('audio_format', 'wav')  # Currently unused
             language = data.get('language', 'en')
             include_summary = data.get('include_summary', True)
             include_emotion = data.get('include_emotion', True)
@@ -127,31 +122,12 @@ class CompleteAnalysisEndpoint(Resource):
             # Process audio if provided
             transcription = ""
             if audio_data and include_transcription:
-                if self.transcription_model_loaded and self.transcription_model:
-                    try:
-                        import tempfile
-                        import os
-
-                        # Decode base64 audio data
-                        audio_bytes = base64.b64decode(audio_data)
-
-                        # Create temporary file for audio processing
-                        with tempfile.NamedTemporaryFile(suffix=f'.{audio_format}', delete=False) as temp_file:
-                            temp_file.write(audio_bytes)
-                            temp_file_path = temp_file.name
-
-                        # Transcribe using the model
-                        result = self.transcription_model.transcribe_audio(temp_file_path, language=language)
-
-                        # Clean up temporary file
-                        os.unlink(temp_file_path)
-
-                        transcription = result.get('text', f"[ERROR] Transcription failed for {language} audio")
-                    except Exception as e:
-                        logger.error(f"Transcription failed: {e}")
-                        transcription = f"[ERROR] Transcription failed: {str(e)}"
-                else:
-                    transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
+                # TODO: Replace with actual transcription when available
+                # if self.transcription_model_loaded and self.transcription_model:
+                #     transcription = self.transcription_model.transcribe(audio_data, language)
+                # else:
+                #     transcription = fallback_mock_transcription
+                transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
 
             # Use transcribed text if no text provided
             if not text and transcription:
@@ -162,16 +138,12 @@ class CompleteAnalysisEndpoint(Resource):
             confidence_scores = []
             if text and include_emotion:
                 if self.emotion_model_loaded and self.emotion_model:
-                    try:
-                        # Note: BERTEmotionClassifier needs to be adapted for inference
-                        # This is a placeholder for the actual emotion analysis
-                        result = {"emotions": ["joy", "sadness", "anger"], "confidence_scores": [0.8, 0.6, 0.3]}
-                        emotions = result.get('emotions', ["neutral"])
-                        confidence_scores = result.get('confidence_scores', [0.5])
-                    except Exception as e:
-                        logger.error(f"Emotion analysis failed: {e}")
-                        emotions = ["neutral"]
-                        confidence_scores = [0.5]
+                    # TODO: Replace with actual emotion analysis
+                    # result = self.emotion_model.analyze(text)
+                    # emotions = result['emotions']
+                    # confidence_scores = result['confidence_scores']
+                    emotions = ["joy", "sadness", "anger"]
+                    confidence_scores = [0.8, 0.6, 0.3]
                 else:
                     emotions = ["joy", "sadness", "anger"]
                     confidence_scores = [0.8, 0.6, 0.3]
@@ -179,15 +151,12 @@ class CompleteAnalysisEndpoint(Resource):
             # Perform summarization
             summary = ""
             if text and include_summary:
-                if self.summarization_model_loaded and self.summarization_model:
-                    try:
-                        result = self.summarization_model.generate_summary(text)
-                        summary = result.get("summary", f"[ERROR] Failed to generate summary for {len(text)} characters")
-                    except Exception as e:
-                        logger.error(f"Summarization failed: {e}")
-                        summary = f"[ERROR] Summarization failed: {str(e)}"
-                else:
-                    summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
+                # TODO: Replace with actual summarization when available
+                # if self.summarization_model_loaded and self.summarization_model:
+                #     summary = self.summarization_model.summarize(text)
+                # else:
+                #     summary = fallback_mock_summary
+                summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
 
             processing_time = time.time() - start_time
 

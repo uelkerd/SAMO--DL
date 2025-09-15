@@ -5,6 +5,7 @@ import os
 import shutil
 import tarfile
 import tempfile
+import zipfile
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -203,8 +204,6 @@ def load_emotion_model_multi_source(
                 with tarfile.open(archive_path, "r:gz") as tar:
                     tar.extractall(path=extract_dir)
             elif archive_path.endswith(".zip"):
-                import zipfile
-
                 with zipfile.ZipFile(archive_path, "r") as zf:
                     zf.extractall(path=extract_dir)
             else:

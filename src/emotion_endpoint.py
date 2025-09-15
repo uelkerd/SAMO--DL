@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 from flask_restx import Api, Resource, fields
 import logging
-from typing import Dict, Any, Optional
 import time
 
 logger = logging.getLogger(__name__)

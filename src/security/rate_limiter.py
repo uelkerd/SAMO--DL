@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Optional
 import time
 
 class RateLimiter:

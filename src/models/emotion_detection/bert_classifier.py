@@ -66,7 +66,7 @@ class BERTEmotionClassifier(nn.Module):
         self.hidden_dropout_prob = hidden_dropout_prob
         self.classifier_dropout_prob = classifier_dropout_prob
         self.freeze_bert_layers = freeze_bert_layers
-        self.temperature = temperature
+        self.temperature_init = temperature
         self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
         self.class_weights = class_weights
         self.emotion_labels = GOEMOTIONS_EMOTIONS[:num_emotions]
@@ -89,7 +89,7 @@ class BERTEmotionClassifier(nn.Module):
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
-        self.temperature = nn.Parameter(torch.ones(1))
+        self.temperature = nn.Parameter(torch.ones(1) * self.temperature_init)
 
         # Initialize classification layers
         self._init_classification_layers()

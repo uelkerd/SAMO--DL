@@ -1518,7 +1518,7 @@ async def transcribe_voice(
     current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
     """Enhanced voice transcription with detailed analysis."""
-    start_time = time.time()
+    time.time()
 
     try:
         # Validate file
@@ -1611,7 +1611,7 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            processing_time = (time.time() - start_time) * 1000
+            # processing_time = (time.time() - start_time) * 1000  # Currently unused
 
             return VoiceTranscription(
                 text=text_val,
@@ -1755,7 +1755,7 @@ async def summarize_text(
     current_user: TokenPayload = Depends(get_current_user),
 ) -> TextSummary:
     """Enhanced text summarization with multiple model options."""
-    start_time = time.time()
+    time.time()
 
     try:
         if not text.strip():
@@ -1799,7 +1799,7 @@ async def summarize_text(
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
-        processing_time = (time.time() - start_time) * 1000
+        # processing_time = (time.time() - start_time) * 1000  # Currently unused
 
         return TextSummary(
             summary=summary_text or "",
@@ -1873,7 +1873,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 
         logger.info("WebSocket authenticated for user: %s", payload.username)
 
-    except Exception as exc:
+    except Exception:
         await websocket.send_json({
             "type": "error",
             "message": "Authentication failed"
@@ -2022,7 +2022,7 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
@@ -2036,7 +2036,7 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            text_summarizer.summarize("This is a test text for summarization.")  # Test execution only
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
