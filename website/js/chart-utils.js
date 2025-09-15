@@ -8,7 +8,7 @@ class ChartUtils {
     }
 
     createEmotionChart(containerId, emotions) {
-        console.log('Creating emotion chart for container:', containerId);
+        console.log('Creating emotion chart for container:', containerId, emotions);
         const container = document.getElementById(containerId);
         if (!container) {
             console.error('Container not found:', containerId);
@@ -18,11 +18,11 @@ class ChartUtils {
         // Sort emotions by confidence
         const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
         
-        // Create the chart HTML
+        // Create the chart HTML with much better styling
         let chartHTML = `
             <div class="emotion-chart-container">
                 <div class="chart-header">
-                    <h6 class="chart-title">📊 Emotion Analysis</h6>
+                    <h5 class="chart-title">📊 Emotion Analysis</h5>
                     <div class="chart-subtitle">Confidence levels for detected emotions</div>
                 </div>
                 <div class="emotion-bars">
@@ -30,8 +30,8 @@ class ChartUtils {
         
         sortedEmotions.forEach((emotion, index) => {
             const percentage = Math.round(emotion.confidence * 100);
-            const barWidth = Math.max(percentage * 1.5, 15); // Minimum 15px width
-            const delay = index * 100; // Staggered animation
+            const barWidth = Math.max(percentage, 5); // Use percentage, minimum 5%
+            const delay = index * 150; // Staggered animation
             
             chartHTML += `
                 <div class="emotion-bar" style="animation-delay: ${delay}ms;">
@@ -40,7 +40,7 @@ class ChartUtils {
                         <span class="emotion-percentage">${percentage}%</span>
                     </div>
                     <div class="emotion-bar-bg">
-                        <div class="emotion-bar-fill" style="width: ${barWidth}px; background: linear-gradient(90deg, ${this.getEmotionColor(emotion.emotion)}, ${this.getEmotionColor(emotion.emotion, true)});"></div>
+                        <div class="emotion-bar-fill" style="width: ${barWidth}%; background: linear-gradient(90deg, ${this.getEmotionColor(emotion.emotion)}, ${this.getEmotionColor(emotion.emotion, true)});"></div>
                     </div>
                 </div>
             `;

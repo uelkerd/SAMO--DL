@@ -584,40 +584,68 @@ body {
     animation: fadeInUp 0.3s ease-out;
 }
 
-/* Pure HTML/CSS Chart styling */
+/* Pure HTML/CSS Chart styling - BEAUTIFUL DESIGN */
 .emotion-chart-container, .summary-chart-container {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 15px 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 16px;
+    padding: 25px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.emotion-chart-container::before, .summary-chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b5cf6, #a855f7, #c084fc);
 }
 
 .chart-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .chart-title {
-    color: #f59e0b;
-    font-weight: 600;
-    margin-bottom: 5px;
+    color: #fbbf24;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .chart-subtitle {
-    color: #94a3b8;
-    font-size: 0.875rem;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
 .emotion-bars {
-    space-y: 15px;
+    space-y: 20px;
 }
 
 .emotion-bar {
-    margin-bottom: 15px;
-    animation: slideInLeft 0.6s ease-out forwards;
+    margin-bottom: 20px;
+    animation: slideInLeft 0.8s ease-out forwards;
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.emotion-bar:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes slideInLeft {
@@ -630,34 +658,44 @@ body {
 .emotion-label {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    align-items: center;
 }
 
 .emotion-name {
-    font-weight: 600;
-    color: #e2e8f0;
+    font-weight: 700;
+    color: #f1f5f9;
     text-transform: capitalize;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
 }
 
 .emotion-percentage {
     color: #a855f7;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: rgba(168, 85, 247, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .emotion-bar-bg {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    height: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    height: 16px;
     overflow: hidden;
     position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .emotion-bar-fill {
     height: 100%;
-    border-radius: 10px;
-    transition: width 0.8s ease-out;
+    border-radius: 15px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .emotion-bar-fill::after {
@@ -667,8 +705,8 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 3s infinite;
 }
 
 @keyframes shimmer {
@@ -679,89 +717,117 @@ body {
 .summary-stats {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
-    gap: 15px;
+    margin-bottom: 25px;
+    gap: 20px;
 }
 
 .stat-item {
     text-align: center;
     flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
 }
 
 .stat-item.highlight {
-    background: rgba(139, 92, 246, 0.1);
-    border-radius: 8px;
-    padding: 10px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.1));
+    border: 2px solid rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
 }
 
 .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #f59e0b;
-    margin-bottom: 5px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fbbf24;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .stat-item.highlight .stat-value {
-    color: #a855f7;
+    color: #c084fc;
+    font-size: 2rem;
 }
 
 .stat-label {
-    font-size: 0.875rem;
-    color: #94a3b8;
+    font-size: 0.8rem;
+    color: #cbd5e1;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .summary-bars {
-    space-y: 15px;
+    space-y: 20px;
 }
 
 .summary-bar {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.summary-bar:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
 .bar-label {
-    font-weight: 600;
-    color: #e2e8f0;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 12px;
+    font-size: 1rem;
 }
 
 .bar-bg {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    height: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    height: 24px;
     overflow: hidden;
     position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .bar-fill {
     height: 100%;
-    border-radius: 8px;
-    transition: width 1s ease-out;
+    border-radius: 12px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .bar-fill.original {
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
 }
 
 .bar-fill.summary {
-    background: linear-gradient(90deg, #10b981, #34d399);
+    background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
 }
 
 .bar-value {
     text-align: right;
-    font-size: 0.875rem;
-    color: #94a3b8;
-    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-top: 8px;
+    font-weight: 600;
 }
 
 .chart-footer {
     text-align: center;
-    margin-top: 15px;
-    padding-top: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 0.85rem;
 }
 
 /* Error Message Styles */
