@@ -60,7 +60,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'rate_limit': RATE_LIMIT_PER_MINUTE,
             'timestamp': time.time()
         })
-    except Exception as e:
+    except Exception as _:
         logger.exception("Root endpoint error")
         return create_error_response('Internal server error', 500)
 
@@ -275,7 +275,7 @@ class Health(Resource):
                 logger.warning("Health check failed - model not ready")
                 return create_error_response('Service unavailable - model not ready', 503)
                 
-        except Exception as e:
+        except Exception as _:
             logger.exception("Health check error")
             return create_error_response('Internal server error', 500)
 
@@ -324,7 +324,7 @@ class Predict(Resource):
             result = predict_emotion(text)
             return result
 
-        except Exception as e:
+        except Exception as _:
             logger.exception("Prediction error")
             return create_error_response('Internal server error', 500)
 
@@ -382,7 +382,7 @@ class PredictBatch(Resource):
 
             return {'results': results}
 
-        except Exception as e:
+        except Exception as _:
             logger.exception("Batch prediction error")
             return create_error_response('Internal server error', 500)
 
@@ -400,7 +400,7 @@ class Emotions(Resource):
                 'count': len(EMOTION_MAPPING),
                 'timestamp': time.time()
             }
-        except Exception as e:
+        except Exception as _:
             logger.exception("Emotions endpoint error")
             return create_error_response('Internal server error', 500)
 
@@ -419,7 +419,7 @@ class ModelStatus(Resource):
             logger.info(f"Admin model status request from {request.remote_addr}")
             status = get_model_status()
             return status
-        except Exception as e:
+        except Exception as _:
             logger.exception("Model status error")
             return create_error_response('Internal server error', 500)
 
@@ -442,7 +442,7 @@ class SecurityStatus(Resource):
                 'security_headers': True,
                 'timestamp': time.time()
             }
-        except Exception as e:
+        except Exception as _:
             logger.exception("Security status error")
             return create_error_response('Internal server error', 500)
 
@@ -494,7 +494,7 @@ def initialize_model():
         logger.info("✅ Model initialization completed successfully")
         logger.info("🚀 API server ready to handle requests")
         
-    except Exception as e:
+    except Exception as _:
         logger.exception("❌ Failed to initialize API server")
         raise
 
