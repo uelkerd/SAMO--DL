@@ -281,10 +281,20 @@ class SAMOAPIClient {
     }
 
     getMockSummaryResponse(text) {
-        // Mock summarization response for demo purposes
-        const words = text.split(' ');
-        const summaryLength = Math.max(10, Math.floor(words.length * 0.3));
-        const summary = words.slice(0, summaryLength).join(' ') + '...';
+        // Extract key sentences for a more realistic summary
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+        const keywordCount = {};
+        
+        // Simple keyword extraction
+        text.toLowerCase().split(/\W+/).forEach(word => {
+            if (word.length > 4) {
+                keywordCount[word] = (keywordCount[word] || 0) + 1;
+            }
+        });
+        
+        // Take first and most relevant sentences
+        const summaryLength = Math.max(1, Math.ceil(sentences.length * 0.3));
+        const summary = sentences.slice(0, summaryLength).join(' ').trim();
         
         return {
             summary: summary,

@@ -79,8 +79,12 @@ class UIController {
 
         // Trigger the main processing workflow
         if (window.demo) {
-            console.log('Calling demo.processCompleteWorkflow with:', { audioFile, text });
-            window.demo.processCompleteWorkflow(audioFile, text);
+            if (typeof window.demo.processCompleteWorkflow === 'function') {
+                console.log('Calling demo.processCompleteWorkflow with:', { audioFile, text });
+                window.demo.processCompleteWorkflow(audioFile, text);
+            } else {
+                this.showError('Demo not properly initialized. Please refresh the page.');
+            }
         } else {
             console.error('window.demo not available');
             this.showError('Demo system not initialized. Please refresh the page.');
@@ -128,9 +132,9 @@ class UIController {
         const step = document.getElementById(stepId);
         if (step) {
             // Update the step container class
-            if (step.classList.contains('progress-step-horizontal')) {
-                // New horizontal design
-                step.className = `progress-step-horizontal ${status}`;
+            if (step.classList.contains('progress-step-vertical')) {
+                // New vertical design
+                step.className = `progress-step-vertical ${status}`;
 
                 // Also update the icon
                 const icon = step.querySelector('.step-icon-small');
@@ -264,7 +268,10 @@ class UIController {
             const badge = document.createElement('span');
             badge.className = 'badge bg-primary me-2 mb-2';
             badge.style.fontSize = '0.9rem';
-            badge.innerHTML = `${emotionName} <small>(${confidence.toFixed(1)}%)</small>`;
+            badge.textContent = `${emotionName} `;
+            const small = document.createElement('small');
+            small.textContent = `(${confidence.toFixed(1)}%)`;
+            badge.appendChild(small);
             
             this.emotionBadges.appendChild(badge);
         });
@@ -371,7 +378,12 @@ class UIController {
             
             const label = document.createElement('div');
             label.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 5px; color: #e2e8f0; font-size: 0.9rem;';
-            label.innerHTML = `<span>${emotionName}</span><span>${confidence.toFixed(1)}%</span>`;
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = emotionName;
+            const confidenceSpan = document.createElement('span');
+            confidenceSpan.textContent = `${confidence.toFixed(1)}%`;
+            label.appendChild(nameSpan);
+            label.appendChild(confidenceSpan);
             
             const barContainer = document.createElement('div');
             barContainer.style.cssText = 'background: rgba(255, 255, 255, 0.1); height: 8px; border-radius: 4px; overflow: hidden;';

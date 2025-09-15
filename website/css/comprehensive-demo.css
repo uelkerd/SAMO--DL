@@ -171,6 +171,11 @@ body {
     box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
 }
 
+.btn:focus-visible {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
 /* Form Controls - consolidated with scoped rules above */
 
 /* Focus styles consolidated with scoped rules above */
@@ -270,15 +275,86 @@ body {
     100% { height: 40px; }
 }
 
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .step.active .step-circle,
+    .spinner {
+        animation: none !important;
+    }
+    .btn:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+}
+
 /* Progress Steps */
 .progress-step {
     display: flex;
     align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 10px;
+}
+
+/* Vertical Progress Pipeline */
+.progress-pipeline-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
     background: var(--glass-bg);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-step-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
     transition: var(--transition-smooth);
+    min-width: 120px;
+}
+
+.progress-step-vertical .step-icon-small {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    transition: var(--transition-smooth);
+}
+
+.progress-step-vertical .step-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: var(--transition-smooth);
+}
+
+.progress-step-vertical.active .step-icon-small {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.progress-step-vertical.completed .step-icon-small {
+    background: var(--success-color);
+    color: white;
+}
+
+.progress-step-vertical.error .step-icon-small {
+    background: var(--error-color);
+    color: white;
+}
+
+.pipeline-arrow-vertical {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    margin: 5px 0;
 }
 
 .progress-step.completed {
