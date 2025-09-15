@@ -41,8 +41,13 @@ from fastapi.websockets import WebSocketDisconnect
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
-from .api_rate_limiter import add_rate_limiting
-from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
+try:
+    from .api_rate_limiter import add_rate_limiting
+    from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
+except ImportError:
+    # Fallback for direct execution
+    from api_rate_limiter import add_rate_limiting
+    from security.jwt_manager import JWTManager, TokenPayload, TokenResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -502,19 +507,34 @@ app.add_middleware(
 
 # Add rate limiting middleware (production-friendly settings)
 try:
-    from deployment.cloud_run.api_config_production import get_production_overrides
-    overrides = get_production_overrides()
-    add_rate_limiting(
-        app,
-        requests_per_minute=overrides.get("rate_limit_requests_per_minute", 300),
-        burst_size=overrides.get("rate_limit_burst_size", 50),
-        max_concurrent_requests=overrides.get("max_concurrent_requests", 20),
-        rapid_fire_threshold=30,
-        sustained_rate_threshold=600,
-    )
-    logger.info("Production rate limiting configured")
-except ImportError:
+    import importlib.util
+    import sys
+    import os
+    
+    # Try to load the production config module dynamically
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'deployment', 'cloud-run', 'api_config_production.py')
+    if os.path.exists(config_path):
+        spec = importlib.util.spec_from_file_location("api_config_production", config_path)
+        config_module = importlib.util.module_from_spec(spec)
+        sys.modules["api_config_production"] = config_module
+        spec.loader.exec_module(config_module)
+        
+        overrides = config_module.get_production_overrides()
+        add_rate_limiting(
+            app,
+            requests_per_minute=overrides.get("rate_limit_requests_per_minute", 300),
+            burst_size=overrides.get("rate_limit_burst_size", 50),
+            max_concurrent_requests=overrides.get("max_concurrent_requests", 20),
+            rapid_fire_threshold=30,
+            sustained_rate_threshold=600,
+        )
+        logger.info("Production rate limiting configured")
+    else:
+        raise ImportError("Production config file not found")
+        
+except (ImportError, FileNotFoundError, AttributeError) as e:
     # Fallback to more permissive defaults
+    logger.info(f"Using default rate limiting (production config not available: {e})")
     add_rate_limiting(
         app,
         requests_per_minute=300,
