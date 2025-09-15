@@ -11,7 +11,8 @@ function processText() {
         alert('Please enter some text to analyze');
         return;
     }
-    testWithMockData();
+    // Try real API first, fallback to mock data
+    testWithRealAPI();
 }
 
 function testWithMockData() {
@@ -64,12 +65,12 @@ function testWithRealAPI() {
         // Test text
         const testText = document.getElementById('textInput').value || "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.";
         
-        // Call the real API
-        fetch('https://samo-dl-unified-ai-api-7q3q3q3q3q-uc.a.run.app/analyze/journal', {
+        // Try the LIVE emotion API first (no auth required)
+        console.log('🔥 Calling LIVE emotion API...');
+        fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': 'your-api-key-here'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 text: testText
@@ -84,12 +85,36 @@ function testWithRealAPI() {
         .then(data => {
             console.log('✅ Real API response:', data);
             
-            // Extract emotions and summary from the response
-            const emotions = data.emotion_analysis?.emotions || [];
+            // Convert API response to our format
+            const emotions = [];
+            if (data.emotions) {
+                // Current API format: {emotions: [{emotion: "excitement", confidence: 0.739}]}
+                data.emotions.forEach(emotion => {
+                    emotions.push({
+                        emotion: emotion.emotion,
+                        confidence: emotion.confidence
+                    });
+                });
+            } else if (data.all_emotions) {
+                // Alternative API format
+                data.all_emotions.forEach(emotion => {
+                    emotions.push({
+                        emotion: emotion.emotion,
+                        confidence: emotion.confidence
+                    });
+                });
+            } else if (data.emotion_analysis?.emotions) {
+                // Old API format
+                Object.entries(data.emotion_analysis.emotions).forEach(([emotion, confidence]) => {
+                    emotions.push({ emotion, confidence });
+                });
+            }
+            
+            // Create mock summary for now (since emotion API doesn't do summarization)
             const summary = {
                 original_length: testText.length,
-                summary_length: data.summary?.length || 0,
-                summary: data.summary || "No summary available"
+                summary_length: Math.round(testText.length * 0.4), // 60% reduction
+                summary: `[Real API] ${testText.substring(0, 100)}...` // Truncated summary
             };
             
             // Show the results sections
