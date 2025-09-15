@@ -350,16 +350,15 @@ function testWithRealAPI() {
             updateElement('confidenceRange', 'Error');
             updateElement('modelDetails', `API Error: ${error.message}`);
             
-            // Fallback to mock data
-            console.log('🔄 Falling back to mock data...');
-            setTimeout(() => {
-                testWithMockData();
-            }, 2000);
+            // Don't fallback to mock data - show the real error
+            console.log('❌ API failed - showing error instead of mock data');
+            console.log('❌ This will help us debug the real API issue');
         });
         
     } catch (error) {
         console.error('❌ Real API test failed:', error);
-        testWithMockData();
+        console.log('❌ API failed - showing error instead of mock data');
+        console.log('❌ This will help us debug the real API issue');
     }
 }
 
