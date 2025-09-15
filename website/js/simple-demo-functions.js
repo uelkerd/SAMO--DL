@@ -1,6 +1,15 @@
 /**
  * Simple Demo Functions - EXACT working code from working-main-demo.html
  * These functions are proven to work and are self-contained
+ * 
+ * 🤖 AI TEXT GENERATION SETUP:
+ * To enable real AI text generation, you need an OpenAI API key:
+ * 1. Go to https://platform.openai.com/api-keys
+ * 2. Create a new API key
+ * 3. Replace 'your_openai_api_key_here' in the generateWithOpenAI function below
+ * 4. Save the file and refresh the demo
+ * 
+ * Without an API key, the demo will use static sample texts as fallback.
  */
 
 // EXACT copy of working functions from working-main-demo.html
@@ -49,9 +58,9 @@ async function generateSampleText() {
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
         }
         
-        // Try to use a different approach - generate text using a simple algorithm
+        // Try to use REAL OpenAI API for text generation
         try {
-            const generatedText = generateAIText(randomPrompt);
+            const generatedText = await generateWithOpenAI(randomPrompt);
             
             if (textInput) {
                 textInput.value = generatedText;
@@ -66,8 +75,23 @@ async function generateSampleText() {
                 }, 2000);
             }
         } catch (error) {
-            console.warn('⚠️ AI generation failed, using static samples');
-            generateStaticSampleText();
+            console.warn('⚠️ OpenAI API failed:', error.message);
+            
+            // Show user-friendly error message
+            if (textInput) {
+                textInput.value = '⚠️ AI generation failed - using sample text instead. To enable real AI generation, add your OpenAI API key to the code.';
+                textInput.style.borderColor = '#f59e0b';
+                textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
+                setTimeout(() => {
+                    textInput.style.borderColor = '';
+                    textInput.style.boxShadow = '';
+                }, 3000);
+            }
+            
+            // Fallback to static samples
+            setTimeout(() => {
+                generateStaticSampleText();
+            }, 2000);
         }
         
     } catch (error) {
@@ -79,83 +103,60 @@ async function generateSampleText() {
     }
 }
 
-function generateAIText(prompt) {
-    console.log('🤖 Generating AI text with prompt:', prompt);
+// Removed generateEmotionVariations function - we now use only real model output
+
+async function generateWithOpenAI(prompt) {
+    console.log('🤖 Calling OpenAI API with prompt:', prompt);
     
-    // Create a more dynamic text generation system
-    const emotionalContexts = {
-        'excited': ['incredibly excited', 'thrilled', 'overjoyed', 'ecstatic', 'enthusiastic'],
-        'anxious': ['feeling anxious', 'worried', 'nervous', 'concerned', 'uneasy'],
-        'mixed': ['experiencing mixed emotions', 'feeling conflicted', 'torn between', 'uncertain about'],
-        'calm': ['feeling peaceful', 'content', 'serene', 'tranquil', 'at ease'],
-        'motivated': ['feeling motivated', 'determined', 'driven', 'focused', 'inspired']
-    };
+    // OpenAI API configuration
+    const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+    const OPENAI_API_KEY = 'your_openai_api_key_here'; // Replace with actual API key
     
-    const scenarios = [
-        'the new opportunities that are coming my way',
-        'the upcoming presentation tomorrow',
-        'the challenges we might face together',
-        'the wonderful meditation session I just finished',
-        'the breakthrough moment I had this morning',
-        'the support from my amazing team',
-        'the goals I\'ve set for myself',
-        'the peaceful walk I took in the park',
-        'the productive meeting we had today',
-        'the exciting project we\'re working on'
-    ];
-    
-    const feelings = [
-        'I can\'t wait to see what happens next',
-        'I\'m confident we can overcome anything',
-        'This sense of gratitude fills my heart',
-        'I\'m ready to tackle whatever comes my way',
-        'There\'s something magical about this moment',
-        'I feel so blessed and fortunate',
-        'The possibilities ahead are endless',
-        'I\'m excited about the future',
-        'This is exactly what I needed today',
-        'I\'m feeling stronger and more capable'
-    ];
-    
-    // Determine emotional context from prompt
-    let emotion = 'mixed';
-    if (prompt.includes('excited')) emotion = 'excited';
-    else if (prompt.includes('anxiety') || prompt.includes('worry')) emotion = 'anxious';
-    else if (prompt.includes('peaceful') || prompt.includes('calm')) emotion = 'calm';
-    else if (prompt.includes('motivated') || prompt.includes('determined')) emotion = 'motivated';
-    
-    // Generate dynamic text
-    const emotionalPhrase = emotionalContexts[emotion][Math.floor(Math.random() * emotionalContexts[emotion].length)];
-    const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-    const feeling = feelings[Math.floor(Math.random() * feelings.length)];
-    
-    // Create the generated text
-    let generatedText = prompt + ' ' + scenario + '. ';
-    
-    // Add emotional context
-    generatedText += 'I\'m ' + emotionalPhrase + ' about how things are unfolding. ';
-    
-    // Add a feeling
-    generatedText += feeling + '. ';
-    
-    // Add some additional context
-    const additionalContexts = [
-        'The energy around me feels so positive and uplifting.',
-        'I\'m grateful for all the support I\'ve been receiving.',
-        'Every day brings new opportunities to grow and learn.',
-        'I\'m feeling more confident in my abilities than ever before.',
-        'The future looks bright and full of possibilities.',
-        'I\'m surrounded by amazing people who believe in me.',
-        'This journey has been challenging but incredibly rewarding.',
-        'I\'m learning to trust the process and enjoy the ride.',
-        'The lessons I\'m learning are shaping me into a better person.',
-        'I\'m excited to see where this path leads me.'
-    ];
-    
-    const additionalContext = additionalContexts[Math.floor(Math.random() * additionalContexts.length)];
-    generatedText += additionalContext;
-    
-    return generatedText;
+    try {
+        const response = await fetch(OPENAI_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo', // Using GPT-3.5-turbo for cost efficiency
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant that generates realistic journal entries. Write in first person, be emotional and personal, and continue the given prompt naturally. Keep it between 100-200 words.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 200,
+                temperature: 0.8,
+                top_p: 0.9
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ OpenAI API response:', data);
+        
+        if (data && data.choices && data.choices.length > 0 && data.choices[0].message?.content) {
+            const generatedText = data.choices[0].message.content.trim();
+            console.log('✅ Generated text from OpenAI:', generatedText.substring(0, 100) + '...');
+            return generatedText;
+        } else {
+            throw new Error('No generated text in response');
+        }
+        
+    } catch (error) {
+        console.error('❌ OpenAI API failed:', error);
+        throw error;
+    }
 }
 
 function generateStaticSampleText() {
@@ -264,7 +265,7 @@ function testWithRealAPI() {
             
             // Convert API response to our format
             const emotions = [];
-            if (data.emotions) {
+            if (data.emotions && Array.isArray(data.emotions)) {
                 // Current API format: {emotions: [{emotion: "excitement", confidence: 0.739}]}
                 data.emotions.forEach(emotion => {
                     emotions.push({
@@ -286,6 +287,9 @@ function testWithRealAPI() {
                     emotions.push({ emotion, confidence });
                 });
             }
+            
+            // Display only the real model's output - no fake emotions!
+            console.log('✅ Using real model output:', emotions.length, 'emotions detected');
             
             // Create mock summary for now (since emotion API doesn't do summarization)
             const summary = {
@@ -348,28 +352,32 @@ function createSimpleChart(emotions) {
     
     // Create a SUPER SIMPLE chart with basic HTML and inline styles
     let chartHTML = '<div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 10px 0;">';
-    chartHTML += '<h6 style="text-align: center; margin-bottom: 20px; color: white;">📊 Emotion Confidence Levels</h6>';
+    chartHTML += '<h6 style="text-align: center; margin-bottom: 20px; color: white;">📊 Real Model Output</h6>';
     
-    sortedEmotions.forEach((emotion, index) => {
-        const percentage = Math.round(emotion.confidence * 100);
-        const color = getEmotionColor(emotion.emotion);
-        
-        chartHTML += `
-            <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-weight: bold; color: white; text-transform: capitalize;">${emotion.emotion}</span>
-                    <span style="color: #94a3b8;">${percentage}%</span>
+    if (sortedEmotions.length === 0) {
+        chartHTML += '<p style="text-align: center; color: #94a3b8;">No emotions detected by the model</p>';
+    } else {
+        sortedEmotions.forEach((emotion, index) => {
+            const percentage = Math.round(emotion.confidence * 100);
+            const color = getEmotionColor(emotion.emotion);
+            
+            chartHTML += `
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: bold; color: white; text-transform: capitalize;">${emotion.emotion}</span>
+                        <span style="color: #94a3b8;">${percentage}%</span>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden; position: relative;">
+                        <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;"></div>
+                    </div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden; position: relative;">
-                    <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;"></div>
-                </div>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
     
     chartHTML += `
         <div style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;">
-            Based on ${emotions.length} detected emotions
+            Real model detected ${emotions.length} emotion${emotions.length !== 1 ? 's' : ''}
         </div>
     </div>`;
     
@@ -384,26 +392,30 @@ function updateDetailedAnalysis(emotions, summary) {
     console.log('🧠 Updating detailed analysis...');
     
     // Calculate values
-    const primaryEmotion = emotions[0];
-    const avgConfidence = emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length;
+    const primaryEmotion = emotions[0] || { emotion: 'unknown', confidence: 0 };
+    const avgConfidence = emotions.length > 0 ? emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length : 0;
     const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
     
     // Sentiment calculation
     const sentimentWeights = {
         'joy': 1, 'happiness': 1, 'excitement': 1, 'optimism': 0.8, 'gratitude': 0.9,
+        'love': 1, 'hope': 0.8, 'amusement': 0.7, 'contentment': 0.8, 'relief': 0.6,
+        'pride': 0.7, 'curiosity': 0.3, 'surprise': 0.2, 'calm': 0.2, 'neutral': 0,
         'sadness': -1, 'anger': -1, 'fear': -0.8, 'anxiety': -0.7, 'frustration': -0.9,
-        'neutral': 0, 'calm': 0.2
+        'disappointment': -0.8, 'disgust': -0.6, 'shame': -0.7, 'guilt': -0.8,
+        'embarrassment': -0.5, 'confusion': -0.3, 'longing': -0.2, 'nostalgia': -0.1
     };
     
     const sentimentScore = emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0);
     const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
     
-    // Confidence range (top 3 emotions)
-    const top3 = emotions.slice(0, 3);
-    const confidences = top3.map(e => e.confidence);
-    const minConf = Math.min(...confidences);
-    const maxConf = Math.max(...confidences);
-    const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
+    // Confidence range (all emotions, or single emotion)
+    const confidences = emotions.map(e => e.confidence);
+    const minConf = confidences.length > 0 ? Math.min(...confidences) : 0;
+    const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
+    const confidenceRange = confidences.length > 1 ? 
+        `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%` : 
+        `${Math.round(maxConf * 100)}%`;
     
     // Model details
     const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summary.original_length} characters.`;
@@ -453,7 +465,28 @@ function getEmotionColor(emotion) {
         'gratitude': 'linear-gradient(90deg, #f59e0b, #fbbf24)',
         'neutral': 'linear-gradient(90deg, #6b7280, #9ca3af)',
         'sadness': 'linear-gradient(90deg, #1f2937, #374151)',
-        'anger': 'linear-gradient(90deg, #dc2626, #ef4444)'
+        'anger': 'linear-gradient(90deg, #dc2626, #ef4444)',
+        'disappointment': 'linear-gradient(90deg, #7c2d12, #dc2626)',
+        'frustration': 'linear-gradient(90deg, #b91c1c, #ef4444)',
+        'anxiety': 'linear-gradient(90deg, #7c3aed, #a855f7)',
+        'fear': 'linear-gradient(90deg, #581c87, #7c3aed)',
+        'calm': 'linear-gradient(90deg, #0d9488, #14b8a6)',
+        'love': 'linear-gradient(90deg, #ec4899, #f472b6)',
+        'surprise': 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+        'disgust': 'linear-gradient(90deg, #059669, #10b981)',
+        'shame': 'linear-gradient(90deg, #374151, #6b7280)',
+        'pride': 'linear-gradient(90deg, #7c2d12, #dc2626)',
+        'relief': 'linear-gradient(90deg, #0d9488, #14b8a6)',
+        'hope': 'linear-gradient(90deg, #3b82f6, #60a5fa)',
+        'confusion': 'linear-gradient(90deg, #6b7280, #9ca3af)',
+        'curiosity': 'linear-gradient(90deg, #7c3aed, #a855f7)',
+        'amusement': 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+        'embarrassment': 'linear-gradient(90deg, #be185d, #ec4899)',
+        'guilt': 'linear-gradient(90deg, #374151, #6b7280)',
+        'relief': 'linear-gradient(90deg, #0d9488, #14b8a6)',
+        'contentment': 'linear-gradient(90deg, #10b981, #34d399)',
+        'longing': 'linear-gradient(90deg, #7c3aed, #a855f7)',
+        'nostalgia': 'linear-gradient(90deg, #6b7280, #9ca3af)'
     };
     return colors[emotion] || 'linear-gradient(90deg, #6366f1, #8b5cf6)';
 }
@@ -621,5 +654,6 @@ window.updateElement = updateElement;
 window.getEmotionColor = getEmotionColor;
 window.clearAll = clearAll;
 window.showResultsSections = showResultsSections;
+// Removed generateEmotionVariations - using only real model output
 
 console.log('🚀 Simple Demo Functions loaded and ready!');
