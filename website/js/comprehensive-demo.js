@@ -258,10 +258,7 @@ class ComprehensiveDemo {
             
             if (results.summary) {
                 this.updateProgressStep('step3', 'completed');
-                // Use transcription text as fallback for original length when only audio is provided
-                const transcribedText = results.transcription ? (results.transcription.text || results.transcription.transcription) : '';
-                const originalText = text || transcribedText;
-                this.showSummarizationResults(results.summary, originalText);
+                this.showSummarizationResults(results.summary, results);
             }
             
             if (results.emotions) {
@@ -335,10 +332,23 @@ class ComprehensiveDemo {
         this.transcriptionResults.style.display = 'block';
     }
 
-    showSummarizationResults(summary, originalText) {
+    showSummarizationResults(summary, results = null) {
         const summaryText = summary.summary || summary.text || 'Summary not available';
-        const originalLength = originalText ? originalText.length : 0;
         const summaryLength = summaryText.length;
+        
+        // Determine original text length from available sources
+        let originalLength = 0;
+        if (results) {
+            // Try to get original text from various sources in order of preference
+            if (results.originalText) {
+                originalLength = results.originalText.length;
+            } else if (results.transcription) {
+                const transcribedText = results.transcription.text || results.transcription.transcription;
+                originalLength = transcribedText ? transcribedText.length : 0;
+            } else if (results.inputText) {
+                originalLength = results.inputText.length;
+            }
+        }
         
         document.getElementById('summaryText').textContent = summaryText;
         document.getElementById('originalLength').textContent = originalLength;
