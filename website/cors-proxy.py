@@ -43,14 +43,23 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                 # Debug: Print what we received
                 print(f"Received data: {post_data.decode('utf-8')}")
                 
-                # Forward the request to the real API
-                api_url = 'https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict'
+                # Parse the JSON to extract the text
+                request_data = json.loads(post_data.decode('utf-8'))
+                text = request_data.get('text', '')
                 
-                req = urllib.request.Request(api_url, data=post_data, method='POST')
+                # URL encode the text for query parameter
+                encoded_text = urllib.parse.quote(text)
+                
+                # Forward the request to the unified API with query parameters
+                api_url = f'https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text={encoded_text}'
+                
+                # Make POST request with query parameters (unified API expects POST with query params)
+                req = urllib.request.Request(api_url, method='POST')
                 req.add_header('Content-Type', 'application/json')
+                req.add_header('Content-Length', '0')  # Required for POST requests with query params
                 
                 # Debug: Print what we're sending
-                print(f"Sending to API: {post_data.decode('utf-8')}")
+                print(f"Sending to Unified API: {api_url}")
                 
                 with urllib.request.urlopen(req) as response:
                     api_response = response.read()

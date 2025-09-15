@@ -325,36 +325,60 @@ function testWithRealAPI() {
             console.log('🔍 Response keys:', Object.keys(data));
             console.log('🔍 Full response structure:', JSON.stringify(data, null, 2));
             
-            // Convert API response to our format
+            // Convert API response to our format and generate additional emotions
             const emotions = [];
-            if (data.emotion && data.confidence) {
-                // New unified API format: {emotion: "love", confidence: 0.968}
-                console.log('📊 Using new unified API format');
-                emotions.push({
-                    emotion: data.emotion,
-                    confidence: data.confidence
+            let primaryEmotion = null;
+            let primaryConfidence = 0;
+            
+            if (data.emotions && typeof data.emotions === 'object' && data.predicted_emotion) {
+                // New unified API format: {emotions: {anger: 0.0009, love: 0.9821}, predicted_emotion: "love"}
+                console.log('📊 Using new unified API format with emotions object');
+                primaryEmotion = data.predicted_emotion;
+                primaryConfidence = data.emotions[data.predicted_emotion] || 0;
+                
+                // Convert emotions object to array format for display
+                const emotionEntries = Object.entries(data.emotions);
+                emotionEntries.sort((a, b) => b[1] - a[1]); // Sort by confidence descending
+                
+                emotionEntries.forEach(([emotion, confidence]) => {
+                    emotions.push({
+                        emotion: emotion,
+                        confidence: confidence
+                    });
                 });
+            } else if (data.emotion && data.confidence) {
+                // Old unified API format: {emotion: "love", confidence: 0.968}
+                console.log('📊 Using old unified API format');
+                primaryEmotion = data.emotion;
+                primaryConfidence = data.confidence;
             } else if (data.emotions && Array.isArray(data.emotions)) {
                 console.log('📊 Using emotions array format');
                 // Current API format: {emotions: [{emotion: "excitement", confidence: 0.739}]}
-                data.emotions.forEach(emotion => {
-                    emotions.push({
-                        emotion: emotion.emotion,
-                        confidence: emotion.confidence
-                    });
-                });
+                if (data.emotions.length > 0) {
+                    primaryEmotion = data.emotions[0].emotion;
+                    primaryConfidence = data.emotions[0].confidence;
+                }
             } else if (data.all_emotions) {
                 // Alternative API format
-                data.all_emotions.forEach(emotion => {
-                    emotions.push({
-                        emotion: emotion.emotion,
-                        confidence: emotion.confidence
-                    });
-                });
+                if (data.all_emotions.length > 0) {
+                    primaryEmotion = data.all_emotions[0].emotion;
+                    primaryConfidence = data.all_emotions[0].confidence;
+                }
             } else if (data.emotion_analysis?.emotions) {
                 // Old API format
-                Object.entries(data.emotion_analysis.emotions).forEach(([emotion, confidence]) => {
-                    emotions.push({ emotion, confidence });
+                const emotionEntries = Object.entries(data.emotion_analysis.emotions);
+                if (emotionEntries.length > 0) {
+                    const [emotion, confidence] = emotionEntries[0];
+                    primaryEmotion = emotion;
+                    primaryConfidence = confidence;
+                }
+            }
+            
+            // Only add primary emotion if we don't already have emotions from the API
+            if (emotions.length === 0 && primaryEmotion && primaryConfidence > 0) {
+                emotions.push({
+                    emotion: primaryEmotion,
+                    confidence: primaryConfidence
                 });
             }
             
