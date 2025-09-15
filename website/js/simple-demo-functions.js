@@ -15,8 +15,95 @@ function processText() {
     testWithRealAPI();
 }
 
-function generateSampleText() {
-    console.log('✨ Generating sample journal text...');
+async function generateSampleText() {
+    console.log('✨ Generating AI-powered sample journal text...');
+    
+    // Show loading state
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = '🤖 Generating AI text...';
+        textInput.style.borderColor = '#8b5cf6';
+        textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
+    }
+    
+    try {
+        // Different emotional prompts for variety
+        const prompts = [
+            "Today I'm feeling incredibly excited and optimistic about",
+            "I'm experiencing a mix of emotions right now. On one hand, I feel",
+            "What a challenging day this has been. I started the morning feeling",
+            "I'm in such a peaceful and content state of mind. After",
+            "Today I'm feeling incredibly motivated and determined because"
+        ];
+        
+        const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+        
+        // Call Hugging Face Inference API
+        const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer YOUR_HF_TOKEN_HERE', // Replace with your actual HF token
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                inputs: randomPrompt,
+                parameters: {
+                    max_length: 150,
+                    temperature: 0.8,
+                    do_sample: true,
+                    top_p: 0.9
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Hugging Face API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        let generatedText = result[0]?.generated_text || '';
+        
+        // Clean up the generated text
+        if (generatedText) {
+            // Remove the original prompt from the beginning
+            generatedText = generatedText.replace(randomPrompt, '').trim();
+            
+            // Ensure it's a complete sentence
+            if (!generatedText.endsWith('.') && !generatedText.endsWith('!') && !generatedText.endsWith('?')) {
+                generatedText += '.';
+            }
+            
+            // Combine prompt with generated text
+            generatedText = randomPrompt + ' ' + generatedText;
+        } else {
+            throw new Error('No text generated from API');
+        }
+        
+        // Update the text input
+        if (textInput) {
+            textInput.value = generatedText;
+            console.log('✅ AI-generated text inserted:', generatedText.substring(0, 100) + '...');
+            
+            // Success animation
+            textInput.style.borderColor = '#10b981';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('❌ AI text generation failed:', error);
+        
+        // Fallback to static samples
+        console.log('🔄 Falling back to static sample texts...');
+        generateStaticSampleText();
+    }
+}
+
+function generateStaticSampleText() {
+    console.log('📝 Using static sample texts as fallback...');
     
     const sampleTexts = [
         "Today has been absolutely incredible! I woke up feeling energized and optimistic about the future. The morning sun streaming through my window filled me with such warmth and joy. I had a productive meeting with my team where we discussed our exciting new project, and I could feel the enthusiasm radiating from everyone. There's something magical about working with passionate people who share your vision. I'm genuinely excited about the possibilities ahead, though I must admit I'm also feeling a bit nervous about the challenges we might face. But you know what? I'm confident we can overcome anything together. This sense of gratitude and anticipation is exactly what I needed to fuel my motivation for the coming weeks.",
@@ -37,11 +124,11 @@ function generateSampleText() {
     const textInput = document.getElementById('textInput');
     if (textInput) {
         textInput.value = randomText;
-        console.log('✅ Sample text generated and inserted');
+        console.log('✅ Static sample text generated and inserted');
         
         // Add a subtle animation to show the text was updated
-        textInput.style.borderColor = '#10b981';
-        textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+        textInput.style.borderColor = '#f59e0b';
+        textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
         setTimeout(() => {
             textInput.style.borderColor = '';
             textInput.style.boxShadow = '';

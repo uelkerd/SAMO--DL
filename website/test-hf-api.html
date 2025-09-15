@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hugging Face API Test - SAMO-DL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: white; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        button { padding: 10px 20px; margin: 5px; background: #8b5cf6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #7c3aed; }
+        #results { margin-top: 20px; }
+        .api-response { background: #2a2a3e; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; }
+        input { padding: 10px; margin: 10px; width: 300px; background: #2a2a3e; color: white; border: 1px solid #555; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤗 Hugging Face API Test</h1>
+    
+    <div class="test-section">
+        <h3>Step 1: Enter Your HF Token</h3>
+        <p>Paste your Hugging Face API token below:</p>
+        <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        <button onclick="testHuggingFaceAPI()">Test API Connection</button>
+        <div id="tokenTest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 2: Generate Sample Text</h3>
+        <p>Test the AI text generation with different prompts:</p>
+        <button onclick="generateTestText('excitement')">Generate Excited Text</button>
+        <button onclick="generateTestText('anxiety')">Generate Anxious Text</button>
+        <button onclick="generateTestText('calm')">Generate Calm Text</button>
+        <div id="generationTest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 3: Update Demo Code</h3>
+        <p>Once testing works, copy your token and update the demo:</p>
+        <button onclick="showUpdateInstructions()">Show Update Instructions</button>
+        <div id="updateInstructions"></div>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        let hfToken = '';
+        
+        function testHuggingFaceAPI() {
+            hfToken = document.getElementById('hfToken').value.trim();
+            
+            if (!hfToken) {
+                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Please enter your HF token first</div>';
+                return;
+            }
+            
+            if (!hfToken.startsWith('hf_')) {
+                document.getElementById('tokenTest').innerHTML = '<div class="error">❌ Token should start with "hf_"</div>';
+                return;
+            }
+            
+            console.log('🧪 Testing HF API with token:', hfToken.substring(0, 10) + '...');
+            
+            // Test with a simple prompt
+            fetch('https://api-inference.huggingface.co/models/gpt2', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${hfToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    inputs: "Today I'm feeling",
+                    parameters: {
+                        max_length: 50,
+                        temperature: 0.8
+                    }
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ HF API response:', data);
+                
+                let resultHTML = '<div class="api-response">';
+                resultHTML += '<h4>API Response:</h4>';
+                resultHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                resultHTML += '</div>';
+                
+                if (data && data[0] && data[0].generated_text) {
+                    resultHTML += '<div class="success">✅ API CONNECTION SUCCESSFUL!</div>';
+                    resultHTML += `<div class="success">📝 Generated: "${data[0].generated_text}"</div>`;
+                } else {
+                    resultHTML += '<div class="error">❌ No text generated</div>';
+                }
+                
+                document.getElementById('tokenTest').innerHTML = resultHTML;
+            })
+            .catch(error => {
+                console.error('❌ HF API test failed:', error);
+                document.getElementById('tokenTest').innerHTML = 
+                    '<div class="error">❌ API test failed: ' + error.message + '</div>';
+            });
+        }
+        
+        function generateTestText(emotion) {
+            if (!hfToken) {
+                document.getElementById('generationTest').innerHTML = '<div class="error">❌ Please test your token first</div>';
+                return;
+            }
+            
+            const prompts = {
+                'excitement': "Today I'm feeling incredibly excited and optimistic about",
+                'anxiety': "I'm experiencing some anxiety and worry about",
+                'calm': "I'm in such a peaceful and content state of mind because"
+            };
+            
+            const prompt = prompts[emotion];
+            
+            document.getElementById('generationTest').innerHTML = '<div class="warning">🔄 Generating text...</div>';
+            
+            fetch('https://api-inference.huggingface.co/models/gpt2', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${hfToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    inputs: prompt,
+                    parameters: {
+                        max_length: 100,
+                        temperature: 0.8,
+                        do_sample: true,
+                        top_p: 0.9
+                    }
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Generated text:', data);
+                
+                let generatedText = data[0]?.generated_text || '';
+                if (generatedText) {
+                    // Clean up the text
+                    generatedText = generatedText.replace(prompt, '').trim();
+                    if (!generatedText.endsWith('.') && !generatedText.endsWith('!') && !generatedText.endsWith('?')) {
+                        generatedText += '.';
+                    }
+                    generatedText = prompt + ' ' + generatedText;
+                }
+                
+                let resultHTML = '<div class="api-response">';
+                resultHTML += `<h4>Generated ${emotion} text:</h4>`;
+                resultHTML += `<p style="font-size: 16px; line-height: 1.5; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">${generatedText}</p>`;
+                resultHTML += '</div>';
+                
+                if (generatedText) {
+                    resultHTML += '<div class="success">✅ Text generated successfully!</div>';
+                } else {
+                    resultHTML += '<div class="error">❌ No text generated</div>';
+                }
+                
+                document.getElementById('generationTest').innerHTML = resultHTML;
+            })
+            .catch(error => {
+                console.error('❌ Text generation failed:', error);
+                document.getElementById('generationTest').innerHTML = 
+                    '<div class="error">❌ Generation failed: ' + error.message + '</div>';
+            });
+        }
+        
+        function showUpdateInstructions() {
+            if (!hfToken) {
+                document.getElementById('updateInstructions').innerHTML = '<div class="error">❌ Please test your token first</div>';
+                return;
+            }
+            
+            let instructions = '<div class="api-response">';
+            instructions += '<h4>📝 Update Instructions:</h4>';
+            instructions += '<ol>';
+            instructions += '<li>Open <code>website/js/simple-demo-functions.js</code></li>';
+            instructions += '<li>Find line 45: <code>\'Authorization\': \'Bearer YOUR_HF_TOKEN_HERE\',</code></li>';
+            instructions += '<li>Replace <code>YOUR_HF_TOKEN_HERE</code> with your token:</li>';
+            instructions += `<li><code>\'Authorization\': \'Bearer ${hfToken}\',</code></li>`;
+            instructions += '<li>Save the file and refresh the demo</li>';
+            instructions += '</ol>';
+            instructions += '<div class="success">✅ Your token is ready to use!</div>';
+            instructions += '</div>';
+            
+            document.getElementById('updateInstructions').innerHTML = instructions;
+        }
+    </script>
+</body>
+</html>
