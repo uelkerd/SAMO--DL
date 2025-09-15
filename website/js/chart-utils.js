@@ -8,15 +8,24 @@ class ChartUtils {
     }
 
     createEmotionChart(containerId, emotions) {
-        const ctx = document.getElementById(containerId);
-        if (!ctx) {
+        console.log('Creating emotion chart for container:', containerId);
+        const canvas = document.getElementById(containerId);
+        if (!canvas) {
             console.error('Chart container not found:', containerId);
+            // Show error message in the container
+            const container = document.querySelector(`#${containerId}`).parentElement;
+            if (container) {
+                container.innerHTML = '<p style="color: #ef4444;">Chart container not found</p>';
+            }
             return false;
         }
+        const ctx = canvas.getContext('2d');
 
         // Check if Chart.js is available
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not available, chart creation will fail');
+            // Show error message
+            canvas.parentElement.innerHTML = '<p style="color: #ef4444;">Chart.js library not loaded</p>';
             return false;
         }
 
@@ -28,6 +37,8 @@ class ChartUtils {
         // Validate emotions data
         if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
             console.error('Invalid emotions data for chart:', emotions);
+            // Show fallback message
+            canvas.parentElement.innerHTML = '<p style="color: #f59e0b; text-align: center; padding: 20px;">No emotion data available. This may be due to API connectivity issues.</p>';
             return false;
         }
 
@@ -35,6 +46,10 @@ class ChartUtils {
         const data = emotions.map(e => Math.max(0, Math.min(100, (e.confidence || e.score || 0) * 100)));
 
         console.log('Creating emotion chart with data:', { labels, data, emotions });
+
+        // Generate dynamic colors for up to 28 emotions
+        const backgroundColor = labels.map((_, i) => `hsla(${(i*360/labels.length)|0},70%,60%,0.8)`);
+        const borderColor = labels.map((_, i) => `hsla(${(i*360/labels.length)|0},70%,45%,1)`);
 
         try {
             this.charts[containerId] = new Chart(ctx, {
@@ -44,26 +59,8 @@ class ChartUtils {
                     datasets: [{
                         label: 'Confidence (%)',
                         data: data,
-                        backgroundColor: [
-                            'rgba(102, 126, 234, 0.8)',
-                            'rgba(168, 85, 247, 0.8)',
-                            'rgba(192, 132, 252, 0.8)',
-                            'rgba(34, 197, 94, 0.8)',
-                            'rgba(251, 191, 36, 0.8)',
-                            'rgba(239, 68, 68, 0.8)',
-                            'rgba(59, 130, 246, 0.8)',
-                            'rgba(16, 185, 129, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(102, 126, 234, 1)',
-                            'rgba(168, 85, 247, 1)',
-                            'rgba(192, 132, 252, 1)',
-                            'rgba(34, 197, 94, 1)',
-                            'rgba(251, 191, 36, 1)',
-                            'rgba(239, 68, 68, 1)',
-                            'rgba(59, 130, 246, 1)',
-                            'rgba(16, 185, 129, 1)'
-                        ],
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
                         borderWidth: 2
                     }]
                 },
@@ -77,7 +74,7 @@ class ChartUtils {
                     title: {
                         display: true,
                         text: 'Emotion Detection Results',
-                        color: '#e2e8f0',
+                        color: '#475569',
                         font: {
                             size: 16,
                             weight: 'bold'
@@ -89,7 +86,7 @@ class ChartUtils {
                         beginAtZero: true,
                         max: 100,
                         ticks: {
-                            color: '#e2e8f0',
+                            color: '#475569',
                             callback: function(value) {
                                 return value + '%';
                             }
@@ -100,7 +97,7 @@ class ChartUtils {
                     },
                     x: {
                         ticks: {
-                            color: '#e2e8f0',
+                            color: '#475569',
                             maxRotation: 45
                         },
                         grid: {
@@ -129,11 +126,12 @@ class ChartUtils {
     }
 
     createSummaryChart(containerId, summaryData) {
-        const ctx = document.getElementById(containerId);
-        if (!ctx) {
+        const canvas = document.getElementById(containerId);
+        if (!canvas) {
             console.error('Chart container not found:', containerId);
             return false;
         }
+        const ctx = canvas.getContext('2d');
 
         // Destroy existing chart if it exists
         if (this.charts[containerId]) {
@@ -145,7 +143,10 @@ class ChartUtils {
             data: {
                 labels: ['Original Text', 'Summary'],
                 datasets: [{
-                    data: [summaryData.original_length, summaryData.summary_length],
+                    data: [
+                        Number(summaryData?.original_length ?? 0),
+                        Number(summaryData?.summary_length ?? 0)
+                    ],
                     backgroundColor: [
                         'rgba(102, 126, 234, 0.8)',
                         'rgba(34, 197, 94, 0.8)'
@@ -164,14 +165,14 @@ class ChartUtils {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            color: '#e2e8f0',
+                            color: '#475569',
                             padding: 20
                         }
                     },
                     title: {
                         display: true,
                         text: 'Text Compression',
-                        color: '#e2e8f0',
+                        color: '#475569',
                         font: {
                             size: 16,
                             weight: 'bold'

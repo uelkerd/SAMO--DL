@@ -110,7 +110,7 @@ function clearAll() {
     }
     
     // Clear audio file input
-    const audioFileInput = document.getElementById('audioFileInput');
+    const audioFileInput = document.getElementById('audioFile');
     if (audioFileInput) {
         audioFileInput.value = '';
     }
@@ -141,6 +141,20 @@ function clearAll() {
 document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🚀 Initializing SAMO Demo...');
+        
+        // Debug Font Awesome loading
+        console.log('🔍 Checking Font Awesome...');
+        const testIcon = document.createElement('i');
+        testIcon.className = 'fas fa-check';
+        document.body.appendChild(testIcon);
+        const computedStyle = window.getComputedStyle(testIcon);
+        console.log('Font Awesome computed style:', computedStyle.fontFamily);
+        if (computedStyle.fontFamily.includes('Font Awesome')) {
+            console.log('✅ Font Awesome is loaded correctly');
+        } else {
+            console.warn('⚠️ Font Awesome may not be loaded properly');
+        }
+        document.body.removeChild(testIcon);
 
         // Bind clear button
         const clearBtn = document.getElementById('clearBtn');
@@ -156,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('🚀 Processing input...');
                 
                 const textInput = document.getElementById('textInput');
-                const audioFileInput = document.getElementById('audioFileInput');
+                const audioFileInput = document.getElementById('audioFile');
                 
                 const text = textInput ? textInput.value.trim() : '';
                 const audioFile = audioFileInput ? audioFileInput.files[0] : null;

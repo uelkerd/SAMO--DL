@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Awesome Test</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3i4jPCbWksFslqt8RTPQe4Q1P8WaCx3pIInFy7Bm0E4wq1++iz6xRPP+XX4F5k" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-icon {
+            font-size: 2rem;
+            margin: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Awesome Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Basic Icons Test</h2>
+        <div class="test-icon">
+            <i class="fas fa-brain"></i> Brain
+        </div>
+        <div class="test-icon">
+            <i class="fas fa-microphone"></i> Microphone
+        </div>
+        <div class="test-icon">
+            <i class="fas fa-file-text"></i> File Text
+        </div>
+        <div class="test-icon">
+            <i class="fas fa-heart"></i> Heart
+        </div>
+        <div class="test-icon">
+            <i class="fas fa-upload"></i> Upload
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Pipeline Icons Test (with CSS from main page)</h2>
+        <div class="progress-step-vertical">
+            <div class="step-icon-small pending">
+                <i class="fas fa-upload"></i>
+            </div>
+            <span class="step-label">Input</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Console Check</h2>
+        <p>Open browser console to check for any errors.</p>
+        <button onclick="testFontAwesome()">Test Font Awesome Loading</button>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        function testFontAwesome() {
+            const results = document.getElementById('test-results');
+            const testIcon = document.createElement('i');
+            testIcon.className = 'fas fa-check';
+            
+            if (testIcon.style.fontFamily.includes('Font Awesome')) {
+                results.innerHTML = '<p style="color: green;">✅ Font Awesome is loaded correctly!</p>';
+            } else {
+                results.innerHTML = '<p style="color: red;">❌ Font Awesome is NOT loaded!</p>';
+            }
+        }
+
+        // Check for CSP violations
+        window.addEventListener('error', function(e) {
+            if (e.message.includes('Content Security Policy')) {
+                console.error('CSP Violation:', e.message);
+                document.getElementById('test-results').innerHTML += '<p style="color: red;">❌ CSP Violation detected!</p>';
+            }
+        });
+
+        console.log('Font Awesome Test Page Loaded');
+    </script>
+</body>
+</html>

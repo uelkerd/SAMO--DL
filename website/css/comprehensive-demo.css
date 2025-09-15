@@ -310,12 +310,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 25px;
-    padding: 40px 25px;
+    gap: 20px;
+    padding: 30px 20px;
     background: var(--glass-bg);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    min-height: 600px;
+    min-height: 500px;
     justify-content: center;
     width: 100%;
 }
@@ -334,14 +334,14 @@ body {
 }
 
 .progress-step-vertical .step-icon-small {
-    width: 60px !important;
-    height: 60px !important;
+    width: 40px !important;
+    height: 40px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    font-size: 1.5rem !important;
+    font-size: 1.1rem !important;
     transition: var(--transition-smooth);
     background: rgba(255, 255, 255, 0.1) !important;
     color: #e2e8f0 !important;

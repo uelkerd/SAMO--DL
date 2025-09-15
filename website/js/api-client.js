@@ -256,28 +256,10 @@ class SAMOAPIClient {
     }
 
     async summarizeText(text) {
-        try {
-            const response = await this.makeRequest('/summarize/text', { text });
-
-            // Handle the actual API response format
-            if (response.summary) {
-                return {
-                    summary: response.summary.summary || response.summary,
-                    original_length: response.insights?.text_length || text.length,
-                    summary_length: response.summary?.summary?.length || response.summary.length || 0,
-                    compression_ratio: response.summary.compression_ratio || 0.5,
-                    request_id: 'api-' + Date.now(),
-                    timestamp: Date.now() / 1000,
-                    mock: false
-                };
-            }
-
-            return response;
-        } catch (error) {
-            // If API is not available, return mock data for demo purposes
-            console.warn('API not available, using mock data for demo:', error.message);
-            return this.getMockSummaryResponse(text);
-        }
+        // Summarization endpoint doesn't exist in GCP Cloud Run API
+        // Always use mock data for demo purposes
+        console.log('Summarization endpoint not available in GCP API, using mock data');
+        return this.getMockSummaryResponse(text);
     }
 
     getMockSummaryResponse(text) {
@@ -338,23 +320,17 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            const response = await this.makeRequest('/analyze/journal', { text });
+            const response = await this.makeRequest('/predict', { text });
 
             // Handle the actual API response format
-            if (response.emotion_analysis && response.emotion_analysis.emotions) {
-                const emotions = response.emotion_analysis.emotions;
-                const emotionArray = Object.entries(emotions).map(([emotion, confidence]) => ({
-                    emotion: emotion,
-                    confidence: confidence
-                }));
-
+            if (response.emotions && Array.isArray(response.emotions)) {
                 return {
-                    emotions: emotionArray,
-                    confidence: response.emotion_analysis.confidence || 0,
-                    primary_emotion: response.emotion_analysis.primary_emotion,
-                    emotional_intensity: response.emotion_analysis.emotional_intensity,
-                    processing_time_ms: response.processing_time_ms,
-                    text: text,
+                    emotions: response.emotions,
+                    confidence: response.emotions.reduce((sum, e) => sum + e.confidence, 0) / response.emotions.length,
+                    primary_emotion: response.emotions.reduce((max, e) => e.confidence > max.confidence ? e : max, response.emotions[0]).emotion,
+                    emotional_intensity: response.emotions.reduce((sum, e) => sum + e.confidence, 0) / response.emotions.length,
+                    processing_time_ms: response.processing_time_ms || 0,
+                    text: response.text || text,
                     mock: false
                 };
             }
