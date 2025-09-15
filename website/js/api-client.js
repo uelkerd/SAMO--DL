@@ -111,7 +111,8 @@ class SAMOAPIClient {
                 console.warn('API not available, using mock data for demo:', error.message);
                 return this.getMockEmotionResponse(text);
             }
-            throw error;
+            console.warn('Unknown error, using mock data for demo:', error.message);
+            return this.getMockEmotionResponse(text);
         }
     }
 

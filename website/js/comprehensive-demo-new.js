@@ -90,6 +90,7 @@ class ComprehensiveDemo {
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     window.demo = new ComprehensiveDemo();
+    console.log('Demo initialized:', window.demo);
     
     // Smooth scrolling for in-page navigation links
     document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
@@ -108,3 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Also make demo available immediately for testing
+window.ComprehensiveDemo = ComprehensiveDemo;

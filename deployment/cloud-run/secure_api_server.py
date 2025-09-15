@@ -32,6 +32,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Security configuration from environment variables
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+if not ADMIN_API_KEY:
+    raise ValueError("ADMIN_API_KEY environment variable must be set")
+MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
+RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
+MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
+PORT = int(os.environ.get("PORT", "8080"))
+
 app = Flask(__name__)
 
 # Add security headers
@@ -51,9 +60,9 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'rate_limit': RATE_LIMIT_PER_MINUTE,
             'timestamp': time.time()
         })
-        except Exception as e:
-            logger.exception("Root endpoint error")
-            return create_error_response('Internal server error', 500)
+    except Exception as e:
+        logger.exception("Root endpoint error")
+        return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
 api = Api(
@@ -117,15 +126,6 @@ error_model = api.model('Error', {
     'request_id': fields.String(description='Unique request identifier'),
     'timestamp': fields.Float(description='Unix timestamp')
 })
-
-# Security configuration from environment variables
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
-if not ADMIN_API_KEY:
-    raise ValueError("ADMIN_API_KEY environment variable must be set")
-MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
-RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
-MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
-PORT = int(os.environ.get("PORT", "8080"))
 
 # Global variables for model state (thread-safe with locks)
 model = None

@@ -101,10 +101,23 @@ class UIController {
         document.getElementById('modelsUsed').textContent = results.modelsUsed.join(', ');
         
         // Calculate average confidence
+        let avgConfidence = 0;
         if (results.emotions && Array.isArray(results.emotions)) {
-            const avgConfidence = results.emotions.reduce((sum, e) => 
+            // Handle array format
+            avgConfidence = results.emotions.reduce((sum, e) => 
                 sum + (e.confidence || e.score || 0), 0) / results.emotions.length;
+        } else if (results.emotions && results.emotions.confidence) {
+            // Handle object format with confidence property
+            avgConfidence = results.emotions.confidence;
+        } else if (results.emotions && results.emotions.emotion_analysis && results.emotions.emotion_analysis.confidence) {
+            // Handle nested emotion_analysis format
+            avgConfidence = results.emotions.emotion_analysis.confidence;
+        }
+        
+        if (avgConfidence > 0) {
             document.getElementById('avgConfidence').textContent = `${(avgConfidence * 100).toFixed(1)}%`;
+        } else {
+            document.getElementById('avgConfidence').textContent = 'N/A';
         }
     }
 
