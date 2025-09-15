@@ -17,10 +17,10 @@ class SAMOAPIClient {
     }
 
     /**
-     * Make a request to the SAMO API
+     * Make a request to the SAMO API with retry logic and JSON parsing
      * @param {string} endpoint - API endpoint
      * @param {Object} options - Fetch options
-     * @returns {Promise<Response>}
+     * @returns {Promise<Object>} Parsed JSON response
      */
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
@@ -28,25 +28,91 @@ class SAMOAPIClient {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            },
-            timeout: this.timeout
+            }
         };
 
-        const requestOptions = { ...defaultOptions, ...options };
+        const baseDelay = 1000; // 1 second base delay
+        let lastError;
 
-        // Add timeout handling
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-        requestOptions.signal = controller.signal;
+        for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
+            let controller = null;
+            let timeoutId = null;
 
-        try {
-            const response = await fetch(url, requestOptions);
-            clearTimeout(timeoutId);
-            return response;
-        } catch (error) {
-            clearTimeout(timeoutId);
-            throw error;
+            try {
+                // Create new controller and timeout for each attempt
+                controller = new AbortController();
+                timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+                const requestOptions = { 
+                    ...defaultOptions, 
+                    ...options,
+                    signal: controller.signal
+                };
+
+                const response = await fetch(url, requestOptions);
+                clearTimeout(timeoutId);
+
+                // Parse response JSON
+                let responseData;
+                try {
+                    responseData = await response.json();
+                } catch (parseError) {
+                    // Fallback to text if JSON parsing fails
+                    const textData = await response.text();
+                    responseData = { message: textData, raw: true };
+                }
+
+                // Handle success (2xx status codes)
+                if (response.ok) {
+                    return responseData;
+                }
+
+                // Handle transient errors (429, 503) - retry with exponential backoff
+                if ((response.status === 429 || response.status === 503) && attempt < this.retryAttempts) {
+                    const jitter = Math.random() * 0.1; // 0-10% jitter
+                    const delay = baseDelay * Math.pow(2, attempt - 1) * (1 + jitter);
+                    
+                    console.warn(`Request failed with status ${response.status}, retrying in ${Math.round(delay)}ms (attempt ${attempt}/${this.retryAttempts})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+
+                // Handle final failure or non-retryable errors
+                const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+                error.status = response.status;
+                error.statusText = response.statusText;
+                error.response = responseData;
+                throw error;
+
+            } catch (error) {
+                clearTimeout(timeoutId);
+                lastError = error;
+
+                // Handle network aborts and timeouts - retry if we have attempts left
+                if ((error.name === 'AbortError' || error.name === 'TimeoutError') && attempt < this.retryAttempts) {
+                    const jitter = Math.random() * 0.1;
+                    const delay = baseDelay * Math.pow(2, attempt - 1) * (1 + jitter);
+                    
+                    console.warn(`Request aborted/timed out, retrying in ${Math.round(delay)}ms (attempt ${attempt}/${this.retryAttempts})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+
+                // For other errors or final attempt, throw immediately
+                throw error;
+            } finally {
+                // Clean up controller and timeout
+                if (controller) {
+                    controller.abort();
+                }
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+            }
         }
+
+        // If we get here, all retries failed
+        throw lastError;
     }
 
     /**
