@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real API Test - SAMO-DL Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: white; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        button { padding: 10px 20px; margin: 5px; background: #8b5cf6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #7c3aed; }
+        #results { margin-top: 20px; }
+        .api-response { background: #2a2a3e; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔥 REAL API TEST - SAMO-DL Demo</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Direct API Call</h3>
+        <p>Testing direct call to live emotion API...</p>
+        <button onclick="testDirectAPI()">Test Direct API Call</button>
+        <div id="directAPITest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Demo Process Button</h3>
+        <p>Testing if Process button now calls real API...</p>
+        <button onclick="testProcessButton()">Test Process Button</button>
+        <div id="processButtonTest"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: API Response Analysis</h3>
+        <p>Analyzing real vs mock data patterns...</p>
+        <button onclick="analyzeResponses()">Analyze Responses</button>
+        <div id="analysisTest"></div>
+    </div>
+    
+    <div id="results"></div>
+
+    <script src="js/simple-demo-functions.js"></script>
+    <script>
+        function testDirectAPI() {
+            console.log('🔥 Testing direct API call...');
+            const testText = "I am feeling incredibly excited and optimistic about this amazing opportunity!";
+            
+            fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: testText
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Direct API response:', data);
+                
+                const isRealAPI = data.timestamp && data.emotions && data.confidence;
+                const emotionCount = data.emotions ? data.emotions.length : 0;
+                const hasTimestamp = !!data.timestamp;
+                
+                let resultHTML = '<div class="api-response">';
+                resultHTML += '<h4>API Response:</h4>';
+                resultHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                resultHTML += '</div>';
+                
+                if (isRealAPI) {
+                    resultHTML += '<div class="success">✅ REAL API CALL SUCCESSFUL!</div>';
+                    resultHTML += `<div class="success">📊 Detected ${emotionCount} emotions</div>`;
+                    resultHTML += `<div class="success">⏰ Timestamp: ${new Date(data.timestamp * 1000).toLocaleString()}</div>`;
+                } else {
+                    resultHTML += '<div class="error">❌ This looks like mock data</div>';
+                }
+                
+                document.getElementById('directAPITest').innerHTML = resultHTML;
+            })
+            .catch(error => {
+                console.error('❌ Direct API test failed:', error);
+                document.getElementById('directAPITest').innerHTML = 
+                    '<div class="error">❌ Direct API test failed: ' + error.message + '</div>';
+            });
+        }
+        
+        function testProcessButton() {
+            console.log('🔘 Testing Process button...');
+            
+            // Set test text
+            const textInput = document.getElementById('textInput');
+            if (textInput) {
+                textInput.value = "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.";
+            }
+            
+            // Call the processText function
+            try {
+                processText();
+                document.getElementById('processButtonTest').innerHTML = 
+                    '<div class="success">✅ Process button called successfully! Check console for API calls.</div>';
+            } catch (error) {
+                document.getElementById('processButtonTest').innerHTML = 
+                    '<div class="error">❌ Process button test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function analyzeResponses() {
+            console.log('🔍 Analyzing responses...');
+            
+            // Test both mock and real data
+            const mockData = {
+                emotions: [
+                    { emotion: 'joy', confidence: 0.85 },
+                    { emotion: 'excitement', confidence: 0.72 }
+                ],
+                summary: "Mock summary text"
+            };
+            
+            const realData = {
+                emotions: [{ emotion: 'excitement', confidence: 0.739 }],
+                timestamp: 1757954132.8179424,
+                text: "Real API response"
+            };
+            
+            let analysisHTML = '<div class="api-response">';
+            analysisHTML += '<h4>Response Analysis:</h4>';
+            analysisHTML += '<h5>Mock Data Characteristics:</h5>';
+            analysisHTML += '<ul><li>No timestamp</li><li>Multiple emotions with high confidence</li><li>Perfect round numbers (0.85, 0.72)</li><li>Includes summary field</li></ul>';
+            analysisHTML += '<h5>Real API Characteristics:</h5>';
+            analysisHTML += '<ul><li>Has timestamp field</li><li>Single emotion with decimal confidence</li><li>Realistic confidence values (0.739)</li><li>No summary field</li></ul>';
+            analysisHTML += '</div>';
+            
+            document.getElementById('analysisTest').innerHTML = analysisHTML;
+        }
+        
+        // Auto-run tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Real API test page loaded');
+            setTimeout(() => {
+                testDirectAPI();
+                analyzeResponses();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

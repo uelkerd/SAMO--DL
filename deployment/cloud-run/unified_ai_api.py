@@ -41,8 +41,8 @@ from fastapi.websockets import WebSocketDisconnect
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
-from .api_rate_limiter import add_rate_limiting
-from .security.jwt_manager import JWTManager, TokenPayload, TokenResponse
+from src.api_rate_limiter import add_rate_limiting
+from src.security.jwt_manager import JWTManager, TokenPayload, TokenResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -402,7 +402,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 from src.models.emotion_detection.hf_loader import (
                     load_emotion_model_multi_source
                 )
-                hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
+                hf_model_id = os.getenv("EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
@@ -491,12 +491,22 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add CORS middleware
+# Add CORS middleware with secure configuration
+from deployment.cloud_run.config import get_config
+
+# Get CORS configuration from environment
+config = get_config()
+cors_origins = config.get_security_config()["cors_origins"]
+
+# Determine if credentials are needed based on origins
+# If using wildcard origins, disable credentials for security
+allow_credentials = "*" not in cors_origins and len(cors_origins) > 0
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=cors_origins,
+    allow_credentials=allow_credentials,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -617,9 +627,33 @@ def _ensure_voice_transcriber_loaded() -> None:
         )
 
 
-def _write_temp_wav(content: bytes) -> str:
-    """Persist uploaded audio bytes to a temporary WAV file and return its path."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+def _write_temp_audio(content: bytes, filename: Optional[str] = None, content_type: Optional[str] = None) -> str:
+    """Persist uploaded audio bytes to a temporary file with correct extension and return its path."""
+    # Determine file extension from filename or content_type
+    suffix = ".bin"  # Default fallback
+    
+    if filename:
+        # Extract extension from filename
+        if "." in filename:
+            suffix = "." + filename.split(".")[-1].lower()
+    elif content_type:
+        # Map content type to file extension
+        content_type_map = {
+            "audio/wav": ".wav",
+            "audio/wave": ".wav", 
+            "audio/x-wav": ".wav",
+            "audio/mp3": ".mp3",
+            "audio/mpeg": ".mp3",
+            "audio/mp4": ".mp4",
+            "audio/m4a": ".m4a",
+            "audio/ogg": ".ogg",
+            "audio/webm": ".webm",
+            "audio/flac": ".flac",
+            "audio/aac": ".aac"
+        }
+        suffix = content_type_map.get(content_type.lower(), ".bin")
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
         temp_file.write(content)
         temp_file.flush()
         return temp_file.name
@@ -1411,14 +1445,9 @@ async def analyze_voice_journal(
         transcribed_text = ""
         if voice_transcriber is not None:
             try:
-                # Create a temporary file for the audio
-                with tempfile.NamedTemporaryFile(
-                    delete=False, suffix=".wav"
-                ) as temp_file:
-                    content = await audio_file.read()
-                    temp_file.write(content)
-                    temp_file.flush()  # Ensure data is written to disk
-                    temp_file_path = temp_file.name
+                # Create a temporary file for the audio with correct extension
+                content = await audio_file.read()
+                temp_file_path = _write_temp_audio(content, audio_file.filename, audio_file.content_type)
 
                 try:
                     transcription_results = voice_transcriber.transcribe(
@@ -1567,8 +1596,8 @@ async def transcribe_voice(
         # Reset file position for later processing
         await audio_file.seek(0)
 
-        # Save uploaded file temporarily
-        temp_file_path = _write_temp_wav(content)
+        # Save uploaded file temporarily with correct extension
+        temp_file_path = _write_temp_audio(content, audio_file.filename, audio_file.content_type)
 
         try:
             # Transcribe audio; ensure transcriber is available
@@ -1700,16 +1729,8 @@ async def batch_transcribe_voice(
                 content = await audio_file.read()
                 # Allow empty/invalid content to be passed to mocked transcriber
                 # to exercise failure paths
-                if audio_file.filename:
-                    prefix = f"{Path(audio_file.filename).stem}_"
-                else:
-                    prefix = "file_"
-                with tempfile.NamedTemporaryFile(
-                    delete=False, suffix=".wav", prefix=prefix
-                ) as temp_file:
-                    temp_file.write(content or b"")
-                    temp_file.flush()  # Ensure data is written to disk
-                    temp_file_path = temp_file.name
+                # Create temporary file with correct extension
+                temp_file_path = _write_temp_audio(content or b"", audio_file.filename, audio_file.content_type)
 
                 try:
                     if voice_transcriber is None:
@@ -1920,11 +1941,9 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             # Process audio in real-time
             if voice_transcriber:
                 try:
-                    # Save received audio data
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-                        temp_file.write(data)
-                        temp_file.flush()  # Ensure data is written to disk
-                        temp_file_path = temp_file.name
+                    # Save received audio data with correct extension
+                    # For WebSocket data, we don't have filename/content_type, so use .bin as fallback
+                    temp_file_path = _write_temp_audio(data)
 
                     try:
                         # Transcribe
@@ -2178,4 +2197,5 @@ async def root() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", "8080"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

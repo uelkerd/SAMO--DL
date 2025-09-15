@@ -73,7 +73,7 @@ class EnvironmentConfig:
                 log_level=os.getenv('LOG_LEVEL', 'info'),
                 max_requests_per_minute=int(os.getenv('MAX_REQUESTS_PER_MINUTE', '1000') or '1000'),
                 enable_cors=True,
-                cors_origins=os.getenv('CORS_ORIGINS', '*').split(','),
+                cors_origins=os.getenv('CORS_ORIGINS', 'https://samo-dl-demo.web.app,https://samo-dl-demo.firebaseapp.com').split(','),
                 enable_rate_limiting=True,
                 enable_input_sanitization=True
             )
@@ -95,7 +95,7 @@ class EnvironmentConfig:
                 log_level='debug',
                 max_requests_per_minute=500,
                 enable_cors=True,
-                cors_origins=['*'],
+                cors_origins=['https://samo-dl-demo-staging.web.app', 'https://samo-dl-demo-staging.firebaseapp.com'],
                 enable_rate_limiting=True,
                 enable_input_sanitization=True
             )

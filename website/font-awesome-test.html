@@ -40,7 +40,7 @@
             <i class="fas fa-microphone"></i> Microphone
         </div>
         <div class="test-icon">
-            <i class="fas fa-file-text"></i> File Text
+            <i class="fas fa-file-lines"></i> File Text
         </div>
         <div class="test-icon">
             <i class="fas fa-heart"></i> Heart
@@ -73,19 +73,49 @@
             const testIcon = document.createElement('i');
             testIcon.className = 'fas fa-check';
             
-            if (testIcon.style.fontFamily.includes('Font Awesome')) {
-                results.innerHTML = '<p style="color: green;">✅ Font Awesome is loaded correctly!</p>';
-            } else {
-                results.innerHTML = '<p style="color: red;">❌ Font Awesome is NOT loaded!</p>';
+            // Add to DOM (hidden) to enable computed style detection
+            testIcon.style.position = 'absolute';
+            testIcon.style.left = '-9999px';
+            testIcon.style.visibility = 'hidden';
+            document.body.appendChild(testIcon);
+            
+            try {
+                // Check computed styles for Font Awesome indicators
+                const computedStyle = window.getComputedStyle(testIcon);
+                const beforeStyle = window.getComputedStyle(testIcon, '::before');
+                
+                // Check for Font Awesome in fontFamily or ::before content
+                const fontFamily = computedStyle.fontFamily || '';
+                const beforeContent = beforeStyle.content || '';
+                
+                const hasFontAwesome = fontFamily.includes('Font Awesome') || 
+                                     fontFamily.includes('FontAwesome') ||
+                                     beforeContent !== 'none' && beforeContent !== '""';
+                
+                if (hasFontAwesome) {
+                    results.innerHTML = '<p style="color: green;">✅ Font Awesome is loaded correctly!</p>';
+                    console.log('Font Awesome detected - FontFamily:', fontFamily, 'Before content:', beforeContent);
+                } else {
+                    results.innerHTML = '<p style="color: red;">❌ Font Awesome is NOT loaded!</p>';
+                    console.log('Font Awesome not detected - FontFamily:', fontFamily, 'Before content:', beforeContent);
+                }
+            } catch (error) {
+                console.error('Error checking Font Awesome:', error);
+                results.innerHTML = '<p style="color: orange;">⚠️ Error checking Font Awesome loading</p>';
+            } finally {
+                // Clean up: remove the test element
+                if (testIcon.parentNode) {
+                    testIcon.parentNode.removeChild(testIcon);
+                }
             }
         }
 
         // Check for CSP violations
-        window.addEventListener('error', function(e) {
-            if (e.message.includes('Content Security Policy')) {
-                console.error('CSP Violation:', e.message);
-                document.getElementById('test-results').innerHTML += '<p style="color: red;">❌ CSP Violation detected!</p>';
-            }
+        document.addEventListener('securitypolicyviolation', function(e) {
+            console.error('CSP Violation:', e);
+            const violationMessage = `❌ CSP Violation detected! Blocked URI: ${e.blockedURI}, Violated Directive: ${e.violatedDirective}`;
+            console.error('CSP Details:', violationMessage);
+            document.getElementById('test-results').innerHTML += `<p style="color: red;">${violationMessage}</p>`;
         });
 
         console.log('Font Awesome Test Page Loaded');

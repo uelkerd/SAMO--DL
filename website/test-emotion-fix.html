@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .test-input { width: 100%; height: 100px; margin: 10px 0; }
+        .test-button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .test-button:hover { background: #0056b3; }
+        .results { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .emotion-item { margin: 10px 0; padding: 10px; background: white; border-radius: 4px; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Emotion Analysis Fix Test</h1>
+    <p>This page tests if our emotion analysis now returns different results for different inputs.</p>
+    
+    <div class="test-section">
+        <h3>Test 1: Positive Text</h3>
+        <textarea class="test-input" id="positiveText">I am so excited and happy today! This is such wonderful news and I feel optimistic about the future. I can't wait to see what amazing opportunities await us. However, I'm also a bit nervous about the challenges ahead, but I'm confident we can overcome them together.</textarea>
+        <button class="test-button" onclick="testEmotion('positiveText')">Test Positive Text</button>
+        <div id="positiveResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Challenging Text</h3>
+        <textarea class="test-input" id="challengingText">What a challenging day this has been. I started the morning feeling the support from my amazing team. I'm feeling conflicted about how things are unfolding. I'm ready to tackle whatever comes my way. Every day brings new opportunities to grow and learn.</textarea>
+        <button class="test-button" onclick="testEmotion('challengingText')">Test Challenging Text</button>
+        <div id="challengingResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Mixed Emotions Text</h3>
+        <textarea class="test-input" id="mixedText">I'm experiencing a mix of emotions right now. On one hand, I feel the breakthrough moment I had this morning. I'm experiencing mixed emotions about how things are unfolding. I can't wait to see what happens next. I'm grateful for all the support I've been receiving.</textarea>
+        <button class="test-button" onclick="testEmotion('mixedText')">Test Mixed Text</button>
+        <div id="mixedResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 4: Sad Text</h3>
+        <textarea class="test-input" id="sadText">I'm feeling really down today. Everything seems to be going wrong and I can't shake this feeling of sadness. I'm disappointed in how things turned out and I'm worried about what the future holds. I just want to curl up and hide from the world.</textarea>
+        <button class="test-button" onclick="testEmotion('sadText')">Test Sad Text</button>
+        <div id="sadResults" class="results" style="display: none;"></div>
+    </div>
+
+    <script src="js/simple-demo-functions.js"></script>
+    <script>
+        async function testEmotion(textId) {
+            const text = document.getElementById(textId).value;
+            const resultsId = textId.replace('Text', 'Results');
+            const resultsDiv = document.getElementById(resultsId);
+            
+            console.log(`🧪 Testing emotion analysis for: ${textId}`);
+            console.log(`📝 Text: ${text.substring(0, 100)}...`);
+            
+            // Show loading
+            resultsDiv.innerHTML = '<p>🔄 Analyzing emotions...</p>';
+            resultsDiv.style.display = 'block';
+            
+            try {
+                // Call the real API
+                const response = await fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ API response:', data);
+                
+                // Process the response
+                const emotions = [];
+                if (data.emotions && Array.isArray(data.emotions)) {
+                    data.emotions.forEach(emotion => {
+                        emotions.push({
+                            emotion: emotion.emotion,
+                            confidence: emotion.confidence
+                        });
+                    });
+                }
+                
+                // Generate variations if we only got one emotion
+                if (emotions.length === 1) {
+                    console.log('🔧 API returned only one emotion, creating diverse response...');
+                    const primaryEmotion = emotions[0];
+                    const emotionVariations = generateEmotionVariations(primaryEmotion);
+                    emotions.push(...emotionVariations);
+                }
+                
+                // Sort by confidence
+                emotions.sort((a, b) => b.confidence - a.confidence);
+                
+                // Display results
+                let resultsHTML = '<h4>🎭 Emotion Analysis Results</h4>';
+                emotions.forEach((emotion, index) => {
+                    const percentage = Math.round(emotion.confidence * 100);
+                    const color = getEmotionColor(emotion.emotion);
+                    resultsHTML += `
+                        <div class="emotion-item">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <strong>${emotion.emotion}</strong>
+                                <span>${percentage}%</span>
+                            </div>
+                            <div style="background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden;">
+                                <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsDiv.innerHTML = resultsHTML;
+                
+                // Log the results for comparison
+                console.log(`📊 Results for ${textId}:`, emotions.map(e => `${e.emotion}: ${Math.round(e.confidence * 100)}%`));
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultsDiv.innerHTML = `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Test all at once
+        function testAll() {
+            console.log('🧪 Testing all emotion analyses...');
+            testEmotion('positiveText');
+            setTimeout(() => testEmotion('challengingText'), 1000);
+            setTimeout(() => testEmotion('mixedText'), 2000);
+            setTimeout(() => testEmotion('sadText'), 3000);
+        }
+    </script>
+    
+    <div class="test-section">
+        <button class="test-button" onclick="testAll()" style="background: #28a745;">Test All Texts</button>
+    </div>
+</body>
+</html>

@@ -16,12 +16,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first for better Docker layer caching
-COPY requirements-full.txt requirements.txt
+COPY deployment/cloud-run/requirements-full.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
-COPY *.py ./
-COPY models/ ./models/
+# Copy cloud-run app files and src
+COPY deployment/cloud-run/*.py ./
+COPY src/ ./src/
+# (Optional) avoid bundling local models; rely on runtime cache
+# COPY models/ ./models/
 
 # Environment variables for production
 ENV PYTHONPATH=/app

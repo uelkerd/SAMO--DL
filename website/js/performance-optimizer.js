@@ -76,11 +76,14 @@ class PerformanceOptimizer {
         const startTime = performance.now();
         
         try {
+            // Get canvas identifier for cache key
+            const canvasId = this.getCanvasIdentifier(ctx);
+            
             // Check if we should use cached chart
-            const cacheKey = this.generateCacheKey(emotionData, options);
+            const cacheKey = this.generateCacheKey(emotionData, options, canvasId);
             if (this.chartCache.has(cacheKey)) {
                 console.log('Using cached chart');
-                return this.chartCache.get(cacheKey);
+                return Promise.resolve(this.chartCache.get(cacheKey));
             }
             
             // Optimize data before rendering
@@ -105,7 +108,7 @@ class PerformanceOptimizer {
             
         } catch (error) {
             console.error('Error optimizing chart rendering:', error);
-            throw error;
+            return Promise.reject(error);
         }
     }
     
@@ -357,15 +360,43 @@ class PerformanceOptimizer {
     }
     
     /**
+     * Get stable canvas identifier for cache key
+     * @param {CanvasRenderingContext2D} ctx - Canvas context
+     * @returns {string} Canvas identifier
+     */
+    getCanvasIdentifier(ctx) {
+        const canvas = ctx.canvas;
+        
+        // Try to get existing ID from canvas element
+        if (canvas.id) {
+            return canvas.id;
+        }
+        
+        // Try to get data-chart-id attribute
+        if (canvas.getAttribute && canvas.getAttribute('data-chart-id')) {
+            return canvas.getAttribute('data-chart-id');
+        }
+        
+        // Generate and store a unique ID if none exists
+        if (!canvas._chartId) {
+            canvas._chartId = 'canvas_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        }
+        
+        return canvas._chartId;
+    }
+
+    /**
      * Generate cache key for chart data
      * @param {Array} data - Chart data
      * @param {Object} options - Chart options
+     * @param {string} canvasId - Canvas identifier
      * @returns {string} Cache key
      */
-    generateCacheKey(data, options) {
+    generateCacheKey(data, options, canvasId = 'default') {
         const dataString = JSON.stringify(data);
         const optionsString = JSON.stringify(options);
-        return btoa(dataString + optionsString).substring(0, 32);
+        const canvasString = String(canvasId);
+        return btoa(dataString + optionsString + canvasString).substring(0, 32);
     }
     
     /**

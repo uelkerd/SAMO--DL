@@ -1,0 +1,19 @@
+steps:
+  # Build the Docker image with the unified API
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', 'Dockerfile.unified',
+      '-t', 'gcr.io/$PROJECT_ID/samo-unified-api:fixed-v2',
+      '.'
+    ]
+
+# Available images
+images:
+  - 'gcr.io/$PROJECT_ID/samo-unified-api:fixed-v2'
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY

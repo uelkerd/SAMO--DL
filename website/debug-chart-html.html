@@ -90,7 +90,7 @@
         }
     </style>
 </head>
-<body>
+<body class="comprehensive-demo">
     <h1>🔍 Debug Chart HTML Generation</h1>
     
     <div class="test-section">
@@ -138,34 +138,69 @@
             // Sort emotions by confidence
             const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
             
-            let chartHTML = '<h6 class="text-center mb-3">📊 Emotion Confidence Levels</h6>';
+            // Clear container and create safe DOM structure
+            container.innerHTML = '';
             
+            // Create header
+            const header = document.createElement('h6');
+            header.className = 'text-center mb-3';
+            header.textContent = '📊 Emotion Confidence Levels';
+            container.appendChild(header);
+            
+            // Create emotion bars safely
             sortedEmotions.forEach(emotion => {
-                const percentage = Math.round(emotion.confidence * 100);
+                // Sanitize emotion name and clamp percentage
+                const safeEmotion = String(emotion.emotion || 'unknown').substring(0, 50); // Limit length
+                const rawPercentage = Math.round(emotion.confidence * 100);
+                const clampedPercentage = Math.max(0, Math.min(100, rawPercentage));
+                
+                // Get validated color
                 const color = getEmotionColor(emotion.emotion);
                 
-                chartHTML += `
-                    <div class="emotion-bar">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-capitalize">${emotion.emotion}</span>
-                            <span class="text-muted">${percentage}%</span>
-                        </div>
-                        <div class="emotion-bar-bg">
-                            <div class="emotion-bar-fill" style="width: ${percentage}%; background: ${color};"></div>
-                        </div>
-                    </div>
-                `;
+                // Create emotion bar container
+                const emotionBar = document.createElement('div');
+                emotionBar.className = 'emotion-bar';
+                
+                // Create label row
+                const labelRow = document.createElement('div');
+                labelRow.className = 'd-flex justify-content-between align-items-center mb-2';
+                
+                const emotionLabel = document.createElement('span');
+                emotionLabel.className = 'fw-bold text-capitalize';
+                emotionLabel.textContent = safeEmotion;
+                
+                const percentageLabel = document.createElement('span');
+                percentageLabel.className = 'text-muted';
+                percentageLabel.textContent = clampedPercentage + '%';
+                
+                labelRow.appendChild(emotionLabel);
+                labelRow.appendChild(percentageLabel);
+                
+                // Create progress bar
+                const barBg = document.createElement('div');
+                barBg.className = 'emotion-bar-bg';
+                
+                const barFill = document.createElement('div');
+                barFill.className = 'emotion-bar-fill';
+                barFill.style.width = clampedPercentage + '%';
+                barFill.style.background = color;
+                
+                barBg.appendChild(barFill);
+                
+                // Assemble the emotion bar
+                emotionBar.appendChild(labelRow);
+                emotionBar.appendChild(barBg);
+                container.appendChild(emotionBar);
             });
             
-            chartHTML += `
-                <div class="text-center mt-3 text-muted" style="font-size: 0.85rem;">
-                    Based on ${emotions.length} detected emotions
-                </div>
-            `;
-            
-            container.innerHTML = chartHTML;
+            // Create footer safely
+            const footer = document.createElement('div');
+            footer.className = 'text-center mt-3 text-muted';
+            footer.style.fontSize = '0.85rem';
+            footer.textContent = `Based on ${emotions.length} detected emotions`;
+            container.appendChild(footer);
             console.log('✅ Test chart created successfully');
-            console.log('Generated HTML length:', chartHTML.length);
+            console.log('Generated HTML length:', container.innerHTML.length);
         }
         
         function getEmotionColor(emotion) {

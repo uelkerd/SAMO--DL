@@ -41,7 +41,8 @@ steps:
       '--port', '${_PORT}',
       '--memory', '${_MEMORY}',
       '--cpu', '${_CPU}',
-      '--max-instances', '${_MAX_INSTANCES}'
+      '--max-instances', '${_MAX_INSTANCES}',
+      '--set-env-vars', 'CORS_ORIGINS=${_CORS_ORIGINS}'
     ]
     secretEnv: ['ADMIN_API_KEY']
 
@@ -74,6 +75,9 @@ substitutions:
   
   # Artifact Registry configuration
   _ARTIFACT_REPO: 'samo-dl-repo'
+  
+  # CORS configuration
+  _CORS_ORIGINS: 'https://samo-dl-demo.web.app,https://samo-dl-demo.firebaseapp.com'
 
 # Available secrets (set these in Cloud Build settings)
 # NOTE: These secrets are globally available but must be explicitly referenced

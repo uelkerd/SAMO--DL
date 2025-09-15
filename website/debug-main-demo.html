@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Main Demo</title>
+    <script src="js/performance-optimizer.js"></script>
+</head>
+<body>
+    <h1>Debug Main Demo</h1>
+    <input type="text" id="textInput" value="I am happy!" placeholder="Enter text to analyze">
+    <button onclick="testWithRealAPI()">Test with Real API</button>
+    <div id="result"></div>
+
+    <script src="config.js"></script>
+    <script src="js/simple-demo-functions.js"></script>
+    <script>
+        // Override the testWithRealAPI function to add more debugging
+        const originalTestWithRealAPI = testWithRealAPI;
+        testWithRealAPI = function() {
+            console.log('🔍 DEBUG: testWithRealAPI called');
+            console.log('🔍 DEBUG: textInput value:', document.getElementById('textInput').value);
+            console.log('🔍 DEBUG: about to call original function');
+            return originalTestWithRealAPI();
+        };
+    </script>
+</body>
+</html>

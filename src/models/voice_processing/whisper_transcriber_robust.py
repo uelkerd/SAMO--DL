@@ -51,20 +51,22 @@ class RobustWhisperTranscriber:
             logger.info(f"✅ Whisper {self.model_size} loaded successfully")
             return
         except ImportError:
-            logger.warning("⚠️ OpenAI Whisper not available - installing...")
-            try:
-                import subprocess
-                import sys
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "openai-whisper"])
-                import whisper
-                self.model = whisper.load_model(self.model_size)
-                self.is_loaded = True
-                logger.info("✅ Whisper installed and loaded successfully")
-                return
-            except Exception as e:
-                logger.error(f"❌ Failed to install/load Whisper: {e}")
-        except Exception as e:
-            logger.error(f"❌ Failed to load Whisper model: {e}")
+            if os.getenv("ALLOW_RUNTIME_PIP") == "1":
+                try:
+                    import subprocess
+                    import sys
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", "openai-whisper"], timeout=180)
+                    import whisper  # noqa: F401
+                    self.model = whisper.load_model(self.model_size)
+                    self.is_loaded = True
+                    logger.info("✅ Whisper installed and loaded successfully")
+                    return
+                except Exception:
+                    logger.exception("❌ Failed to install/load Whisper")
+            else:
+                logger.warning("⚠️ OpenAI Whisper not available and runtime install disabled")
+        except Exception:
+            logger.exception("❌ Failed to load Whisper model")
 
         # If we get here, Whisper loading failed
         logger.warning("⚠️ Whisper not available - voice transcription will use mock responses")

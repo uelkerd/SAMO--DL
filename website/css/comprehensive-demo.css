@@ -49,7 +49,7 @@
 }
 
 /* Base Styles */
-body {
+body.comprehensive-demo {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     color: #e2e8f0;
@@ -171,18 +171,18 @@ body {
 }
 
 /* Navigation */
-.navbar {
+.comprehensive-demo .navbar {
     background: rgba(15, 15, 35, 0.95);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
 }
 
-.navbar-brand, .navbar .nav-link {
+.comprehensive-demo .navbar-brand, .comprehensive-demo .navbar .nav-link {
     color: #e2e8f0;
 }
 
 /* Buttons */
-.btn-primary {
+.comprehensive-demo .btn-primary {
     background: var(--primary-gradient);
     border: none;
     border-radius: 12px;
@@ -192,12 +192,12 @@ body {
     box-shadow: var(--shadow-glow);
 }
 
-.btn-primary:hover {
+.comprehensive-demo .btn-primary:hover {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
 }
 
-.btn:focus-visible {
+.comprehensive-demo .btn:focus-visible {
     outline: 3px solid #667eea;
     outline-offset: 2px;
 }
@@ -891,7 +891,7 @@ body {
 }
 
 /* Keyboard Focus Indicators */
-.btn-primary:focus-visible {
+.comprehensive-demo .btn-primary:focus-visible {
     outline: 3px solid #c084fc;
     outline-offset: 2px;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.45);

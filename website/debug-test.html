@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug API Test</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="result"></div>
+    <div id="debug"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            const debugDiv = document.getElementById('debug');
+            
+            resultDiv.innerHTML = 'Testing...';
+            debugDiv.innerHTML = '';
+            
+            try {
+                console.log('Making API call...');
+                
+                const response = await fetch('http://localhost:8081/emotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify({
+                        text: 'I am very happy today!'
+                    })
+                });
+                
+                console.log('Response received:', response);
+                console.log('Status:', response.status);
+                console.log('Status Text:', response.statusText);
+                console.log('Headers:', response.headers);
+                
+                debugDiv.innerHTML = `
+                    <h3>Debug Info:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>Status Text: ${response.statusText}</p>
+                    <p>OK: ${response.ok}</p>
+                `;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API Response:', data);
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    const errorText = await response.text();
+                    console.log('Error response:', errorText);
+                    resultDiv.innerHTML = `Error ${response.status}: ${errorText}`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `Fetch Error: ${error.message}`;
+                debugDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

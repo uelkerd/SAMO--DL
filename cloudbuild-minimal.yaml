@@ -1,0 +1,19 @@
+steps:
+  # Build the Docker image with the minimal unified API
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', 'Dockerfile.minimal',
+      '-t', 'gcr.io/$PROJECT_ID/samo-unified-api:minimal',
+      '.'
+    ]
+
+# Available images
+images:
+  - 'gcr.io/$PROJECT_ID/samo-unified-api:minimal'
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY
