@@ -256,10 +256,28 @@ class SAMOAPIClient {
     }
 
     async summarizeText(text) {
-        // Summarization endpoint doesn't exist in GCP Cloud Run API
-        // Always use mock data for demo purposes
-        console.log('Summarization endpoint not available in GCP API, using mock data');
-        return this.getMockSummaryResponse(text);
+        try {
+            // Use the /analyze/journal endpoint which returns both emotion and summary
+            const response = await this.makeRequest('/analyze/journal', { text });
+            
+            if (response.summary) {
+                return {
+                    summary: response.summary.summary || response.summary,
+                    original_length: response.insights?.word_count || text.length,
+                    summary_length: response.summary.summary?.length || 0,
+                    compression_ratio: response.summary.compression_ratio || 0.5,
+                    request_id: 'api-' + Date.now(),
+                    timestamp: Date.now() / 1000,
+                    mock: false
+                };
+            }
+            
+            return response;
+        } catch (error) {
+            // If API is not available, return mock data for demo purposes
+            console.warn('API not available, using mock data for demo:', error.message);
+            return this.getMockSummaryResponse(text);
+        }
     }
 
     getMockSummaryResponse(text) {
@@ -318,19 +336,60 @@ class SAMOAPIClient {
         };
     }
 
+    async analyzeText(text) {
+        try {
+            const response = await this.makeRequest('/analyze/journal', { text });
+
+            // Handle the actual API response format from /analyze/journal
+            if (response.emotion_analysis && response.summary) {
+                const emotions = response.emotion_analysis.emotions || [];
+                return {
+                    emotions: {
+                        emotions: emotions,
+                        confidence: response.emotion_analysis.confidence || 0,
+                        primary_emotion: response.emotion_analysis.primary_emotion || 'neutral',
+                        emotional_intensity: response.emotion_analysis.emotional_intensity || 0,
+                        processing_time_ms: response.processing_time_ms || 0,
+                        text: text,
+                        mock: false
+                    },
+                    summary: {
+                        summary: response.summary.summary || response.summary,
+                        original_length: response.insights?.word_count || text.length,
+                        summary_length: response.summary.summary?.length || 0,
+                        compression_ratio: response.summary.compression_ratio || 0.5,
+                        request_id: 'api-' + Date.now(),
+                        timestamp: Date.now() / 1000,
+                        mock: false
+                    }
+                };
+            }
+
+            return response;
+        } catch (error) {
+            // If API is not available, return mock data for demo purposes
+            console.warn('API not available, using mock data for demo:', error.message);
+            return {
+                emotions: this.getMockEmotionResponse(text),
+                summary: this.getMockSummaryResponse(text)
+            };
+        }
+    }
+
     async detectEmotions(text) {
         try {
-            const response = await this.makeRequest('/predict', { text });
+            const response = await this.makeRequest('/analyze/journal', { text });
 
-            // Handle the actual API response format
-            if (response.emotions && Array.isArray(response.emotions)) {
+            // Handle the actual API response format from /analyze/journal
+            if (response.emotion_analysis && response.emotion_analysis.emotions) {
+                const emotions = response.emotion_analysis.emotions;
                 return {
-                    emotions: response.emotions,
-                    confidence: response.emotions.reduce((sum, e) => sum + e.confidence, 0) / response.emotions.length,
-                    primary_emotion: response.emotions.reduce((max, e) => e.confidence > max.confidence ? e : max, response.emotions[0]).emotion,
-                    emotional_intensity: response.emotions.reduce((sum, e) => sum + e.confidence, 0) / response.emotions.length,
+                    emotions: emotions,
+                    confidence: response.emotion_analysis.confidence || 0,
+                    primary_emotion: response.emotion_analysis.primary_emotion || 'neutral',
+                    emotional_intensity: response.emotion_analysis.emotional_intensity || 0,
                     processing_time_ms: response.processing_time_ms || 0,
-                    text: response.text || text,
+                    text: text,
                     mock: false
                 };
             }

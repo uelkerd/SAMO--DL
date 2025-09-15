@@ -42,7 +42,7 @@ class ComprehensiveDemo {
                 this.uiController.updateProgressStep('step1', 'completed');
             }
 
-            // Step 2: Summarize text
+            // Step 2 & 3: Analyze text (both summarization and emotion detection in one call)
             let currentText = text;
             if (results.transcription && results.transcription.text) {
                 currentText = results.transcription.text;
@@ -56,29 +56,31 @@ class ComprehensiveDemo {
             if (currentText) {
                 try {
                     this.uiController.updateProgressStep('step3', 'active');
-                    results.summary = await this.apiClient.summarizeText(currentText);
-                    results.modelsUsed.push('SAMO T5');
-                    this.uiController.updateProgressStep('step3', 'completed');
-                    this.uiController.showSummaryResults(results.summary);
-                } catch (error) {
-                    console.error('Summarization failed:', error);
-                    this.uiController.updateProgressStep('step3', 'error');
-                    // Continue without summary
-                }
-            }
-
-            // Step 3: Detect emotions
-            if (currentText) {
-                try {
                     this.uiController.updateProgressStep('step4', 'active');
-                    results.emotions = await this.apiClient.detectEmotions(currentText);
-                    results.modelsUsed.push('SAMO DeBERTa v3 Large');
-                    this.uiController.updateProgressStep('step4', 'completed');
-                    this.uiController.showEmotionResults(results.emotions);
+                    
+                    // Call the unified analysis endpoint that returns both summary and emotions
+                    const analysisResponse = await this.apiClient.analyzeText(currentText);
+                    
+                    // Extract summary results
+                    if (analysisResponse.summary) {
+                        results.summary = analysisResponse.summary;
+                        results.modelsUsed.push('SAMO T5');
+                        this.uiController.updateProgressStep('step3', 'completed');
+                        this.uiController.showSummaryResults(results.summary);
+                    }
+                    
+                    // Extract emotion results
+                    if (analysisResponse.emotions) {
+                        results.emotions = analysisResponse.emotions;
+                        results.modelsUsed.push('SAMO DeBERTa v3 Large');
+                        this.uiController.updateProgressStep('step4', 'completed');
+                        this.uiController.showEmotionResults(results.emotions);
+                    }
                 } catch (error) {
-                    console.error('Emotion detection failed:', error);
+                    console.error('Text analysis failed:', error);
+                    this.uiController.updateProgressStep('step3', 'error');
                     this.uiController.updateProgressStep('step4', 'error');
-                    // Continue without emotion detection - don't throw error
+                    // Continue without analysis - don't throw error
                 }
             }
 
