@@ -1,104 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Test - SAMO Demo</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            background: #f8f9fa;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .success { 
-            color: green; 
-            background: #e6ffe6; 
-            padding: 15px; 
-            margin: 10px 0; 
-            border-radius: 8px; 
-            border-left: 4px solid #28a745;
-        }
-        .error { 
-            color: red; 
-            background: #ffe6e6; 
-            padding: 15px; 
-            margin: 10px 0; 
-            border-radius: 8px; 
-            border-left: 4px solid #dc3545;
-        }
-        button { 
-            padding: 12px 24px; 
-            margin: 5px; 
-            background: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 14px;
-        }
-        button:hover { 
-            background: #0056b3; 
-        }
-        #result { 
-            margin-top: 20px; 
-            padding: 15px;
-            border-radius: 8px;
-            min-height: 50px;
-        }
-    </style>
+    <title>Simple Test</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="container">
-        <h1>🧪 SAMO Demo - Simple Test</h1>
-        <p>Quick test to verify the demo is working correctly.</p>
-        
-        <button onclick="test()">Run Test</button>
-        <button onclick="clearResult()">Clear</button>
-        
-        <div id="result"></div>
-    </div>
-    
-    <script src="config.js"></script>
-    <script src="js/api-client.js"></script>
-    <script src="js/ui-controller.js"></script>
-    <script src="js/comprehensive-demo-new.js"></script>
-    
+    <h1>Simple API Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
     <script>
-        async function test() {
+        async function testAPI() {
             const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '<div style="color: blue;">Running test...</div>';
+            resultDiv.innerHTML = 'Testing...';
             
             try {
-                console.log('Starting test...');
-                const demo = new ComprehensiveDemo();
-                console.log('Demo created:', demo);
+                console.log('Making API call...');
+                const response = await fetch('http://localhost:8081/emotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify({
+                        text: 'I am happy!'
+                    })
+                });
                 
-                await demo.processCompleteWorkflow(null, "I am feeling very happy and excited about this project!");
-                console.log('Test completed successfully');
-                resultDiv.innerHTML = '<div class="success">✅ SUCCESS: Demo workflow completed successfully!</div>';
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `Error ${response.status}: ${errorText}`;
+                }
             } catch (error) {
-                console.error('Test failed:', error);
-                resultDiv.innerHTML = `<div class="error">❌ ERROR: ${error.message}</div>`;
+                console.error('Error:', error);
+                resultDiv.innerHTML = `Error: ${error.message}`;
             }
         }
-        
-        function clearResult() {
-            document.getElementById('result').innerHTML = '';
-        }
-        
-        // Auto-run test when page loads
-        window.addEventListener('load', () => {
-            console.log('Simple test page loaded');
-            setTimeout(test, 1000); // Run test 1 second after page loads
-        });
     </script>
 </body>
 </html>

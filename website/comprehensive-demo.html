@@ -6,8 +6,10 @@
     <title>SAMO Emotion Detection API - SAMO Deep Learning</title>
     <meta name="description" content="Interactive demo showcasing SAMO Whisper (voice transcription), SAMO T5 (text summarization), and SAMO DeBERTa v3 Large (emotion detection)">
     
-    <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' http://localhost:8081 https://samo-emotion-api-minimal-71517823771.us-central1.run.app https://samo-unified-api-71517823771.us-central1.run.app https://samo-unified-api-frrnetyhfa-uc.a.run.app https://api.samo-dl.com https://api.openai.com https://cdn.jsdelivr.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- Content Security Policy is now handled by HTTP headers -->
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -207,7 +209,7 @@
                                 id="textInput"
                                 rows="4"
                                 placeholder="Enter your text here for summarization and emotion analysis..."
-                            >I am so excited and happy today! This is such wonderful news and I feel optimistic about the future. I can't wait to see what amazing opportunities await us. However, I'm also a bit nervous about the challenges ahead, but I'm confident we can overcome them together.</textarea>
+                            >Test with special characters: @#$%^&*()_+{}|:"<>?[]\\;'\",./ and emojis 🎉😊🚀</textarea>
                         </div>
                         
                         <div class="d-flex gap-3 justify-content-center">
