@@ -51,9 +51,9 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
             'rate_limit': RATE_LIMIT_PER_MINUTE,
             'timestamp': time.time()
         })
-    except Exception as e:
-        logger.error(f"Root endpoint error for {request.remote_addr}: {str(e)}")
-        return create_error_response('Internal server error', 500)
+        except Exception as e:
+            logger.exception("Root endpoint error")
+            return create_error_response('Internal server error', 500)
 
 # Initialize Flask-RESTX API without Swagger to avoid 500 errors
 api = Api(
@@ -276,7 +276,7 @@ class Health(Resource):
                 return create_error_response('Service unavailable - model not ready', 503)
                 
         except Exception as e:
-            logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
+            logger.exception("Health check error")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict')
@@ -325,7 +325,7 @@ class Predict(Resource):
             return result
 
         except Exception as e:
-            logger.error(f"Prediction error for {request.remote_addr}: {str(e)}")
+            logger.exception("Prediction error")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/predict_batch')
@@ -383,7 +383,7 @@ class PredictBatch(Resource):
             return {'results': results}
 
         except Exception as e:
-            logger.error(f"Batch prediction error for {request.remote_addr}: {str(e)}")
+            logger.exception("Batch prediction error")
             return create_error_response('Internal server error', 500)
 
 @main_ns.route('/emotions')
@@ -401,7 +401,7 @@ class Emotions(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Emotions endpoint error for {request.remote_addr}: {str(e)}")
+            logger.exception("Emotions endpoint error")
             return create_error_response('Internal server error', 500)
 
 # Admin endpoints
@@ -420,7 +420,7 @@ class ModelStatus(Resource):
             status = get_model_status()
             return status
         except Exception as e:
-            logger.error(f"Model status error for {request.remote_addr}: {str(e)}")
+            logger.exception("Model status error")
             return create_error_response('Internal server error', 500)
 
 @admin_ns.route('/security_status')
@@ -443,7 +443,7 @@ class SecurityStatus(Resource):
                 'timestamp': time.time()
             }
         except Exception as e:
-            logger.error(f"Security status error for {request.remote_addr}: {str(e)}")
+            logger.exception("Security status error")
             return create_error_response('Internal server error', 500)
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
@@ -495,7 +495,7 @@ def initialize_model():
         logger.info("🚀 API server ready to handle requests")
         
     except Exception as e:
-        logger.error(f"❌ Failed to initialize API server: {str(e)}")
+        logger.exception("❌ Failed to initialize API server")
         raise
 
 # Initialize model when the application starts

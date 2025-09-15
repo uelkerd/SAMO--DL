@@ -258,7 +258,9 @@ class ComprehensiveDemo {
             
             if (results.summary) {
                 this.updateProgressStep('step3', 'completed');
-                this.showSummarizationResults(results.summary, text);
+                // Use transcription text as fallback for original length when only audio is provided
+                const originalText = text || (results.transcription ? (results.transcription.text || results.transcription.transcription) : '');
+                this.showSummarizationResults(results.summary, originalText);
             }
             
             if (results.emotions) {
@@ -352,25 +354,40 @@ class ComprehensiveDemo {
             emotionData = emotions.emotions;
         } else if (emotions.predictions) {
             emotionData = emotions.predictions;
+        } else if (emotions.probabilities) {
+            // Handle probabilities object format: {probabilities: {label: prob}}
+            emotionData = Object.entries(emotions.probabilities).map(([label, prob]) => ({
+                emotion: label,
+                confidence: prob
+            }));
         }
+
+        // Normalize emotion data to ensure consistent key names
+        const normalizedEmotions = emotionData.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
 
         // Create emotion badges
         const badgesContainer = document.getElementById('emotionBadges');
         badgesContainer.innerHTML = '';
         
-        emotionData.forEach(emotion => {
+        normalizedEmotions.forEach(emotion => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
+            const emotionName = emotion.emotion || 'Unknown';
+            
             const badge = document.createElement('span');
             badge.className = 'emotion-badge';
-            badge.style.backgroundColor = this.getEmotionColor(emotion.emotion || emotion.label);
-            badge.textContent = `${emotion.emotion || emotion.label}: ${Math.round((emotion.confidence || emotion.score) * 100)}%`;
+            badge.style.backgroundColor = this.getEmotionColor(emotionName);
+            badge.textContent = `${emotionName}: ${confidence.toFixed(1)}%`;
             badgesContainer.appendChild(badge);
         });
 
         // Create emotion chart
-        this.createEmotionChart(emotionData);
+        this.createEmotionChart(normalizedEmotions);
         
         // Show emotion details
-        this.showEmotionDetails(emotionData);
+        this.showEmotionDetails(normalizedEmotions);
         
         this.emotionResults.style.display = 'block';
     }

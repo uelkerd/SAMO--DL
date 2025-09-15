@@ -198,23 +198,39 @@ class UIController {
         title.innerHTML = '<strong>Detected Emotions:</strong>';
         content.appendChild(title);
         
-        let emotionsList = [];
+        // Handle different response formats
+        let emotionData = [];
         if (Array.isArray(emotions)) {
-            emotionsList = emotions;
-        } else if (emotions.emotions && Array.isArray(emotions.emotions)) {
-            emotionsList = emotions.emotions;
+            emotionData = emotions;
+        } else if (emotions.emotions) {
+            emotionData = emotions.emotions;
+        } else if (emotions.predictions) {
+            emotionData = emotions.predictions;
+        } else if (emotions.probabilities) {
+            // Handle probabilities object format: {probabilities: {label: prob}}
+            emotionData = Object.entries(emotions.probabilities).map(([label, prob]) => ({
+                emotion: label,
+                confidence: prob
+            }));
         }
         
-        emotionsList.forEach(emotion => {
-            const confidence = (emotion.confidence || emotion.score || 0) * 100;
+        // Normalize emotion data to ensure consistent key names
+        const normalizedEmotions = emotionData.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
+        
+        normalizedEmotions.forEach(emotion => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
+            const emotionName = emotion.emotion || 'Unknown';
             
             const emotionItem = document.createElement('div');
             emotionItem.className = 'emotion-item';
             
-            const emotionName = document.createElement('span');
-            emotionName.className = 'emotion-name';
-            emotionName.textContent = emotion.emotion || emotion.label;
-            emotionItem.appendChild(emotionName);
+            const emotionNameSpan = document.createElement('span');
+            emotionNameSpan.className = 'emotion-name';
+            emotionNameSpan.textContent = emotionName;
+            emotionItem.appendChild(emotionNameSpan);
             
             const emotionConfidence = document.createElement('span');
             emotionConfidence.className = 'emotion-confidence';
