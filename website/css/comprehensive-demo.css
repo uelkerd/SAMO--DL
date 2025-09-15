@@ -640,6 +640,8 @@ body {
     padding: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .emotion-bar:hover {
