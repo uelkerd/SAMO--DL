@@ -31,7 +31,7 @@ class TestDemoIntegration:
                 'summary': 'This is a test summary of the transcribed text.',
                 'original_length': 100,
                 'summary_length': 50,
-                'compression_ratio': '0.50',
+                'compression_ratio': 0.50,
                 'request_id': 'sum-123',
                 'timestamp': 1234567890.0
             },
@@ -86,6 +86,13 @@ class TestDemoIntegration:
             assert response['success'] is True
             assert 'data' in response
             assert 'timestamp' in response
+            # Validate endpoint-specific payload shape
+            if endpoint.endswith('/voice'):
+                assert 'text' in response['data']
+            elif endpoint.endswith('/text'):
+                assert 'summary' in response['data']
+            elif endpoint.endswith('/journal'):
+                assert 'emotions' in response['data']
     
     def test_error_handling_integration(self):
         """Test error handling across all components"""
@@ -216,11 +223,19 @@ class TestDemoIntegration:
     
     def _simulate_api_call(self, endpoint):
         """Simulate API call with realistic response"""
+        key = endpoint.split('/')[-1]
+        key_map = {
+            'voice': 'transcription',
+            'text': 'summarization',
+            'journal': 'emotion_detection',
+        }
+        data_key = key_map.get(key, key)
+        data = self.mock_api_responses.get(data_key, {})
         return {
             'success': True,
-            'data': self.mock_api_responses.get(endpoint.split('/')[-1], {}),
+            'data': data,
             'timestamp': time.time(),
-            'endpoint': endpoint
+            'endpoint': endpoint,
         }
     
     @staticmethod
@@ -250,7 +265,7 @@ class TestDemoIntegration:
             'summary': 'This is a mock summary for testing purposes.',
             'original_length': 100,
             'summary_length': 50,
-            'compression_ratio': '0.50',
+            'compression_ratio': 0.50,
             'request_id': 'demo-123',
             'timestamp': time.time(),
             'mock': True
@@ -259,8 +274,12 @@ class TestDemoIntegration:
     @staticmethod
     def _process_transcription(input_data):
         """Simulate transcription processing"""
+        text = (
+            input_data.get('text_input')
+            if isinstance(input_data, dict) else None
+        ) or 'Transcribed text from audio'
         return {
-            'text': 'Transcribed text from audio',
+            'text': text,
             'confidence': 0.95,
             'duration': 5.2
         }
@@ -277,15 +296,21 @@ class TestDemoIntegration:
     @staticmethod
     def _process_emotion_detection(text_data):
         """Simulate emotion detection processing"""
+        text_len = (
+            len(text_data.get('text', ''))
+            if isinstance(text_data, dict) else 0
+        )
+        base_conf = min(0.5 + (text_len / 200.0), 0.99)
         return {
             'emotions': [
                 {'emotion': 'joy', 'confidence': 0.85},
                 {'emotion': 'excitement', 'confidence': 0.72}
             ],
-            'confidence': 0.75
+            'confidence': base_conf
         }
 
 
+@pytest.mark.slow
 class TestDemoPerformance:
     """Test demo website performance characteristics"""
     
@@ -293,7 +318,7 @@ class TestDemoPerformance:
         """Test chart rendering performance with large datasets"""
         # Simulate large emotion dataset
         large_emotion_dataset = [
-            {'emotion': f'emotion_{i}', 'confidence': 0.1 + (i * 0.01)}
+            {'emotion': f'emotion_{i}', 'confidence': min(0.1 + (i * 0.01), 0.99)}
             for i in range(100)
         ]
         
@@ -490,5 +515,3 @@ class TestDemoAccessibility:
         return element_id in ['audioFile', 'textInput', 'recordBtn', 'stopBtn', 'processBtn', 'clearBtn']
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
