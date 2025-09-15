@@ -265,7 +265,7 @@ class SecureEmotionDetectionModel:
 
         except Exception as e:
             logger.error(
-                "❌ Failed to load secure model: %s. Falling back to stub mode.", 
+                "❌ Failed to load secure model: %s. Falling back to stub mode.",
                 str(e)
             )
             self.tokenizer = None
@@ -319,7 +319,7 @@ class SecureEmotionDetectionModel:
             
             prediction_time = time.time() - start_time
             logger.info(
-                "Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", 
+                "Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)",
                 prediction_time, sanitized_text[:50], predicted_emotion, confidence
             )
             
@@ -1082,7 +1082,7 @@ if __name__ == '__main__':
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
     logger.info(
-        "🔒 Rate limiting: %s requests per minute", 
+        "🔒 Rate limiting: %s requests per minute",
         rate_limit_config.requests_per_minute
     )
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
