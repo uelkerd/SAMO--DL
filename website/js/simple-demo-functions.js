@@ -38,70 +38,10 @@ async function generateSampleText() {
         
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         
-        // Call Hugging Face Inference API
-        const hfToken = window.SAMO_CONFIG?.HUGGING_FACE?.API_TOKEN;
-        
-        if (!hfToken || hfToken === 'YOUR_HF_TOKEN_HERE') {
-            console.warn('⚠️ Hugging Face token not configured, falling back to static samples');
-            generateStaticSampleText();
-            return;
-        }
-        
-        console.log('🤗 Using HF token:', hfToken.substring(0, 10) + '...');
-        
-        const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-small', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${hfToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                inputs: randomPrompt,
-                parameters: {
-                    max_length: window.SAMO_CONFIG.HUGGING_FACE.MAX_LENGTH,
-                    temperature: window.SAMO_CONFIG.HUGGING_FACE.TEMPERATURE,
-                    do_sample: true,
-                    top_p: 0.9
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Hugging Face API error: ${response.status} ${response.statusText}`);
-        }
-        
-        const result = await response.json();
-        let generatedText = result[0]?.generated_text || '';
-        
-        // Clean up the generated text
-        if (generatedText) {
-            // Remove the original prompt from the beginning
-            generatedText = generatedText.replace(randomPrompt, '').trim();
-            
-            // Ensure it's a complete sentence
-            if (!generatedText.endsWith('.') && !generatedText.endsWith('!') && !generatedText.endsWith('?')) {
-                generatedText += '.';
-            }
-            
-            // Combine prompt with generated text
-            generatedText = randomPrompt + ' ' + generatedText;
-        } else {
-            throw new Error('No text generated from API');
-        }
-        
-        // Update the text input
-        if (textInput) {
-            textInput.value = generatedText;
-            console.log('✅ AI-generated text inserted:', generatedText.substring(0, 100) + '...');
-            
-            // Success animation
-            textInput.style.borderColor = '#10b981';
-            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
-            setTimeout(() => {
-                textInput.style.borderColor = '';
-                textInput.style.boxShadow = '';
-            }, 2000);
-        }
+        // Since Hugging Face API is currently returning 404 errors for all models,
+        // we'll use static samples for now
+        console.warn('⚠️ Hugging Face API is currently down (404 errors), using static samples');
+        generateStaticSampleText();
         
     } catch (error) {
         console.error('❌ AI text generation failed:', error);
