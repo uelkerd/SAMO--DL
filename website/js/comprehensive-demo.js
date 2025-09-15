@@ -145,7 +145,9 @@ class SAMOAPIClient {
         if (audioFile) {
             try {
                 results.transcription = await this.transcribeAudio(audioFile);
-                currentText = results.transcription.text || results.transcription.transcription;
+                // Some API responses use 'text', others use 'transcription'. Normalize here for consistency.
+                const transcribedText = results.transcription.text || results.transcription.transcription;
+                currentText = transcribedText;
                 results.modelsUsed.push('SAMO Whisper');
             } catch (error) {
                 console.error('Transcription failed:', error);
@@ -257,7 +259,8 @@ class ComprehensiveDemo {
             if (results.summary) {
                 this.updateProgressStep('step3', 'completed');
                 // Use transcription text as fallback for original length when only audio is provided
-                const originalText = text || (results.transcription ? (results.transcription.text || results.transcription.transcription) : '');
+                const transcribedText = results.transcription ? (results.transcription.text || results.transcription.transcription) : '';
+                const originalText = text || transcribedText;
                 this.showSummarizationResults(results.summary, originalText);
             }
             
@@ -318,6 +321,7 @@ class ComprehensiveDemo {
     }
 
     showTranscriptionResults(transcription) {
+        // Some API responses use 'text', others use 'transcription'. Normalize here for consistency.
         const text = transcription.text || transcription.transcription || 'Transcription not available';
         const confidence = transcription.confidence || 'N/A';
         const duration = transcription.duration || 'N/A';
@@ -545,8 +549,9 @@ class ComprehensiveDemo {
         
         // Calculate average confidence
         if (results.emotions && Array.isArray(results.emotions)) {
-            const avgConfidence = results.emotions.reduce((sum, e) => 
-                sum + (e.confidence || e.score || 0), 0) / results.emotions.length;
+            const avgConfidence = results.emotions.length > 0
+                ? results.emotions.reduce((sum, e) => sum + (e.confidence || e.score || 0), 0) / results.emotions.length
+                : 0;
             document.getElementById('avgConfidence').textContent = 
                 `${Math.round(avgConfidence * 100)}%`;
         }
