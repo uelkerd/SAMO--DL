@@ -10,12 +10,10 @@ class SAMOAPIClient {
         this.apiKey = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.apiKey : 'demo-key-123';
     }
 
-    async makeRequest(endpoint, data, method = 'POST') {
+    async makeRequest(endpoint, data, method = 'POST', isFormData = false) {
         const config = {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-            }
+            headers: {}
         };
 
         if (this.apiKey) {
@@ -23,7 +21,15 @@ class SAMOAPIClient {
         }
 
         if (data && method === 'POST') {
-            config.body = JSON.stringify(data);
+            if (isFormData) {
+                // For FormData, don't set Content-Type header - let browser set it with boundary
+                config.body = data;
+            } else {
+                config.headers['Content-Type'] = 'application/json';
+                config.body = JSON.stringify(data);
+            }
+        } else if (method === 'GET') {
+            config.headers['Content-Type'] = 'application/json';
         }
 
         try {
@@ -53,16 +59,7 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
         
         try {
-            const response = await fetch(`${this.baseURL}/transcribe/voice`, {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Transcription failed: ${response.status}`);
-            }
-            
-            return await response.json();
+            return await this.makeRequest('/transcribe/voice', formData, 'POST', true);
         } catch (error) {
             console.error('Transcription error:', error);
             throw error;
