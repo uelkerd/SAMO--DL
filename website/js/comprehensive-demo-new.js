@@ -76,10 +76,14 @@ class ComprehensiveDemo {
                         this.uiController.updateProgressStep('step4', 'completed');
                         this.uiController.showEmotionResults(results.emotions);
                         
-                        // Display detailed model analysis
-                        if (typeof window.displayDetailedModelAnalysis === 'function') {
-                            window.displayDetailedModelAnalysis(results.emotions, results.summary);
-                        }
+                        // Display detailed model analysis - SIMPLIFIED APPROACH
+                        console.log('🔍 About to update detailed model analysis with:', {
+                            emotions: results.emotions,
+                            summary: results.summary
+                        });
+                        
+                        // Direct update instead of complex function call
+                        updateDetailedAnalysisDirectly(results.emotions, results.summary);
                     }
                 } catch (error) {
                     console.error('Text analysis failed:', error);
@@ -335,12 +339,108 @@ function displayDetailedModelAnalysis(emotionData, summaryData) {
         `Processing time: ${Date.now() - window.processingStartTime || 0}ms. ` +
         `Text length: ${summaryData?.original_length || 0} characters.`;
     
-    // Update the UI
-    document.getElementById('primaryEmotion').textContent = `${primaryEmotionName} (${primaryEmotionConfidence}%)`;
-    document.getElementById('emotionalIntensity').textContent = intensity;
-    document.getElementById('sentimentScore').textContent = `${sentimentLabel} (${sentimentScore.toFixed(2)})`;
-    document.getElementById('confidenceRange').textContent = confidenceRange;
-    document.getElementById('modelDetails').textContent = modelDetails;
+    // Update the UI - with validation
+    console.log('🔍 Updating UI elements...');
+    
+    const primaryEmotionEl = document.getElementById('primaryEmotion');
+    const emotionalIntensityEl = document.getElementById('emotionalIntensity');
+    const sentimentScoreEl = document.getElementById('sentimentScore');
+    const confidenceRangeEl = document.getElementById('confidenceRange');
+    const modelDetailsEl = document.getElementById('modelDetails');
+    
+    console.log('🔍 DOM elements found:', {
+        primaryEmotion: !!primaryEmotionEl,
+        emotionalIntensity: !!emotionalIntensityEl,
+        sentimentScore: !!sentimentScoreEl,
+        confidenceRange: !!confidenceRangeEl,
+        modelDetails: !!modelDetailsEl
+    });
+    
+    if (primaryEmotionEl) primaryEmotionEl.textContent = `${primaryEmotionName} (${primaryEmotionConfidence}%)`;
+    if (emotionalIntensityEl) emotionalIntensityEl.textContent = intensity;
+    if (sentimentScoreEl) sentimentScoreEl.textContent = `${sentimentLabel} (${sentimentScore.toFixed(2)})`;
+    if (confidenceRangeEl) confidenceRangeEl.textContent = confidenceRange;
+    if (modelDetailsEl) modelDetailsEl.textContent = modelDetails;
+    
+    console.log('✅ UI update completed');
+}
+
+// Simplified direct update function
+function updateDetailedAnalysisDirectly(emotionData, summaryData) {
+    console.log('🔧 Updating detailed analysis directly...', emotionData, summaryData);
+    
+    // Normalize emotion data
+    let normalizedEmotions = [];
+    if (Array.isArray(emotionData)) {
+        normalizedEmotions = emotionData.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
+    } else if (emotionData.emotions && Array.isArray(emotionData.emotions)) {
+        normalizedEmotions = emotionData.emotions.map(emotion => ({
+            emotion: emotion.emotion || emotion.label || 'Unknown',
+            confidence: emotion.confidence || emotion.score || 0
+        }));
+    } else if (emotionData.probabilities) {
+        normalizedEmotions = Object.entries(emotionData.probabilities).map(([label, prob]) => ({
+            emotion: label,
+            confidence: prob
+        }));
+    }
+    
+    // Sort by confidence
+    normalizedEmotions = normalizedEmotions.sort((a, b) => b.confidence - a.confidence);
+    
+    // Calculate values
+    const primaryEmotion = normalizedEmotions[0];
+    const primaryEmotionName = primaryEmotion ? primaryEmotion.emotion : 'Unknown';
+    const primaryEmotionConfidence = primaryEmotion ? Math.round(primaryEmotion.confidence * 100) : 0;
+    
+    const avgConfidence = normalizedEmotions.length > 0 ? 
+        normalizedEmotions.reduce((sum, e) => sum + e.confidence, 0) / normalizedEmotions.length : 0;
+    const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
+    
+    // Sentiment calculation
+    const sentimentWeights = {
+        'joy': 1, 'happiness': 1, 'excitement': 1, 'optimism': 0.8, 'gratitude': 0.9,
+        'sadness': -1, 'anger': -1, 'fear': -0.8, 'anxiety': -0.7, 'frustration': -0.9,
+        'neutral': 0, 'calm': 0.2
+    };
+    
+    const sentimentScore = normalizedEmotions.length > 0 ? 
+        normalizedEmotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
+    const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
+    
+    // Confidence range (top 3 emotions)
+    const top3 = normalizedEmotions.slice(0, 3);
+    const confidences = top3.map(e => e.confidence);
+    const minConf = confidences.length > 0 ? Math.min(...confidences) : 0;
+    const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
+    const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
+    
+    // Model details
+    const modelDetails = `Processed ${normalizedEmotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summaryData?.original_length || 0} characters.`;
+    
+    // Update DOM elements directly
+    const elements = {
+        'primaryEmotion': `${primaryEmotionName} (${primaryEmotionConfidence}%)`,
+        'emotionalIntensity': intensity,
+        'sentimentScore': `${sentimentLabel} (${sentimentScore.toFixed(2)})`,
+        'confidenceRange': confidenceRange,
+        'modelDetails': modelDetails
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            console.log(`✅ Updated ${id}: ${value}`);
+        } else {
+            console.error(`❌ Element not found: ${id}`);
+        }
+    });
+    
+    console.log('✅ Direct update completed');
 }
 
 // Make the function globally available

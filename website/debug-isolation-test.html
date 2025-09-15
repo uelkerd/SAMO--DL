@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isolation Debug Test</title>
+    <style>
+        body { 
+            background: #1a1a2e; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 10px; 
+        }
+        .model-detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .model-detail-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .model-detail-value {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+        button { 
+            background: #6366f1; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #4f46e5; }
+        #emotionChart { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            min-height: 200px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 ISOLATION DEBUG TEST</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct Function Call</h2>
+        <button onclick="testDirectFunction()">Test displayDetailedModelAnalysis</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: DOM Elements Check</h2>
+        <button onclick="testDOMElements()">Check DOM Elements</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Chart Creation</h2>
+        <button onclick="testChartCreation()">Test Chart Creation</button>
+        <div id="emotionChart"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Detailed Model Analysis (Manual)</h2>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Primary Emotion</div>
+            <div class="model-detail-value" id="primaryEmotion">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Emotional Intensity</div>
+            <div class="model-detail-value" id="emotionalIntensity">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Sentiment Score</div>
+            <div class="model-detail-value" id="sentimentScore">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Confidence Range</div>
+            <div class="model-detail-value" id="confidenceRange">-</div>
+        </div>
+        <div class="model-detail-card">
+            <div class="model-detail-label">Model Processing Details</div>
+            <div class="model-detail-value" id="modelDetails">-</div>
+        </div>
+        <button onclick="testManualUpdate()">Update Manually</button>
+    </div>
+
+    <script>
+        // Test 1: Direct Function Call
+        function testDirectFunction() {
+            console.log('🧪 Testing direct function call...');
+            const mockEmotions = {
+                emotions: [
+                    { emotion: 'joy', confidence: 0.85 },
+                    { emotion: 'excitement', confidence: 0.72 },
+                    { emotion: 'optimism', confidence: 0.68 }
+                ]
+            };
+            const mockSummary = { original_length: 150, summary_length: 45 };
+            
+            if (typeof window.displayDetailedModelAnalysis === 'function') {
+                console.log('✅ Function exists, calling it...');
+                window.displayDetailedModelAnalysis(mockEmotions, mockSummary);
+                document.getElementById('test1-result').innerHTML = '✅ Function called successfully - check console for details';
+            } else {
+                console.log('❌ Function does not exist');
+                document.getElementById('test1-result').innerHTML = '❌ Function does not exist';
+            }
+        }
+        
+        // Test 2: DOM Elements Check
+        function testDOMElements() {
+            console.log('🧪 Testing DOM elements...');
+            const elements = [
+                'primaryEmotion', 'emotionalIntensity', 'sentimentScore', 
+                'confidenceRange', 'modelDetails'
+            ];
+            
+            let result = '<h3>DOM Elements Status:</h3>';
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                const exists = !!el;
+                result += `<p>${id}: ${exists ? '✅ Found' : '❌ Missing'}</p>`;
+                console.log(`${id}: ${exists ? 'Found' : 'Missing'}`);
+            });
+            
+            document.getElementById('test2-result').innerHTML = result;
+        }
+        
+        // Test 3: Chart Creation
+        function testChartCreation() {
+            console.log('🧪 Testing chart creation...');
+            const mockEmotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'excitement', confidence: 0.72 },
+                { emotion: 'optimism', confidence: 0.68 }
+            ];
+            
+            // Simple HTML chart
+            const container = document.getElementById('emotionChart');
+            if (container) {
+                let chartHTML = '<h3>📊 Emotion Chart (Simple HTML)</h3>';
+                mockEmotions.forEach(emotion => {
+                    const percentage = Math.round(emotion.confidence * 100);
+                    chartHTML += `
+                        <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${emotion.emotion}</span>
+                                <span>${percentage}%</span>
+                            </div>
+                            <div style="background: #333; height: 20px; border-radius: 10px; margin-top: 5px;">
+                                <div style="background: linear-gradient(90deg, #6366f1, #8b5cf6); height: 100%; width: ${percentage}%; border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = chartHTML;
+                console.log('✅ Chart created successfully');
+            } else {
+                console.log('❌ Chart container not found');
+            }
+        }
+        
+        // Test 4: Manual Update
+        function testManualUpdate() {
+            console.log('🧪 Testing manual update...');
+            document.getElementById('primaryEmotion').textContent = 'joy (85%)';
+            document.getElementById('emotionalIntensity').textContent = 'High';
+            document.getElementById('sentimentScore').textContent = 'Positive (2.1)';
+            document.getElementById('confidenceRange').textContent = '68% - 85%';
+            document.getElementById('modelDetails').textContent = 'Test data - 3 emotions processed';
+            console.log('✅ Manual update completed');
+        }
+        
+        // Load the main demo functions
+        window.addEventListener('load', () => {
+            console.log('🔍 Loading main demo functions...');
+            
+            // Load the comprehensive demo script
+            const script = document.createElement('script');
+            script.src = 'js/comprehensive-demo-new.js';
+            script.onload = () => {
+                console.log('✅ Main demo script loaded');
+                document.getElementById('test1-result').innerHTML = '✅ Main demo script loaded - ready for testing';
+            };
+            script.onerror = () => {
+                console.log('❌ Failed to load main demo script');
+                document.getElementById('test1-result').innerHTML = '❌ Failed to load main demo script';
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
