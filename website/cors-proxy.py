@@ -19,6 +19,20 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         self.end_headers()
     
+    def do_GET(self):
+        # Handle GET requests (fallback)
+        if self.path == '/emotion':
+            self.send_response(405)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            response = json.dumps({"error": "Method not allowed. Use POST instead."})
+            self.wfile.write(response.encode())
+        else:
+            self.send_response(404)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+    
     def do_POST(self):
         if self.path == '/emotion':
             try:
