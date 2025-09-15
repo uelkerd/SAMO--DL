@@ -260,13 +260,16 @@ function testWithRealAPI() {
         console.log('📝 Text length:', testText.length);
         console.log('📝 Text hash:', testText.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
         console.log('🕐 Timestamp:', new Date().toISOString());
-        fetch('https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text=' + encodeURIComponent(testText), {
-            method: 'GET',
+        fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            }
+            },
+            body: JSON.stringify({
+                text: testText
+            })
         })
         .then(response => {
             if (!response.ok) {
