@@ -15,6 +15,118 @@ class ChartUtils {
             return false;
         }
 
+        // Try Highcharts first if available
+        if (typeof Highcharts !== 'undefined') {
+            return this.createHighchartsEmotionChart(containerId, emotions);
+        }
+
+        // Fallback to pure HTML/CSS charts
+        return this.createHTMLCSSEmotionChart(containerId, emotions);
+    }
+
+    createHighchartsEmotionChart(containerId, emotions) {
+        console.log('Creating Highcharts emotion chart');
+        const container = document.getElementById(containerId);
+        
+        // Sort emotions by confidence
+        const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
+        
+        const chartData = sortedEmotions.map(emotion => ({
+            name: emotion.emotion,
+            y: Math.round(emotion.confidence * 100),
+            color: this.getEmotionColor(emotion.emotion)
+        }));
+
+        Highcharts.chart(containerId, {
+            chart: {
+                type: 'bar',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: 16,
+                style: {
+                    fontFamily: 'Inter, system-ui, sans-serif'
+                }
+            },
+            title: {
+                text: '📊 Emotion Analysis',
+                style: {
+                    color: '#fbbf24',
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold'
+                }
+            },
+            subtitle: {
+                text: 'Confidence levels for detected emotions',
+                style: {
+                    color: '#cbd5e1',
+                    fontSize: '0.9rem'
+                }
+            },
+            xAxis: {
+                categories: sortedEmotions.map(e => e.emotion),
+                labels: {
+                    style: {
+                        color: '#f1f5f9',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Confidence (%)',
+                    style: {
+                        color: '#cbd5e1'
+                    }
+                },
+                labels: {
+                    style: {
+                        color: '#cbd5e1'
+                    }
+                },
+                gridLineColor: 'rgba(255, 255, 255, 0.1)'
+            },
+            series: [{
+                name: 'Emotion Confidence',
+                data: chartData,
+                dataLabels: {
+                    enabled: true,
+                    format: '{y}%',
+                    style: {
+                        color: '#a855f7',
+                        fontWeight: 'bold'
+                    }
+                }
+            }],
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 8,
+                    borderWidth: 0,
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            },
+            credits: {
+                enabled: false
+            }
+        });
+
+        // Store reference for cleanup
+        this.charts[containerId] = {
+            type: 'emotion',
+            container: container,
+            chart: Highcharts.charts[Highcharts.charts.length - 1]
+        };
+
+        return true;
+    }
+
+    createHTMLCSSEmotionChart(containerId, emotions) {
+        console.log('Creating HTML/CSS emotion chart');
+        const container = document.getElementById(containerId);
+
         // Sort emotions by confidence
         const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
         
@@ -73,6 +185,116 @@ class ChartUtils {
             return false;
         }
 
+        // Try Highcharts first if available
+        if (typeof Highcharts !== 'undefined') {
+            return this.createHighchartsSummaryChart(containerId, summaryData);
+        }
+
+        // Fallback to pure HTML/CSS charts
+        return this.createHTMLCSSSummaryChart(containerId, summaryData);
+    }
+
+    createHighchartsSummaryChart(containerId, summaryData) {
+        console.log('Creating Highcharts summary chart');
+        const container = document.getElementById(containerId);
+        
+        const originalLength = Number(summaryData?.original_length ?? 0);
+        const summaryLength = Number(summaryData?.summary_length ?? 0);
+        const compressionRatio = originalLength > 0 ? Math.round((1 - summaryLength / originalLength) * 100) : 0;
+
+        Highcharts.chart(containerId, {
+            chart: {
+                type: 'column',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: 16,
+                style: {
+                    fontFamily: 'Inter, system-ui, sans-serif'
+                }
+            },
+            title: {
+                text: '📝 Text Compression',
+                style: {
+                    color: '#fbbf24',
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold'
+                }
+            },
+            subtitle: {
+                text: `Compression: ${compressionRatio}%`,
+                style: {
+                    color: '#cbd5e1',
+                    fontSize: '0.9rem'
+                }
+            },
+            xAxis: {
+                categories: ['Original Text', 'Summary'],
+                labels: {
+                    style: {
+                        color: '#f1f5f9',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Word Count',
+                    style: {
+                        color: '#cbd5e1'
+                    }
+                },
+                labels: {
+                    style: {
+                        color: '#cbd5e1'
+                    }
+                },
+                gridLineColor: 'rgba(255, 255, 255, 0.1)'
+            },
+            series: [{
+                name: 'Word Count',
+                data: [
+                    { name: 'Original Text', y: originalLength, color: '#3b82f6' },
+                    { name: 'Summary', y: summaryLength, color: '#10b981' }
+                ],
+                dataLabels: {
+                    enabled: true,
+                    format: '{y} words',
+                    style: {
+                        color: '#cbd5e1',
+                        fontWeight: 'bold'
+                    }
+                }
+            }],
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                column: {
+                    borderRadius: 8,
+                    borderWidth: 0,
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            },
+            credits: {
+                enabled: false
+            }
+        });
+
+        // Store reference for cleanup
+        this.charts[containerId] = {
+            type: 'summary',
+            container: container,
+            chart: Highcharts.charts[Highcharts.charts.length - 1]
+        };
+
+        return true;
+    }
+
+    createHTMLCSSSummaryChart(containerId, summaryData) {
+        console.log('Creating HTML/CSS summary chart');
+        const container = document.getElementById(containerId);
+        
         const originalLength = Number(summaryData?.original_length ?? 0);
         const summaryLength = Number(summaryData?.summary_length ?? 0);
         const compressionRatio = originalLength > 0 ? Math.round((1 - summaryLength / originalLength) * 100) : 0;
@@ -148,6 +370,11 @@ class ChartUtils {
 
     destroyChart(containerId) {
         if (this.charts[containerId]) {
+            // Destroy Highcharts chart if it exists
+            if (this.charts[containerId].chart && typeof this.charts[containerId].chart.destroy === 'function') {
+                this.charts[containerId].chart.destroy();
+            }
+            // Clear container
             this.charts[containerId].container.innerHTML = '';
             delete this.charts[containerId];
         }
