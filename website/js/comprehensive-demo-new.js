@@ -68,7 +68,7 @@ class ComprehensiveDemo {
                 } catch (error) {
                     console.error('Emotion detection failed:', error);
                     this.uiController.updateProgressStep('step3', 'error');
-                    throw new Error('Emotion detection failed. Please try again.');
+                    // Continue without emotion detection - don't throw error
                 }
             }
 
