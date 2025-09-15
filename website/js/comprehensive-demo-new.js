@@ -144,19 +144,28 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🚀 Initializing SAMO Demo...');
         
-        // Debug Font Awesome loading
-        console.log('🔍 Checking Font Awesome...');
-        const testIcon = document.createElement('i');
-        testIcon.className = 'fas fa-check';
+        // Debug Material Icons loading
+        console.log('🔍 Checking Material Icons...');
+        const testIcon = document.createElement('span');
+        testIcon.className = 'material-icons';
+        testIcon.textContent = 'check';
         document.body.appendChild(testIcon);
         const computedStyle = window.getComputedStyle(testIcon);
-        console.log('Font Awesome computed style:', computedStyle.fontFamily);
-        if (computedStyle.fontFamily.includes('Font Awesome')) {
-            console.log('✅ Font Awesome is loaded correctly');
+        console.log('Material Icons computed style:', computedStyle.fontFamily);
+        if (computedStyle.fontFamily.includes('Material Icons')) {
+            console.log('✅ Material Icons are loaded correctly');
         } else {
-            console.warn('⚠️ Font Awesome may not be loaded properly');
+            console.warn('⚠️ Material Icons may not be loaded properly');
         }
         document.body.removeChild(testIcon);
+        
+        // Debug Chart.js loading
+        console.log('🔍 Checking Chart.js...');
+        if (typeof Chart !== 'undefined') {
+            console.log('✅ Chart.js is loaded correctly');
+        } else {
+            console.error('❌ Chart.js is not loaded');
+        }
 
         // Bind clear button
         const clearBtn = document.getElementById('clearBtn');

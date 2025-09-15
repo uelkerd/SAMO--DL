@@ -23,9 +23,9 @@ class ChartUtils {
 
         // Check if Chart.js is available
         if (typeof Chart === 'undefined') {
-            console.warn('Chart.js not available, chart creation will fail');
+            console.error('Chart.js library not loaded');
             // Show error message
-            canvas.parentElement.innerHTML = '<p style="color: #ef4444;">Chart.js library not loaded</p>';
+            canvas.parentElement.innerHTML = '<p style="color: #f59e0b; text-align: center; padding: 20px;">Chart.js library not loaded. Please refresh the page.</p>';
             return false;
         }
 
