@@ -542,18 +542,40 @@ class ComprehensiveDemo {
     }
 
     updateProcessingInfo(results) {
-        document.getElementById('totalTime').textContent = `${results.processingTime}ms`;
+        // Format processing time for better readability
+        const formatProcessingTime = (ms) => {
+            if (ms >= 1000) {
+                return `${(ms / 1000).toFixed(2)}s`;
+            }
+            return `${ms}ms`;
+        };
+        document.getElementById('totalTime').textContent = formatProcessingTime(results.processingTime);
         document.getElementById('processingStatus').textContent = 'Success';
         document.getElementById('processingStatus').className = 'text-success';
         document.getElementById('modelsUsed').textContent = results.modelsUsed.join(', ');
         
-        // Calculate average confidence
-        if (results.emotions && Array.isArray(results.emotions)) {
-            const avgConfidence = results.emotions.length > 0
-                ? results.emotions.reduce((sum, e) => sum + (e.confidence || e.score || 0), 0) / results.emotions.length
-                : 0;
+        // Calculate average confidence - handle different response formats
+        const normalizeEmotions = (emotions) => {
+            // Handle different API response formats
+            if (Array.isArray(emotions)) {
+                return emotions;
+            } else if (emotions && Array.isArray(emotions.emotions)) {
+                return emotions.emotions;
+            } else if (emotions && Array.isArray(emotions.predictions)) {
+                return emotions.predictions;
+            } else if (emotions && Array.isArray(emotions.scores)) {
+                return emotions.scores;
+            }
+            return [];
+        };
+
+        const normalizedEmotions = normalizeEmotions(results.emotions);
+        if (normalizedEmotions.length > 0) {
+            const avgConfidence = normalizedEmotions.reduce((sum, e) => sum + (e.confidence || e.score || 0), 0) / normalizedEmotions.length;
             document.getElementById('avgConfidence').textContent = 
                 `${Math.round(avgConfidence * 100)}%`;
+        } else {
+            document.getElementById('avgConfidence').textContent = 'N/A';
         }
     }
 
