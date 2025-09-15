@@ -7,6 +7,7 @@ class UIController {
         this.initializeElements();
         this.setupEventListeners();
         this.errorMsgEl = null;
+        this.chartUtils = new ChartUtils();
     }
 
     initializeElements() {
@@ -21,9 +22,15 @@ class UIController {
         
         // Result elements
         this.resultSection = document.getElementById('resultSection');
-        this.transcriptionResult = document.getElementById('transcriptionResult');
-        this.summaryResult = document.getElementById('summaryResult');
-        this.emotionResult = document.getElementById('emotionResult');
+        this.transcriptionResults = document.getElementById('transcriptionResults');
+        this.summarizationResults = document.getElementById('summarizationResults');
+        this.emotionResults = document.getElementById('emotionResults');
+        
+        // Individual result containers
+        this.transcriptionText = document.getElementById('transcriptionText');
+        this.summaryText = document.getElementById('summaryText');
+        this.emotionBadges = document.getElementById('emotionBadges');
+        this.emotionDetails = document.getElementById('emotionDetails');
     }
 
     setupEventListeners() {
@@ -102,16 +109,22 @@ class UIController {
         
         // Calculate average confidence
         let avgConfidence = 0;
-        if (results.emotions && Array.isArray(results.emotions)) {
-            // Handle array format
-            avgConfidence = results.emotions.reduce((sum, e) => 
-                sum + (e.confidence || e.score || 0), 0) / results.emotions.length;
-        } else if (results.emotions && results.emotions.confidence) {
-            // Handle object format with confidence property
-            avgConfidence = results.emotions.confidence;
-        } else if (results.emotions && results.emotions.emotion_analysis && results.emotions.emotion_analysis.confidence) {
-            // Handle nested emotion_analysis format
-            avgConfidence = results.emotions.emotion_analysis.confidence;
+        if (results.emotions) {
+            if (Array.isArray(results.emotions)) {
+                // Handle array format
+                avgConfidence = results.emotions.reduce((sum, e) => 
+                    sum + (e.confidence || e.score || 0), 0) / results.emotions.length;
+            } else if (results.emotions.emotions && Array.isArray(results.emotions.emotions)) {
+                // Handle object with emotions array
+                avgConfidence = results.emotions.emotions.reduce((sum, e) => 
+                    sum + (e.confidence || e.score || 0), 0) / results.emotions.emotions.length;
+            } else if (results.emotions.confidence) {
+                // Handle object format with confidence property
+                avgConfidence = results.emotions.confidence;
+            } else if (results.emotions.emotion_analysis && results.emotions.emotion_analysis.confidence) {
+                // Handle nested emotion_analysis format
+                avgConfidence = results.emotions.emotion_analysis.confidence;
+            }
         }
         
         if (avgConfidence > 0) {
@@ -130,89 +143,35 @@ class UIController {
     }
 
     showTranscriptionResults(transcription) {
-        const content = document.createElement('div');
-        content.className = 'result-content';
+        // Show the transcription results section
+        this.transcriptionResults.style.display = 'block';
         
-        const title = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = 'Transcribed Text:';
-        title.appendChild(strong);
-        content.appendChild(title);
+        // Update the transcription text
+        this.transcriptionText.textContent = transcription.text || 'No transcription available';
         
-        const text = document.createElement('p');
-        text.textContent = transcription.text;
-        content.appendChild(text);
+        // Update confidence and duration
+        const confidence = ((transcription.confidence || 0) * 100).toFixed(1);
+        const duration = transcription.duration || 'N/A';
         
-        const stats = document.createElement('div');
-        stats.className = 'transcription-stats';
-        const statsText = document.createElement('small');
-        statsText.className = 'text-muted';
-        statsText.textContent = `Duration: ${transcription.duration || 'N/A'} | Confidence: ${((transcription.confidence || 0) * 100).toFixed(1)}% | Language: ${transcription.language || 'en'}`;
-        stats.appendChild(statsText);
-        content.appendChild(stats);
-        
-        this.transcriptionResult.textContent = '';
-        this.transcriptionResult.appendChild(content);
+        document.getElementById('transcriptionConfidence').textContent = `${confidence}%`;
+        document.getElementById('transcriptionDuration').textContent = duration;
     }
 
     showSummaryResults(summary) {
-        const content = document.createElement('div');
-        content.className = 'result-content';
+        // Show the summarization results section
+        this.summarizationResults.style.display = 'block';
         
-        const title = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = 'Summary:';
-        title.appendChild(strong);
-        content.appendChild(title);
+        // Update the summary text
+        this.summaryText.textContent = summary.summary || 'No summary available';
         
-        const summaryContent = document.createElement('div');
-        summaryContent.className = 'summary-content';
-        const summaryText = document.createElement('p');
-        summaryText.textContent = summary.summary;
-        summaryContent.appendChild(summaryText);
-        content.appendChild(summaryContent);
-        
-        const stats = document.createElement('div');
-        stats.className = 'summary-stats';
-        
-        const statsData = [
-            { value: summary.original_length, label: 'Original Length' },
-            { value: summary.summary_length, label: 'Summary Length' },
-            { value: summary.compression_ratio, label: 'Compression Ratio' }
-        ];
-        
-        statsData.forEach(stat => {
-            const statItem = document.createElement('div');
-            statItem.className = 'stat-item';
-            
-            const statValue = document.createElement('div');
-            statValue.className = 'stat-value';
-            statValue.textContent = stat.value;
-            statItem.appendChild(statValue);
-            
-            const statLabel = document.createElement('div');
-            statLabel.className = 'stat-label';
-            statLabel.textContent = stat.label;
-            statItem.appendChild(statLabel);
-            
-            stats.appendChild(statItem);
-        });
-        
-        content.appendChild(stats);
-        
-        this.summaryResult.textContent = '';
-        this.summaryResult.appendChild(content);
+        // Update length statistics
+        document.getElementById('originalLength').textContent = summary.original_length || '0';
+        document.getElementById('summaryLength').textContent = summary.summary_length || '0';
     }
 
     showEmotionResults(emotions) {
-        const content = document.createElement('div');
-        content.className = 'result-content';
-        
-        const title = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = 'Detected Emotions:';
-        title.appendChild(strong);
-        content.appendChild(title);
+        // Show the emotion results section
+        this.emotionResults.style.display = 'block';
         
         // Handle different response formats
         let emotionData = [];
@@ -236,28 +195,74 @@ class UIController {
             confidence: emotion.confidence || emotion.score || 0
         }));
         
-        normalizedEmotions.forEach(emotion => {
-            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
+        // Sort by confidence (highest first) and take top 5
+        const topEmotions = normalizedEmotions
+            .sort((a, b) => b.confidence - a.confidence)
+            .slice(0, 5);
+        
+        // Clear previous content
+        this.emotionBadges.innerHTML = '';
+        this.emotionDetails.innerHTML = '';
+        
+        // Create emotion badges
+        topEmotions.forEach(emotion => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100;
             const emotionName = emotion.emotion || 'Unknown';
             
-            const emotionItem = document.createElement('div');
-            emotionItem.className = 'emotion-item';
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary me-2 mb-2';
+            badge.style.fontSize = '0.9rem';
+            badge.innerHTML = `${emotionName} <small>(${confidence.toFixed(1)}%)</small>`;
             
-            const emotionNameSpan = document.createElement('span');
-            emotionNameSpan.className = 'emotion-name';
-            emotionNameSpan.textContent = emotionName;
-            emotionItem.appendChild(emotionNameSpan);
-            
-            const emotionConfidence = document.createElement('span');
-            emotionConfidence.className = 'emotion-confidence';
-            emotionConfidence.textContent = `${confidence.toFixed(1)}%`;
-            emotionItem.appendChild(emotionConfidence);
-            
-            content.appendChild(emotionItem);
+            this.emotionBadges.appendChild(badge);
         });
         
-        this.emotionResult.textContent = '';
-        this.emotionResult.appendChild(content);
+        // Create detailed emotion list
+        const detailsList = document.createElement('div');
+        detailsList.className = 'emotion-details-list';
+        
+        topEmotions.forEach((emotion, index) => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100;
+            const emotionName = emotion.emotion || 'Unknown';
+            
+            const detailItem = document.createElement('div');
+            detailItem.className = 'd-flex justify-content-between align-items-center mb-2';
+            
+            const emotionLabel = document.createElement('span');
+            emotionLabel.textContent = emotionName;
+            emotionLabel.className = 'fw-medium';
+            
+            const confidenceBar = document.createElement('div');
+            confidenceBar.className = 'progress flex-grow-1 mx-3';
+            confidenceBar.style.height = '8px';
+            
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar bg-primary';
+            progressBar.style.width = `${confidence}%`;
+            progressBar.setAttribute('role', 'progressbar');
+            progressBar.setAttribute('aria-valuenow', confidence);
+            progressBar.setAttribute('aria-valuemin', '0');
+            progressBar.setAttribute('aria-valuemax', '100');
+            
+            confidenceBar.appendChild(progressBar);
+            
+            const confidenceText = document.createElement('small');
+            confidenceText.className = 'text-muted';
+            confidenceText.textContent = `${confidence.toFixed(1)}%`;
+            
+            detailItem.appendChild(emotionLabel);
+            detailItem.appendChild(confidenceBar);
+            detailItem.appendChild(confidenceText);
+            
+            detailsList.appendChild(detailItem);
+        });
+        
+        this.emotionDetails.appendChild(detailsList);
+        
+        // Update the emotion chart if available
+        if (this.chartUtils && this.chartUtils.createEmotionChart) {
+            this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+        }
     }
 
     escapeHtml(text) {

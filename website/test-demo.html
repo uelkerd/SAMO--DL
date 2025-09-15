@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Test - SAMO Deep Learning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <h1>SAMO Demo Test Page</h1>
+    
+    <div class="test-container">
+        <h2>Test 1: Mock Emotion Detection</h2>
+        <p>This test verifies that the emotion detection display works with mock data.</p>
+        <button class="test-button" onclick="testEmotionDetection()">Test Emotion Detection</button>
+        <div id="emotionResult" class="result" style="display: none;"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test 2: Mock Text Summarization</h2>
+        <p>This test verifies that the text summarization display works with mock data.</p>
+        <button class="test-button" onclick="testTextSummarization()">Test Text Summarization</button>
+        <div id="summaryResult" class="result" style="display: none;"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test 3: Complete Workflow</h2>
+        <p>This test simulates the complete workflow with mock data.</p>
+        <button class="test-button" onclick="testCompleteWorkflow()">Test Complete Workflow</button>
+        <div id="workflowResult" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- Include the same scripts as the main demo -->
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/chart-utils.js"></script>
+    <script src="js/comprehensive-demo-new.js"></script>
+
+    <script>
+        // Test functions
+        function testEmotionDetection() {
+            const resultDiv = document.getElementById('emotionResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Testing emotion detection...</p>';
+            
+            try {
+                const apiClient = new SAMOAPIClient();
+                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work.";
+                
+                apiClient.detectEmotions(mockText).then(emotions => {
+                    const uiController = new UIController();
+                    uiController.showEmotionResults(emotions);
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '<p>✅ Emotion detection test passed! Check the emotion results above.</p>';
+                }).catch(error => {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ Emotion detection test failed: ${error.message}</p>`;
+                });
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ Test setup failed: ${error.message}</p>`;
+            }
+        }
+        
+        function testTextSummarization() {
+            const resultDiv = document.getElementById('summaryResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Testing text summarization...</p>';
+            
+            try {
+                const apiClient = new SAMOAPIClient();
+                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work, and I've lost hours of progress. I've called IT support three times already and they keep giving me the same generic responses. I'm supposed to have this report ready by tomorrow but I can't even access my files properly. This is so annoying and I'm starting to lose my patience. I don't understand why they can't just fix this simple issue that's affecting everyone in the department.";
+                
+                apiClient.summarizeText(mockText).then(summary => {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <p>✅ Text summarization test passed!</p>
+                        <h4>Summary:</h4>
+                        <p>${summary.summary}</p>
+                        <p><strong>Original Length:</strong> ${summary.original_length} characters</p>
+                        <p><strong>Summary Length:</strong> ${summary.summary_length} characters</p>
+                        <p><strong>Compression Ratio:</strong> ${summary.compression_ratio}</p>
+                    `;
+                }).catch(error => {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ Text summarization test failed: ${error.message}</p>`;
+                });
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ Test setup failed: ${error.message}</p>`;
+            }
+        }
+        
+        function testCompleteWorkflow() {
+            const resultDiv = document.getElementById('workflowResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Testing complete workflow...</p>';
+            
+            try {
+                const demo = new ComprehensiveDemo();
+                const mockText = "I'm so frustrated with this situation. The system keeps crashing every time I try to save my work, and I've lost hours of progress. I've called IT support three times already and they keep giving me the same generic responses. I'm supposed to have this report ready by tomorrow but I can't even access my files properly. This is so annoying and I'm starting to lose my patience. I don't understand why they can't just fix this simple issue that's affecting everyone in the department.";
+                
+                demo.processCompleteWorkflow(null, mockText).then(() => {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '<p>✅ Complete workflow test passed! Check the results above.</p>';
+                }).catch(error => {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>❌ Complete workflow test failed: ${error.message}</p>`;
+                });
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>❌ Test setup failed: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
