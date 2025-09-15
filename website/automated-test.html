@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated SAMO Demo Test</title>
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-7FhYV9X1bBcZz6KzrAY5Zaw9Fwzb0RvZtqP8e0P/hHjXxO3tqoiKwdI0pNofy7f5" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .icon-test {
+            font-size: 2rem;
+            margin: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><span class="material-icons">science</span> Automated SAMO Demo Test</h1>
+        
+        <div class="icon-test">
+            <span class="material-icons">psychology</span>
+            <span class="material-icons">mic</span>
+            <span class="material-icons">description</span>
+            <span class="material-icons">bar_chart</span>
+            <span class="material-icons">check_circle</span>
+        </div>
+        
+        <p>This page automatically runs comprehensive tests for all SAMO Demo features.</p>
+        
+        <button class="test-button" onclick="runSAMOTests()">Run Tests Again</button>
+        
+        <div id="testOutput" class="test-output">
+            <div>🔄 Running automated tests...</div>
+            <div>Check the browser console for detailed test results.</div>
+        </div>
+    </div>
+
+    <!-- Include all required scripts -->
+    <script src="js/api-client.js"></script>
+    <script src="js/chart-utils.js"></script>
+    <script src="test-script.js"></script>
+
+    <script>
+        // Override console.log to also display in the page
+        const originalLog = console.log;
+        const originalError = console.error;
+        const testOutput = document.getElementById('testOutput');
+        
+        function addToOutput(message, type = 'log') {
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? '#ff6b6b' : '#4ade80';
+            div.textContent = message;
+            testOutput.appendChild(div);
+            testOutput.scrollTop = testOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToOutput(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToOutput(args.join(' '), 'error');
+        };
+        
+        // Clear the initial message when tests start
+        setTimeout(() => {
+            testOutput.innerHTML = '';
+        }, 1000);
+    </script>
+</body>
+</html>
