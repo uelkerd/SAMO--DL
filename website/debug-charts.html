@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Charts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/comprehensive-demo.css">
+</head>
+<body class="bg-dark text-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">🐛 Debug Charts</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Emotion Chart Debug</h3>
+                <div id="emotionChart" style="height: 300px; border: 2px solid red;"></div>
+                <button class="btn btn-primary mt-2" onclick="testEmotionChart()">Test Emotion Chart</button>
+            </div>
+            <div class="col-md-6">
+                <h3>Summary Chart Debug</h3>
+                <div id="summaryChart" style="height: 300px; border: 2px solid blue;"></div>
+                <button class="btn btn-success mt-2" onclick="testSummaryChart()">Test Summary Chart</button>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <button class="btn btn-warning" onclick="clearCharts()">Clear All Charts</button>
+            <button class="btn btn-info" onclick="testBothCharts()">Test Both Charts</button>
+        </div>
+        
+        <div class="mt-4">
+            <h4>Debug Log:</h4>
+            <div id="debugLog" style="background: #000; color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; height: 200px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script src="js/chart-utils.js"></script>
+    <script>
+        const chartUtils = new ChartUtils();
+        
+        function log(message) {
+            const debugLog = document.getElementById('debugLog');
+            debugLog.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+        
+        function testEmotionChart() {
+            log('🧪 Testing emotion chart...');
+            
+            const emotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'sadness', confidence: 0.12 },
+                { emotion: 'anger', confidence: 0.03 }
+            ];
+            
+            log('📊 Emotion data: ' + JSON.stringify(emotions));
+            
+            const container = document.getElementById('emotionChart');
+            log('📦 Container found: ' + (container ? 'YES' : 'NO'));
+            
+            const result = chartUtils.createEmotionChart('emotionChart', emotions);
+            log('✅ Emotion chart result: ' + result);
+            
+            // Check if content was added
+            const content = container.innerHTML;
+            log('📄 Container content length: ' + content.length);
+            if (content.length > 0) {
+                log('✅ Content added successfully!');
+            } else {
+                log('❌ No content added!');
+            }
+        }
+        
+        function testSummaryChart() {
+            log('🧪 Testing summary chart...');
+            
+            const summaryData = {
+                original_length: 150,
+                summary_length: 45
+            };
+            
+            log('📝 Summary data: ' + JSON.stringify(summaryData));
+            
+            const container = document.getElementById('summaryChart');
+            log('📦 Container found: ' + (container ? 'YES' : 'NO'));
+            
+            const result = chartUtils.createSummaryChart('summaryChart', summaryData);
+            log('✅ Summary chart result: ' + result);
+            
+            // Check if content was added
+            const content = container.innerHTML;
+            log('📄 Container content length: ' + content.length);
+            if (content.length > 0) {
+                log('✅ Content added successfully!');
+            } else {
+                log('❌ No content added!');
+            }
+        }
+        
+        function testBothCharts() {
+            log('🚀 Testing both charts...');
+            testEmotionChart();
+            setTimeout(() => {
+                testSummaryChart();
+            }, 1000);
+        }
+        
+        function clearCharts() {
+            log('🧹 Clearing all charts...');
+            document.getElementById('emotionChart').innerHTML = '';
+            document.getElementById('summaryChart').innerHTML = '';
+            chartUtils.destroyAllCharts();
+        }
+        
+        // Auto-test on load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🎯 Page loaded, starting debug...');
+            setTimeout(testBothCharts, 1000);
+        });
+    </script>
+</body>
+</html>

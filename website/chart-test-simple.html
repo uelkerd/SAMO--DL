@@ -33,6 +33,8 @@
         const chartUtils = new ChartUtils();
         
         function testCharts() {
+            console.log('🧪 Testing charts...');
+            
             // Test emotion chart
             const emotions = [
                 { emotion: 'joy', confidence: 0.85 },
@@ -40,7 +42,9 @@
                 { emotion: 'anger', confidence: 0.03 }
             ];
             
-            chartUtils.createEmotionChart('emotionChart', emotions);
+            console.log('📊 Creating emotion chart with data:', emotions);
+            const emotionResult = chartUtils.createEmotionChart('emotionChart', emotions);
+            console.log('Emotion chart result:', emotionResult);
             
             // Test summary chart
             const summaryData = {
@@ -48,7 +52,9 @@
                 summary_length: 45
             };
             
-            chartUtils.createSummaryChart('summaryChart', summaryData);
+            console.log('📝 Creating summary chart with data:', summaryData);
+            const summaryResult = chartUtils.createSummaryChart('summaryChart', summaryData);
+            console.log('Summary chart result:', summaryResult);
             
             console.log('✅ Charts created successfully!');
         }

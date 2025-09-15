@@ -15,12 +15,8 @@ class ChartUtils {
             return false;
         }
 
-        // Try Highcharts first if available
-        if (typeof Highcharts !== 'undefined') {
-            return this.createHighchartsEmotionChart(containerId, emotions);
-        }
-
-        // Fallback to pure HTML/CSS charts
+        // Force HTML/CSS charts for now to ensure they work
+        console.log('Using HTML/CSS emotion chart (forced)');
         return this.createHTMLCSSEmotionChart(containerId, emotions);
     }
 
@@ -185,12 +181,8 @@ class ChartUtils {
             return false;
         }
 
-        // Try Highcharts first if available
-        if (typeof Highcharts !== 'undefined') {
-            return this.createHighchartsSummaryChart(containerId, summaryData);
-        }
-
-        // Fallback to pure HTML/CSS charts
+        // Force HTML/CSS charts for now to ensure they work
+        console.log('Using HTML/CSS summary chart (forced)');
         return this.createHTMLCSSSummaryChart(containerId, summaryData);
     }
 
