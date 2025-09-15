@@ -32,6 +32,15 @@ body {
     min-height: 100vh;
 }
 
+/* Result sections */
+.result-section-hidden {
+    display: none !important;
+}
+
+.result-section-visible {
+    display: block !important;
+}
+
 /* Ensure all text is visible */
 .text-muted {
     color: #cbd5e1 !important;

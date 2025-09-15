@@ -144,7 +144,7 @@ class UIController {
 
     showTranscriptionResults(transcription) {
         // Show the transcription results section
-        this.transcriptionResults.style.display = 'block';
+        this.transcriptionResults.className = 'row mb-4 result-section-visible';
         
         // Update the transcription text
         this.transcriptionText.textContent = transcription.text || 'No transcription available';
@@ -158,8 +158,9 @@ class UIController {
     }
 
     showSummaryResults(summary) {
+        console.log('showSummaryResults called with:', summary);
         // Show the summarization results section
-        this.summarizationResults.style.display = 'block';
+        this.summarizationResults.className = 'row mb-4 result-section-visible';
         
         // Update the summary text
         this.summaryText.textContent = summary.summary || 'No summary available';
@@ -170,8 +171,9 @@ class UIController {
     }
 
     showEmotionResults(emotions) {
+        console.log('showEmotionResults called with:', emotions);
         // Show the emotion results section
-        this.emotionResults.style.display = 'block';
+        this.emotionResults.className = 'row mb-4 result-section-visible';
         
         // Handle different response formats
         let emotionData = [];
@@ -260,15 +262,18 @@ class UIController {
         this.emotionDetails.appendChild(detailsList);
         
         // Update the emotion chart if available
+        console.log('Creating emotion chart with data:', topEmotions);
         if (this.chartUtils && this.chartUtils.createEmotionChart) {
             try {
                 this.chartUtils.createEmotionChart('emotionChart', topEmotions);
+                console.log('Chart creation attempted');
             } catch (error) {
                 console.error('Chart creation failed:', error);
                 // Fallback: show a simple text representation
                 this.showEmotionChartFallback(topEmotions);
             }
         } else {
+            console.log('Chart utils not available, using fallback');
             // Fallback: show a simple text representation
             this.showEmotionChartFallback(topEmotions);
         }
