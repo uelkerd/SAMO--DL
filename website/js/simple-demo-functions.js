@@ -261,7 +261,7 @@ function testWithRealAPI() {
         console.log('📝 Text length:', testText.length);
         console.log('📝 Text hash:', testText.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
         console.log('🕐 Timestamp:', new Date().toISOString());
-        fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict?v=' + Date.now(), {
+        fetch('http://localhost:8081/emotion', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
