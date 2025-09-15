@@ -272,7 +272,13 @@ function testWithRealAPI() {
             })
         })
         .then(response => {
+            console.log('🔍 Response status:', response.status);
+            console.log('🔍 Response headers:', response.headers);
+            console.log('🔍 Response ok:', response.ok);
+            
             if (!response.ok) {
+                console.error('❌ API call failed with status:', response.status);
+                console.error('❌ Response status text:', response.statusText);
                 throw new Error(`API call failed: ${response.status} ${response.statusText}`);
             }
             return response.json();
