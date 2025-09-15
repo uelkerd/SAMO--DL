@@ -37,12 +37,20 @@ class ComprehensiveDemo {
                     this.uiController.updateProgressStep('step2', 'error');
                     // Continue without transcription - voice processing is currently unavailable
                 }
+            } else {
+                // No audio provided; mark step as completed for text-only flow
+                this.uiController.updateProgressStep('step1', 'completed');
             }
 
             // Step 2: Summarize text
             let currentText = text;
             if (results.transcription && results.transcription.text) {
                 currentText = results.transcription.text;
+            }
+            
+            // Validate that we have text to process
+            if (!audioFile && (!currentText || !currentText.trim())) {
+                throw new Error('Please provide audio or text to process.');
             }
 
             if (currentText) {
@@ -91,10 +99,83 @@ class ComprehensiveDemo {
     }
 }
 
+// Clear All functionality
+function clearAll() {
+    console.log('🧹 Clearing all inputs and results...');
+    
+    // Clear text input
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = '';
+    }
+    
+    // Clear audio file input
+    const audioFileInput = document.getElementById('audioFileInput');
+    if (audioFileInput) {
+        audioFileInput.value = '';
+    }
+    
+    // Hide results
+    const resultsSection = document.getElementById('resultsSection');
+    if (resultsSection) {
+        resultsSection.style.display = 'none';
+    }
+    
+    // Reset progress steps
+    const steps = ['step1', 'step2', 'step3', 'step4'];
+    steps.forEach(stepId => {
+        const step = document.getElementById(stepId);
+        if (step) {
+            step.className = 'progress-step-vertical';
+            const icon = document.getElementById(stepId + '-icon');
+            if (icon) {
+                icon.className = 'step-icon-small pending';
+            }
+        }
+    });
+    
+    console.log('✅ All inputs and results cleared');
+}
+
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🚀 Initializing SAMO Demo...');
+
+        // Bind clear button
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearAll);
+            console.log('✅ Clear button bound');
+        }
+
+        // Bind process button
+        const processBtn = document.getElementById('processBtn');
+        if (processBtn) {
+            processBtn.addEventListener('click', async function() {
+                console.log('🚀 Processing input...');
+                
+                const textInput = document.getElementById('textInput');
+                const audioFileInput = document.getElementById('audioFileInput');
+                
+                const text = textInput ? textInput.value.trim() : '';
+                const audioFile = audioFileInput ? audioFileInput.files[0] : null;
+                
+                if (!text && !audioFile) {
+                    alert('Please enter text or upload an audio file');
+                    return;
+                }
+                
+                try {
+                    const demo = new ComprehensiveDemo();
+                    await demo.processCompleteWorkflow(audioFile, text);
+                } catch (error) {
+                    console.error('Processing failed:', error);
+                    alert('Processing failed: ' + error.message);
+                }
+            });
+            console.log('✅ Process button bound');
+        }
 
         // Check dependencies first
         const deps = {
