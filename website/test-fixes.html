@@ -60,8 +60,12 @@
                 document.getElementById('summarizationTest').innerHTML = 
                     '<div class="success">✅ Summarization functions work correctly!</div>';
             } catch (error) {
-                document.getElementById('summarizationTest').innerHTML = 
-                    '<div class="error">❌ Summarization test failed: ' + error.message + '</div>';
+                const element = document.getElementById('summarizationTest');
+                element.innerHTML = '';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = '❌ Summarization test failed: ' + error.message;
+                element.appendChild(errorDiv);
             }
         }
         
@@ -79,8 +83,12 @@
                 document.getElementById('processingTest').innerHTML = 
                     '<div class="success">✅ Processing info functions work correctly!</div>';
             } catch (error) {
-                document.getElementById('processingTest').innerHTML = 
-                    '<div class="error">❌ Processing info test failed: ' + error.message + '</div>';
+                const element = document.getElementById('processingTest');
+                element.innerHTML = '';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = '❌ Processing info test failed: ' + error.message;
+                element.appendChild(errorDiv);
             }
         }
         
@@ -94,8 +102,12 @@
                 document.getElementById('completeTest').innerHTML = 
                     '<div class="success">✅ Complete flow test passed! Check the main demo page for results.</div>';
             } catch (error) {
-                document.getElementById('completeTest').innerHTML = 
-                    '<div class="error">❌ Complete flow test failed: ' + error.message + '</div>';
+                const element = document.getElementById('completeTest');
+                element.innerHTML = '';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = '❌ Complete flow test failed: ' + error.message;
+                element.appendChild(errorDiv);
             }
         }
         

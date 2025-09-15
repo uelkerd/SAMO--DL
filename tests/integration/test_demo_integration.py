@@ -375,8 +375,12 @@ class TestDemoPerformance:
     @staticmethod
     def _get_memory_usage():
         """Simulate memory usage tracking"""
-        import psutil
-        return psutil.Process().memory_info().rss
+        try:
+            import psutil
+            return psutil.Process().memory_info().rss
+        except ImportError:
+            import pytest
+            pytest.skip("psutil is not available in this environment")
     
     @staticmethod
     def _process_dataset(dataset):

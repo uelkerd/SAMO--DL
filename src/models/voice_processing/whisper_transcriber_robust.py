@@ -5,6 +5,9 @@ Fixes the voice model loading issues for production deployment
 """
 
 import logging
+import os
+import shutil
+import subprocess
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -145,14 +148,38 @@ class RobustWhisperTranscriber:
             logger.debug(f"Librosa duration extraction failed: {e}")
 
         try:
-            # Try with ffprobe
-            import subprocess
-            result = subprocess.run([
-                'ffprobe', '-v', 'quiet', '-show_entries', 'format=duration',
-                '-of', 'csv=p=0', str(audio_path)
-            ], capture_output=True, text=True, check=True)
-            if result.returncode == 0:
+            # Try with ffprobe - resolve binary path and use safe argument handling
+            ffprobe_path = shutil.which('ffprobe')
+            if not ffprobe_path:
+                logger.debug("FFprobe not found in PATH, skipping duration extraction")
+                return None
+            
+            # Build argv as list with safe filename handling
+            argv = [
+                ffprobe_path,
+                '-v', 'quiet',
+                '-show_entries', 'format=duration',
+                '-of', 'csv=p=0',
+                '-i', str(audio_path)  # Use -i flag to safely pass filename
+            ]
+            
+            result = subprocess.run(
+                argv,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=10  # 10 second timeout
+            )
+            
+            if result.returncode == 0 and result.stdout.strip():
                 return float(result.stdout.strip())
+                
+        except subprocess.TimeoutExpired:
+            logger.debug("FFprobe duration extraction timed out")
+        except subprocess.CalledProcessError as e:
+            logger.debug(f"FFprobe duration extraction failed with return code {e.returncode}: {e}")
+        except (ValueError, OSError) as e:
+            logger.debug(f"FFprobe duration extraction failed: {e}")
         except Exception as e:
             logger.debug(f"FFprobe duration extraction failed: {e}")
 

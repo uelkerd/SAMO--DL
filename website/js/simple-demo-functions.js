@@ -613,7 +613,16 @@ function createSummaryChart(summary) {
         return;
     }
     
-    const reduction = Math.round((1 - summary.summary_length / summary.original_length) * 100);
+    // Safe reduction calculation with proper validation
+    const summaryLen = Number(summary.summary_length);
+    const originalLen = Number(summary.original_length);
+    
+    // Calculate ratio safely, treating original_length <= 0 as no reduction
+    const ratio = Number.isFinite(originalLen) && originalLen > 0 
+        ? Math.max(0, Math.min(1, summaryLen / originalLen)) 
+        : 1; // No reduction if original length is invalid
+    
+    const reduction = Math.max(0, Math.min(100, Math.round((1 - ratio) * 100)));
     
     let chartHTML = '<div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 10px 0;">';
     chartHTML += '<h6 style="text-align: center; margin-bottom: 20px; color: white;">📝 Text Summarization Analysis</h6>';
@@ -636,9 +645,11 @@ function createSummaryChart(summary) {
         </div>
     `;
     
-    // Length comparison bars
+    // Length comparison bars - safe width calculation
     const originalWidth = 100;
-    const summaryWidth = (summary.summary_length / summary.original_length) * 100;
+    const summaryWidth = Number.isFinite(originalLen) && originalLen > 0 
+        ? Math.max(0, Math.min(100, (summaryLen / originalLen) * 100))
+        : 0; // No width if original length is invalid
     
     chartHTML += `
         <div style="margin-bottom: 20px;">
