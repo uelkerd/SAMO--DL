@@ -284,58 +284,46 @@ class SAMOAPIClient {
         // Extract sentences for analysis
         const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
         
-        // Paraphrase each sentence into a summary
-        const paraphrasedSentences = sentences.map(sentence => {
-            const trimmed = sentence.trim();
-            
-            // Paraphrase patterns for common emotional expressions
-            let paraphrased = trimmed
-                // Excitement and happiness
-                .replace(/\bI am so excited and happy today\b/gi, 'I feel thrilled and joyful')
-                .replace(/\bThis is such wonderful news\b/gi, 'This is fantastic news')
-                .replace(/\bI feel optimistic about the future\b/gi, 'I have a positive outlook')
-                .replace(/\bI can't wait to see what amazing opportunities await us\b/gi, 'I eagerly anticipate the great possibilities ahead')
-                
-                // Challenges and confidence
-                .replace(/\bI'm also a bit nervous about the challenges ahead\b/gi, 'I have some concerns about upcoming difficulties')
-                .replace(/\bbut I'm confident we can overcome them together\b/gi, 'but I believe we can work through them as a team')
-                
-                // General paraphrasing patterns
-                .replace(/\bI am\b/gi, 'I feel')
-                .replace(/\bso excited\b/gi, 'thrilled')
-                .replace(/\band happy\b/gi, 'and joyful')
-                .replace(/\btoday\b/gi, 'right now')
-                .replace(/\bThis is such\b/gi, 'This represents')
-                .replace(/\bwonderful\b/gi, 'fantastic')
-                .replace(/\bnews\b/gi, 'information')
-                .replace(/\band I feel\b/gi, 'and I have')
-                .replace(/\boptimistic\b/gi, 'positive')
-                .replace(/\babout the future\b/gi, 'looking ahead')
-                .replace(/\bI can't wait\b/gi, 'I eagerly anticipate')
-                .replace(/\bto see what\b/gi, 'the')
-                .replace(/\bamazing\b/gi, 'incredible')
-                .replace(/\bopportunities\b/gi, 'possibilities')
-                .replace(/\bawait us\b/gi, 'ahead')
-                .replace(/\bHowever\b/gi, 'On the other hand')
-                .replace(/\bI'm also\b/gi, 'I also have')
-                .replace(/\ba bit\b/gi, 'some')
-                .replace(/\bnervous\b/gi, 'concerned')
-                .replace(/\babout the\b/gi, 'regarding the')
-                .replace(/\bchallenges\b/gi, 'difficulties')
-                .replace(/\bahead\b/gi, 'we face')
-                .replace(/\bbut\b/gi, 'however')
-                .replace(/\bconfident\b/gi, 'certain')
-                .replace(/\bwe can\b/gi, 'we will be able to')
-                .replace(/\bovercome\b/gi, 'work through')
-                .replace(/\bthem\b/gi, 'these issues')
-                .replace(/\btogether\b/gi, 'as a team');
-            
-            return paraphrased;
-        });
+        // Convert to third-person narrative summary
+        let summary = '';
         
-        // Select the most important sentences (first 2-3) and create summary
-        const summaryLength = Math.min(3, Math.max(2, Math.ceil(sentences.length * 0.4)));
-        const summary = paraphrasedSentences.slice(0, summaryLength).join(' ').trim();
+        // Analyze the overall sentiment and key themes
+        const hasExcitement = /excited|happy|thrilled|wonderful|amazing|optimistic/i.test(text);
+        const hasConcerns = /nervous|challenges|difficulties|concerned/i.test(text);
+        const hasConfidence = /confident|believe|can overcome|together/i.test(text);
+        const hasFuture = /future|opportunities|ahead|await/i.test(text);
+        
+        // Build third-person summary based on detected themes
+        const summaryParts = [];
+        
+        if (hasExcitement) {
+            summaryParts.push('The individual expresses strong positive emotions and enthusiasm');
+        }
+        
+        if (hasFuture) {
+            summaryParts.push('about upcoming opportunities and future prospects');
+        }
+        
+        if (hasConcerns) {
+            summaryParts.push('while acknowledging some apprehension about potential challenges');
+        }
+        
+        if (hasConfidence) {
+            summaryParts.push('but maintains confidence in their ability to work through difficulties collaboratively');
+        }
+        
+        // Create the final summary
+        if (summaryParts.length > 0) {
+            summary = summaryParts.join(' ') + '.';
+        } else {
+            // Fallback for generic text
+            summary = 'The text expresses a mix of emotions and thoughts about current circumstances and future outlook.';
+        }
+        
+        // Ensure summary is not too long
+        if (summary.length > text.length * 0.6) {
+            summary = 'The individual shares their emotional state and perspective on current and future situations.';
+        }
         
         return {
             summary: summary,
