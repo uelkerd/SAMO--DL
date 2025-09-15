@@ -20,5 +20,5 @@ ENV PYTHONUNBUFFERED=1
 # Expose port
 EXPOSE 8080
 
-# Run the API
-CMD ["python", "src/unified_ai_api.py"]
+# Run the minimal unified API
+CMD ["python", "src/minimal_unified_api.py"]
