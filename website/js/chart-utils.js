@@ -120,44 +120,39 @@ class ChartUtils {
     }
 
     createHTMLCSSEmotionChart(containerId, emotions) {
-        console.log('Creating HTML/CSS emotion chart');
+        console.log('Creating SIMPLE HTML/CSS emotion chart');
         const container = document.getElementById(containerId);
 
         // Sort emotions by confidence
         const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
         
-        // Create the chart HTML with much better styling
+        // Create SIMPLE chart HTML that will definitely work
         let chartHTML = `
-            <div class="emotion-chart-container">
-                <div class="chart-header">
-                    <h5 class="chart-title">📊 Emotion Analysis</h5>
-                    <div class="chart-subtitle">Confidence levels for detected emotions</div>
-                </div>
-                <div class="emotion-bars">
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 20px; margin: 10px 0; border: 1px solid rgba(255, 255, 255, 0.2);">
+                <h5 style="color: #fbbf24; text-align: center; margin-bottom: 20px;">📊 Emotion Analysis</h5>
+                <div style="color: #cbd5e1; text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Confidence levels for detected emotions</div>
         `;
         
         sortedEmotions.forEach((emotion, index) => {
             const percentage = Math.round(emotion.confidence * 100);
             const barWidth = Math.max(percentage, 5); // Use percentage, minimum 5%
-            const delay = index * 150; // Staggered animation
             
             chartHTML += `
-                <div class="emotion-bar" style="animation-delay: ${delay}ms;">
-                    <div class="emotion-label">
-                        <span class="emotion-name">${emotion.emotion}</span>
-                        <span class="emotion-percentage">${percentage}%</span>
+                <div style="margin-bottom: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: bold; color: #f1f5f9; text-transform: capitalize;">${emotion.emotion}</span>
+                        <span style="color: #a855f7; font-weight: bold; background: rgba(168, 85, 247, 0.1); padding: 4px 12px; border-radius: 20px;">${percentage}%</span>
                     </div>
-                    <div class="emotion-bar-bg">
-                        <div class="emotion-bar-fill" style="width: ${barWidth}%; background: linear-gradient(90deg, ${this.getEmotionColor(emotion.emotion)}, ${this.getEmotionColor(emotion.emotion, true)});"></div>
+                    <div style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; height: 20px; overflow: hidden;">
+                        <div style="height: 100%; width: ${barWidth}%; background: linear-gradient(90deg, ${this.getEmotionColor(emotion.emotion)}, ${this.getEmotionColor(emotion.emotion, true)}); border-radius: 10px; transition: width 1s ease-out;"></div>
                     </div>
                 </div>
             `;
         });
         
         chartHTML += `
-                </div>
-                <div class="chart-footer">
-                    <small class="text-muted">Based on ${emotions.length} detected emotions</small>
+                <div style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 0.85rem;">
+                    Based on ${emotions.length} detected emotions
                 </div>
             </div>
         `;
@@ -284,7 +279,7 @@ class ChartUtils {
     }
 
     createHTMLCSSSummaryChart(containerId, summaryData) {
-        console.log('Creating HTML/CSS summary chart');
+        console.log('Creating SIMPLE HTML/CSS summary chart');
         const container = document.getElementById(containerId);
         
         const originalLength = Number(summaryData?.original_length ?? 0);
@@ -292,40 +287,39 @@ class ChartUtils {
         const compressionRatio = originalLength > 0 ? Math.round((1 - summaryLength / originalLength) * 100) : 0;
         
         let chartHTML = `
-            <div class="summary-chart-container">
-                <div class="chart-header">
-                    <h6 class="chart-title">📝 Text Compression</h6>
-                    <div class="chart-subtitle">Original vs Summary length comparison</div>
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 20px; margin: 10px 0; border: 1px solid rgba(255, 255, 255, 0.2);">
+                <h5 style="color: #fbbf24; text-align: center; margin-bottom: 20px;">📝 Text Compression</h5>
+                <div style="color: #cbd5e1; text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Original vs Summary length comparison</div>
+                
+                <div style="display: flex; justify-content: space-around; margin-bottom: 20px; gap: 15px;">
+                    <div style="text-align: center; flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px;">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">${originalLength}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;">Original Words</div>
+                    </div>
+                    <div style="text-align: center; flex: 1; background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 15px;">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #fbbf24; margin-bottom: 8px;">${summaryLength}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;">Summary Words</div>
+                    </div>
+                    <div style="text-align: center; flex: 1; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.1)); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 8px; padding: 15px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #c084fc; margin-bottom: 8px;">${compressionRatio}%</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;">Compression</div>
+                    </div>
                 </div>
-                <div class="summary-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">${originalLength}</div>
-                        <div class="stat-label">Original Words</div>
+                
+                <div style="margin: 20px 0;">
+                    <div style="font-weight: bold; color: #f1f5f9; margin-bottom: 10px;">Original Text</div>
+                    <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; height: 24px; overflow: hidden; margin-bottom: 5px;">
+                        <div style="height: 100%; width: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd); border-radius: 8px;"></div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${summaryLength}</div>
-                        <div class="stat-label">Summary Words</div>
-                    </div>
-                    <div class="stat-item highlight">
-                        <div class="stat-value">${compressionRatio}%</div>
-                        <div class="stat-label">Compression</div>
-                    </div>
+                    <div style="text-align: right; font-size: 0.9rem; color: #cbd5e1;">${originalLength} words</div>
                 </div>
-                <div class="summary-bars">
-                    <div class="summary-bar">
-                        <div class="bar-label">Original Text</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill original" style="width: 100%;"></div>
-                        </div>
-                        <div class="bar-value">${originalLength} words</div>
+                
+                <div style="margin: 20px 0;">
+                    <div style="font-weight: bold; color: #f1f5f9; margin-bottom: 10px;">Summary</div>
+                    <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; height: 24px; overflow: hidden; margin-bottom: 5px;">
+                        <div style="height: 100%; width: ${originalLength > 0 ? (summaryLength / originalLength) * 100 : 0}%; background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7); border-radius: 8px; transition: width 1.5s ease-out;"></div>
                     </div>
-                    <div class="summary-bar">
-                        <div class="bar-label">Summary</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill summary" style="width: ${originalLength > 0 ? (summaryLength / originalLength) * 100 : 0}%;"></div>
-                        </div>
-                        <div class="bar-value">${summaryLength} words</div>
-                    </div>
+                    <div style="text-align: right; font-size: 0.9rem; color: #cbd5e1;">${summaryLength} words</div>
                 </div>
             </div>
         `;

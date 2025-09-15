@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chart Test</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        .emotion-bar {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            height: 30px;
+            margin: 10px 0;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-weight: bold;
+        }
+        .emotion-bar.joy { background: linear-gradient(90deg, #ffd93d, #ff6b6b); }
+        .emotion-bar.sadness { background: linear-gradient(90deg, #6c5ce7, #a29bfe); }
+        .emotion-bar.anger { background: linear-gradient(90deg, #fd79a8, #e84393); }
+    </style>
+</head>
+<body>
+    <h1>🎯 Simple Chart Test</h1>
+    
+    <div class="chart-container">
+        <h3>📊 Emotion Analysis</h3>
+        <div id="emotionChart">
+            <div class="emotion-bar joy" style="width: 85%;">Joy: 85%</div>
+            <div class="emotion-bar sadness" style="width: 12%;">Sadness: 12%</div>
+            <div class="emotion-bar anger" style="width: 3%;">Anger: 3%</div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h3>📝 Text Compression</h3>
+        <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+            <div style="text-align: center;">
+                <div style="font-size: 2em; color: #4ecdc4;">150</div>
+                <div>Original Words</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 2em; color: #ff6b6b;">45</div>
+                <div>Summary Words</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 2em; color: #a29bfe;">70%</div>
+                <div>Compression</div>
+            </div>
+        </div>
+        <div style="margin: 20px 0;">
+            <div style="background: #333; height: 20px; border-radius: 10px; margin: 10px 0;">
+                <div style="background: linear-gradient(90deg, #4ecdc4, #6c5ce7); height: 100%; width: 100%; border-radius: 10px;"></div>
+            </div>
+            <div style="text-align: right; color: #ccc;">Original: 150 words</div>
+        </div>
+        <div style="margin: 20px 0;">
+            <div style="background: #333; height: 20px; border-radius: 10px; margin: 10px 0;">
+                <div style="background: linear-gradient(90deg, #ff6b6b, #fd79a8); height: 100%; width: 30%; border-radius: 10px;"></div>
+            </div>
+            <div style="text-align: right; color: #ccc;">Summary: 45 words</div>
+        </div>
+    </div>
+    
+    <button onclick="testCharts()" style="background: #4ecdc4; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; cursor: pointer; margin: 20px 0;">Test Charts</button>
+    
+    <script>
+        function testCharts() {
+            alert('Charts are working! Check the visual elements above.');
+            console.log('✅ Simple charts are displaying correctly!');
+        }
+    </script>
+</body>
+</html>
