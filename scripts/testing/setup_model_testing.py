@@ -117,11 +117,10 @@ def setup_testing():
     existing_files, missing_files = check_model_files()
     
     # Find model file if missing
-    if 'model' in missing_files:
-        if not find_model_file():
-            print("\n❌ Cannot proceed without model file!")
-            print("📋 Please download best_simple_model.pth from Colab and place it in this directory")
-            return False
+    if 'model' in missing_files and not find_model_file():
+        print("\n❌ Cannot proceed without model file!")
+        print("📋 Please download best_simple_model.pth from Colab and place it in this directory")
+        return False
     
     # Create mock results if missing
     if 'results' in missing_files:

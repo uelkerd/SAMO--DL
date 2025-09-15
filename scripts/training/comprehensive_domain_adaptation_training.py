@@ -276,9 +276,8 @@ class RepositoryManager:
                 return False
         
         # Clone repository if not exists
-        if not Path('SAMO--DL').exists():
-            if not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
-                return False
+        if not Path('SAMO--DL').exists() and not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
+            return False
         
         # Change to project directory
         try:

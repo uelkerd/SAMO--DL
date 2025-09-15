@@ -1074,8 +1074,6 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
         logger.info("Token refreshed for user: %s", payload.username)
         return token_response
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("Token refresh failed: %s", exc)
         raise HTTPException(
@@ -1365,8 +1363,6 @@ async def analyze_journal_entry(
             },
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("❌ Error in journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Analysis failed") from exc
@@ -1518,8 +1514,6 @@ async def analyze_voice_journal(
             },
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("❌ Error in voice journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
@@ -1831,8 +1825,6 @@ async def summarize_text(
             emotional_tone=emotional_tone
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("Text summarization failed: %s", exc)
         raise HTTPException(

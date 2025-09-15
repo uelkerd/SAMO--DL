@@ -108,7 +108,7 @@ def validate_notebook():
             all_passed = False
     
     # Summary
-    print(f"\n📊 Validation Summary:")
+    print("\n📊 Validation Summary:")
     print(f"  Total cells: {len(cells)}")
     print(f"  Code cells: {len(code_cells)}")
     print(f"  Markdown cells: {len(markdown_cells)}")

@@ -154,7 +154,7 @@ trainer.train()
 # Evaluate on test set
 print("🧪 Evaluating model...")
 results = trainer.evaluate()
-print(f"📊 Final Results:")
+print("📊 Final Results:")
 print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
 print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
 
@@ -213,7 +213,7 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     print(f"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
     print(f"   Expected: {expected}")
     print(f"   {'✅ CORRECT' if is_correct else '❌ WRONG'}")
-    print(f"   Top 3 predictions:")
+    print("   Top 3 predictions:")
     for emotion, prob in zip(top_3_emotions, top_3_probs):
         print(f"     - {emotion}: {prob:.3f}")
     print()
@@ -221,17 +221,17 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
 test_accuracy = correct_predictions / len(test_samples)
 final_f1 = results['eval_f1']
 
-print(f"\n📈 FINAL RESULTS:")
+print("\n📈 FINAL RESULTS:")
 print(f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})")
 print(f"   F1 Score: {final_f1:.4f} ({final_f1*100:.1f}%)")
 print(f"   Target Achieved: {'✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
 
 if final_f1 >= 0.75:
     print(f"\n🎉 SUCCESS! Model achieved {final_f1*100:.1f}% F1 score!")
-    print(f"🚀 Ready for production deployment!")
+    print("🚀 Ready for production deployment!")
 else:
     print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
-    print(f"💡 Consider: more data, hyperparameter tuning, or different model architecture")
+    print("💡 Consider: more data, hyperparameter tuning, or different model architecture")
 
 print(f"\n💾 Model saved to: ./best_emotion_model_final")
 print(f"📊 Training completed successfully!") 

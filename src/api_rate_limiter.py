@@ -162,7 +162,7 @@ class TokenBucketRateLimiter:
     def __init__(self, config: RateLimitConfig):
         self.config = config
         self.buckets: Dict[str, float] = defaultdict(lambda: config.burst_size)
-        self.last_refill: Dict[str, float] = defaultdict(lambda: time.time())
+        self.last_refill: Dict[str, float] = defaultdict(time.time)
         self.blocked_clients: Dict[str, float] = {}
         self.concurrent_requests: Dict[str, int] = defaultdict(int)
         self.request_history: Dict[str, Deque] = defaultdict(lambda: deque(maxlen=100))

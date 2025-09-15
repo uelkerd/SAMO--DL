@@ -104,7 +104,7 @@ class DependencyChecker:
     
     def print_results(self) -> None:
         """Print dependency check results."""
-        print(f"\n📊 Dependency Usage Check Results")
+        print("\n📊 Dependency Usage Check Results")
         print("=" * 50)
         
         if self.unused_deps:

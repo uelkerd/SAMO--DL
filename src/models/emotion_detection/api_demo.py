@@ -378,9 +378,6 @@ async def analyze_emotions_batch(
             "average_processing_time_ms": (processing_time * 1000) / len(texts) if texts else 0,
         }
 
-    except HTTPException:
-        raise
-
     except Exception:
         logger.exception("Batch emotion analysis failed")
         raise HTTPException(

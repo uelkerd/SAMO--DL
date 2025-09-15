@@ -26,8 +26,7 @@ class CodeQualityFixer:
 
     def fix_path_operations(self, content: str) -> str:
         """Fix path operations to use pathlib (PTH-codes)."""
-        if "os.path." in content or "os.makedirs" in content or "os.remove" in content:
-            if "from pathlib import Path" not in content:
+        if ("os.path." in content or "os.makedirs" in content or "os.remove" in content) and "from pathlib import Path" not in content:
                 # Add pathlib import if not present
                 lines = content.split("\n")
                 import_found = False

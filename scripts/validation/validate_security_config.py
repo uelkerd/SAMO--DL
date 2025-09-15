@@ -219,7 +219,7 @@ class SecurityConfigValidator:
     
     def print_results(self) -> None:
         """Print validation results."""
-        print(f"\n📊 Security Configuration Validation Results")
+        print("\n📊 Security Configuration Validation Results")
         print("=" * 50)
         
         if self.errors:

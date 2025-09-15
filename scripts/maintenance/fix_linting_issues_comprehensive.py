@@ -146,9 +146,8 @@ class ComprehensiveLintingFixer:
             stripped = line.strip()
             if stripped.startswith('import ') or stripped.startswith('from '):
                 import_name = self.extract_import_name(stripped)
-                if import_name and import_name not in self.necessary_imports:
-                    if not self.is_import_used(content, import_name):
-                        continue  # Skip this line
+                if import_name and import_name not in self.necessary_imports and not self.is_import_used(content, import_name):
+                    continue  # Skip this line
             filtered_lines.append(line)
 
         return '\n'.join(filtered_lines)
@@ -178,11 +177,10 @@ class ComprehensiveLintingFixer:
             lines = content.split('\n')
             import_added = False
             for _i, line in enumerate(lines):
-                if line.strip().startswith('import ') or line.strip().startswith('from '):
-                    if not import_added:
-                        lines.insert(i, 'import logging')
-                        import_added = True
-                        break
+                if (line.strip().startswith('import ') or line.strip().startswith('from ')) and not import_added:
+                    lines.insert(i, 'import logging')
+                    import_added = True
+                    break
 
             if not import_added:
                 lines.insert(0, 'import logging')

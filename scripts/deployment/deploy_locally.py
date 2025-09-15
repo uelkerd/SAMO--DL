@@ -413,7 +413,7 @@ exec python3 -u "$SCRIPT_DIR/api_server.py"
     deployment_info_path.write_text(json.dumps(deployment_summary, indent=2))
     print("✅ Deployment info created")
     
-    print(f"\n✅ LOCAL DEPLOYMENT READY!")
+    print("\n✅ LOCAL DEPLOYMENT READY!")
     print("=" * 50)
     print(f"📁 Deployment directory: {local_deployment_dir}")
     print()
