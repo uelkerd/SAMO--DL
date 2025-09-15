@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
-# Install minimal system dependencies
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install minimal system dependencies with pinned versions
+RUN apt-get update && apt-get install -y curl=7.74.0-1.3+deb11u7 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

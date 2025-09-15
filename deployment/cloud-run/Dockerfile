@@ -3,13 +3,13 @@
 
 FROM python:3.11-slim
 
-# Install system dependencies for audio processing
+# Install system dependencies for audio processing with pinned versions
 RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libsndfile1 \
-    libsox-fmt-all \
-    sox \
-    curl \
+    ffmpeg=7:4.3.6-0+deb11u1 \
+    libsndfile1=1.0.31-2 \
+    libsox-fmt-all=14.4.2+git20190427-2+deb11u1 \
+    sox=14.4.2+git20190427-2+deb11u1 \
+    curl=7.74.0-1.3+deb11u7 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
