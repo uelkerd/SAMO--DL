@@ -257,6 +257,8 @@ function testWithRealAPI() {
         // Try the LIVE emotion API first (no auth required)
         console.log('🔥 Calling LIVE emotion API...');
         console.log('📝 Text being analyzed:', testText);
+        console.log('📝 Text length:', testText.length);
+        console.log('📝 Text hash:', testText.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
         console.log('🕐 Timestamp:', new Date().toISOString());
         fetch('https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text=' + encodeURIComponent(testText), {
             method: 'GET',
@@ -274,16 +276,21 @@ function testWithRealAPI() {
         })
         .then(data => {
             console.log('✅ Real API response:', data);
+            console.log('🔍 Response type:', typeof data);
+            console.log('🔍 Response keys:', Object.keys(data));
+            console.log('🔍 Full response structure:', JSON.stringify(data, null, 2));
             
             // Convert API response to our format
             const emotions = [];
             if (data.emotion && data.confidence) {
                 // New unified API format: {emotion: "love", confidence: 0.968}
+                console.log('📊 Using new unified API format');
                 emotions.push({
                     emotion: data.emotion,
                     confidence: data.confidence
                 });
             } else if (data.emotions && Array.isArray(data.emotions)) {
+                console.log('📊 Using emotions array format');
                 // Current API format: {emotions: [{emotion: "excitement", confidence: 0.739}]}
                 data.emotions.forEach(emotion => {
                     emotions.push({
