@@ -4,14 +4,166 @@
  */
 class SAMOAPIClient {
     constructor() {
-        // Use configuration from config.js if available, otherwise fallback to demo mode
-        this.baseURL = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.baseURL : 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
-        this.apiKey = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.apiKey : null;
-        this.timeout = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.timeout : 30000;
-        this.retryAttempts = (typeof SAMO_CONFIG !== 'undefined') ? SAMO_CONFIG.retryAttempts : 3;
+        // Initialize configuration with proper fallbacks
+        this.config = null;
+        this.baseURL = null;
+        this.apiKey = null;
+        this.timeout = 30000;
+        this.retryAttempts = 3;
+        this.initialized = false;
+        
+        // Initialize asynchronously
+        this.initializeConfig();
+    }
+
+    async initializeConfig() {
+        try {
+            // Priority order: environment variables > config.js > sensible defaults
+            const config = {
+                baseURL: await this.getBaseURL(),
+                apiKey: this.getAPIKey(),
+                timeout: this.getTimeout(),
+                retryAttempts: this.getRetryAttempts()
+            };
+
+            // Validate configuration
+            this.validateConfig(config);
+            
+            this.config = config;
+            this.baseURL = config.baseURL;
+            this.apiKey = config.apiKey;
+            this.timeout = config.timeout;
+            this.retryAttempts = config.retryAttempts;
+            this.initialized = true;
+            
+            console.log('API Client initialized with baseURL:', this.baseURL);
+        } catch (error) {
+            console.error('Failed to initialize API client configuration:', error);
+            // Use fallback configuration
+            this.baseURL = 'http://localhost:8080';
+            this.initialized = true;
+        }
+    }
+
+    async getBaseURL() {
+        // 1. Check for environment-specific configuration
+        if (typeof SAMO_CONFIG !== 'undefined' && SAMO_CONFIG.baseURL) {
+            return SAMO_CONFIG.baseURL;
+        }
+
+        // 2. Check for build-time environment variables (if available)
+        if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
+            return process.env.REACT_APP_API_URL;
+        }
+
+        // 3. Try to fetch server-side configuration (for production)
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            try {
+                const serverConfig = await this.fetchServerConfig();
+                if (serverConfig && serverConfig.baseURL) {
+                    return serverConfig.baseURL;
+                }
+            } catch (error) {
+                console.warn('Failed to fetch server configuration, using fallback:', error.message);
+            }
+            // Use relative API proxy path for production fallback
+            return '/api';
+        }
+
+        // 4. Local development fallback
+        return 'http://localhost:8080';
+    }
+
+    async fetchServerConfig() {
+        try {
+            const response = await fetch('/api/config', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Server config fetch failed: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.warn('Server configuration not available:', error.message);
+            return null;
+        }
+    }
+
+    getAPIKey() {
+        if (typeof SAMO_CONFIG !== 'undefined' && SAMO_CONFIG.apiKey) {
+            return SAMO_CONFIG.apiKey;
+        }
+        if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_KEY) {
+            return process.env.REACT_APP_API_KEY;
+        }
+        return null; // No API key required for current service
+    }
+
+    getTimeout() {
+        if (typeof SAMO_CONFIG !== 'undefined' && SAMO_CONFIG.timeout) {
+            return parseInt(SAMO_CONFIG.timeout, 10);
+        }
+        return 30000; // 30 seconds default
+    }
+
+    getRetryAttempts() {
+        if (typeof SAMO_CONFIG !== 'undefined' && SAMO_CONFIG.retryAttempts) {
+            return parseInt(SAMO_CONFIG.retryAttempts, 10);
+        }
+        return 3; // 3 retry attempts default
+    }
+
+    validateConfig(config) {
+        // Validate baseURL
+        if (!config.baseURL || typeof config.baseURL !== 'string') {
+            throw new Error('Invalid API base URL configuration');
+        }
+
+        // Check for hardcoded production URLs in client code
+        if (config.baseURL.includes('samo-unified-api') && config.baseURL.includes('.run.app')) {
+            console.warn('Warning: Using hardcoded production URL in client code. Consider using environment configuration.');
+        }
+
+        // Validate timeout
+        if (config.timeout < 1000 || config.timeout > 120000) {
+            console.warn('API timeout should be between 1-120 seconds, using default');
+            config.timeout = 30000;
+        }
+
+        // Validate retry attempts
+        if (config.retryAttempts < 0 || config.retryAttempts > 10) {
+            console.warn('Retry attempts should be between 0-10, using default');
+            config.retryAttempts = 3;
+        }
+    }
+
+    async waitForInitialization() {
+        const maxWaitTime = 5000; // 5 seconds
+        const checkInterval = 100; // 100ms
+        let waited = 0;
+
+        while (!this.initialized && waited < maxWaitTime) {
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
+            waited += checkInterval;
+        }
+
+        if (!this.initialized) {
+            throw new Error('API client initialization timeout');
+        }
     }
 
     async makeRequest(endpoint, data, method = 'POST', retryAttempt = 0) {
+        // Wait for initialization to complete
+        if (!this.initialized) {
+            await this.waitForInitialization();
+        }
+
         const config = {
             method,
             headers: {
