@@ -7,7 +7,6 @@ This script deploys the comprehensive emotion detection model locally
 for testing before cloud deployment.
 """
 
-import os
 import json
 import sys
 from datetime import datetime

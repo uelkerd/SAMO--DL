@@ -56,7 +56,6 @@ async function generateSampleText() {
         console.log('🤖 Attempting AI text generation...');
         
         // Show loading state
-        const textInput = document.getElementById('textInput');
         if (textInput) {
             textInput.value = '🤖 Generating AI text...';
             textInput.style.borderColor = '#8b5cf6';
@@ -458,40 +457,71 @@ function createSimpleChart(emotions) {
     // Sort emotions by confidence
     const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
     
-    // Create a SUPER SIMPLE chart with basic HTML and inline styles
-    let chartHTML = '<div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 10px 0;">';
-    chartHTML += '<h6 style="text-align: center; margin-bottom: 20px; color: white;">📊 Real Model Output</h6>';
+    // Create a SUPER SIMPLE chart with DOM manipulation (XSS-safe)
+    container.innerHTML = ''; // Clear container
+    
+    // Create main chart container
+    const chartContainer = document.createElement('div');
+    chartContainer.style.cssText = 'padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 10px 0;';
+    
+    // Create title
+    const title = document.createElement('h6');
+    title.style.cssText = 'text-align: center; margin-bottom: 20px; color: white;';
+    title.textContent = '📊 Real Model Output';
+    chartContainer.appendChild(title);
     
     if (sortedEmotions.length === 0) {
-        chartHTML += '<p style="text-align: center; color: #94a3b8;">No emotions detected by the model</p>';
+        const noEmotions = document.createElement('p');
+        noEmotions.style.cssText = 'text-align: center; color: #94a3b8;';
+        noEmotions.textContent = 'No emotions detected by the model';
+        chartContainer.appendChild(noEmotions);
     } else {
         sortedEmotions.forEach((emotion, index) => {
             const percentage = Math.round(emotion.confidence * 100);
             const color = getEmotionColor(emotion.emotion);
             
-            chartHTML += `
-                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-weight: bold; color: white; text-transform: capitalize;">${emotion.emotion}</span>
-                        <span style="color: #94a3b8;">${percentage}%</span>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden; position: relative;">
-                        <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;"></div>
-                    </div>
-                </div>
-            `;
+            // Create emotion row container
+            const emotionRow = document.createElement('div');
+            emotionRow.style.cssText = 'margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);';
+            
+            // Create header with emotion name and percentage
+            const header = document.createElement('div');
+            header.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 8px;';
+            
+            const emotionName = document.createElement('span');
+            emotionName.style.cssText = 'font-weight: bold; color: white; text-transform: capitalize;';
+            emotionName.textContent = emotion.emotion;
+            
+            const percentageSpan = document.createElement('span');
+            percentageSpan.style.cssText = 'color: #94a3b8;';
+            percentageSpan.textContent = percentage + '%';
+            
+            header.appendChild(emotionName);
+            header.appendChild(percentageSpan);
+            emotionRow.appendChild(header);
+            
+            // Create progress bar container
+            const progressContainer = document.createElement('div');
+            progressContainer.style.cssText = 'background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden; position: relative;';
+            
+            // Create progress bar fill
+            const progressFill = document.createElement('div');
+            progressFill.style.cssText = `width: ${Math.max(0, Math.min(100, percentage))}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;`;
+            
+            progressContainer.appendChild(progressFill);
+            emotionRow.appendChild(progressContainer);
+            chartContainer.appendChild(emotionRow);
         });
     }
     
-    chartHTML += `
-        <div style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;">
-            Real model detected ${emotions.length} emotion${emotions.length !== 1 ? 's' : ''}
-        </div>
-    </div>`;
+    // Create footer
+    const footer = document.createElement('div');
+    footer.style.cssText = 'text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;';
+    footer.textContent = `Real model detected ${emotions.length} emotion${emotions.length !== 1 ? 's' : ''}`;
+    chartContainer.appendChild(footer);
     
-    container.innerHTML = chartHTML;
+    container.appendChild(chartContainer);
     console.log('✅ SIMPLE Chart created successfully');
-    console.log('📊 Chart HTML length:', chartHTML.length);
     console.log('📊 Container after update:', container.innerHTML.substring(0, 200));
     console.log('📊 Emotion bars found:', container.querySelectorAll('div').length);
 }

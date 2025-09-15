@@ -21,8 +21,7 @@ from rate_limiter import rate_limit
 
 # Import shared model utilities
 from model_utils import (
-    ensure_model_loaded, predict_emotions, get_model_status,
-    validate_text_input, 
+    ensure_model_loaded, predict_emotions, get_model_status
 )
 
 # Configure logging for Cloud Run

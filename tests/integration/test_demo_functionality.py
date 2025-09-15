@@ -44,7 +44,7 @@ class TestDemoFunctionality:
             pytest.skip(f"API not accessible: {e}")
     
     @staticmethod
-    def test_demo_emotion_detection_request_format(_demo_api_url, sample_text):
+    def test_demo_emotion_detection_request_format(sample_text):
         """Test that the demo sends correctly formatted emotion detection requests"""
         # Test the request format without actually calling the API (to avoid rate limits)
         expected_request = {
@@ -101,41 +101,48 @@ class TestDemoFunctionality:
                 raise ValueError("text is required and cannot be None")
     
     @staticmethod
-    def test_demo_whisper_request_format(_demo_api_url, sample_audio_data):
+    def test_demo_whisper_request_format(sample_audio_data):
         """Test that the demo sends correctly formatted Whisper requests"""
-        # Test the request format for audio transcription
-        expected_request = {
-            "audio_data": sample_audio_data,
-            "model": "whisper"
-        }
-
-        # Validate the request format
-        assert "audio_data" in expected_request
-        assert "model" in expected_request
-        assert expected_request["model"] == "whisper"
+        # Test the request format for audio transcription (multipart/form-data)
+        import io
+        
+        # Simulate multipart file upload
+        audio_file = io.BytesIO(sample_audio_data)
+        audio_file.name = "test_audio.wav"
+        audio_file.content_type = "audio/wav"
+        
+        # Validate the multipart file format
+        assert hasattr(audio_file, 'read')
+        assert hasattr(audio_file, 'name')
+        assert hasattr(audio_file, 'content_type')
+        assert audio_file.name.endswith('.wav')
+        assert audio_file.content_type.startswith('audio/')
+        assert isinstance(audio_file.read(), bytes)
 
     @staticmethod
     def test_demo_whisper_invalid_audio(demo_api_url):
         """Test that the demo and API correctly handle invalid or corrupted audio data"""
         # Simulate corrupted audio data (e.g., not a valid audio byte string)
-        corrupted_audio_data = b"not_really_audio"
-        request_payload = {
-            "audio_data": corrupted_audio_data,
-            "model": "whisper"
-        }
+        import io
         
-        # Test request format validation
-        assert "audio_data" in request_payload
-        assert "model" in request_payload
-        assert request_payload["model"] == "whisper"
-        assert isinstance(request_payload["audio_data"], bytes)
+        corrupted_audio_data = b"not_really_audio"
+        audio_file = io.BytesIO(corrupted_audio_data)
+        audio_file.name = "corrupted_audio.wav"
+        audio_file.content_type = "audio/wav"
+        
+        # Test multipart file format validation
+        assert hasattr(audio_file, 'read')
+        assert hasattr(audio_file, 'name')
+        assert hasattr(audio_file, 'content_type')
+        assert audio_file.name.endswith('.wav')
+        assert audio_file.content_type.startswith('audio/')
+        assert isinstance(audio_file.read(), bytes)
         
         # Test with empty audio data
-        empty_audio_request = {
-            "audio_data": b"",
-            "model": "whisper"
-        }
-        assert len(empty_audio_request["audio_data"]) == 0
+        empty_audio_file = io.BytesIO(b"")
+        empty_audio_file.name = "empty_audio.wav"
+        empty_audio_file.content_type = "audio/wav"
+        assert len(empty_audio_file.read()) == 0
         
         # Test with None audio data
         try:
@@ -148,7 +155,7 @@ class TestDemoFunctionality:
 
     
     @staticmethod
-    def test_demo_t5_request_format(_demo_api_url, sample_text):
+    def test_demo_t5_request_format(sample_text):
         """Test that the demo sends correctly formatted T5 summarization requests"""
         # Test the request format for text summarization
         expected_request = {
@@ -218,7 +225,7 @@ class TestDemoFunctionality:
         assert all(len(emotion) > 0 for emotion in expected_emotions)
     
     @pytest.mark.skip(reason="Requires actual API call - may hit rate limits")
-    def test_demo_full_workflow(self, _demo_api_url, _sample_text, _sample_audio_data):
+    def test_demo_full_workflow(self):
         """Test the complete demo workflow (skipped to avoid rate limits)"""
         # This would test the full workflow:
         # 1. Audio transcription
