@@ -213,11 +213,11 @@
                         </div>
                         
                         <div class="d-flex gap-3 justify-content-center">
-                            <button class="btn btn-primary btn-lg px-5" id="processBtn">
+                            <button class="btn btn-primary btn-lg px-5" id="processBtn" onclick="processText()">
                                 <span class="material-icons me-2">auto_fix_high</span>
                                 Process
                             </button>
-                            <button class="btn btn-outline-secondary btn-lg" id="clearBtn">
+                            <button class="btn btn-outline-secondary btn-lg" id="clearBtn" onclick="clearAll()">
                                 <span class="material-icons me-2">delete</span>
                                 Clear All
                             </button>
@@ -318,8 +318,9 @@
                                 <div class="feature-card">
                                     <div class="card-body text-center">
                                         <h6 class="fw-bold mb-3 text-warning">🔧 Debug Test</h6>
-                                        <button class="btn btn-primary me-2" onclick="testDetailedAnalysis()">Test Detailed Analysis</button>
-                                        <button class="btn btn-secondary" onclick="clearDetailedAnalysis()">Clear Analysis</button>
+                                        <button class="btn btn-primary me-2" onclick="testWithMockData()">Test with Mock Data</button>
+                                        <button class="btn btn-success me-2" onclick="testWithRealAPI()">Test with Real API</button>
+                                        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
                                     </div>
                                 </div>
                             </div>
@@ -444,13 +445,14 @@
     <!-- Configuration Script -->
     <script src="config.js"></script>
     
-    <!-- Modular JavaScript -->
-    <script src="js/api-client.js"></script>
-    <script src="js/ui-controller.js"></script>
-    <script src="js/chart-utils.js"></script>
-    <script src="js/comprehensive-demo-new.js"></script>
+    <!-- Simple Working Functions -->
+    <script src="js/simple-demo-functions.js"></script>
     
-    <!-- Test Script (for debugging) -->
-    <script src="test-functionality.js"></script>
+    <!-- Legacy Scripts (commented out for now) -->
+    <!-- <script src="js/api-client.js"></script> -->
+    <!-- <script src="js/ui-controller.js"></script> -->
+    <!-- <script src="js/chart-utils.js"></script> -->
+    <!-- <script src="js/comprehensive-demo-new.js"></script> -->
+    <!-- <script src="test-functionality.js"></script> -->
 </body>
 </html>
