@@ -584,6 +584,186 @@ body {
     animation: fadeInUp 0.3s ease-out;
 }
 
+/* Pure HTML/CSS Chart styling */
+.emotion-chart-container, .summary-chart-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    color: #f59e0b;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.chart-subtitle {
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.emotion-bars {
+    space-y: 15px;
+}
+
+.emotion-bar {
+    margin-bottom: 15px;
+    animation: slideInLeft 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+@keyframes slideInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.emotion-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.emotion-name {
+    font-weight: 600;
+    color: #e2e8f0;
+    text-transform: capitalize;
+}
+
+.emotion-percentage {
+    color: #a855f7;
+    font-weight: 600;
+}
+
+.emotion-bar-bg {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.emotion-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.8s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.emotion-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.summary-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-item.highlight {
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 5px;
+}
+
+.stat-item.highlight .stat-value {
+    color: #a855f7;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-bars {
+    space-y: 15px;
+}
+
+.summary-bar {
+    margin-bottom: 15px;
+}
+
+.bar-label {
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+}
+
+.bar-bg {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    height: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 1s ease-out;
+    position: relative;
+}
+
+.bar-fill.original {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.bar-fill.summary {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.bar-value {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+.chart-footer {
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Error Message Styles */
 .error-message {
     color: #dc3545;

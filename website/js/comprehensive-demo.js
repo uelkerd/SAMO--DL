@@ -192,6 +192,7 @@ class ComprehensiveDemo {
         this.audioChunks = [];
         this.isRecording = false;
         this.chart = null;
+        this.performanceOptimizer = new PerformanceOptimizer();
         
         this.initializeElements();
         this.bindEvents();
@@ -379,11 +380,8 @@ class ComprehensiveDemo {
             }));
         }
 
-        // Normalize emotion data to ensure consistent key names
-        const normalizedEmotions = emotionData.map(emotion => ({
-            emotion: emotion.emotion || emotion.label || 'Unknown',
-            confidence: emotion.confidence || emotion.score || 0
-        }));
+        // Use performance optimizer to normalize emotion data
+        const normalizedEmotions = this.performanceOptimizer.optimizeEmotionData(emotionData);
 
         // Create emotion badges
         const badgesContainer = document.getElementById('emotionBadges');
@@ -417,6 +415,21 @@ class ComprehensiveDemo {
             this.chart.destroy();
         }
         
+        // Use performance optimizer for chart rendering
+        this.performanceOptimizer.optimizeChartRendering(ctx, emotionData, {
+            responsive: true,
+            maintainAspectRatio: false
+        }).then(chart => {
+            this.chart = chart;
+        }).catch(error => {
+            console.error('Chart rendering failed:', error);
+            // Fallback to basic chart
+            this.createBasicChart(ctx, emotionData);
+        });
+    }
+    
+    createBasicChart(ctx, emotionData) {
+        // Fallback chart creation if performance optimizer fails
         const labels = emotionData.map(e => e.emotion || e.label);
         const data = emotionData.map(e => (e.confidence || e.score) * 100);
         const colors = labels.map(label => this.getEmotionColor(label));

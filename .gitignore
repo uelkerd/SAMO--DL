@@ -19,15 +19,10 @@ __pypackages__/
 .embeddings_cache/
 .env
 website/config.js
-.env
 website/config.js.*.local
-.env
 website/config.js.development
-.env
 website/config.js.local
-.env
 website/config.js.production
-.env
 website/config.js.test
 .eslintcache
 .flake8
@@ -92,7 +87,6 @@ website/config.js.test
 *.egg-info/
 *.elc
 *.env
-website/config.js
 *.feather
 *.flac
 *.h5

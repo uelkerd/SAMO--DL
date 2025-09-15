@@ -236,6 +236,7 @@ def before_request():
 @app.after_request
 def after_request(response):
     """Add request tracking headers"""
+    duration = 0.0
     if hasattr(g, 'start_time'):
         duration = time.time() - g.start_time
         response.headers['X-Request-Duration'] = str(duration)
@@ -244,7 +245,7 @@ def after_request(response):
     
     # Log response for debugging
     logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
-                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
+                f"from {request.remote_addr} (ID: {getattr(g,'request_id','-')}, Duration: {duration:.3f}s)")
     
     return response
 
@@ -454,7 +455,7 @@ def rate_limit_exceeded(error):
 
 def internal_error(error):
     """Handle internal server errors"""
-    logger.error(f"Internal server error for {request.remote_addr}: {str(error)}")
+    logger.exception("Internal server error")
     return create_error_response('Internal server error', 500)
 
 def not_found(error):
@@ -469,7 +470,7 @@ def method_not_allowed(error):
 
 def handle_unexpected_error(error):
     """Handle any unexpected errors"""
-    logger.error(f"Unexpected error for {request.remote_addr}: {str(error)}")
+    logger.exception("Unexpected error")
     return create_error_response('An unexpected error occurred', 500)
 
 # Register error handlers directly

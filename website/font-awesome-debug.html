@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Awesome Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .icon-test {
+            font-size: 2rem;
+            margin: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Awesome Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Basic Font Awesome Loading</h2>
+        <div class="icon-test">
+            <i class="fas fa-check"></i>
+            <i class="fas fa-heart"></i>
+            <i class="fas fa-star"></i>
+        </div>
+        <div id="debug1" class="debug-info">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Different Font Awesome Versions</h2>
+        <div class="icon-test">
+            <i class="fa fa-check"></i>
+            <i class="fa fa-heart"></i>
+            <i class="fa fa-star"></i>
+        </div>
+        <div id="debug2" class="debug-info">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Manual Font Loading</h2>
+        <div class="icon-test" id="manualIcons">
+            <i class="fas fa-check"></i>
+            <i class="fas fa-heart"></i>
+            <i class="fas fa-star"></i>
+        </div>
+        <div id="debug3" class="debug-info">Loading...</div>
+    </div>
+
+    <!-- Test different CSP policies -->
+    <div class="test-section">
+        <h2>Test 4: Relaxed CSP</h2>
+        <div class="icon-test">
+            <i class="fas fa-check"></i>
+            <i class="fas fa-heart"></i>
+            <i class="fas fa-star"></i>
+        </div>
+        <div id="debug4" class="debug-info">Loading...</div>
+    </div>
+
+    <script>
+        function debugFontAwesome() {
+            console.log('🔍 Starting Font Awesome debug...');
+            
+            // Test 1: Check if Font Awesome CSS is loaded
+            const testIcon1 = document.createElement('i');
+            testIcon1.className = 'fas fa-check';
+            document.body.appendChild(testIcon1);
+            const computedStyle1 = window.getComputedStyle(testIcon1);
+            const debug1 = document.getElementById('debug1');
+            
+            debug1.innerHTML = `
+                Font Family: ${computedStyle1.fontFamily}<br>
+                Font Weight: ${computedStyle1.fontWeight}<br>
+                Font Style: ${computedStyle1.fontStyle}<br>
+                Content: ${computedStyle1.content}<br>
+                Display: ${computedStyle1.display}
+            `;
+            
+            if (computedStyle1.fontFamily.includes('Font Awesome')) {
+                debug1.innerHTML += '<br><strong style="color: green;">✅ Font Awesome is loaded!</strong>';
+            } else {
+                debug1.innerHTML += '<br><strong style="color: red;">❌ Font Awesome is NOT loaded!</strong>';
+            }
+            
+            document.body.removeChild(testIcon1);
+            
+            // Test 2: Check for CSS rules
+            const debug2 = document.getElementById('debug2');
+            const stylesheets = Array.from(document.styleSheets);
+            let fontAwesomeFound = false;
+            
+            stylesheets.forEach(sheet => {
+                try {
+                    if (sheet.href && sheet.href.includes('font-awesome')) {
+                        fontAwesomeFound = true;
+                        debug2.innerHTML += `Found Font Awesome stylesheet: ${sheet.href}<br>`;
+                    }
+                } catch (e) {
+                    // Cross-origin stylesheet, can't access
+                }
+            });
+            
+            if (!fontAwesomeFound) {
+                debug2.innerHTML += '<strong style="color: red;">❌ No Font Awesome stylesheet found!</strong>';
+            } else {
+                debug2.innerHTML += '<strong style="color: green;">✅ Font Awesome stylesheet found!</strong>';
+            }
+            
+            // Test 3: Manual font loading test
+            const debug3 = document.getElementById('debug3');
+            const testIcon3 = document.querySelector('#manualIcons i');
+            const computedStyle3 = window.getComputedStyle(testIcon3);
+            
+            debug3.innerHTML = `
+                Font Family: ${computedStyle3.fontFamily}<br>
+                Before pseudo-element: ${computedStyle3.getPropertyValue('--fa-before')}<br>
+                Font Variant: ${computedStyle3.fontVariant}
+            `;
+            
+            // Test 4: Check for CSP violations
+            const debug4 = document.getElementById('debug4');
+            const originalError = console.error;
+            let cspViolations = [];
+            
+            console.error = function(...args) {
+                if (args[0] && args[0].includes && args[0].includes('Content Security Policy')) {
+                    cspViolations.push(args.join(' '));
+                }
+                originalError.apply(console, args);
+            };
+            
+            setTimeout(() => {
+                if (cspViolations.length > 0) {
+                    debug4.innerHTML = '<strong style="color: red;">❌ CSP Violations detected:</strong><br>' + cspViolations.join('<br>');
+                } else {
+                    debug4.innerHTML = '<strong style="color: green;">✅ No CSP violations detected</strong>';
+                }
+            }, 1000);
+        }
+        
+        // Run debug when page loads
+        document.addEventListener('DOMContentLoaded', debugFontAwesome);
+    </script>
+</body>
+</html>

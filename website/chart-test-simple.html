@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure HTML/CSS Chart Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/comprehensive-demo.css">
+</head>
+<body class="bg-dark text-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">🎯 Pure HTML/CSS Chart Test</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Emotion Chart Test</h3>
+                <div id="emotionChart" style="height: 300px;"></div>
+            </div>
+            <div class="col-md-6">
+                <h3>Summary Chart Test</h3>
+                <div id="summaryChart" style="height: 300px;"></div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="testCharts()">Test Charts</button>
+        </div>
+    </div>
+
+    <script src="js/chart-utils.js"></script>
+    <script>
+        const chartUtils = new ChartUtils();
+        
+        function testCharts() {
+            // Test emotion chart
+            const emotions = [
+                { emotion: 'joy', confidence: 0.85 },
+                { emotion: 'sadness', confidence: 0.12 },
+                { emotion: 'anger', confidence: 0.03 }
+            ];
+            
+            chartUtils.createEmotionChart('emotionChart', emotions);
+            
+            // Test summary chart
+            const summaryData = {
+                original_length: 150,
+                summary_length: 45
+            };
+            
+            chartUtils.createSummaryChart('summaryChart', summaryData);
+            
+            console.log('✅ Charts created successfully!');
+        }
+        
+        // Auto-test on load
+        document.addEventListener('DOMContentLoaded', testCharts);
+    </script>
+</body>
+</html>

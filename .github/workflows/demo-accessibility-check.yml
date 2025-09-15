@@ -1,0 +1,228 @@
+name: Demo Website Accessibility Compliance Check
+
+on:
+  push:
+    branches: [ main, develop, feat/dl-* ]
+    paths:
+      - 'website/**'
+      - 'tests/**/test_demo_*.py'
+      - '.github/workflows/demo-accessibility-check.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'website/**'
+      - 'tests/**/test_demo_*.py'
+      - '.github/workflows/demo-accessibility-check.yml'
+
+jobs:
+  accessibility-compliance:
+    runs-on: ubuntu-latest
+    name: Accessibility Compliance Check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-html
+        pip install -r dependencies/requirements.txt
+        
+    - name: Install accessibility testing tools
+      run: |
+        # Install axe-core for accessibility testing
+        npm install -g @axe-core/cli
+        # Install lighthouse for comprehensive accessibility audit
+        npm install -g lighthouse
+        # Install pa11y for command-line accessibility testing
+        npm install -g pa11y
+        
+    - name: Run accessibility unit tests
+      run: |
+        python scripts/test_demo_website.py --verbose --coverage
+        
+    - name: Start demo website server
+      run: |
+        cd website
+        python -m http.server 8080 &
+        sleep 5
+        
+    - name: Run axe-core accessibility scan
+      run: |
+        # Run axe-core scan on demo pages
+        axe http://localhost:8080/comprehensive-demo.html --exit
+        axe http://localhost:8080/debug-demo.html --exit
+        axe http://localhost:8080/test-error-handling.html --exit
+        
+    - name: Run pa11y accessibility tests
+      run: |
+        # Test comprehensive demo page
+        pa11y --standard WCAG2AA --reporter json http://localhost:8080/comprehensive-demo.html > accessibility-results-comprehensive.json || true
+        
+        # Test debug demo page
+        pa11y --standard WCAG2AA --reporter json http://localhost:8080/debug-demo.html > accessibility-results-debug.json || true
+        
+        # Test error handling page
+        pa11y --standard WCAG2AA --reporter json http://localhost:8080/test-error-handling.html > accessibility-results-error.json || true
+        
+    - name: Run Lighthouse accessibility audit
+      run: |
+        # Run Lighthouse accessibility audit
+        lighthouse http://localhost:8080/comprehensive-demo.html --output=json --output-path=lighthouse-comprehensive.json --only-categories=accessibility --chrome-flags="--headless"
+        lighthouse http://localhost:8080/debug-demo.html --output=json --output-path=lighthouse-debug.json --only-categories=accessibility --chrome-flags="--headless"
+        lighthouse http://localhost:8080/test-error-handling.html --output=json --output-path=lighthouse-error.json --only-categories=accessibility --chrome-flags="--headless"
+        
+    - name: Parse accessibility results
+      run: |
+        python - << 'EOF'
+        import json
+        import os
+        
+        def parse_pa11y_results(filename):
+            """Parse pa11y JSON results"""
+            try:
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+                    return {
+                        'total_issues': len(data.get('issues', [])),
+                        'errors': len([i for i in data.get('issues', []) if i.get('type') == 'error']),
+                        'warnings': len([i for i in data.get('issues', []) if i.get('type') == 'warning']),
+                        'notices': len([i for i in data.get('issues', []) if i.get('type') == 'notice'])
+                    }
+            except Exception as e:
+                print(f"Error parsing {filename}: {e}")
+                return {'total_issues': 0, 'errors': 0, 'warnings': 0, 'notices': 0}
+        
+        def parse_lighthouse_results(filename):
+            """Parse Lighthouse accessibility results"""
+            try:
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+                    accessibility = data.get('categories', {}).get('accessibility', {})
+                    return {
+                        'score': accessibility.get('score', 0) * 100,
+                        'audits': len(accessibility.get('auditRefs', []))
+                    }
+            except Exception as e:
+                print(f"Error parsing {filename}: {e}")
+                return {'score': 0, 'audits': 0}
+        
+        # Parse all results
+        results = {}
+        
+        # Parse pa11y results
+        for page in ['comprehensive', 'debug', 'error']:
+            pa11y_file = f'accessibility-results-{page}.json'
+            if os.path.exists(pa11y_file):
+                results[f'{page}_pa11y'] = parse_pa11y_results(pa11y_file)
+        
+        # Parse Lighthouse results
+        for page in ['comprehensive', 'debug', 'error']:
+            lighthouse_file = f'lighthouse-{page}.json'
+            if os.path.exists(lighthouse_file):
+                results[f'{page}_lighthouse'] = parse_lighthouse_results(lighthouse_file)
+        
+        # Save combined results
+        with open('accessibility-summary.json', 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        # Print summary
+        print("Accessibility Test Summary:")
+        print("=" * 40)
+        
+        total_errors = sum(r.get('errors', 0) for r in results.values() if 'pa11y' in r)
+        total_warnings = sum(r.get('warnings', 0) for r in results.values() if 'pa11y' in r)
+        avg_lighthouse_score = sum(r.get('score', 0) for r in results.values() if 'lighthouse' in r) / max(1, len([r for r in results.values() if 'lighthouse' in r]))
+        
+        print(f"Total Errors: {total_errors}")
+        print(f"Total Warnings: {total_warnings}")
+        print(f"Average Lighthouse Score: {avg_lighthouse_score:.1f}%")
+        
+        # Check if accessibility requirements are met
+        if total_errors == 0 and avg_lighthouse_score >= 90:
+            print("✅ Accessibility compliance PASSED")
+            exit(0)
+        else:
+            print("❌ Accessibility compliance FAILED")
+            exit(1)
+        EOF
+        
+    - name: Upload accessibility results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: accessibility-results
+        path: |
+          accessibility-*.json
+          lighthouse-*.json
+          accessibility-summary.json
+          
+    - name: Comment PR with accessibility results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const summary = JSON.parse(fs.readFileSync('accessibility-summary.json', 'utf8'));
+            
+            let comment = '## ♿ Accessibility Compliance Report\n\n';
+            comment += '### Summary\n';
+            
+            const totalErrors = Object.values(summary)
+              .filter(r => r.errors !== undefined)
+              .reduce((sum, r) => sum + r.errors, 0);
+            
+            const totalWarnings = Object.values(summary)
+              .filter(r => r.warnings !== undefined)
+              .reduce((sum, r) => sum + r.warnings, 0);
+            
+            const lighthouseScores = Object.values(summary)
+              .filter(r => r.score !== undefined)
+              .map(r => r.score);
+            
+            const avgScore = lighthouseScores.length > 0 
+              ? lighthouseScores.reduce((a, b) => a + b, 0) / lighthouseScores.length 
+              : 0;
+            
+            comment += `- **Total Errors**: ${totalErrors}\n`;
+            comment += `- **Total Warnings**: ${totalWarnings}\n`;
+            comment += `- **Average Lighthouse Score**: ${avgScore.toFixed(1)}%\n\n`;
+            
+            if (totalErrors === 0 && avgScore >= 90) {
+              comment += '✅ **Accessibility compliance PASSED**\n';
+            } else {
+              comment += '❌ **Accessibility compliance FAILED**\n';
+            }
+            
+            comment += '\n### Detailed Results\n';
+            
+            for (const [key, value] of Object.entries(summary)) {
+              if (value.errors !== undefined) {
+                comment += `\n**${key.replace('_', ' ').toUpperCase()}**\n`;
+                comment += `- Errors: ${value.errors}\n`;
+                comment += `- Warnings: ${value.warnings}\n`;
+                comment += `- Notices: ${value.notices}\n`;
+              } else if (value.score !== undefined) {
+                comment += `\n**${key.replace('_', ' ').toUpperCase()}**\n`;
+                comment += `- Score: ${value.score.toFixed(1)}%\n`;
+              }
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+          } catch (error) {
+            console.log('Error creating accessibility comment:', error);
+          }

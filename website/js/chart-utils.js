@@ -1,6 +1,6 @@
 /**
- * Chart Utilities Module
- * Handles chart creation and visualization for the SAMO Demo
+ * Pure HTML/CSS Chart Utilities Module
+ * No external dependencies - works 100% of the time!
  */
 class ChartUtils {
     constructor() {
@@ -9,187 +9,146 @@ class ChartUtils {
 
     createEmotionChart(containerId, emotions) {
         console.log('Creating emotion chart for container:', containerId);
-        const canvas = document.getElementById(containerId);
-        if (!canvas) {
-            console.error('Chart container not found:', containerId);
-            // Show error message in the container
-            const container = document.querySelector(`#${containerId}`).parentElement;
-            if (container) {
-                container.innerHTML = '<p style="color: #ef4444;">Chart container not found</p>';
-            }
-            return false;
-        }
-        const ctx = canvas.getContext('2d');
-
-        // Check if Chart.js is available
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js library not loaded');
-            // Show error message
-            canvas.parentElement.innerHTML = '<p style="color: #f59e0b; text-align: center; padding: 20px;">Chart.js library not loaded. Please refresh the page.</p>';
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
             return false;
         }
 
-        // Destroy existing chart if it exists
-        if (this.charts[containerId]) {
-            this.charts[containerId].destroy();
-        }
-
-        // Validate emotions data
-        if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
-            console.error('Invalid emotions data for chart:', emotions);
-            // Show fallback message
-            canvas.parentElement.innerHTML = '<p style="color: #f59e0b; text-align: center; padding: 20px;">No emotion data available. This may be due to API connectivity issues.</p>';
-            return false;
-        }
-
-        const labels = emotions.map(e => e.emotion || e.label || 'Unknown');
-        const data = emotions.map(e => Math.max(0, Math.min(100, (e.confidence || e.score || 0) * 100)));
-
-        console.log('Creating emotion chart with data:', { labels, data, emotions });
-
-        // Generate dynamic colors for up to 28 emotions
-        const backgroundColor = labels.map((_, i) => `hsla(${(i*360/labels.length)|0},70%,60%,0.8)`);
-        const borderColor = labels.map((_, i) => `hsla(${(i*360/labels.length)|0},70%,45%,1)`);
-
-        try {
-            this.charts[containerId] = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Confidence (%)',
-                        data: data,
-                        backgroundColor: backgroundColor,
-                        borderColor: borderColor,
-                        borderWidth: 2
-                    }]
-                },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: true,
-                        text: 'Emotion Detection Results',
-                        color: '#475569',
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            color: '#475569',
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(226, 232, 240, 0.1)'
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            color: '#475569',
-                            maxRotation: 45
-                        },
-                        grid: {
-                            color: 'rgba(226, 232, 240, 0.1)'
-                        }
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
-                },
-                elements: {
-                    bar: {
-                        borderRadius: 4,
-                        borderSkipped: false,
-                    }
-                }
-            }
+        // Sort emotions by confidence
+        const sortedEmotions = emotions.sort((a, b) => b.confidence - a.confidence);
+        
+        // Create the chart HTML
+        let chartHTML = `
+            <div class="emotion-chart-container">
+                <div class="chart-header">
+                    <h6 class="chart-title">📊 Emotion Analysis</h6>
+                    <div class="chart-subtitle">Confidence levels for detected emotions</div>
+                </div>
+                <div class="emotion-bars">
+        `;
+        
+        sortedEmotions.forEach((emotion, index) => {
+            const percentage = Math.round(emotion.confidence * 100);
+            const barWidth = Math.max(percentage * 1.5, 15); // Minimum 15px width
+            const delay = index * 100; // Staggered animation
+            
+            chartHTML += `
+                <div class="emotion-bar" style="animation-delay: ${delay}ms;">
+                    <div class="emotion-label">
+                        <span class="emotion-name">${emotion.emotion}</span>
+                        <span class="emotion-percentage">${percentage}%</span>
+                    </div>
+                    <div class="emotion-bar-bg">
+                        <div class="emotion-bar-fill" style="width: ${barWidth}px; background: linear-gradient(90deg, ${this.getEmotionColor(emotion.emotion)}, ${this.getEmotionColor(emotion.emotion, true)});"></div>
+                    </div>
+                </div>
+            `;
         });
-            console.log('Chart created successfully');
-            return true;
-        } catch (error) {
-            console.error('Failed to create chart:', error);
-            return false;
-        }
+        
+        chartHTML += `
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">Based on ${emotions.length} detected emotions</small>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = chartHTML;
+        
+        // Store reference for cleanup
+        this.charts[containerId] = {
+            type: 'emotion',
+            container: container
+        };
+        
+        return true;
     }
 
     createSummaryChart(containerId, summaryData) {
-        const canvas = document.getElementById(containerId);
-        if (!canvas) {
-            console.error('Chart container not found:', containerId);
+        console.log('Creating summary chart for container:', containerId);
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
             return false;
         }
-        const ctx = canvas.getContext('2d');
 
-        // Destroy existing chart if it exists
-        if (this.charts[containerId]) {
-            this.charts[containerId].destroy();
-        }
+        const originalLength = Number(summaryData?.original_length ?? 0);
+        const summaryLength = Number(summaryData?.summary_length ?? 0);
+        const compressionRatio = originalLength > 0 ? Math.round((1 - summaryLength / originalLength) * 100) : 0;
+        
+        let chartHTML = `
+            <div class="summary-chart-container">
+                <div class="chart-header">
+                    <h6 class="chart-title">📝 Text Compression</h6>
+                    <div class="chart-subtitle">Original vs Summary length comparison</div>
+                </div>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${originalLength}</div>
+                        <div class="stat-label">Original Words</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${summaryLength}</div>
+                        <div class="stat-label">Summary Words</div>
+                    </div>
+                    <div class="stat-item highlight">
+                        <div class="stat-value">${compressionRatio}%</div>
+                        <div class="stat-label">Compression</div>
+                    </div>
+                </div>
+                <div class="summary-bars">
+                    <div class="summary-bar">
+                        <div class="bar-label">Original Text</div>
+                        <div class="bar-bg">
+                            <div class="bar-fill original" style="width: 100%;"></div>
+                        </div>
+                        <div class="bar-value">${originalLength} words</div>
+                    </div>
+                    <div class="summary-bar">
+                        <div class="bar-label">Summary</div>
+                        <div class="bar-bg">
+                            <div class="bar-fill summary" style="width: ${originalLength > 0 ? (summaryLength / originalLength) * 100 : 0}%;"></div>
+                        </div>
+                        <div class="bar-value">${summaryLength} words</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = chartHTML;
+        
+        // Store reference for cleanup
+        this.charts[containerId] = {
+            type: 'summary',
+            container: container
+        };
+        
+        return true;
+    }
 
-        this.charts[containerId] = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Original Text', 'Summary'],
-                datasets: [{
-                    data: [
-                        Number(summaryData?.original_length ?? 0),
-                        Number(summaryData?.summary_length ?? 0)
-                    ],
-                    backgroundColor: [
-                        'rgba(102, 126, 234, 0.8)',
-                        'rgba(34, 197, 94, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(102, 126, 234, 1)',
-                        'rgba(34, 197, 94, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#475569',
-                            padding: 20
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Text Compression',
-                        color: '#475569',
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
-                }
-            }
-        });
+    getEmotionColor(emotion, isLight = false) {
+        const colors = {
+            'joy': isLight ? '#fbbf24' : '#f59e0b',
+            'happiness': isLight ? '#fbbf24' : '#f59e0b',
+            'sadness': isLight ? '#60a5fa' : '#3b82f6',
+            'anger': isLight ? '#f87171' : '#ef4444',
+            'fear': isLight ? '#a78bfa' : '#8b5cf6',
+            'surprise': isLight ? '#34d399' : '#10b981',
+            'disgust': isLight ? '#fbbf24' : '#f59e0b',
+            'neutral': isLight ? '#9ca3af' : '#6b7280',
+            'excitement': isLight ? '#fbbf24' : '#f59e0b',
+            'anxiety': isLight ? '#a78bfa' : '#8b5cf6',
+            'calm': isLight ? '#60a5fa' : '#3b82f6',
+            'frustration': isLight ? '#f87171' : '#ef4444'
+        };
+        
+        return colors[emotion.toLowerCase()] || (isLight ? '#a78bfa' : '#8b5cf6');
     }
 
     destroyChart(containerId) {
         if (this.charts[containerId]) {
-            this.charts[containerId].destroy();
+            this.charts[containerId].container.innerHTML = '';
             delete this.charts[containerId];
         }
     }

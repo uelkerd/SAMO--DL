@@ -159,13 +159,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.body.removeChild(testIcon);
         
-        // Debug Chart.js loading
-        console.log('🔍 Checking Chart.js...');
-        if (typeof Chart !== 'undefined') {
-            console.log('✅ Chart.js is loaded correctly');
-        } else {
-            console.error('❌ Chart.js is not loaded');
-        }
+        // Pure HTML/CSS charts - no external dependencies needed!
+        console.log('✅ Pure HTML/CSS charts ready - no external dependencies!');
 
         // Bind clear button
         const clearBtn = document.getElementById('clearBtn');
