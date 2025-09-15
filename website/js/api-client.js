@@ -281,20 +281,52 @@ class SAMOAPIClient {
     }
 
     getMockSummaryResponse(text) {
-        // Extract key sentences for a more realistic summary
+        // Extract sentences for analysis
         const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
         const keywordCount = {};
         
-        // Simple keyword extraction
+        // Extract keywords and their frequency
         text.toLowerCase().split(/\W+/).forEach(word => {
             if (word.length > 4) {
                 keywordCount[word] = (keywordCount[word] || 0) + 1;
             }
         });
         
-        // Take first and most relevant sentences
-        const summaryLength = Math.max(1, Math.ceil(sentences.length * 0.3));
-        const summary = sentences.slice(0, summaryLength).join(' ').trim();
+        // Score sentences based on keyword frequency and position
+        const scoredSentences = sentences.map((sentence, index) => {
+            const words = sentence.toLowerCase().split(/\W+/);
+            let score = 0;
+            
+            // Score based on keyword frequency
+            words.forEach(word => {
+                if (keywordCount[word]) {
+                    score += keywordCount[word];
+                }
+            });
+            
+            // Boost first sentence (usually important)
+            if (index === 0) score += 2;
+            
+            // Boost sentences with emotional words
+            const emotionalWords = ['excited', 'happy', 'wonderful', 'optimistic', 'nervous', 'confident', 'amazing', 'challenges'];
+            emotionalWords.forEach(emotion => {
+                if (sentence.toLowerCase().includes(emotion)) {
+                    score += 3;
+                }
+            });
+            
+            return { sentence, score, index };
+        });
+        
+        // Sort by score and take top 2-3 sentences
+        scoredSentences.sort((a, b) => b.score - a.score);
+        const topSentences = scoredSentences.slice(0, Math.min(3, Math.max(2, Math.ceil(sentences.length * 0.4))));
+        
+        // Sort selected sentences by original order
+        topSentences.sort((a, b) => a.index - b.index);
+        
+        // Create summary
+        const summary = topSentences.map(s => s.sentence).join(' ').trim();
         
         return {
             summary: summary,
