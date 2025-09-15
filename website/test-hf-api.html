@@ -52,18 +52,35 @@
     
     <!-- Fallback config if external file fails -->
     <script>
-        // Fallback config if config.js fails to load
+        // Always ensure config exists
+        console.log('🔧 Initializing config...');
+        
         if (typeof window.SAMO_CONFIG === 'undefined') {
             console.warn('⚠️ config.js not loaded, using fallback config');
             window.SAMO_CONFIG = {
                 HUGGING_FACE: {
                     API_TOKEN: 'YOUR_HF_TOKEN_HERE',
-                    MODEL: 'distilgpt2',
+                    MODEL: 'microsoft/DialoGPT-small',
                     MAX_LENGTH: 150,
                     TEMPERATURE: 0.8
                 }
             };
+        } else {
+            console.log('✅ config.js loaded successfully');
         }
+        
+        // Ensure HUGGING_FACE object exists
+        if (!window.SAMO_CONFIG.HUGGING_FACE) {
+            console.warn('⚠️ HUGGING_FACE config missing, creating...');
+            window.SAMO_CONFIG.HUGGING_FACE = {
+                API_TOKEN: 'YOUR_HF_TOKEN_HERE',
+                MODEL: 'microsoft/DialoGPT-small',
+                MAX_LENGTH: 150,
+                TEMPERATURE: 0.8
+            };
+        }
+        
+        console.log('✅ Config initialized:', window.SAMO_CONFIG);
     </script>
     
     <script>
@@ -194,8 +211,18 @@
                 }
                 
                 // Update config with the token from input
-                if (window.SAMO_CONFIG) {
+                if (window.SAMO_CONFIG && window.SAMO_CONFIG.HUGGING_FACE) {
                     window.SAMO_CONFIG.HUGGING_FACE.API_TOKEN = hfToken;
+                } else {
+                    // Create config if it doesn't exist
+                    window.SAMO_CONFIG = {
+                        HUGGING_FACE: {
+                            API_TOKEN: hfToken,
+                            MODEL: 'microsoft/DialoGPT-small',
+                            MAX_LENGTH: 150,
+                            TEMPERATURE: 0.8
+                        }
+                    };
                 }
             } else {
                 hfToken = configToken;

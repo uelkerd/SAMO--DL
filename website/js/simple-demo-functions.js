@@ -47,6 +47,8 @@ async function generateSampleText() {
             return;
         }
         
+        console.log('🤗 Using HF token:', hfToken.substring(0, 10) + '...');
+        
         const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-small', {
             method: 'POST',
             headers: {
