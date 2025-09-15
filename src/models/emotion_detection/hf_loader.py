@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 import tarfile
@@ -13,6 +14,8 @@ import requests
 import torch
 from huggingface_hub import snapshot_download
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -159,8 +162,8 @@ def load_emotion_model_multi_source(
             return _wrap_local_model(
                 local_dir, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # 2) HF Hub direct
     if model_id:
@@ -168,8 +171,8 @@ def load_emotion_model_multi_source(
             return load_hf_emotion_model(
                 model_id, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # 3) HF snapshot
     if model_id:
@@ -181,8 +184,8 @@ def load_emotion_model_multi_source(
             return _wrap_local_model(
                 snap_dir, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # 4) Archive URL
     if archive_url:
@@ -222,19 +225,20 @@ def load_emotion_model_multi_source(
                             cand, token=token, force_multi_label=force_multi_label
                         )
                         return det
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f\"Failed to load from extracted directory {cand}: {e}\")
                         continue
             # Clean up if nothing worked
             shutil.rmtree(extract_dir, ignore_errors=True)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # 5) Remote endpoint
     if endpoint_url:
         try:
             return HFRemoteInferenceDetector(endpoint_url=endpoint_url, token=token)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # Exhausted all sources
     raise RuntimeError("Could not load emotion model from any source")

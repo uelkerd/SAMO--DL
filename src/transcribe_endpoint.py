@@ -40,9 +40,9 @@ class TranscribeEndpoint(Resource):
     def load_model(self):
         """Load the Whisper transcription model."""
         try:
-            # TODO: Replace with actual Whisper model loading
-            # from models.whisper_transcription import WhisperTranscriber
-            # self.model = WhisperTranscriber()
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber, TranscriptionConfig
+            config = TranscriptionConfig(model_size="base")
+            self.model = WhisperTranscriber(config)
             self.model_loaded = True
             logger.info("Whisper transcription model loaded successfully")
         except Exception as e:
@@ -103,21 +103,46 @@ class TranscribeEndpoint(Resource):
                 self.load_model()
 
             # Transcribe audio
-            # TODO: Replace with actual model inference when available
-            # if self.model_loaded and self.model:
-            #     result = self.model.transcribe(audio_data, language, task)
-            #     text = result['text']
-            #     confidence = result['confidence']
-            #     detected_language = result['language']
-            #     duration = result['duration']
-            # else:
-            #     confidence = 0.75
+            if self.model_loaded and self.model:
+                # Decode base64 audio data and save to temporary file
+                import tempfile
+                import os
 
-            # Mock transcription result
-            text = f"[MOCK] Transcribed audio in {language}: This is a sample transcription of audio data."
-            confidence = 0.85 if (self.model_loaded and self.model) else 0.75
-            detected_language = language
-            duration = 5.0
+                decoded_audio = base64.b64decode(audio_data)
+
+                # Create temporary file with proper extension
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=f".{audio_format}", delete=False
+                )
+                temp_file.write(decoded_audio)
+                temp_file.close()
+
+                try:
+                    # Use actual Whisper model for transcription
+                    result = self.model.transcribe(temp_file.name, language=language)
+                    text = result.text
+                    confidence = result.confidence
+                    detected_language = result.language
+                    duration = result.duration
+                except Exception as e:
+                    logger.error(f"Whisper transcription failed: {e}")
+                    # Fallback to mock result
+                    text = f"[FALLBACK] Transcription failed, mock result for {language}"
+                    confidence = 0.50
+                    detected_language = language
+                    duration = 5.0
+                finally:
+                    # Clean up temporary file
+                    try:
+                        os.unlink(temp_file.name)
+                    except Exception:
+                        pass
+            else:
+                # Mock transcription result when model not loaded
+                text = f"[MOCK] Transcribed audio in {language}: This is a sample transcription of audio data."
+                confidence = 0.75
+                detected_language = language
+                duration = 5.0
 
             processing_time = time.time() - start_time
 

@@ -51,14 +51,20 @@ class CompleteAnalysisEndpoint(Resource):
     def load_models(self):
         """Load all required models for complete analysis."""
         try:
-            # TODO: Replace with actual model loading
-            # from models.emotion_detection import EmotionDetector
-            # from models.t5_summarization import T5Summarizer
-            # from models.whisper_transcription import WhisperTranscriber
-
-
+            # Load emotion detection model
+            from src.inference.text_emotion_service import HFEmotionService
+            self.emotion_model = HFEmotionService()
             self.emotion_model_loaded = True
+
+            # Load summarization model
+            from src.models.summarization.samo_t5_summarizer import SAMOT5Summarizer
+            self.summarization_model = SAMOT5Summarizer()
             self.summarization_model_loaded = True
+
+            # Load transcription model
+            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber, TranscriptionConfig
+            config = TranscriptionConfig(model_size="base")
+            self.transcription_model = WhisperTranscriber(config)
             self.transcription_model_loaded = True
 
             logger.info("All models loaded successfully for complete analysis")
@@ -122,12 +128,33 @@ class CompleteAnalysisEndpoint(Resource):
             # Process audio if provided
             transcription = ""
             if audio_data and include_transcription:
-                # TODO: Replace with actual transcription when available
-                # if self.transcription_model_loaded and self.transcription_model:
-                #     transcription = self.transcription_model.transcribe(audio_data, language)
-                # else:
-                #     transcription = fallback_mock_transcription
-                transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
+                if self.transcription_model_loaded and self.transcription_model:
+                    try:
+                        # Decode base64 audio data and save to temporary file
+                        import tempfile
+                        import os
+
+                        audio_format = data.get('audio_format', 'wav')
+                        decoded_audio = base64.b64decode(audio_data)
+                        temp_file = tempfile.NamedTemporaryFile(
+                            suffix=f".{audio_format}", delete=False
+                        )
+                        temp_file.write(decoded_audio)
+                        temp_file.close()
+
+                        try:
+                            result = self.transcription_model.transcribe(temp_file.name, language=language)
+                            transcription = result.text
+                        finally:
+                            try:
+                                os.unlink(temp_file.name)
+                            except Exception:
+                                pass
+                    except Exception as e:
+                        logger.error(f"Transcription failed: {e}")
+                        transcription = f"[FALLBACK] Transcription failed in {language}"
+                else:
+                    transcription = f"[MOCK] Transcribed audio in {language}: This is a sample transcription."
 
             # Use transcribed text if no text provided
             if not text and transcription:
@@ -138,12 +165,20 @@ class CompleteAnalysisEndpoint(Resource):
             confidence_scores = []
             if text and include_emotion:
                 if self.emotion_model_loaded and self.emotion_model:
-                    # TODO: Replace with actual emotion analysis
-                    # result = self.emotion_model.analyze(text)
-                    # emotions = result['emotions']
-                    # confidence_scores = result['confidence_scores']
-                    emotions = ["joy", "sadness", "anger"]
-                    confidence_scores = [0.8, 0.6, 0.3]
+                    try:
+                        # Use actual emotion detection
+                        emotion_results = self.emotion_model.classify(text)
+                        if emotion_results and emotion_results[0]:
+                            # Extract top emotions and scores
+                            emotions = [result['label'] for result in emotion_results[0][:3]]
+                            confidence_scores = [result['score'] for result in emotion_results[0][:3]]
+                        else:
+                            emotions = ["neutral"]
+                            confidence_scores = [0.5]
+                    except Exception as e:
+                        logger.error(f"Emotion analysis failed: {e}")
+                        emotions = ["neutral"]
+                        confidence_scores = [0.5]
                 else:
                     emotions = ["joy", "sadness", "anger"]
                     confidence_scores = [0.8, 0.6, 0.3]
@@ -151,12 +186,16 @@ class CompleteAnalysisEndpoint(Resource):
             # Perform summarization
             summary = ""
             if text and include_summary:
-                # TODO: Replace with actual summarization when available
-                # if self.summarization_model_loaded and self.summarization_model:
-                #     summary = self.summarization_model.summarize(text)
-                # else:
-                #     summary = fallback_mock_summary
-                summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
+                if self.summarization_model_loaded and self.summarization_model:
+                    try:
+                        # Use actual T5 model for summarization
+                        result = self.summarization_model.generate_summary(text)
+                        summary = result.get('summary', '[ERROR] Failed to generate summary')
+                    except Exception as e:
+                        logger.error(f"Summarization failed: {e}")
+                        summary = f"[FALLBACK] Summary failed: {text[:100]}..."
+                else:
+                    summary = f"[MOCK] Summary of {len(text)} characters: {text[:50]}..."
 
             processing_time = time.time() - start_time
 
