@@ -1,5 +1,9 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-unified-api', '-f', 'deployment/cloud-run/Dockerfile.unified', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-unified-api']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'deploy', 'samo-unified-api', '--image', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-unified-api', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
 images:
-  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure'
+  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-unified-api'
