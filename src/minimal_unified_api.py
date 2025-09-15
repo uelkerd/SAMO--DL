@@ -174,4 +174,9 @@ async def transcribe_audio(audio_file: bytes):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Security: Only bind to all interfaces in production environments
+    # Default to localhost for development to avoid exposure
+    host = os.environ.get("HOST", "127.0.0.1")
+    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+        host = "0.0.0.0"  # Cloud Run and production environments
+    uvicorn.run(app, host=host, port=port)

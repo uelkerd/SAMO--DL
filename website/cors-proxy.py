@@ -5,9 +5,9 @@ This script creates a local proxy to bypass CORS restrictions
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import urllib.request
 import urllib.parse
 import json
+import requests
 
 class CORSProxyHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -52,34 +52,45 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                 # Forward the request to the unified API with query parameters
                 api_url = f'https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text={encoded_text}'
 
-                # Make POST request with query parameters (unified API expects POST with query params)
-                req = urllib.request.Request(api_url, method='POST')
-                req.add_header('Content-Type', 'application/json')
-                req.add_header('Content-Length', '0')  # Required for POST requests with query params
+                # Make POST request with query parameters using secure requests library
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '0'  # Required for POST requests with query params
+                }
 
                 # Debug: Print what we're sending
                 print(f"Sending to Unified API: {api_url}")
 
-                with urllib.request.urlopen(req) as response:
-                    api_response = response.read()
+                # Use requests library for better security and SSL verification
+                response = requests.post(api_url, headers=headers, timeout=30, verify=True)
+                response.raise_for_status()  # Raise exception for HTTP errors
 
-                    # Send CORS headers
-                    self.send_response(200)
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-
-                    # Send the API response
-                    self.wfile.write(api_response)
-
-            except urllib.error.HTTPError as e:
-                print(f"HTTP Error {e.code}: {e.reason}")
-                # Forward the original error status code instead of converting to 500
-                self.send_response(e.code)
+                # Send CORS headers
+                self.send_response(200)
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                error_response = json.dumps({"error": f"API Error {e.code}: {e.reason}"})
+
+                # Send the API response
+                self.wfile.write(response.content)
+
+            except requests.exceptions.HTTPError as e:
+                status_code = e.response.status_code if e.response else 500
+                print(f"HTTP Error {status_code}: {str(e)}")
+                # Forward the original error status code instead of converting to 500
+                self.send_response(status_code)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                error_response = json.dumps({"error": f"API Error {status_code}: {str(e)}"})
+                self.wfile.write(error_response.encode())
+            except requests.exceptions.RequestException as e:
+                print(f"Request Error: {str(e)}")
+                self.send_response(500)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                error_response = json.dumps({"error": f"Request failed: {str(e)}"})
                 self.wfile.write(error_response.encode())
             except Exception as e:
                 print(f"Error: {e}")

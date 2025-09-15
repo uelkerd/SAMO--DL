@@ -1639,8 +1639,6 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            processing_time = (time.time() - start_time) * 1000
-
             return VoiceTranscription(
                 text=text_val,
                 language=lang_val,
@@ -1825,8 +1823,6 @@ async def summarize_text(
 
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
-
-        processing_time = (time.time() - start_time) * 1000
 
         return TextSummary(
             summary=summary_text or "",
@@ -2049,7 +2045,7 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
@@ -2178,4 +2174,10 @@ async def root() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Security: Only bind to all interfaces in production environments
+    # Default to localhost for development to avoid exposure
+    host = os.environ.get("HOST", "127.0.0.1")
+    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+        host = "0.0.0.0"  # Cloud Run and production environments
+    port = int(os.environ.get("PORT", "8000"))
+    uvicorn.run(app, host=host, port=port)

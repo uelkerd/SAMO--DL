@@ -596,7 +596,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 # HTTP exception handler
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(_request: Request, exc: HTTPException):
     """Handle HTTP exceptions."""
     logger.warning("⚠️  HTTP exception: %s - %s", exc.status_code, exc.detail)
     # Preserve FastAPI's default validation/detail contract for 400-series
@@ -1309,7 +1309,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
 )
 async def analyze_journal_entry(
     request: JournalEntryRequest,
-    x_api_key: Optional[str] = Header(
+    _x_api_key: Optional[str] = Header(
         None, description="API key for authentication"
     ),
 ) -> CompleteJournalAnalysis:
@@ -1561,16 +1561,14 @@ async def transcribe_voice(
     language: Optional[str] = Form(
         None, description="Language code (auto-detect if not provided)"
     ),
-    model_size: str = Form(
+    _model_size: str = Form(
         "base",
         description="Whisper model size (tiny, base, small, medium, large)"
     ),
-    timestamp: bool = Form(False, description="Include word-level timestamps"),
-    current_user: TokenPayload = Depends(get_current_user),
+    _timestamp: bool = Form(False, description="Include word-level timestamps"),
+    _current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
     """Enhanced voice transcription with detailed analysis."""
-    start_time = time.time()
-
     try:
         # Validate file
         if not audio_file.filename:
@@ -1661,8 +1659,6 @@ async def transcribe_voice(
                 speaking_rate,
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
-
-            processing_time = (time.time() - start_time) * 1000
 
             return VoiceTranscription(
                 text=text_val,
@@ -1794,11 +1790,9 @@ async def summarize_text(
     max_length: int = Form(150, description="Maximum summary length", ge=10, le=500),
     min_length: int = Form(30, description="Minimum summary length", ge=5, le=200),
     # Removed do_sample to keep API contract accurate; summarizer uses beam search
-    current_user: TokenPayload = Depends(get_current_user),
+    _current_user: TokenPayload = Depends(get_current_user),
 ) -> TextSummary:
     """Enhanced text summarization with multiple model options."""
-    start_time = time.time()
-
     try:
         if not text.strip():
             raise HTTPException(status_code=400, detail="Text cannot be empty")
@@ -1840,8 +1834,6 @@ async def summarize_text(
 
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
-
-        processing_time = (time.time() - start_time) * 1000
 
         return TextSummary(
             summary=summary_text or "",
@@ -1983,7 +1975,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
     description="Get detailed performance metrics and analytics",
 )
 async def get_performance_metrics(
-    current_user: TokenPayload = Depends(require_permission("monitoring")),
+    _current_user: TokenPayload = Depends(require_permission("monitoring")),
 ) -> Dict[str, Any]:
     """Get comprehensive performance metrics."""
     try:
@@ -2044,7 +2036,7 @@ async def get_performance_metrics(
     description="Comprehensive health check with model diagnostics",
 )
 async def detailed_health_check(
-    current_user: TokenPayload = Depends(require_permission("monitoring"))
+    _current_user: TokenPayload = Depends(require_permission("monitoring"))
 ) -> Dict[str, Any]:
     """Comprehensive health check with detailed diagnostics."""
     health_status = "healthy"
@@ -2060,7 +2052,7 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
@@ -2074,7 +2066,7 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            text_summarizer.summarize("This is a test text for summarization.")
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
@@ -2190,4 +2182,9 @@ async def root() -> Dict[str, Any]:
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Security: Only bind to all interfaces in production environments
+    # Default to localhost for development to avoid exposure
+    host = os.environ.get("HOST", "127.0.0.1")
+    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+        host = "0.0.0.0"  # Cloud Run and production environments
+    uvicorn.run(app, host=host, port=port)
