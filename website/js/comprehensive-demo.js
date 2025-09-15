@@ -73,7 +73,7 @@ class SAMOAPIClient {
             return await this.makeRequest('/summarize/text', { text });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
-            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily')) {
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected')) {
                 console.warn('API not available, using mock data for demo:', error.message);
                 return this.getMockSummaryResponse(text);
             }
@@ -103,7 +103,7 @@ class SAMOAPIClient {
             return await this.makeRequest('/predict', { text });
         } catch (error) {
             // If API is not available, return mock data for demo purposes
-            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily')) {
+            if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected')) {
                 console.warn('API not available, using mock data for demo:', error.message);
                 return this.getMockEmotionResponse(text);
             }
