@@ -40,7 +40,7 @@ class SAMOAPIClient {
         } catch (error) {
             console.error('Failed to initialize API client configuration:', error);
             // Use fallback configuration
-            this.baseURL = 'http://localhost:8080';
+            this.baseURL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
             this.initialized = true;
         }
     }
@@ -70,8 +70,8 @@ class SAMOAPIClient {
             return '/api';
         }
 
-        // 4. Local development fallback
-        return 'http://localhost:8080';
+        // 4. Production GCP Cloud Run fallback
+        return 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
     }
 
     async fetchServerConfig() {
