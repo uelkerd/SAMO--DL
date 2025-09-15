@@ -270,5 +270,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Display detailed model analysis
+function displayDetailedModelAnalysis(emotionData, summaryData) {
+    console.log('Displaying detailed model analysis...');
+    
+    // Calculate primary emotion
+    const emotions = emotionData.emotions || [];
+    const primaryEmotion = emotions.length > 0 ? emotions[0] : null;
+    const primaryEmotionName = primaryEmotion ? primaryEmotion.emotion : 'Unknown';
+    const primaryEmotionConfidence = primaryEmotion ? Math.round(primaryEmotion.confidence * 100) : 0;
+    
+    // Calculate emotional intensity (average confidence)
+    const avgConfidence = emotions.length > 0 ? 
+        emotions.reduce((sum, e) => sum + e.confidence, 0) / emotions.length : 0;
+    const intensity = avgConfidence > 0.7 ? 'High' : avgConfidence > 0.4 ? 'Medium' : 'Low';
+    
+    // Calculate sentiment score (weighted average)
+    const sentimentWeights = {
+        'joy': 1, 'happiness': 1, 'excitement': 1, 'optimism': 0.8, 'gratitude': 0.9,
+        'sadness': -1, 'anger': -1, 'fear': -0.8, 'anxiety': -0.7, 'frustration': -0.9,
+        'neutral': 0, 'calm': 0.2
+    };
+    
+    const sentimentScore = emotions.length > 0 ? 
+        emotions.reduce((sum, e) => sum + (e.confidence * (sentimentWeights[e.emotion] || 0)), 0) : 0;
+    const sentimentLabel = sentimentScore > 0.3 ? 'Positive' : sentimentScore < -0.3 ? 'Negative' : 'Neutral';
+    
+    // Calculate confidence range
+    const confidences = emotions.map(e => e.confidence);
+    const minConf = Math.min(...confidences);
+    const maxConf = Math.max(...confidences);
+    const confidenceRange = `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%`;
+    
+    // Model processing details
+    const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. ` +
+        `Model confidence: ${Math.round(avgConfidence * 100)}%. ` +
+        `Processing time: ${Date.now() - window.processingStartTime || 0}ms. ` +
+        `Text length: ${summaryData?.original_length || 0} characters.`;
+    
+    // Update the UI
+    document.getElementById('primaryEmotion').textContent = `${primaryEmotionName} (${primaryEmotionConfidence}%)`;
+    document.getElementById('emotionalIntensity').textContent = intensity;
+    document.getElementById('sentimentScore').textContent = `${sentimentLabel} (${sentimentScore.toFixed(2)})`;
+    document.getElementById('confidenceRange').textContent = confidenceRange;
+    document.getElementById('modelDetails').textContent = modelDetails;
+}
+
+// Make the function globally available
+window.displayDetailedModelAnalysis = displayDetailedModelAnalysis;
+
 // Also make demo available immediately for testing
 window.ComprehensiveDemo = ComprehensiveDemo;

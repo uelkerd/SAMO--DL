@@ -276,12 +276,45 @@
                                         Emotion Analysis (SAMO DeBERTa v3 Large)
                                     </h5>
                                     <div id="emotionBadges" class="mb-3"></div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div id="emotionChart"></div>
+                                    <div id="emotionChart"></div>
+                                    
+                                    <!-- Detailed Model Output -->
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold mb-3 text-info">
+                                            <span class="material-icons me-2">psychology</span>
+                                            Detailed Model Analysis
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="model-detail-card">
+                                                    <div class="model-detail-label">Primary Emotion</div>
+                                                    <div class="model-detail-value" id="primaryEmotion">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="model-detail-card">
+                                                    <div class="model-detail-label">Emotional Intensity</div>
+                                                    <div class="model-detail-value" id="emotionalIntensity">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="model-detail-card">
+                                                    <div class="model-detail-label">Sentiment Score</div>
+                                                    <div class="model-detail-value" id="sentimentScore">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="model-detail-card">
+                                                    <div class="model-detail-label">Confidence Range</div>
+                                                    <div class="model-detail-value" id="confidenceRange">-</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div id="emotionDetails"></div>
+                                        <div class="mt-3">
+                                            <div class="model-detail-card">
+                                                <div class="model-detail-label">Model Processing Details</div>
+                                                <div class="model-detail-text" id="modelDetails">-</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -42,7 +42,7 @@
 
 /* Text input styling */
 #textInput {
-    min-height: 120px !important;
+    min-height: 240px !important;
     font-size: 16px;
     line-height: 1.5;
     resize: vertical;
@@ -360,22 +360,22 @@ body {
 }
 
 .progress-step-vertical .step-icon-small {
-    width: 30px !important;
-    height: 30px !important;
+    width: 18px !important;
+    height: 18px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
-    font-size: 0.9rem !important;
+    margin-bottom: 8px;
+    font-size: 0.6rem !important;
     transition: var(--transition-smooth);
     background: rgba(255, 255, 255, 0.1) !important;
     color: #e2e8f0 !important;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .progress-step-vertical .step-label {
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #e2e8f0;
     transition: var(--transition-smooth);
@@ -582,6 +582,42 @@ body {
 .success-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
+}
+
+/* Model Detail Cards */
+.model-detail-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.model-detail-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.model-detail-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.model-detail-value {
+    font-size: 1.1rem;
+    color: #f1f5f9;
+    font-weight: 700;
+}
+
+.model-detail-text {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.4;
 }
 
 /* Pure HTML/CSS Chart styling - BEAUTIFUL DESIGN */
