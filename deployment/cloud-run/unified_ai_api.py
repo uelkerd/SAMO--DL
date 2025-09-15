@@ -492,7 +492,7 @@ app = FastAPI(
 )
 
 # Add CORS middleware with secure configuration
-from .config import get_config
+from config import get_config
 
 # Get CORS configuration from environment
 config = get_config()
@@ -512,7 +512,7 @@ app.add_middleware(
 
 # Add rate limiting middleware (production-friendly settings)
 try:
-    from .api_config_production import get_production_overrides
+    from api_config_production import get_production_overrides
     overrides = get_production_overrides()
     add_rate_limiting(
         app,
@@ -1964,7 +1964,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 "type": "error",
                 "message": "Internal server error"
             })
-        except:
+        except Exception:
             pass
 
 # Monitoring and Analytics Endpoints

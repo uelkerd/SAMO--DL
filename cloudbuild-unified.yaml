@@ -8,6 +8,21 @@ steps:
       '.'
     ]
 
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'deploy', 'samo-unified-api',
+      '--image', 'gcr.io/$PROJECT_ID/samo-unified-api:fixed-v2',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '8080',
+      '--memory', '2Gi',
+      '--cpu', '2',
+      '--max-instances', '10'
+    ]
+
 # Available images
 images:
   - 'gcr.io/$PROJECT_ID/samo-unified-api:fixed-v2'

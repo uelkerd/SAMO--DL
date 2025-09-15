@@ -23,19 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install additional dependencies needed for the unified API
-RUN pip install --no-cache-dir \
-    prometheus-client==0.20.0 \
-    pydub==0.25.1 \
-    openai-whisper==20240930 \
-    sentencepiece==0.2.0 \
-    loguru==0.7.2
+COPY requirements-unified-fixed.txt .
+RUN pip install --no-cache-dir -r requirements-unified-fixed.txt
 
 # Copy source code
 COPY src/ ./src/
+COPY deployment/ ./deployment/
 COPY *.py ./
 
 # Pre-download models during build
@@ -75,4 +68,4 @@ ENV PYTHONPATH=/app
 ENV PORT=8080
 
 # Run the unified API
-CMD ["python", "src/unified_ai_api.py"]
+CMD ["python", "deployment/cloud-run/unified_ai_api.py"]
