@@ -256,14 +256,11 @@ function testWithRealAPI() {
         
         // Try the LIVE emotion API first (no auth required)
         console.log('🔥 Calling LIVE emotion API...');
-        fetch('https://samo-emotion-api-minimal-71517823771.us-central1.run.app/predict', {
-            method: 'POST',
+        fetch('https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text=' + encodeURIComponent(text), {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: testText
-            })
+            }
         })
         .then(response => {
             if (!response.ok) {
@@ -276,7 +273,13 @@ function testWithRealAPI() {
             
             // Convert API response to our format
             const emotions = [];
-            if (data.emotions && Array.isArray(data.emotions)) {
+            if (data.emotion && data.confidence) {
+                // New unified API format: {emotion: "love", confidence: 0.968}
+                emotions.push({
+                    emotion: data.emotion,
+                    confidence: data.confidence
+                });
+            } else if (data.emotions && Array.isArray(data.emotions)) {
                 // Current API format: {emotions: [{emotion: "excitement", confidence: 0.739}]}
                 data.emotions.forEach(emotion => {
                     emotions.push({
