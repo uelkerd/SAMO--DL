@@ -176,7 +176,7 @@ class ComprehensiveLintingFixer:
         if 'print(' in content and 'import logging' not in content:
             lines = content.split('\n')
             import_added = False
-            for _i, line in enumerate(lines):
+            for i, line in enumerate(lines):
                 if (line.strip().startswith('import ') or line.strip().startswith('from ')) and not import_added:
                     lines.insert(i, 'import logging')
                     import_added = True
