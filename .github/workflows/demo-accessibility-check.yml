@@ -142,9 +142,9 @@ jobs:
         print("Accessibility Test Summary:")
         print("=" * 40)
         
-        total_errors = sum(r.get('errors', 0) for r in results.values() if 'pa11y' in r)
-        total_warnings = sum(r.get('warnings', 0) for r in results.values() if 'pa11y' in r)
-        avg_lighthouse_score = sum(r.get('score', 0) for r in results.values() if 'lighthouse' in r) / max(1, len([r for r in results.values() if 'lighthouse' in r]))
+        total_errors = sum(r.get('errors', 0) for key, r in results.items() if key == 'pa11y')
+        total_warnings = sum(r.get('warnings', 0) for key, r in results.items() if key == 'pa11y')
+        avg_lighthouse_score = sum(r.get('score', 0) for key, r in results.items() if key == 'lighthouse') / max(1, len([r for key, r in results.items() if key == 'lighthouse']))
         
         print(f"Total Errors: {total_errors}")
         print(f"Total Warnings: {total_warnings}")

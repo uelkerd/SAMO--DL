@@ -18,12 +18,12 @@ __pypackages__/
 .eggs/
 .embeddings_cache/
 .env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.test
 website/config.js
-website/config.js.*.local
-website/config.js.development
-website/config.js.local
-website/config.js.production
-website/config.js.test
 .eslintcache
 .flake8
 .fuse_hidden*
@@ -387,6 +387,6 @@ bandit-report.json
 ci_pipeline.log
 
 # Configuration files with sensitive data
-website/config.js
+# (website/config.js already ignored above)
 
 

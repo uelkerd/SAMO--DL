@@ -950,9 +950,12 @@ def add_to_blacklist():
         rate_limiter.add_to_blacklist(ip)
         logger.info("Added %s to blacklist", ip)
         return jsonify({'message': f'Added {ip} to blacklist'})
+    except (ValueError, KeyError) as e:
+        logger.warning("Invalid blacklist request: %s", str(e))
+        return jsonify({'error': 'Invalid request data'}), 400
     except Exception as e:
-        logger.error("Blacklist error: %s", str(e))
-        return jsonify({'error': str(e)}), 500
+        logger.exception("Unexpected error in blacklist operation")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
 @require_admin_api_key
@@ -967,9 +970,12 @@ def add_to_whitelist():
         rate_limiter.add_to_whitelist(ip)
         logger.info("Added %s to whitelist", ip)
         return jsonify({'message': f'Added {ip} to whitelist'})
+    except (ValueError, KeyError) as e:
+        logger.warning("Invalid whitelist request: %s", str(e))
+        return jsonify({'error': 'Invalid request data'}), 400
     except Exception as e:
-        logger.error("Whitelist error: %s", str(e))
-        return jsonify({'error': str(e)}), 500
+        logger.exception("Unexpected error in whitelist operation")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/', methods=['GET'])
 @secure_endpoint
