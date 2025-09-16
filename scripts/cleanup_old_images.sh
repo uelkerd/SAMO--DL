@@ -1,5 +1,12 @@
 #!/bin/bash
 # Script to clean up old Docker images from Artifact Registry
+#
+# This script:
+# - Uses fully-qualified image names (LOCATION-docker.pkg.dev/PROJECT/REPO/PACKAGE)
+# - Handles both tagged versions and digest-only versions
+# - Groups images by package and keeps N most recent per package
+# - Uses --delete-tags flag to ensure complete removal of tagged images
+# - Uses digest form (@sha256:...) for digest-only images
 
 set -euo pipefail
 
@@ -9,6 +16,14 @@ echo "🧹 Starting Docker image cleanup..."
 cleanup_repo() {
     local repo=$1
     local keep_count=${2:-2}  # Default to keeping 2 most recent per package
+    
+    # Validate that repo is fully qualified
+    if [[ ! "$repo" =~ ^[a-z0-9-]+-docker\.pkg\.dev/[a-z0-9-]+/[a-z0-9-]+$ ]]; then
+        echo "❌ Error: Repository '$repo' is not fully qualified"
+        echo "   Expected format: LOCATION-docker.pkg.dev/PROJECT/REPO"
+        return 1
+    fi
+    
     echo "Cleaning up repository: $repo (keeping $keep_count most recent per package)"
     
     # Get all images in CSV format with stable delimiter, no header
@@ -46,15 +61,20 @@ cleanup_repo() {
         
         # Get images to delete (skip the first $keep_count, delete the rest)
         echo "$package_images" | tail -n +$((keep_count + 1)) | while IFS=',' read -r pkg version createTime; do
+            # Construct fully-qualified image name
+            local full_image_name="$repo/$pkg"
+            
             # Handle both tagged versions and digest-only versions
             if [[ "$version" =~ ^sha256: ]]; then
-                # This is a digest-only version
-                echo "  Deleting digest-only image: $pkg@$version"
-                gcloud artifacts docker images delete "$pkg@$version" --quiet || true
+                # This is a digest-only version - use digest form
+                local digest_image="$full_image_name@$version"
+                echo "  Deleting digest-only image: $digest_image"
+                gcloud artifacts docker images delete "$digest_image" --quiet || true
             else
-                # This is a tagged version
-                echo "  Deleting tagged image: $pkg:$version"
-                gcloud artifacts docker images delete "$pkg:$version" --delete-tags --quiet || true
+                # This is a tagged version - use tag form with --delete-tags
+                local tagged_image="$full_image_name:$version"
+                echo "  Deleting tagged image: $tagged_image"
+                gcloud artifacts docker images delete "$tagged_image" --delete-tags --quiet || true
             fi
         done
     done
