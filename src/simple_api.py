@@ -40,21 +40,21 @@ async def analyze_emotion(text: str):
     """Analyze emotion - loads model on first request."""
     try:
         logger.info(f"Analyzing emotion for text: {text[:50]}...")
-        
+
         # Import and load model only when needed
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
-        
+
         model_name = 'duelker/samo-goemotions-deberta-v3-large'
         logger.info(f"Loading model: {model_name}")
-        
+
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        
+
         # Perform analysis
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
         outputs = model(**inputs)
         predictions = outputs.logits.sigmoid()
-        
+
         # 28 emotions from our DeBERTa-v3 model
         emotion_labels = [
             'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
@@ -63,17 +63,17 @@ async def analyze_emotion(text: str):
             'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
             'relief', 'remorse', 'sadness', 'surprise', 'neutral'
         ]
-        
+
         emotion_scores = predictions[0].tolist()
         result = {
             "text": text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
             "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))]
         }
-        
+
         logger.info(f"Analysis complete. Predicted emotion: {result['predicted_emotion']}")
         return result
-        
+
     except Exception as e:
         logger.error(f"Error in emotion analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

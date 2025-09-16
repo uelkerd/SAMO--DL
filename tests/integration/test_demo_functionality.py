@@ -149,10 +149,6 @@ class TestDemoFunctionality:
         none_audio_request = {"audio_data": None, "model": "whisper"}
         # Validate that None audio data is detected and handled appropriately
         assert none_audio_request["audio_data"] is None
-        # This validates the demo's ability to detect and handle None values
-        if none_audio_request["audio_data"] is None:
-            # Expected behavior - None audio data should be detected
-            pass
 
     
     @staticmethod

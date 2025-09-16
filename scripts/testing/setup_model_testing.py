@@ -164,7 +164,7 @@ def test_model_loading():
         # Fall back to map_location-only if weights_only not supported
         checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
         print("✅ Model loaded with map_location only (fallback)")
-    
+
     # Safely inspect the loaded object
     try:
         if isinstance(checkpoint, dict):
@@ -190,7 +190,7 @@ def test_model_loading():
     except Exception as e:
         print(f"⚠️  Could not determine model structure: {e}")
         print("✅ Model checkpoint loaded (structure inspection failed)")
-    
+
     return True
 
 def run_quick_test():

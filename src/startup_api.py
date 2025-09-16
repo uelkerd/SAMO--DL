@@ -195,11 +195,10 @@ async def ready():
                 status_code=503,
                 detail=f"Models not loaded due to startup error: {startup_error}"
             )
-        else:
-            raise HTTPException(
-                status_code=503,
-                detail="Models still loading, please wait..."
-            )
+        raise HTTPException(
+            status_code=503,
+            detail="Models still loading, please wait..."
+        )
 
     return {
         "status": "ready",
@@ -210,7 +209,6 @@ async def ready():
 @app.post("/analyze/emotion")
 async def analyze_emotion(text: str):
     """Analyze emotion in text using pre-loaded DeBERTa model."""
-    global emotion_model
 
     # Verify model is loaded
     if not models_loaded or emotion_model is None:
@@ -247,7 +245,6 @@ async def analyze_emotion(text: str):
 @app.post("/analyze/summarize")
 async def summarize_text(text: str):
     """Summarize text using pre-loaded T5 model."""
-    global summarization_model
 
     # Verify model is loaded
     if not models_loaded or summarization_model is None:
