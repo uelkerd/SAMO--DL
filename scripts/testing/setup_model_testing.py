@@ -154,10 +154,43 @@ def test_model_loading():
 
     print("✅ Model file exists")
 
-    # Try to load a small part to verify it's valid
+    # Try to load safely with weights_only when supported
     import torch
-    checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
-    print(f"✅ Model checkpoint loaded with {len(checkpoint)} layers")
+    try:
+        # Try with weights_only=True for security (PyTorch 1.13+)
+        checkpoint = torch.load('best_simple_model.pth', weights_only=True, map_location='cpu')
+        print("✅ Model loaded with weights_only=True (secure)")
+    except TypeError:
+        # Fall back to map_location-only if weights_only not supported
+        checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
+        print("✅ Model loaded with map_location only (fallback)")
+    
+    # Safely inspect the loaded object
+    try:
+        if isinstance(checkpoint, dict):
+            # Handle dictionary checkpoint
+            if 'state_dict' in checkpoint:
+                state_dict = checkpoint['state_dict']
+                layer_count = len(state_dict.keys())
+                print(f"✅ Model checkpoint loaded with {layer_count} layers (from state_dict)")
+            else:
+                layer_count = len(checkpoint.keys())
+                print(f"✅ Model checkpoint loaded with {layer_count} layers (from dict keys)")
+        elif hasattr(checkpoint, 'state_dict'):
+            # Handle torch.nn.Module
+            state_dict = checkpoint.state_dict()
+            layer_count = len(state_dict.keys())
+            print(f"✅ Model checkpoint loaded with {layer_count} layers (from Module.state_dict)")
+        elif hasattr(checkpoint, 'parameters'):
+            # Fallback to parameters count
+            param_count = len(list(checkpoint.parameters()))
+            print(f"✅ Model checkpoint loaded with {param_count} parameters")
+        else:
+            print("✅ Model checkpoint loaded (unknown structure)")
+    except Exception as e:
+        print(f"⚠️  Could not determine model structure: {e}")
+        print("✅ Model checkpoint loaded (structure inspection failed)")
+    
     return True
 
 def run_quick_test():
