@@ -18,8 +18,8 @@ def main():
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
         model_name = 'duelker/samo-goemotions-deberta-v3-large'
         print(f'Downloading {model_name}...')
-        tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models')
-        model = AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models')
+        _tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models')
+        _model = AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models')
         print('✅ DeBERTa-v3 model downloaded successfully')
     except Exception as e:
         print(f'❌ Error downloading DeBERTa-v3 model: {e}')
@@ -30,8 +30,8 @@ def main():
         from transformers import T5Tokenizer, T5ForConditionalGeneration
         t5_model = 't5-small'
         print(f'Downloading {t5_model}...')
-        t5_tokenizer = T5Tokenizer.from_pretrained(t5_model, cache_dir='/app/models')
-        t5_model_obj = T5ForConditionalGeneration.from_pretrained(t5_model, cache_dir='/app/models')
+        _t5_tokenizer = T5Tokenizer.from_pretrained(t5_model, cache_dir='/app/models')
+        _t5_model_obj = T5ForConditionalGeneration.from_pretrained(t5_model, cache_dir='/app/models')
         print('✅ T5 model downloaded successfully')
     except Exception as e:
         print(f'❌ Error downloading T5 model: {e}')

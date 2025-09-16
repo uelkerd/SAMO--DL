@@ -238,7 +238,7 @@ class ComprehensiveAPITester:
 
         results = []
 
-        for i, text in enumerate(self.test_texts[:3]):  # Test first 3 texts
+        for _i, text in enumerate(self.test_texts[:3]):  # Test first 3 texts
             # Test unified journal analysis endpoint
             journal_data = {
                 "text": text,

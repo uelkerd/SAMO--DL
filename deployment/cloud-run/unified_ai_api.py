@@ -1940,7 +1940,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 
         logger.info("WebSocket authenticated for user: %s", payload.username)
 
-    except Exception as exc:
+    except Exception as _exc:
         await websocket.send_json({
             "type": "error",
             "message": "Authentication failed"

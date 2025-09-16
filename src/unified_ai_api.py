@@ -1652,6 +1652,8 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
+            processing_time = (time.time() - start_time) * 1000
+
             return VoiceTranscription(
                 text=text_val,
                 language=lang_val,
@@ -1659,7 +1661,8 @@ async def transcribe_voice(
                 duration=duration,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
-                audio_quality=audio_quality
+                audio_quality=audio_quality,
+                processing_time_ms=processing_time
             )
 
         finally:
@@ -1837,11 +1840,14 @@ async def summarize_text(
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
+        processing_time = (time.time() - start_time) * 1000
+
         return TextSummary(
             summary=summary_text or "",
             key_emotions=key_emotions,
             compression_ratio=compression_ratio,
-            emotional_tone=emotional_tone
+            emotional_tone=emotional_tone,
+            processing_time_ms=processing_time
         )
 
     except Exception as exc:
@@ -2070,7 +2076,7 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            _test_result = text_summarizer.summarize("This is a test text for summarization.")
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"

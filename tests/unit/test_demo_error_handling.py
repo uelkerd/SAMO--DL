@@ -232,10 +232,10 @@ class TestDemoErrorHandling:
     def test_error_recovery_time_measurement():
         """Test that error recovery time is properly measured and reported"""
         # Simulate error recovery timing
-        start_time = datetime.now()
+        _start_time = datetime.now()
         
         # Simulate error occurrence
-        error_occurred = True
+        _error_occurred = True
         recovery_start = datetime.now()
         
         # Simulate recovery process
@@ -351,7 +351,7 @@ class TestTimeoutMechanisms:
             'default': 20000
         }
         
-        for operation, timeout in timeout_configs.items():
+        for _operation, timeout in timeout_configs.items():
             assert isinstance(timeout, int)
             assert timeout > 0
             assert timeout <= 30000  # Max 30 seconds

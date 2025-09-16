@@ -423,7 +423,7 @@ class DemoSecurityAuditor:
 
     def calculate_security_score(self):
         """Calculate overall security score"""
-        total_issues = len(self.audit_results['vulnerabilities']) + len(self.audit_results['warnings'])
+        _total_issues = len(self.audit_results['vulnerabilities']) + len(self.audit_results['warnings'])
         high_severity = len([v for v in self.audit_results['vulnerabilities'] if v['severity'] == 'HIGH'])
         medium_severity = len([v for v in self.audit_results['vulnerabilities'] if v['severity'] == 'MEDIUM'])
 
