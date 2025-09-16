@@ -305,17 +305,19 @@ async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
 
     try {
-        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}`;
+        // Use same format as emotion API - query parameter instead of JSON body
+        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?text=${encodeURIComponent(text)}`;
         console.log('🔗 Summarization API URL:', apiUrl);
+        console.log('📝 Text being summarized:', text);
+        console.log('📝 Text length:', text.length);
 
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Length': '0',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            },
-            body: JSON.stringify({ text: text })
+            }
         });
 
         if (!response.ok) {
