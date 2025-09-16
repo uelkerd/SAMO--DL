@@ -100,8 +100,22 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            const response = await this.makeRequest(this.endpoints.SUMMARIZE, { text });
-            return response;
+            // Use query parameters instead of JSON body for summarize API
+            const url = `${this.baseURL}${this.endpoints.SUMMARIZE}?text=${encodeURIComponent(text)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Length': '0'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+            
+            return await response.json();
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -131,16 +145,32 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            const response = await this.makeRequest(this.endpoints.EMOTION, { text });
+            // Use query parameters instead of JSON body for emotion API
+            const url = `${this.baseURL}${this.endpoints.EMOTION}?text=${encodeURIComponent(text)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Length': '0'
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+            
+            const data = await response.json();
+            
             // Extract top 5 emotions and sort by confidence
-            const emotions = response.emotions || {};
+            const emotions = data.emotions || {};
             const emotionArray = Object.entries(emotions)
                 .map(([emotion, confidence]) => ({ emotion, confidence }))
                 .sort((a, b) => b.confidence - a.confidence)
                 .slice(0, 5);
 
             return {
-                ...response,
+                ...data,
                 top_emotions: emotionArray
             };
         } catch (error) {
