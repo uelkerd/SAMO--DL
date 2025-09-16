@@ -1,15 +1,134 @@
-# Reduce Docker build context
+# Git and version control
 .git
-.github
-.circleci
+.gitignore
+.gitattributes
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+
+# Test artifacts
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/
+test_reports/
+artifacts/
+
+# Security and sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.local
+.env.production
+secrets/
+credentials/
+
+# Documentation and markdown (not needed in container)
 docs/
 *.md
-LICENSE
-**/__pycache__/
-**/*.pyc
-.logs
-.tmp
-dist
-build
-artifacts
-notebooks
+README*
+CHANGELOG*
+CONTRIBUTING*
+
+# Jupyter notebooks
+*.ipynb
+notebooks/
+
+# Sample files and large assets
+samples/
+*.wav
+*.mp3
+*.mp4
+*.avi
+
+# Configuration files that might contain secrets
+configs/
+*.yaml
+*.yml
+!environment*.yml
+
+# Requirements files (already copied explicitly)
+requirements*.txt
+pyproject.toml
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+cloudbuild*.yaml
+.circleci/
+
+# Website files (not needed in API container)
+website/
+
+# Test files (not needed in production)
+tests/
+scripts/testing/
+
+# Prisma files
+prisma/
+
+# Other project files
+pr_description.md
+PYTHON38_COMPATIBILITY_*.md
+DEPLOYMENT_FIXES_GUIDE.md
+COMPREHENSIVE_API_TEST_REPORT.md
+SECURITY_NOTICE.md
+ENVIRONMENT_SETUP.md
+QUICK_START.md
+Home.md

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # Security configuration from environment variables
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
 if not ADMIN_API_KEY:
-    raise ValueError("ADMIN_API_KEY environment variable must be set")
+    logger.warning("ADMIN_API_KEY not set - admin routes will be disabled in dev/test mode")
 MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
 RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "100"))
 MODEL_PATH = os.environ.get("MODEL_PATH", "/app/model")
@@ -150,7 +150,7 @@ def require_api_key(f):
 
 def verify_api_key(api_key: str) -> bool:
     """Verify API key using constant-time comparison"""
-    if not api_key:
+    if not api_key or not ADMIN_API_KEY:
         return False
     return hmac.compare_digest(api_key, ADMIN_API_KEY)
 

@@ -29,13 +29,15 @@ RUN pip install --no-cache-dir -r requirements-unified-fixed.txt
 # Copy source code
 COPY src/ ./src/
 COPY deployment/ ./deployment/
-COPY *.py ./
+# Copy only necessary Python files from root
+COPY test_samo_t5_standalone.py ./
+COPY test_samo_whisper_standalone.py ./
 
 # Pre-download models during build
 RUN mkdir -p /app/models && \
     echo "Pre-downloading models..." && \
     python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
-    model_name='j-hartmann/emotion-english-distilroberta-base'; \
+    model_name='duelker/samo-goemotions-deberta-v3-large'; \
     print(f'Downloading emotion model {model_name}...'); \
     AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
     AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models'); \

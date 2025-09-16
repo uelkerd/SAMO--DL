@@ -57,21 +57,40 @@ async def api_health():
 async def analyze_emotion(text: str):
     """Analyze emotion in text."""
     try:
+        # Input validation
+        if not text or not isinstance(text, str) or not text.strip():
+            raise ValueError("Text input is required and cannot be empty")
+        
         # Lazy load emotion model
         global emotion_model
         if emotion_model is None:
             logger.info("Loading emotion model...")
             from transformers import AutoTokenizer, AutoModelForSequenceClassification
+            import torch
+            
             model_name = 'duelker/samo-goemotions-deberta-v3-large'
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForSequenceClassification.from_pretrained(model_name)
-            emotion_model = {"tokenizer": tokenizer, "model": model}
+            
+            # Set model to evaluation mode and move to appropriate device
+            model.eval()
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = model.to(device)
+            
+            emotion_model = {"tokenizer": tokenizer, "model": model, "device": device}
             logger.info("Emotion model loaded successfully")
 
-        # Perform emotion analysis
+        # Perform emotion analysis with safe inference
+        device = emotion_model["device"]
         inputs = emotion_model["tokenizer"](text, return_tensors="pt", truncation=True, max_length=512)
-        outputs = emotion_model["model"](**inputs)
-        predictions = outputs.logits.sigmoid()  # Use sigmoid for multi-label classification
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        
+        with torch.no_grad():
+            outputs = emotion_model["model"](**inputs)
+            predictions = outputs.logits.sigmoid()  # Use sigmoid for multi-label classification
+        
+        # Detach and move to CPU before converting to Python lists
+        predictions = predictions.detach().cpu()
 
         # Get emotion labels (28 emotions from our DeBERTa-v3 model)
         emotion_labels = [
@@ -91,14 +110,25 @@ async def analyze_emotion(text: str):
 
         return result
 
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Error in emotion analysis: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Emotion analysis failed: {str(e)}")
+        logger.exception("Error in emotion analysis")
+        raise HTTPException(status_code=500, detail="Emotion analysis failed") from e
 
 @app.post("/analyze/summarize")
 async def summarize_text(text: str):
     """Summarize text using T5 model."""
     try:
+        # Input validation
+        if not text or not isinstance(text, str) or not text.strip():
+            raise HTTPException(status_code=400, detail="Text input is required and cannot be empty")
+        
+        # Enforce maximum length
+        MAX_TEXT_LENGTH = 10000
+        if len(text) > MAX_TEXT_LENGTH:
+            raise HTTPException(status_code=400, detail=f"Text too long. Maximum length is {MAX_TEXT_LENGTH} characters")
+        
         # Lazy load summarization model
         global summarization_model
         if summarization_model is None:
@@ -110,22 +140,37 @@ async def summarize_text(text: str):
                 raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.")
 
             from transformers import T5Tokenizer, T5ForConditionalGeneration
+            import torch
+            
             model_name = 't5-small'
             tokenizer = T5Tokenizer.from_pretrained(model_name)
             model = T5ForConditionalGeneration.from_pretrained(model_name)
-            summarization_model = {"tokenizer": tokenizer, "model": model}
+            
+            # Set model to evaluation mode and move to appropriate device
+            model.eval()
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = model.to(device)
+            
+            summarization_model = {"tokenizer": tokenizer, "model": model, "device": device}
             logger.info("Summarization model loaded successfully")
 
-        # Perform summarization
+        # Perform summarization with safe inference
+        device = summarization_model["device"]
         inputs = summarization_model["tokenizer"](f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True)
-        outputs = summarization_model["model"].generate(
-            inputs["input_ids"],
-            max_length=150,
-            min_length=30,
-            length_penalty=2.0,
-            num_beams=4,
-            early_stopping=True
-        )
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        
+        with torch.no_grad():
+            outputs = summarization_model["model"].generate(
+                inputs["input_ids"],
+                max_length=150,
+                min_length=30,
+                length_penalty=2.0,
+                num_beams=4,
+                early_stopping=True
+            )
+        
+        # Detach and move to CPU before decoding
+        outputs = outputs.detach().cpu()
         summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
 
         return {
@@ -133,9 +178,15 @@ async def summarize_text(text: str):
             "summary": summary
         }
 
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except ImportError as e:
+        logger.exception("Missing dependency for summarization")
+        raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.") from e
     except Exception as e:
-        logger.error(f"Error in text summarization: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Text summarization failed: {str(e)}")
+        logger.exception("Error in text summarization")
+        raise HTTPException(status_code=500, detail="Text summarization failed") from e
 
 @app.post("/analyze/transcribe")
 async def transcribe_audio(audio_file: bytes):

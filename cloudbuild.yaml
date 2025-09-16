@@ -12,7 +12,7 @@ steps:
     args: [
       'build',
       '--cache-from', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest',
-      '-f', 'deployment/docker/Dockerfile.optimized',
+      '-f', 'Dockerfile.optimized',
       '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
       '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:latest',
       '.'
@@ -24,7 +24,7 @@ steps:
     args: [
       'artifacts', 'docker', 'images', 'scan',
       'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
-      '--region=us-central1'
+      '--remote'
     ]
   
   # Deploy to Cloud Run with parameterized configuration
@@ -53,8 +53,8 @@ images:
 
 # Build options
 options:
-  machineType: '${_MACHINE_TYPE}'
-  diskSizeGb: ${_DISK_SIZE}
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: '100'
   logging: CLOUD_LOGGING_ONLY
 
 # Substitutions for all configurable values
@@ -69,9 +69,7 @@ substitutions:
   _CPU: '2'
   _MAX_INSTANCES: '10'
   
-  # Build configuration
-  _MACHINE_TYPE: 'E2_HIGHCPU_8'
-  _DISK_SIZE: 100
+  # Build configuration (hardcoded in options section)
   
   # Artifact Registry configuration
   _ARTIFACT_REPO: 'samo-dl-repo'

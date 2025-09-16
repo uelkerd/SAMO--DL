@@ -24,10 +24,30 @@ The demo website uses a centralized configuration system (`config.js`) to manage
 
 ```javascript
 const SAMO_CONFIG = {
-    baseURL: 'https://api.example.com',  // API base URL
-    apiKey: 'your-api-key',              // API authentication key
-    timeout: 20000,                      // Request timeout in milliseconds
-    retryAttempts: 3                     // Number of retry attempts
+    // OpenAI API Configuration
+    OPENAI: {
+        PROXY_URL: 'https://api.example.com/generate/journal',  // Proxy endpoint for OpenAI
+        MODEL: 'gpt-3.5-turbo',
+        MAX_TOKENS: 200,
+        TEMPERATURE: 0.8
+    },
+    
+    // Emotion API Configuration  
+    EMOTION_API: {
+        ENDPOINT: 'https://api.example.com/analyze/emotion',
+        TIMEOUT: 10000
+    },
+    
+    // Feature flags
+    FEATURES: {
+        ENABLE_OPENAI: false  // Set to false for public builds
+    },
+    
+    // Demo Configuration
+    DEMO: {
+        FALLBACK_TO_STATIC: true,
+        SHOW_DEBUG_INFO: true
+    }
 };
 ```
 
@@ -41,10 +61,30 @@ const isLocalDev = window.location.hostname === 'localhost' ||
                    window.location.hostname === '';
 
 const SAMO_CONFIG = {
-    baseURL: isLocalDev ? 'http://localhost:8080' : '/api',
-    apiKey: null, // Current service doesn't require API key
-    timeout: 30000,
-    retryAttempts: 3
+    // OpenAI API Configuration
+    OPENAI: {
+        PROXY_URL: isLocalDev ? 'http://localhost:8080/generate/journal' : '/api/generate/journal',
+        MODEL: 'gpt-3.5-turbo',
+        MAX_TOKENS: 200,
+        TEMPERATURE: 0.8
+    },
+    
+    // Emotion API Configuration  
+    EMOTION_API: {
+        ENDPOINT: isLocalDev ? 'http://localhost:8080/analyze/emotion' : '/api/analyze/emotion',
+        TIMEOUT: 10000
+    },
+    
+    // Feature flags
+    FEATURES: {
+        ENABLE_OPENAI: false  // Set to false for public builds
+    },
+    
+    // Demo Configuration
+    DEMO: {
+        FALLBACK_TO_STATIC: true,
+        SHOW_DEBUG_INFO: isLocalDev
+    }
 };
 ```
 

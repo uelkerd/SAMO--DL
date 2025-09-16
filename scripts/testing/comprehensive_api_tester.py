@@ -59,8 +59,7 @@ class ComprehensiveAPITester:
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'SAMO-Comprehensive-Tester/1.0',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Accept': 'application/json'
         })
 
         # Test configuration
@@ -85,7 +84,8 @@ class ComprehensiveAPITester:
         ]
 
     def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None,
-                    files: Optional[Dict] = None, auth_required: bool = False) -> TestResult:
+                    files: Optional[Dict] = None, auth_required: bool = False, 
+                    as_form: bool = False) -> TestResult:
         """Make HTTP request with proper error handling and rate limiting"""
         url = f"{self.base_url}{endpoint}"
         headers = self.session.headers.copy()
@@ -106,7 +106,13 @@ class ComprehensiveAPITester:
                     headers.pop('Content-Type', None)
                     response = self.session.post(url, headers=headers, files=files,
                                                data=data, timeout=self.timeout)
+                elif as_form:
+                    # For form data, set appropriate Content-Type
+                    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                    response = self.session.post(url, headers=headers, data=data, timeout=self.timeout)
                 else:
+                    # For JSON data, set Content-Type and use json parameter
+                    headers['Content-Type'] = 'application/json'
                     response = self.session.post(url, headers=headers, json=data, timeout=self.timeout)
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
@@ -311,7 +317,7 @@ class ComprehensiveAPITester:
         }
 
         # Use form data for summarization endpoint
-        summarize_result = self.make_request('POST', '/summarize/text', summarize_data, auth_required=True)
+        summarize_result = self.make_request('POST', '/summarize/text', summarize_data, auth_required=True, as_form=True)
         summarize_result.feature = "Text Summarization"
         results.append(summarize_result)
 

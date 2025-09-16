@@ -24,15 +24,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install additional dependencies
-RUN pip install --no-cache-dir \
-    fastapi>=0.104.0 \
-    uvicorn[standard]>=0.24.0 \
-    transformers>=4.35.0 \
-    torch>=2.1.0 \
-    numpy>=1.24.0 \
-    openai-whisper==20240930
-
 # Copy source code
 COPY src/ ./src/
 

@@ -31,7 +31,7 @@ class TestDemoErrorHandling:
         # This would test the JavaScript AbortController implementation
         # Since we're testing Python, we'll simulate the timeout behavior
         
-        timeout_ms = 5000
+        timeout_ms = 50  # Lower timeout threshold for testing
         start_time = datetime.now()
         
         # Simulate timeout behavior
@@ -44,8 +44,8 @@ class TestDemoErrorHandling:
         
         # Simulate timeout after delay
         import time
-        time.sleep(0.1)  # Small delay to test timeout logic
-        # In real implementation, this would be handled by AbortController
+        time.sleep(0.1)  # 100ms delay, which exceeds 50ms timeout
+        assert simulate_timeout()  # Should timeout after delay
     
     def test_api_request_timeout_configuration(self):
         """Test that API request timeout is properly configured"""
