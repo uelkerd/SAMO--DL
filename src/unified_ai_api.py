@@ -509,8 +509,7 @@ app.add_middleware(
 try:
     import importlib.util
     import sys
-    import os
-    
+
     # Try to load the production config module dynamically
     config_path = os.path.join(os.path.dirname(__file__), '..', 'deployment', 'cloud-run', 'api_config_production.py')
     if os.path.exists(config_path):
@@ -518,7 +517,7 @@ try:
         config_module = importlib.util.module_from_spec(spec)
         sys.modules["api_config_production"] = config_module
         spec.loader.exec_module(config_module)
-        
+
         overrides = config_module.get_production_overrides()
         add_rate_limiting(
             app,
@@ -531,7 +530,7 @@ try:
         logger.info("Production rate limiting configured")
     else:
         raise ImportError("Production config file not found")
-        
+
 except (ImportError, FileNotFoundError, AttributeError) as e:
     # Fallback to more permissive defaults
     logger.info(f"Using default rate limiting (production config not available: {e})")
