@@ -58,6 +58,9 @@ def load_emotion_model():
             cache_dir=cache_dir,
             local_files_only=True  # Critical: prevent network downloads
         )
+        
+        # Set model to evaluation mode for deterministic inference
+        model.eval()
 
         emotion_model = {"tokenizer": tokenizer, "model": model}
         logger.info("✅ DeBERTa-v3 emotion model loaded successfully")
@@ -89,6 +92,9 @@ def load_summarization_model():
             cache_dir=cache_dir,
             local_files_only=True  # Critical: prevent network downloads
         )
+        
+        # Set model to evaluation mode for deterministic inference
+        model.eval()
 
         summarization_model = {"tokenizer": tokenizer, "model": model}
         logger.info("✅ T5 summarization model loaded successfully")
