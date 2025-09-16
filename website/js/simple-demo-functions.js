@@ -683,11 +683,11 @@ function createSummaryChart(summary) {
     chartHTML += `
         <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
             <div style="text-align: center; flex: 1; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 0 5px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">${summary.original_length}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">${originalLen}</div>
                 <div style="font-size: 0.8rem; color: #cbd5e1;">Original Length</div>
             </div>
             <div style="text-align: center; flex: 1; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 0 5px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">${summary.summary_length}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">${summaryLen}</div>
                 <div style="font-size: 0.8rem; color: #cbd5e1;">Summary Length</div>
             </div>
             <div style="text-align: center; flex: 1; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 0 5px;">
@@ -708,7 +708,7 @@ function createSummaryChart(summary) {
             <div style="margin-bottom: 10px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <span style="font-weight: bold; color: white;">Original Text</span>
-                    <span style="color: #94a3b8;">${summary.original_length} characters</span>
+                    <span style="color: #94a3b8;">${originalLen} characters</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden;">
                     <div style="width: ${originalWidth}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 10px;"></div>
@@ -717,7 +717,7 @@ function createSummaryChart(summary) {
             <div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <span style="font-weight: bold; color: white;">Summary</span>
-                    <span style="color: #94a3b8;">${summary.summary_length} characters</span>
+                    <span style="color: #94a3b8;">${summaryLen} characters</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); height: 20px; border-radius: 10px; overflow: hidden;">
                     <div style="width: ${summaryWidth}%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px;"></div>
