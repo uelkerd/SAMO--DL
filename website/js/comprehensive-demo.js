@@ -492,6 +492,8 @@ class ComprehensiveDemo {
 
         // Use performance optimizer to normalize emotion data
         const normalizedEmotions = this.performanceOptimizer.optimizeEmotionData(emotionData);
+        console.log('🔍 Normalized emotions for chart:', normalizedEmotions);
+        console.log('🔍 Normalized emotions length:', normalizedEmotions.length);
 
         // Create emotion badges
         const badgesContainer = document.getElementById('emotionBadges');
@@ -509,6 +511,7 @@ class ComprehensiveDemo {
         });
 
         // Create emotion chart
+        console.log('🔍 Creating chart with data:', normalizedEmotions);
         this.createEmotionChart(normalizedEmotions);
         
         // Show emotion details
@@ -535,9 +538,22 @@ class ComprehensiveDemo {
     
     createBasicChart(ctx, emotionData) {
         // Fallback chart creation if performance optimizer fails
+        console.log('🔍 createBasicChart called with:', emotionData);
+        console.log('🔍 emotionData type:', typeof emotionData);
+        console.log('🔍 emotionData length:', emotionData?.length);
+        
+        if (!Array.isArray(emotionData) || emotionData.length === 0) {
+            console.error('❌ Invalid emotion data for chart:', emotionData);
+            return;
+        }
+        
         const labels = emotionData.map(e => e.emotion || e.label);
         const data = emotionData.map(e => (e.confidence || e.score) * 100);
         const colors = labels.map(label => this.getEmotionColor(label));
+        
+        console.log('🔍 Chart labels:', labels);
+        console.log('🔍 Chart data:', data);
+        console.log('🔍 Chart colors:', colors);
         
         this.chart = new Chart(ctx, {
             type: 'bar',
