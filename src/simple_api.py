@@ -23,44 +23,42 @@ app = FastAPI(
 def get_cors_origins():
     """Get allowed CORS origins from environment variable or use safe defaults."""
     origins_env = os.environ.get("CORS_ORIGINS", "")
-    
+
     if origins_env:
         # Split CSV and strip whitespace
         origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
         logger.info(f"CORS origins from environment: {origins}")
         return origins
-    else:
-        # Safe development defaults when no config provided
-        dev_origins = [
-            "http://localhost:3000",
-            "http://localhost:8080", 
-            "http://localhost:8082",
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:8080",
-            "http://127.0.0.1:8082"
-        ]
-        logger.warning("No CORS_ORIGINS configured, using development defaults")
-        return dev_origins
+    # Safe development defaults when no config provided
+    dev_origins = [
+        "http://localhost:3000",
+        "http://localhost:8080", 
+        "http://localhost:8082",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:8082"
+    ]
+    logger.warning("No CORS_ORIGINS configured, using development defaults")
+    return dev_origins
 
 def get_cors_origin_regex():
     """Get CORS origin regex patterns for dynamic hosts."""
     regex_env = os.environ.get("CORS_ORIGIN_REGEX", "")
-    
+
     if regex_env:
         # Split CSV and strip whitespace for multiple regex patterns
         patterns = [pattern.strip() for pattern in regex_env.split(",") if pattern.strip()]
         logger.info(f"CORS origin regex patterns: {patterns}")
         return patterns
-    else:
-        # Default patterns for common development and staging environments
-        default_patterns = [
-            r"https://.*\.vercel\.app$",  # Vercel deployments
-            r"https://.*\.netlify\.app$",  # Netlify deployments
-            r"https://.*\.github\.io$",    # GitHub Pages
-            r"http://localhost:\d+$",      # Local development with any port
-            r"http://127\.0\.0\.1:\d+$",   # Local development with any port
-        ]
-        return default_patterns
+    # Default patterns for common development and staging environments
+    default_patterns = [
+        r"https://.*\.vercel\.app$",  # Vercel deployments
+        r"https://.*\.netlify\.app$",  # Netlify deployments
+        r"https://.*\.github\.io$",    # GitHub Pages
+        r"http://localhost:\d+$",      # Local development with any port
+        r"http://127\.0\.0\.1:\d+$",   # Local development with any port
+    ]
+    return default_patterns
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
@@ -83,14 +81,14 @@ class EmotionRequest(BaseModel):
 def _load_emotion_model():
     """Load and cache emotion detection model."""
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
-    
+
     model_name = 'duelker/samo-goemotions-deberta-v3-large'
     logger.info(f"Loading emotion model: {model_name}")
-    
+
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
     model.eval()  # Set to evaluation mode for deterministic inference
-    
+
     logger.info("Emotion model loaded and cached successfully")
     return tokenizer, model
 
@@ -115,7 +113,7 @@ async def analyze_emotion(request: EmotionRequest):
 
         # Perform analysis with safe inference
         inputs = tokenizer(request.text, return_tensors="pt", truncation=True, max_length=512)
-        
+
         with torch.no_grad():
             outputs = model(**inputs)
             predictions = outputs.logits.sigmoid()
@@ -131,7 +129,7 @@ async def analyze_emotion(request: EmotionRequest):
 
         emotion_scores = predictions[0].tolist()
         predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
-        
+
         result = {
             "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
