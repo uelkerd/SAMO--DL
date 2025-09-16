@@ -563,17 +563,8 @@ class ComprehensiveDemo {
         
         // Check if Chart.js is loaded
         if (typeof Chart === 'undefined') {
-            console.error('❌ Chart.js not loaded! Waiting for it to load...');
-            // Wait for Chart.js to load and retry
-            setTimeout(() => {
-                if (typeof Chart !== 'undefined') {
-                    console.log('✅ Chart.js loaded, retrying chart creation...');
-                    this.createBasicChart(ctx, emotionData);
-                } else {
-                    console.error('❌ Chart.js still not available after timeout');
-                    this.showChartError('Chart.js library not loaded');
-                }
-            }, 1000);
+            console.error('❌ Chart.js not loaded!');
+            this.showChartError('Chart.js library not loaded. Please refresh the page.');
             return;
         }
         
@@ -684,6 +675,10 @@ class ComprehensiveDemo {
 
     showEmotionDetails(emotionData) {
         const detailsContainer = document.getElementById('emotionDetails');
+        if (!detailsContainer) {
+            console.error('❌ emotionDetails container not found');
+            return;
+        }
         const title = document.createElement('h6');
         title.className = 'fw-bold mb-3';
         title.textContent = 'Top Emotions';
@@ -953,25 +948,8 @@ class ComprehensiveDemo {
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max wait time
-    
-    // Wait for Chart.js to be available
-    function waitForChartJS() {
-        if (typeof Chart !== 'undefined') {
-            console.log('✅ Chart.js loaded, initializing demo...');
-            new ComprehensiveDemo();
-        } else if (attempts < maxAttempts) {
-            attempts++;
-            console.log(`⏳ Waiting for Chart.js to load... (attempt ${attempts}/${maxAttempts})`);
-            setTimeout(waitForChartJS, 100);
-        } else {
-            console.error('❌ Chart.js failed to load after 5 seconds. Initializing demo anyway...');
-            new ComprehensiveDemo();
-        }
-    }
-    
-    waitForChartJS();
+    console.log('✅ DOM loaded, initializing demo...');
+    new ComprehensiveDemo();
 });
 
 // Smooth scrolling for in-page navigation links
