@@ -1443,31 +1443,34 @@ async def analyze_voice_journal(
             try:
                 # Enforce 45MB size limit to prevent memory abuse
                 MAX_FILE_SIZE = 45 * 1024 * 1024  # 45MB in bytes
-                
+
                 # Check content length if available
-                if hasattr(audio_file, 'content_length') and audio_file.content_length is not None:
-                    if audio_file.content_length > MAX_FILE_SIZE:
-                        raise HTTPException(
-                            status_code=413,
-                            detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
-                        )
-                
+                if (
+                    hasattr(audio_file, 'content_length')
+                    and audio_file.content_length is not None
+                    and audio_file.content_length > MAX_FILE_SIZE
+                ):
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
+                    )
+
                 # Read file content with size limit
                 content = b""
                 chunk_size = 8192  # 8KB chunks
-                
+
                 while True:
                     chunk = await audio_file.read(chunk_size)
                     if not chunk:
                         break
-                    
+
                     content += chunk
                     if len(content) > MAX_FILE_SIZE:
                         raise HTTPException(
                             status_code=413,
                             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
                         )
-                
+
                 # Create a temporary file for the audio with correct extension
                 temp_file_path = _write_temp_audio(content, audio_file.filename, audio_file.content_type)
 
@@ -1775,7 +1778,7 @@ async def batch_transcribe_voice(
             except Exception as exc:
                 # Log full exception details server-side
                 logger.exception(f"Error processing audio file {audio_file.filename} in batch")
-                
+
                 # Return sanitized error message to client
                 results.append({
                     "file_index": i,
@@ -1903,7 +1906,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
     except Exception as e:
         # Log full exception details server-side
         logger.exception("WebSocket authentication error")
-        
+
         # Return sanitized error message to client
         await websocket.close(code=4001, reason="Authentication failed")
         return
@@ -1981,7 +1984,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 except Exception as exc:
                     # Log full exception details server-side
                     logger.exception("Error in WebSocket audio processing")
-                    
+
                     # Return sanitized error message to client
                     await websocket.send_json({
                         "type": "error",

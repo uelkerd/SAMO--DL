@@ -65,19 +65,18 @@ def get_cors_origin_regex():
         # Use the provided regex pattern directly
         logger.info(f"CORS origin regex pattern: {regex_env}")
         return regex_env
-    else:
-        # Combine default patterns into single regex with alternation (|)
-        default_patterns = [
-            r"https://.*\.vercel\.app$",  # Vercel deployments
-            r"https://.*\.netlify\.app$",  # Netlify deployments
-            r"https://.*\.github\.io$",    # GitHub Pages
-            r"http://localhost:\d+$",      # Local development with any port
-            r"http://127\.0\.0\.1:\d+$",   # Local development with any port
-        ]
-        # Join patterns with OR (|) to create single regex
-        combined_pattern = "|".join(f"({pattern})" for pattern in default_patterns)
-        logger.info(f"CORS combined regex pattern: {combined_pattern}")
-        return combined_pattern
+    # Combine default patterns into single regex with alternation (|)
+    default_patterns = [
+        r"https://.*\.vercel\.app$",  # Vercel deployments
+        r"https://.*\.netlify\.app$",  # Netlify deployments
+        r"https://.*\.github\.io$",    # GitHub Pages
+        r"http://localhost:\d+$",      # Local development with any port
+        r"http://127\.0\.0\.1:\d+$",   # Local development with any port
+    ]
+    # Join patterns with OR (|) to create single regex
+    combined_pattern = "|".join(f"({pattern})" for pattern in default_patterns)
+    logger.info(f"CORS combined regex pattern: {combined_pattern}")
+    return combined_pattern
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
@@ -124,7 +123,7 @@ def load_emotion_model():
             cache_dir=cache_dir,
             local_files_only=True  # Critical: prevent network downloads
         )
-        
+
         # Set model to evaluation mode for deterministic inference
         model.eval()
 
@@ -158,7 +157,7 @@ def load_summarization_model():
             cache_dir=cache_dir,
             local_files_only=True  # Critical: prevent network downloads
         )
-        
+
         # Set model to evaluation mode for deterministic inference
         model.eval()
 
@@ -281,7 +280,6 @@ async def ready():
 @app.post("/analyze/emotion")
 async def analyze_emotion(text: str):
     """Analyze emotion in text using pre-loaded DeBERTa model."""
-
     # Verify model is loaded
     if not models_loaded or emotion_model is None:
         raise HTTPException(
@@ -317,7 +315,6 @@ async def analyze_emotion(text: str):
 @app.post("/analyze/summarize")
 async def summarize_text(text: str):
     """Summarize text using pre-loaded T5 model."""
-
     # Verify model is loaded
     if not models_loaded or summarization_model is None:
         raise HTTPException(
