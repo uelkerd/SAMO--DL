@@ -543,7 +543,8 @@ function createSimpleChart(emotions) {
         noEmotions.textContent = 'No emotions detected by the model';
         chartContainer.appendChild(noEmotions);
     } else {
-        sortedEmotions.forEach((emotion, index) => {
+        // Show only top 5 emotions for better readability
+        sortedEmotions.slice(0, 5).forEach((emotion, index) => {
             const percentage = Math.round(emotion.confidence * 100);
             const color = getEmotionColor(emotion.emotion);
             
@@ -583,7 +584,7 @@ function createSimpleChart(emotions) {
     // Create footer
     const footer = document.createElement('div');
     footer.style.cssText = 'text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;';
-    footer.textContent = `Real model detected ${emotions.length} emotion${emotions.length !== 1 ? 's' : ''}`;
+    footer.textContent = `Showing top 5 of ${emotions.length} detected emotion${emotions.length !== 1 ? 's' : ''}`;
     chartContainer.appendChild(footer);
 
     container.appendChild(chartContainer);
