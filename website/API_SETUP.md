@@ -1,7 +1,7 @@
-# API Key Setup for SAMO-DL Demo
+# JWT Authentication Setup for SAMO-DL Demo
 
 ## Overview
-The comprehensive demo connects to the SAMO Unified API. The current service doesn't require an API key, but this document explains how to set up the configuration securely.
+The comprehensive demo connects to the SAMO Unified API. The service requires JWT (Bearer token) authentication for all non-health endpoints. This document explains how to set up the configuration securely.
 
 ## Setup Instructions
 
@@ -18,7 +18,7 @@ Create a `config.js` file in the `website/` directory with the following content
 // API Configuration
 const SAMO_CONFIG = {
     baseURL: 'https://samo-unified-api-frrnetyhfa-uc.a.run.app',
-    apiKey: null, // Current service doesn't require API key
+    jwtToken: null, // JWT Bearer token required for authentication
     timeout: 30000,
     retryAttempts: 3
 };
@@ -31,12 +31,28 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 ```
 
-### 2. Current Service Status
-The current SAMO Unified API service doesn't require an API key for authentication. The service is running at:
-`https://samo-unified-api-frrnetyhfa-uc.a.run.app`
+### 2. JWT Authentication Setup
+The SAMO Unified API requires JWT (Bearer token) authentication for all non-health endpoints. To authenticate:
 
-### 3. Configuration
-The `config.js` file is already configured with the correct service URL and no API key requirement.
+1. **Obtain a JWT token** from your API provider or authentication service
+2. **Add the token to your config**:
+   ```javascript
+   const SAMO_CONFIG = {
+       baseURL: 'https://samo-unified-api-frrnetyhfa-uc.a.run.app',
+       jwtToken: 'your-jwt-token-here', // Replace with actual JWT
+       timeout: 30000,
+       retryAttempts: 3
+   };
+   ```
+3. **Include in requests**: The token should be sent in the Authorization header:
+   ```
+   Authorization: Bearer <your-jwt-token>
+   ```
+
+### 3. Secure Token Storage
+- Store JWT tokens in environment variables, not in code
+- Use secure token management practices
+- Rotate tokens regularly for security
 
 ### 4. Security Notes
 - The `config.js` file is already added to `.gitignore` to prevent accidental commits
@@ -66,9 +82,11 @@ The `config.js` file is already configured with the correct service URL and no A
 - Verify the API service is running and accessible
 
 ### Rate Limiting
-- The API has rate limits (100 requests per minute)
+- The API has rate limits (300 requests per minute in production)
+- Rate limits may vary by environment - check your deployment configuration
 - If you hit rate limits, the demo will show mock data
 - Wait for the rate limit to reset before trying again
+- Rate limit headers are included in responses for monitoring
 
 ### Fallback Mode
 - If the API is unavailable, the demo will automatically use mock data

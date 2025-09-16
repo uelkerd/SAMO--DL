@@ -670,7 +670,9 @@ body.comprehensive-demo {
 }
 
 .emotion-bars {
-    space-y: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .emotion-bar {
@@ -809,7 +811,9 @@ body.comprehensive-demo {
 }
 
 .summary-bars {
-    space-y: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .summary-bar {
