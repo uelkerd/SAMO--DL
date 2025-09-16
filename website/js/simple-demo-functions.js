@@ -552,8 +552,8 @@ function updateDetailedAnalysis(emotions, summary) {
         `${Math.round(minConf * 100)}% - ${Math.round(maxConf * 100)}%` : 
         `${Math.round(maxConf * 100)}%`;
     
-    // Model details - safe length access
-    const summaryLength = summary && typeof summary.original_length === 'number' ? summary.original_length : 0;
+    // Model details - safe length access with numeric coercion
+    const summaryLength = summary ? Number(summary.original_length) || 0 : 0;
     const modelDetails = `Processed ${emotions.length} emotions using SAMO DeBERTa v3 Large. Model confidence: ${Math.round(avgConfidence * 100)}%. Text length: ${summaryLength} characters.`;
     
     // Update DOM elements
@@ -572,10 +572,14 @@ function updateDetailedAnalysis(emotions, summary) {
 function updateSummary(summary) {
     console.log('📝 Updating summary...');
     
+    // Coerce numeric values to prevent XSS and ensure proper formatting
+    const summaryLen = Number(summary.summary_length);
+    const originalLen = Number(summary.original_length);
+    
     // Update the summary text
     updateElement('summaryText', summary.summary);
-    updateElement('originalLength', summary.original_length);
-    updateElement('summaryLength', summary.summary_length);
+    updateElement('originalLength', originalLen);
+    updateElement('summaryLength', summaryLen);
     
     // Create summary chart
     createSummaryChart(summary);
