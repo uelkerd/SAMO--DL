@@ -1,0 +1,64 @@
+# Cloud Build configuration for optimized SAMO Unified API
+steps:
+  # Build the optimized Docker image with pre-downloaded models
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.optimized'
+      - '--platform'
+      - 'linux/amd64'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:latest'
+      - '.'
+    timeout: '1200s'  # 20 minutes for model downloads
+
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:latest'
+
+  # Deploy to Cloud Run with bulletproof optimized settings
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'samo-unified-api-optimized'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+      - '--platform=managed'
+      - '--region=us-central1'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--timeout=1200'  # Extended timeout for model loading (20 minutes)
+      - '--cpu=2'
+      - '--memory=6Gi'  # Increased memory for safe model loading
+      - '--max-instances=10'
+      - '--min-instances=0'
+      - '--concurrency=80'
+      - '--startup-cpu-boost'  # Faster cold starts
+      - '--service-timeout=3600'  # Request timeout (1 hour)
+      - '--set-env-vars=PYTHONUNBUFFERED=1'  # Ensure logging works
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'  # Use high-CPU machine for faster builds
+  diskSizeGb: 100  # Larger disk for model downloads
+  logging: CLOUD_LOGGING_ONLY
+
+# Substitution variables
+substitutions:
+  _SERVICE_NAME: 'samo-unified-api-optimized'
+  _REGION: 'us-central1'
+  _IMAGE_NAME: 'samo-unified-api-optimized'
+
+# Build timeout
+timeout: '1800s'  # 30 minutes total

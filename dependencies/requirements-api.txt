@@ -43,5 +43,6 @@ sentencepiece==0.2.0
 protobuf>=3.20.0,<5.0.0
 openai-whisper==20240930
 # Torch runtime (CPU by default; align with repo constraints)
-torch==2.8.0
+torch==2.1.2
+numpy>=1.21.0
 

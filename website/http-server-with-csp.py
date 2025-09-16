@@ -20,7 +20,7 @@ class CSPHTTPRequestHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 if __name__ == '__main__':
-    port = 8080
+    port = 8082
     server = HTTPServer(('localhost', port), CSPHTTPRequestHandler)
     print(f"HTTP Server with CSP running on http://localhost:{port}")
     print("Press Ctrl+C to stop")

@@ -1,0 +1,83 @@
+# Optimized Dockerfile for Cloud Run with pre-downloaded models
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Set environment variables for model caching
+ENV HF_HOME=/app/models
+ENV TRANSFORMERS_CACHE=/app/models
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Copy requirements and install dependencies
+COPY dependencies/requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+# Create models directory
+RUN mkdir -p /app/models
+
+# Copy the pre-download script
+COPY scripts/pre_download_models.py .
+
+# Pre-download models during build (this will take time but ensures fast startup)
+RUN python pre_download_models.py
+
+# Validate models were downloaded correctly (critical for Cloud Run success)
+RUN echo "🔍 Validating model cache..." && \
+    ls -la /app/models/ && \
+    echo "📊 Checking model sizes..." && \
+    du -sh /app/models/* && \
+    echo "✅ Model validation completed successfully"
+
+# Create validation script
+RUN echo '#!/usr/bin/env python3\n\
+import os\n\
+import sys\n\
+print("🧪 Testing model accessibility...")\n\
+\n\
+# Test transformers cache\n\
+try:\n\
+    from transformers import AutoTokenizer\n\
+    tokenizer = AutoTokenizer.from_pretrained("duelker/samo-goemotions-deberta-v3-large", cache_dir="/app/models", local_files_only=True)\n\
+    print("✅ DeBERTa tokenizer loads successfully")\n\
+except Exception as e:\n\
+    print(f"❌ DeBERTa tokenizer failed: {e}")\n\
+    sys.exit(1)\n\
+\n\
+try:\n\
+    from transformers import T5Tokenizer\n\
+    t5_tokenizer = T5Tokenizer.from_pretrained("t5-small", cache_dir="/app/models", local_files_only=True)\n\
+    print("✅ T5 tokenizer loads successfully")\n\
+except Exception as e:\n\
+    print(f"❌ T5 tokenizer failed: {e}")\n\
+    sys.exit(1)\n\
+\n\
+# Test Whisper model file exists\n\
+whisper_path = "/app/models/base.pt"\n\
+if os.path.exists(whisper_path):\n\
+    print(f"✅ Whisper model file exists at {whisper_path}")\n\
+else:\n\
+    print(f"❌ Whisper model file missing at {whisper_path}")\n\
+    sys.exit(1)\n\
+\n\
+print("🎉 All model validation tests passed!")\n\
+' > validate_models.py && chmod +x validate_models.py
+
+# Run model validation
+RUN python validate_models.py
+
+# Copy source code
+COPY src/ ./src/
+COPY *.py ./
+
+# Expose port
+EXPOSE 8080
+
+# Run the optimized API
+CMD ["python", "src/startup_api.py"]
