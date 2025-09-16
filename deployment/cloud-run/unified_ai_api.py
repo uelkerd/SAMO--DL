@@ -1441,8 +1441,34 @@ async def analyze_voice_journal(
         transcribed_text = ""
         if voice_transcriber is not None:
             try:
+                # Enforce 45MB size limit to prevent memory abuse
+                MAX_FILE_SIZE = 45 * 1024 * 1024  # 45MB in bytes
+                
+                # Check content length if available
+                if hasattr(audio_file, 'content_length') and audio_file.content_length is not None:
+                    if audio_file.content_length > MAX_FILE_SIZE:
+                        raise HTTPException(
+                            status_code=413,
+                            detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
+                        )
+                
+                # Read file content with size limit
+                content = b""
+                chunk_size = 8192  # 8KB chunks
+                
+                while True:
+                    chunk = await audio_file.read(chunk_size)
+                    if not chunk:
+                        break
+                    
+                    content += chunk
+                    if len(content) > MAX_FILE_SIZE:
+                        raise HTTPException(
+                            status_code=413,
+                            detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
+                        )
+                
                 # Create a temporary file for the audio with correct extension
-                content = await audio_file.read()
                 temp_file_path = _write_temp_audio(content, audio_file.filename, audio_file.content_type)
 
                 try:
