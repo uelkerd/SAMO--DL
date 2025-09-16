@@ -327,12 +327,40 @@ async function callSummarizationAPI(text) {
 
         const data = await response.json();
         console.log('✅ Summarization API response:', data);
+        console.log('🔍 Response type:', typeof data);
+        console.log('🔍 Response keys:', Object.keys(data));
+        console.log('🔍 Full response structure:', JSON.stringify(data, null, 2));
 
-        // Extract summary from API response (adjust based on actual API response format)
+        // Check all possible field names for the summary
+        let summaryText = null;
+        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output', 'content', 'message'];
+
+        for (const field of possibleFields) {
+            if (data[field] && typeof data[field] === 'string') {
+                console.log(`🎯 Found summary in field '${field}':`, data[field]);
+                summaryText = data[field];
+                break;
+            }
+        }
+
+        // If no summary found, log the issue and use fallback
+        if (!summaryText) {
+            console.error('❌ No summary field found in API response');
+            console.error('❌ Available fields:', Object.keys(data));
+            summaryText = `API returned unexpected format. Available fields: ${Object.keys(data).join(', ')}. Response: ${JSON.stringify(data)}`;
+        }
+
+        // Check if the "summary" is actually just truncated original text
+        if (summaryText && text.includes(summaryText)) {
+            console.warn('⚠️ WARNING: API returned truncated original text, not a proper summary!');
+            console.warn('⚠️ Original text contains the returned "summary"');
+            summaryText = `[TRUNCATION DETECTED] The API returned truncated text instead of a proper summary: "${summaryText}"`;
+        }
+
         const summary = {
             original_length: text.length,
-            summary_length: data.summary ? data.summary.length : text.length,
-            summary: data.summary || data.text || `Unable to generate summary - API response: ${JSON.stringify(data)}`
+            summary_length: summaryText ? summaryText.length : text.length,
+            summary: summaryText
         };
 
         return summary;
