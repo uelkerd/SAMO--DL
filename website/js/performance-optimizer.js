@@ -14,7 +14,9 @@ class PerformanceOptimizer {
         this.processingQueue = [];
         this.isProcessing = false;
         this.memoryThreshold = 50 * 1024 * 1024; // 50MB threshold
-        this.maxCacheSize = 10;
+        this.maxCacheSize = 5; // Reduced from 10
+        this.memoryCheckInterval = null; // Store interval ID for cleanup
+        this.observers = new Set(); // Track observers for cleanup
         
         this.initializePerformanceMonitoring();
     }
@@ -25,7 +27,7 @@ class PerformanceOptimizer {
     initializePerformanceMonitoring() {
         // Monitor memory usage
         if (performance.memory) {
-            setInterval(() => this.checkMemoryUsage(), 5000);
+            this.memoryCheckInterval = setInterval(() => this.checkMemoryUsage(), 10000); // Reduced frequency
         }
         
         // Monitor chart rendering performance
@@ -328,6 +330,8 @@ class PerformanceOptimizer {
                     // Chart is visible, create it
                     chartCreator();
                     observer.unobserve(entry.target);
+                    // Remove from tracking set
+                    this.observers.delete(observer);
                 }
             });
         }, {
@@ -335,6 +339,8 @@ class PerformanceOptimizer {
             rootMargin: options.rootMargin || '50px'
         });
         
+        // Track observer for cleanup
+        this.observers.add(observer);
         observer.observe(chartContainer);
     }
     
@@ -366,12 +372,47 @@ class PerformanceOptimizer {
         // Clear processing queue
         this.processingQueue = [];
         
+        // Clear performance metrics (keep only last 20)
+        if (this.performanceMetrics && this.performanceMetrics.length > 20) {
+            this.performanceMetrics = this.performanceMetrics.slice(-20);
+        }
+        
+        // Clear chart render times
+        if (this.chartRenderTimes && this.chartRenderTimes.length > 10) {
+            this.chartRenderTimes = this.chartRenderTimes.slice(-10);
+        }
+        
         // Force garbage collection if available
         if (window.gc) {
             window.gc();
         }
         
         console.log('Memory cleanup completed');
+    }
+    
+    /**
+     * Clean up all resources and stop monitoring
+     */
+    destroy() {
+        // Clear memory check interval
+        if (this.memoryCheckInterval) {
+            clearInterval(this.memoryCheckInterval);
+            this.memoryCheckInterval = null;
+        }
+        
+        // Disconnect all observers
+        this.observers.forEach(observer => {
+            observer.disconnect();
+        });
+        this.observers.clear();
+        
+        // Clear all caches
+        this.chartCache.clear();
+        this.processingQueue = [];
+        this.performanceMetrics = [];
+        this.chartRenderTimes = [];
+        
+        console.log('PerformanceOptimizer destroyed and cleaned up');
     }
     
     /**

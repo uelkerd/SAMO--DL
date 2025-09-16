@@ -300,6 +300,16 @@ class ComprehensiveDemo {
         this.chart = null;
         this.performanceOptimizer = new PerformanceOptimizer();
         
+        // Add cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            this.cleanup();
+        });
+        
+        // Periodic cleanup to prevent memory buildup
+        this.cleanupInterval = setInterval(() => {
+            this.periodicCleanup();
+        }, 30000); // Every 30 seconds
+        
         this.initializeElements();
         this.bindEvents();
     }
@@ -530,9 +540,15 @@ class ComprehensiveDemo {
             return;
         }
         
-        // Destroy existing chart
+        // Destroy existing chart properly
         if (this.chart) {
-            this.chart.destroy();
+            try {
+                this.chart.destroy();
+                this.chart = null;
+            } catch (error) {
+                console.warn('Error destroying chart:', error);
+                this.chart = null;
+            }
         }
         
         // Use the basic chart directly since we have Chart.js
@@ -544,6 +560,22 @@ class ComprehensiveDemo {
         console.log('🔍 createBasicChart called with:', emotionData);
         console.log('🔍 emotionData type:', typeof emotionData);
         console.log('🔍 emotionData length:', emotionData?.length);
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js not loaded! Waiting for it to load...');
+            // Wait for Chart.js to load and retry
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    console.log('✅ Chart.js loaded, retrying chart creation...');
+                    this.createBasicChart(ctx, emotionData);
+                } else {
+                    console.error('❌ Chart.js still not available after timeout');
+                    this.showChartError('Chart.js library not loaded');
+                }
+            }, 1000);
+            return;
+        }
         
         if (!Array.isArray(emotionData) || emotionData.length === 0) {
             console.error('❌ Invalid emotion data for chart:', emotionData);
@@ -558,7 +590,8 @@ class ComprehensiveDemo {
         console.log('🔍 Chart data:', data);
         console.log('🔍 Chart colors:', colors);
         
-        this.chart = new Chart(ctx, {
+        try {
+            this.chart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -619,6 +652,34 @@ class ComprehensiveDemo {
                 }
             }
         });
+        
+        } catch (error) {
+            console.error('❌ Error creating chart:', error);
+            this.showChartError('Failed to create chart: ' + error.message);
+        }
+    }
+    
+    /**
+     * Show chart error message
+     */
+    showChartError(message) {
+        const chartContainer = document.getElementById('emotionChart');
+        if (chartContainer) {
+            const parent = chartContainer.parentElement;
+            if (parent) {
+                parent.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        <h6 class="alert-heading">
+                            <span class="material-icons me-2">warning</span>
+                            Chart Error
+                        </h6>
+                        <p class="mb-0">${message}</p>
+                        <hr>
+                        <p class="mb-0 small">Please refresh the page and try again.</p>
+                    </div>
+                `;
+            }
+        }
     }
 
     showEmotionDetails(emotionData) {
@@ -831,11 +892,86 @@ class ComprehensiveDemo {
             this.errorMsgEl.classList.remove('show');
         }
     }
+    
+    /**
+     * Clean up resources to prevent memory leaks
+     */
+    cleanup() {
+        console.log('🧹 Cleaning up resources...');
+        
+        // Destroy chart
+        if (this.chart) {
+            try {
+                this.chart.destroy();
+                this.chart = null;
+            } catch (error) {
+                console.warn('Error destroying chart during cleanup:', error);
+            }
+        }
+        
+        // Clean up performance optimizer
+        if (this.performanceOptimizer && typeof this.performanceOptimizer.destroy === 'function') {
+            this.performanceOptimizer.destroy();
+        }
+        
+        // Stop media recording if active
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            try {
+                this.mediaRecorder.stop();
+            } catch (error) {
+                console.warn('Error stopping media recorder:', error);
+            }
+        }
+        
+        // Clear audio chunks
+        this.audioChunks = [];
+        
+        // Clear cleanup interval
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+        }
+        
+        console.log('✅ Cleanup completed');
+    }
+    
+    /**
+     * Periodic cleanup to prevent memory buildup
+     */
+    periodicCleanup() {
+        // Only run if performance optimizer is available
+        if (this.performanceOptimizer && typeof this.performanceOptimizer.cleanupMemory === 'function') {
+            this.performanceOptimizer.cleanupMemory();
+        }
+        
+        // Clear any old audio chunks
+        if (this.audioChunks.length > 10) {
+            this.audioChunks = this.audioChunks.slice(-5);
+        }
+    }
 }
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    new ComprehensiveDemo();
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait time
+    
+    // Wait for Chart.js to be available
+    function waitForChartJS() {
+        if (typeof Chart !== 'undefined') {
+            console.log('✅ Chart.js loaded, initializing demo...');
+            new ComprehensiveDemo();
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            console.log(`⏳ Waiting for Chart.js to load... (attempt ${attempts}/${maxAttempts})`);
+            setTimeout(waitForChartJS, 100);
+        } else {
+            console.error('❌ Chart.js failed to load after 5 seconds. Initializing demo anyway...');
+            new ComprehensiveDemo();
+        }
+    }
+    
+    waitForChartJS();
 });
 
 // Smooth scrolling for in-page navigation links
