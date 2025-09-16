@@ -280,6 +280,9 @@ async def summarize_text(text: str):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    host = "0.0.0.0"
+    # Default to localhost for development to avoid exposure
+    host = os.environ.get("HOST", "127.0.0.1")
+    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+        host = "0.0.0.0"  # Cloud Run and production environments
     logger.info(f"Starting bulletproof server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)

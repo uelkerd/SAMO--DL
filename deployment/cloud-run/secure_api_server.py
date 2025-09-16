@@ -502,8 +502,10 @@ def initialize_model():
 if __name__ == '__main__':
     initialize_model()
     logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    # Use localhost for local development, 0.0.0.0 for production/cloud deployment
-    host = '127.0.0.1' if os.getenv('ENVIRONMENT') == 'development' else '0.0.0.0'
+    # Default to localhost for development to avoid exposure
+    host = os.environ.get("HOST", "127.0.0.1")
+    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+        host = "0.0.0.0"  # Cloud Run and production environments
     app.run(host=host, port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import
