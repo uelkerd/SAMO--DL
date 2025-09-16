@@ -5,8 +5,11 @@ This is a simplified version that loads models on-demand to avoid startup timeou
 """
 import os
 import logging
+from functools import lru_cache
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import torch
 import uvicorn
 
 # Configure logging
@@ -28,8 +31,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Pydantic models
+class EmotionRequest(BaseModel):
+    text: str
+
 # Global variables for lazy loading
 emotion_model = None
+
+@lru_cache(maxsize=1)
+def _load_emotion_model():
+    """Load and cache emotion detection model."""
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    
+    model_name = 'duelker/samo-goemotions-deberta-v3-large'
+    logger.info(f"Loading emotion model: {model_name}")
+    
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    
+    # Set model to evaluation mode and move to appropriate device
+    model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    
+    logger.info("Emotion model loaded and cached successfully")
+    return tokenizer, model, device
 summarization_model = None
 whisper_model = None
 
@@ -54,39 +80,24 @@ async def api_health():
     return {"status": "healthy", "message": "API is running"}
 
 @app.post("/analyze/emotion")
-async def analyze_emotion(text: str):
-    """Analyze emotion in text."""
+async def analyze_emotion(request: EmotionRequest):
+    """Analyze emotion in text using cached model with safe inference."""
     try:
         # Input validation
-        if not text or not isinstance(text, str) or not text.strip():
+        if not request.text or not isinstance(request.text, str) or not request.text.strip():
             raise ValueError("Text input is required and cannot be empty")
         
-        # Lazy load emotion model
-        global emotion_model
-        if emotion_model is None:
-            logger.info("Loading emotion model...")
-            from transformers import AutoTokenizer, AutoModelForSequenceClassification
-            import torch
-            
-            model_name = 'duelker/samo-goemotions-deberta-v3-large'
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForSequenceClassification.from_pretrained(model_name)
-            
-            # Set model to evaluation mode and move to appropriate device
-            model.eval()
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            model = model.to(device)
-            
-            emotion_model = {"tokenizer": tokenizer, "model": model, "device": device}
-            logger.info("Emotion model loaded successfully")
+        logger.info("Starting emotion analysis", extra={"text_length": len(request.text)})
+
+        # Load cached model
+        tokenizer, model, device = _load_emotion_model()
 
         # Perform emotion analysis with safe inference
-        device = emotion_model["device"]
-        inputs = emotion_model["tokenizer"](text, return_tensors="pt", truncation=True, max_length=512)
+        inputs = tokenizer(request.text, return_tensors="pt", truncation=True, max_length=512)
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
         with torch.no_grad():
-            outputs = emotion_model["model"](**inputs)
+            outputs = model(**inputs)
             predictions = outputs.logits.sigmoid()  # Use sigmoid for multi-label classification
         
         # Detach and move to CPU before converting to Python lists
@@ -101,17 +112,24 @@ async def analyze_emotion(text: str):
             'relief', 'remorse', 'sadness', 'surprise', 'neutral'
         ]
         emotion_scores = predictions[0].tolist()
+        predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
+
+        logger.info("Emotion analysis completed successfully", extra={
+            "predicted_emotion": predicted_emotion,
+            "max_confidence": max(emotion_scores)
+        })
 
         result = {
-            "text": text,
+            "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
-            "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))]
+            "predicted_emotion": predicted_emotion
         }
 
         return result
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.warning("Invalid input for emotion analysis: %s", str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.exception("Error in emotion analysis")
         raise HTTPException(status_code=500, detail="Emotion analysis failed") from e

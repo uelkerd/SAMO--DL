@@ -4,6 +4,7 @@ import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import uvicorn
 
 # Configure logging
@@ -21,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Pydantic models
+class EmotionRequest(BaseModel):
+    text: str
+
 @app.get("/")
 async def root():
     return {"message": "SAMO API is running", "status": "healthy"}
@@ -30,10 +35,12 @@ async def health():
     return {"status": "healthy"}
 
 @app.post("/analyze/emotion")
-async def analyze_emotion(text: str):
+async def analyze_emotion(request: EmotionRequest):
     """Mock emotion analysis for testing."""
+    logger.info("Mock emotion analysis", extra={"text_length": len(request.text)})
+    
     return {
-        "text": text,
+        "text": request.text,
         "emotions": {
             "excitement": 0.9,
             "joy": 0.8,

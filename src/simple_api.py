@@ -2,8 +2,11 @@
 """Ultra-simple API that starts immediately for Cloud Run."""
 import os
 import logging
+from functools import lru_cache
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import torch
 import uvicorn
 
 # Configure logging
@@ -25,6 +28,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Pydantic models
+class EmotionRequest(BaseModel):
+    text: str
+
+@lru_cache(maxsize=1)
+def _load_emotion_model():
+    """Load and cache emotion detection model."""
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    
+    model_name = 'duelker/samo-goemotions-deberta-v3-large'
+    logger.info(f"Loading emotion model: {model_name}")
+    
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    model.eval()  # Set to evaluation mode for deterministic inference
+    
+    logger.info("Emotion model loaded and cached successfully")
+    return tokenizer, model
+
 @app.get("/")
 async def root():
     """Root endpoint."""
@@ -36,24 +58,20 @@ async def health():
     return {"status": "healthy"}
 
 @app.post("/analyze/emotion")
-async def analyze_emotion(text: str):
-    """Analyze emotion - loads model on first request."""
+async def analyze_emotion(request: EmotionRequest):
+    """Analyze emotion using cached model with safe inference."""
     try:
-        logger.info(f"Analyzing emotion for text: {text[:50]}...")
+        logger.info("Starting emotion analysis", extra={"text_length": len(request.text)})
 
-        # Import and load model only when needed
-        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        # Load cached model
+        tokenizer, model = _load_emotion_model()
 
-        model_name = 'duelker/samo-goemotions-deberta-v3-large'
-        logger.info(f"Loading model: {model_name}")
-
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
-        # Perform analysis
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
-        outputs = model(**inputs)
-        predictions = outputs.logits.sigmoid()
+        # Perform analysis with safe inference
+        inputs = tokenizer(request.text, return_tensors="pt", truncation=True, max_length=512)
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            predictions = outputs.logits.sigmoid()
 
         # 28 emotions from our DeBERTa-v3 model
         emotion_labels = [
@@ -65,18 +83,23 @@ async def analyze_emotion(text: str):
         ]
 
         emotion_scores = predictions[0].tolist()
+        predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
+        
         result = {
-            "text": text,
+            "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
-            "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))]
+            "predicted_emotion": predicted_emotion
         }
 
-        logger.info(f"Analysis complete. Predicted emotion: {result['predicted_emotion']}")
+        logger.info("Emotion analysis completed successfully", extra={
+            "predicted_emotion": predicted_emotion,
+            "max_confidence": max(emotion_scores)
+        })
         return result
 
     except Exception as e:
-        logger.error(f"Error in emotion analysis: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        logger.exception("Error in emotion analysis")
+        raise HTTPException(status_code=500, detail="Analysis failed")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
