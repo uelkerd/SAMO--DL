@@ -132,9 +132,8 @@ def main():
 
         print("\n✅ Dependency usage check passed!")
         return 0
-    else:
-        checker.print_results()
-        return 1
+    checker.print_results()
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main()) 

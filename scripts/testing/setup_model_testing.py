@@ -99,7 +99,7 @@ def find_model_file(min_size_bytes: int = 0):
             if size < min_size_bytes:
                 print(f"⚠️  Skipping {location} - too small ({size:,} bytes < {min_size_bytes:,} bytes)")
                 continue
-                
+
             print(f"✅ Found model: {location} ({size:,} bytes)")
             
             # Copy to current directory if not already here
@@ -122,19 +122,19 @@ def setup_testing():
     
     # Define minimum size for model files (10KB)
     min_size_bytes = 10 * 1024
-    
+
     # Check if model file is missing or too small
     model_missing = 'model' in missing_files
     model_exists = os.path.exists('best_simple_model.pth')
-    
+
     if model_exists:
         model_size = os.path.getsize('best_simple_model.pth')
         model_too_small = model_size < min_size_bytes
     else:
         model_too_small = False
-    
+
     needs_model = model_missing or model_too_small
-    
+
     if needs_model and not find_model_file(min_size_bytes=min_size_bytes):
         print("\n❌ Cannot proceed without model file!")
         print("📋 Please download best_simple_model.pth and place it in this directory")
@@ -151,9 +151,9 @@ def test_model_loading():
     """Test loading the model file to verify it's valid."""
     if not os.path.exists('best_simple_model.pth'):
         return False
-        
+
     print("✅ Model file exists")
-    
+
     # Try to load a small part to verify it's valid
     import torch
     checkpoint = torch.load('best_simple_model.pth', map_location='cpu')
