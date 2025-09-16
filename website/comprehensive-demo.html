@@ -225,6 +225,10 @@
                                 <span class="material-icons me-2">delete</span>
                                 Clear All
                             </button>
+                            <button class="btn btn-outline-warning btn-lg" id="apiKeyBtn" title="Manage OpenAI API Key">
+                                <span class="material-icons me-2">key</span>
+                                API Key
+                            </button>
                         </div>
                     </div>
 
@@ -479,6 +483,27 @@
                 });
             } else {
                 console.error('❌ Generate button not found');
+            }
+            
+            // Add click listener for API Key button
+            const apiKeyBtn = document.getElementById('apiKeyBtn');
+            if (apiKeyBtn) {
+                console.log('✅ API Key button found, adding click listener');
+                apiKeyBtn.addEventListener('click', function() {
+                    console.log('🔘 API Key button clicked!');
+                    if (typeof manageApiKey === 'function') {
+                        manageApiKey();
+                    } else {
+                        console.error('❌ manageApiKey function not available');
+                    }
+                });
+                
+                // Update button status on page load
+                if (typeof updateApiKeyButtonStatus === 'function') {
+                    updateApiKeyButtonStatus();
+                }
+            } else {
+                console.error('❌ API Key button not found');
             }
             
             // Add click listener for Clear button

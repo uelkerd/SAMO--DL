@@ -41,6 +41,19 @@ async function generateSampleText() {
     }
     
     try {
+        // Check for OpenAI API key
+        let apiKey = localStorage.getItem('openai_api_key');
+        if (!apiKey) {
+            apiKey = prompt('Please enter your OpenAI API key to generate AI text:');
+            if (apiKey) {
+                localStorage.setItem('openai_api_key', apiKey);
+            } else {
+                console.log('❌ No API key provided, using static samples');
+                generateStaticSampleText();
+                return;
+            }
+        }
+        
         // Different emotional prompts for variety
         const prompts = [
             "Today I'm feeling incredibly excited and optimistic about",
@@ -52,26 +65,109 @@ async function generateSampleText() {
         
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         
-        // Try alternative AI service - using a simple text generation approach
-        console.log('🤖 Attempting AI text generation...');
+        console.log('🤖 Generating AI text with OpenAI API...');
         
-        // Show loading state
-        if (textInput) {
-            textInput.value = '🤖 Generating AI text...';
-            textInput.style.borderColor = '#8b5cf6';
-            textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
+        // Call OpenAI API
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant that generates personal journal entries with rich emotional content. Write 2-3 sentences that express various emotions and feelings.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Please complete this journal entry: "${randomPrompt}"`
+                    }
+                ],
+                max_tokens: 200,
+                temperature: 0.8
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
         }
         
-        // Use static sample text (OpenAI generation disabled for now)
-        console.log('📝 Using sample text (OpenAI generation disabled)');
-        generateStaticSampleText();
+        const data = await response.json();
+        const generatedText = data.choices[0].message.content;
+        
+        console.log('✅ AI text generated successfully:', generatedText);
+        
+        // Update the text input with generated content
+        if (textInput) {
+            textInput.value = generatedText;
+            textInput.style.borderColor = '#10b981';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+        }
         
     } catch (error) {
         console.error('❌ AI text generation failed:', error);
         
-        // Fallback to static samples
-        console.log('🔄 Falling back to static sample texts...');
-        generateStaticSampleText();
+        // Show error message
+        if (textInput) {
+            textInput.value = `❌ AI generation failed: ${error.message}. Using sample text instead.`;
+            textInput.style.borderColor = '#ef4444';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+        }
+        
+        // Fallback to static samples after a delay
+        setTimeout(() => {
+            console.log('🔄 Falling back to static sample texts...');
+            generateStaticSampleText();
+        }, 2000);
+    }
+}
+
+// API Key Management
+function manageApiKey() {
+    const currentKey = localStorage.getItem('openai_api_key');
+    const maskedKey = currentKey ? `${currentKey.substring(0, 8)}...${currentKey.substring(currentKey.length - 4)}` : 'None';
+    
+    const action = confirm(`Current API Key: ${maskedKey}\n\nClick OK to set a new key, or Cancel to clear the current key.`);
+    
+    if (action) {
+        // Set new key
+        const newKey = prompt('Enter your OpenAI API key:');
+        if (newKey && newKey.trim()) {
+            localStorage.setItem('openai_api_key', newKey.trim());
+            alert('✅ API key saved successfully!');
+            updateApiKeyButtonStatus();
+        } else {
+            alert('❌ No valid API key provided.');
+        }
+    } else {
+        // Clear current key
+        if (currentKey) {
+            localStorage.removeItem('openai_api_key');
+            alert('🗑️ API key cleared successfully!');
+            updateApiKeyButtonStatus();
+        } else {
+            alert('ℹ️ No API key was stored.');
+        }
+    }
+}
+
+// Update API Key button visual status
+function updateApiKeyButtonStatus() {
+    const apiKeyBtn = document.getElementById('apiKeyBtn');
+    if (apiKeyBtn) {
+        const hasKey = localStorage.getItem('openai_api_key');
+        if (hasKey) {
+            apiKeyBtn.classList.remove('btn-outline-warning');
+            apiKeyBtn.classList.add('btn-warning');
+            apiKeyBtn.innerHTML = '<span class="material-icons me-2">key</span>API Key ✓';
+        } else {
+            apiKeyBtn.classList.remove('btn-warning');
+            apiKeyBtn.classList.add('btn-outline-warning');
+            apiKeyBtn.innerHTML = '<span class="material-icons me-2">key</span>API Key';
+        }
     }
 }
 
@@ -776,6 +872,8 @@ function clearAll() {
 // Make functions globally available
 window.processText = processText;
 window.generateSampleText = generateSampleText;
+window.manageApiKey = manageApiKey;
+window.updateApiKeyButtonStatus = updateApiKeyButtonStatus;
 window.testWithMockData = testWithMockData;
 window.testWithRealAPI = testWithRealAPI;
 window.createSimpleChart = createSimpleChart;
