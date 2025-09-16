@@ -58,7 +58,7 @@ steps:
       '--timeout', '1200',
       '--set-env-vars', 'PYTHONUNBUFFERED=1,CORS_ORIGINS=https://samo-dl-demo.web.app,https://samo-dl-demo.firebaseapp.com'
     ]
-    secretEnv: ['ADMIN_API_KEY']
+    secretEnv: ['SAMO_EMOTION_API_KEY']
 
 # Images to be pushed to registry
 images:
@@ -74,5 +74,5 @@ options:
 # Secret management
 availableSecrets:
   secretManager:
-    - versionName: projects/$PROJECT_ID/secrets/admin-api-key/versions/latest
-      env: 'ADMIN_API_KEY'
+    - versionName: projects/$PROJECT_ID/secrets/SAMO_EMOTION_API_KEY/versions/latest
+      env: 'SAMO_EMOTION_API_KEY'
