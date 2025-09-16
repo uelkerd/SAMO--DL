@@ -495,11 +495,13 @@ class ComprehensiveDemo {
         console.log('🔍 Normalized emotions for chart:', normalizedEmotions);
         console.log('🔍 Normalized emotions length:', normalizedEmotions.length);
 
-        // Create emotion badges
+        // Create emotion badges (only show top 5)
         const badgesContainer = document.getElementById('emotionBadges');
         badgesContainer.textContent = '';
         
-        normalizedEmotions.forEach(emotion => {
+        // Only show top 5 emotions as badges
+        const top5Emotions = normalizedEmotions.slice(0, 5);
+        top5Emotions.forEach(emotion => {
             const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
             const emotionName = emotion.emotion || 'Unknown';
             
@@ -510,12 +512,13 @@ class ComprehensiveDemo {
             badgesContainer.appendChild(badge);
         });
 
-        // Create emotion chart
-        console.log('🔍 Creating chart with data:', normalizedEmotions);
-        this.createEmotionChart(normalizedEmotions);
+        // Create emotion chart (only top 5 emotions)
+        const chartData = normalizedEmotions.slice(0, 5);
+        console.log('🔍 Creating chart with data:', chartData);
+        this.createEmotionChart(chartData);
         
-        // Show emotion details
-        this.showEmotionDetails(normalizedEmotions);
+        // Show emotion details (only top 5)
+        this.showEmotionDetails(chartData);
         
         this.emotionResults.style.display = 'block';
     }

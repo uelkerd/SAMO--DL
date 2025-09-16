@@ -274,17 +274,28 @@ body.comprehensive-demo {
 
 /* Emotion Badges */
 .emotion-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    margin: 2px;
+    display: block;
+    padding: 8px 16px;
+    margin: 4px 0;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 500;
     transition: var(--transition-smooth);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .emotion-badge:hover {
     transform: scale(1.05);
+}
+
+/* Emotion Badges Container */
+#emotionBadges {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
 }
 
 /* Audio Visualizer */
