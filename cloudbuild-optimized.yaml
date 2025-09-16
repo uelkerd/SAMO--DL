@@ -45,7 +45,7 @@ steps:
       - '--min-instances=0'
       - '--concurrency=80'
       - '--startup-cpu-boost'  # Faster cold starts
-      - '--service-timeout=3600'  # Request timeout (1 hour)
+      - '--timeout=3600'  # Request timeout (1 hour) - using supported flag
       - '--set-env-vars=PYTHONUNBUFFERED=1'  # Ensure logging works
 
 # Build options

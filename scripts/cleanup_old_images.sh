@@ -8,7 +8,24 @@
 # - Uses --delete-tags flag to ensure complete removal of tagged images
 # - Uses digest form (@sha256:...) for digest-only images
 
+# Enable strict bash options for fail-fast behavior
 set -euo pipefail
+IFS=$'\n\t'
+
+# Check for gcloud CLI presence
+if ! command -v gcloud >/dev/null 2>&1; then
+    echo "❌ Error: gcloud CLI not found" >&2
+    echo "   Please install gcloud CLI and authenticate:" >&2
+    echo "   https://cloud.google.com/sdk/docs/install" >&2
+    exit 1
+fi
+
+# Verify gcloud authentication and configuration
+if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q .; then
+    echo "❌ Error: No active gcloud authentication found" >&2
+    echo "   Please run: gcloud auth login" >&2
+    exit 1
+fi
 
 echo "🧹 Starting Docker image cleanup..."
 

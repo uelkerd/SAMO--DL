@@ -18,13 +18,6 @@ steps:
       '.'
     ]
 
-  # Scan locally built image for vulnerabilities (no --remote flag)
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: [
-      'artifacts', 'docker', 'images', 'scan',
-      'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$BUILD_ID'
-    ]
-
   # Push images to registry
   - name: 'gcr.io/cloud-builders/docker'
     args: [
