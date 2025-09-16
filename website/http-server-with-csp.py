@@ -15,7 +15,7 @@ class CSPHTTPRequestHandler(SimpleHTTPRequestHandler):
             "media-src 'self' blob:; "
             "worker-src 'self' blob:; "
             "object-src 'none'; "
-            "connect-src 'self' http://localhost:8081 https://samo-emotion-api-minimal-71517823771.us-central1.run.app https://samo-unified-api-71517823771.us-central1.run.app https://samo-unified-api-frrnetyhfa-uc.a.run.app https://api.samo-dl.com https://api.openai.com https://cdn.jsdelivr.net; "
+            "connect-src 'self' http://localhost:8081 https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app https://api.samo-dl.com https://api.openai.com https://cdn.jsdelivr.net; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
             "form-action 'self'"

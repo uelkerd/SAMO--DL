@@ -46,10 +46,11 @@ steps:
       '--max-instances', '10',
       '--min-instances', '0',
       '--concurrency', '80',
-      '--startup-cpu-boost',
-      '--service-timeout', '3600',
       '--timeout', '1200',
-      '--set-env-vars', 'PYTHONUNBUFFERED=1,CORS_ORIGINS=https://samo-dl-demo.web.app,https://samo-dl-demo.firebaseapp.com'
+      '--set-env-vars', 'PYTHONUNBUFFERED=1',
+      '--set-env-vars', 'CORS_ORIGIN_1=https://samo-dl-demo.web.app',
+      '--set-env-vars', 'CORS_ORIGIN_2=https://samo-dl-demo.firebaseapp.com',
+      '--set-env-vars', 'CLOUD_RUN_SERVICE=true'
     ]
     secretEnv: ['SAMO_EMOTION_API_KEY']
 

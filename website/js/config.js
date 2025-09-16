@@ -7,14 +7,16 @@
 window.SAMO_CONFIG = {
     // API Configuration
     API: {
-        BASE_URL: 'https://samo-unified-api-frrnetyhfa-uc.a.run.app',
+        BASE_URL: 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app',
         ENDPOINTS: {
             EMOTION: '/analyze/emotion',
+            SUMMARIZE: '/analyze/summarize',
             JOURNAL: '/analyze/journal',
             HEALTH: '/health',
+            READY: '/ready',
             TRANSCRIBE: '/transcribe'
         },
-        TIMEOUT: 30000, // 30 seconds
+        TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
         RETRY_ATTEMPTS: 3
     },
     

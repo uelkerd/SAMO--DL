@@ -50,7 +50,7 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                 encoded_text = urllib.parse.quote(text)
 
                 # Forward the request to the unified API with query parameters
-                api_url = f'https://samo-unified-api-71517823771.us-central1.run.app/analyze/emotion?text={encoded_text}'
+                api_url = f'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text={encoded_text}'
 
                 # Make POST request with query parameters using secure requests library
                 headers = {

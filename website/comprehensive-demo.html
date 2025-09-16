@@ -282,7 +282,13 @@
                                     <div id="emotionBadges" class="mb-3"></div>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div id="emotionChart"></div>
+                                            <div class="emotion-chart-container">
+                                                <h6 class="fw-bold mb-3 text-info">
+                                                    <span class="material-icons me-2">bar_chart</span>
+                                                    Top 5 Emotions
+                                                </h6>
+                                                <canvas id="emotionChart" width="400" height="300"></canvas>
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <!-- Detailed Model Output -->
@@ -492,6 +498,11 @@
             }
         });
     </script>
+    
+    <!-- Chart.js for emotion visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <!-- Main comprehensive demo script -->
+    <script src="js/comprehensive-demo.js"></script>
     
     <!-- Legacy Scripts (commented out for now) -->
     <!-- <script src="js/api-client.js"></script> -->

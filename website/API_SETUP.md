@@ -17,7 +17,7 @@ Create a `config.js` file in the `website/` directory with the following content
 
 // API Configuration
 const SAMO_CONFIG = {
-    baseURL: 'https://samo-unified-api-frrnetyhfa-uc.a.run.app',
+    baseURL: 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app',
     jwtToken: null, // JWT Bearer token required for authentication
     timeout: 30000,
     retryAttempts: 3
@@ -38,7 +38,7 @@ The SAMO Unified API requires JWT (Bearer token) authentication for all non-heal
 2. **Add the token to your config**:
    ```javascript
    const SAMO_CONFIG = {
-       baseURL: 'https://samo-unified-api-frrnetyhfa-uc.a.run.app',
+       baseURL: 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app',
        jwtToken: 'your-jwt-token-here', // Replace with actual JWT
        timeout: 30000,
        retryAttempts: 3

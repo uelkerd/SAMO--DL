@@ -19,38 +19,54 @@ app = FastAPI(title="SAMO Unified AI API", version="1.0.0")
 
 # CORS configuration from environment variables
 def get_cors_origins():
-    """Get allowed CORS origins from environment variable or use safe defaults."""
+    """Get allowed CORS origins from environment variables or use safe defaults."""
+    # Try new split format first (CORS_ORIGIN_1, CORS_ORIGIN_2, etc.)
+    origins = []
+    i = 1
+    while True:
+        origin_var = f"CORS_ORIGIN_{i}"
+        origin = os.environ.get(origin_var)
+        if origin:
+            origins.append(origin.strip())
+            i += 1
+        else:
+            break
+
+    # If we found split origins, use them
+    if origins:
+        logger.info(f"CORS origins from split environment variables: {origins}")
+        return origins
+
+    # Fall back to legacy format (CORS_ORIGINS comma-separated)
     origins_env = os.environ.get("CORS_ORIGINS", "")
-    
     if origins_env:
         # Split CSV and strip whitespace
         origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
-        logger.info(f"CORS origins from environment: {origins}")
+        logger.info(f"CORS origins from legacy environment variable: {origins}")
         return origins
-    else:
-        # Safe development defaults when no config provided
-        dev_origins = [
-            "http://localhost:3000",
-            "http://localhost:8080", 
-            "http://localhost:8082",
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:8080",
-            "http://127.0.0.1:8082"
-        ]
-        logger.warning("No CORS_ORIGINS configured, using development defaults")
-        return dev_origins
+
+    # Safe development defaults when no config provided
+    dev_origins = [
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://localhost:8082",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:8082"
+    ]
+    logger.warning("No CORS environment variables configured, using development defaults")
+    return dev_origins
 
 def get_cors_origin_regex():
-    """Get CORS origin regex patterns for dynamic hosts."""
+    """Get CORS origin regex pattern as single string for dynamic hosts."""
     regex_env = os.environ.get("CORS_ORIGIN_REGEX", "")
-    
+
     if regex_env:
-        # Split CSV and strip whitespace for multiple regex patterns
-        patterns = [pattern.strip() for pattern in regex_env.split(",") if pattern.strip()]
-        logger.info(f"CORS origin regex patterns: {patterns}")
-        return patterns
+        # Use the provided regex pattern directly
+        logger.info(f"CORS origin regex pattern: {regex_env}")
+        return regex_env
     else:
-        # Default patterns for common development and staging environments
+        # Combine default patterns into single regex with alternation (|)
         default_patterns = [
             r"https://.*\.vercel\.app$",  # Vercel deployments
             r"https://.*\.netlify\.app$",  # Netlify deployments
@@ -58,7 +74,10 @@ def get_cors_origin_regex():
             r"http://localhost:\d+$",      # Local development with any port
             r"http://127\.0\.0\.1:\d+$",   # Local development with any port
         ]
-        return default_patterns
+        # Join patterns with OR (|) to create single regex
+        combined_pattern = "|".join(f"({pattern})" for pattern in default_patterns)
+        logger.info(f"CORS combined regex pattern: {combined_pattern}")
+        return combined_pattern
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()

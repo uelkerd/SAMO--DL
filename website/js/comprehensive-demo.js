@@ -10,15 +10,17 @@ class SAMOAPIClient {
             console.warn('⚠️ SAMO_CONFIG not found, using fallback configuration');
         }
         
-        this.baseURL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
+        this.baseURL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app';
         this.endpoints = window.SAMO_CONFIG?.API?.ENDPOINTS || {
             EMOTION: '/analyze/emotion',
+            SUMMARIZE: '/analyze/summarize',
             JOURNAL: '/analyze/journal',
             HEALTH: '/health',
-            TRANSCRIBE: '/transcribe/voice',
+            READY: '/ready',
+            TRANSCRIBE: '/transcribe',
             VOICE_JOURNAL: '/analyze/voice-journal'
         };
-        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 20000;
+        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 45000;
         this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
     }
 
@@ -98,8 +100,8 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            const response = await this.makeRequest(this.endpoints.JOURNAL, { text, generate_summary: true });
-            return response.data?.summary || response;
+            const response = await this.makeRequest(this.endpoints.SUMMARIZE, { text });
+            return response;
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -129,8 +131,18 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            const response = await this.makeRequest(this.endpoints.JOURNAL, { text, model: 'deberta-goemotions' });
-            return response.data?.emotion_analysis || response;
+            const response = await this.makeRequest(this.endpoints.EMOTION, { text });
+            // Extract top 5 emotions and sort by confidence
+            const emotions = response.emotions || {};
+            const emotionArray = Object.entries(emotions)
+                .map(([emotion, confidence]) => ({ emotion, confidence }))
+                .sort((a, b) => b.confidence - a.confidence)
+                .slice(0, 5);
+
+            return {
+                ...response,
+                top_emotions: emotionArray
+            };
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -142,19 +154,49 @@ class SAMOAPIClient {
     }
 
     getMockEmotionResponse(text) {
-        // Mock emotion detection response for demo purposes
-        const emotions = [
-            { emotion: 'joy', confidence: 0.85 },
-            { emotion: 'excitement', confidence: 0.72 },
-            { emotion: 'optimism', confidence: 0.68 },
-            { emotion: 'gratitude', confidence: 0.45 },
-            { emotion: 'neutral', confidence: 0.15 }
-        ];
+        // Mock emotion detection response for demo purposes - matches new API format
+        const emotions = {
+            'admiration': 0.12,
+            'amusement': 0.08,
+            'anger': 0.02,
+            'annoyance': 0.01,
+            'approval': 0.15,
+            'caring': 0.05,
+            'confusion': 0.03,
+            'curiosity': 0.18,
+            'desire': 0.04,
+            'disappointment': 0.02,
+            'disapproval': 0.01,
+            'disgust': 0.01,
+            'embarrassment': 0.01,
+            'excitement': 0.85,
+            'fear': 0.02,
+            'gratitude': 0.12,
+            'grief': 0.01,
+            'joy': 0.72,
+            'love': 0.08,
+            'nervousness': 0.03,
+            'optimism': 0.68,
+            'pride': 0.05,
+            'realization': 0.06,
+            'relief': 0.04,
+            'remorse': 0.01,
+            'sadness': 0.02,
+            'surprise': 0.15,
+            'neutral': 0.08
+        };
+        
+        // Create top_emotions array for bar graphs
+        const emotionArray = Object.entries(emotions)
+            .map(([emotion, confidence]) => ({ emotion, confidence }))
+            .sort((a, b) => b.confidence - a.confidence)
+            .slice(0, 5);
         
         return {
             text: text,
             emotions: emotions,
-            confidence: 0.75,
+            predicted_emotion: emotionArray[0].emotion,
+            top_emotions: emotionArray,
             request_id: 'demo-' + Date.now(),
             timestamp: Date.now() / 1000,
             mock: true
@@ -442,24 +484,19 @@ class ComprehensiveDemo {
     }
 
     createEmotionChart(emotionData) {
-        const ctx = document.getElementById('emotionChart').getContext('2d');
+        const ctx = document.getElementById('emotionChart');
+        if (!ctx) {
+            console.error('Emotion chart canvas not found');
+            return;
+        }
         
         // Destroy existing chart
         if (this.chart) {
             this.chart.destroy();
         }
         
-        // Use performance optimizer for chart rendering
-        this.performanceOptimizer.optimizeChartRendering(ctx, emotionData, {
-            responsive: true,
-            maintainAspectRatio: false
-        }).then(chart => {
-            this.chart = chart;
-        }).catch(error => {
-            console.error('Chart rendering failed:', error);
-            // Fallback to basic chart
-            this.createBasicChart(ctx, emotionData);
-        });
+        // Use the basic chart directly since we have Chart.js
+        this.createBasicChart(ctx, emotionData);
     }
     
     createBasicChart(ctx, emotionData) {
