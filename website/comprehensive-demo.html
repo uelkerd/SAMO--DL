@@ -195,6 +195,15 @@
                                     Stop Recording
                                 </button>
                             </div>
+                            <!-- Audio Visualizer -->
+                            <div id="audioVisualizer" class="audio-visualizer mt-3" style="display: none;">
+                                <div class="text-center">
+                                    <div class="recording-indicator">
+                                        <span class="material-icons text-danger">fiber_manual_record</span>
+                                        <span class="ms-2">Recording...</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-text text-muted">Voice processing will be restored soon. Use text input for now.</div>
                         </div>
 
@@ -322,6 +331,11 @@
                                                     <div class="model-detail-text" id="modelDetails">-</div>
                                                 </div>
                                             </div>
+
+                                            <!-- Additional Emotion Details -->
+                                            <div class="mt-3">
+                                                <div id="emotionDetails"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -435,7 +449,12 @@
     
     <!-- Configuration Script -->
     <script src="js/config.js"></script>
-    
+
+    <!-- Chart.js for emotion visualization - MUST load before simple-demo-functions.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"
+            onload="console.log('✅ Chart.js loaded successfully')"
+            onerror="console.error('❌ Failed to load Chart.js')"></script>
+
     <!-- Simple Working Functions -->
     <script src="js/simple-demo-functions.js"></script>
     
@@ -523,11 +542,7 @@
             }
         });
     </script>
-    
-    <!-- Chart.js for emotion visualization - MUST load before comprehensive-demo.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js" 
-            onload="console.log('✅ Chart.js loaded successfully')"
-            onerror="console.error('❌ Failed to load Chart.js')"></script>
+
     <!-- Main comprehensive demo script -->
     <script src="js/comprehensive-demo.js"></script>
     

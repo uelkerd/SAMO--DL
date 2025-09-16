@@ -503,12 +503,38 @@ function testWithRealAPI() {
 function createSimpleChart(emotions) {
     console.log('📊 Creating SIMPLE chart...');
     const container = document.getElementById('emotionChart');
-    
+
     if (!container) {
         console.error('❌ Chart container not found');
         return;
     }
-    
+
+    // Check if Chart.js is loaded - with retry mechanism
+    if (typeof Chart === 'undefined') {
+        // Try up to 3 times with 1-second delays
+        const retryCount = container.dataset.chartRetries ? parseInt(container.dataset.chartRetries) : 0;
+
+        if (retryCount < 3) {
+            console.warn(`⚠️ Chart.js not loaded yet, retry ${retryCount + 1}/3...`);
+            container.dataset.chartRetries = retryCount + 1;
+            setTimeout(() => createSimpleChart(emotions), 1000);
+            return;
+        } else {
+            // After 3 retries, show error message and use HTML fallback
+            console.error('❌ Chart.js failed to load after 3 retries, using HTML fallback');
+            showChartError('Chart.js library not loaded. Please refresh the page.');
+            return;
+        }
+    }
+
+    // Clear retry counter if Chart.js is now available
+    if (container.dataset.chartRetries) {
+        delete container.dataset.chartRetries;
+    }
+
+    // Destroy existing chart to prevent memory leaks
+    destroyExistingChart();
+
     // Validate emotions array
     if (!Array.isArray(emotions) || emotions.length === 0) {
         console.warn('⚠️ Invalid or empty emotions array, showing no emotions message');
@@ -568,20 +594,29 @@ function createSimpleChart(emotions) {
             // Create progress bar fill
             const progressFill = document.createElement('div');
             progressFill.style.cssText = `width: ${Math.max(0, Math.min(100, percentage))}%; height: 100%; background: ${color}; border-radius: 10px; transition: width 1s ease;`;
-            
             progressContainer.appendChild(progressFill);
             emotionRow.appendChild(progressContainer);
             chartContainer.appendChild(emotionRow);
         });
     }
-    
+
     // Create footer
     const footer = document.createElement('div');
     footer.style.cssText = 'text-align: center; margin-top: 15px; color: #94a3b8; font-size: 14px;';
     footer.textContent = `Real model detected ${emotions.length} emotion${emotions.length !== 1 ? 's' : ''}`;
     chartContainer.appendChild(footer);
-    
+
     container.appendChild(chartContainer);
+
+    // Store reference to the HTML chart for cleanup (even though it's not a Chart.js chart)
+    currentEmotionChart = {
+        destroy: () => {
+            if (container) {
+                container.innerHTML = '<p class="text-center text-muted">Click "Process Text" to see the emotion analysis chart</p>';
+            }
+        }
+    };
+
     console.log('✅ SIMPLE Chart created successfully');
     console.log('📊 Container after update:', container.innerHTML.substring(0, 200));
     console.log('📊 Emotion bars found:', container.querySelectorAll('div').length);
@@ -658,12 +693,17 @@ function updateSummary(summary) {
 }
 
 function updateElement(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = value;
-        console.log(`✅ Updated ${id}: ${value}`);
-    } else {
-        console.error(`❌ Element not found: ${id}`);
+    try {
+        const element = document.getElementById(id);
+        if (element) {
+            // Safely update text content, handling null/undefined values
+            element.textContent = value !== null && value !== undefined ? value : '-';
+            console.log(`✅ Updated ${id}: ${value}`);
+        } else {
+            console.warn(`⚠️ Element not found: ${id} (this is expected for some optional elements)`);
+        }
+    } catch (error) {
+        console.error(`❌ Error updating element ${id}:`, error);
     }
 }
 
@@ -703,21 +743,31 @@ function getEmotionColor(emotion) {
 
 function showResultsSections() {
     console.log('👁️ Showing results sections...');
-    
-    // Show emotion analysis results
-    const emotionResults = document.getElementById('emotionResults');
-    if (emotionResults) {
-        emotionResults.classList.remove('result-section-hidden');
-        emotionResults.classList.add('result-section-visible');
-        console.log('✅ Emotion results section shown');
-    }
-    
-    // Show summarization results
-    const summarizationResults = document.getElementById('summarizationResults');
-    if (summarizationResults) {
-        summarizationResults.classList.remove('result-section-hidden');
-        summarizationResults.classList.add('result-section-visible');
-        console.log('✅ Summarization results section shown');
+
+    try {
+        // Show emotion analysis results
+        const emotionResults = document.getElementById('emotionResults');
+        if (emotionResults) {
+            emotionResults.classList.remove('result-section-hidden');
+            emotionResults.classList.add('result-section-visible');
+            emotionResults.style.display = 'block';
+            console.log('✅ Emotion results section shown');
+        } else {
+            console.warn('⚠️ emotionResults element not found');
+        }
+
+        // Show summarization results
+        const summarizationResults = document.getElementById('summarizationResults');
+        if (summarizationResults) {
+            summarizationResults.classList.remove('result-section-hidden');
+            summarizationResults.classList.add('result-section-visible');
+            summarizationResults.style.display = 'block';
+            console.log('✅ Summarization results section shown');
+        } else {
+            console.warn('⚠️ summarizationResults element not found');
+        }
+    } catch (error) {
+        console.error('❌ Error showing results sections:', error);
     }
 }
 
@@ -820,9 +870,36 @@ function updateProcessingInfo(emotions, summary, avgConfidence) {
     console.log('✅ Processing information updated');
 }
 
+function showChartError(message) {
+    console.error('📊 Chart Error:', message);
+    const container = document.getElementById('emotionChart');
+
+    if (!container) {
+        console.error('❌ Chart container not found for error display');
+        return;
+    }
+
+    // Create error message HTML (safe - no user input)
+    container.innerHTML = `
+        <div style="padding: 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; text-align: center;">
+            <div style="color: #ef4444; margin-bottom: 10px;">
+                <span style="font-size: 2rem;">⚠️</span>
+            </div>
+            <h6 style="color: #ef4444; font-weight: bold;">Chart Loading Error</h6>
+            <p style="color: #cbd5e1; margin-bottom: 15px;">${message}</p>
+            <button onclick="location.reload()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                🔄 Refresh Page
+            </button>
+        </div>
+    `;
+}
+
 function clearAll() {
     console.log('🧹 Clearing all data...');
-    
+
+    // Destroy existing chart to prevent memory leaks
+    destroyExistingChart();
+
     // Hide results sections
     const emotionResults = document.getElementById('emotionResults');
     if (emotionResults) {
@@ -885,6 +962,23 @@ window.updateElement = updateElement;
 window.getEmotionColor = getEmotionColor;
 window.clearAll = clearAll;
 window.showResultsSections = showResultsSections;
+window.showChartError = showChartError;
 // Removed generateEmotionVariations - using only real model output
+
+// Global variables for proper cleanup
+let currentEmotionChart = null;
+
+// Chart cleanup function
+function destroyExistingChart() {
+    if (currentEmotionChart) {
+        try {
+            currentEmotionChart.destroy();
+            console.log('✅ Previous chart destroyed successfully');
+        } catch (error) {
+            console.warn('⚠️ Error destroying previous chart:', error);
+        }
+        currentEmotionChart = null;
+    }
+}
 
 console.log('🚀 Simple Demo Functions loaded and ready!');

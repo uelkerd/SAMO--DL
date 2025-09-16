@@ -949,7 +949,10 @@ class ComprehensiveDemo {
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, initializing demo...');
-    new ComprehensiveDemo();
+    // DISABLED: ComprehensiveDemo class conflicts with simple-demo-functions.js
+    // Using simple-demo-functions.js instead for better stability
+    // new ComprehensiveDemo();
+    console.log('🔧 Using simple-demo-functions.js for chart implementation');
 });
 
 // Smooth scrolling for in-page navigation links
