@@ -467,7 +467,7 @@ def method_not_allowed(_error):
     logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
     return create_error_response('Method not allowed', 405)
 
-def handle_unexpected_error(error):
+def handle_unexpected_error(_error):
     """Handle any unexpected errors"""
     logger.exception("Unexpected error")
     return create_error_response('An unexpected error occurred', 500)

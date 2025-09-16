@@ -99,7 +99,7 @@ def get_production_overrides() -> Dict[str, Any]:
     return overrides
 
 # Usage example for API initialization
-def configure_production_api(app):
+def configure_production_api(_app):
     """Configure API with production settings."""
     config = ProductionConfig()
     overrides = get_production_overrides()
