@@ -54,11 +54,7 @@ options:
   diskSizeGb: 100  # Larger disk for model downloads
   logging: CLOUD_LOGGING_ONLY
 
-# Substitution variables
-substitutions:
-  _SERVICE_NAME: 'samo-unified-api-optimized'
-  _REGION: 'us-central1'
-  _IMAGE_NAME: 'samo-unified-api-optimized'
+# Substitution variables are provided by Cloud Build automatically
 
 # Build timeout
 timeout: '1800s'  # 30 minutes total
