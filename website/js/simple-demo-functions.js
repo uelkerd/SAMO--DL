@@ -62,42 +62,9 @@ async function generateSampleText() {
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
         }
         
-        // Try to use REAL OpenAI API for text generation
-        try {
-            console.log('🚀 Starting AI text generation with prompt:', randomPrompt);
-            const generatedText = await generateWithOpenAI(randomPrompt);
-            
-            if (textInput) {
-                textInput.value = generatedText;
-                console.log('✅ AI-generated text created:', generatedText.substring(0, 100) + '...');
-                
-                // Success animation
-                textInput.style.borderColor = '#10b981';
-                textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
-                setTimeout(() => {
-                    textInput.style.borderColor = '';
-                    textInput.style.boxShadow = '';
-                }, 2000);
-            }
-        } catch (error) {
-            console.warn('⚠️ OpenAI API failed:', error.message);
-            
-            // Show user-friendly error message
-            if (textInput) {
-                textInput.value = '⚠️ AI generation failed - using sample text instead. To enable real AI generation, add your OpenAI API key to the code.';
-                textInput.style.borderColor = '#f59e0b';
-                textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
-                setTimeout(() => {
-                    textInput.style.borderColor = '';
-                    textInput.style.boxShadow = '';
-                }, 3000);
-            }
-            
-            // Fallback to static samples
-            setTimeout(() => {
-                generateStaticSampleText();
-            }, 2000);
-        }
+        // Use static sample text (OpenAI generation disabled for now)
+        console.log('📝 Using sample text (OpenAI generation disabled)');
+        generateStaticSampleText();
         
     } catch (error) {
         console.error('❌ AI text generation failed:', error);
