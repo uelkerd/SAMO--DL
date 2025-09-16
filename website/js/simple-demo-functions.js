@@ -424,7 +424,7 @@ async function testWithRealAPI() {
             }
             return response.json();
         })
-        .then(data => {
+        .then(async data => {
             console.log('✅ Real API response:', data);
             console.log('🔍 Response type:', typeof data);
             console.log('🔍 Response keys:', Object.keys(data));
