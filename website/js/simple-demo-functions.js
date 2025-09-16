@@ -303,7 +303,8 @@ function testWithMockData() {
 
 function testWithRealAPI() {
     console.log('🌐 Testing with real API...');
-    
+    const startTime = performance.now(); // Start timing
+
     try {
         // Show loading state
         const chartContainer = document.getElementById('emotionChart');
@@ -509,28 +510,7 @@ function createSimpleChart(emotions) {
         return;
     }
 
-    // Check if Chart.js is loaded - with retry mechanism
-    if (typeof Chart === 'undefined') {
-        // Try up to 3 times with 1-second delays
-        const retryCount = container.dataset.chartRetries ? parseInt(container.dataset.chartRetries) : 0;
-
-        if (retryCount < 3) {
-            console.warn(`⚠️ Chart.js not loaded yet, retry ${retryCount + 1}/3...`);
-            container.dataset.chartRetries = retryCount + 1;
-            setTimeout(() => createSimpleChart(emotions), 1000);
-            return;
-        } else {
-            // After 3 retries, show error message and use HTML fallback
-            console.error('❌ Chart.js failed to load after 3 retries, using HTML fallback');
-            showChartError('Chart.js library not loaded. Please refresh the page.');
-            return;
-        }
-    }
-
-    // Clear retry counter if Chart.js is now available
-    if (container.dataset.chartRetries) {
-        delete container.dataset.chartRetries;
-    }
+    // Using pure HTML/CSS charts - no Chart.js dependency needed
 
     // Destroy existing chart to prevent memory leaks
     destroyExistingChart();
@@ -858,8 +838,8 @@ function updateProcessingInfo(emotions, summary, avgConfidence) {
     // Validate avgConfidence
     const safeAvgConfidence = typeof avgConfidence === 'number' && !isNaN(avgConfidence) ? avgConfidence : 0;
     
-    // Calculate processing time (mock)
-    const processingTime = Math.round(Math.random() * 2000 + 1000); // 1-3 seconds
+    // Use real processing time if available, otherwise use mock
+    const processingTime = typeof startTime !== 'undefined' ? Math.round(performance.now() - startTime) : Math.round(Math.random() * 2000 + 1000);
     
     // Update processing information elements
     updateElement('totalTime', `${processingTime}ms`);
