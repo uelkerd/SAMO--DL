@@ -376,8 +376,10 @@ class ComprehensiveDemo {
         Object.values(this.steps).forEach(step => {
             step.classList.remove('completed', 'active');
             const icon = step.querySelector('.step-icon');
-            icon.classList.remove('completed', 'active');
-            icon.classList.add('pending');
+            if (icon) {
+                icon.classList.remove('completed', 'active');
+                icon.classList.add('pending');
+            }
         });
     }
 
@@ -386,16 +388,18 @@ class ComprehensiveDemo {
         const icon = step.querySelector('.step-icon');
         
         step.classList.remove('completed', 'active');
-        icon.classList.remove('completed', 'active', 'pending');
-        
-        if (status === 'completed') {
-            step.classList.add('completed');
-            icon.classList.add('completed');
-        } else if (status === 'active') {
-            step.classList.add('active');
-            icon.classList.add('active');
-        } else {
-            icon.classList.add('pending');
+        if (icon) {
+            icon.classList.remove('completed', 'active', 'pending');
+            
+            if (status === 'completed') {
+                step.classList.add('completed');
+                icon.classList.add('completed');
+            } else if (status === 'active') {
+                step.classList.add('active');
+                icon.classList.add('active');
+            } else {
+                icon.classList.add('pending');
+            }
         }
     }
 
