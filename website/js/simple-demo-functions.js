@@ -118,44 +118,29 @@ async function generateWithOpenAI(prompt) {
         throw new Error('SAMO configuration not loaded. Please ensure config.js is included.');
     }
     
-    // Check if OpenAI is enabled and configured
-    if (!window.SAMO_CONFIG.FEATURES.ENABLE_OPENAI) {
-        throw new Error('OpenAI integration is disabled. Enable it in config.js or use server-side generation.');
+    // Check if OpenAI proxy is configured
+    if (!window.SAMO_CONFIG.OPENAI.PROXY_URL) {
+        throw new Error('OpenAI proxy URL not configured. Please set SAMO_CONFIG.OPENAI.PROXY_URL.');
     }
     
-    if (!window.SAMO_CONFIG.OPENAI.API_KEY) {
-        throw new Error('OpenAI API key not configured. Please set SAMO_CONFIG.OPENAI.API_KEY.');
-    }
-    
-    // OpenAI API configuration from centralized config
-    const OPENAI_API_URL = window.SAMO_CONFIG.OPENAI.API_URL;
-    const OPENAI_API_KEY = window.SAMO_CONFIG.OPENAI.API_KEY;
+    // OpenAI proxy configuration (no API key needed on client)
+    const PROXY_URL = window.SAMO_CONFIG.OPENAI.PROXY_URL;
     const MODEL = window.SAMO_CONFIG.OPENAI.MODEL;
     const MAX_TOKENS = window.SAMO_CONFIG.OPENAI.MAX_TOKENS;
     const TEMPERATURE = window.SAMO_CONFIG.OPENAI.TEMPERATURE;
     
     try {
-        const response = await fetch(OPENAI_API_URL, {
+        const response = await fetch(PROXY_URL, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
                 'Content-Type': 'application/json'
+                // No Authorization header - API key handled server-side
             },
             body: JSON.stringify({
+                prompt: prompt,
                 model: MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are a helpful assistant that generates realistic journal entries. Write in first person, be emotional and personal, and continue the given prompt naturally. Keep it between 100-200 words.'
-                    },
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ],
                 max_tokens: MAX_TOKENS,
-                temperature: TEMPERATURE,
-                top_p: 0.9
+                temperature: TEMPERATURE
             })
         });
         
@@ -165,14 +150,20 @@ async function generateWithOpenAI(prompt) {
         }
         
         const data = await response.json();
-        console.log('✅ OpenAI API response:', data);
+        console.log('✅ OpenAI proxy response:', data);
         
-        if (data && data.choices && data.choices.length > 0 && data.choices[0].message?.content) {
+        // Handle proxy response format (expecting { text: "generated content" })
+        if (data && data.text) {
+            const generatedText = data.text.trim();
+            console.log('✅ Generated text from proxy:', generatedText.substring(0, 100) + '...');
+            return generatedText;
+        } else if (data && data.choices && data.choices.length > 0 && data.choices[0].message?.content) {
+            // Fallback to OpenAI format if proxy returns OpenAI response
             const generatedText = data.choices[0].message.content.trim();
-            console.log('✅ Generated text from OpenAI:', generatedText.substring(0, 100) + '...');
+            console.log('✅ Generated text from OpenAI format:', generatedText.substring(0, 100) + '...');
             return generatedText;
         } else {
-            throw new Error('No generated text in response');
+            throw new Error('No generated text in proxy response');
         }
         
     } catch (error) {
