@@ -37,5 +37,4 @@ websockets==12.0
 # Rate Limiting and Caching (if needed)
 slowapi>=0.1.9
 
-# CORS handling
-python-cors>=1.0.0
+# CORS handling (built into FastAPI/Starlette)
