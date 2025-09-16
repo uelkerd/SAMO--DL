@@ -42,9 +42,24 @@ class PerformanceOptimizer {
         const startTime = performance.now();
         
         try {
+            // Convert object to array if needed (API returns object with emotion names as keys)
+            let emotionArray;
+            if (Array.isArray(emotionData)) {
+                emotionArray = emotionData;
+            } else if (typeof emotionData === 'object' && emotionData !== null) {
+                // Convert object to array format
+                emotionArray = Object.entries(emotionData).map(([emotion, confidence]) => ({
+                    emotion: emotion,
+                    confidence: confidence
+                }));
+            } else {
+                console.error('Error optimizing emotion data: emotionData is not an array or object');
+                return [];
+            }
+            
             // Limit to top emotions to improve performance
             const maxEmotions = 20;
-            const sortedEmotions = emotionData
+            const sortedEmotions = emotionArray
                 .sort((a, b) => (b.confidence || b.score || 0) - (a.confidence || a.score || 0))
                 .slice(0, maxEmotions);
             
@@ -55,7 +70,7 @@ class PerformanceOptimizer {
             }));
             
             const processingTime = performance.now() - startTime;
-            this.logPerformance('emotion_processing', processingTime, emotionData.length);
+            this.logPerformance('emotion_processing', processingTime, emotionArray.length);
             
             return optimizedEmotions;
             
