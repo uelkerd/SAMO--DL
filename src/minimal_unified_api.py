@@ -172,9 +172,9 @@ async def analyze_emotion(request: EmotionRequest):
 
         return result
 
-    except ValueError as e:
-        logger.warning("Invalid input for emotion analysis: %s", str(e))
-        raise HTTPException(status_code=400, detail=str(e)) from e
+    except ValueError:
+        logger.warning("Invalid input for emotion analysis")
+        raise HTTPException(status_code=400, detail="Invalid input for emotion analysis")
     except Exception as e:
         logger.exception("Error in emotion analysis")
         raise HTTPException(status_code=500, detail="Emotion analysis failed") from e
@@ -281,9 +281,9 @@ async def transcribe_audio(audio_file: bytes):
             # Clean up temporary file
             os.unlink(tmp_file_path)
 
-    except Exception as e:
-        logger.error(f"Error in audio transcription: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Audio transcription failed: {str(e)}")
+    except Exception:
+        logger.exception("Error in audio transcription")
+        raise HTTPException(status_code=500, detail="Audio transcription failed")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

@@ -212,8 +212,8 @@ async def transcribe_audio(
         return response
 
     except Exception:
-        logger.error("Transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
+        logger.exception("Transcription error")
+        raise HTTPException(status_code=500, detail="Transcription failed")
 
     finally:
         if temp_file and Path(temp_file.name).exists():
@@ -332,9 +332,9 @@ async def transcribe_batch(
 
         return response
 
-    except Exception as e:
-        logger.error("Batch transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail="Batch transcription failed: {e!s}") from e
+    except Exception:
+        logger.exception("Batch transcription error")
+        raise HTTPException(status_code=500, detail="Batch transcription failed") from None
 
     finally:
         for temp_file in temp_files:

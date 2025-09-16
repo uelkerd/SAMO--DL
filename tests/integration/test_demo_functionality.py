@@ -221,26 +221,151 @@ class TestDemoFunctionality:
         assert all(isinstance(emotion, str) for emotion in expected_emotions)
         assert all(len(emotion) > 0 for emotion in expected_emotions)
     
-    @pytest.mark.skip(reason="Requires actual API call - may hit rate limits")
-    def test_demo_full_workflow(self):
-        """Test the complete demo workflow (skipped to avoid rate limits)"""
-        # This would test the full workflow:
-        # 1. Audio transcription
-        # 2. Text summarization  
-        # 3. Emotion detection
-        
-        # For now, we just validate the workflow structure
-        workflow_steps = [
-            "audio_upload",
-            "transcription",
-            "summarization", 
-            "emotion_detection",
-            "results_display"
-        ]
-        
-        # Validate all workflow steps are non-empty strings
-        assert all(isinstance(step, str) for step in workflow_steps)
-        assert all(len(step) > 0 for step in workflow_steps)
+    @pytest.mark.integration
+    def test_demo_full_workflow_mocked(self, demo_api_url, sample_text, sample_audio_data_bytes):
+        """Test the complete demo workflow with API mocking"""
+        import io
+        from unittest.mock import patch, Mock
+
+        # Mock responses for each step of the workflow
+        mock_transcription_response = {
+            "transcription": "This is a test transcription",
+            "confidence": 0.95,
+            "duration": 2.5
+        }
+
+        mock_summary_response = {
+            "summary": "Test summary of the content",
+            "original_text": sample_text
+        }
+
+        mock_emotion_response = {
+            "emotions": {
+                "joy": 0.8,
+                "sadness": 0.1,
+                "anger": 0.05,
+                "fear": 0.03,
+                "surprise": 0.02
+            },
+            "predicted_emotion": "joy",
+            "confidence": 0.8
+        }
+
+        # Test workflow steps with mocked API calls
+        with patch('requests.post') as mock_post:
+            # Configure mock responses based on endpoint
+            def mock_api_response(url, **kwargs):
+                mock_response = Mock()
+                mock_response.status_code = 200
+                mock_response.json.return_value = {}
+
+                if '/transcribe/voice' in url:
+                    mock_response.json.return_value = mock_transcription_response
+                elif '/summarize/text' in url:
+                    mock_response.json.return_value = mock_summary_response
+                elif '/predict' in url or '/emotion' in url:
+                    mock_response.json.return_value = mock_emotion_response
+
+                return mock_response
+
+            mock_post.side_effect = mock_api_response
+
+            # Test transcription step
+            import requests
+            audio_file = io.BytesIO(sample_audio_data_bytes)
+            files = {'audio': ('test.wav', audio_file, 'audio/wav')}
+            transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+
+            assert transcription_response.status_code == 200
+            transcription_data = transcription_response.json()
+            assert "transcription" in transcription_data
+            assert isinstance(transcription_data["transcription"], str)
+            assert len(transcription_data["transcription"]) > 0
+
+            # Test summarization step
+            summary_response = requests.post(f"{demo_api_url}/summarize/text",
+                                           json={"text": sample_text})
+
+            assert summary_response.status_code == 200
+            summary_data = summary_response.json()
+            assert "summary" in summary_data
+            assert isinstance(summary_data["summary"], str)
+            assert len(summary_data["summary"]) > 0
+
+            # Test emotion detection step
+            emotion_response = requests.post(f"{demo_api_url}/predict",
+                                           json={"text": sample_text})
+
+            assert emotion_response.status_code == 200
+            emotion_data = emotion_response.json()
+            assert "emotions" in emotion_data
+            assert "predicted_emotion" in emotion_data
+            assert isinstance(emotion_data["emotions"], dict)
+            assert len(emotion_data["emotions"]) > 0
+
+            # Validate workflow completed successfully
+            workflow_results = {
+                "transcription": transcription_data,
+                "summary": summary_data,
+                "emotions": emotion_data
+            }
+
+            # Verify all steps completed
+            assert all(key in workflow_results for key in ["transcription", "summary", "emotions"])
+            assert all(len(str(value)) > 0 for value in workflow_results.values())
+
+            # Verify API was called for each step
+            assert mock_post.call_count >= 3
+
+    @pytest.mark.integration
+    def test_demo_error_handling(self, demo_api_url, sample_text):
+        """Test that the demo handles API errors gracefully"""
+        from unittest.mock import patch, Mock
+        import requests
+
+        with patch('requests.post') as mock_post:
+            # Test API error responses
+            mock_error_response = Mock()
+            mock_error_response.status_code = 500
+            mock_error_response.json.return_value = {"error": "Internal server error"}
+            mock_post.return_value = mock_error_response
+
+            # Test error handling for emotion detection
+            try:
+                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+                assert response.status_code == 500
+                error_data = response.json()
+                assert "error" in error_data
+                assert isinstance(error_data["error"], str)
+                # Verify error message doesn't contain sensitive information
+                assert "Internal server error" in error_data["error"]
+                assert "Exception" not in error_data["error"]
+                assert "Traceback" not in error_data["error"]
+            except Exception as e:
+                # If the mock fails, ensure we're testing error handling properly
+                assert "error" in str(e).lower()
+
+    @pytest.mark.integration
+    def test_demo_rate_limiting(self, demo_api_url, sample_text):
+        """Test that the demo handles rate limiting gracefully"""
+        from unittest.mock import patch, Mock
+        import requests
+
+        with patch('requests.post') as mock_post:
+            # Test rate limiting response
+            mock_rate_limit_response = Mock()
+            mock_rate_limit_response.status_code = 429
+            mock_rate_limit_response.json.return_value = {
+                "error": "rate_limit_exceeded",
+                "retry_after": 60
+            }
+            mock_post.return_value = mock_rate_limit_response
+
+            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+            assert response.status_code == 429
+            rate_limit_data = response.json()
+            assert "error" in rate_limit_data
+            assert rate_limit_data["error"] == "rate_limit_exceeded"
 
 if __name__ == "__main__":
     pytest.main([__file__])

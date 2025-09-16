@@ -180,10 +180,17 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
 def _has_injected_permission(request: Request, permission: str) -> bool:
     """Check for test-only injected permissions via headers when enabled.
 
-    Active only when both PYTEST_CURRENT_TEST is set and
-    ENABLE_TEST_PERMISSION_INJECTION is "true".
+    Active only when ALL of the following conditions are met:
+    1. PYTEST_CURRENT_TEST is set (pytest running)
+    2. ENABLE_TEST_PERMISSION_INJECTION is "true"
+    3. ENVIRONMENT is NOT "production"
     """
     try:
+        # Never allow permission injection in production
+        env = os.environ.get("ENVIRONMENT", "development").lower()
+        if env == "production":
+            return False
+
         if (
             os.environ.get("PYTEST_CURRENT_TEST")
             and (os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false")
@@ -192,9 +199,11 @@ def _has_injected_permission(request: Request, permission: str) -> bool:
             header_val = request.headers.get("X-User-Permissions")
             if header_val:
                 perms = {p.strip() for p in header_val.split(",") if p.strip()}
+                logger.debug(f"Test permission injection: checking '{permission}' in {perms}")
                 return permission in perms
     except Exception:
         # Defensive: never fail permission checks due to header parsing issues
+        logger.warning("Permission injection header parsing failed")
         return False
     return False
 
@@ -497,12 +506,47 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+# Configure CORS based on environment
+def get_cors_origins():
+    """Get allowed CORS origins based on environment."""
+    env = os.getenv('ENVIRONMENT', 'development').lower()
+
+    if env == 'production':
+        # Production: Only allow specific domains
+        return [
+            "https://yourdomain.com",
+            "https://www.yourdomain.com",
+            "https://app.yourdomain.com"
+        ]
+    elif env == 'staging':
+        # Staging: Allow staging domains
+        return [
+            "https://staging.yourdomain.com",
+            "https://dev.yourdomain.com",
+            "http://localhost:3000",
+            "http://localhost:8000"
+        ]
+    else:
+        # Development: Allow localhost for development
+        return [
+            "http://localhost:3000",
+            "http://localhost:8000",
+            "http://localhost:8080",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:8000",
+            "http://127.0.0.1:8080"
+        ]
+
+cors_origins = get_cors_origins()
+logger.info(f"CORS configured for environment: {os.getenv('ENVIRONMENT', 'development')}")
+logger.info(f"Allowed origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key", "X-Requested-With"],
 )
 
 # Add rate limiting middleware (production-friendly settings)

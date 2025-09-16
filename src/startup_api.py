@@ -308,9 +308,9 @@ async def analyze_emotion(text: str):
             "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))]
         }
 
-    except Exception as e:
-        logger.error(f"Error in emotion analysis: {e}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+    except Exception:
+        logger.exception("Error in emotion analysis")
+        raise HTTPException(status_code=500, detail="Analysis failed")
 
 @app.post("/analyze/summarize")
 async def summarize_text(text: str):
@@ -340,9 +340,9 @@ async def summarize_text(text: str):
             "summary": summary
         }
 
-    except Exception as e:
-        logger.error(f"Error in summarization: {e}")
-        raise HTTPException(status_code=500, detail=f"Summarization failed: {str(e)}")
+    except Exception:
+        logger.exception("Error in summarization")
+        raise HTTPException(status_code=500, detail="Summarization failed")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
