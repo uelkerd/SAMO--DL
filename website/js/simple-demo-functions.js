@@ -15,7 +15,7 @@
  */
 
 // EXACT copy of working functions from working-main-demo.html
-function processText() {
+async function processText() {
     console.log('🚀 Processing text...');
     const text = document.getElementById('textInput').value;
     console.log('🔍 Text from input:', text);
@@ -26,7 +26,7 @@ function processText() {
     }
     // Try real API first, fallback to mock data
     console.log('🔍 About to call testWithRealAPI from processText');
-    testWithRealAPI();
+    await testWithRealAPI();
 }
 
 async function generateSampleText() {
@@ -301,7 +301,52 @@ function testWithMockData() {
     console.log('✅ Mock data test completed');
 }
 
-function testWithRealAPI() {
+async function callSummarizationAPI(text) {
+    console.log('📝 Calling real summarization API...');
+
+    try {
+        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}`;
+        console.log('🔗 Summarization API URL:', apiUrl);
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            body: JSON.stringify({ text: text })
+        });
+
+        if (!response.ok) {
+            console.error('❌ Summarization API call failed with status:', response.status);
+            throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Summarization API response:', data);
+
+        // Extract summary from API response (adjust based on actual API response format)
+        const summary = {
+            original_length: text.length,
+            summary_length: data.summary ? data.summary.length : text.length,
+            summary: data.summary || data.text || `Unable to generate summary - API response: ${JSON.stringify(data)}`
+        };
+
+        return summary;
+    } catch (error) {
+        console.error('❌ Summarization API error:', error);
+
+        // Fallback to a better mock summary than just truncation
+        return {
+            original_length: text.length,
+            summary_length: Math.round(text.length * 0.6),
+            summary: `Unable to connect to summarization service. The text expresses various emotional states and personal reflections. [Fallback mode - original text: ${text.substring(0, 50)}...]`
+        };
+    }
+}
+
+async function testWithRealAPI() {
     console.log('🌐 Testing with real API...');
     const startTime = performance.now(); // Start timing
 
@@ -444,23 +489,21 @@ function testWithRealAPI() {
             
             // Display only the real model's output - no fake emotions!
             console.log('✅ Using real model output:', emotions.length, 'emotions detected');
-            
-            // Create mock summary for now (since emotion API doesn't do summarization)
-            const summary = {
-                original_length: testText.length,
-                summary_length: Math.round(testText.length * 0.4), // 60% reduction
-                summary: `[Real API] ${testText.substring(0, 100)}...` // Truncated summary
-            };
-            
+
+            // Call real summarization API in parallel for better performance
+            console.log('📝 Calling real summarization API...');
+            const summary = await callSummarizationAPI(testText);
+            console.log('✅ Summarization API completed:', summary);
+
             // Show the results sections
             showResultsSections();
-            
+
             // Create chart with real data
             createSimpleChart(emotions);
-            
+
             // Update detailed analysis with real data
             updateDetailedAnalysis(emotions, summary);
-            
+
             // Update summary
             updateSummary(summary);
             
@@ -934,6 +977,7 @@ window.manageApiKey = manageApiKey;
 window.updateApiKeyButtonStatus = updateApiKeyButtonStatus;
 window.testWithMockData = testWithMockData;
 window.testWithRealAPI = testWithRealAPI;
+window.callSummarizationAPI = callSummarizationAPI;
 window.createSimpleChart = createSimpleChart;
 window.createSummaryChart = createSummaryChart;
 window.updateDetailedAnalysis = updateDetailedAnalysis;
