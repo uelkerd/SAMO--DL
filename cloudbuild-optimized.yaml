@@ -9,9 +9,9 @@ steps:
       - '--platform'
       - 'linux/amd64'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:${COMMIT_SHA}'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:latest'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:latest'
       - '.'
     timeout: '1200s'  # 20 minutes for model downloads
 
@@ -19,12 +19,12 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: 
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:${COMMIT_SHA}'
 
   - name: 'gcr.io/cloud-builders/docker'
     args: 
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:latest'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:latest'
 
   # Deploy to Cloud Run with bulletproof optimized settings
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -33,7 +33,7 @@ steps:
       - 'run'
       - 'deploy'
       - 'samo-unified-api-optimized'
-      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/samo-dl/samo-unified-api-optimized:$COMMIT_SHA'
+      - '--image=us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:${COMMIT_SHA}'
       - '--platform=managed'
       - '--region=us-central1'
       - '--allow-unauthenticated'
