@@ -247,23 +247,20 @@ function testWithRealAPI() {
         console.log('🔍 testWithRealAPI - testText:', testText);
         console.log('🔍 testWithRealAPI - testText length:', testText.length);
         
-        // Try the LIVE emotion API first (no auth required)
-        console.log('🔥 Calling LIVE emotion API...');
-        console.log('🔗 API URL: http://localhost:8081/emotion (CORS proxy)');
+        // Try the LIVE emotion API directly (no CORS proxy needed)
+        console.log('🔥 Calling LIVE emotion API directly...');
+        const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
+        console.log('🔗 API URL:', apiUrl);
         console.log('📝 Text being analyzed:', testText);
         console.log('📝 Text length:', testText.length);
-        console.log('📝 Text hash:', testText.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0));
         console.log('🕐 Timestamp:', new Date().toISOString());
-        fetch('http://localhost:8081/emotion', {
+        fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Length': '0',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            },
-            body: JSON.stringify({
-                text: testText
-            })
+            }
         })
         .then(response => {
             console.log('🔍 Response status:', response.status);
@@ -374,10 +371,20 @@ function testWithRealAPI() {
         })
         .catch(error => {
             console.error('❌ Real API test failed:', error);
+            console.error('❌ Error details:', error.message);
+            console.error('❌ Error stack:', error.stack);
             
-            // Show error state
+            // Show detailed error in UI
             if (chartContainer) {
-                chartContainer.innerHTML = `<p>❌ API Error: ${error.message}</p>`;
+                chartContainer.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px; text-align: center;">
+                        <h5>❌ API Error</h5>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>URL:</strong> ${apiUrl}</p>
+                        <p><strong>Time:</strong> ${new Date().toLocaleTimeString()}</p>
+                        <p>Check browser console for more details.</p>
+                    </div>
+                `;
             }
             updateElement('primaryEmotion', 'Error');
             updateElement('emotionalIntensity', 'Error');
