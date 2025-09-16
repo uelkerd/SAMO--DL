@@ -612,11 +612,11 @@ def health_check():
         
         return jsonify(response)
         
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error("Health check failed: %s", str(e))
-        return jsonify({'error': str(e)}), 500
+        logger.exception("Health check failed")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/predict', methods=['POST'])
 @secure_endpoint
@@ -678,11 +678,11 @@ def predict():
         
         return jsonify(result)
         
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error("Secure prediction endpoint error: %s", str(e))
-        return jsonify({'error': str(e)}), 500
+        logger.exception("Secure prediction endpoint error")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/predict_batch', methods=['POST'])
 @secure_endpoint

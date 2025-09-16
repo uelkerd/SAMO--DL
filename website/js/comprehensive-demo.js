@@ -658,17 +658,45 @@ class ComprehensiveDemo {
         if (chartContainer) {
             const parent = chartContainer.parentElement;
             if (parent) {
-                parent.innerHTML = `
-                    <div class="alert alert-warning" role="alert">
-                        <h6 class="alert-heading">
-                            <span class="material-icons me-2">warning</span>
-                            Chart Error
-                        </h6>
-                        <p class="mb-0">${message}</p>
-                        <hr>
-                        <p class="mb-0 small">Please refresh the page and try again.</p>
-                    </div>
-                `;
+                // Clear existing content safely
+                parent.textContent = '';
+
+                // Create alert container
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning';
+                alertDiv.setAttribute('role', 'alert');
+
+                // Create heading
+                const heading = document.createElement('h6');
+                heading.className = 'alert-heading';
+
+                const warningIcon = document.createElement('span');
+                warningIcon.className = 'material-icons me-2';
+                warningIcon.textContent = 'warning';
+
+                heading.appendChild(warningIcon);
+                heading.appendChild(document.createTextNode('Chart Error'));
+
+                // Create message paragraph
+                const messagePara = document.createElement('p');
+                messagePara.className = 'mb-0';
+                messagePara.textContent = message; // Safe text content
+
+                // Create separator
+                const hr = document.createElement('hr');
+
+                // Create instruction paragraph
+                const instructionPara = document.createElement('p');
+                instructionPara.className = 'mb-0 small';
+                instructionPara.textContent = 'Please refresh the page and try again.';
+
+                // Assemble the alert
+                alertDiv.appendChild(heading);
+                alertDiv.appendChild(messagePara);
+                alertDiv.appendChild(hr);
+                alertDiv.appendChild(instructionPara);
+
+                parent.appendChild(alertDiv);
             }
         }
     }
