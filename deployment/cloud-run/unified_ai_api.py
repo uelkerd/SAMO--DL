@@ -1747,11 +1747,15 @@ async def batch_transcribe_voice(
                     Path(temp_file_path).unlink(missing_ok=True)
 
             except Exception as exc:
+                # Log full exception details server-side
+                logger.exception(f"Error processing audio file {audio_file.filename} in batch")
+                
+                # Return sanitized error message to client
                 results.append({
                     "file_index": i,
                     "filename": audio_file.filename,
                     "success": False,
-                    "error": str(exc)
+                    "error": "Audio processing failed"
                 })
 
         processing_time = (time.time() - start_time) * 1000
@@ -1871,7 +1875,11 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             return
 
     except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        # Log full exception details server-side
+        logger.exception("WebSocket authentication error")
+        
+        # Return sanitized error message to client
+        await websocket.close(code=4001, reason="Authentication failed")
         return
 
     await websocket.accept()
@@ -1945,9 +1953,13 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         Path(temp_file_path).unlink(missing_ok=True)
 
                 except Exception as exc:
+                    # Log full exception details server-side
+                    logger.exception("Error in WebSocket audio processing")
+                    
+                    # Return sanitized error message to client
                     await websocket.send_json({
                         "type": "error",
-                        "message": str(exc)
+                        "message": "Audio processing failed"
                     })
             else:
                 await websocket.send_json({
