@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMO Deep Learning - Production Emotion Detection API</title>
-    <meta name="description" content="Enterprise-grade emotion detection API with >90% F1 score and 2.3x performance optimization">
+    <title>SAMO-DL - AI Emotion Detection API</title>
+    <meta name="description" content="Production-ready emotion detection API with >90% F1 score and enterprise-grade security">
     
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -16,7 +16,7 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            /* Sophisticated dark gradient color palette */
+            /* Consistent color palette */
             --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
             --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
             --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
@@ -31,16 +31,10 @@
             --glass-bg: rgba(139, 92, 246, 0.1);
             --glass-border: rgba(139, 92, 246, 0.2);
             
-            /* Performance and animation settings */
+            /* Performance settings */
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);
             --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Removed universal transition for better performance */
-        .card, .btn, .nav-link, .badge, .form-control, .feature-card, .hero-card {
-            transition: var(--transition-smooth);
         }
 
         body {
@@ -55,7 +49,7 @@
         .hero-section {
             background: var(--dark-gradient);
             color: white;
-            padding: 120px 0;
+            padding: 100px 0 80px;
             position: relative;
             overflow: hidden;
         }
@@ -69,8 +63,7 @@
             bottom: 0;
             background: 
                 radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 50%);
+                radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%);
             animation: float 6s ease-in-out infinite;
         }
 
@@ -85,35 +78,30 @@
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             box-shadow: var(--shadow-glass);
-            transition: var(--transition-bounce);
+            transition: var(--transition-smooth);
             height: 100%;
             color: #e2e8f0;
         }
 
+        .feature-card .card-text {
+            color: #cbd5e1 !important;
+        }
+
         .feature-card:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-5px);
             box-shadow: var(--shadow-glow);
             border-color: var(--primary-color);
         }
 
-        .feature-card.border-success {
-            border-color: rgba(16, 185, 129, 0.5);
-        }
-
-        .feature-card.border-success:hover {
-            border-color: #10b981;
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
-        }
-
         .feature-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            margin-bottom: 30px;
+            font-size: 24px;
+            margin-bottom: 20px;
             box-shadow: var(--shadow-glass);
         }
 
@@ -122,15 +110,15 @@
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             color: #e2e8f0;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
             transition: var(--transition-smooth);
             box-shadow: var(--shadow-glass);
         }
 
         .stats-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-glow);
         }
 
@@ -143,35 +131,7 @@
 
         .demo-section {
             background: rgba(0, 0, 0, 0.2);
-            padding: 100px 0;
-        }
-
-        .integration-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: var(--shadow-glass);
-            margin-bottom: 30px;
-            color: #e2e8f0;
-            transition: var(--transition-smooth);
-        }
-
-        .integration-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .code-block {
-            background: var(--darker-color);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 25px;
-            font-family: 'Fira Code', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-            color: #e2e8f0;
+            padding: 60px 0;
         }
 
         .navbar {
@@ -184,25 +144,18 @@
             color: #e2e8f0;
         }
 
-        .footer {
-            background: var(--dark-gradient);
-            color: #e2e8f0;
-            padding: 80px 0 40px;
-            border-top: 1px solid var(--glass-border);
-        }
-
         .btn-primary {
             background: var(--primary-gradient);
             border: none;
             border-radius: 12px;
             padding: 12px 30px;
             font-weight: 600;
-            transition: var(--transition-bounce);
+            transition: var(--transition-smooth);
             box-shadow: var(--shadow-glow);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px) scale(1.05);
+            transform: translateY(-2px);
             box-shadow: 0 15px 50px rgba(139, 92, 246, 0.4);
         }
 
@@ -222,25 +175,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-light {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 12px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: var(--transition-bounce);
-        }
-
-        .btn-light:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-            color: white;
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        /* Form controls */
         .form-control {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -261,7 +195,6 @@
             color: #94a3b8;
         }
 
-        /* Cards and badges */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
@@ -275,15 +208,10 @@
             background: var(--primary-gradient);
             color: white;
             border-radius: 20px;
-            padding: 8px 12px;
+            padding: 6px 12px;
             font-weight: 600;
         }
 
-        .badge.bg-success {
-            background: linear-gradient(135deg, #10b981, #34d399);
-        }
-
-        /* Progress bars */
         .progress {
             background: rgba(139, 92, 246, 0.2);
             border-radius: 10px;
@@ -302,35 +230,6 @@
             66% { transform: translateY(-10px) rotate(-1deg); }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Alert messages */
-        .alert {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            color: #e2e8f0;
-        }
-
-        /* Section backgrounds */
-        .bg-light {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .bg-primary {
-            background: var(--primary-gradient);
-        }
-
         /* Links */
         a {
             color: var(--accent-color);
@@ -345,19 +244,14 @@
         /* Responsive design */
         @media (max-width: 768px) {
             .hero-section {
-                padding: 80px 0;
-            }
-            
-            .integration-card {
-                padding: 25px;
-                margin-bottom: 20px;
+                padding: 80px 0 60px;
             }
             
             .feature-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-                margin-bottom: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -379,16 +273,10 @@
                             <a class="nav-link" href="#features">Features</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="comprehensive-demo.html">All Features</a>
+                        <a class="nav-link" href="comprehensive-demo.html">Demo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="integration.html">Team Integration</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#docs">Documentation</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary ms-2" href="comprehensive-demo.html">Try Demo</a>
+                        <a class="btn btn-primary ms-2" href="comprehensive-demo.html">Try Now</a>
                         </li>
                     </ul>
             </div>
@@ -401,21 +289,20 @@
             <div class="row align-items-center hero-content">
                 <div class="col-lg-6">
                     <h1 class="display-4 fw-bold mb-4">
-                        🚀 SAMO Emotion Detection API
+                        SAMO: Emotion Detection
                     </h1>
                     <p class="lead mb-4">
-                        <strong>100% Priority 1 Features Complete!</strong> Enterprise-grade AI platform with JWT authentication, 
-                        voice transcription, text summarization, real-time processing, and comprehensive monitoring. 
-                        Production-ready with <strong>>90% F1 score</strong> and <strong>2.3x performance optimization</strong>.
+                        Production-ready <strong>end-to-end emotion detection pipeline</strong> with 
+                        <strong>2.3x performance optimization</strong>. Enterprise-grade security and reliability.
                     </p>
                                         <div class="d-flex gap-3">
-                        <a href="comprehensive-demo.html" class="btn btn-light btn-lg">
+                        <a href="comprehensive-demo.html" class="btn btn-primary btn-lg">
                             <i class="fas fa-rocket me-2"></i>
-                            All Features
+                            Try Demo
                         </a>
-                        <a href="#integration" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-code me-2"></i>
-                            View Code
+                        <a href="#demo" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-play me-2"></i>
+                            Quick Test
                         </a>
                     </div>
                 </div>
@@ -423,14 +310,8 @@
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="stats-card">
-                                <h3 class="display-6 fw-bold">100%</h3>
-                                <p class="mb-0">Priority 1 Complete</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stats-card">
-                                <h3 class="display-6 fw-bold">>90%</h3>
-                                <p class="mb-0">F1 Score</p>
+                                <h3 class="display-6 fw-bold">End-to-End</h3>
+                                <p class="mb-0">Pipeline</p>
                             </div>
                         </div>
                         <div class="col-6">
@@ -445,111 +326,11 @@
                                 <p class="mb-0">Uptime</p>
                             </div>
                         </div>
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <h3 class="display-6 fw-bold">Live</h3>
+                                <p class="mb-0">API Ready</p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Priority 1 Features Completion Section -->
-    <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🎯 Priority 1 Features - 100% Complete</h2>
-                    <p class="lead text-muted">
-                        All critical features implemented with enterprise-grade quality and comprehensive testing
-                    </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-success bg-opacity-10 text-success mx-auto">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">JWT Authentication System</h5>
-                            <p class="card-text text-muted">
-                                Complete token lifecycle management with register, login, refresh, logout, and profile endpoints. 
-                                Secure with blacklist tracking and permission-based access control.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-primary bg-opacity-10 text-primary mx-auto">
-                                <i class="fas fa-microphone"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Enhanced Voice Transcription</h5>
-                            <p class="card-text text-muted">
-                                Advanced Whisper integration with batch processing, real-time streaming, and comprehensive 
-                                error handling. Supports multiple audio formats with file validation.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-warning bg-opacity-10 text-warning mx-auto">
-                                <i class="fa-solid fa-file-lines"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Text Summarization & Analysis</h5>
-                            <p class="card-text text-muted">
-                                Multi-model T5 summarization with emotional analysis, key point extraction, and 
-                                customizable compression ratios. Real-time processing with confidence scoring.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-info bg-opacity-10 text-info mx-auto">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Real-time Batch Processing</h5>
-                            <p class="card-text text-muted">
-                                WebSocket-based real-time processing with progress tracking, partial results, and 
-                                comprehensive error handling. Supports concurrent processing with rate limiting.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-danger bg-opacity-10 text-danger mx-auto">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Comprehensive Monitoring</h5>
-                            <p class="card-text text-muted">
-                                Real-time dashboard with system metrics, model performance tracking, error rate monitoring, 
-                                and health status alerts. Production-ready observability.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100 border-success">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-secondary bg-opacity-10 text-secondary mx-auto">
-                                <i class="fas fa-vial"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Comprehensive Testing</h5>
-                            <p class="card-text text-muted">
-                                Complete test suite with 1,094 lines of integration tests covering all endpoints, 
-                                edge cases, error scenarios, and security validation. 100% code review issues resolved.
-                            </p>
-                            <div class="badge bg-success">✅ Complete</div>
                         </div>
                     </div>
                 </div>
@@ -557,14 +338,14 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Key Features Section -->
     <section id="features" class="py-5">
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🚀 Enterprise-Grade AI Platform</h2>
-                    <p class="lead text-muted">
-                        Complete AI integration platform with authentication, voice processing, text analysis, and real-time monitoring
+                    <h2 class="display-5 fw-bold mb-3">🎯 Core Features</h2>
+                    <p class="lead" style="color: #cbd5e1;">
+                        Everything you need for emotion detection in production
                     </p>
                 </div>
             </div>
@@ -573,11 +354,11 @@
                     <div class="card feature-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-primary bg-opacity-10 text-primary mx-auto">
-                                <i class="fas fa-rocket"></i>
+                                <i class="fas fa-microphone"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Production Ready</h5>
+                            <h5 class="card-title fw-bold">Voice Transcription</h5>
                             <p class="card-text text-muted">
-                                Deployed on Google Cloud Run with 99.9% uptime, auto-scaling, and comprehensive monitoring.
+                                Advanced Whisper integration with real-time processing and multiple audio format support.
                             </p>
                         </div>
                     </div>
@@ -586,11 +367,11 @@
                     <div class="card feature-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-success bg-opacity-10 text-success mx-auto">
-                                <i class="fas fa-chart-line"></i>
+                                <i class="fas fa-heart"></i>
                             </div>
-                            <h5 class="card-title fw-bold">High Performance</h5>
+                            <h5 class="card-title fw-bold">Emotion Detection</h5>
                             <p class="card-text text-muted">
-                                >90% F1 score with 2.3x speedup using ONNX optimization and efficient tokenization.
+                                High-accuracy emotion analysis with confidence scoring and real-time processing.
                             </p>
                         </div>
                     </div>
@@ -599,11 +380,11 @@
                     <div class="card feature-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-warning bg-opacity-10 text-warning mx-auto">
-                                <i class="fas fa-shield-alt"></i>
+                                <i class="fas fa-file-lines"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Enterprise Security</h5>
+                            <h5 class="card-title fw-bold">Text Summarization</h5>
                             <p class="card-text text-muted">
-                                Rate limiting, input sanitization, CORS protection, and API key authentication.
+                                Multi-model T5 summarization with emotional analysis and key point extraction.
                             </p>
                         </div>
                     </div>
@@ -612,6 +393,32 @@
                     <div class="card feature-card h-100">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-info bg-opacity-10 text-info mx-auto">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Enterprise Security</h5>
+                            <p class="card-text text-muted">
+                                JWT authentication, rate limiting, input sanitization, and CORS protection.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-danger bg-opacity-10 text-danger mx-auto">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Real-time Monitoring</h5>
+                            <p class="card-text text-muted">
+                                Live dashboard with system metrics, performance tracking, and health monitoring.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-secondary bg-opacity-10 text-secondary mx-auto">
                                 <i class="fas fa-plug"></i>
                             </div>
                             <h5 class="card-title fw-bold">Easy Integration</h5>
@@ -621,111 +428,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-danger bg-opacity-10 text-danger mx-auto">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Real-time Monitoring</h5>
-                            <p class="card-text text-muted">
-                                Prometheus metrics, health checks, and comprehensive logging for observability.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card feature-card h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-secondary bg-opacity-10 text-secondary mx-auto">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">Team Ready</h5>
-                            <p class="card-text text-muted">
-                                Integration guides for backend, frontend, UX, and data science teams.
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
-    <!-- Technical Achievements Section -->
-    <section class="py-5 bg-primary bg-opacity-5">
-        <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🏆 Technical Achievements</h2>
-                    <p class="lead text-muted">
-                        Comprehensive implementation with enterprise-grade quality and security
-                    </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="text-center">
-                        <div class="display-4 fw-bold text-primary mb-2">2,296</div>
-                        <p class="text-muted">Lines of Code Added</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="text-center">
-                        <div class="display-4 fw-bold text-success mb-2">1,094</div>
-                        <p class="text-muted">Test Lines</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="text-center">
-                        <div class="display-4 fw-bold text-warning mb-2">15</div>
-                        <p class="text-muted">Code Review Issues Fixed</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="text-center">
-                        <div class="display-4 fw-bold text-danger mb-2">100%</div>
-                        <p class="text-muted">Security Validated</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card border-0 shadow">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-3">🔧 Key Technical Improvements</h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>JWT Token Blacklist with Dict Performance</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>WebSocket Authentication & Rate Limiting</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Comprehensive Error Handling</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Async/Await Optimization</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Input Sanitization & Validation</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Real-time Monitoring Dashboard</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Comprehensive Test Coverage</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Production-Ready Security</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demo Section -->
+    <!-- Quick Demo Section -->
     <section id="demo" class="demo-section">
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🚀 Try Our Complete AI Platform</h2>
-                    <p class="lead text-muted">
-                        Test our comprehensive AI platform with emotion detection, voice transcription, and text summarization
+                    <h2 class="display-5 fw-bold mb-3">🧪 Try It Now</h2>
+                    <p class="lead" style="color: #cbd5e1;">
+                        Test our emotion detection API with your own text
                     </p>
                 </div>
             </div>
@@ -735,7 +449,7 @@
                         <div class="card-body p-4">
                             <div class="mb-4">
                                 <label for="demoText" class="form-label fw-bold">Enter your text:</label>
-                                <textarea class="form-control" id="demoText" rows="4" placeholder="I am feeling really excited about this project!"></textarea>
+                                <textarea class="form-control" id="demoText" rows="3" placeholder="I am feeling really excited about this project!"></textarea>
                             </div>
                             <div class="d-grid">
                                 <button class="btn btn-primary btn-lg" onclick="analyzeEmotion()">
@@ -760,295 +474,24 @@
         </div>
     </section>
 
-    <!-- Integration Section -->
-    <section id="integration" class="py-5">
+    <!-- CTA Section -->
+    <section class="py-5 bg-primary bg-opacity-5">
         <div class="container">
-            <div class="row text-center mb-5">
+            <div class="row text-center">
                 <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🤝 Complete Team Integration</h2>
-                    <p class="lead text-muted">
-                        Comprehensive integration guides for Backend, Frontend, Data Science, and UX teams with live API endpoints
+                    <h2 class="display-5 fw-bold mb-3">Ready to Get Started?</h2>
+                    <p class="lead mb-4" style="color: #cbd5e1;">
+                        Explore our comprehensive demo or integrate our API into your application
                     </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="integration-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="fas fa-server text-primary me-2"></i>
-                            Backend Integration
-                        </h5>
-                        <div class="code-block">
-<pre><code>import requests
-from typing import BinaryIO, IO
-
-class SAMO_API_Client:
-    def __init__(self, base_url="https://api.example.com"):
-        # Replace 'https://api.example.com' with your actual deployment URL
-        self.base_url = base_url
-        self.session = requests.Session()
-
-    def analyze_emotion(self, text: str) -> dict:
-        try:
-            response = self.session.post(
-                f"{self.base_url}/predict",
-                json={"text": text},
-                headers={"Content-Type": "application/json"},
-                timeout=10
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e)}
-
-    def transcribe_voice(self, audio_file: BinaryIO | IO[bytes]) -> dict:
-        if not hasattr(audio_file, "read"):
-            return {"error": "audio_file must be a binary file-like object (supports .read())"}
-        files = {"audio_file": audio_file}
-        try:
-            response = self.session.post(
-                f"{self.base_url}/transcribe/voice",
-                files=files,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e)}
-
-# Example usage
-client = SAMO_API_Client()
-emotions = client.analyze_emotion("I'm excited!")
-# Returns: [{"emotion": "excitement", "confidence": 0.92}]</code></pre>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="integration-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="fas fa-code text-success me-2"></i>
-                            Frontend Integration
-                        </h5>
-                        <div class="code-block">
-<pre><code>async function analyzeEmotion(text) {
-  const response = await fetch(
-    'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, generate_summary: false })
-    }
-  );
-  return await response.json();
-}
-
-// Example usage
-const analysis = await analyzeEmotion("This is amazing!");
-console.log(analysis.emotion_analysis?.emotions);</code></pre>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="integration-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="fas fa-chart-bar text-warning me-2"></i>
-                            Data Science Integration
-                        </h5>
-                        <div class="code-block">
-<pre><code>import pandas as pd
-import requests
-
-def analyze_dataset(texts: list) -> pd.DataFrame:
-    results = []
-    for text in texts:
-        analysis = requests.post(
-            "https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal",
-            json={"text": text, "generate_summary": False}
-        ).json()
-        results.append({
-            'text': text,
-            'emotions': analysis.get('emotion_analysis', {}).get('emotions', {})
-        })
-    return pd.DataFrame(results)</code></pre>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="integration-card">
-                        <h5 class="fw-bold mb-3">
-                            <i class="fas fa-mobile-alt text-info me-2"></i>
-                            Mobile Integration
-                        </h5>
-                        <div class="code-block">
-<pre><code>// React Native / Flutter
-const analyzeUserFeedback = async (feedback) => {
-  try {
-    const response = await fetch(
-      'https://samo-unified-api-frrnetyhfa-uc.a.run.app/analyze/journal',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: feedback, generate_summary: false })
-      }
-    );
-    const analysis = await response.json();
-    return analysis;
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Live API Endpoints Section -->
-    <section class="py-5 bg-success bg-opacity-5">
-        <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">🟢 Live API Endpoints</h2>
-                    <p class="lead text-muted">
-                        All endpoints are live and ready for production integration
-                    </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-success h-100">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="badge bg-success me-2">LIVE</div>
-                                <h6 class="mb-0 fw-bold">Base URL</h6>
-                            </div>
-                            <code class="text-success"><span id="api-base-url"></span></code>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-primary h-100">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">🔐 Authentication Endpoints</h6>
-                            <ul class="list-unstyled">
-                                <li><code>POST /auth/register</code> - User registration</li>
-                                <li><code>POST /auth/login</code> - User login</li>
-                                <li><code>POST /auth/refresh</code> - Token refresh</li>
-                                <li>
-                                    <code>POST /auth/logout</code> - User logout
-                                    <span class="badge bg-warning text-dark ms-2">Requires Auth</span>
-                                </li>
-                                <li>
-                                    <code>GET /auth/profile</code> - User profile
-                                    <span class="badge bg-warning text-dark ms-2">Requires Auth</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-warning h-100">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">🎤 Voice Processing</h6>
-                            <ul class="list-unstyled">
-                                <li><code>POST /transcribe/voice</code> - Single audio</li>
-                                <li><code>POST /transcribe/batch</code> - Batch processing</li>
-                                <li><code>WS /ws/transcribe</code> - Real-time streaming</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-info h-100">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">📝 Text Analysis</h6>
-                            <ul class="list-unstyled">
-                                <li><code>POST /predict</code> - Emotion detection</li>
-                                <li><code>POST /summarize/text</code> - Text summarization</li>
-                                <li><code>POST /predict_batch</code> - Batch emotions</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-danger h-100">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">📊 Monitoring</h6>
-                            <ul class="list-unstyled">
-                                <li><code>GET /health</code> - Health check</li>
-                                <li><code>GET /metrics</code> - System metrics</li>
-                                <li><code>GET /monitoring/dashboard</code> - Dashboard</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="card border-secondary h-100">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">🔧 System</h6>
-                            <ul class="list-unstyled">
-                                <li><code>GET /docs</code> - API documentation</li>
-                                <li><code>GET /openapi.json</code> - OpenAPI spec</li>
-                                <li><code>GET /version</code> - API version</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Documentation Section -->
-    <section id="docs" class="py-5 bg-light">
-        <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">Documentation & Resources</h2>
-                    <p class="lead text-muted">
-                        Complete guides and resources for successful integration
-                    </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-book text-primary mb-3" style="font-size: 2rem;"></i>
-                            <h5 class="card-title fw-bold">API Documentation</h5>
-                            <p class="card-text text-muted">Complete API reference with examples</p>
-                            <a href="https://github.com/uelkerd/SAMO--DL/blob/main/docs/api/API_DOCUMENTATION.md" class="btn btn-outline-primary" target="_blank">View Docs</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-rocket text-success mb-3" style="font-size: 2rem;"></i>
-                            <h5 class="card-title fw-bold">Deployment Guide</h5>
-                            <p class="card-text text-muted">Step-by-step deployment instructions</p>
-                            <a href="https://github.com/uelkerd/SAMO--DL/blob/main/docs/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md" class="btn btn-outline-success" target="_blank">Deploy Now</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-users text-warning mb-3" style="font-size: 2rem;"></i>
-                            <h5 class="card-title fw-bold">Team Guides</h5>
-                            <p class="card-text text-muted">Integration guides for all teams</p>
-                            <a href="integration.html" class="btn btn-outline-warning">Learn More</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-github text-dark mb-3" style="font-size: 2rem;"></i>
-                            <h5 class="card-title fw-bold">Source Code</h5>
-                            <p class="card-text text-muted">Open source project on GitHub</p>
-                            <a href="https://github.com/uelkerd/SAMO--DL" class="btn btn-outline-dark">View Code</a>
-                        </div>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="comprehensive-demo.html" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>
+                            Full Demo
+                        </a>
+                        <a href="https://github.com/uelkerd/SAMO--DL" class="btn btn-outline-light btn-lg" target="_blank">
+                            <i class="fas fa-github me-2"></i>
+                            View Code
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1056,43 +499,14 @@ const analyzeUserFeedback = async (feedback) => {
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="py-4" style="background: var(--dark-gradient); border-top: 1px solid var(--glass-border);">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="fw-bold mb-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="fw-bold mb-0">
                         <i class="fas fa-brain text-primary me-2"></i>
                         SAMO-DL
                     </h5>
-                    <p class="text-muted">
-                        Production-ready emotion detection API with enterprise-grade reliability and performance.
-                    </p>
-                </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Product</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="#features" class="text-muted text-decoration-none">Features</a></li>
-                        <li><a href="#demo" class="text-muted text-decoration-none">Demo</a></li>
-                        <li><a href="#integration" class="text-muted text-decoration-none">Integration</a></li>
-                        <li><a href="#docs" class="text-muted text-decoration-none">Documentation</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold mb-3">Resources</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="https://github.com/uelkerd/SAMO--DL/blob/main/docs/api/API_DOCUMENTATION.md" class="text-muted text-decoration-none" target="_blank">API Docs</a></li>
-                        <li><a href="comprehensive-demo.html" class="text-muted text-decoration-none">Examples</a></li>
-                        <li><a href="https://github.com/uelkerd/SAMO--DL/blob/main/docs/guides/USER_GUIDE.md" class="text-muted text-decoration-none" target="_blank">Tutorials</a></li>
-                        <li><a href="https://github.com/uelkerd/SAMO--DL/blob/main/docs/README.md" class="text-muted text-decoration-none" target="_blank">Support</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="text-muted mb-0">
-                        © 2025 SAMO-DL
-                    </p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <p class="text-muted mb-0">
@@ -1108,13 +522,6 @@ const analyzeUserFeedback = async (feedback) => {
     
     <!-- Demo Script -->
     <script>
-        // Configure API Base URL for display (replace with your actual deployment URL)
-        const API_BASE_URL = 'https://api.example.com';
-        document.addEventListener('DOMContentLoaded', () => {
-            const el = document.getElementById('api-base-url');
-            if (el) el.textContent = API_BASE_URL;
-        });
-
         async function analyzeEmotion() {
             const text = document.getElementById('demoText').value.trim();
             if (!text) {
@@ -1127,8 +534,7 @@ const analyzeUserFeedback = async (feedback) => {
             document.getElementById('demoResult').style.display = 'none';
 
             try {
-                // For demo purposes, we'll simulate the API call
-                // In production, this would call the actual API
+                // Simulate API call
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
                 // Simulate API response
@@ -1145,7 +551,6 @@ const analyzeUserFeedback = async (feedback) => {
         }
 
         function simulateEmotionAnalysis(text) {
-            // Simple emotion detection simulation
             const textLower = text.toLowerCase();
             const emotions = [];
             
@@ -1168,7 +573,6 @@ const analyzeUserFeedback = async (feedback) => {
                 emotions.push({ emotion: 'surprise', confidence: 0.84 });
             }
             
-            // Default to neutral if no specific emotions detected
             if (emotions.length === 0) {
                 emotions.push({ emotion: 'neutral', confidence: 0.75 });
             }
