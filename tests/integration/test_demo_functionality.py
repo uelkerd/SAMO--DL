@@ -217,9 +217,9 @@ class TestDemoFunctionality:
         assert expected_request["model"] == "t5"
     
     @staticmethod
-    def test_demo_error_handling():
-        """Test that the demo handles API errors gracefully"""
-        # Test error handling for various scenarios
+    def test_demo_error_handling_contract():
+        """Test that the demo error handling contract is properly defined"""
+        # Test error handling contract for various scenarios
         error_scenarios = [
             {"status": 400, "message": "Bad Request"},
             {"status": 429, "message": "Rate Limited"},
@@ -228,8 +228,8 @@ class TestDemoFunctionality:
         ]
         
         # Validate all error scenarios have required structure
-        # This would be tested in the actual demo JavaScript
-        # For now, we just validate the error structure
+        # This tests the error handling contract that the demo should follow
+        # The actual error handling implementation is tested in test_demo_api_error_handling
         assert all("status" in scenario for scenario in error_scenarios)
         assert all("message" in scenario for scenario in error_scenarios)
         assert all(isinstance(scenario["status"], int) for scenario in error_scenarios)
