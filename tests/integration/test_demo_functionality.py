@@ -10,8 +10,6 @@ import os
 import base64
 from unittest.mock import patch, Mock
 
-# Add the project root to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 @pytest.fixture
 def demo_api_url():
@@ -62,50 +60,48 @@ class TestDemoFunctionality:
         assert isinstance(expected_request["text"], str)
         assert len(expected_request["text"]) > 0
 
-    @staticmethod
-    def test_demo_emotion_detection_edge_cases(demo_api_url):
+    @pytest.mark.parametrize(
+        "payload,expected_error",
+        [
+            ({"text": ""}, True),
+            ({"text": "   \n\t   "}, True),
+            ({"text": "Hi"}, False),
+            ({"text": "This is a very long text. " * 1000}, False),
+            ({"text": "Hello! @#$%^&*()_+ 你好 🌟 🎉"}, False),
+            ({"text": "😀😂😭😡😱"}, False),
+            ({"text": "1234567890"}, False),
+            ({"text": "A" * 50000}, True),
+        ],
+    )
+    def test_emotion_edge_case_param(self, payload, expected_error, demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
-
-        # Test cases for edge scenarios
-        edge_cases = [
-            {"text": "", "expected_error": True, "description": "empty string"},
-            {"text": "   \n\t   ", "expected_error": True, "description": "whitespace-only text"},
-            {"text": "Hi", "expected_error": False, "description": "very short text"},
-            {"text": "This is a very long text. " * 1000, "expected_error": False, "description": "very long text"},
-            {"text": "Hello! @#$%^&*()_+ 你好 🌟 🎉", "expected_error": False, "description": "special characters and unicode"},
-            {"text": "😀😂😭😡😱", "expected_error": False, "description": "emoji-only text"},
-            {"text": "1234567890", "expected_error": False, "description": "numbers-only text"},
-            {"text": "A" * 50000, "expected_error": True, "description": "extremely long text"},
-        ]
-
         with patch('requests.post') as mock_post:
-            for case in edge_cases:
-                # Mock appropriate response based on expected behavior
-                mock_response = Mock()
-                if case["expected_error"]:
-                    mock_response.status_code = 400
-                    mock_response.json.return_value = {"error": "Invalid input data"}
-                else:
-                    mock_response.status_code = 200
-                    mock_response.json.return_value = {
-                        "emotions": {"neutral": 0.8, "joy": 0.2},
-                        "predicted_emotion": "neutral"
-                    }
+            # Mock appropriate response based on expected behavior
+            mock_response = Mock()
+            if expected_error:
+                mock_response.status_code = 400
+                mock_response.json.return_value = {"error": "Invalid input data"}
+            else:
+                mock_response.status_code = 200
+                mock_response.json.return_value = {
+                    "emotions": {"neutral": 0.8, "joy": 0.2},
+                    "predicted_emotion": "neutral"
+                }
 
-                mock_post.return_value = mock_response
+            mock_post.return_value = mock_response
 
-                # Test the request
-                response = requests.post(f"{demo_api_url}/predict", json={"text": case["text"]}, timeout=10)
+            # Test the request
+            response = requests.post(f"{demo_api_url}/predict", json=payload, timeout=10)
 
-                if case["expected_error"]:
-                    assert response.status_code == 400, f"Expected error for {case['description']}"
-                    error_data = response.json()
-                    assert "error" in error_data
-                else:
-                    assert response.status_code == 200, f"Expected success for {case['description']}"
-                    data = response.json()
-                    assert "emotions" in data
-                    assert "predicted_emotion" in data
+            if expected_error:
+                assert response.status_code == 400
+                error_data = response.json()
+                assert "error" in error_data
+            else:
+                assert response.status_code == 200
+                data = response.json()
+                assert "emotions" in data
+                assert "predicted_emotion" in data
 
         # Test non-string input validation
         with pytest.raises((TypeError, ValueError), match="text.*string"):
@@ -178,7 +174,7 @@ class TestDemoFunctionality:
             mock_post.return_value = mock_error_response
 
             # Test corrupted audio handling
-            files = {'audio': ('corrupted.wav', io.BytesIO(b"not_audio"), 'audio/wav')}
+            files = {'audio_file': ('corrupted.wav', io.BytesIO(b"not_audio"), 'audio/wav')}
             response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
@@ -192,7 +188,7 @@ class TestDemoFunctionality:
             mock_empty_response.json.return_value = {"error": "No audio data provided"}
             mock_post.return_value = mock_empty_response
 
-            files = {'audio': ('empty.wav', io.BytesIO(b""), 'audio/wav')}
+            files = {'audio_file': ('empty.wav', io.BytesIO(b""), 'audio/wav')}
             response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
@@ -278,20 +274,16 @@ class TestDemoFunctionality:
             # Mock timeout error
             mock_post.side_effect = requests.exceptions.Timeout("Request timed out")
 
-            try:
+            with pytest.raises(requests.exceptions.Timeout) as e1:
                 requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=1)
-                assert False, "Expected timeout exception"
-            except requests.exceptions.Timeout as e:
-                assert "timeout" in str(e).lower()
+            assert "timeout" in str(e1.value).lower()
 
             # Mock connection error
             mock_post.side_effect = requests.exceptions.ConnectionError("Connection failed")
 
-            try:
-                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
-                assert False, "Expected connection exception"
-            except requests.exceptions.ConnectionError as e:
-                assert "connection" in str(e).lower()
+            with pytest.raises(requests.exceptions.ConnectionError) as e2:
+                requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
+            assert "connection" in str(e2.value).lower()
 
     @pytest.mark.integration
     def test_demo_full_workflow_mocked(self, demo_api_url, sample_text, sample_audio_data_bytes):
@@ -341,7 +333,7 @@ class TestDemoFunctionality:
 
             mock_post.side_effect = mock_api_response
             audio_file = io.BytesIO(sample_audio_data_bytes)
-            files = {'audio': ('test.wav', audio_file, 'audio/wav')}
+            files = {'audio_file': ('test.wav', audio_file, 'audio/wav')}
             transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert transcription_response.status_code == 200
@@ -397,19 +389,14 @@ class TestDemoFunctionality:
             mock_post.return_value = mock_error_response
 
             # Test error handling for emotion detection
-            try:
-                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
-                assert response.status_code == 500
-                error_data = response.json()
-                assert "error" in error_data
-                assert isinstance(error_data["error"], str)
-                # Verify error message doesn't contain sensitive information
-                assert "Internal server error" in error_data["error"]
-                assert "Exception" not in error_data["error"]
-                assert "Traceback" not in error_data["error"]
-            except Exception as e:
-                # If the mock fails, ensure we're testing error handling properly
-                assert "error" in str(e).lower()
+            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
+            assert response.status_code == 500
+            error_data = response.json()
+            assert "error" in error_data
+            assert isinstance(error_data["error"], str)
+            assert "Internal server error" in error_data["error"]
+            assert "Exception" not in error_data["error"]
+            assert "Traceback" not in error_data["error"]
 
     @pytest.mark.integration
     def test_demo_rate_limiting(self, demo_api_url, sample_text):
@@ -517,5 +504,3 @@ class TestDemoFunctionality:
             assert len(results) == num_threads, f"Expected {num_threads} results, got {len(results)}"
             assert all(results.values()), f"Some requests failed: {results}"
 
-if __name__ == "__main__":
-    pytest.main([__file__])

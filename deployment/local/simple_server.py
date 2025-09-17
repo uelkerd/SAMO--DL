@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# (shebang removed; run via `python deployment/local/simple_server.py`)
 """
 Simple Local API Server for Development
 ========================================
@@ -10,6 +10,7 @@ Serves static files and provides basic CORS support.
 import os
 import logging
 import requests
+import argparse
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 
@@ -19,16 +20,22 @@ CORS(app)  # Enable CORS for all domains on all routes
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
+# Resolve once
+WEBSITE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'website'))
+
+# Environment-configurable upstream settings
+UPSTREAM_BASE = os.getenv("SAMO_UNIFIED_API_BASE", "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app")
+API_KEY = os.getenv("SAMO_API_KEY")  # optional
+COMMON_HEADERS = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
+
 # Serve static files from website directory
 @app.route('/')
 def index():
-    website_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'website')
-    return send_from_directory(website_dir, 'comprehensive-demo.html')
+    return send_from_directory(WEBSITE_DIR, 'comprehensive-demo.html')
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    website_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'website')
-    return send_from_directory(website_dir, filename)
+    return send_from_directory(WEBSITE_DIR, filename)
 
 # CORS Proxy for Real API
 @app.route('/api/emotion', methods=['POST'])
@@ -41,8 +48,8 @@ def proxy_emotion():
             return jsonify({"error": "No text provided"}), 400
 
         # Call real API (requests will encode params)
-        api_url = "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion"
-        response = requests.post(api_url, params={"text": text}, timeout=30)
+        api_url = f"{UPSTREAM_BASE}/analyze/emotion"
+        response = requests.post(api_url, params={"text": text}, headers=COMMON_HEADERS, timeout=30)
 
         if response.ok:
             return jsonify(response.json())
@@ -63,8 +70,8 @@ def proxy_summarize():
             return jsonify({"error": "No text provided"}), 400
 
         # Call real API (requests will encode params)
-        api_url = "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/summarize"
-        response = requests.post(api_url, params={"text": text}, timeout=30)
+        api_url = f"{UPSTREAM_BASE}/analyze/summarize"
+        response = requests.post(api_url, params={"text": text}, headers=COMMON_HEADERS, timeout=30)
 
         if response.ok:
             return jsonify(response.json())
@@ -80,12 +87,19 @@ def health():
     return jsonify({"status": "healthy", "server": "simple_local_dev"})
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Simple Local Development Server')
+    parser.add_argument('--port', type=int, default=int(os.getenv('PORT', 8000)),
+                       help='Port to run the server on (default: 8000)')
+    parser.add_argument('--host', default='127.0.0.1',
+                       help='Host to bind to (default: 127.0.0.1)')
+    args = parser.parse_args()
+    
     print("🚀 SIMPLE LOCAL DEVELOPMENT SERVER")
     print("==================================")
-    print("🌐 Server starting at: http://localhost:8000")
+    print(f"🌐 Server starting at: http://{args.host}:{args.port}")
     print("📁 Serving website files with CORS enabled")
-    print("🔧 Mock AI endpoints available for testing")
+    print("🔧 Proxy AI endpoints available for testing")
     print("Press Ctrl+C to stop the server")
     print("")
 
-    app.run(host='127.0.0.1', port=8000, debug=False)
+    app.run(host=args.host, port=args.port, debug=False)

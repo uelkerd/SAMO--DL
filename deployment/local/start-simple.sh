@@ -13,13 +13,17 @@ echo "==========================================="
 
 # Install minimal dependencies
 echo "📦 Installing minimal dependencies..."
-python3 -m pip install -r requirements-simple.txt
+command -v python3 >/dev/null || { echo "python3 not found in PATH" >&2; exit 127; }
+[ -f requirements-simple.txt ] || { echo "requirements-simple.txt not found next to script" >&2; exit 1; }
+if [ -z "${VIRTUAL_ENV:-}" ]; then USER_FLAG="--user"; else USER_FLAG=""; fi
+python3 -m pip install $USER_FLAG -r requirements-simple.txt
 
 # Start simple server
 echo "🌐 Starting simple development server..."
-echo "Server will be available at: http://localhost:8000"
+PORT="${PORT:-8000}"
+echo "Server will be available at: http://localhost:${PORT}"
 echo "Website files served with CORS enabled"
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-python3 simple_server.py
+exec python3 simple_server.py --port "${PORT}"

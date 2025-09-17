@@ -29,12 +29,14 @@ RUN pip install --no-cache-dir -r requirements-unified-fixed.txt
 # Copy source code
 COPY src/ ./src/
 COPY deployment/ ./deployment/
-# Copy only necessary Python files from root
-COPY test_samo_t5_standalone.py ./
-COPY test_samo_whisper_standalone.py ./
+# (Optional) Omit test files from runtime image
 
-# Pre-download models during build
+# Allow skipping model pre-downloads
+ARG PRELOAD_MODELS=true
+
 RUN mkdir -p /app/models && \
+    echo "Model pre-download toggle: ${PRELOAD_MODELS}" && \
+    if [ "${PRELOAD_MODELS}" = "true" ]; then \
     echo "Pre-downloading models..." && \
     python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
     model_name='duelker/samo-goemotions-deberta-v3-large'; \
@@ -53,7 +55,8 @@ RUN mkdir -p /app/models && \
     print(f'Downloading Whisper model {model_size}...'); \
     whisper.load_model(model_size, download_root='/app/models'); \
     print('✓ Whisper model downloaded successfully');" && \
-    echo "All models downloaded successfully!"
+    echo "All models downloaded successfully!"; \
+    else echo "Skipping model pre-download"; fi
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && \

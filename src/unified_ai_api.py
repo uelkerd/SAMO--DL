@@ -665,7 +665,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 
 # ===== Helpers to reduce endpoint complexity =====
-def _ensure_voice_transcriber_loaded() -> None:
+def _ensure_voice_transcriber_loaded(preferred_model_size: str | None = None) -> None:
     """Ensure voice_transcriber is available or raise 503 (avoid global statement)."""
     if voice_transcriber is not None:
         return
@@ -673,8 +673,9 @@ def _ensure_voice_transcriber_loaded() -> None:
         from src.models.voice_processing.whisper_transcriber import (
             create_whisper_transcriber as _wcreate,
         )
-        logger.info("Lazy-loading Whisper transcriber: small")
-        globals()["voice_transcriber"] = _wcreate("small")
+        size = preferred_model_size or "small"
+        logger.info("Lazy-loading Whisper transcriber: %s", size)
+        globals()["voice_transcriber"] = _wcreate(size)
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Voice transcriber lazy-load failed: %s", exc)
         raise HTTPException(
@@ -1641,7 +1642,7 @@ async def transcribe_voice(
 
         try:
             # Transcribe audio; ensure transcriber is available
-            _ensure_voice_transcriber_loaded()
+            _ensure_voice_transcriber_loaded(preferred_model_size=model_size)
 
             # Enhanced transcription: introspect signature once and adapt call
             sig = inspect.signature(voice_transcriber.transcribe)

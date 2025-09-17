@@ -21,7 +21,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Import security setup using absolute import
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 from src.security_setup import setup_security_middleware
 
 # Configure logging after all imports
@@ -38,7 +40,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Initialize security headers middleware
-security_middleware = setup_security_middleware(app, "development")
+security_middleware = setup_security_middleware(app, os.getenv("ENVIRONMENT", "development"))
 
 # Rate limiting configuration
 RATE_LIMIT_WINDOW = 60  # seconds
@@ -108,7 +110,10 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None):
 class EmotionDetectionModel:
     def __init__(self):
         """Initialize the model."""
-        self.model_path = os.path.join(os.getcwd(), "model")
+        self.model_path = os.getenv(
+            "MODEL_PATH",
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "model"))
+        )
         logger.info(f"Loading model from: {self.model_path}")
         
         try:
@@ -159,7 +164,9 @@ class EmotionDetectionModel:
                 predicted_emotion = f"unknown_{predicted_label}"
             
             prediction_time = time.time() - start_time
-            logger.info(f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            snippet = (text[:50] + "...") if os.getenv("LOG_INPUT_SNIPPETS", "0") == "1" else "<redacted>"
+            logger.info("Prediction completed in %.3fs: '%s' → %s (conf: %.3f)",
+                        prediction_time, snippet, predicted_emotion, confidence)
             
             # Create response
             response = {
@@ -250,11 +257,6 @@ def predict():
         
         return jsonify(result)
         
-    except werkzeug.exceptions.BadRequest:
-        response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error("Invalid JSON in request")
-        return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
@@ -296,11 +298,6 @@ def predict_batch():
             'batch_processing_time_ms': round(response_time * 1000, 2)
         })
         
-    except werkzeug.exceptions.BadRequest:
-        response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='invalid_json')
-        logger.error("Invalid JSON in batch request")
-        return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
@@ -386,7 +383,7 @@ def home():
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error(f"BadRequest error: {str(e)}")
+    logger.exception("BadRequest error")
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 

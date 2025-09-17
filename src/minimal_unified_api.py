@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# (shebang removed; run via `python src/minimal_unified_api.py`)
 """Minimal Unified AI API for SAMO Deep Learning.
 
 This is a simplified version that loads models on-demand to avoid startup timeout issues.
@@ -85,6 +85,9 @@ app.add_middleware(
 
 # Pydantic models
 class EmotionRequest(BaseModel):
+    text: str
+
+class SummarizeRequest(BaseModel):
     text: str
 
 # Global variables for lazy loading
@@ -187,10 +190,11 @@ async def analyze_emotion(request: EmotionRequest):
         raise HTTPException(status_code=500, detail="Emotion analysis failed") from e
 
 @app.post("/analyze/summarize")
-async def summarize_text(text: str):
+async def summarize_text(request: SummarizeRequest):
     """Summarize text using T5 model."""
     try:
         # Input validation
+        text = request.text
         if not text or not isinstance(text, str) or not text.strip():
             raise HTTPException(status_code=400, detail="Text input is required and cannot be empty")
 
@@ -205,9 +209,9 @@ async def summarize_text(text: str):
             logger.info("Loading summarization model...")
             try:
                 import sentencepiece  # Required for T5 tokenizer
-            except ImportError:
-                logger.error("sentencepiece not installed. Please install it: pip install sentencepiece")
-                raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.")
+            except ImportError as e:
+                logger.exception("sentencepiece not installed. Please install it: pip install sentencepiece")
+                raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.") from e
 
             from transformers import T5Tokenizer, T5ForConditionalGeneration
 
