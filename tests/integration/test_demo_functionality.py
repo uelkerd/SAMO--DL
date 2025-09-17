@@ -385,8 +385,8 @@ class TestDemoFunctionality:
             assert mock_post.call_count >= 3
 
     @pytest.mark.integration
-    def test_demo_error_handling(self, demo_api_url, sample_text):
-        """Test that the demo handles API errors gracefully"""
+    def test_demo_api_error_handling(self, demo_api_url, sample_text):
+        """Test that the demo handles API errors gracefully with actual HTTP requests"""
         from unittest.mock import patch, Mock
 
         with patch('requests.post') as mock_post:
