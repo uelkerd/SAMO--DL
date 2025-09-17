@@ -15,6 +15,8 @@
     --light-accent: #e9d5ff;
     --glass-bg: rgba(139, 92, 246, 0.1);
     --glass-border: rgba(139, 92, 246, 0.2);
+    --error-color: #ef4444;
+    --success-color: #10b981;
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -69,8 +71,8 @@ body.comprehensive-demo {
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Ensure all text is visible */
-.text-muted {
+/* Ensure all text is visible - scoped to comprehensive demo */
+.comprehensive-demo .text-muted {
     color: #cbd5e1 !important;
 }
 
@@ -106,7 +108,7 @@ body.comprehensive-demo {
     box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
 }
 
-.form-control::placeholder {
+.comprehensive-demo .form-control::placeholder {
     color: #94a3b8 !important;
 }
 
