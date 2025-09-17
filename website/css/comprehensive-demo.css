@@ -1025,20 +1025,6 @@ body.comprehensive-demo {
     font-size: 0.85rem;
 }
 
-/* Error Message Styles */
-.error-message {
-    color: #dc3545;
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 8px;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    display: none;
-}
-
-.error-message.show {
-    display: block;
-}
 
 /* Keyboard Focus Indicators */
 .comprehensive-demo .btn-primary:focus-visible {
