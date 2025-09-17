@@ -103,17 +103,13 @@ class TestDemoFunctionality:
                 assert "emotions" in data
                 assert "predicted_emotion" in data
 
-        # Test non-string input validation
-        with pytest.raises((TypeError, ValueError), match="text.*string"):
-            non_string_request = {"text": 123}
-            if not isinstance(non_string_request["text"], str):
-                raise TypeError("text must be a string")
+        # Test non-string input validation - call actual API
+        response = requests.post(f"{demo_api_url}/predict", json={"text": 123}, timeout=10)
+        assert response.status_code == 400, "Non-string input should return 400"
 
-        # Test None input validation
-        with pytest.raises((TypeError, ValueError), match="text.*required"):
-            none_request = {"text": None}
-            if none_request["text"] is None:
-                raise ValueError("text is required and cannot be None")
+        # Test None input validation - call actual API
+        response = requests.post(f"{demo_api_url}/predict", json={"text": None}, timeout=10)
+        assert response.status_code == 400, "None input should return 400"
     
     @staticmethod
     def test_demo_whisper_request_format(sample_audio_data_bytes):
@@ -246,6 +242,9 @@ class TestDemoFunctionality:
         # Validate all components are non-empty strings
         assert all(isinstance(component, str) for component in expected_components)
         assert all(len(component) > 0 for component in expected_components)
+        
+        # TODO: Consider using Playwright for actual DOM checks
+        # This would validate presence/visibility of components in the rendered page
     
     @staticmethod
     def test_demo_goemotions_labels():
@@ -317,7 +316,7 @@ class TestDemoFunctionality:
         # Test workflow steps with mocked API calls
         with patch('requests.post') as mock_post:
             # Configure mock responses based on endpoint
-            def mock_api_response(url, **kwargs):
+            def mock_api_response(url, **_kwargs):
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {}
@@ -482,7 +481,7 @@ class TestDemoFunctionality:
                 try:
                     response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"}, timeout=10)
                     results[index] = response.status_code == 200
-                except Exception:
+                except requests.RequestException:
                     results[index] = False
 
             # Test concurrent requests

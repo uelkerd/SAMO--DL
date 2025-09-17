@@ -20,6 +20,7 @@ from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Import security setup using absolute import
+# TODO: Consider packaging src/ as a proper package to avoid sys.path surgery
 import sys
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if PROJECT_ROOT not in sys.path:
@@ -119,6 +120,7 @@ class EmotionDetectionModel:
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.model.eval()
             
             # Move to GPU if available
             if torch.cuda.is_available():

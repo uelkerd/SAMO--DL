@@ -13,8 +13,8 @@ import tempfile
 import time
 import traceback
 import os
-from contextlib import asynccontextmanager
 from pathlib import Path
+from contextlib import asynccontextmanager
 from typing import Any, Dict, List, AsyncGenerator, Optional, Set, Tuple
 import inspect
 from datetime import datetime, timezone
@@ -683,9 +683,12 @@ def _ensure_voice_transcriber_loaded(preferred_model_size: str | None = None) ->
         )
 
 
-def _write_temp_wav(content: bytes) -> str:
-    """Persist uploaded audio bytes to a temporary WAV file and return its path."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+import mimetypes
+
+def _write_temp_audio(content: bytes, filename: str | None, content_type: str | None) -> str:
+    """Persist uploaded audio bytes to a temp file with appropriate extension."""
+    guessed = (Path(filename).suffix if filename else "") or (mimetypes.guess_extension(content_type or "") or ".bin")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=guessed) as temp_file:
         temp_file.write(content)
         temp_file.flush()
         return temp_file.name
@@ -1647,7 +1650,7 @@ async def transcribe_voice(
         await audio_file.seek(0)
 
         # Save uploaded file temporarily
-        temp_file_path = _write_temp_wav(content)
+        temp_file_path = _write_temp_audio(content, audio_file.filename, getattr(audio_file, "content_type", None))
 
         try:
             # Transcribe audio; ensure transcriber is available

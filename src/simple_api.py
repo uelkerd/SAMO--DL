@@ -121,17 +121,24 @@ async def analyze_emotion(request: EmotionRequest):
             outputs = model(**inputs)
             predictions = outputs.logits.sigmoid()
 
-        # 28 emotions from our DeBERTa-v3 model
-        emotion_labels = [
-            'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
-            'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
-            'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
-            'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
-            'relief', 'remorse', 'sadness', 'surprise', 'neutral'
-        ]
+        # Derive labels from model config; fallback to GoEmotions list
+        id2label = getattr(model.config, "id2label", None)
+        if id2label:
+            try:
+                emotion_labels = [id2label[i] for i in range(model.config.num_labels)]
+            except Exception:
+                emotion_labels = list(id2label.values())
+        else:
+            emotion_labels = [
+                'admiration','amusement','anger','annoyance','approval','caring',
+                'confusion','curiosity','desire','disappointment','disapproval',
+                'disgust','embarrassment','excitement','fear','gratitude','grief',
+                'joy','love','nervousness','optimism','pride','realization',
+                'relief','remorse','sadness','surprise','neutral'
+            ]
 
         emotion_scores = predictions[0].tolist()
-        predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
+        predicted_emotion = emotion_labels[max(range(len(emotion_scores)), key=emotion_scores.__getitem__)]
 
         result = {
             "text": request.text,

@@ -263,11 +263,8 @@ class SecureEmotionDetectionModel:
             self.loaded = True
             logger.info("✅ Secure model loaded successfully")
 
-        except Exception as e:
-            logger.error(
-                "❌ Failed to load secure model: %s. Falling back to stub mode.",
-                str(e)
-            )
+        except Exception:
+            logger.exception("❌ Failed to load secure model. Falling back to stub mode.")
             self.tokenizer = None
             self.model = None
             self.loaded = False
@@ -1044,12 +1041,12 @@ def home():
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.error("BadRequest error: %s", str(e))
+    logger.warning("BadRequest: %s", e)
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
 @app.errorhandler(404)
-def handle_not_found(e):
+def handle_not_found(_):
     """Handle 404 errors."""
     logger.warning("404 error: %s from %s", request.path, request.remote_addr)
     return jsonify({'error': 'Endpoint not found'}), 404
@@ -1057,7 +1054,7 @@ def handle_not_found(e):
 @app.errorhandler(500)
 def handle_internal_error(e):
     """Handle 500 errors."""
-    logger.error("Internal server error: %s", str(e))
+    logger.exception("Internal server error")
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':

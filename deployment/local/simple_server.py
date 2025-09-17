@@ -56,7 +56,7 @@ def proxy_emotion():
         else:
             return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
-    except Exception as e:
+    except Exception:
         logging.exception("Unhandled exception in /api/emotion")
         return jsonify({"error": "Internal server error"}), 500
 
@@ -78,7 +78,7 @@ def proxy_summarize():
         else:
             return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
-    except Exception as e:
+    except Exception:
         logging.exception("Unhandled exception in /api/summarize")
         return jsonify({"error": "Internal server error"}), 500
 
