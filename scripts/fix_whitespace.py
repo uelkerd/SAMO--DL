@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-"""
-Script to fix whitespace issues in Python files
-"""
+"""Script to fix whitespace issues in Python files"""
 
 import os
-import re
-from pathlib import Path
 
 def fix_whitespace_issues(file_path):
     """Fix whitespace issues in a Python file."""
@@ -50,8 +46,7 @@ def fix_whitespace_issues(file_path):
                 f.write(content)
             print(f"Fixed whitespace: {file_path}")
             return True
-        else:
-            return False
+        return False
 
     except Exception as e:
         print(f"Error fixing {file_path}: {e}")

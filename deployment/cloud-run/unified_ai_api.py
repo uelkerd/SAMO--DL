@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any, Dict, List, AsyncGenerator, Optional, Set, Tuple
 import inspect
 from datetime import datetime, timezone
-from collections import defaultdict
 
 import uvicorn
 from fastapi import (

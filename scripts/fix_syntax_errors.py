@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""
-Script to fix common syntax errors in Python files
-"""
+"""Script to fix common syntax errors in Python files"""
 
 import os
 import re
-from pathlib import Path
 
 def fix_syntax_errors(file_path):
     """Fix common syntax errors in a Python file."""
@@ -106,9 +103,8 @@ def fix_syntax_errors(file_path):
                 f.write(content)
             print(f"Fixed: {file_path}")
             return True
-        else:
-            print(f"No changes needed: {file_path}")
-            return False
+        print(f"No changes needed: {file_path}")
+        return False
 
     except Exception as e:
         print(f"Error fixing {file_path}: {e}")

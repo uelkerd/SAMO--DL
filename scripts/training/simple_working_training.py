@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple Working Training Script for SAMO Deep Learning
-"""
+"""Simple Working Training Script for SAMO Deep Learning"""
 
 from pathlib import Path
 import sys
@@ -16,9 +14,7 @@ from src.models.emotion_detection.training_pipeline import create_bert_emotion_c
 from torch import nn
 import logging
 import os
-import sys
 import torch
-import traceback
 
 
 
@@ -58,15 +54,13 @@ class FocalLoss(nn.Module):
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def train_simple_model():
     """Train a simple BERT model with focal loss."""
-
     logger.info("🚀 Starting Simple Working Training")
     logger.info("   • Focal Loss: alpha=0.25, gamma=2.0")
     logger.info("   • Learning Rate: 2e-05")

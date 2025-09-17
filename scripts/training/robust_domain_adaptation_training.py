@@ -73,7 +73,6 @@ def verify_installation():
     print("🔍 Verifying installation...")
 
     try:
-        import torch
         import transformers
         print(f"  PyTorch: {torch.__version__}")
         print(f"  Transformers: {transformers.__version__}")
@@ -252,7 +251,6 @@ class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
 
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
-        import torch.nn as nn
         from transformers import AutoModel
 
         # ROBUST: Validate num_labels

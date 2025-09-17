@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Restart Training Debug Script for SAMO Deep Learning
-"""
+"""Restart Training Debug Script for SAMO Deep Learning"""
 
 from pathlib import Path
 import logging
@@ -13,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Configure logging
 from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-import traceback
 
 
 
