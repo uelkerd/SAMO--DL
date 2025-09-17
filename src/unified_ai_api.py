@@ -516,7 +516,9 @@ def get_cors_origins():
         return [
             "https://yourdomain.com",
             "https://www.yourdomain.com",
-            "https://app.yourdomain.com"
+            "https://app.yourdomain.com",
+            "https://uelkerd.github.io",
+            "https://samo-dl.github.io"
         ]
     if env == 'staging':
         # Staging: Allow staging domains
@@ -543,6 +545,7 @@ logger.info(f"Allowed origins: {cors_origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.github\.io$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-API-Key", "X-Requested-With"],
