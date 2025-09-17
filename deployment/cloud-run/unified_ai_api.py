@@ -1775,7 +1775,7 @@ async def batch_transcribe_voice(
                 finally:
                     Path(temp_file_path).unlink(missing_ok=True)
 
-            except Exception as exc:
+            except Exception:
                 # Log full exception details server-side
                 logger.exception(f"Error processing audio file {audio_file.filename} in batch")
 
@@ -1903,7 +1903,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             await websocket.close(code=4003, reason="Insufficient permissions")
             return
 
-    except Exception as e:
+    except Exception:
         # Log full exception details server-side
         logger.exception("WebSocket authentication error")
 
@@ -1981,7 +1981,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                     finally:
                         Path(temp_file_path).unlink(missing_ok=True)
 
-                except Exception as exc:
+                except Exception:
                     # Log full exception details server-side
                     logger.exception("Error in WebSocket audio processing")
 

@@ -142,7 +142,7 @@ async def analyze_emotion(request: EmotionRequest):
         })
         return result
 
-    except Exception as e:
+    except Exception:
         logger.exception("Error in emotion analysis")
         raise HTTPException(status_code=500, detail="Analysis failed")
 

@@ -953,7 +953,7 @@ def add_to_blacklist():
     except (ValueError, KeyError) as e:
         logger.warning("Invalid blacklist request: %s", str(e))
         return jsonify({'error': 'Invalid request data'}), 400
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error in blacklist operation")
         return jsonify({'error': 'Internal server error'}), 500
 
@@ -973,7 +973,7 @@ def add_to_whitelist():
     except (ValueError, KeyError) as e:
         logger.warning("Invalid whitelist request: %s", str(e))
         return jsonify({'error': 'Invalid request data'}), 400
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error in whitelist operation")
         return jsonify({'error': 'Internal server error'}), 500
 

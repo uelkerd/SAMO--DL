@@ -279,7 +279,7 @@ class TestDemoFunctionality:
             mock_post.side_effect = requests.exceptions.Timeout("Request timed out")
 
             try:
-                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=1)
+                requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=1)
                 assert False, "Expected timeout exception"
             except requests.exceptions.Timeout as e:
                 assert "timeout" in str(e).lower()
@@ -495,7 +495,7 @@ class TestDemoFunctionality:
                 try:
                     response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"}, timeout=10)
                     results[index] = response.status_code == 200
-                except Exception as e:
+                except Exception:
                     results[index] = False
 
             # Test concurrent requests
