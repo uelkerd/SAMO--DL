@@ -5,7 +5,6 @@ Tests the integration between the demo frontend and the Cloud Run API
 
 import pytest
 import requests
-import sys
 import os
 import base64
 from unittest.mock import patch, Mock
@@ -268,7 +267,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_timeout_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API timeouts gracefully"""
-
         with patch('requests.post') as mock_post:
             # Mock timeout error
             mock_post.side_effect = requests.exceptions.Timeout("Request timed out")
@@ -379,7 +377,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_api_error_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API errors gracefully with actual HTTP requests"""
-
         with patch('requests.post') as mock_post:
             # Test API error responses
             mock_error_response = Mock()
@@ -400,7 +397,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_rate_limiting(self, demo_api_url, sample_text):
         """Test that the demo handles rate limiting gracefully"""
-
         with patch('requests.post') as mock_post:
             # Test rate limiting response
             mock_rate_limit_response = Mock()

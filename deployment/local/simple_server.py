@@ -53,8 +53,7 @@ def proxy_emotion():
 
         if response.ok:
             return jsonify(response.json())
-        else:
-            return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+        return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
     except Exception:
         logging.exception("Unhandled exception in /api/emotion")
@@ -75,8 +74,7 @@ def proxy_summarize():
 
         if response.ok:
             return jsonify(response.json())
-        else:
-            return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+        return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
     except Exception:
         logging.exception("Unhandled exception in /api/summarize")
@@ -93,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--host', default='127.0.0.1',
                        help='Host to bind to (default: 127.0.0.1)')
     args = parser.parse_args()
-    
+
     print("🚀 SIMPLE LOCAL DEVELOPMENT SERVER")
     print("==================================")
     print(f"🌐 Server starting at: http://{args.host}:{args.port}")

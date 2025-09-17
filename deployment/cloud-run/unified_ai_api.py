@@ -185,7 +185,7 @@ def _has_injected_permission(request: Request, permission: str) -> bool:
         env = os.environ.get("ENV", "").lower()
         environment = os.environ.get("ENVIRONMENT", "").lower()
         is_production = env == "production" or environment == "production"
-        
+
         if (
             not is_production
             and os.environ.get("PYTEST_CURRENT_TEST")
