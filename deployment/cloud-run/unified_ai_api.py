@@ -175,12 +175,20 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
 def _has_injected_permission(request: Request, permission: str) -> bool:
     """Check for test-only injected permissions via headers when enabled.
 
-    Active only when both PYTEST_CURRENT_TEST is set and
-    ENABLE_TEST_PERMISSION_INJECTION is "true".
+    Active only when:
+    - PYTEST_CURRENT_TEST is set
+    - ENABLE_TEST_PERMISSION_INJECTION is "true"
+    - Environment is not production (ENV/ENVIRONMENT != "production")
     """
     try:
+        # Check if we're in a non-production environment
+        env = os.environ.get("ENV", "").lower()
+        environment = os.environ.get("ENVIRONMENT", "").lower()
+        is_production = env == "production" or environment == "production"
+        
         if (
-            os.environ.get("PYTEST_CURRENT_TEST")
+            not is_production
+            and os.environ.get("PYTEST_CURRENT_TEST")
             and (os.environ.get("ENABLE_TEST_PERMISSION_INJECTION", "false")
                  .lower() == "true")
         ):
@@ -2097,8 +2105,9 @@ async def detailed_health_check(
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
-            issues.append(f"Emotion detection model error: {exc}")
-            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+            logger.exception("Emotion detection model error in health check")
+            issues.append("Emotion detection model error: internal error")
+            model_checks["emotion_detection"] = {"status": "error", "error": "internal error"}
 
     if text_summarizer is None:
         health_status = "degraded"
@@ -2111,8 +2120,9 @@ async def detailed_health_check(
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
-            issues.append(f"Text summarization model error: {exc}")
-            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+            logger.exception("Text summarization model error in health check")
+            issues.append("Text summarization model error: internal error")
+            model_checks["text_summarization"] = {"status": "error", "error": "internal error"}
 
     if voice_transcriber is None:
         health_status = "degraded"
@@ -2141,9 +2151,10 @@ async def detailed_health_check(
             "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
         }
     except Exception as exc:
-        system_checks = {"status": "error", "error": str(exc)}
+        logger.exception("System check failed in health check")
+        system_checks = {"status": "error", "error": "internal error"}
         health_status = "degraded"
-        issues.append(f"System check failed: {exc}")
+        issues.append("System check failed: internal error")
 
     return {
         "status": health_status,

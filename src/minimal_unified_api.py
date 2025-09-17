@@ -6,7 +6,7 @@ This is a simplified version that loads models on-demand to avoid startup timeou
 import os
 import logging
 from functools import lru_cache
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
@@ -259,7 +259,7 @@ async def summarize_text(request: SummarizeRequest):
         raise HTTPException(status_code=500, detail="Text summarization failed") from e
 
 @app.post("/analyze/transcribe")
-async def transcribe_audio(audio_file: bytes):
+async def transcribe_audio(audio_file: UploadFile = File(...)):
     """Transcribe audio using Whisper model."""
     try:
         # Lazy load Whisper model
@@ -270,10 +270,20 @@ async def transcribe_audio(audio_file: bytes):
             whisper_model = whisper.load_model("base")
             logger.info("Whisper model loaded successfully")
 
+        # Validate audio file
+        from pathlib import Path
+        filename = getattr(audio_file, "filename", "") or ""
+        suffix = Path(filename).suffix or ".wav"
+        content = await audio_file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Empty audio file")
+        if len(content) > 25 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Audio file too large (max 25 MB)")
+
         # Save audio file temporarily
         import tempfile
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
-            tmp_file.write(audio_file)
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp_file:
+            tmp_file.write(content)
             tmp_file_path = tmp_file.name
 
         try:

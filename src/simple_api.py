@@ -42,14 +42,14 @@ def get_cors_origins():
     return dev_origins
 
 def get_cors_origin_regex():
-    """Get CORS origin regex patterns for dynamic hosts."""
+    """Get a single combined CORS origin regex (or None)."""
     regex_env = os.environ.get("CORS_ORIGIN_REGEX", "")
 
     if regex_env:
-        # Split CSV and strip whitespace for multiple regex patterns
-        patterns = [pattern.strip() for pattern in regex_env.split(",") if pattern.strip()]
-        logger.info(f"CORS origin regex patterns: {patterns}")
-        return patterns
+        patterns = [p.strip() for p in regex_env.split(",") if p.strip()]
+        combined = f"^(?:{'|'.join(patterns)})$"
+        logger.info(f"CORS origin regex: {combined}")
+        return combined
     # Default patterns for common development and staging environments
     default_patterns = [
         r"https://.*\.vercel\.app$",  # Vercel deployments
@@ -58,17 +58,20 @@ def get_cors_origin_regex():
         r"http://localhost:\d+$",      # Local development with any port
         r"http://127\.0\.0\.1:\d+$",   # Local development with any port
     ]
-    return default_patterns
+    combined = f"^(?:{'|'.join(default_patterns)})$"
+    logger.info(f"Default CORS origin regex: {combined}")
+    return combined
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
 cors_origin_regex = get_cors_origin_regex()
+allow_credentials = "*" not in cors_origins
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_origin_regex=cors_origin_regex,
-    allow_credentials=True,  # Safe because we're not using "*" for origins
+    allow_credentials=allow_credentials,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
