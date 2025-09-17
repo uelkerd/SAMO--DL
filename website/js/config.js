@@ -60,6 +60,19 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
     window.SAMO_CONFIG.FEATURES.ENABLE_MOCK_DATA = true;
+
+    // Use local mock server for development
+    if (window.location.port === '8000') {
+        window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8000';
+        window.SAMO_CONFIG.API.ENDPOINTS = {
+            EMOTION: '/api/emotion',
+            SUMMARIZE: '/api/summarize',
+            JOURNAL: '/api/summarize', // Use summarize for journal
+            HEALTH: '/api/health',
+            READY: '/api/health',
+            TRANSCRIBE: '/api/transcribe'
+        };
+    }
 }
 
 // Server-side configuration injection (if available)

@@ -21,8 +21,11 @@ import werkzeug
 from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# Import security setup using relative import
-from ...src.security_setup import setup_security_middleware
+# Import security setup using absolute import
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from src.security_setup import setup_security_middleware
 
 # Configure logging after all imports
 logging.basicConfig(

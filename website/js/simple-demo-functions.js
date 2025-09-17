@@ -1008,24 +1008,41 @@ function createSummaryChart(summary) {
 
 function updateProcessingInfo(emotions, summary, avgConfidence) {
     console.log('ℹ️ Updating processing information...');
-    
+
     // Validate inputs
     if (!Array.isArray(emotions) || emotions.length === 0) {
         console.warn('⚠️ Invalid emotions array in updateProcessingInfo');
     }
-    
+
     // Validate avgConfidence
     const safeAvgConfidence = typeof avgConfidence === 'number' && !isNaN(avgConfidence) ? avgConfidence : 0;
-    
+
     // Use real processing time if available, otherwise use mock
     const processingTime = typeof startTime !== 'undefined' ? Math.round(performance.now() - startTime) : Math.round(Math.random() * 2000 + 1000);
-    
-    // Update processing information elements
-    updateElement('totalTime', formatProcessingTime(processingTime));
-    updateElement('processingStatus', 'Completed');
-    updateElement('modelsUsed', 'SAMO DeBERTa v3 Large, SAMO T5');
-    updateElement('avgConfidence', `${Math.round(safeAvgConfidence * 100)}%`);
-    
+
+    // Update processing information elements (try both original and compact versions)
+    const timeFormatted = formatProcessingTime(processingTime);
+    const confidenceFormatted = `${Math.round(safeAvgConfidence * 100)}%`;
+    const modelsUsedText = 'SAMO DeBERTa v3 Large, SAMO T5';
+    const statusText = 'Completed';
+
+    // Update original elements (if they exist)
+    updateElement('totalTime', timeFormatted);
+    updateElement('processingStatus', statusText);
+    updateElement('modelsUsed', modelsUsedText);
+    updateElement('avgConfidence', confidenceFormatted);
+
+    // Update compact elements (new layout)
+    updateElement('totalTimeCompact', timeFormatted);
+    updateElement('processingStatusCompact', statusText);
+    updateElement('modelsUsedCompact', modelsUsedText);
+    updateElement('avgConfidenceCompact', confidenceFormatted);
+
+    // Sync using LayoutManager if available
+    if (typeof LayoutManager !== 'undefined' && LayoutManager.syncProcessingInfo) {
+        LayoutManager.syncProcessingInfo();
+    }
+
     console.log('✅ Processing information updated');
 }
 
@@ -1096,11 +1113,17 @@ function clearAll() {
     updateElement('confidenceRange', '-');
     updateElement('modelDetails', '-');
     
-    // Clear processing information
+    // Clear processing information (both original and compact)
     updateElement('totalTime', '-');
     updateElement('processingStatus', 'Ready');
     updateElement('modelsUsed', '-');
     updateElement('avgConfidence', '-');
+
+    // Clear compact elements too
+    updateElement('totalTimeCompact', '-');
+    updateElement('processingStatusCompact', 'Ready');
+    updateElement('modelsUsedCompact', '-');
+    updateElement('avgConfidenceCompact', '-');
     
     console.log('✅ All data cleared');
 }
