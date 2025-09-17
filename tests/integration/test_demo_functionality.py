@@ -29,7 +29,7 @@ def sample_audio_data_bytes():
 @pytest.mark.integration
 class TestDemoFunctionality:
     """Test the comprehensive demo functionality"""
-    
+
     @staticmethod
     def test_demo_api_connectivity(demo_api_url):
         """Test that the demo can connect to the API"""
@@ -37,7 +37,7 @@ class TestDemoFunctionality:
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"status": "healthy"}
-        
+
         with patch('requests.get', return_value=mock_response) as mock_get:
             response = requests.get(f"{demo_api_url}/health", timeout=10)
             # Verify the call was made with proper timeout
@@ -45,7 +45,7 @@ class TestDemoFunctionality:
             assert response.status_code == 200
             data = response.json()
             assert "status" in data, "Health response missing 'status' field"
-    
+
     @staticmethod
     def test_demo_emotion_detection_request_format(sample_text):
         """Test that the demo sends correctly formatted emotion detection requests"""
@@ -53,7 +53,7 @@ class TestDemoFunctionality:
         expected_request = {
             "text": sample_text
         }
-        
+
         # Validate the request format
         assert "text" in expected_request
         assert isinstance(expected_request["text"], str)
@@ -109,18 +109,18 @@ class TestDemoFunctionality:
         # Test None input validation - call actual API
         response = requests.post(f"{demo_api_url}/predict", json={"text": None}, timeout=10)
         assert response.status_code == 400, "None input should return 400"
-    
+
     @staticmethod
     def test_demo_whisper_request_format(sample_audio_data_bytes):
         """Test that the demo sends correctly formatted Whisper requests"""
         # Test the request format for audio transcription (multipart/form-data)
         import io
-        
+
         # Simulate multipart file upload
         audio_file = io.BytesIO(sample_audio_data_bytes)
         audio_file.name = "test_audio.wav"
         audio_file.content_type = "audio/wav"
-        
+
         # Validate the multipart file format
         assert hasattr(audio_file, 'read')
         assert hasattr(audio_file, 'name')
@@ -134,12 +134,12 @@ class TestDemoFunctionality:
         """Test that the demo and API correctly handle invalid or corrupted audio data"""
         # Simulate corrupted audio data (e.g., not a valid audio byte string)
         import io
-        
+
         corrupted_audio_data = b"not_really_audio"
         audio_file = io.BytesIO(corrupted_audio_data)
         audio_file.name = "corrupted_audio.wav"
         audio_file.content_type = "audio/wav"
-        
+
         # Test multipart file format validation
         assert hasattr(audio_file, 'read')
         assert hasattr(audio_file, 'name')
@@ -147,13 +147,13 @@ class TestDemoFunctionality:
         assert audio_file.name.endswith('.wav')
         assert audio_file.content_type.startswith('audio/')
         assert isinstance(audio_file.read(), bytes)
-        
+
         # Test with empty audio data
         empty_audio_file = io.BytesIO(b"")
         empty_audio_file.name = "empty_audio.wav"
         empty_audio_file.content_type = "audio/wav"
         assert len(empty_audio_file.read()) == 0
-        
+
         # Test with None audio data - validate that None is properly handled
         none_audio_request = {"audio_data": None, "model": "whisper"}
         # Validate that None audio data is detected and handled appropriately
@@ -190,7 +190,7 @@ class TestDemoFunctionality:
             error_data = response.json()
             assert "error" in error_data
 
-    
+
     @staticmethod
     def test_demo_t5_request_format(sample_text):
         """Test that the demo sends correctly formatted T5 summarization requests"""
@@ -199,12 +199,12 @@ class TestDemoFunctionality:
             "text": sample_text,
             "model": "t5"
         }
-        
+
         # Validate the request format
         assert "text" in expected_request
         assert "model" in expected_request
         assert expected_request["model"] == "t5"
-    
+
     @staticmethod
     def test_demo_error_handling_contract():
         """Test that the demo error handling contract is properly defined"""
@@ -215,7 +215,7 @@ class TestDemoFunctionality:
             {"status": 500, "message": "Internal Server Error"},
             {"status": 503, "message": "Service Unavailable"}
         ]
-        
+
         # Validate all error scenarios have required structure
         # This tests the error handling contract that the demo should follow
         # The actual error handling implementation is tested in test_demo_api_error_handling
@@ -223,7 +223,7 @@ class TestDemoFunctionality:
         assert all("message" in scenario for scenario in error_scenarios)
         assert all(isinstance(scenario["status"], int) for scenario in error_scenarios)
         assert all(isinstance(scenario["message"], str) for scenario in error_scenarios)
-    
+
     @staticmethod
     def test_demo_ui_components():
         """Test that the demo has all required UI components"""
@@ -237,14 +237,14 @@ class TestDemoFunctionality:
             "progress-tracking",
             "results-display"
         ]
-        
+
         # Validate all components are non-empty strings
         assert all(isinstance(component, str) for component in expected_components)
         assert all(len(component) > 0 for component in expected_components)
-        
+
         # TODO: Consider using Playwright for actual DOM checks
         # This would validate presence/visibility of components in the rendered page
-    
+
     @staticmethod
     def test_demo_goemotions_labels():
         """Test that the demo uses the correct GoEmotions labels"""
@@ -256,14 +256,14 @@ class TestDemoFunctionality:
             "joy", "love", "nervousness", "optimism", "pride", "realization",
             "relief", "remorse", "sadness", "surprise", "neutral"
         ]
-        
+
         # Validate that we have the correct number of emotions
         assert len(expected_emotions) == 28, f"Expected 28 emotions, got {len(expected_emotions)}"
-        
+
         # Validate that all emotions are non-empty strings
         assert all(isinstance(emotion, str) for emotion in expected_emotions)
         assert all(len(emotion) > 0 for emotion in expected_emotions)
-    
+
     @pytest.mark.integration
     def test_demo_timeout_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API timeouts gracefully"""

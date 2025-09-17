@@ -11,6 +11,7 @@ Usage:
 
 import sys
 import subprocess
+import shlex
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -19,10 +20,19 @@ def run_command(command, description):
     """Run a command and return success status."""
     print(f"🔧 {description}...")
     try:
-        # Convert string command to list if needed
+        # Convert string command to argv safely
         if isinstance(command, str):
-            command = command.split()
-        result = subprocess.run(command, capture_output=True, text=True, check=False)
+            command = shlex.split(command)
+        elif isinstance(command, tuple):
+            command = list(command)
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            check=False,
+            shell=False,
+            timeout=300,
+        )
         if result.returncode == 0:
             print(f"✅ {description} successful")
             return True, result.stdout

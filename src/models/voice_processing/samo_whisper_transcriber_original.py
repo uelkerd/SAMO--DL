@@ -301,7 +301,7 @@ class SAMOWhisperTranscriber:
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
                 if not os.path.isfile(model_file):
                     return True
-                
+
                 # Check minimum file size based on model size
                 min_sizes = {
                     "tiny": 39_000_000,    # ~39MB
@@ -310,7 +310,7 @@ class SAMOWhisperTranscriber:
                     "medium": 769_000_000, # ~769MB
                     "large": 1_550_000_000 # ~1.55GB
                 }
-                
+
                 min_size = min_sizes.get(model_size, 1_000_000)  # Default 1MB
                 return os.path.getsize(model_file) < min_size
 

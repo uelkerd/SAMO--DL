@@ -91,7 +91,7 @@ def normalize_emotion_results(raw: Any) -> dict:
             else:
                 # Clamp emotion probabilities to [0,1] range
                 emotions_dict = {
-                    str(k): max(0.0, min(1.0, _as_float(v))) 
+                    str(k): max(0.0, min(1.0, _as_float(v)))
                     for k, v in emotions_dict.items()
                 }
             return {
@@ -108,7 +108,7 @@ def normalize_emotion_results(raw: Any) -> dict:
                     else {"neutral": 1.0})
         # Clamp emotion probabilities to [0,1] range in fallback branch
         emotions = {
-            str(k): max(0.0, min(1.0, float(v))) 
+            str(k): max(0.0, min(1.0, float(v)))
             for k, v in emotions.items()
         }
         return {
@@ -657,7 +657,7 @@ def _write_temp_audio(content: bytes, filename: Optional[str] = None, content_ty
         # Map content type to file extension
         content_type_map = {
             "audio/wav": ".wav",
-            "audio/wave": ".wav", 
+            "audio/wave": ".wav",
             "audio/x-wav": ".wav",
             "audio/mp3": ".mp3",
             "audio/mpeg": ".mp3",
@@ -1049,7 +1049,7 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         # Check if we're in production environment
         environment = os.getenv("ENVIRONMENT", "").lower()
         is_production = environment == "production"
-        
+
         # Allow enabling an admin account via env for demos/tests only (not in production)
         if not is_production:
             allowed_admin = os.getenv("ADMIN_USERNAME", "").strip()

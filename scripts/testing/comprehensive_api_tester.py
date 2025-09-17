@@ -84,7 +84,7 @@ class ComprehensiveAPITester:
         ]
 
     def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None,
-                    files: Optional[Dict] = None, auth_required: bool = False, 
+                    files: Optional[Dict] = None, auth_required: bool = False,
                     as_form: bool = False) -> TestResult:
         """Make HTTP request with proper error handling and rate limiting"""
         url = f"{self.base_url}{endpoint}"

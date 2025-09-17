@@ -130,7 +130,7 @@ class DemoSecurityAuditor:
                             if re.search(pattern, line, re.IGNORECASE):
                                 # Check if there's sanitization nearby
                                 sanitization_found = any(
-                                    'sanitize' in lines[j].lower() or 
+                                    'sanitize' in lines[j].lower() or
                                     'escape' in lines[j].lower() or
                                     'validate' in lines[j].lower()
                                     for j in range(max(0, i-3), min(len(lines), i+3))
@@ -617,7 +617,7 @@ class DemoSecurityAuditor:
             Security Score: {self.audit_results['security_score']}/100 ({self.audit_results['summary']['security_rating']})
         </div>
     </div>
-    
+
     <h2>Summary</h2>
     <ul>
         <li>Total Vulnerabilities: {self.audit_results['summary']['total_vulnerabilities']}</li>
@@ -625,13 +625,13 @@ class DemoSecurityAuditor:
         <li>Medium Severity: {self.audit_results['summary']['medium_severity']}</li>
         <li>Warnings: {self.audit_results['summary']['total_warnings']}</li>
     </ul>
-    
+
     <h2>Vulnerabilities</h2>
     {self._generate_html_vulnerabilities()}
-    
+
     <h2>Warnings</h2>
     {self._generate_html_warnings()}
-    
+
     <h2>Recommendations</h2>
     {self._generate_html_recommendations()}
 </body>

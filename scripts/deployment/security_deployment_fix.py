@@ -24,7 +24,7 @@ from typing import Dict, List, Optional
 def get_project_id():
     """Get current GCP project ID dynamically"""
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                               capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
@@ -162,7 +162,7 @@ images:
         # Build container
         self.log("Building secure container...")
         build_result = self.run_command([
-            'gcloud', 'builds', 'submit', 
+            'gcloud', 'builds', 'submit',
             str(self.deployment_dir),
             '--config', str(cloudbuild_path)
         ])
@@ -325,4 +325,4 @@ images:
 if __name__ == "__main__":
     fixer = SecurityDeploymentFix()
     success = fixer.run()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

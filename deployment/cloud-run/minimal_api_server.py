@@ -155,4 +155,4 @@ if __name__ == '__main__':
     # Start server - use environment variable for host binding
     host = os.getenv('API_HOST', '127.0.0.1')
     port = int(os.getenv('PORT', '8080'))
-    app.run(host=host, port=port, debug=False, threaded=True) 
+    app.run(host=host, port=port, debug=False, threaded=True)

@@ -6,7 +6,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 class CSPHTTPRequestHandler(SimpleHTTPRequestHandler):
     def end_headers(self):
         # Add CSP header with frame-ancestors
-        self.send_header('Content-Security-Policy', 
+        self.send_header('Content-Security-Policy',
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "

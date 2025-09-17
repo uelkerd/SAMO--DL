@@ -11,11 +11,11 @@ import json
 
 def add_wandb_setup():
     """Add wandb setup to the minimal notebook."""
-    
+
     # Read the existing notebook
     with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'r') as f:
         notebook = json.load(f)
-    
+
     # Add wandb setup cell after the imports
     wandb_setup_cell = {
         "cell_type": "markdown",
@@ -24,7 +24,7 @@ def add_wandb_setup():
             "## 🔑 WANDB API KEY SETUP"
         ]
     }
-    
+
     wandb_setup_code = {
         "cell_type": "code",
         "execution_count": None,
@@ -96,7 +96,7 @@ def add_wandb_setup():
             "print('\\n✅ WandB setup completed')"
         ]
     }
-    
+
     # Find the imports cell and add wandb setup after it
     for i, cell in enumerate(notebook['cells']):
         if cell['cell_type'] == 'code' and 'import torch' in ''.join(cell['source']):
@@ -104,7 +104,7 @@ def add_wandb_setup():
             notebook['cells'].insert(i + 2, wandb_setup_cell)
             notebook['cells'].insert(i + 3, wandb_setup_code)
             break
-    
+
     # Also update the training arguments to disable wandb if no API key
     for cell in notebook['cells']:
         if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
@@ -130,11 +130,11 @@ def add_wandb_setup():
                 "    print('⚠️ WandB logging disabled (no API key)')"
             ]
             break
-    
+
     # Save the updated notebook
     with open('notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb', 'w') as f:
         json.dump(notebook, f, indent=2)
-    
+
     print('✅ Added WandB setup to minimal notebook!')
     print('📋 Changes made:')
     print('   ✅ Added WandB API key setup from Colab secrets')
@@ -149,4 +149,4 @@ def add_wandb_setup():
     print('3. Restart runtime and run the notebook')
 
 if __name__ == "__main__":
-    add_wandb_setup() 
+    add_wandb_setup()

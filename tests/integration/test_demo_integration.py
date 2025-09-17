@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 class TestDemoIntegration:
     """Test complete demo website integration"""
-    
+
     def setup_method(self):
         """Set up test fixtures before each test method"""
         self.mock_api_responses = {
@@ -46,7 +46,7 @@ class TestDemoIntegration:
                 'timestamp': 1234567890.0
             }
         }
-    
+
     @staticmethod
     def test_complete_workflow_integration():
         """Test the complete workflow from audio input to results display"""
@@ -54,23 +54,23 @@ class TestDemoIntegration:
         workflow_steps = [
             'audio_upload',
             'transcription',
-            'summarization', 
+            'summarization',
             'emotion_detection',
             'results_display'
         ]
-        
+
         workflow_status = {step: 'pending' for step in workflow_steps}
-        
+
         # Simulate workflow execution
         for step in workflow_steps:
             workflow_status[step] = 'processing'
             time.sleep(0.01)  # Simulate processing time
             workflow_status[step] = 'completed'
-        
+
         # Validate workflow completion
         assert all(status == 'completed' for status in workflow_status.values())
         assert len(workflow_status) == len(workflow_steps)
-    
+
     def test_api_communication_integration(self):
         """Test API communication with proper error handling"""
         # Test successful API communication
@@ -79,7 +79,7 @@ class TestDemoIntegration:
             '/summarize/text',
             '/analyze/journal'
         ]
-        
+
         for endpoint in api_endpoints:
             # Simulate API call
             response = self._simulate_api_call(endpoint)
@@ -93,7 +93,7 @@ class TestDemoIntegration:
                 assert 'summary' in response['data']
             elif endpoint.endswith('/journal'):
                 assert 'emotions' in response['data']
-    
+
     def test_error_handling_integration(self):
         """Test error handling across all components"""
         error_scenarios = [
@@ -103,27 +103,27 @@ class TestDemoIntegration:
             {'type': 'server_error', 'should_fallback': False},
             {'type': 'authentication_error', 'should_fallback': False}
         ]
-        
+
         for scenario in error_scenarios:
             error_handled = self._simulate_error_handling(scenario['type'])
             assert error_handled == scenario['should_fallback']
-    
+
     def test_mock_data_fallback_integration(self):
         """Test mock data fallback when API is unavailable"""
         # Simulate API unavailability
         api_available = False
-        
+
         if not api_available:
             # Test emotion detection fallback
             emotion_result = self._get_mock_emotion_data()
             assert emotion_result['mock'] is True
             assert 'emotions' in emotion_result
-            
+
             # Test summarization fallback
             summary_result = self._get_mock_summary_data()
             assert summary_result['mock'] is True
             assert 'summary' in summary_result
-    
+
     @staticmethod
     def test_ui_state_management_integration():
         """Test UI state management during processing"""
@@ -131,13 +131,13 @@ class TestDemoIntegration:
             'error': False,
             'idle': False, 'loading': False, 'processing': False, 'success': True
         }
-        
+
         # Validate state transitions
         assert ui_states['success'] is True
         assert ui_states['idle'] is False
         assert ui_states['loading'] is False
         assert ui_states['processing'] is False
-    
+
     @staticmethod
     def test_progress_tracking_integration():
         """Test progress tracking throughout the workflow"""
@@ -147,16 +147,16 @@ class TestDemoIntegration:
             'step3': 'pending',  # Summarization
             'step4': 'pending'   # Emotion detection
         }
-        
+
         # Simulate progress updates
         for step in progress_steps:
             progress_steps[step] = 'active'
             time.sleep(0.01)  # Simulate processing
             progress_steps[step] = 'completed'
-        
+
         # Validate progress completion
         assert all(status == 'completed' for status in progress_steps.values())
-    
+
     def test_data_flow_integration(self):
         """Test data flow between components"""
         # Simulate data flow
@@ -164,32 +164,32 @@ class TestDemoIntegration:
             'audio_file': 'test_audio.wav',
             'text_input': 'I am feeling happy and excited!'
         }
-        
+
         # Process through workflow
         transcription_data = self._process_transcription(input_data)
         summary_data = self._process_summarization(transcription_data)
         emotion_data = self._process_emotion_detection(transcription_data)
-        
+
         # Validate data flow
         assert 'text' in transcription_data
         assert 'summary' in summary_data
         assert 'emotions' in emotion_data
-    
+
     @staticmethod
     def test_performance_metrics_integration():
         """Test performance metrics collection and reporting"""
         start_time = time.time()
-        
+
         # Simulate processing
         time.sleep(0.1)  # Simulate processing time
-        
+
         end_time = time.time()
         processing_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        
+
         # Validate performance metrics
         assert processing_time > 0
         assert processing_time < 2000  # Should be under 2 seconds
-    
+
     @staticmethod
     def test_accessibility_integration():
         """Test accessibility features integration"""
@@ -200,10 +200,10 @@ class TestDemoIntegration:
             'screen_reader_support': True,
             'reduced_motion_support': True
         }
-        
+
         # Validate accessibility features
         assert all(accessibility_features.values())
-    
+
     @staticmethod
     def test_configuration_integration():
         """Test configuration system integration"""
@@ -213,14 +213,14 @@ class TestDemoIntegration:
             'timeout': 20000,
             'retryAttempts': 3
         }
-        
+
         # Test configuration validation
         assert config['baseURL'].startswith('http')
         assert isinstance(config['timeout'], int)
         assert config['timeout'] > 0
         assert isinstance(config['retryAttempts'], int)
         assert config['retryAttempts'] > 0
-    
+
     def _simulate_api_call(self, endpoint):
         """Simulate API call with realistic response"""
         key = endpoint.split('/')[-1]
@@ -237,13 +237,13 @@ class TestDemoIntegration:
             'timestamp': time.time(),
             'endpoint': endpoint,
         }
-    
+
     @staticmethod
     def _simulate_error_handling(error_type):
         """Simulate error handling for different error types"""
         fallback_errors = ['network_error', 'timeout_error', 'rate_limit_error']
         return error_type in fallback_errors
-    
+
     @staticmethod
     def _get_mock_emotion_data():
         """Get mock emotion detection data"""
@@ -257,7 +257,7 @@ class TestDemoIntegration:
             'timestamp': time.time(),
             'mock': True
         }
-    
+
     @staticmethod
     def _get_mock_summary_data():
         """Get mock summarization data"""
@@ -270,7 +270,7 @@ class TestDemoIntegration:
             'timestamp': time.time(),
             'mock': True
         }
-    
+
     @staticmethod
     def _process_transcription(input_data):
         """Simulate transcription processing"""
@@ -283,7 +283,7 @@ class TestDemoIntegration:
             'confidence': 0.95,
             'duration': 5.2
         }
-    
+
     @staticmethod
     def _process_summarization(transcription_data):
         """Simulate summarization processing"""
@@ -292,7 +292,7 @@ class TestDemoIntegration:
             'original_length': len(transcription_data['text']),
             'summary_length': 30
         }
-    
+
     @staticmethod
     def _process_emotion_detection(text_data):
         """Simulate emotion detection processing"""
@@ -313,7 +313,7 @@ class TestDemoIntegration:
 @pytest.mark.slow
 class TestDemoPerformance:
     """Test demo website performance characteristics"""
-    
+
     def test_chart_rendering_performance(self):
         """Test chart rendering performance with large datasets"""
         # Simulate large emotion dataset
@@ -321,19 +321,19 @@ class TestDemoPerformance:
             {'emotion': f'emotion_{i}', 'confidence': min(0.1 + (i * 0.01), 0.99)}
             for i in range(100)
         ]
-        
+
         start_time = time.time()
-        
+
         # Simulate chart rendering
         self._render_emotion_chart(large_emotion_dataset)
-        
+
         end_time = time.time()
         rendering_time = (end_time - start_time) * 1000
-        
+
         # Validate rendering performance
         assert rendering_time < 1000  # Should render in under 1 second
         assert len(large_emotion_dataset) == 100
-    
+
     def test_api_response_processing_performance(self):
         """Test API response processing performance"""
         # Simulate large API response
@@ -348,42 +348,42 @@ class TestDemoPerformance:
                 'confidence_threshold': 0.5
             }
         }
-        
+
         start_time = time.time()
-        
+
         # Simulate response processing
         processed_data = self._process_large_response(large_response)
-        
+
         end_time = time.time()
         processing_time = (end_time - start_time) * 1000
-        
+
         # Validate processing performance
         assert processing_time < 500  # Should process in under 500ms
         assert len(processed_data['emotions']) == 50
-    
+
     def test_memory_usage_optimization(self):
         """Test memory usage optimization"""
         # Simulate memory usage tracking
         initial_memory = self._get_memory_usage()
-        
+
         # Simulate processing large dataset
         large_dataset = [{'id': i, 'data': f'data_{i}'} for i in range(1000)]
         processed_data = self._process_dataset(large_dataset)
-        
+
         final_memory = self._get_memory_usage()
         memory_increase = final_memory - initial_memory
-        
+
         # Validate memory usage is reasonable
         assert memory_increase < 1000000  # Less than 1MB increase
         assert len(processed_data) == 1000
-    
+
     @staticmethod
     def _render_emotion_chart(emotion_data):
         """Simulate emotion chart rendering"""
         # Simulate chart rendering logic
         time.sleep(0.01)  # Simulate rendering time
         return {'chart_rendered': True, 'data_points': len(emotion_data)}
-    
+
     @staticmethod
     def _process_large_response(response):
         """Simulate processing large API response"""
@@ -393,7 +393,7 @@ class TestDemoPerformance:
             'emotions': response['emotions'],
             'processed_at': time.time()
         }
-    
+
     @staticmethod
     def _get_memory_usage():
         """Simulate memory usage tracking"""
@@ -402,7 +402,7 @@ class TestDemoPerformance:
             return psutil.Process().memory_info().rss
         except ImportError:
             pytest.skip("psutil is not available in this environment")
-    
+
     @staticmethod
     def _process_dataset(dataset):
         """Simulate dataset processing"""
@@ -413,7 +413,7 @@ class TestDemoPerformance:
 
 class TestDemoAccessibility:
     """Test demo website accessibility compliance"""
-    
+
     def test_aria_attributes_compliance(self):
         """Test ARIA attributes compliance"""
         aria_attributes = {
@@ -422,12 +422,12 @@ class TestDemoAccessibility:
             'aria-label': ['Audio file input', 'Text input', 'Process button'],
             'role': ['alert', 'status', 'button', 'textbox']
         }
-        
+
         # Validate ARIA attributes
         for attr, values in aria_attributes.items():
             for value in values:
                 assert self._is_valid_aria_value(attr, value)
-    
+
     def test_keyboard_navigation_compliance(self):
         """Test keyboard navigation compliance"""
         focusable_elements = [
@@ -438,12 +438,12 @@ class TestDemoAccessibility:
             'processBtn',
             'clearBtn'
         ]
-        
+
         # Validate keyboard navigation
         for element in focusable_elements:
             assert self._is_focusable_element(element)
             assert self._has_tab_index(element)
-    
+
     @staticmethod
     def test_screen_reader_compatibility():
         """Test screen reader compatibility"""
@@ -454,10 +454,10 @@ class TestDemoAccessibility:
             'error_messages': True,
             'progress_indicators': True
         }
-        
+
         # Validate screen reader compatibility
         assert all(screen_reader_elements.values())
-    
+
     @staticmethod
     def test_color_contrast_compliance():
         """Test color contrast compliance"""
@@ -466,11 +466,11 @@ class TestDemoAccessibility:
             {'foreground': '#cbd5e1', 'background': '#1a1a2e', 'ratio': 8.59},
             {'foreground': '#94a3b8', 'background': '#16213e', 'ratio': 4.52}
         ]
-        
+
         # Validate color contrast ratios (WCAG AA requires 4.5:1 for normal text)
         for combo in color_combinations:
             assert combo['ratio'] >= 4.5
-    
+
     @staticmethod
     def test_reduced_motion_compliance():
         """Test reduced motion preference compliance"""
@@ -478,11 +478,11 @@ class TestDemoAccessibility:
             {'prefers_reduced_motion': 'reduce', 'animations_disabled': True},
             {'prefers_reduced_motion': 'no-preference', 'animations_disabled': False}
         ]
-        
+
         for preference in motion_preferences:
             animations_disabled = preference['prefers_reduced_motion'] == 'reduce'
             assert animations_disabled == preference['animations_disabled']
-    
+
     @staticmethod
     def _is_valid_aria_value(attribute, value):
         """Validate ARIA attribute value"""
@@ -492,22 +492,22 @@ class TestDemoAccessibility:
             'aria-label': lambda v: isinstance(v, str) and len(v) > 0,
             'role': ['alert', 'status', 'button', 'textbox', 'progressbar']
         }
-        
+
         if attribute in valid_values:
             if callable(valid_values[attribute]):
                 return valid_values[attribute](value)
             return value in valid_values[attribute]
         return False
-    
+
     @staticmethod
     def _is_focusable_element(element_id):
         """Check if element is focusable"""
         focusable_elements = [
-            'audioFile', 'textInput', 'recordBtn', 'stopBtn', 
+            'audioFile', 'textInput', 'recordBtn', 'stopBtn',
             'processBtn', 'clearBtn'
         ]
         return element_id in focusable_elements
-    
+
     @staticmethod
     def _has_tab_index(element_id):
         """Check if element has proper tab index"""

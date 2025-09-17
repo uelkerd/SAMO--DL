@@ -69,4 +69,4 @@ except Exception as e:
     print(f"API errorhandler type: {type(api.errorhandler)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

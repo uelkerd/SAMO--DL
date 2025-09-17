@@ -60,13 +60,13 @@ def simple_temperature_test():
 
     # Test different temperatures
     temperatures = [0.5, 1.0, 1.5, 2.0]
-    
+
     for temp in temperatures:
         logger.info(f"📊 Testing temperature: {temp}")
-        
+
         # Set model temperature
         model.temperature = temp
-        
+
         # Evaluate model
         try:
             results = evaluate_emotion_classifier(
@@ -76,9 +76,9 @@ def simple_temperature_test():
                 labels=test_labels,
                 device=device
             )
-            
+
             logger.info(f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}")
-            
+
         except Exception as e:
             logger.warning(f"   Temperature {temp}: Error - {e}")
 
