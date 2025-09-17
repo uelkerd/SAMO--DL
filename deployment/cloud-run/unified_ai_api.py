@@ -2139,6 +2139,11 @@ if __name__ == "__main__":
     # Security: Only bind to all interfaces in production environments
     # Default to localhost for development to avoid exposure
     host = os.environ.get("HOST", "127.0.0.1")
-    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
+    # Check for Cloud Run indicators or production environment
+    if (os.environ.get("PRODUCTION") == "true" or 
+        os.environ.get("CLOUD_RUN_SERVICE") or 
+        os.environ.get("PORT") or 
+        os.environ.get("K_SERVICE") or 
+        os.environ.get("K_REVISION")):
         host = "0.0.0.0"  # Cloud Run and production environments
     uvicorn.run(app, host=host, port=port)

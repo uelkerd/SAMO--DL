@@ -318,9 +318,9 @@ class TestDemoFunctionality:
 
                 if '/transcribe/voice' in url:
                     mock_response.json.return_value = mock_transcription_response
-                elif '/summarize/text' in url:
+                elif '/summarize/text' in url or '/analyze/summarize' in url:
                     mock_response.json.return_value = mock_summary_response
-                elif '/predict' in url or '/emotion' in url:
+                elif '/predict' in url or '/analyze/emotion' in url:
                     mock_response.json.return_value = mock_emotion_response
 
                 return mock_response

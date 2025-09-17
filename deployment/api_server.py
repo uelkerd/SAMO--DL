@@ -7,6 +7,7 @@ REST API server for emotion detection with comprehensive security headers.
 
 # Import all modules first
 import logging
+import os
 from flask import Flask, request, jsonify
 from inference import EmotionDetector
 
