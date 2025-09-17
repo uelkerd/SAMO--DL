@@ -269,9 +269,6 @@ class TestDemoFunctionality:
                 return mock_response
 
             mock_post.side_effect = mock_api_response
-
-            # Test transcription step
-            import requests
             audio_file = io.BytesIO(sample_audio_data_bytes)
             files = {'audio': ('test.wav', audio_file, 'audio/wav')}
             transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
@@ -321,7 +318,6 @@ class TestDemoFunctionality:
     def test_demo_error_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API errors gracefully"""
         from unittest.mock import patch, Mock
-        import requests
 
         with patch('requests.post') as mock_post:
             # Test API error responses
@@ -349,7 +345,6 @@ class TestDemoFunctionality:
     def test_demo_rate_limiting(self, demo_api_url, sample_text):
         """Test that the demo handles rate limiting gracefully"""
         from unittest.mock import patch, Mock
-        import requests
 
         with patch('requests.post') as mock_post:
             # Test rate limiting response

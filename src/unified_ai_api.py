@@ -518,7 +518,7 @@ def get_cors_origins():
             "https://www.yourdomain.com",
             "https://app.yourdomain.com"
         ]
-    elif env == 'staging':
+    if env == 'staging':
         # Staging: Allow staging domains
         return [
             "https://staging.yourdomain.com",
@@ -526,16 +526,15 @@ def get_cors_origins():
             "http://localhost:3000",
             "http://localhost:8000"
         ]
-    else:
-        # Development: Allow localhost for development
-        return [
-            "http://localhost:3000",
-            "http://localhost:8000",
-            "http://localhost:8080",
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:8000",
-            "http://127.0.0.1:8080"
-        ]
+    # Development: Allow localhost for development
+    return [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+        "http://127.0.0.1:8080"
+    ]
 
 cors_origins = get_cors_origins()
 logger.info(f"CORS configured for environment: {os.getenv('ENVIRONMENT', 'development')}")
