@@ -8,6 +8,7 @@ Serves static files and provides basic CORS support.
 """
 
 import os
+import requests
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 
@@ -26,8 +27,6 @@ def static_files(filename):
     return send_from_directory(website_dir, filename)
 
 # CORS Proxy for Real API
-import requests
-
 @app.route('/api/emotion', methods=['POST'])
 def proxy_emotion():
     try:
