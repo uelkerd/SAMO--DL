@@ -8,7 +8,7 @@ Serves static files and provides basic CORS support.
 """
 
 import os
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)

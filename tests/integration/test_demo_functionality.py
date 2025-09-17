@@ -61,7 +61,6 @@ class TestDemoFunctionality:
     def test_demo_emotion_detection_edge_cases(demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
         from unittest.mock import patch, Mock
-        import requests
 
         # Test cases for edge scenarios
         edge_cases = [
@@ -167,7 +166,6 @@ class TestDemoFunctionality:
 
         # Test API error handling for invalid audio with mocked requests
         from unittest.mock import patch, Mock
-        import requests
 
         with patch('requests.post') as mock_post:
             # Mock error response for corrupted audio
@@ -273,8 +271,6 @@ class TestDemoFunctionality:
     def test_demo_timeout_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API timeouts gracefully"""
         from unittest.mock import patch, Mock
-        import requests
-        import asyncio
 
         with patch('requests.post') as mock_post:
             # Mock timeout error
@@ -440,7 +436,6 @@ class TestDemoFunctionality:
     def test_demo_performance_metrics(self, demo_api_url, sample_text):
         """Test that the demo tracks performance metrics correctly"""
         from unittest.mock import patch, Mock
-        import requests
         import time
 
         with patch('requests.post') as mock_post:
@@ -485,7 +480,6 @@ class TestDemoFunctionality:
     def test_demo_concurrent_requests(self, demo_api_url, sample_text):
         """Test that the demo handles concurrent requests properly"""
         from unittest.mock import patch, Mock
-        import requests
         import threading
         import time
 
