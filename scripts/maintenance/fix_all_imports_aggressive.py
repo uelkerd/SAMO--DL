@@ -65,7 +65,7 @@ def fix_file_imports_aggressive(file_path: str) -> bool:
 
     import_added = False
 
-    for _i, line in enumerate(lines):
+    for i, line in enumerate(lines):
         if i == 0 and not import_added:
             for imp in sorted(needed_imports):
                 new_lines.append(imp)

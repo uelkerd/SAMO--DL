@@ -9,6 +9,7 @@ os.environ['ADMIN_API_KEY'] = 'test123'
 print("🔍 Starting detailed errorhandler debug...")
 
 try:
+    import flask
     from flask import Flask
     from flask_restx import Api
     print("✅ Imports successful")
