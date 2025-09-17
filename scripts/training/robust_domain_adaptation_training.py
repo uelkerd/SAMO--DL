@@ -14,6 +14,9 @@ import warnings
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -220,15 +223,12 @@ class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
     
     def __init__(self, alpha=1, gamma=2, reduction='mean'):
-        import torch.nn as nn
-        import torch.nn.functional as F
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
-        self.F = F
     
     def __call__(self, inputs, targets):
-        ce_loss = self.F.cross_entropy(inputs, targets, reduction='none')
+        ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
 

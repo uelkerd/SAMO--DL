@@ -108,7 +108,6 @@ class TestDataValidatorEnhanced:
         assert isinstance(results['missing_values'], dict)
         
         # Assert the structure/type of validated_df
-        import pandas as pd
         assert isinstance(results['validated_df'], pd.DataFrame)
         # Should have the original columns plus text quality columns
         original_columns = list(self.test_df.columns)
