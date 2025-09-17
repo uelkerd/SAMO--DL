@@ -75,7 +75,7 @@ for api in "${REQUIRED_APIS[@]}"; do
         print_check "Required API enabled: $api"
     else
         print_error "Required API NOT enabled: $api"
-        echo "         Enable with: gcloud services enable $api"
+        echo "         Enable with: gcloud services enable "$api""
     fi
 done
 
@@ -93,18 +93,18 @@ echo "4. Checking Artifact Registry Repository..."
 REPO_NAME="samo-dl"
 REPO_LOCATION="us-central1"
 
-if gcloud artifacts repositories describe $REPO_NAME --location=$REPO_LOCATION >/dev/null 2>&1; then
+if gcloud artifacts repositories describe "$REPO_NAME" --location="$REPO_LOCATION" >/dev/null 2>&1; then
     print_check "Artifact Registry repository exists: $REPO_NAME"
 
     # Check repository permissions
-    if gcloud artifacts repositories get-iam-policy $REPO_NAME --location=$REPO_LOCATION >/dev/null 2>&1; then
+    if gcloud artifacts repositories get-iam-policy "$REPO_NAME" --location="$REPO_LOCATION" >/dev/null 2>&1; then
         print_check "Have access to repository: $REPO_NAME"
     else
         print_error "No access to repository: $REPO_NAME"
     fi
 else
     print_error "Artifact Registry repository NOT found: $REPO_NAME"
-    echo "         Create with: gcloud artifacts repositories create $REPO_NAME --repository-format=docker --location=$REPO_LOCATION"
+    echo "         Create with: gcloud artifacts repositories create \"$REPO_NAME\" --repository-format=docker --location=\"$REPO_LOCATION\""
 fi
 
 # 5. Check Required Secrets
@@ -115,18 +115,18 @@ REQUIRED_SECRETS=(
 )
 
 for secret in "${REQUIRED_SECRETS[@]}"; do
-    if gcloud secrets describe $secret >/dev/null 2>&1; then
+    if gcloud secrets describe "$secret" >/dev/null 2>&1; then
         print_check "Secret exists: $secret"
 
         # Check if we can access the latest version
-        if gcloud secrets versions access latest --secret=$secret >/dev/null 2>&1; then
+        if gcloud secrets versions access latest --secret="$secret" >/dev/null 2>&1; then
             print_check "Can access secret: $secret"
         else
             print_error "Cannot access secret: $secret (check IAM permissions)"
         fi
     else
         print_error "Secret NOT found: $secret"
-        echo "         Create with: gcloud secrets create $secret --data-file=<path-to-secret-file>"
+        echo "         Create with: gcloud secrets create "$secret" --data-file=<path-to-secret-file>"
     fi
 done
 
@@ -191,7 +191,7 @@ fi
 # Summary
 echo
 echo "=========================================="
-if [[ $VALIDATION_ERRORS -eq 0 ]]; then
+if [[ "$VALIDATION_ERRORS" -eq 0 ]]; then
     print_check "ALL VALIDATIONS PASSED! Ready for deployment."
     echo
     echo "Deploy with:"
