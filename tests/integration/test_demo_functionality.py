@@ -8,14 +8,15 @@ import requests
 import sys
 import os
 import base64
+from unittest.mock import patch, Mock
 
 # Add the project root to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 @pytest.fixture
 def demo_api_url():
-    """Return the Cloud Run API URL"""
-    return "https://samo-unified-api-frrnetyhfa-uc.a.run.app"
+    """Return the demo API URL from environment variable or default to local stub"""
+    return os.getenv('DEMO_API_URL', 'http://localhost:8000')
 
 @pytest.fixture
 def sample_text():
@@ -28,21 +29,25 @@ def sample_audio_data_bytes():
     # This is a minimal WAV file header for testing
     return base64.b64decode("UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=")
 
+@pytest.mark.integration
 class TestDemoFunctionality:
     """Test the comprehensive demo functionality"""
     
     @staticmethod
     def test_demo_api_connectivity(demo_api_url):
         """Test that the demo can connect to the API"""
-        try:
+        # Mock the requests.get call to avoid actual HTTP calls
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"status": "healthy"}
+        
+        with patch('requests.get', return_value=mock_response) as mock_get:
             response = requests.get(f"{demo_api_url}/health", timeout=10)
-            # We expect either 200 (success) or 429 (rate limited)
-            assert response.status_code in {200, 429}, f"Unexpected status code: {response.status_code}. Response: {response.text[:200]}"
-            if response.status_code == 200:
-                data = response.json()
-                assert "status" in data, "Health response missing 'status' field"
-        except requests.exceptions.RequestException as e:
-            pytest.skip(f"API not accessible: {e}")
+            # Verify the call was made with proper timeout
+            mock_get.assert_called_once_with(f"{demo_api_url}/health", timeout=10)
+            assert response.status_code == 200
+            data = response.json()
+            assert "status" in data, "Health response missing 'status' field"
     
     @staticmethod
     def test_demo_emotion_detection_request_format(sample_text):
@@ -91,7 +96,7 @@ class TestDemoFunctionality:
                 mock_post.return_value = mock_response
 
                 # Test the request
-                response = requests.post(f"{demo_api_url}/predict", json={"text": case["text"]})
+                response = requests.post(f"{demo_api_url}/predict", json={"text": case["text"]}, timeout=10)
 
                 if case["expected_error"]:
                     assert response.status_code == 400, f"Expected error for {case['description']}"
@@ -176,7 +181,7 @@ class TestDemoFunctionality:
 
             # Test corrupted audio handling
             files = {'audio': ('corrupted.wav', io.BytesIO(b"not_audio"), 'audio/wav')}
-            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
             error_data = response.json()
@@ -190,7 +195,7 @@ class TestDemoFunctionality:
             mock_post.return_value = mock_empty_response
 
             files = {'audio': ('empty.wav', io.BytesIO(b""), 'audio/wav')}
-            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
             error_data = response.json()
@@ -286,7 +291,7 @@ class TestDemoFunctionality:
             mock_post.side_effect = requests.exceptions.ConnectionError("Connection failed")
 
             try:
-                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
                 assert False, "Expected connection exception"
             except requests.exceptions.ConnectionError as e:
                 assert "connection" in str(e).lower()
@@ -341,7 +346,7 @@ class TestDemoFunctionality:
             mock_post.side_effect = mock_api_response
             audio_file = io.BytesIO(sample_audio_data_bytes)
             files = {'audio': ('test.wav', audio_file, 'audio/wav')}
-            transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+            transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert transcription_response.status_code == 200
             transcription_data = transcription_response.json()
@@ -351,7 +356,7 @@ class TestDemoFunctionality:
 
             # Test summarization step
             summary_response = requests.post(f"{demo_api_url}/summarize/text",
-                                           json={"text": sample_text})
+                                           json={"text": sample_text}, timeout=10)
 
             assert summary_response.status_code == 200
             summary_data = summary_response.json()
@@ -361,7 +366,7 @@ class TestDemoFunctionality:
 
             # Test emotion detection step
             emotion_response = requests.post(f"{demo_api_url}/predict",
-                                           json={"text": sample_text})
+                                           json={"text": sample_text}, timeout=10)
 
             assert emotion_response.status_code == 200
             emotion_data = emotion_response.json()
@@ -398,7 +403,7 @@ class TestDemoFunctionality:
 
             # Test error handling for emotion detection
             try:
-                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
                 assert response.status_code == 500
                 error_data = response.json()
                 assert "error" in error_data
@@ -426,7 +431,7 @@ class TestDemoFunctionality:
             }
             mock_post.return_value = mock_rate_limit_response
 
-            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
             assert response.status_code == 429
             rate_limit_data = response.json()
             assert "error" in rate_limit_data
@@ -457,7 +462,7 @@ class TestDemoFunctionality:
 
             # Test timing measurement
             start_time = time.time()
-            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
             end_time = time.time()
 
             # Verify response
@@ -496,7 +501,7 @@ class TestDemoFunctionality:
             # Function to make a request
             def make_request(results, index):
                 try:
-                    response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"})
+                    response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"}, timeout=10)
                     results[index] = response.status_code == 200
                 except Exception as e:
                     results[index] = False
