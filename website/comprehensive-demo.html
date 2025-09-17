@@ -117,51 +117,56 @@
         <div class="container-fluid px-4">
             <div class="demo-container">
                 <div class="row">
-                    <div class="col-12 text-center mb-4">
-                        <h2 class="h3 fw-bold mb-2">SAMO Emotion Pipeline</h2>
+                    <div class="col-12 text-center mb-3">
                         <p class="text-muted mb-0">
                             Enter text to see our AI pipeline in action
                         </p>
                     </div>
                 </div>
 
-                <!-- Horizontal Layout: Flow | Input | Results -->
-                <div class="row g-5">
-                    <!-- Left: Vertical Progress Steps -->
-                    <div class="col-lg-2">
-                        <div class="progress-pipeline-vertical">
-                            <div class="progress-step-vertical" id="step1">
-                                <div class="step-icon-small pending" id="step1-icon">
-                                    <span class="material-icons">upload</span>
+                <!-- Dynamic Layout: Title with Flow | Centered Input | Hidden Results -->
+                <div class="row" id="titleWithFlow">
+                    <div class="col-12 d-flex align-items-center justify-content-center mb-4">
+                        <div class="d-flex align-items-center gap-4">
+                            <h2 class="h3 fw-bold mb-0">SAMO Emotion Pipeline</h2>
+                            <!-- Horizontal Progress Flow -->
+                            <div class="progress-pipeline-horizontal">
+                                <div class="progress-step-horizontal" id="step1">
+                                    <div class="step-icon-small pending" id="step1-icon">
+                                        <span class="material-icons">upload</span>
+                                    </div>
+                                    <span class="step-label">Input</span>
                                 </div>
-                                <span class="step-label">Input</span>
-                            </div>
-                            <div class="pipeline-arrow-vertical">↓</div>
-                            <div class="progress-step-vertical" id="step2">
-                                <div class="step-icon-small pending" id="step2-icon">
-                                    <span class="material-icons">mic</span>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="progress-step-horizontal" id="step2">
+                                    <div class="step-icon-small pending" id="step2-icon">
+                                        <span class="material-icons">mic</span>
+                                    </div>
+                                    <span class="step-label">Transcription</span>
                                 </div>
-                                <span class="step-label">Transcription</span>
-                            </div>
-                            <div class="pipeline-arrow-vertical">↓</div>
-                            <div class="progress-step-vertical" id="step3">
-                                <div class="step-icon-small pending" id="step3-icon">
-                                    <span class="material-icons">description</span>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="progress-step-horizontal" id="step3">
+                                    <div class="step-icon-small pending" id="step3-icon">
+                                        <span class="material-icons">description</span>
+                                    </div>
+                                    <span class="step-label">Summarization</span>
                                 </div>
-                                <span class="step-label">Summarization</span>
-                            </div>
-                            <div class="pipeline-arrow-vertical">↓</div>
-                            <div class="progress-step-vertical" id="step4">
-                                <div class="step-icon-small pending" id="step4-icon">
-                                    <span class="material-icons">favorite</span>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="progress-step-horizontal" id="step4">
+                                    <div class="step-icon-small pending" id="step4-icon">
+                                        <span class="material-icons">favorite</span>
+                                    </div>
+                                    <span class="step-label">Emotion Analysis</span>
                                 </div>
-                                <span class="step-label">Emotion Analysis</span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Middle: Input Section -->
-                    <div class="col-lg-4">
+                <!-- Initial Input Layout -->
+                <div class="row" id="inputLayout">
+                    <!-- Centered Input Section -->
+                    <div class="col-lg-8 offset-lg-2">
                         <!-- API Notice -->
                         <div class="alert alert-info mb-3" role="alert">
                             <span class="material-icons me-2">info</span>
@@ -186,12 +191,12 @@
                                 Record Audio (Temporarily Unavailable)
                             </label>
                             <div class="d-flex gap-3 justify-content-center">
-                                <button class="btn btn-outline-secondary btn-lg" id="recordBtn" disabled>
-                                    <i class="fas fa-microphone me-2"></i>
+                                <button class="btn btn-outline-secondary btn-lg" id="recordBtn" disabled aria-label="Start audio recording">
+                                    <i class="fas fa-microphone me-2" aria-hidden="true"></i>
                                     Start Recording
                                 </button>
-                                <button class="btn btn-outline-secondary btn-lg" id="stopBtn" disabled>
-                                    <span class="material-icons me-2">stop</span>
+                                <button class="btn btn-outline-secondary btn-lg" id="stopBtn" disabled aria-label="Stop audio recording">
+                                    <span class="material-icons me-2" aria-hidden="true">stop</span>
                                     Stop Recording
                                 </button>
                             </div>
@@ -221,28 +226,31 @@
                             >I am so excited and happy today! This is such wonderful news and I feel optimistic about the future. I can't wait to see what amazing opportunities await us. However, I'm also a bit nervous about the challenges ahead, but I'm confident we can overcome them together.</textarea>
                         </div>
                         
-                        <div class="d-flex gap-3 justify-content-center">
-                            <button class="btn btn-primary btn-lg px-5" id="processBtn">
-                                <span class="material-icons me-2">auto_fix_high</span>
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
+                            <button class="btn btn-primary btn-lg px-4" id="processBtn" aria-label="Process text with AI models for summarization and emotion analysis">
+                                <span class="material-icons me-2" aria-hidden="true">auto_fix_high</span>
                                 Process
                             </button>
-                            <button class="btn btn-success btn-lg px-5" id="generateBtn">
-                                <span class="material-icons me-2">auto_awesome</span>
+                            <button class="btn btn-success btn-lg px-4" id="generateBtn" aria-label="Generate sample text using AI">
+                                <span class="material-icons me-2" aria-hidden="true">auto_awesome</span>
                                 Generate
                             </button>
-                            <button class="btn btn-outline-secondary btn-lg" id="clearBtn">
-                                <span class="material-icons me-2">delete</span>
+                            <button class="btn btn-outline-secondary btn-lg px-4" id="clearBtn" aria-label="Clear all inputs and results">
+                                <span class="material-icons me-2" aria-hidden="true">delete</span>
                                 Clear All
                             </button>
-                            <button class="btn btn-outline-warning btn-lg" id="apiKeyBtn" title="Manage OpenAI API Key">
-                                <span class="material-icons me-2">key</span>
+                            <button class="btn btn-outline-warning btn-lg px-4" id="apiKeyBtn" title="Manage OpenAI API Key">
+                                <span class="material-icons me-2" aria-hidden="true">key</span>
                                 API Key
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Right: Results Section -->
-                    <div class="col-lg-6">
+                <!-- Results Layout (Initially Hidden) -->
+                <div class="row d-none" id="resultsLayout">
+                    <!-- Left: Results Section -->
+                    <div class="col-lg-8">
                         <!-- Loading Section -->
                         <div id="loadingSection" class="loading-spinner text-center mb-4" role="status" aria-live="polite" aria-busy="true">
                             <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
@@ -341,54 +349,64 @@
                                 </div>
                             </div>
 
-                            <!-- Debug Test Button -->
-                            <div class="mt-4">
-                                <div class="feature-card">
-                                    <div class="card-body text-center">
-                                        <h6 class="fw-bold mb-3 text-warning">🔧 Debug Test</h6>
-                                        <button class="btn btn-primary me-2" onclick="testWithMockData()">Test with Mock Data</button>
-                                        <button class="btn btn-success me-2" onclick="testWithRealAPI()">Test with Real API</button>
-                                        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Processing Info & Debug (Compact Vertical) -->
+                    <div class="col-lg-4" id="processingInfoSidebar">
+                        <!-- Processing Information (Vertical Compact) -->
+                        <div class="feature-card mb-4">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3 text-center">Processing Information</h6>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                            <div class="d-flex align-items-center">
+                                                <span class="material-icons text-primary me-2" style="font-size: 1.2rem;">schedule</span>
+                                                <small class="fw-bold">Total Time</small>
+                                            </div>
+                                            <small class="text-muted" id="totalTimeCompact">-</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                            <div class="d-flex align-items-center">
+                                                <span class="material-icons text-success me-2" style="font-size: 1.2rem;">check_circle</span>
+                                                <small class="fw-bold">Status</small>
+                                            </div>
+                                            <small class="text-muted" id="processingStatusCompact">Ready</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                            <div class="d-flex align-items-center">
+                                                <span class="material-icons text-warning me-2" style="font-size: 1.2rem;">psychology</span>
+                                                <small class="fw-bold">Models Used</small>
+                                            </div>
+                                            <small class="text-muted" id="modelsUsedCompact">-</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                            <div class="d-flex align-items-center">
+                                                <span class="material-icons text-info me-2" style="font-size: 1.2rem;">trending_up</span>
+                                                <small class="fw-bold">Confidence</small>
+                                            </div>
+                                            <small class="text-muted" id="avgConfidenceCompact">-</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- API Information -->
-                            <div class="mt-4">
-                                <div class="feature-card">
-                                    <div class="card-body text-center">
-                                        <h5 class="fw-bold mb-3">Processing Information</h5>
-                                        <div class="row g-3">
-                                            <div class="col-6 col-md-3">
-                                                <div class="text-center">
-                                                    <span class="material-icons text-primary mb-2" style="font-size: 1.5rem;">schedule</span>
-                                                    <p class="mb-0 fw-bold">Total Time</p>
-                                                    <small class="text-muted" id="totalTime">-</small>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="text-center">
-                                                    <span class="material-icons text-success mb-2" style="font-size: 1.5rem;">check_circle</span>
-                                                    <p class="mb-0 fw-bold">Status</p>
-                                                    <small class="text-muted" id="processingStatus">Ready</small>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="text-center">
-                                                    <span class="material-icons text-warning mb-2" style="font-size: 1.5rem;">psychology</span>
-                                                    <p class="mb-0 fw-bold">Models Used</p>
-                                                    <small class="text-muted" id="modelsUsed">-</small>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-3">
-                                                <div class="text-center">
-                                                    <span class="material-icons text-info mb-2" style="font-size: 1.5rem;">trending_up</span>
-                                                    <p class="mb-0 fw-bold">Confidence</p>
-                                                    <small class="text-muted" id="avgConfidence">-</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Debug Test (Toggleable) -->
+                        <div class="feature-card" id="debugTestSection">
+                            <div class="card-body text-center">
+                                <h6 class="fw-bold mb-3 text-warning">🔧 Debug Test</h6>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm" onclick="testWithMockData()">Test with Mock Data</button>
+                                    <button class="btn btn-success btn-sm" onclick="testWithRealAPI()">Test with Real API</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear All</button>
                                 </div>
                             </div>
                         </div>
@@ -458,6 +476,216 @@
     <!-- Simple Working Functions -->
     <script src="js/simple-demo-functions.js"></script>
     
+    <!-- Dynamic Layout State Management -->
+    <script>
+        // Layout State Management Functions
+        const LayoutManager = {
+            currentState: 'initial', // initial, processing, results
+
+            // Transition to processing state
+            showProcessingState() {
+                console.log('🔄 Transitioning to processing state...');
+                this.currentState = 'processing';
+
+                // Hide input layout with smooth transition
+                const inputLayout = document.getElementById('inputLayout');
+                if (inputLayout) {
+                    inputLayout.style.opacity = '0';
+                    inputLayout.style.transform = 'translateY(-20px)';
+
+                    setTimeout(() => {
+                        inputLayout.classList.add('d-none');
+                    }, 300);
+                }
+
+                // Show loading in results area
+                this.showLoadingState();
+            },
+
+            // Transition to results state
+            showResultsState() {
+                console.log('✅ Transitioning to results state...');
+                this.currentState = 'results';
+
+                // Hide loading
+                this.hideLoadingState();
+
+                // Show results layout with smooth transition
+                const resultsLayout = document.getElementById('resultsLayout');
+                if (resultsLayout) {
+                    resultsLayout.classList.remove('d-none');
+                    resultsLayout.style.opacity = '0';
+                    resultsLayout.style.transform = 'translateY(20px)';
+
+                    // Animate in
+                    setTimeout(() => {
+                        resultsLayout.style.opacity = '1';
+                        resultsLayout.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+
+                // Sync processing info data
+                this.syncProcessingInfo();
+            },
+
+            // Return to initial state
+            resetToInitialState() {
+                console.log('🔄 Resetting to initial state...');
+                this.currentState = 'initial';
+
+                // Hide results layout
+                const resultsLayout = document.getElementById('resultsLayout');
+                if (resultsLayout) {
+                    resultsLayout.style.opacity = '0';
+                    resultsLayout.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        resultsLayout.classList.add('d-none');
+                    }, 300);
+                }
+
+                // Show input layout
+                const inputLayout = document.getElementById('inputLayout');
+                if (inputLayout) {
+                    setTimeout(() => {
+                        inputLayout.classList.remove('d-none');
+                        inputLayout.style.opacity = '1';
+                        inputLayout.style.transform = 'translateY(0)';
+                    }, 350);
+                }
+
+                // Hide loading
+                this.hideLoadingState();
+
+                // Reset progress steps
+                this.resetProgressSteps();
+            },
+
+            // Show loading state in results area
+            showLoadingState() {
+                const resultsLayout = document.getElementById('resultsLayout');
+                if (resultsLayout) {
+                    resultsLayout.classList.remove('d-none');
+                    resultsLayout.style.opacity = '1';
+
+                    // Show only loading spinner initially
+                    const loadingSection = document.getElementById('loadingSection');
+                    if (loadingSection) {
+                        loadingSection.style.display = 'block';
+                    }
+                }
+            },
+
+            // Hide loading state
+            hideLoadingState() {
+                const loadingSection = document.getElementById('loadingSection');
+                if (loadingSection) {
+                    loadingSection.style.display = 'none';
+                }
+            },
+
+            // Sync processing info between original and compact versions
+            syncProcessingInfo() {
+                const mappings = [
+                    ['totalTime', 'totalTimeCompact'],
+                    ['processingStatus', 'processingStatusCompact'],
+                    ['modelsUsed', 'modelsUsedCompact'],
+                    ['avgConfidence', 'avgConfidenceCompact']
+                ];
+
+                mappings.forEach(([original, compact]) => {
+                    const originalEl = document.getElementById(original);
+                    const compactEl = document.getElementById(compact);
+
+                    if (originalEl && compactEl) {
+                        compactEl.textContent = originalEl.textContent;
+                    }
+                });
+            },
+
+            // Update progress steps
+            updateProgressStep(stepNumber, state) {
+                // Update both horizontal and vertical progress indicators
+                const stepElement = document.getElementById(`step${stepNumber}`);
+                const stepIcon = document.getElementById(`step${stepNumber}-icon`);
+
+                if (stepElement && stepIcon) {
+                    // Remove existing state classes
+                    stepElement.classList.remove('active', 'completed', 'error');
+                    stepIcon.classList.remove('pending', 'active', 'completed', 'error');
+
+                    // Add new state
+                    stepElement.classList.add(state);
+                    stepIcon.classList.add(state);
+                }
+            },
+
+            // Reset progress steps to initial state
+            resetProgressSteps() {
+                for (let i = 1; i <= 4; i++) {
+                    this.updateProgressStep(i, 'pending');
+                }
+            },
+
+            // Toggle debug section visibility
+            toggleDebugSection(show = null) {
+                const debugSection = document.getElementById('debugTestSection');
+                if (debugSection) {
+                    if (show === null) {
+                        debugSection.classList.toggle('hidden');
+                    } else if (show) {
+                        debugSection.classList.remove('hidden');
+                    } else {
+                        debugSection.classList.add('hidden');
+                    }
+                }
+            }
+        };
+
+        // Enhanced processing function with state management
+        window.processTextWithStateManagement = function() {
+            console.log('🚀 Processing with enhanced state management...');
+
+            // Transition to processing state
+            LayoutManager.showProcessingState();
+
+            // Update progress steps
+            LayoutManager.updateProgressStep(1, 'active');
+
+            // Call the original processing function
+            if (typeof processText === 'function') {
+                // Set up a promise to handle the transition to results
+                const originalFunc = processText;
+                processText().then(() => {
+                    // After processing completes, show results state
+                    setTimeout(() => {
+                        LayoutManager.showResultsState();
+                        LayoutManager.updateProgressStep(4, 'completed');
+                    }, 1000);
+                }).catch((error) => {
+                    console.error('Processing error:', error);
+                    LayoutManager.resetToInitialState();
+                });
+            }
+        };
+
+        // Enhanced clear function with state management
+        window.clearAllWithStateManagement = function() {
+            console.log('🧹 Clearing with enhanced state management...');
+
+            // Reset to initial state
+            LayoutManager.resetToInitialState();
+
+            // Call original clear function
+            if (typeof clearAll === 'function') {
+                clearAll();
+            }
+        };
+
+        // Make LayoutManager globally available
+        window.LayoutManager = LayoutManager;
+    </script>
+
     <!-- Debug Script -->
     <script>
         // Debug: Check if everything is loaded correctly
@@ -473,7 +701,12 @@
                 console.log('✅ Process button found, adding click listener');
                 processBtn.addEventListener('click', function() {
                     console.log('🔘 Process button clicked!');
-                    if (typeof processText === 'function') {
+                    // Use enhanced state management processing
+                    if (typeof processTextWithStateManagement === 'function') {
+                        processTextWithStateManagement();
+                    } else if (typeof processText === 'function') {
+                        // Fallback to original function
+                        LayoutManager.showProcessingState();
                         processText();
                     } else {
                         console.error('❌ processText function not available');
@@ -531,7 +764,12 @@
                 console.log('✅ Clear button found, adding click listener');
                 clearBtn.addEventListener('click', function() {
                     console.log('🔘 Clear button clicked!');
-                    if (typeof clearAll === 'function') {
+                    // Use enhanced state management clearing
+                    if (typeof clearAllWithStateManagement === 'function') {
+                        clearAllWithStateManagement();
+                    } else if (typeof clearAll === 'function') {
+                        // Fallback to original function
+                        LayoutManager.resetToInitialState();
                         clearAll();
                     } else {
                         console.error('❌ clearAll function not available');
@@ -540,6 +778,17 @@
             } else {
                 console.error('❌ Clear button not found');
             }
+
+            // Initialize debug section (can be hidden by adding ?hideDebug=1 to URL)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('hideDebug') === '1') {
+                LayoutManager.toggleDebugSection(false);
+            }
+
+            // Initialize layout to initial state
+            LayoutManager.resetToInitialState();
+
+            console.log('✅ Enhanced layout manager initialized');
         });
     </script>
 
