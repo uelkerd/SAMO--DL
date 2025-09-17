@@ -75,7 +75,7 @@ for api in "${REQUIRED_APIS[@]}"; do
         print_check "Required API enabled: $api"
     else
         print_error "Required API NOT enabled: $api"
-        echo "         Enable with: gcloud services enable "$api""
+        echo "         Enable with: gcloud services enable $api"
     fi
 done
 
@@ -126,7 +126,7 @@ for secret in "${REQUIRED_SECRETS[@]}"; do
         fi
     else
         print_error "Secret NOT found: $secret"
-        echo "         Create with: gcloud secrets create "$secret" --data-file=<path-to-secret-file>"
+        echo "         Create with: gcloud secrets create $secret --data-file=<path-to-secret-file>"
     fi
 done
 
