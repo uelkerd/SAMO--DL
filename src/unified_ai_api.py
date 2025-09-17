@@ -932,6 +932,9 @@ class VoiceTranscription(BaseModel):
     audio_quality: str = Field(
         ..., description="Audio quality assessment", example="excellent"
     )
+    processing_time_ms: float = Field(
+        ..., description="Processing time in milliseconds", ge=0, example=2500.5
+    )
 
 
 class CompleteJournalAnalysis(BaseModel):
@@ -1552,6 +1555,7 @@ async def analyze_voice_journal(
                         float(_speaking_rate) if _speaking_rate is not None else 0.0
                     ),
                     "audio_quality": _audio_quality or "unknown",
+                    "processing_time_ms": processing_time,
                 }
                 # Pre-compute commonly used insight fields to avoid recomputation
                 # downstream
