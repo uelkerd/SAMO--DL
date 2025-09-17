@@ -1375,9 +1375,6 @@ async def analyze_journal_entry(
                 logger.warning("⚠️  Emotion analysis failed: %s", exc)
                 emotion_results = normalize_emotion_results({})
 
-        # Calculate processing time for summarization
-        processing_time = (time.time() - start_time) * 1000
-
         # Text Summarization
         summary_results = None
         if text_summarizer is not None and request.generate_summary:
@@ -1397,8 +1394,14 @@ async def analyze_journal_entry(
                     ),
                     "compression_ratio": 0.5,
                     "emotional_tone": "neutral",
-                    "processing_time_ms": processing_time,
                 }
+
+        # Calculate processing time after summarization completes
+        processing_time = (time.time() - start_time) * 1000
+
+        # Add processing_time_ms to summary_results if they exist
+        if summary_results is not None:
+            summary_results["processing_time_ms"] = processing_time
 
         # Fallback if models are not available
         if emotion_results is None:
@@ -1527,7 +1530,6 @@ async def analyze_voice_journal(
         text_analysis = await analyze_journal_entry(text_request, x_api_key)
 
         # Cross-model insights
-        processing_time = (time.time() - start_time) * 1000
 
         # Normalize transcription dict to include required optional fields for schema
         # using helper
@@ -1565,6 +1567,13 @@ async def analyze_voice_journal(
                 # downstream
                 normalized_tx["insight_duration"] = normalized_tx["duration"]
                 normalized_tx["insight_quality"] = normalized_tx["audio_quality"]
+
+        # Calculate processing time after all processing is complete
+        processing_time = (time.time() - start_time) * 1000
+
+        # Update processing_time_ms in normalized_tx if it exists
+        if normalized_tx is not None:
+            normalized_tx["processing_time_ms"] = processing_time
 
         return CompleteJournalAnalysis(
             transcription=(
