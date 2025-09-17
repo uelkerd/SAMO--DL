@@ -89,11 +89,15 @@ def normalize_emotion_results(raw: Any) -> dict:
             if not isinstance(emotions_dict, dict):
                 emotions_dict = {"neutral": 1.0}
             else:
-                emotions_dict = {str(k): _as_float(v) for k, v in emotions_dict.items()}
+                # Clamp emotion probabilities to [0,1] range
+                emotions_dict = {
+                    str(k): max(0.0, min(1.0, _as_float(v))) 
+                    for k, v in emotions_dict.items()
+                }
             return {
                 "emotions": emotions_dict,
                 "primary_emotion": _as_str(raw.get("primary_emotion"), "neutral"),
-                "confidence": _as_float(raw.get("confidence", 1.0)),
+                "confidence": max(0.0, min(1.0, _as_float(raw.get("confidence", 1.0)))),
                 "emotional_intensity": _as_str(
                     raw.get("emotional_intensity"), "neutral"
                 ),
@@ -102,10 +106,15 @@ def normalize_emotion_results(raw: Any) -> dict:
         emotions_attr = getattr(raw, "emotions", {"neutral": 1.0})
         emotions = (emotions_attr if isinstance(emotions_attr, dict)
                     else {"neutral": 1.0})
+        # Clamp emotion probabilities to [0,1] range in fallback branch
+        emotions = {
+            str(k): max(0.0, min(1.0, float(v))) 
+            for k, v in emotions.items()
+        }
         return {
             "emotions": emotions,
             "primary_emotion": str(getattr(raw, "primary_emotion", "neutral")),
-            "confidence": float(getattr(raw, "confidence", 1.0)),
+            "confidence": max(0.0, min(1.0, float(getattr(raw, "confidence", 1.0)))),
             "emotional_intensity": str(
                 getattr(raw, "emotional_intensity", "neutral")
             ),
@@ -1037,18 +1046,26 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         base_permissions = ["read", "write"]
         # Assign admin only if explicitly allowed by environment or a simple role check
         is_admin_user = False
-        # Allow enabling an admin account via env for demos/tests only
-        allowed_admin = os.getenv("ADMIN_USERNAME", "").strip()
-        if allowed_admin and login_data.username == allowed_admin:
-            is_admin_user = True
-        # Also support a comma-separated list of admin users
-        if not is_admin_user:
-            admin_list = {
-                u.strip() for u in os.getenv("ADMIN_USERS", "").split(",")
-                if u.strip()
-            }
-            if login_data.username in admin_list:
+        # Check if we're in production environment
+        environment = os.getenv("ENVIRONMENT", "").lower()
+        is_production = environment == "production"
+        
+        # Allow enabling an admin account via env for demos/tests only (not in production)
+        if not is_production:
+            allowed_admin = os.getenv("ADMIN_USERNAME", "").strip()
+            if allowed_admin and login_data.username == allowed_admin:
                 is_admin_user = True
+            # Also support a comma-separated list of admin users
+            if not is_admin_user:
+                admin_list = {
+                    u.strip() for u in os.getenv("ADMIN_USERS", "").split(",")
+                    if u.strip()
+                }
+                if login_data.username in admin_list:
+                    is_admin_user = True
+        else:
+            # In production, log warning about disabled env-based admin elevation
+            logger.warning("Admin elevation via environment variables is disabled in production environment")
 
         permissions = list(base_permissions)
         if is_admin_user:
@@ -1870,6 +1887,8 @@ async def summarize_text(
         summary_length = len((summary_text or "").split())
         if original_length > 0:
             compression_ratio = 1 - (summary_length / original_length)
+            # Clamp compression_ratio to [0.0, 1.0] range
+            compression_ratio = max(0.0, min(1.0, compression_ratio))
         else:
             compression_ratio = 0
 
