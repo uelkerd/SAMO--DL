@@ -51,8 +51,11 @@ def get_cors_origin_regex():
     if regex_env:
         # Split CSV and strip whitespace for multiple regex patterns
         patterns = [pattern.strip() for pattern in regex_env.split(",") if pattern.strip()]
+        # Combine patterns with alternation operator and wrap in non-capturing group
+        combined_regex = f"^(?:{'|'.join(patterns)})$"
         logger.info(f"CORS origin regex patterns: {patterns}")
-        return patterns
+        logger.info(f"Combined CORS origin regex: {combined_regex}")
+        return combined_regex
     # Default patterns for common development and staging environments
     default_patterns = [
         r"https://.*\.vercel\.app$",  # Vercel deployments
@@ -61,7 +64,11 @@ def get_cors_origin_regex():
         r"http://localhost:\d+$",      # Local development with any port
         r"http://127\.0\.0\.1:\d+$",   # Local development with any port
     ]
-    return default_patterns
+    # Combine default patterns with alternation operator and wrap in non-capturing group
+    combined_regex = f"^(?:{'|'.join(default_patterns)})$"
+    logger.info(f"Default CORS origin regex patterns: {default_patterns}")
+    logger.info(f"Combined CORS origin regex: {combined_regex}")
+    return combined_regex
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
