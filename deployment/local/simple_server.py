@@ -25,56 +25,48 @@ def static_files(filename):
     website_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'website')
     return send_from_directory(website_dir, filename)
 
-# Mock API endpoints for testing
+# CORS Proxy for Real API
+import requests
+
 @app.route('/api/emotion', methods=['POST'])
-def mock_emotion():
-    import time
-    time.sleep(0.5)  # Simulate processing time
-    return jsonify({
-        "emotions": [
-            {"emotion": "joy", "confidence": 0.85},
-            {"emotion": "optimism", "confidence": 0.72},
-            {"emotion": "excitement", "confidence": 0.68},
-            {"emotion": "love", "confidence": 0.45},
-            {"emotion": "nervousness", "confidence": 0.32}
-        ],
-        "primary_emotion": "joy",
-        "emotional_intensity": 0.85,
-        "sentiment_score": 0.78,
-        "confidence_range": "0.32-0.85",
-        "model_details": "SAMO DeBERTa v3 Large - 28 emotion categories analyzed",
-        "processing_time_ms": 520,
-        "models_used": "DeBERTa-v3-large",
-        "total_time": "520ms",
-        "status": "completed"
-    })
+def proxy_emotion():
+    try:
+        # Get text from query parameter
+        text = request.args.get('text', '')
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        # Call real API
+        api_url = f"https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text={text}"
+        response = requests.post(api_url, headers={'Content-Length': '0', 'Cache-Control': 'no-cache'}, timeout=30)
+
+        if response.ok:
+            return jsonify(response.json())
+        else:
+            return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/summarize', methods=['POST'])
-def mock_summarize():
-    import time
-    time.sleep(0.3)  # Simulate processing time
-    return jsonify({
-        "summary": "This text expresses excitement and happiness about wonderful news and future opportunities, while also acknowledging some nervousness about upcoming challenges.",
-        "original_length": 245,
-        "summary_length": 142,
-        "processing_time_ms": 380,
-        "models_used": "SAMO-T5",
-        "total_time": "380ms",
-        "status": "completed"
-    })
+def proxy_summarize():
+    try:
+        # Get text from query parameter
+        text = request.args.get('text', '')
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
 
-@app.route('/api/transcribe', methods=['POST'])
-def mock_transcribe():
-    import time
-    time.sleep(0.4)  # Simulate processing time
-    return jsonify({
-        "transcription": "I am so excited and happy today! This is such wonderful news and I feel optimistic about the future.",
-        "confidence": 0.95,
-        "processing_time_ms": 420,
-        "models_used": "SAMO-Whisper",
-        "total_time": "420ms",
-        "status": "completed"
-    })
+        # Call real API
+        api_url = f"https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/summarize?text={text}"
+        response = requests.post(api_url, headers={'Content-Length': '0', 'Cache-Control': 'no-cache'}, timeout=30)
+
+        if response.ok:
+            return jsonify(response.json())
+        else:
+            return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health():

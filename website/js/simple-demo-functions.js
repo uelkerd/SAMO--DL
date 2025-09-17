@@ -73,7 +73,7 @@ async function processText() {
         showInlineError('Please enter some text to analyze', 'textInput');
         return;
     }
-    // Try real API first, fallback to mock data
+    // Call real API only - no fallbacks
     console.log('🔍 About to call testWithRealAPI from processText');
     await testWithRealAPI();
 }
@@ -166,10 +166,9 @@ async function generateSampleText() {
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
         }
         
-        // Fallback to static samples after a delay
+        // Show error and suggest using static samples
         setTimeout(() => {
-            console.log('🔄 Falling back to static sample texts...');
-            generateStaticSampleText();
+            console.log('💡 Suggestion: Use "Generate Sample Text" button for static content');
         }, 2000);
     }
 }
@@ -334,37 +333,6 @@ function generateStaticSampleText() {
     }
 }
 
-function testWithMockData() {
-    console.log('🧪 Testing with mock data...');
-    
-    const mockEmotions = [
-        { emotion: 'joy', confidence: 0.85 },
-        { emotion: 'excitement', confidence: 0.72 },
-        { emotion: 'optimism', confidence: 0.68 },
-        { emotion: 'gratitude', confidence: 0.45 },
-        { emotion: 'neutral', confidence: 0.15 }
-    ];
-    
-    const mockSummary = {
-        original_length: 266,
-        summary_length: 93,
-        summary: "The text expresses excitement and optimism about future opportunities, while acknowledging some nervousness about upcoming challenges. The overall sentiment is positive and confident."
-    };
-    
-    // Show the results sections
-    showResultsSections();
-    
-    // Create chart
-    createSimpleChart(mockEmotions);
-    
-    // Update detailed analysis
-    updateDetailedAnalysis(mockEmotions, mockSummary);
-    
-    // Update summary
-    updateSummary(mockSummary);
-    
-    console.log('✅ Mock data test completed');
-}
 
 async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
@@ -432,12 +400,8 @@ async function callSummarizationAPI(text) {
     } catch (error) {
         console.error('❌ Summarization API error:', error);
 
-        // Fallback to a better mock summary than just truncation
-        return {
-            original_length: text.length,
-            summary_length: Math.round(text.length * 0.6),
-            summary: `Unable to connect to summarization service. The text expresses various emotional states and personal reflections. [Fallback mode - original text: ${text.substring(0, 50)}...]`
-        };
+        // Return error - no fallbacks to mock data
+        throw error;
     }
 }
 
@@ -446,15 +410,54 @@ async function testWithRealAPI() {
     const startTime = performance.now(); // Start timing
 
     try {
-        // Show loading state
+        // Show enhanced loading state with progress indicators
         const chartContainer = document.getElementById('emotionChart');
         if (chartContainer) {
             while (chartContainer.firstChild) {
                 chartContainer.removeChild(chartContainer.firstChild);
             }
-            const loadingP = document.createElement('p');
-            loadingP.textContent = '🔄 Calling real API...';
-            chartContainer.appendChild(loadingP);
+
+            // Create enhanced loading container
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'text-align: center; padding: 30px; background: rgba(139, 92, 246, 0.05); border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.2);';
+
+            // Loading spinner
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner-border text-primary mb-3';
+            spinner.style.cssText = 'width: 2rem; height: 2rem;';
+            loadingDiv.appendChild(spinner);
+
+            // Loading title
+            const title = document.createElement('h6');
+            title.textContent = '🧠 AI Analysis in Progress';
+            title.style.cssText = 'color: #8b5cf6; margin-bottom: 15px;';
+            loadingDiv.appendChild(title);
+
+            // Progress message
+            const message = document.createElement('p');
+            message.id = 'emotionLoadingMessage';
+            message.textContent = 'Initializing emotion analysis models...';
+            message.style.cssText = 'color: #6b7280; margin-bottom: 10px;';
+            loadingDiv.appendChild(message);
+
+            // Estimated time
+            const timeEst = document.createElement('small');
+            timeEst.textContent = 'Estimated time: 1-3 seconds';
+            timeEst.style.cssText = 'color: #9ca3af;';
+            loadingDiv.appendChild(timeEst);
+
+            chartContainer.appendChild(loadingDiv);
+
+            // Update progress messages
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Processing text with SAMO DeBERTa v3 Large...';
+            }, 500);
+
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Analyzing emotional patterns and confidence scores...';
+            }, 1500);
         }
         updateElement('primaryEmotion', 'Loading...');
         updateElement('emotionalIntensity', 'Loading...');
@@ -508,11 +511,11 @@ async function testWithRealAPI() {
             console.log('🔍 Response status:', response.status);
             console.log('🔍 Response headers:', response.headers);
             console.log('🔍 Response ok:', response.ok);
-            
+
             if (!response.ok) {
                 console.error('❌ API call failed with status:', response.status);
                 console.error('❌ Response status text:', response.statusText);
-                
+
                 // Handle specific error cases
                 if (response.status === 400) {
                     throw new Error(`Bad Request: Text may be too long or invalid. Please try shorter text (under 400 characters).`);
@@ -613,7 +616,26 @@ async function testWithRealAPI() {
             console.error('❌ Real API test failed:', error);
             console.error('❌ Error details:', error.message);
             console.error('❌ Error stack:', error.stack);
-            
+            console.error('❌ Error type:', error.constructor.name);
+
+            // Detect CORS or network errors
+            let errorType = 'Unknown Error';
+            let errorDetail = error.message;
+
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                errorType = 'CORS/Network Error';
+                errorDetail = 'Cannot reach API due to CORS policy or network issues. This is likely because browsers block direct calls to external APIs.';
+            } else if (error.message.includes('NetworkError')) {
+                errorType = 'Network Error';
+                errorDetail = 'Network connection failed. Check your internet connection.';
+            } else if (error.message.includes('timeout')) {
+                errorType = 'Timeout Error';
+                errorDetail = 'API call timed out. The server may be busy.';
+            }
+
+            console.error('❌ Detected error type:', errorType);
+            console.error('❌ Error detail:', errorDetail);
+
             // Show detailed error in UI
             if (chartContainer) {
                 // Clear container safely
@@ -623,41 +645,58 @@ async function testWithRealAPI() {
 
                 // Create error container
                 const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = 'color: #ef4444; padding: 20px; text-align: center;';
+                errorDiv.style.cssText = 'color: #ef4444; padding: 20px; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px;';
 
                 // Create title
                 const title = document.createElement('h5');
-                title.textContent = '❌ API Error';
+                title.textContent = `❌ ${errorType}`;
                 errorDiv.appendChild(title);
 
                 // Create error message
                 const errorP = document.createElement('p');
-                const errorStrong = document.createElement('strong');
-                errorStrong.textContent = 'Error:';
-                errorP.appendChild(errorStrong);
-                errorP.appendChild(document.createTextNode(' ' + error.message));
+                errorP.style.cssText = 'margin-bottom: 15px;';
+                errorP.textContent = errorDetail;
                 errorDiv.appendChild(errorP);
 
                 // Create URL info
                 const urlP = document.createElement('p');
-                const urlStrong = document.createElement('strong');
-                urlStrong.textContent = 'URL:';
-                urlP.appendChild(urlStrong);
-                urlP.appendChild(document.createTextNode(' ' + apiUrl));
+                urlP.style.cssText = 'font-size: 0.9rem; color: #cbd5e1; margin-bottom: 10px;';
+                urlP.textContent = `URL: ${apiUrl}`;
                 errorDiv.appendChild(urlP);
 
                 // Create time info
                 const timeP = document.createElement('p');
-                const timeStrong = document.createElement('strong');
-                timeStrong.textContent = 'Time:';
-                timeP.appendChild(timeStrong);
-                timeP.appendChild(document.createTextNode(' ' + new Date().toLocaleTimeString()));
+                timeP.style.cssText = 'font-size: 0.9rem; color: #cbd5e1; margin-bottom: 15px;';
+                timeP.textContent = `Time: ${new Date().toLocaleTimeString()}`;
                 errorDiv.appendChild(timeP);
 
-                // Create console hint
-                const hintP = document.createElement('p');
-                hintP.textContent = 'Check browser console for more details.';
-                errorDiv.appendChild(hintP);
+                // Create suggestions
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.style.cssText = 'background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; margin-top: 15px;';
+
+                const suggestionsTitle = document.createElement('h6');
+                suggestionsTitle.textContent = '💡 Suggestions:';
+                suggestionsDiv.appendChild(suggestionsTitle);
+
+                const suggestionsList = document.createElement('ul');
+                suggestionsList.style.cssText = 'text-align: left; font-size: 0.9rem; margin: 0;';
+
+                if (errorType === 'CORS/Network Error') {
+                    suggestionsList.innerHTML = `
+                        <li>Try using the "Test with Real API" button in debug mode</li>
+                        <li>Check browser console for CORS error details</li>
+                        <li>Consider using a CORS proxy or server-side integration</li>
+                    `;
+                } else {
+                    suggestionsList.innerHTML = `
+                        <li>Check your internet connection</li>
+                        <li>Try again in a few moments</li>
+                        <li>Check browser console for more details</li>
+                    `;
+                }
+
+                suggestionsDiv.appendChild(suggestionsList);
+                errorDiv.appendChild(suggestionsDiv);
 
                 chartContainer.appendChild(errorDiv);
             }
@@ -665,8 +704,8 @@ async function testWithRealAPI() {
             updateElement('emotionalIntensity', 'Error');
             updateElement('sentimentScore', 'Error');
             updateElement('confidenceRange', 'Error');
-            updateElement('modelDetails', `API Error: ${error.message}`);
-            
+            updateElement('modelDetails', `${errorType}: ${errorDetail}`);
+
             // Don't fallback to mock data - show the real error
             console.log('❌ API failed - showing error instead of mock data');
             console.log('❌ This will help us debug the real API issue');
@@ -1070,6 +1109,43 @@ function showChartError(message) {
     `;
 }
 
+function resetToInputScreen() {
+    console.log('🔄 Resetting to input screen...');
+
+    // Clear all data first
+    clearAll();
+
+    // Hide results layout
+    const resultsLayout = document.getElementById('resultsLayout');
+    if (resultsLayout) {
+        resultsLayout.classList.add('d-none');
+        resultsLayout.classList.remove('d-block');
+    }
+
+    // Show input layout
+    const inputLayout = document.getElementById('inputLayout');
+    if (inputLayout) {
+        inputLayout.classList.remove('d-none');
+        inputLayout.classList.add('d-block');
+    }
+
+    // Clear input field
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = '';
+        textInput.style.borderColor = '';
+        textInput.style.boxShadow = '';
+        textInput.focus(); // Focus back on input
+    }
+
+    // Use LayoutManager if available
+    if (typeof LayoutManager !== 'undefined' && LayoutManager.showInputLayout) {
+        LayoutManager.showInputLayout();
+    }
+
+    console.log('✅ Reset to input screen completed');
+}
+
 function clearAll() {
     console.log('🧹 Clearing all data...');
 
@@ -1082,37 +1158,37 @@ function clearAll() {
         emotionResults.classList.add('result-section-hidden');
         emotionResults.classList.remove('result-section-visible');
     }
-    
+
     const summarizationResults = document.getElementById('summarizationResults');
     if (summarizationResults) {
         summarizationResults.classList.add('result-section-hidden');
         summarizationResults.classList.remove('result-section-visible');
     }
-    
+
     // Clear chart content
     const chartContainer = document.getElementById('emotionChart');
     if (chartContainer) {
         chartContainer.innerHTML = '<p class="text-center text-muted">Click "Process Text" to see the emotion analysis chart</p>';
     }
-    
+
     // Clear summary content
     const summaryContainer = document.getElementById('summaryChart');
     if (summaryContainer) {
         summaryContainer.innerHTML = '<p class="text-center text-muted">Click "Process Text" to see the text summary chart</p>';
     }
-    
+
     // Clear summary text
     updateElement('summaryText', '');
     updateElement('originalLength', '-');
     updateElement('summaryLength', '-');
-    
+
     // Clear detailed analysis
     updateElement('primaryEmotion', '-');
     updateElement('emotionalIntensity', '-');
     updateElement('sentimentScore', '-');
     updateElement('confidenceRange', '-');
     updateElement('modelDetails', '-');
-    
+
     // Clear processing information (both original and compact)
     updateElement('totalTime', '-');
     updateElement('processingStatus', 'Ready');
@@ -1124,7 +1200,7 @@ function clearAll() {
     updateElement('processingStatusCompact', 'Ready');
     updateElement('modelsUsedCompact', '-');
     updateElement('avgConfidenceCompact', '-');
-    
+
     console.log('✅ All data cleared');
 }
 
@@ -1133,7 +1209,6 @@ window.processText = processText;
 window.generateSampleText = generateSampleText;
 window.manageApiKey = manageApiKey;
 window.updateApiKeyButtonStatus = updateApiKeyButtonStatus;
-window.testWithMockData = testWithMockData;
 window.testWithRealAPI = testWithRealAPI;
 window.callSummarizationAPI = callSummarizationAPI;
 window.createSimpleChart = createSimpleChart;
@@ -1143,6 +1218,7 @@ window.updateSummary = updateSummary;
 window.updateProcessingInfo = updateProcessingInfo;
 window.updateElement = updateElement;
 window.getEmotionColor = getEmotionColor;
+window.resetToInputScreen = resetToInputScreen;
 window.clearAll = clearAll;
 window.showResultsSections = showResultsSections;
 window.showChartError = showChartError;

@@ -50,29 +50,26 @@ window.SAMO_CONFIG = {
     // Feature flags
     FEATURES: {
         ENABLE_OPENAI: true, // Enabled by default for core functionality
-        ENABLE_MOCK_DATA: true,
+        ENABLE_MOCK_DATA: false, // Always use real APIs
         ENABLE_ANALYTICS: false
     }
 };
 
-// Environment-specific overrides
+// Environment-specific overrides - ALWAYS USE REAL APIS
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
-    window.SAMO_CONFIG.FEATURES.ENABLE_MOCK_DATA = true;
 
-    // Use local mock server for development (only if mock mode is enabled)
-    if (window.location.port === '8000' && window.location.search.includes('mock=true')) {
-        window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8000';
-        window.SAMO_CONFIG.API.ENDPOINTS = {
-            EMOTION: '/api/emotion',
-            SUMMARIZE: '/api/summarize',
-            JOURNAL: '/api/summarize', // Use summarize for journal
-            HEALTH: '/api/health',
-            READY: '/api/health',
-            TRANSCRIBE: '/api/transcribe'
-        };
-    }
+    // Use local CORS proxy for localhost development
+    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8000';
+    window.SAMO_CONFIG.API.ENDPOINTS = {
+        EMOTION: '/api/emotion',
+        SUMMARIZE: '/api/summarize',
+        JOURNAL: '/api/journal',
+        HEALTH: '/api/health',
+        READY: '/ready',
+        TRANSCRIBE: '/transcribe'
+    };
 }
 
 // Server-side configuration injection (if available)

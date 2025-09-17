@@ -248,51 +248,46 @@
                 </div>
 
                 <!-- Results Layout (Initially Hidden) -->
-                <div class="row d-none" id="resultsLayout">
-                    <!-- Left: Results Section -->
-                    <div class="col-lg-8">
-                        <!-- Loading Section -->
-                        <div id="loadingSection" class="loading-spinner text-center mb-4" role="status" aria-live="polite" aria-busy="true">
-                            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                <div class="d-none" id="resultsLayout">
+                    <!-- Enhanced Loading Section -->
+                    <div id="loadingSection" class="loading-spinner text-center mb-4" role="status" aria-live="polite" aria-busy="true">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="feature-card p-4">
+                                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h5 class="text-primary mb-3">🚀 AI Processing Pipeline</h5>
+
+                                    <!-- Progress Steps -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div id="emotionStep" class="process-step">
+                                                <span class="material-icons text-warning me-2">psychology</span>
+                                                <span class="step-text">Emotion Analysis</span>
+                                                <div class="step-status" id="emotionStatus">⏳ Waiting...</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div id="summaryStep" class="process-step">
+                                                <span class="material-icons text-success me-2">description</span>
+                                                <span class="step-text">Text Summarization</span>
+                                                <div class="step-status" id="summaryStatus">⏳ Waiting...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-muted mb-2" id="loadingMessage">Initializing AI models...</p>
+                                    <small class="text-muted" id="timeEstimate">Estimated time: 2-4 seconds</small>
+                                </div>
                             </div>
-                            <h5 class="text-muted">Processing with AI...</h5>
-                            <p class="text-muted" id="loadingMessage">Initializing models...</p>
                         </div>
+                    </div>
 
-                        <!-- Results Section -->
-                        <div id="resultSection">
-                            <!-- Transcription Results -->
-                            <div class="mb-4 result-section-hidden" id="transcriptionResults">
-                                <div class="feature-card p-4">
-                                    <h5 class="fw-bold mb-3">
-                                        <span class="material-icons text-primary me-2">mic</span>
-                                        Transcription Results
-                                    </h5>
-                                    <div id="transcriptionText" class="mb-3"></div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">Confidence: <span id="transcriptionConfidence">-</span></small>
-                                        <small class="text-muted">Duration: <span id="transcriptionDuration">-</span></small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Summarization Results -->
-                            <div class="mb-4 result-section-hidden" id="summarizationResults">
-                                <div class="feature-card p-4">
-                                    <h5 class="fw-bold mb-3">
-                                        <span class="material-icons text-success me-2">description</span>
-                                        Summarization Results
-                                    </h5>
-                                    <div id="summaryText" class="mb-3"></div>
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <small class="text-muted">Original Length: <span id="originalLength">-</span> characters</small>
-                                        <small class="text-muted">Summary Length: <span id="summaryLength">-</span> characters</small>
-                                    </div>
-                                    <div id="summaryChart"></div>
-                                </div>
-                            </div>
-
+                    <!-- Side-by-Side Results Section -->
+                    <div class="row" id="resultSection">
+                        <!-- Left Column: Emotion Analysis -->
+                        <div class="col-lg-6">
                             <!-- Emotion Analysis Results -->
                             <div class="mb-4 result-section-hidden" id="emotionResults">
                                 <div class="feature-card p-4">
@@ -348,75 +343,114 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <!-- Right Column: Summarization -->
+                        <div class="col-lg-6">
+                            <!-- Summarization Results -->
+                            <div class="mb-4 result-section-hidden" id="summarizationResults">
+                                <div class="feature-card p-4">
+                                    <h5 class="fw-bold mb-3">
+                                        <span class="material-icons text-success me-2">description</span>
+                                        Summarization Results
+                                    </h5>
+                                    <div id="summaryText" class="mb-3"></div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">Original Length: <span id="originalLength">-</span> characters</small>
+                                        <small class="text-muted">Summary Length: <span id="summaryLength">-</span> characters</small>
+                                    </div>
+                                    <div id="summaryChart"></div>
+                                </div>
+                            </div>
+
+                            <!-- Transcription Results (Optional - may be hidden) -->
+                            <div class="mb-4 result-section-hidden" id="transcriptionResults">
+                                <div class="feature-card p-4">
+                                    <h5 class="fw-bold mb-3">
+                                        <span class="material-icons text-primary me-2">mic</span>
+                                        Transcription Results
+                                    </h5>
+                                    <div id="transcriptionText" class="mb-3"></div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Confidence: <span id="transcriptionConfidence">-</span></small>
+                                        <small class="text-muted">Duration: <span id="transcriptionDuration">-</span></small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right: Processing Info & Debug (Compact Vertical) -->
-                    <div class="col-lg-4" id="processingInfoSidebar">
-                        <!-- Processing Information (Vertical Compact) -->
-                        <div class="feature-card mb-4">
-                            <div class="card-body">
-                                <h6 class="fw-bold mb-3 text-center">Processing Information</h6>
-                                <div class="row g-2">
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
-                                            <div class="d-flex align-items-center">
-                                                <span class="material-icons text-primary me-2" style="font-size: 1.2rem;">schedule</span>
-                                                <small class="fw-bold">Total Time</small>
+                    <!-- Bottom: Processing Information & Controls (Horizontal Layout) -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="feature-card">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-3 text-center">Processing Information</h6>
+                                    <div class="row g-3">
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="material-icons text-primary me-2" style="font-size: 1.2rem;">schedule</span>
+                                                    <small class="fw-bold">Total Time</small>
+                                                </div>
+                                                <small class="text-muted" id="totalTimeCompact">-</small>
                                             </div>
-                                            <small class="text-muted" id="totalTimeCompact">-</small>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="material-icons text-success me-2" style="font-size: 1.2rem;">check_circle</span>
+                                                    <small class="fw-bold">Status</small>
+                                                </div>
+                                                <small class="text-muted" id="processingStatusCompact">Ready</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="material-icons text-warning me-2" style="font-size: 1.2rem;">psychology</span>
+                                                    <small class="fw-bold">Models Used</small>
+                                                </div>
+                                                <small class="text-muted" id="modelsUsedCompact">-</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="material-icons text-info me-2" style="font-size: 1.2rem;">trending_up</span>
+                                                    <small class="fw-bold">Confidence</small>
+                                                </div>
+                                                <small class="text-muted" id="avgConfidenceCompact">-</small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
-                                            <div class="d-flex align-items-center">
-                                                <span class="material-icons text-success me-2" style="font-size: 1.2rem;">check_circle</span>
-                                                <small class="fw-bold">Status</small>
-                                            </div>
-                                            <small class="text-muted" id="processingStatusCompact">Ready</small>
+
+                                    <!-- Control Buttons Row -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-6 text-center">
+                                            <!-- Reset Button -->
+                                            <button class="btn btn-outline-primary btn-sm me-2" id="resetBtn" onclick="resetToInputScreen()">
+                                                <span class="material-icons me-1" style="font-size: 1rem;">refresh</span>
+                                                New Analysis
+                                            </button>
+                                            <!-- Debug Toggle Button -->
+                                            <button class="btn btn-outline-secondary btn-sm" id="debugToggleBtn" onclick="LayoutManager.toggleDebugSection()">
+                                                <span class="material-icons me-1" style="font-size: 1rem;">bug_report</span>
+                                                Show Debug
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
-                                            <div class="d-flex align-items-center">
-                                                <span class="material-icons text-warning me-2" style="font-size: 1.2rem;">psychology</span>
-                                                <small class="fw-bold">Models Used</small>
+                                        <div class="col-md-6 text-center">
+                                            <!-- Debug Test (Hidden by Default, Toggleable) -->
+                                            <div class="d-none" id="debugTestSection">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button class="btn btn-success btn-sm" onclick="testWithRealAPI()">Test with Real API</button>
+                                                    <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear All</button>
+                                                </div>
                                             </div>
-                                            <small class="text-muted" id="modelsUsedCompact">-</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex align-items-center justify-content-between p-2 bg-dark bg-opacity-25 rounded">
-                                            <div class="d-flex align-items-center">
-                                                <span class="material-icons text-info me-2" style="font-size: 1.2rem;">trending_up</span>
-                                                <small class="fw-bold">Confidence</small>
-                                            </div>
-                                            <small class="text-muted" id="avgConfidenceCompact">-</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Debug Test (Hidden by Default, Toggleable) -->
-                        <div class="feature-card d-none" id="debugTestSection">
-                            <div class="card-body text-center">
-                                <h6 class="fw-bold mb-3 text-warning">🔧 Debug Test</h6>
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-primary btn-sm" onclick="testWithMockData()">Test with Mock Data</button>
-                                    <button class="btn btn-success btn-sm" onclick="testWithRealAPI()">Test with Real API</button>
-                                    <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear All</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Debug Toggle Button -->
-                        <div class="text-center mt-3">
-                            <button class="btn btn-outline-secondary btn-sm" id="debugToggleBtn" onclick="LayoutManager.toggleDebugSection()">
-                                <span class="material-icons me-1" style="font-size: 1rem;">bug_report</span>
-                                Show Debug
-                            </button>
                         </div>
                     </div>
                 </div>
