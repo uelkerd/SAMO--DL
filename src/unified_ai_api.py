@@ -902,6 +902,9 @@ class TextSummary(BaseModel):
     emotional_tone: str = Field(
         ..., description="Overall emotional tone", example="positive"
     )
+    processing_time_ms: float = Field(
+        ..., description="Processing time in milliseconds", ge=0, example=1250.5
+    )
 
 
 class VoiceTranscription(BaseModel):
@@ -1365,6 +1368,9 @@ async def analyze_journal_entry(
                 logger.warning("⚠️  Emotion analysis failed: %s", exc)
                 emotion_results = normalize_emotion_results({})
 
+        # Calculate processing time for summarization
+        processing_time = (time.time() - start_time) * 1000
+
         # Text Summarization
         summary_results = None
         if text_summarizer is not None and request.generate_summary:
@@ -1384,6 +1390,7 @@ async def analyze_journal_entry(
                     ),
                     "compression_ratio": 0.5,
                     "emotional_tone": "neutral",
+                    "processing_time_ms": processing_time,
                 }
 
         # Fallback if models are not available
@@ -1404,9 +1411,8 @@ async def analyze_journal_entry(
                 "key_emotions": [emotion_results["primary_emotion"]],
                 "compression_ratio": 0.5,
                 "emotional_tone": "neutral",
+                "processing_time_ms": processing_time,
             }
-
-        processing_time = (time.time() - start_time) * 1000
 
         return CompleteJournalAnalysis(
             transcription=None,
