@@ -65,7 +65,6 @@ class TestDemoFunctionality:
     @staticmethod
     def test_demo_emotion_detection_edge_cases(demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
-        from unittest.mock import patch, Mock
 
         # Test cases for edge scenarios
         edge_cases = [
@@ -170,7 +169,6 @@ class TestDemoFunctionality:
         assert none_audio_request["audio_data"] is None
 
         # Test API error handling for invalid audio with mocked requests
-        from unittest.mock import patch, Mock
 
         with patch('requests.post') as mock_post:
             # Mock error response for corrupted audio
@@ -275,7 +273,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_timeout_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API timeouts gracefully"""
-        from unittest.mock import patch, Mock
 
         with patch('requests.post') as mock_post:
             # Mock timeout error
@@ -300,7 +297,6 @@ class TestDemoFunctionality:
     def test_demo_full_workflow_mocked(self, demo_api_url, sample_text, sample_audio_data_bytes):
         """Test the complete demo workflow with API mocking"""
         import io
-        from unittest.mock import patch, Mock
 
         # Mock responses for each step of the workflow
         mock_transcription_response = {
@@ -392,7 +388,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_api_error_handling(self, demo_api_url, sample_text):
         """Test that the demo handles API errors gracefully with actual HTTP requests"""
-        from unittest.mock import patch, Mock
 
         with patch('requests.post') as mock_post:
             # Test API error responses
@@ -419,7 +414,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_rate_limiting(self, demo_api_url, sample_text):
         """Test that the demo handles rate limiting gracefully"""
-        from unittest.mock import patch, Mock
 
         with patch('requests.post') as mock_post:
             # Test rate limiting response
@@ -440,7 +434,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_performance_metrics(self, demo_api_url, sample_text):
         """Test that the demo tracks performance metrics correctly"""
-        from unittest.mock import patch, Mock
         import time
 
         with patch('requests.post') as mock_post:
@@ -484,7 +477,6 @@ class TestDemoFunctionality:
     @pytest.mark.integration
     def test_demo_concurrent_requests(self, demo_api_url, sample_text):
         """Test that the demo handles concurrent requests properly"""
-        from unittest.mock import patch, Mock
         import threading
         import time
 
