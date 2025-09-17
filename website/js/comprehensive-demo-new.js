@@ -112,6 +112,43 @@ class ComprehensiveDemo {
     }
 }
 
+// Inline error display function to replace alert dialogs
+function showInlineError(message, targetElementId) {
+    // Remove any existing error messages
+    const existingErrors = document.querySelectorAll('.inline-error-message');
+    existingErrors.forEach(error => error.remove());
+
+    // Create error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'inline-error-message alert alert-danger mt-2';
+    errorDiv.setAttribute('role', 'alert');
+    errorDiv.style.cssText = 'animation: fadeIn 0.3s ease-in;';
+
+    // Create strong element for emphasis
+    const strongEl = document.createElement('strong');
+    strongEl.textContent = 'Error: ';
+
+    // Add content safely
+    errorDiv.appendChild(strongEl);
+    errorDiv.appendChild(document.createTextNode(message));
+
+    // Insert error message after target element
+    const targetElement = document.getElementById(targetElementId);
+    if (targetElement) {
+        targetElement.parentNode.insertBefore(errorDiv, targetElement.nextSibling);
+    } else {
+        // Fallback: append to body
+        document.body.appendChild(errorDiv);
+    }
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.remove();
+        }
+    }, 5000);
+}
+
 // Clear All functionality
 function clearAll() {
     console.log('🧹 Clearing all inputs and results...');
@@ -193,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const audioFile = audioFileInput ? audioFileInput.files[0] : null;
                 
                 if (!text && !audioFile) {
-                    alert('Please enter text or upload an audio file');
+                    showInlineError('Please enter text or upload an audio file', 'processBtn');
                     return;
                 }
                 
@@ -202,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     await demo.processCompleteWorkflow(audioFile, text);
                 } catch (error) {
                     console.error('Processing failed:', error);
-                    alert('Processing failed: ' + error.message);
+                    showInlineError('Processing failed: ' + error.message, 'processBtn');
                 }
             });
             console.log('✅ Process button bound');
@@ -244,11 +281,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 background: #ef4444; color: white; padding: 15px; border-radius: 8px;
                 font-family: Arial, sans-serif; font-size: 14px; max-width: 300px;
             `;
-            errorDiv.innerHTML = `
-                <strong>Demo Initialization Failed</strong><br>
-                ${error.message}<br>
-                <small>Please refresh the page</small>
-            `;
+            // Clear existing content safely
+            errorDiv.textContent = '';
+
+            // Create content safely
+            const strongEl = document.createElement('strong');
+            strongEl.textContent = 'Demo Initialization Failed';
+
+            const br1 = document.createElement('br');
+            const br2 = document.createElement('br');
+
+            const smallEl = document.createElement('small');
+            smallEl.textContent = 'Please refresh the page';
+
+            // Add content safely
+            errorDiv.appendChild(strongEl);
+            errorDiv.appendChild(br1);
+            errorDiv.appendChild(document.createTextNode(error.message));
+            errorDiv.appendChild(br2);
+            errorDiv.appendChild(smallEl);
             document.body.appendChild(errorDiv);
         }, 100);
     }

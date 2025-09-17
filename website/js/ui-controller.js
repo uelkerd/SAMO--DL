@@ -256,9 +256,13 @@ class UIController {
             .sort((a, b) => b.confidence - a.confidence)
             .slice(0, 5);
         
-        // Clear previous content
-        this.emotionBadges.innerHTML = '';
-        this.emotionDetails.innerHTML = '';
+        // Clear previous content safely
+        while (this.emotionBadges.firstChild) {
+            this.emotionBadges.removeChild(this.emotionBadges.firstChild);
+        }
+        while (this.emotionDetails.firstChild) {
+            this.emotionDetails.removeChild(this.emotionDetails.firstChild);
+        }
         
         // Create emotion badges
         topEmotions.forEach(emotion => {
@@ -352,8 +356,10 @@ class UIController {
             return;
         }
         
-        // Create a simple visual representation
-        chartContainer.innerHTML = '';
+        // Create a simple visual representation - clear safely
+        while (chartContainer.firstChild) {
+            chartContainer.removeChild(chartContainer.firstChild);
+        }
         
         const chartDiv = document.createElement('div');
         chartDiv.className = 'emotion-chart-fallback';

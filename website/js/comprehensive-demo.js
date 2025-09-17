@@ -25,6 +25,10 @@ class SAMOAPIClient {
     }
 
     async makeRequest(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null) {
+        return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, this.retryAttempts);
+    }
+
+    async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = 3) {
         const config = {
             method,
             headers: {}
@@ -54,18 +58,38 @@ class SAMOAPIClient {
         try {
             const url = `${this.baseURL}${endpoint}`;
             const response = await fetch(url, config);
-            
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+
+                // Handle retryable errors
+                if (response.status === 429 || response.status >= 500) {
+                    if (attemptsLeft > 1) {
+                        const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000; // Exponential backoff
+                        console.warn(`Request failed (${response.status}), retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`);
+                        await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                        return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
+                    }
+                }
+
+                // Non-retryable errors or out of retries
                 if (response.status === 429) throw new Error(msg || 'Rate limit exceeded. Please try again shortly.');
                 if (response.status === 401) throw new Error(msg || 'API key required.');
                 if (response.status === 503) throw new Error(msg || 'Service temporarily unavailable.');
                 throw new Error(msg);
             }
-            
+
             return await response.json();
         } catch (error) {
+            // Handle network errors with retry
+            if ((error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('network')) && attemptsLeft > 1) {
+                const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000;
+                console.warn(`Network error, retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`, error.message);
+                await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
+            }
+
             console.error('API request failed:', error);
             throw error;
         } finally {

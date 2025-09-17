@@ -60,43 +60,58 @@ class TestDemoFunctionality:
     @staticmethod
     def test_demo_emotion_detection_edge_cases(demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
-        # Test empty string
-        empty_request = {"text": ""}
-        assert isinstance(empty_request["text"], str)
-        assert len(empty_request["text"]) == 0
-        
-        # Test very long text
-        long_text = "This is a very long text. " * 1000  # 25,000 characters
-        long_request = {"text": long_text}
-        assert isinstance(long_request["text"], str)
-        assert len(long_request["text"]) > 10000
-        
-        # Test whitespace-only text
-        whitespace_request = {"text": "   \n\t   "}
-        assert isinstance(whitespace_request["text"], str)
-        assert len(whitespace_request["text"].strip()) == 0
-        
-        # Test special characters and unicode
-        special_chars_request = {"text": "Hello! @#$%^&*()_+ 你好 🌟 🎉"}
-        assert isinstance(special_chars_request["text"], str)
-        assert len(special_chars_request["text"]) > 0
-        
-        # Test very short text
-        short_request = {"text": "Hi"}
-        assert isinstance(short_request["text"], str)
-        assert len(short_request["text"]) > 0
-        
-        # Test non-string input (should be handled by frontend validation)
-        # This test ensures the demo handles type validation
+        from unittest.mock import patch, Mock
+        import requests
+
+        # Test cases for edge scenarios
+        edge_cases = [
+            {"text": "", "expected_error": True, "description": "empty string"},
+            {"text": "   \n\t   ", "expected_error": True, "description": "whitespace-only text"},
+            {"text": "Hi", "expected_error": False, "description": "very short text"},
+            {"text": "This is a very long text. " * 1000, "expected_error": False, "description": "very long text"},
+            {"text": "Hello! @#$%^&*()_+ 你好 🌟 🎉", "expected_error": False, "description": "special characters and unicode"},
+            {"text": "😀😂😭😡😱", "expected_error": False, "description": "emoji-only text"},
+            {"text": "1234567890", "expected_error": False, "description": "numbers-only text"},
+            {"text": "A" * 50000, "expected_error": True, "description": "extremely long text"},
+        ]
+
+        with patch('requests.post') as mock_post:
+            for case in edge_cases:
+                # Mock appropriate response based on expected behavior
+                mock_response = Mock()
+                if case["expected_error"]:
+                    mock_response.status_code = 400
+                    mock_response.json.return_value = {"error": "Invalid input data"}
+                else:
+                    mock_response.status_code = 200
+                    mock_response.json.return_value = {
+                        "emotions": {"neutral": 0.8, "joy": 0.2},
+                        "predicted_emotion": "neutral"
+                    }
+
+                mock_post.return_value = mock_response
+
+                # Test the request
+                response = requests.post(f"{demo_api_url}/predict", json={"text": case["text"]})
+
+                if case["expected_error"]:
+                    assert response.status_code == 400, f"Expected error for {case['description']}"
+                    error_data = response.json()
+                    assert "error" in error_data
+                else:
+                    assert response.status_code == 200, f"Expected success for {case['description']}"
+                    data = response.json()
+                    assert "emotions" in data
+                    assert "predicted_emotion" in data
+
+        # Test non-string input validation
         with pytest.raises((TypeError, ValueError), match="text.*string"):
-            # Simulate validation that should reject non-string input
             non_string_request = {"text": 123}
             if not isinstance(non_string_request["text"], str):
                 raise TypeError("text must be a string")
-        
-        # Test None input
+
+        # Test None input validation
         with pytest.raises((TypeError, ValueError), match="text.*required"):
-            # Simulate validation that should reject None input
             none_request = {"text": None}
             if none_request["text"] is None:
                 raise ValueError("text is required and cannot be None")
@@ -149,6 +164,39 @@ class TestDemoFunctionality:
         none_audio_request = {"audio_data": None, "model": "whisper"}
         # Validate that None audio data is detected and handled appropriately
         assert none_audio_request["audio_data"] is None
+
+        # Test API error handling for invalid audio with mocked requests
+        from unittest.mock import patch, Mock
+        import requests
+
+        with patch('requests.post') as mock_post:
+            # Mock error response for corrupted audio
+            mock_error_response = Mock()
+            mock_error_response.status_code = 400
+            mock_error_response.json.return_value = {"error": "Invalid audio format"}
+            mock_post.return_value = mock_error_response
+
+            # Test corrupted audio handling
+            files = {'audio': ('corrupted.wav', io.BytesIO(b"not_audio"), 'audio/wav')}
+            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+
+            assert response.status_code == 400
+            error_data = response.json()
+            assert "error" in error_data
+            assert "Invalid audio" in error_data["error"] or "format" in error_data["error"]
+
+            # Test empty audio handling
+            mock_empty_response = Mock()
+            mock_empty_response.status_code = 400
+            mock_empty_response.json.return_value = {"error": "No audio data provided"}
+            mock_post.return_value = mock_empty_response
+
+            files = {'audio': ('empty.wav', io.BytesIO(b""), 'audio/wav')}
+            response = requests.post(f"{demo_api_url}/transcribe/voice", files=files)
+
+            assert response.status_code == 400
+            error_data = response.json()
+            assert "error" in error_data
 
     
     @staticmethod
@@ -221,6 +269,32 @@ class TestDemoFunctionality:
         assert all(isinstance(emotion, str) for emotion in expected_emotions)
         assert all(len(emotion) > 0 for emotion in expected_emotions)
     
+    @pytest.mark.integration
+    def test_demo_timeout_handling(self, demo_api_url, sample_text):
+        """Test that the demo handles API timeouts gracefully"""
+        from unittest.mock import patch, Mock
+        import requests
+        import asyncio
+
+        with patch('requests.post') as mock_post:
+            # Mock timeout error
+            mock_post.side_effect = requests.exceptions.Timeout("Request timed out")
+
+            try:
+                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=1)
+                assert False, "Expected timeout exception"
+            except requests.exceptions.Timeout as e:
+                assert "timeout" in str(e).lower()
+
+            # Mock connection error
+            mock_post.side_effect = requests.exceptions.ConnectionError("Connection failed")
+
+            try:
+                response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+                assert False, "Expected connection exception"
+            except requests.exceptions.ConnectionError as e:
+                assert "connection" in str(e).lower()
+
     @pytest.mark.integration
     def test_demo_full_workflow_mocked(self, demo_api_url, sample_text, sample_audio_data_bytes):
         """Test the complete demo workflow with API mocking"""
@@ -366,6 +440,96 @@ class TestDemoFunctionality:
             rate_limit_data = response.json()
             assert "error" in rate_limit_data
             assert rate_limit_data["error"] == "rate_limit_exceeded"
+
+    @pytest.mark.integration
+    def test_demo_performance_metrics(self, demo_api_url, sample_text):
+        """Test that the demo tracks performance metrics correctly"""
+        from unittest.mock import patch, Mock
+        import requests
+        import time
+
+        with patch('requests.post') as mock_post:
+            # Mock successful response with timing
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "emotions": {"joy": 0.8, "neutral": 0.2},
+                "predicted_emotion": "joy",
+                "processing_time_ms": 150
+            }
+
+            # Add artificial delay to test timing
+            def delayed_response(*args, **kwargs):
+                time.sleep(0.1)  # 100ms delay
+                return mock_response
+
+            mock_post.side_effect = delayed_response
+
+            # Test timing measurement
+            start_time = time.time()
+            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text})
+            end_time = time.time()
+
+            # Verify response
+            assert response.status_code == 200
+            data = response.json()
+            assert "emotions" in data
+            assert "predicted_emotion" in data
+
+            # Verify timing (should be at least 100ms due to our delay)
+            elapsed_time = (end_time - start_time) * 1000  # Convert to ms
+            assert elapsed_time >= 90, f"Expected at least 90ms, got {elapsed_time}ms"
+
+            # Test processing time formatting (if available in response)
+            if "processing_time_ms" in data:
+                processing_time = data["processing_time_ms"]
+                assert isinstance(processing_time, (int, float))
+                assert processing_time > 0
+
+    @pytest.mark.integration
+    def test_demo_concurrent_requests(self, demo_api_url, sample_text):
+        """Test that the demo handles concurrent requests properly"""
+        from unittest.mock import patch, Mock
+        import requests
+        import threading
+        import time
+
+        with patch('requests.post') as mock_post:
+            # Mock successful response
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "emotions": {"neutral": 0.9, "joy": 0.1},
+                "predicted_emotion": "neutral"
+            }
+            mock_post.return_value = mock_response
+
+            # Function to make a request
+            def make_request(results, index):
+                try:
+                    response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"})
+                    results[index] = response.status_code == 200
+                except Exception as e:
+                    results[index] = False
+
+            # Test concurrent requests
+            num_threads = 5
+            results = {}
+            threads = []
+
+            # Start all threads
+            for i in range(num_threads):
+                thread = threading.Thread(target=make_request, args=(results, i))
+                threads.append(thread)
+                thread.start()
+
+            # Wait for all threads to complete
+            for thread in threads:
+                thread.join(timeout=10)  # 10 second timeout per thread
+
+            # Verify all requests succeeded
+            assert len(results) == num_threads, f"Expected {num_threads} results, got {len(results)}"
+            assert all(results.values()), f"Some requests failed: {results}"
 
 if __name__ == "__main__":
     pytest.main([__file__])

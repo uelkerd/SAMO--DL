@@ -77,7 +77,7 @@ cleanup_repo() {
         echo "  Package $package has $total_count images, deleting $delete_count oldest"
         
         # Get images to delete (skip the first $keep_count, delete the rest)
-        echo "$package_images" | tail -n +$((keep_count + 1)) | while IFS=',' read -r pkg version createTime; do
+        echo "$package_images" | tail -n +$((keep_count + 1)) | while IFS=',' read -r pkg version _; do
             # Construct fully-qualified image name
             local full_image_name="$repo/$pkg"
             

@@ -646,7 +646,7 @@ def predict():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
             logger.warning("Validation error: %s from %s", str(e), request.remote_addr)
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': 'Invalid input data'}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
@@ -714,7 +714,7 @@ def predict_batch():
             logger.warning(
                 "Batch validation error: %s from %s", str(e), request.remote_addr
             )
-            return jsonify({'error': str(e)}), 400
+            return jsonify({'error': 'Invalid batch input data'}), 400
         
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
@@ -1035,11 +1035,11 @@ def home():
         
         return jsonify(response)
         
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error("Documentation endpoint error: %s", str(e))
-        return jsonify({'error': str(e)}), 500
+        logger.exception("Documentation endpoint error")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):

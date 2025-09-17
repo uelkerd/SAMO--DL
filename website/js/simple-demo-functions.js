@@ -1,18 +1,67 @@
 /**
  * Simple Demo Functions - EXACT working code from working-main-demo.html
  * These functions are proven to work and are self-contained
- * 
+ *
  * 🤖 AI TEXT GENERATION SETUP:
  * To enable real AI text generation, you need an OpenAI API key:
  * 1. Go to https://platform.openai.com/api-keys
  * 2. Create a new API key
  * 3. Add it to website/config.js in the OPENAI.API_KEY field
  * 4. Save the file and refresh the demo
- * 
+ *
  * Without an API key, the demo will use static sample texts as fallback.
- * 
+ *
  * 🔒 SECURITY: API keys are stored in config.js, not hardcoded in this file!
  */
+
+// Inline error and success display functions to replace alert dialogs
+function showInlineError(message, targetElementId) {
+    showInlineMessage(message, targetElementId, 'error');
+}
+
+function showInlineSuccess(message, targetElementId) {
+    showInlineMessage(message, targetElementId, 'success');
+}
+
+function showInlineMessage(message, targetElementId, type = 'error') {
+    // Remove any existing inline messages
+    const existingMessages = document.querySelectorAll('.inline-message');
+    existingMessages.forEach(msg => msg.remove());
+
+    // Create message element
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `inline-message alert ${type === 'error' ? 'alert-danger' : 'alert-success'} mt-2`;
+    messageDiv.setAttribute('role', 'alert');
+    messageDiv.style.cssText = 'animation: fadeIn 0.3s ease-in; font-size: 0.9rem;';
+
+    // Add content safely
+    messageDiv.textContent = message;
+
+    // Insert message after target element
+    const targetElement = document.getElementById(targetElementId);
+    if (targetElement) {
+        targetElement.parentNode.insertBefore(messageDiv, targetElement.nextSibling);
+    } else {
+        // Fallback: append to body
+        document.body.appendChild(messageDiv);
+    }
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 4000);
+}
+
+// Helper function to format processing time in a user-friendly way
+function formatProcessingTime(timeMs) {
+    if (timeMs >= 1000) {
+        const seconds = (timeMs / 1000).toFixed(1);
+        return `${seconds}s`;
+    }
+    return `${Math.round(timeMs)}ms`;
+}
 
 // EXACT copy of working functions from working-main-demo.html
 async function processText() {
@@ -21,7 +70,7 @@ async function processText() {
     console.log('🔍 Text from input:', text);
     console.log('🔍 Text length:', text.length);
     if (!text.trim()) {
-        alert('Please enter some text to analyze');
+        showInlineError('Please enter some text to analyze', 'textInput');
         return;
     }
     // Try real API first, fallback to mock data
@@ -137,19 +186,19 @@ function manageApiKey() {
         const newKey = prompt('Enter your OpenAI API key:');
         if (newKey && newKey.trim()) {
             localStorage.setItem('openai_api_key', newKey.trim());
-            alert('✅ API key saved successfully!');
+            showInlineSuccess('✅ API key saved successfully!', 'apiKeyBtn');
             updateApiKeyButtonStatus();
         } else {
-            alert('❌ No valid API key provided.');
+            showInlineError('❌ No valid API key provided.', 'apiKeyBtn');
         }
     } else {
         // Clear current key
         if (currentKey) {
             localStorage.removeItem('openai_api_key');
-            alert('🗑️ API key cleared successfully!');
+            showInlineSuccess('🗑️ API key cleared successfully!', 'apiKeyBtn');
             updateApiKeyButtonStatus();
         } else {
-            alert('ℹ️ No API key was stored.');
+            showInlineError('ℹ️ No API key was stored.', 'apiKeyBtn');
         }
     }
 }
@@ -162,11 +211,27 @@ function updateApiKeyButtonStatus() {
         if (hasKey) {
             apiKeyBtn.classList.remove('btn-outline-warning');
             apiKeyBtn.classList.add('btn-warning');
-            apiKeyBtn.innerHTML = '<span class="material-icons me-2">key</span>API Key ✓';
+            // Clear and rebuild button content safely
+            while (apiKeyBtn.firstChild) {
+                apiKeyBtn.removeChild(apiKeyBtn.firstChild);
+            }
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'material-icons me-2';
+            iconSpan.textContent = 'key';
+            apiKeyBtn.appendChild(iconSpan);
+            apiKeyBtn.appendChild(document.createTextNode('API Key ✓'));
         } else {
             apiKeyBtn.classList.remove('btn-warning');
             apiKeyBtn.classList.add('btn-outline-warning');
-            apiKeyBtn.innerHTML = '<span class="material-icons me-2">key</span>API Key';
+            // Clear and rebuild button content safely
+            while (apiKeyBtn.firstChild) {
+                apiKeyBtn.removeChild(apiKeyBtn.firstChild);
+            }
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'material-icons me-2';
+            iconSpan.textContent = 'key';
+            apiKeyBtn.appendChild(iconSpan);
+            apiKeyBtn.appendChild(document.createTextNode('API Key'));
         }
     }
 }
@@ -384,7 +449,12 @@ async function testWithRealAPI() {
         // Show loading state
         const chartContainer = document.getElementById('emotionChart');
         if (chartContainer) {
-            chartContainer.innerHTML = '<p>🔄 Calling real API...</p>';
+            while (chartContainer.firstChild) {
+                chartContainer.removeChild(chartContainer.firstChild);
+            }
+            const loadingP = document.createElement('p');
+            loadingP.textContent = '🔄 Calling real API...';
+            chartContainer.appendChild(loadingP);
         }
         updateElement('primaryEmotion', 'Loading...');
         updateElement('emotionalIntensity', 'Loading...');
@@ -546,15 +616,50 @@ async function testWithRealAPI() {
             
             // Show detailed error in UI
             if (chartContainer) {
-                chartContainer.innerHTML = `
-                    <div style="color: #ef4444; padding: 20px; text-align: center;">
-                        <h5>❌ API Error</h5>
-                        <p><strong>Error:</strong> ${error.message}</p>
-                        <p><strong>URL:</strong> ${apiUrl}</p>
-                        <p><strong>Time:</strong> ${new Date().toLocaleTimeString()}</p>
-                        <p>Check browser console for more details.</p>
-                    </div>
-                `;
+                // Clear container safely
+                while (chartContainer.firstChild) {
+                    chartContainer.removeChild(chartContainer.firstChild);
+                }
+
+                // Create error container
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'color: #ef4444; padding: 20px; text-align: center;';
+
+                // Create title
+                const title = document.createElement('h5');
+                title.textContent = '❌ API Error';
+                errorDiv.appendChild(title);
+
+                // Create error message
+                const errorP = document.createElement('p');
+                const errorStrong = document.createElement('strong');
+                errorStrong.textContent = 'Error:';
+                errorP.appendChild(errorStrong);
+                errorP.appendChild(document.createTextNode(' ' + error.message));
+                errorDiv.appendChild(errorP);
+
+                // Create URL info
+                const urlP = document.createElement('p');
+                const urlStrong = document.createElement('strong');
+                urlStrong.textContent = 'URL:';
+                urlP.appendChild(urlStrong);
+                urlP.appendChild(document.createTextNode(' ' + apiUrl));
+                errorDiv.appendChild(urlP);
+
+                // Create time info
+                const timeP = document.createElement('p');
+                const timeStrong = document.createElement('strong');
+                timeStrong.textContent = 'Time:';
+                timeP.appendChild(timeStrong);
+                timeP.appendChild(document.createTextNode(' ' + new Date().toLocaleTimeString()));
+                errorDiv.appendChild(timeP);
+
+                // Create console hint
+                const hintP = document.createElement('p');
+                hintP.textContent = 'Check browser console for more details.';
+                errorDiv.appendChild(hintP);
+
+                chartContainer.appendChild(errorDiv);
             }
             updateElement('primaryEmotion', 'Error');
             updateElement('emotionalIntensity', 'Error');
@@ -916,7 +1021,7 @@ function updateProcessingInfo(emotions, summary, avgConfidence) {
     const processingTime = typeof startTime !== 'undefined' ? Math.round(performance.now() - startTime) : Math.round(Math.random() * 2000 + 1000);
     
     // Update processing information elements
-    updateElement('totalTime', `${processingTime}ms`);
+    updateElement('totalTime', formatProcessingTime(processingTime));
     updateElement('processingStatus', 'Completed');
     updateElement('modelsUsed', 'SAMO DeBERTa v3 Large, SAMO T5');
     updateElement('avgConfidence', `${Math.round(safeAvgConfidence * 100)}%`);
