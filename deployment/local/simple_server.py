@@ -8,7 +8,7 @@ Serves static files and provides basic CORS support.
 """
 
 import os
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -31,14 +31,15 @@ import requests
 @app.route('/api/emotion', methods=['POST'])
 def proxy_emotion():
     try:
-        # Get text from query parameter
-        text = request.args.get('text', '')
+        # Accept JSON body or query param
+        data = (request.get_json(silent=True) or {})
+        text = (data.get('text') or request.args.get('text', '')).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
-        # Call real API
-        api_url = f"https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text={text}"
-        response = requests.post(api_url, headers={'Content-Length': '0', 'Cache-Control': 'no-cache'}, timeout=30)
+        # Call real API (requests will encode params)
+        api_url = "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion"
+        response = requests.post(api_url, params={"text": text}, timeout=30)
 
         if response.ok:
             return jsonify(response.json())
@@ -51,14 +52,15 @@ def proxy_emotion():
 @app.route('/api/summarize', methods=['POST'])
 def proxy_summarize():
     try:
-        # Get text from query parameter
-        text = request.args.get('text', '')
+        # Accept JSON body or query param
+        data = (request.get_json(silent=True) or {})
+        text = (data.get('text') or request.args.get('text', '')).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
-        # Call real API
-        api_url = f"https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/summarize?text={text}"
-        response = requests.post(api_url, headers={'Content-Length': '0', 'Cache-Control': 'no-cache'}, timeout=30)
+        # Call real API (requests will encode params)
+        api_url = "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/summarize"
+        response = requests.post(api_url, params={"text": text}, timeout=30)
 
         if response.ok:
             return jsonify(response.json())
