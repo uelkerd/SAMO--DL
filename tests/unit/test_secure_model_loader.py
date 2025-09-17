@@ -10,6 +10,7 @@ Tests the secure model loading functionality including:
 """
 
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -70,7 +71,6 @@ class TestIntegrityChecker(unittest.TestCase):
         }, self.test_file)
     
     def tearDown(self):
-        import shutil
         shutil.rmtree(self.temp_dir)
     
     def test_calculate_checksum(self):
@@ -272,7 +272,6 @@ class TestSecureModelLoader(unittest.TestCase):
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
     def tearDown(self):
-        import shutil
         shutil.rmtree(self.temp_dir)
     
     def test_load_model(self):
@@ -385,7 +384,6 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
     
     def tearDown(self):
-        import shutil
         shutil.rmtree(self.temp_dir)
     
     def test_full_secure_loading_workflow(self):

@@ -8,7 +8,6 @@ Matches the actual model architecture: RoBERTa with 12 emotion classes
 import logging
 import os
 import time
-import os
 
 from flask import Flask, request, jsonify
 import psutil
@@ -153,6 +152,7 @@ if __name__ == '__main__':
     # Initialize model on startup
     initialize_model()
 
-    # Start server
+    # Start server - use environment variable for host binding
+    host = os.getenv('API_HOST', '127.0.0.1')
     port = int(os.getenv('PORT', '8080'))
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True) 
+    app.run(host=host, port=port, debug=False, threaded=True) 

@@ -153,5 +153,7 @@ if __name__ == '__main__':
     print("🚀 Server starting on http://0.0.0.0:8080")
     print("")
     
-    # Run the Flask app
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    # Run the Flask app - use environment variable for host binding
+    host = os.getenv('API_HOST', '127.0.0.1')
+    port = int(os.getenv('API_PORT', '8080'))
+    app.run(host=host, port=port, debug=False)

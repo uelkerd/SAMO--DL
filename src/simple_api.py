@@ -106,7 +106,7 @@ async def health():
     return {"status": "healthy"}
 
 @app.post("/analyze/emotion")
-async def analyze_emotion(request: EmotionRequest):
+def analyze_emotion(request: EmotionRequest):
     """Analyze emotion using cached model with safe inference."""
     try:
         logger.info("Starting emotion analysis", extra={"text_length": len(request.text)})

@@ -236,7 +236,6 @@ class ModelValidator:
 
         try:
             # Get current versions
-            import torch
             import transformers
 
             validation_info['current_versions'] = {

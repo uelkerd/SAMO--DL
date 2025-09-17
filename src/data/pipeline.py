@@ -180,9 +180,9 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            user_info = " for user {user_id}" if user_id else ""
-            limit_info = " (limit: {limit})" if limit else ""
-            logger.info("Loading data from database{user_info}{limit_info}")
+            user_info = f" for user {user_id}" if user_id else ""
+            limit_info = f" (limit: {limit})" if limit else ""
+            logger.info(f"Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
@@ -226,30 +226,27 @@ class DataPipeline:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
-            Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
+            Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
+        logger.info(f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
-        embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
+        embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         if topics_df is not None:
             topics_df.to_csv(
-                Path(output_dir, "journal_topics_{timestamp}.csv").as_posix(),
+                Path(output_dir, f"journal_topics_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
+            logger.info(f"Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
 
         if save_intermediates:
-            raw_df.to_csv(Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False)
-            logger.info(
-                "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
-                extra={"format_args": True},
-            )
+            raw_df.to_csv(Path(output_dir, f"journal_raw_{timestamp}.csv").as_posix(), index=False)
+            logger.info(f"Saved raw data to {output_dir}/journal_raw_{timestamp}.csv")
 
             processed_df.to_csv(
-                Path(output_dir, "journal_processed_{timestamp}.csv").as_posix(),
+                Path(output_dir, f"journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info("Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")
+            logger.info(f"Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")

@@ -340,7 +340,7 @@ class TestDemoFunctionality:
             assert len(transcription_data["transcription"]) > 0
 
             # Test summarization step
-            summary_response = requests.post(f"{demo_api_url}/summarize/text",
+            summary_response = requests.post(f"{demo_api_url}/analyze/summarize",
                                            json={"text": sample_text}, timeout=10)
 
             assert summary_response.status_code == 200
@@ -350,7 +350,7 @@ class TestDemoFunctionality:
             assert len(summary_data["summary"]) > 0
 
             # Test emotion detection step
-            emotion_response = requests.post(f"{demo_api_url}/predict",
+            emotion_response = requests.post(f"{demo_api_url}/analyze/emotion",
                                            json={"text": sample_text}, timeout=10)
 
             assert emotion_response.status_code == 200
@@ -369,7 +369,7 @@ class TestDemoFunctionality:
 
             # Verify all steps completed
             assert all(key in workflow_results for key in ["transcription", "summary", "emotions"])
-            assert all(len(str(value)) > 0 for value in workflow_results.values())
+            assert all(str(value) for value in workflow_results.values())
 
             # Verify API was called for each step
             assert mock_post.call_count >= 3

@@ -65,18 +65,18 @@ def test_python_environment():
     
     # Test JSON
     try:
-        import json
+        json.dumps({"test": "data"})
         print("✅ JSON module available")
-    except ImportError:
-        print("❌ JSON module not available")
+    except Exception as e:
+        print(f"❌ JSON module error: {e}")
         return False
     
     # Test OS
     try:
-        import os
+        os.getcwd()
         print("✅ OS module available")
-    except ImportError:
-        print("❌ OS module not available")
+    except Exception as e:
+        print(f"❌ OS module error: {e}")
         return False
     
     return True
