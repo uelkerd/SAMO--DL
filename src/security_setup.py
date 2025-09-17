@@ -7,7 +7,7 @@ Common security configuration and middleware setup for deployment scripts.
 
 import os
 from typing import Optional
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from .security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
 
 def create_security_config(environment: str = "development") -> SecurityHeadersConfig:

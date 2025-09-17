@@ -80,7 +80,7 @@ async function processText() {
 
 async function generateSampleText() {
     console.log('✨ Generating AI-powered sample journal text...');
-    
+
     // Show loading state
     const textInput = document.getElementById('textInput');
     if (textInput) {
@@ -88,88 +88,130 @@ async function generateSampleText() {
         textInput.style.borderColor = '#8b5cf6';
         textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
     }
-    
+
     try {
-        // Check for OpenAI API key
-        let apiKey = localStorage.getItem('openai_api_key');
-        if (!apiKey) {
-            apiKey = prompt('Please enter your OpenAI API key to generate AI text:');
-            if (apiKey) {
-                localStorage.setItem('openai_api_key', apiKey);
-            } else {
-                console.log('❌ No API key provided, using static samples');
-                generateStaticSampleText();
-                return;
+        // Check for OpenAI API key from multiple sources
+        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY || localStorage.getItem('openai_api_key');
+
+        if (!apiKey || apiKey.trim() === '') {
+            // Prompt user for API key with clear instructions
+            showInlineError('⚠️ OpenAI API key required for AI text generation. Click "Manage API Key" to set up.', 'textInput');
+
+            // Reset input state
+            if (textInput) {
+                textInput.value = '';
+                textInput.style.borderColor = '#ef4444';
+                textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+                setTimeout(() => {
+                    textInput.style.borderColor = '';
+                    textInput.style.boxShadow = '';
+                }, 3000);
             }
+            return;
         }
-        
-        // Different emotional prompts for variety
+
+        // Enhanced emotional prompts for more variety and authenticity
         const prompts = [
-            "Today I'm feeling incredibly excited and optimistic about",
-            "I'm experiencing a mix of emotions right now. On one hand, I feel",
-            "What a challenging day this has been. I started the morning feeling",
-            "I'm in such a peaceful and content state of mind. After",
-            "Today I'm feeling incredibly motivated and determined because"
+            "Today started like any other day, but something unexpected happened that completely changed my mood. I found myself feeling",
+            "I've been reflecting on recent changes in my life, and I'm experiencing a whirlwind of emotions. Right now I'm particularly",
+            "This week has been a journey of self-discovery. I wake up each morning feeling different, but today I'm especially",
+            "After a long conversation with someone close to me, I'm left feeling quite contemplative and",
+            "The weather outside perfectly matches my internal state today. I'm feeling deeply",
+            "I had a moment of clarity during my morning routine that left me feeling incredibly",
+            "Sometimes life throws you curveballs that make you reassess everything. Today I'm processing feelings of",
+            "I've been working towards a personal goal, and the progress (or lack thereof) has me feeling",
+            "A random act of kindness today reminded me why human connection matters. I'm feeling",
+            "After some quiet time alone with my thoughts, I've realized I'm feeling much more"
         ];
-        
+
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-        
+
         console.log('🤖 Generating AI text with OpenAI API...');
-        
-        // Call OpenAI API
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        console.log('📝 Using prompt:', randomPrompt);
+
+        // Use configuration from SAMO_CONFIG
+        const openaiConfig = window.SAMO_CONFIG.OPENAI;
+
+        // Call OpenAI API with enhanced prompt for journal-like content
+        const response = await fetch(openaiConfig.API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': `Bearer ${apiKey.trim()}`
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
+                model: openaiConfig.MODEL,
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a helpful assistant that generates personal journal entries with rich emotional content. Write 2-3 sentences that express various emotions and feelings.'
+                        content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions. Create content that feels like real personal reflection, with varied sentence structure and natural flow. Aim for 3-4 sentences that express complex, layered emotions.'
                     },
                     {
                         role: 'user',
-                        content: `Please complete this journal entry: "${randomPrompt}"`
+                        content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic, emotionally detailed, and personally reflective. Include specific emotions and inner thoughts.`
                     }
                 ],
-                max_tokens: 200,
-                temperature: 0.8
+                max_tokens: openaiConfig.MAX_TOKENS,
+                temperature: openaiConfig.TEMPERATURE + 0.1, // Slightly higher for more creativity
+                presence_penalty: 0.3, // Encourage more diverse content
+                frequency_penalty: 0.2  // Reduce repetition
             })
         });
-        
+
         if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}${errorData.error ? ' - ' + errorData.error.message : ''}`);
         }
-        
+
         const data = await response.json();
-        const generatedText = data.choices[0].message.content;
-        
+
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('Invalid response format from OpenAI API');
+        }
+
+        const generatedText = data.choices[0].message.content.trim();
+
         console.log('✅ AI text generated successfully:', generatedText);
-        
+        console.log('📊 Token usage:', data.usage);
+
         // Update the text input with generated content
         if (textInput) {
             textInput.value = generatedText;
             textInput.style.borderColor = '#10b981';
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+
+            // Reset border after success animation
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 2000);
         }
-        
+
+        showInlineSuccess('✅ AI journal text generated successfully!', 'textInput');
+
     } catch (error) {
         console.error('❌ AI text generation failed:', error);
-        
-        // Show error message
+
+        // Show detailed error message
+        const errorMessage = error.message.includes('API key')
+            ? '❌ Invalid API key. Please check your OpenAI API key.'
+            : error.message.includes('quota')
+            ? '❌ OpenAI API quota exceeded. Please check your account.'
+            : `❌ AI generation failed: ${error.message}`;
+
+        showInlineError(errorMessage, 'textInput');
+
+        // Reset input state
         if (textInput) {
-            textInput.value = `❌ AI generation failed: ${error.message}. Using sample text instead.`;
+            textInput.value = '';
             textInput.style.borderColor = '#ef4444';
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 3000);
         }
-        
-        // Show error and suggest using static samples
-        setTimeout(() => {
-            console.log('💡 Suggestion: Use "Generate Sample Text" button for static content');
-        }, 2000);
     }
 }
 
@@ -177,16 +219,19 @@ async function generateSampleText() {
 function manageApiKey() {
     const currentKey = localStorage.getItem('openai_api_key');
     const maskedKey = currentKey ? `${currentKey.substring(0, 8)}...${currentKey.substring(currentKey.length - 4)}` : 'None';
-    
-    const action = confirm(`Current API Key: ${maskedKey}\n\nClick OK to set a new key, or Cancel to clear the current key.`);
-    
+
+    const action = confirm(`Current OpenAI API Key: ${maskedKey}\n\n✅ Click OK to set a new key\n❌ Click Cancel to clear the current key\n\nNote: API keys are stored locally in your browser and never sent to our servers.`);
+
     if (action) {
         // Set new key
-        const newKey = prompt('Enter your OpenAI API key:');
-        if (newKey && newKey.trim()) {
+        const newKey = prompt('Enter your OpenAI API key:\n\n🔗 Get your API key from: https://platform.openai.com/api-keys\n\n⚠️ Your key should start with "sk-" followed by characters.\n\nAPI Key:');
+        if (newKey && newKey.trim() && newKey.trim().startsWith('sk-')) {
             localStorage.setItem('openai_api_key', newKey.trim());
-            showInlineSuccess('✅ API key saved successfully!', 'apiKeyBtn');
+            showInlineSuccess('✅ OpenAI API key saved successfully! You can now generate AI journal text.', 'apiKeyBtn');
             updateApiKeyButtonStatus();
+            console.log('✅ OpenAI API key updated successfully');
+        } else if (newKey && newKey.trim() && !newKey.trim().startsWith('sk-')) {
+            showInlineError('❌ Invalid API key format. OpenAI keys should start with "sk-".', 'apiKeyBtn');
         } else {
             showInlineError('❌ No valid API key provided.', 'apiKeyBtn');
         }
@@ -299,50 +344,31 @@ async function generateWithOpenAI(prompt) {
     }
 }
 
-function generateStaticSampleText() {
-    console.log('📝 Using static sample texts as fallback...');
-    
-    const sampleTexts = [
-        "Today has been absolutely incredible! I woke up feeling energized and optimistic about the future. The morning sun streaming through my window filled me with such warmth and joy. I had a productive meeting with my team where we discussed our exciting new project, and I could feel the enthusiasm radiating from everyone. There's something magical about working with passionate people who share your vision. I'm genuinely excited about the possibilities ahead, though I must admit I'm also feeling a bit nervous about the challenges we might face. But you know what? I'm confident we can overcome anything together. This sense of gratitude and anticipation is exactly what I needed to fuel my motivation for the coming weeks.",
-        
-        "I'm feeling a complex mix of emotions right now. On one hand, I'm incredibly proud of the progress we've made on our latest project. The team has been working tirelessly, and seeing our hard work pay off fills me with such satisfaction and pride. However, I'm also experiencing some anxiety about the upcoming deadline. The pressure is mounting, and I can feel the weight of responsibility on my shoulders. I'm excited about the potential impact of what we're building, but I'm also worried about whether we can deliver everything on time. It's this strange combination of anticipation and apprehension that keeps me up at night. I know I should be more confident, but sometimes the fear of failure creeps in. I'm trying to stay positive and focus on the amazing opportunity we have.",
-        
-        "What a rollercoaster of a day! I started the morning feeling frustrated and overwhelmed by all the tasks piling up on my desk. The constant interruptions and unexpected problems were really testing my patience. I felt angry and stressed, wondering why everything had to be so complicated. But then something beautiful happened - a colleague reached out with words of encouragement, and suddenly my perspective shifted. I felt grateful for their kindness and support. The afternoon brought some exciting news about a potential promotion, and I found myself feeling hopeful and optimistic again. It's amazing how quickly emotions can change when you're surrounded by good people and positive energy. I'm ending the day feeling much more balanced and ready to tackle whatever comes next.",
-        
-        "I'm in such a peaceful state of mind right now. After a long week of intense work and constant decision-making, I finally took some time for myself this weekend. I went for a long walk in the park, and the simple act of being in nature filled me with such calm and contentment. I feel grateful for these quiet moments of reflection. There's something deeply satisfying about slowing down and appreciating the little things - the sound of birds chirping, the gentle breeze, the way the sunlight filters through the trees. I'm feeling optimistic about the future and confident in my ability to handle whatever challenges come my way. This sense of inner peace is exactly what I needed to recharge and refocus on what truly matters.",
-        
-        "Today I'm feeling incredibly motivated and determined! I had a breakthrough moment during my morning workout where I pushed myself harder than I thought possible. The sense of accomplishment and strength I felt was absolutely exhilarating. I'm excited about the new goals I've set for myself, both personally and professionally. There's this fire burning inside me that's driving me to be better, to do more, to achieve things I never thought possible. I'm feeling confident and ready to take on any challenge that comes my way. The support from my friends and family has been incredible, and their belief in me fills me with such gratitude and love. I know there will be obstacles ahead, but I'm feeling prepared and optimistic about overcoming them."
-    ];
-    
-    // Pick a random sample text
-    const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-    
-    // Update the text input
-    const textInput = document.getElementById('textInput');
-    if (textInput) {
-        textInput.value = randomText;
-        console.log('✅ Static sample text generated and inserted');
-        
-        // Add a subtle animation to show the text was updated
-        textInput.style.borderColor = '#f59e0b';
-        textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
-        setTimeout(() => {
-            textInput.style.borderColor = '';
-            textInput.style.boxShadow = '';
-        }, 1000);
-    }
-}
+// Static sample text function removed - now using only real OpenAI API generation
+// This ensures all content is authentic and not pre-written samples
 
 
 async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
 
     try {
-        // Use same format as emotion API - query parameter instead of JSON body
-        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?text=${encodeURIComponent(text)}`;
+        // Add parameters to potentially influence summarization style
+        const params = new URLSearchParams({
+            text: text,
+            style: 'third_person',    // Request 3rd person style
+            format: 'narrative',      // Request narrative format
+            mode: 'paraphrase'        // Request paraphrasing mode
+        });
+
+        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?${params.toString()}`;
         console.log('🔗 Summarization API URL:', apiUrl);
         console.log('📝 Text being summarized:', text);
         console.log('📝 Text length:', text.length);
+        console.log('📝 Requested style: third_person narrative paraphrase');
+
+        // Increase timeout for summarization since it can take longer
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 seconds
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -350,12 +376,16 @@ async function callSummarizationAPI(text) {
                 'Content-Length': '0',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            }
+            },
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             console.error('❌ Summarization API call failed with status:', response.status);
-            throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'No error details');
+            throw new Error(`Summarization API failed: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
         const data = await response.json();
@@ -366,7 +396,7 @@ async function callSummarizationAPI(text) {
 
         // Check all possible field names for the summary
         let summaryText = null;
-        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output', 'content', 'message'];
+        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output', 'content', 'message', 'paraphrase'];
 
         for (const field of possibleFields) {
             if (data[field] && typeof data[field] === 'string') {
@@ -380,19 +410,48 @@ async function callSummarizationAPI(text) {
         if (!summaryText) {
             console.error('❌ No summary field found in API response');
             console.error('❌ Available fields:', Object.keys(data));
-            summaryText = `API returned unexpected format. Available fields: ${Object.keys(data).join(', ')}. Response: ${JSON.stringify(data)}`;
+            throw new Error(`Invalid API response format. Available fields: ${Object.keys(data).join(', ')}`);
+        }
+
+        // Clean up any auto-conversion prefixes that may come from the API
+        summaryText = summaryText.replace(/^\[Auto-converted to 3rd person\]:\s*/i, '');
+
+        // Enhanced analysis for 3rd person validation
+        const isFirstPerson = /\b(I|me|my|myself|we|us|our|ourselves)\b/i.test(summaryText);
+        const isThirdPerson = /\b(he|she|they|the person|the individual|the user|this person)\b/i.test(summaryText);
+
+        if (isFirstPerson && !isThirdPerson) {
+            console.warn('⚠️ WARNING: Summary is still in first person, not converted to third person!');
+            console.warn('⚠️ Original text style not properly converted by API');
+            // Try to auto-convert simple cases
+            const thirdPersonAttempt = summaryText
+                .replace(/\bI\b/g, 'The person')
+                .replace(/\bme\b/g, 'them')
+                .replace(/\bmy\b/g, 'their')
+                .replace(/\bmyself\b/g, 'themselves');
+
+            if (thirdPersonAttempt !== summaryText) {
+                console.log('🔄 Attempting automatic 3rd person conversion...');
+                summaryText = thirdPersonAttempt; // Remove the "[Auto-converted to 3rd person]: " prefix
+            }
         }
 
         // Check if the "summary" is actually just truncated original text
         if (summaryText && text.includes(summaryText)) {
             console.warn('⚠️ WARNING: API returned truncated original text, not a proper summary!');
             console.warn('⚠️ Original text contains the returned "summary"');
-            summaryText = `[TRUNCATION DETECTED] The API returned truncated text instead of a proper summary: "${summaryText}"`;
+            throw new Error('API returned truncated text instead of proper summarization');
         }
+
+        // Calculate compression ratio
+        const compressionRatio = (text.length - summaryText.length) / text.length;
+        console.log(`📊 Summarization stats: ${text.length} → ${summaryText.length} chars (${(compressionRatio * 100).toFixed(1)}% compression)`);
 
         const summary = {
             original_length: text.length,
-            summary_length: summaryText ? summaryText.length : text.length,
+            summary_length: summaryText.length,
+            compression_ratio: compressionRatio,
+            is_third_person: isThirdPerson && !isFirstPerson,
             summary: summaryText
         };
 
@@ -400,8 +459,14 @@ async function callSummarizationAPI(text) {
     } catch (error) {
         console.error('❌ Summarization API error:', error);
 
-        // Return error - no fallbacks to mock data
-        throw error;
+        // Enhanced error handling with specific error types
+        if (error.name === 'AbortError') {
+            throw new Error('Summarization request timed out after 45 seconds. The API may be overloaded.');
+        } else if (error.message.includes('Failed to fetch')) {
+            throw new Error('Network error: Unable to connect to summarization API. Please check your connection.');
+        } else {
+            throw error;
+        }
     }
 }
 
@@ -499,13 +564,19 @@ async function testWithRealAPI() {
         console.log('📝 Text being analyzed:', testText);
         console.log('📝 Text length:', testText.length);
         console.log('🕐 Timestamp:', new Date().toISOString());
+
+        // Add timeout handling for emotion API
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Length': '0',
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            }
+            },
+            signal: controller.signal
         })
         .then(response => {
             console.log('🔍 Response status:', response.status);
@@ -612,6 +683,10 @@ async function testWithRealAPI() {
             
             console.log('✅ Real API test completed successfully');
         })
+        .finally(() => {
+            // Clear timeout
+            clearTimeout(timeoutId);
+        })
         .catch(error => {
             console.error('❌ Real API test failed:', error);
             console.error('❌ Error details:', error.message);
@@ -622,7 +697,10 @@ async function testWithRealAPI() {
             let errorType = 'Unknown Error';
             let errorDetail = error.message;
 
-            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+            if (error.name === 'AbortError') {
+                errorType = 'Timeout Error';
+                errorDetail = 'API call timed out after 30 seconds. The server may be overloaded. Please try again.';
+            } else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
                 errorType = 'CORS/Network Error';
                 errorDetail = 'Cannot reach API due to CORS policy or network issues. This is likely because browsers block direct calls to external APIs.';
             } else if (error.message.includes('NetworkError')) {
@@ -874,20 +952,72 @@ function updateDetailedAnalysis(emotions, summary) {
 
 function updateSummary(summary) {
     console.log('📝 Updating summary...');
-    
+
     // Coerce numeric values to prevent XSS and ensure proper formatting
     const summaryLen = Number(summary.summary_length);
     const originalLen = Number(summary.original_length);
-    
-    // Update the summary text
-    updateElement('summaryText', summary.summary);
+    const compressionRatio = Number(summary.compression_ratio || 0);
+
+    // Update the summary text with enhanced formatting
+    const summaryElement = document.getElementById('summaryText');
+    if (summaryElement) {
+        summaryElement.textContent = summary.summary;
+
+        // Add visual indicator for 3rd person conversion
+        if (summary.is_third_person) {
+            summaryElement.style.borderLeft = '4px solid #10b981';
+            summaryElement.style.paddingLeft = '12px';
+            summaryElement.title = '✅ Successfully converted to 3rd person perspective';
+        } else {
+            summaryElement.style.borderLeft = '4px solid #f59e0b';
+            summaryElement.style.paddingLeft = '12px';
+            summaryElement.title = '⚠️ May still contain 1st person elements';
+        }
+    }
+
+    // Update length statistics
     updateElement('originalLength', originalLen);
     updateElement('summaryLength', summaryLen);
-    
+
+    // Add compression ratio display if element exists
+    const compressionElement = document.getElementById('compressionRatio');
+    if (compressionElement) {
+        const compressionPercent = (compressionRatio * 100).toFixed(1);
+        compressionElement.textContent = `${compressionPercent}% compression`;
+
+        // Color code based on compression quality
+        if (compressionRatio > 0.3) {
+            compressionElement.style.color = '#10b981'; // Good compression
+        } else if (compressionRatio > 0.1) {
+            compressionElement.style.color = '#f59e0b'; // Moderate compression
+        } else {
+            compressionElement.style.color = '#ef4444'; // Poor compression
+        }
+    }
+
+    // Add 3rd person indicator if element exists
+    const thirdPersonElement = document.getElementById('thirdPersonStatus');
+    if (thirdPersonElement) {
+        if (summary.is_third_person) {
+            thirdPersonElement.textContent = '✅ 3rd Person';
+            thirdPersonElement.style.color = '#10b981';
+        } else {
+            thirdPersonElement.textContent = '⚠️ Mixed/1st Person';
+            thirdPersonElement.style.color = '#f59e0b';
+        }
+    }
+
+    // Log quality metrics
+    console.log(`📊 Summary Quality Metrics:
+        - Length: ${originalLen} → ${summaryLen} chars
+        - Compression: ${(compressionRatio * 100).toFixed(1)}%
+        - 3rd Person: ${summary.is_third_person ? 'Yes' : 'No'}
+    `);
+
     // Create summary chart
     createSummaryChart(summary);
-    
-        console.log('✅ Summary updated');
+
+    console.log('✅ Summary updated with quality indicators');
 }
 
 function updateElement(id, value) {

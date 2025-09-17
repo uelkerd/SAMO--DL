@@ -1,6 +1,7 @@
 flask>=2.0.0
 torch>=2.0.0
-transformers>=4.55.0
+transformers>=4.46.0,<4.47.0
 numpy>=1.21.0
 requests==2.32.4
 httpx>=0.25.0,<0.29.0
+pyyaml>=6.0

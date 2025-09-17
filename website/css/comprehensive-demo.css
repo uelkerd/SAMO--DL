@@ -568,6 +568,48 @@ body.comprehensive-demo {
     color: #e2e8f0;
 }
 
+/* Enhanced Loading Step Styles */
+.process-step {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.process-step.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: scale(1.02);
+}
+
+.process-step.completed {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.step-text {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.step-status {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.process-step.active .step-status {
+    color: #a855f7;
+}
+
+.process-step.completed .step-status {
+    color: #10b981;
+}
+
 /* Processing Information Compact Styles */
 #processingInfoSidebar .feature-card {
     min-height: auto;
