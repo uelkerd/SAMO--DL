@@ -157,7 +157,7 @@ def fix_pytorch_installation():
     
     # Uninstall existing PyTorch
     success, _ = run_command(
-        "pip uninstall torch torchvision torchaudio -y",
+        [sys.executable, "-m", "pip", "uninstall", "-y", "torch", "torchvision", "torchaudio"],
         "Uninstalling existing PyTorch"
     )
     
@@ -166,7 +166,9 @@ def fix_pytorch_installation():
     
     # Install compatible PyTorch
     success, _ = run_command(
-        "pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118",
+        [sys.executable, "-m", "pip", "install",
+         "--index-url", "https://download.pytorch.org/whl/cu118",
+         "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0"],
         "Installing compatible PyTorch"
     )
     
@@ -183,7 +185,7 @@ def fix_transformers_installation():
     
     # Uninstall existing Transformers
     success, _ = run_command(
-        "pip uninstall transformers -y",
+        [sys.executable, "-m", "pip", "uninstall", "-y", "transformers"],
         "Uninstalling existing Transformers"
     )
     
@@ -192,7 +194,7 @@ def fix_transformers_installation():
     
     # Install compatible Transformers
     success, _ = run_command(
-        "pip install transformers==4.30.0",
+        [sys.executable, "-m", "pip", "install", "transformers==4.30.0"],
         "Installing compatible Transformers"
     )
     

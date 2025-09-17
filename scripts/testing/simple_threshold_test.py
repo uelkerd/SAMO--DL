@@ -1,11 +1,3 @@
-    # Apply fallback logic
-    # Apply threshold to get predictions
-    # Check for samples with no predictions
-    # Count probabilities above threshold
-    # Create probabilities with similar distribution to what we observed
-    # Create synthetic probability data that matches what we saw in debug output
-    # Test threshold application
-    # mean=0.4681, min=0.1150, max=0.9119
 #!/usr/bin/env python3
 import logging
 import torch

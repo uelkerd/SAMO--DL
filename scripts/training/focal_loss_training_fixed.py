@@ -1,27 +1,3 @@
-            # Backward pass
-            # Forward pass
-            # Log progress every 100 batches
-        # Apply alpha weighting
-        # Apply reduction
-        # Apply sigmoid to get probabilities
-        # Calculate binary cross entropy
-        # Calculate focal loss components
-        # Combine all components
-        # Log progress
-        # Save best model
-        # Training phase
-        # Validation phase
-    # Create data loaders
-    # Create focal loss
-    # Create model
-    # Load dataset using existing loader
-    # Run training
-    # Save final model
-    # Setup device
-    # Setup optimizer
-    # Training loop
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
@@ -128,16 +104,16 @@ def train_with_focal_loss(
 
         train_dataset = datasets["train"]
         val_dataset = datasets["validation"]
-        datasets["test"]
-        datasets["class_weights"]
+        test_dataset = datasets["test"]
+        _class_weights = datasets.get("class_weights")
 
         logger.info("Dataset loaded successfully:")
-        logger.info("   • Train: {len(train_dataset)} examples")
-        logger.info("   • Validation: {len(val_dataset)} examples")
-        logger.info("   • Test: {len(test_dataset)} examples")
+        logger.info("   • Train: %d examples", len(train_dataset))
+        logger.info("   • Validation: %d examples", len(val_dataset))
+        logger.info("   • Test: %d examples", len(test_dataset))
 
     except Exception:
-        logger.error("Failed to load dataset: {e}")
+        logger.exception("Failed to load dataset")
         raise
 
     logger.info("🤖 Creating BERT model...")

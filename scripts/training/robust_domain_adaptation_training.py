@@ -9,6 +9,7 @@ Target: Achieve 70% F1 score on journal entries through domain adaptation from G
 """
 
 import os
+import sys
 import json
 import warnings
 import subprocess
@@ -49,20 +50,20 @@ def setup_environment():
 
     # Step 2: Install PyTorch with compatible CUDA version
     subprocess.run([
-        "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
+        sys.executable, "-m", "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
         "--index-url", "https://download.pytorch.org/whl/cu118", "--no-cache-dir"
-    ])
+    ], timeout=1800)
 
     # Step 3: Install Transformers with compatible version
     subprocess.run([
-        "pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"
-    ])
+        sys.executable, "-m", "pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"
+    ], timeout=1800)
 
     # Step 4: Install additional dependencies
     subprocess.run([
-        "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy",
+        sys.executable, "-m", "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy",
         "matplotlib", "seaborn", "accelerate", "wandb", "--no-cache-dir"
-    ])
+    ], timeout=1800)
 
     print("✅ Dependencies installed successfully")
     return is_colab
@@ -232,6 +233,10 @@ class FocalLoss:
         self.reduction = reduction
 
     def __call__(self, inputs, targets):
+        if targets.dtype != torch.long:
+            raise TypeError(f"targets.dtype must be torch.long, got {targets.dtype}")
+        if inputs.ndim != 2:
+            raise ValueError(f"inputs must be [N, C], got {inputs.shape}")
         ce_loss = F.cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
@@ -311,7 +316,6 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
         model = DomainAdaptedEmotionClassifier(model_name=model_name, num_labels=num_labels)
 
         # Move to device
-        import torch
         model = model.to(device)
         print(f"✅ Model moved to {device}")
 
@@ -349,7 +353,6 @@ def main():
         return
 
     # Step 5: Initialize model (example)
-    import torch
     _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # This would be called when we have the label encoder ready

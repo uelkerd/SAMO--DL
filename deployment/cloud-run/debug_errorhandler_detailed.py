@@ -4,7 +4,8 @@ Detailed debug script to understand the errorhandler issue
 """
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+import sys
+os.environ.setdefault('ADMIN_API_KEY', 'test123')
 
 print("🔍 Starting detailed errorhandler debug...")
 
@@ -15,7 +16,7 @@ try:
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 try:
     app = Flask(__name__)
@@ -23,7 +24,7 @@ try:
     print("✅ API object created")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 # Let's inspect the API object in detail
 print(f"\n🔍 API object details:")
@@ -72,8 +73,13 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 # Let's check if there's a version issue
 try:
     import flask_restx
-    print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
-    print(f"Flask version: {flask.__version__}")
+    print(f"\n🔍 Flask-RESTX version: {getattr(flask_restx, '__version__', 'unknown')}")
+    try:
+        from importlib.metadata import version as pkg_version
+        flask_ver = getattr(flask, '__version__', None) or pkg_version('flask')
+    except Exception:
+        flask_ver = getattr(flask, '__version__', 'unknown')
+    print(f"Flask version: {flask_ver}")
 except Exception as e:
     print(f"❌ Could not get versions: {e}")
 

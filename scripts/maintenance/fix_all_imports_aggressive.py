@@ -103,8 +103,6 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
     if not content.endswith('\n'):
         content += '\n'
 
-    content = re.sub(r'"([^"]*)"', r'"\1"', content)
-    content = re.sub(r"'([^']*)'", r"'\1'", content)
 
     lines = content.split('\n')
     fixed_lines = []
@@ -127,6 +125,7 @@ def fix_common_issues_aggressive(file_path: str) -> bool:
 
 def main():
     """Fix all import and linting issues aggressively."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
 

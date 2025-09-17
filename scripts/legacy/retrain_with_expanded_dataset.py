@@ -70,8 +70,12 @@ class ExpandedEmotionClassifier(nn.Module):
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
 
     def forward(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        pooled_output = outputs.pooler_output
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
+        pooled_output = getattr(outputs, "pooler_output", None)
+        if pooled_output is None:
+            last_hidden = outputs.last_hidden_state
+            mask = attention_mask.unsqueeze(-1)
+            pooled_output = (last_hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
         logits = self.classifier(self.dropout(pooled_output))
         return logits
 
