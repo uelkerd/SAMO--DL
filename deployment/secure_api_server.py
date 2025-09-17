@@ -141,21 +141,23 @@ def secure_endpoint(f):
                 response_time = time.time() - start_time
                 update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)
                 logger.warning("Rate limit exceeded: %s from %s", reason, client_ip)
-                return jsonify({
+                resp = jsonify({
                     'error': 'Rate limit exceeded',
                     'message': reason,
                     'retry_after': rate_limit_config.window_size_seconds
-                }), 429
+                })
+                resp.status_code = 429
+                resp.headers['Retry-After'] = str(rate_limit_config.window_size_seconds)
+                return resp
 
             # Content type validation
             if request.method == 'POST':
                 content_type = request.headers.get('Content-Type', '')
-                if not input_sanitizer.validate_content_type(content_type):
+                normalized_ct = content_type.split(';', 1)[0].strip().lower()
+                if not input_sanitizer.validate_content_type(normalized_ct):
                     response_time = time.time() - start_time
                     update_metrics(response_time, success=False, error_type='invalid_content_type')
-                    logger.warning(
-                        "Invalid content type: %s from %s", content_type, client_ip
-                    )
+                    logger.warning("Invalid content type: %s from %s", content_type, client_ip)
                     return jsonify({
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
@@ -285,7 +287,7 @@ class SecureEmotionDetectionModel:
             # Sanitize input text
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
-                logger.warning("Sanitization warnings: %s", warnings)
+                logger.warning("Sanitization warnings: count=%d", len(warnings))
 
             # Tokenize input
             inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
@@ -628,7 +630,7 @@ def predict():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error("Invalid JSON in request from %s", request.remote_addr)
+            logger.exception("Invalid JSON in request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
 
         if not data:
@@ -642,7 +644,7 @@ def predict():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning("Validation error: %s from %s", str(e), request.remote_addr)
+            logger.warning("Validation error (%s) from %s", e.__class__.__name__, request.remote_addr)
             return jsonify({'error': 'Invalid input data'}), 400
 
         # Detect anomalies
@@ -694,7 +696,7 @@ def predict_batch():
         except werkzeug.exceptions.BadRequest:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_json')
-            logger.error("Invalid JSON in batch request from %s", request.remote_addr)
+            logger.exception("Invalid JSON in batch request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
 
         if not data:
@@ -708,9 +710,7 @@ def predict_batch():
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning(
-                "Batch validation error: %s from %s", str(e), request.remote_addr
-            )
+            logger.warning("Batch validation error (%s) from %s", e.__class__.__name__, request.remote_addr)
             return jsonify({'error': 'Invalid batch input data'}), 400
 
         # Detect anomalies
@@ -1041,7 +1041,7 @@ def home():
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
     """Handle BadRequest exceptions (invalid JSON, etc.)."""
-    logger.warning("BadRequest: %s", e)
+    logger.exception("BadRequest")
     update_metrics(0.0, success=False, error_type='invalid_json')
     return jsonify({'error': 'Invalid JSON format'}), 400
 
@@ -1052,7 +1052,7 @@ def handle_not_found(_):
     return jsonify({'error': 'Endpoint not found'}), 404
 
 @app.errorhandler(500)
-def handle_internal_error(e):
+def handle_internal_error(_):
     """Handle 500 errors."""
     logger.exception("Internal server error")
     return jsonify({'error': 'Internal server error'}), 500

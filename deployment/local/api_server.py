@@ -20,12 +20,8 @@ from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Import security setup using absolute import
-# TODO: Consider packaging src/ as a proper package to avoid sys.path surgery
-import sys
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-from src.security_setup import setup_security_middleware
+# TODO: Package src/ as a proper module and depend on it explicitly.
+# from src.security_setup import setup_security_middleware
 
 # Configure logging after all imports
 logging.basicConfig(
@@ -118,8 +114,8 @@ class EmotionDetectionModel:
         logger.info(f"Loading model from: {self.model_path}")
 
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, local_files_only=True)
+            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path, local_files_only=True)
             self.model.eval()
 
             # Move to GPU if available

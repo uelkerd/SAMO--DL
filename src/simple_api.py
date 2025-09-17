@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
 """Ultra-simple API that starts immediately for Cloud Run."""
 import os
 import logging
+import threading
 from functools import lru_cache
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,7 +47,7 @@ def get_cors_origin_regex():
 
     if regex_env:
         patterns = [p.strip() for p in regex_env.split(",") if p.strip()]
-        combined = f"^(?:{'|'.join(patterns)})$"
+        combined = f"(?:{'|'.join(patterns)})"
         logger.info(f"CORS origin regex: {combined}")
         return combined
     # Default patterns for common development and staging environments
@@ -58,7 +58,7 @@ def get_cors_origin_regex():
         r"http://localhost:\d+$",      # Local development with any port
         r"http://127\.0\.0\.1:\d+$",   # Local development with any port
     ]
-    combined = f"^(?:{'|'.join(default_patterns)})$"
+    combined = f"(?:{'|'.join(default_patterns)})"
     logger.info(f"Default CORS origin regex: {combined}")
     return combined
 
@@ -80,6 +80,8 @@ app.add_middleware(
 class EmotionRequest(BaseModel):
     text: str
 
+_model_lock = threading.Lock()
+
 @lru_cache(maxsize=1)
 def _load_emotion_model():
     """Load and cache emotion detection model."""
@@ -88,9 +90,10 @@ def _load_emotion_model():
     model_name = 'duelker/samo-goemotions-deberta-v3-large'
     logger.info(f"Loading emotion model: {model_name}")
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-    model.eval()  # Set to evaluation mode for deterministic inference
+    with _model_lock:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        model.eval()  # Set to evaluation mode for deterministic inference
 
     logger.info("Emotion model loaded and cached successfully")
     return tokenizer, model
@@ -109,6 +112,8 @@ async def health():
 def analyze_emotion(request: EmotionRequest):
     """Analyze emotion using cached model with safe inference."""
     try:
+        if not request.text or not request.text.strip():
+            raise HTTPException(status_code=400, detail="Text input is required")
         logger.info("Starting emotion analysis", extra={"text_length": len(request.text)})
 
         # Load cached model
@@ -120,6 +125,9 @@ def analyze_emotion(request: EmotionRequest):
         with torch.no_grad():
             outputs = model(**inputs)
             predictions = outputs.logits.sigmoid()
+
+        # Always convert to CPU before Python conversion
+        predictions = predictions.detach().cpu()
 
         # Derive labels from model config; fallback to GoEmotions list
         id2label = getattr(model.config, "id2label", None)
@@ -140,10 +148,16 @@ def analyze_emotion(request: EmotionRequest):
         emotion_scores = predictions[0].tolist()
         predicted_emotion = emotion_labels[max(range(len(emotion_scores)), key=emotion_scores.__getitem__)]
 
+        # Non-breaking: also return the top-3 emotions
+        top_k = 3
+        top_idx = sorted(range(len(emotion_scores)), key=emotion_scores.__getitem__, reverse=True)[:top_k]
+        top_emotions = [{"label": emotion_labels[i], "score": emotion_scores[i]} for i in top_idx]
+
         result = {
             "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
-            "predicted_emotion": predicted_emotion
+            "predicted_emotion": predicted_emotion,
+            "top_emotions": top_emotions
         }
 
         logger.info("Emotion analysis completed successfully", extra={
@@ -152,9 +166,9 @@ def analyze_emotion(request: EmotionRequest):
         })
         return result
 
-    except Exception:
+    except Exception as e:
         logger.exception("Error in emotion analysis")
-        raise HTTPException(status_code=500, detail="Analysis failed")
+        raise HTTPException(status_code=500, detail="Analysis failed") from e
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

@@ -217,128 +217,7 @@ app_start_time = time.time()
 jwt_manager = JWTManager()
 security = HTTPBearer()
 
-# Enhanced WebSocket Connection Management
-class WebSocketConnectionManager:
-    """Enhanced WebSocket connection manager with pooling and heartbeat."""
-
-    def __init__(self):
-        self.active_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
-        self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
-        self.heartbeat_interval = 30  # seconds
-        self.max_connections_per_user = 5
-        self.connection_timeout = 300  # 5 minutes
-
-    async def connect(self, websocket: WebSocket, user_id: str, token: str):
-        """Connect a new WebSocket with enhanced management."""
-        # Check connection limits
-        if len(self.active_connections[user_id]) >= self.max_connections_per_user:
-            await websocket.close(code=4008, reason="Maximum connections reached")
-            return False
-
-        await websocket.accept()
-        self.active_connections[user_id].add(websocket)
-
-        # Store connection metadata
-        self.connection_metadata[websocket] = {
-            "user_id": user_id,
-            "token": token,
-            "connected_at": time.time(),
-            "last_heartbeat": time.time(),
-            "message_count": 0,
-            "bytes_processed": 0
-        }
-
-        logger.info(
-            "WebSocket connected for user %s. "
-            "Total connections: %s",
-            user_id, len(self.active_connections[user_id])
-        )
-        return True
-
-    async def disconnect(self, websocket: WebSocket):
-        """Disconnect WebSocket and cleanup."""
-        user_id = None
-        if websocket in self.connection_metadata:
-            user_id = self.connection_metadata[websocket]["user_id"]
-            del self.connection_metadata[websocket]
-
-        if user_id and websocket in self.active_connections[user_id]:
-            self.active_connections[user_id].remove(websocket)
-            if not self.active_connections[user_id]:
-                del self.active_connections[user_id]
-
-        logger.info("WebSocket disconnected for user %s", user_id)
-
-    async def send_personal_message(
-        self, message: Dict[str, Any], websocket: WebSocket
-    ):
-        """Send message to specific WebSocket with error handling."""
-        try:
-            await websocket.send_json(message)
-            if websocket in self.connection_metadata:
-                self.connection_metadata[websocket]["message_count"] += 1
-        except Exception as e:
-            logger.error("Failed to send message to WebSocket: %s", e)
-            await self.disconnect(websocket)
-
-    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
-        """Broadcast message to all connections of a specific user."""
-        disconnected = set()
-        for websocket in self.active_connections[user_id]:
-            try:
-                await websocket.send_json(message)
-                if websocket in self.connection_metadata:
-                    self.connection_metadata[websocket]["message_count"] += 1
-            except Exception as e:
-                logger.error("Failed to broadcast to WebSocket: %s", e)
-                disconnected.add(websocket)
-
-        # Cleanup disconnected connections
-        for websocket in disconnected:
-            await self.disconnect(websocket)
-
-    async def update_heartbeat(self, websocket: WebSocket):
-        """Update heartbeat timestamp for connection."""
-        if websocket in self.connection_metadata:
-            self.connection_metadata[websocket]["last_heartbeat"] = time.time()
-
-    async def cleanup_stale_connections(self):
-        """Cleanup stale connections based on timeout."""
-        current_time = time.time()
-        stale_connections = []
-
-        for websocket, metadata in self.connection_metadata.items():
-            if current_time - metadata["last_heartbeat"] > self.connection_timeout:
-                stale_connections.append(websocket)
-
-        for websocket in stale_connections:
-            logger.warning(
-                "Cleaning up stale WebSocket connection for user %s",
-                self.connection_metadata[websocket]['user_id']
-            )
-            await self.disconnect(websocket)
-
-    def get_connection_stats(self) -> Dict[str, Any]:
-        """Get connection statistics."""
-        total_connections = sum(
-            len(connections) for connections in self.active_connections.values()
-        )
-        total_users = len(self.active_connections)
-
-        return {
-            "total_connections": total_connections,
-            "total_users": total_users,
-            "connections_per_user": {
-                user_id: len(connections)
-                for user_id, connections in self.active_connections.items()
-            },
-            "connection_metadata": {
-                str(ws): metadata for ws, metadata in self.connection_metadata.items()
-            }
-        }
-
-# Global WebSocket manager
-websocket_manager = WebSocketConnectionManager()
+# WebSocketConnectionManager removed - was instantiated but never used
 
 # Authentication models
 class UserLogin(BaseModel):
@@ -519,13 +398,16 @@ cors_origins = config.get_security_config()["cors_origins"]
 # If using wildcard origins, disable credentials for security
 allow_credentials = "*" not in cors_origins and len(cors_origins) > 0
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=allow_credentials,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
+if config.get_security_config().get("enable_cors", True):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["*"],
+    )
+else:
+    logger.info("CORS disabled by configuration")
 
 # Add rate limiting middleware (production-friendly settings)
 try:
@@ -1335,7 +1217,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
 async def analyze_journal_entry(
     request: JournalEntryRequest,
     _x_api_key: Optional[str] = Header(
-        None, description="API key for authentication"
+        None, description="API key for authentication (currently not validated)"
     ),
 ) -> CompleteJournalAnalysis:
     """Analyze a text journal entry with emotion detection and summarization."""
@@ -1423,7 +1305,7 @@ async def analyze_journal_entry(
         )
 
     except Exception as exc:
-        logger.error("❌ Error in journal analysis: %s", exc)
+        logger.exception("❌ Error in journal analysis")
         raise HTTPException(status_code=500, detail="Analysis failed") from exc
 
 
@@ -1454,7 +1336,7 @@ async def analyze_voice_journal(
         0.1, description="Threshold for emotion detection", ge=0, le=1
     ),
     x_api_key: Optional[str] = Header(
-        None, description="API key for authentication"
+        None, description="API key for authentication (currently not validated)"
     ),
 ) -> CompleteJournalAnalysis:
     """Complete voice journal analysis pipeline."""
@@ -1481,7 +1363,7 @@ async def analyze_voice_journal(
                     )
 
                 # Read file content with size limit
-                content = b""
+                buf = bytearray()
                 chunk_size = 8192  # 8KB chunks
 
                 while True:
@@ -1489,14 +1371,15 @@ async def analyze_voice_journal(
                     if not chunk:
                         break
 
-                    content += chunk
-                    if len(content) > MAX_FILE_SIZE:
+                    buf.extend(chunk)
+                    if len(buf) > MAX_FILE_SIZE:
                         raise HTTPException(
                             status_code=413,
                             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
                         )
 
                 # Create a temporary file for the audio with correct extension
+                content = bytes(buf)
                 temp_file_path = _write_temp_audio(content, audio_file.filename, audio_file.content_type)
 
                 try:
@@ -1598,7 +1481,7 @@ async def analyze_voice_journal(
         )
 
     except Exception as exc:
-        logger.error("❌ Error in voice journal analysis: %s", exc)
+        logger.exception("❌ Error in voice journal analysis")
         raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
 
 
@@ -1732,7 +1615,7 @@ async def transcribe_voice(
         if isinstance(exc, HTTPException):
             # Preserve FastAPI HTTPException semantics
             raise
-        logger.error("Voice transcription failed: %s", exc)
+        logger.exception("Voice transcription failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Voice transcription failed"
@@ -2026,7 +1909,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
-        logger.error("WebSocket error: %s", exc)
+        logger.exception("WebSocket error")
         try:
             await websocket.send_json({
                 "type": "error",

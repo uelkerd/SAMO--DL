@@ -545,7 +545,8 @@ logger.info(f"Allowed origins: {cors_origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_origin_regex=r"https://.*\.github\.io$",
+    # Narrow to your org if possible, or drop regex entirely if explicit list suffices
+    # allow_origin_regex=r"^https://(uelkerd|samo-dl)\.github\.io$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-API-Key", "X-Requested-With"],
@@ -644,7 +645,6 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal server error",
             "message": "An unexpected error occurred",
-            "type": type(exc).__name__,
         },
     )
 
@@ -1516,11 +1516,10 @@ async def analyze_voice_journal(
                 transcribed_text = ""
 
         # Steps 2 & 3: Continue with text analysis using transcribed text
+        if voice_transcriber is None:
+            raise HTTPException(status_code=503, detail="Voice transcription service unavailable")
         if not transcribed_text.strip():
-            raise HTTPException(
-                status_code=400,
-                detail="Failed to transcribe audio or audio is too short"
-            )
+            raise HTTPException(status_code=400, detail="Audio too short or could not be transcribed")
 
         # Create a JournalEntryRequest for the text analysis
         text_request = JournalEntryRequest(
@@ -1624,7 +1623,7 @@ async def transcribe_voice(
         "base",
         description="Whisper model size (tiny, base, small, medium, large)"
     ),
-    timestamp: bool = Form(False, description="Include word-level timestamps"),
+    timestamp: bool = Form(False, description="Include word-level timestamps"),  # TODO: Wire through to enable timestamps
     current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
     """Enhanced voice transcription with detailed analysis."""
@@ -1781,6 +1780,11 @@ async def batch_transcribe_voice(
             try:
                 # Process each file individually
                 content = await audio_file.read()
+                if content and len(content) > 45 * 1024 * 1024:
+                    raise HTTPException(status_code=400, detail="File too large (max 45MB)")
+                ctype = getattr(audio_file, "content_type", "") or ""
+                if ctype and not ctype.startswith("audio/"):
+                    raise HTTPException(status_code=400, detail="Unsupported media type")
                 # Allow empty/invalid content to be passed to mocked transcriber
                 # to exercise failure paths
                 if audio_file.filename:

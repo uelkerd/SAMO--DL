@@ -205,24 +205,21 @@ class TestDemoFunctionality:
         assert "model" in expected_request
         assert expected_request["model"] == "t5"
 
-    @staticmethod
-    def test_demo_error_handling_contract():
+    @pytest.mark.parametrize("scenario", [
+        {"status": 400, "message": "Bad Request"},
+        {"status": 429, "message": "Rate Limited"},
+        {"status": 500, "message": "Internal Server Error"},
+        {"status": 503, "message": "Service Unavailable"}
+    ])
+    def test_demo_error_handling_contract(self, scenario):
         """Test that the demo error handling contract is properly defined"""
-        # Test error handling contract for various scenarios
-        error_scenarios = [
-            {"status": 400, "message": "Bad Request"},
-            {"status": 429, "message": "Rate Limited"},
-            {"status": 500, "message": "Internal Server Error"},
-            {"status": 503, "message": "Service Unavailable"}
-        ]
-
-        # Validate all error scenarios have required structure
+        # Validate error scenario has required structure
         # This tests the error handling contract that the demo should follow
         # The actual error handling implementation is tested in test_demo_api_error_handling
-        assert all("status" in scenario for scenario in error_scenarios)
-        assert all("message" in scenario for scenario in error_scenarios)
-        assert all(isinstance(scenario["status"], int) for scenario in error_scenarios)
-        assert all(isinstance(scenario["message"], str) for scenario in error_scenarios)
+        assert "status" in scenario
+        assert "message" in scenario
+        assert isinstance(scenario["status"], int)
+        assert isinstance(scenario["message"], str)
 
     @staticmethod
     def test_demo_ui_components():
@@ -429,7 +426,7 @@ class TestDemoFunctionality:
             }
 
             # Add artificial delay to test timing
-            def delayed_response(*args, **kwargs):
+            def delayed_response(*_args, **_kwargs):
                 time.sleep(0.1)  # 100ms delay
                 return mock_response
 

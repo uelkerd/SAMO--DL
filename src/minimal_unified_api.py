@@ -158,14 +158,21 @@ async def analyze_emotion(request: EmotionRequest):
         # Detach and move to CPU before converting to Python lists
         predictions = predictions.detach().cpu()
 
-        # Get emotion labels (28 emotions from our DeBERTa-v3 model)
-        emotion_labels = [
-            'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
-            'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
-            'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
-            'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
-            'relief', 'remorse', 'sadness', 'surprise', 'neutral'
-        ]
+        # Prefer labels from model config; fallback to GoEmotions list
+        id2label = getattr(model.config, "id2label", None)
+        if id2label:
+            try:
+                emotion_labels = [id2label[i] for i in range(model.config.num_labels)]
+            except Exception:
+                emotion_labels = list(id2label.values())
+        else:
+            emotion_labels = [
+                'admiration','amusement','anger','annoyance','approval','caring',
+                'confusion','curiosity','desire','disappointment','disapproval',
+                'disgust','embarrassment','excitement','fear','gratitude','grief',
+                'joy','love','nervousness','optimism','pride','realization',
+                'relief','remorse','sadness','surprise','neutral'
+            ]
         emotion_scores = predictions[0].tolist()
         predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
 
@@ -279,6 +286,10 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Empty audio file")
         if len(content) > 25 * 1024 * 1024:
             raise HTTPException(status_code=413, detail="Audio file too large (max 25 MB)")
+        allowed_suffixes = {".wav",".mp3",".m4a",".mp4",".ogg",".webm",".flac",".aac"}
+        content_type = getattr(audio_file, "content_type", "") or ""
+        if suffix.lower() not in allowed_suffixes and not content_type.startswith("audio/"):
+            raise HTTPException(status_code=400, detail="Unsupported audio format")
 
         # Save audio file temporarily
         import tempfile

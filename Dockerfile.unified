@@ -24,8 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and install Python dependencies
 COPY requirements-unified-fixed.txt .
-# TODO: Consider pinning wheels via hashes or constraints for reproducible builds
-# RUN pip install --require-hashes -r requirements-unified-fixed.txt
+# Prefer constraints or hashes
+# COPY constraints.txt .
+# RUN pip install --no-cache-dir -r requirements-unified-fixed.txt -c constraints.txt
 RUN pip install --no-cache-dir -r requirements-unified-fixed.txt
 
 # Copy source code
@@ -36,28 +37,14 @@ COPY deployment/ ./deployment/
 # Allow skipping model pre-downloads
 ARG PRELOAD_MODELS=false
 
+# Copy model prefetch script
+COPY scripts/deployment/prefetch_models.py ./scripts/deployment/
+
 RUN mkdir -p /app/models && \
     echo "Model pre-download toggle: ${PRELOAD_MODELS}" && \
     if [ "${PRELOAD_MODELS}" = "true" ]; then \
     echo "Pre-downloading models..." && \
-    python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
-    model_name='duelker/samo-goemotions-deberta-v3-large'; \
-    print(f'Downloading emotion model {model_name}...'); \
-    AutoTokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
-    AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir='/app/models'); \
-    print('✓ Emotion model downloaded successfully');" && \
-    python -c "from transformers import T5Tokenizer, T5ForConditionalGeneration; \
-    model_name='t5-small'; \
-    print(f'Downloading T5 model {model_name}...'); \
-    T5Tokenizer.from_pretrained(model_name, cache_dir='/app/models'); \
-    T5ForConditionalGeneration.from_pretrained(model_name, cache_dir='/app/models'); \
-    print('✓ T5 model downloaded successfully');" && \
-    python -c "import whisper; \
-    model_size='base'; \
-    print(f'Downloading Whisper model {model_size}...'); \
-    whisper.load_model(model_size, download_root='/app/models'); \
-    print('✓ Whisper model downloaded successfully');" && \
-    echo "All models downloaded successfully!"; \
+    python scripts/deployment/prefetch_models.py /app/models; \
     else echo "Skipping model pre-download"; fi
 
 # Create non-root user for security
