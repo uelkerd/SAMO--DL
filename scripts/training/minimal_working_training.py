@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                 # Backward pass
                 # Forward pass
                 # Log progress every 10 batches
@@ -17,13 +18,11 @@
     # Create random input data
     # Setup device
 # Configure logging
-#!/usr/bin/env python3
 from torch import nn
 import logging
 import os
 import sys
 import torch
-import traceback
 
 
 

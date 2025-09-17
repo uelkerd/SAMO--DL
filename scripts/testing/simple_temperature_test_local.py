@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                 # Apply threshold
         # Calculate macro F1
         # Calculate metrics
@@ -19,7 +20,6 @@
     # Load sample data
     # Set device
     # Test different temperatures
-#!/usr/bin/env python3
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from pathlib import Path
 from torch.utils.data import DataLoader

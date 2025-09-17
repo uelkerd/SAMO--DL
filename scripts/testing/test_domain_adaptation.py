@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
             # Apply threshold and get predicted emotions
             # Predict
             # Sort by confidence
@@ -24,7 +25,6 @@
     # Save samples for testing
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 # Set up logging
-#!/usr/bin/env python3
 from pathlib import Path
 from transformers import AutoTokenizer
 import argparse

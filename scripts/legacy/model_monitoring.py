@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                 # Calculate drift score using KL divergence or statistical distance
                 # Check for data drift (if detector is initialized)
                 # Check for degradation
@@ -42,7 +43,6 @@
 # Add src to path
 # Configure logging
 # Constants
-#!/usr/bin/env python3
 from collections import deque
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                 # Test write permissions
             # Backward pass
             # Check CUDA availability
@@ -21,18 +22,18 @@
             # Test loss function
             # Test one training step
             # Test optimizer
-            # Test scheduler
-            # Validate first batch
-            # Validate labels
-            # Validate outputs
-            from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-            from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-            from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-            from torch.optim import AdamW
-            import pandas as pd
-            import shutil
-            import torch
-            import transformers
+# Test scheduler
+# Validate first batch
+# Validate labels
+# Validate outputs
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from torch.optim import AdamW
+import pandas as pd
+import shutil
+import torch
+import transformers
         # Critical issues
         # Final recommendation
         # Summary
@@ -43,12 +44,10 @@
 # Add src to path
 # Configure logging
 # Import torch early for validation
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import numpy as np
 import sys
-import torch
 
 
 

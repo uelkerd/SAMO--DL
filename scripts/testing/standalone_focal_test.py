@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
         # Create a simple BERT classifier
         # Create a simple classifier head
         # Load a small subset for testing
@@ -10,8 +11,6 @@
     # Create synthetic data
     # Setup device
 # Configure logging
-#!/usr/bin/env python3
-from torch import nn
 import logging
 import sys
 import torch

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
             # Create custom job
             # Create hyperparameter tuning job
             # Create validation job
@@ -9,11 +10,6 @@
             # Model monitoring configuration
             # Pipeline configuration
             # Training job configuration
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
             from google.cloud import aiplatform
             from google.cloud import storage
             import subprocess
@@ -29,7 +25,6 @@
     # Summary
 # Add src to path
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 from typing import Dict, Any, Optional
 import logging

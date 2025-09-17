@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                     # The labels field contains a list of integer indices
                     # The labels field contains a list of integer indices
             # Backward pass
@@ -30,10 +31,8 @@
     # Use different learning rates for different layers
     from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
     from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 # Add src to path
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 from typing import Dict, Any, Tuple
 import logging

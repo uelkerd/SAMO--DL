@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
             # Create custom job with correct API syntax
             # Create hyperparameter tuning job with correct API syntax
             # Create validation job with correct API syntax
@@ -5,9 +6,6 @@
             # Initialize Vertex AI
             # Model monitoring configuration
             # Pipeline configuration
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
             from google.cloud import aiplatform
             from google.cloud import storage
         # Step 1: Environment setup
@@ -22,7 +20,6 @@
     # Summary
 # Add src to path
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 from typing import Dict, Any, Optional
 import logging

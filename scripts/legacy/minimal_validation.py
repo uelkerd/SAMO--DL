@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
         # Add src to path
         # Create model
         # Test with dummy data
@@ -5,12 +6,10 @@
         from torch import nn
         import sklearn
         import torch
-        import torch
         import torch.nn.functional as F
         import transformers
     # Summary
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import numpy as np

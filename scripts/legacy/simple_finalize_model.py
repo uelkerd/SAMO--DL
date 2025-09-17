@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
     # Check if checkpoint exists
     # Copy checkpoint to final location
     # Create final model
@@ -9,7 +10,6 @@
 # Add src to path
 # Configure logging
 # Constants
-#!/usr/bin/env python3
 from pathlib import Path
 import json
 import logging

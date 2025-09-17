@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
                 # Simple focal loss implementation
         # Add src to path
         # Add src to path
@@ -13,7 +14,6 @@
         import torch.nn.functional as F
     # Summary
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import sys

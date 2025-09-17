@@ -1,10 +1,10 @@
+#!/usr/bin/env python3
         # Create a simple custom training job
         # Get project ID
         # Import Vertex AI
         # Initialize Vertex AI
         from google.cloud import aiplatform
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import os

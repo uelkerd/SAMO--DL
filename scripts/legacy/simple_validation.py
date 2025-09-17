@@ -1,7 +1,7 @@
+#!/usr/bin/env python3
         # Test with dummy data
         from torch import nn
         import sklearn
-        import torch
         import torch
         import torch.nn.functional as F
         import transformers
@@ -10,7 +10,6 @@
     # Summary
     import subprocess
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import numpy as np

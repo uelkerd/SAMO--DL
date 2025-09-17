@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
         # Import monitoring components
         # Initialize monitor
         # Keep main thread alive
@@ -8,7 +9,6 @@
 # Add src to path
 # Configure logging
 # Constants
-#!/usr/bin/env python3
 from pathlib import Path
 import argparse
 import logging

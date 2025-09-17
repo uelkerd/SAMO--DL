@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
         # Import the validation module
         # Start training
         # Training configuration optimized for debugging
@@ -10,12 +11,10 @@
     # Step 3: Start training
 # Add src to path
 # Configure logging
-#!/usr/bin/env python3
 from pathlib import Path
 import logging
 import sys
 import time
-import traceback
 
 
 
@@ -26,7 +25,7 @@ import traceback
 Validate and Train Script for SAMO Deep Learning.
 
 This script runs comprehensive pre-training validation and only starts training
-if all critical checks pass. This prevents wasting 4+ hours on failed training.
+    if all critical checks pass. This prevents wasting 4+ hours on failed training.
 """
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))

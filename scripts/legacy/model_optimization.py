@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
             # Check if target speedup is achieved with ONNX
             # Prepare ONNX inputs
         # Benchmark ONNX model
@@ -58,7 +59,6 @@
 # Add src to path
 # Configure logging
 # Constants
-#!/usr/bin/env python3
 from pathlib import Path
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from tqdm import tqdm
