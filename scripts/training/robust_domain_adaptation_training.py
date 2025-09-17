@@ -100,11 +100,15 @@ def setup_repository():
     """Setup the SAMO-DL repository."""
     print("📁 Setting up repository...")
     
-    def run_command(command: str, description: str) -> bool:
+    def run_command(command, description: str) -> bool:
         """Execute command with error handling."""
         print(f"🔄 {description}...")
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            # Convert string command to list if needed
+            if isinstance(command, str):
+                command = command.split()
+            
+            result = subprocess.run(command, capture_output=True, text=True, check=False)
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True

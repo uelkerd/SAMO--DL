@@ -19,7 +19,10 @@ def run_command(command, description):
     """Run a command and return success status."""
     print(f"🔧 {description}...")
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        # Convert string command to list if needed
+        if isinstance(command, str):
+            command = command.split()
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
         if result.returncode == 0:
             print(f"✅ {description} successful")
             return True, result.stdout
