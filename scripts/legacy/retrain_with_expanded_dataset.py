@@ -210,11 +210,13 @@ def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_si
     
     return model, training_history, best_f1
 
-def save_expanded_results(training_history, best_f1, label_encoder, test_data):
+def save_expanded_results(training_history, best_f1, label_encoder, train_data, val_data, test_data):
     """Save training results."""
     print("💾 Saving results...")
     
     # Test final model
+    X_train, y_train = train_data
+    X_val, y_val = val_data
     X_test, y_test = test_data
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -247,6 +249,9 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
     final_f1 = f1_score(all_labels, all_preds, average='macro')
     final_accuracy = accuracy_score(all_labels, all_preds)
     
+    # Calculate total expanded dataset size
+    total_expanded_samples = len(X_train) + len(X_val) + len(X_test)
+    
     # Save results
     results = {
         'best_f1': best_f1,
@@ -256,7 +261,7 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
         'num_labels': len(label_encoder.classes_),
         'all_emotions': list(label_encoder.classes_),
         'training_history': training_history,
-        'expanded_samples': len(X_test),
+        'expanded_samples': total_expanded_samples,
         'test_samples': len(X_test)
     }
     
@@ -283,7 +288,7 @@ def main():
     model, training_history, best_f1 = train_expanded_model(train_data, val_data, label_encoder)
     
     # Save results
-    save_expanded_results(training_history, best_f1, label_encoder, test_data)
+    save_expanded_results(training_history, best_f1, label_encoder, train_data, val_data, test_data)
     
     print("\n🎉 Retraining completed!")
     print("📋 Next steps:")

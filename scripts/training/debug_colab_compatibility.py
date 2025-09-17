@@ -78,7 +78,7 @@ def check_pytorch_installation():
         # Test basic operations
         x = torch.randn(2, 2)
         y = torch.randn(2, 2)
-        z = torch.mm(x, y)
+        _z = torch.mm(x, y)
         print("✅ Basic PyTorch operations work")
         
         # Test CUDA operations if available
@@ -211,14 +211,14 @@ def test_model_initialization():
         
         # Test forward pass
         inputs = tokenizer("Hello world", return_tensors="pt")
-        outputs = model(**inputs)
+        _outputs = model(**inputs)
         print("✅ Forward pass successful")
         
         # Test GPU if available
         if torch.cuda.is_available():
             model = model.cuda()
             inputs = {k: v.cuda() for k, v in inputs.items()}
-            outputs = model(**inputs)
+            _outputs = model(**inputs)
             print("✅ GPU forward pass successful")
         
         return True

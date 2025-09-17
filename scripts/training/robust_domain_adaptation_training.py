@@ -331,7 +331,7 @@ def main():
     print("=" * 70)
     
     # Step 1: Setup environment
-    is_colab = setup_environment()
+    _is_colab = setup_environment()
     
     # Step 2: Verify installation
     if not verify_installation():
@@ -350,10 +350,10 @@ def main():
     
     # Step 5: Initialize model (example)
     import torch
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # This would be called when we have the label encoder ready
-    # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, device)
+    # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, _device)
     
     print("\n✅ Setup completed successfully!")
     print("🎯 Ready for domain adaptation training")
