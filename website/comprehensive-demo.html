@@ -399,8 +399,8 @@
                             </div>
                         </div>
 
-                        <!-- Debug Test (Toggleable) -->
-                        <div class="feature-card" id="debugTestSection">
+                        <!-- Debug Test (Hidden by Default, Toggleable) -->
+                        <div class="feature-card d-none" id="debugTestSection">
                             <div class="card-body text-center">
                                 <h6 class="fw-bold mb-3 text-warning">🔧 Debug Test</h6>
                                 <div class="d-grid gap-2">
@@ -409,6 +409,14 @@
                                     <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear All</button>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Debug Toggle Button -->
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-secondary btn-sm" id="debugToggleBtn" onclick="LayoutManager.toggleDebugSection()">
+                                <span class="material-icons me-1" style="font-size: 1rem;">bug_report</span>
+                                Show Debug
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -630,13 +638,44 @@
             // Toggle debug section visibility
             toggleDebugSection(show = null) {
                 const debugSection = document.getElementById('debugTestSection');
+                const toggleBtn = document.getElementById('debugToggleBtn');
+
                 if (debugSection) {
+                    let isVisible;
+
                     if (show === null) {
-                        debugSection.classList.toggle('hidden');
+                        // Toggle current state
+                        isVisible = !debugSection.classList.contains('d-none');
+                        if (isVisible) {
+                            debugSection.classList.add('d-none');
+                        } else {
+                            debugSection.classList.remove('d-none');
+                        }
+                        isVisible = !isVisible;
                     } else if (show) {
-                        debugSection.classList.remove('hidden');
+                        debugSection.classList.remove('d-none');
+                        isVisible = true;
                     } else {
-                        debugSection.classList.add('hidden');
+                        debugSection.classList.add('d-none');
+                        isVisible = false;
+                    }
+
+                    // Update toggle button text
+                    if (toggleBtn) {
+                        const icon = toggleBtn.querySelector('.material-icons');
+                        const textNode = toggleBtn.lastChild;
+
+                        if (isVisible) {
+                            textNode.textContent = ' Hide Debug';
+                            icon.textContent = 'bug_report';
+                            toggleBtn.classList.remove('btn-outline-secondary');
+                            toggleBtn.classList.add('btn-warning');
+                        } else {
+                            textNode.textContent = ' Show Debug';
+                            icon.textContent = 'bug_report';
+                            toggleBtn.classList.remove('btn-warning');
+                            toggleBtn.classList.add('btn-outline-secondary');
+                        }
                     }
                 }
             }
@@ -779,10 +818,10 @@
                 console.error('❌ Clear button not found');
             }
 
-            // Initialize debug section (can be hidden by adding ?hideDebug=1 to URL)
+            // Initialize debug section (hidden by default, can be shown by adding ?showDebug=1 to URL)
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('hideDebug') === '1') {
-                LayoutManager.toggleDebugSection(false);
+            if (urlParams.get('showDebug') === '1') {
+                LayoutManager.toggleDebugSection(true);
             }
 
             // Initialize layout to initial state
