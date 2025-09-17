@@ -33,8 +33,8 @@ def test_evaluation_logic():
         "  Probabilities min/max/mean: {probabilities.min():.4f}/{probabilities.max():.4f}/{probabilities.mean():.4f}"
     )
 
-    (probabilities >= threshold).sum().item()
-    batch_size * num_emotions
+    above_threshold_count = (probabilities >= threshold).sum().item()
+    total_predictions = batch_size * num_emotions
 
     print(
         "  Expected above threshold: {expected_above_threshold}/{total_positions} ({100*expected_above_threshold/total_positions:.1f}%)"

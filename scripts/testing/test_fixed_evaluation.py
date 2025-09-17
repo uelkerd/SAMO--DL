@@ -69,9 +69,9 @@ def main():
             )
 
             macro_f1 = metrics["macro_f1"]
-            metrics["micro_f1"]
+            micro_f1 = metrics["micro_f1"]
 
-            logger.info("  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
+            logger.info(f"  📊 Macro F1: {macro_f1:.4f} | Micro F1: {micro_f1:.4f}")
 
             best_f1 = max(best_f1, macro_f1)
 
