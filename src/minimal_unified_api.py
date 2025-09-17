@@ -247,9 +247,6 @@ async def summarize_text(text: str):
             "summary": summary
         }
 
-    except HTTPException:
-        # Re-raise HTTP exceptions as-is
-        raise
     except ImportError as e:
         logger.exception("Missing dependency for summarization")
         raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.") from e
