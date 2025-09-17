@@ -8,12 +8,16 @@ Serves static files and provides basic CORS support.
 """
 
 import os
+import logging
 import requests
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all domains on all routes
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Serve static files from website directory
 @app.route('/')
@@ -46,7 +50,8 @@ def proxy_emotion():
             return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.exception("Unhandled exception in /api/emotion")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/summarize', methods=['POST'])
 def proxy_summarize():
@@ -67,7 +72,8 @@ def proxy_summarize():
             return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.exception("Unhandled exception in /api/summarize")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health():
