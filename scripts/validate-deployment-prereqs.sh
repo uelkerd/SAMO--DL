@@ -37,6 +37,15 @@ print_info() {
 # 1. Check Google Cloud Authentication
 echo
 echo "1. Checking Google Cloud Authentication..."
+
+# First check if gcloud binary exists
+if ! command -v gcloud >/dev/null 2>&1; then
+    print_error "gcloud CLI not found. Please install Google Cloud SDK first."
+    echo "         Install from: https://cloud.google.com/sdk/docs/install"
+    exit 1
+fi
+
+# Check authentication status
 if gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q ".*"; then
     ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
     print_check "Authenticated as: $ACCOUNT"
