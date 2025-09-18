@@ -65,7 +65,9 @@ def get_cors_origins():
     origins_env = os.environ.get("CORS_ORIGINS", "")
     if origins_env:
         # Split CSV and strip whitespace
-        origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+        origins = [
+            origin.strip() for origin in origins_env.split(",") if origin.strip()
+        ]
         logger.info(f"CORS origins from legacy environment variable: {origins}")
         return origins
 
@@ -78,7 +80,9 @@ def get_cors_origins():
         "http://127.0.0.1:8080",
         "http://127.0.0.1:8082",
     ]
-    logger.warning("No CORS environment variables configured, using development defaults")
+    logger.warning(
+        "No CORS environment variables configured, using development defaults"
+    )
     return dev_origins
 
 
@@ -142,11 +146,34 @@ def run_emotion_analysis(text: str) -> dict:
         # Fallback to hardcoded labels if model config doesn't have id2label
         logger.warning("Model config missing id2label, using fallback emotion labels")
         emotion_labels = [
-            "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-            "confusion", "curiosity", "desire", "disappointment", "disapproval",
-            "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
-            "joy", "love", "nervousness", "optimism", "pride", "realization",
-            "relief", "remorse", "sadness", "surprise", "neutral",
+            "admiration",
+            "amusement",
+            "anger",
+            "annoyance",
+            "approval",
+            "caring",
+            "confusion",
+            "curiosity",
+            "desire",
+            "disappointment",
+            "disapproval",
+            "disgust",
+            "embarrassment",
+            "excitement",
+            "fear",
+            "gratitude",
+            "grief",
+            "joy",
+            "love",
+            "nervousness",
+            "optimism",
+            "pride",
+            "realization",
+            "relief",
+            "remorse",
+            "sadness",
+            "surprise",
+            "neutral",
         ]
 
     emotion_scores = predictions[0].tolist()
@@ -171,7 +198,9 @@ def run_text_summarization(text: str) -> dict:
             num_beams=4,
             early_stopping=True,
         )
-        summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
+        summary = summarization_model["tokenizer"].decode(
+            outputs[0], skip_special_tokens=True
+        )
 
     return {"original_text": text, "summary": summary}
 
@@ -332,7 +361,7 @@ async def startup_load_models():
             logger.info(
                 f"Memory increase: {(memory_after.used - memory_before.used) / (1024**3):.2f}GB"
             )
-        except:
+        except ImportError:
             pass
 
         models_loaded = True
@@ -349,7 +378,11 @@ async def startup_load_models():
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "SAMO Unified AI API", "status": "running", "models_loaded": models_loaded}
+    return {
+        "message": "SAMO Unified AI API",
+        "status": "running",
+        "models_loaded": models_loaded,
+    }
 
 
 @app.get("/health")
@@ -364,9 +397,12 @@ async def ready():
     if not models_loaded:
         if startup_error:
             raise HTTPException(
-                status_code=503, detail=f"Models not loaded due to startup error: {startup_error}"
+                status_code=503,
+                detail=f"Models not loaded due to startup error: {startup_error}",
             )
-        raise HTTPException(status_code=503, detail="Models still loading, please wait...")
+        raise HTTPException(
+            status_code=503, detail="Models still loading, please wait..."
+        )
 
     return {
         "status": "ready",
@@ -399,7 +435,8 @@ async def summarize_text(text: str = Body(..., embed=True)):
     # Verify model is loaded
     if not models_loaded or summarization_model is None:
         raise HTTPException(
-            status_code=503, detail="Summarization model not loaded. Check /ready endpoint."
+            status_code=503,
+            detail="Summarization model not loaded. Check /ready endpoint.",
         )
 
     try:
@@ -419,61 +456,55 @@ async def proxy_openai(request: OpenAIRequest):
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise HTTPException(
-                status_code=500, 
-                detail="OpenAI API key not configured on server"
+                status_code=500, detail="OpenAI API key not configured on server"
             )
 
         # Prepare OpenAI request
         openai_url = "https://api.openai.com/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
-        
+
         payload = {
             "model": "gpt-4o-mini",
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions."
+                    "content": "You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.",
                 },
-                {
-                    "role": "user", 
-                    "content": request.prompt
-                }
+                {"role": "user", "content": request.prompt},
             ],
             "max_tokens": request.max_tokens,
-            "temperature": request.temperature
+            "temperature": request.temperature,
         }
 
         # Make async request to OpenAI using httpx
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                openai_url, 
-                headers=headers, 
-                json=payload, 
-                timeout=httpx.Timeout(30.0)
+                openai_url, headers=headers, json=payload, timeout=httpx.Timeout(30.0)
             )
-            
+
             if response.is_error:
-                logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
+                logger.error(
+                    f"OpenAI API error: {response.status_code} - {response.text}"
+                )
                 raise HTTPException(
                     status_code=response.status_code,
-                    detail=f"OpenAI API error: {response.text}"
+                    detail=f"OpenAI API error: {response.text}",
                 )
 
             data = response.json()
-        
+
         if not data.get("choices") or not data["choices"][0].get("message"):
             raise HTTPException(
-                status_code=500,
-                detail="Invalid response format from OpenAI API"
+                status_code=500, detail="Invalid response format from OpenAI API"
             )
 
         return OpenAIResponse(
             text=data["choices"][0]["message"]["content"].strip(),
             model=data.get("model", "gpt-4o-mini"),
-            usage=data.get("usage")
+            usage=data.get("usage"),
         )
 
     except httpx.ReadTimeout:
@@ -488,49 +519,65 @@ async def proxy_openai(request: OpenAIRequest):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    
+
     # Security-first host binding configuration
     # Default to localhost for maximum security, only bind to all interfaces when explicitly required
     default_host = "127.0.0.1"
-    
+
     # Check if we're in a containerized environment that requires 0.0.0.0
     is_containerized = (
-        os.environ.get("DOCKER_CONTAINER") == "true" or
-        os.environ.get("CLOUD_RUN_SERVICE") or
-        os.environ.get("KUBERNETES_SERVICE_HOST") or
-        os.environ.get("CONTAINER") == "true"
+        os.environ.get("DOCKER_CONTAINER") == "true"
+        or os.environ.get("CLOUD_RUN_SERVICE")
+        or os.environ.get("KUBERNETES_SERVICE_HOST")
+        or os.environ.get("CONTAINER") == "true"
     )
-    
+
     # Check if production mode is explicitly enabled
     is_production = os.environ.get("PRODUCTION") == "true"
-    
+
     # Determine host binding based on environment and explicit configuration
     if os.environ.get("HOST"):
         # Use explicitly configured host
         host = os.environ.get("HOST")
         logger.info(f"Using explicitly configured host: {host}")
-    elif is_containerized and (is_production or os.environ.get("BIND_ALL_INTERFACES") == "true"):
+    elif is_containerized and (
+        is_production or os.environ.get("BIND_ALL_INTERFACES") == "true"
+    ):
         # Only bind to all interfaces in containerized production environments
         # This is required for Cloud Run and containerized deployments
         host = "0.0.0.0"
-        logger.warning("⚠️  Containerized production mode: Binding to all interfaces (0.0.0.0)")
-        logger.warning("🔒 Ensure proper network security and firewall rules are in place")
+        logger.warning(
+            "⚠️  Containerized production mode: Binding to all interfaces (0.0.0.0)"
+        )
+        logger.warning(
+            "🔒 Ensure proper network security and firewall rules are in place"
+        )
         logger.warning("🚨 SECURITY: Server accessible from all network interfaces")
     else:
         # Default to localhost for security
         host = default_host
         logger.info(f"🔒 Security-first mode: Binding to localhost only ({host})")
-        logger.info("💡 To bind to all interfaces, set BIND_ALL_INTERFACES=true or HOST=0.0.0.0")
-    
+        logger.info(
+            "💡 To bind to all interfaces, set BIND_ALL_INTERFACES=true or HOST=0.0.0.0"
+        )
+
     # Additional security logging and warnings
     if host == "0.0.0.0":
-        logger.warning("🚨 SECURITY WARNING: Server is accessible from all network interfaces")
-        logger.warning("🚨 Ensure proper authentication, authorization, and network security")
-        logger.warning("🚨 Consider using a reverse proxy or load balancer for production")
-        logger.warning("🚨 Verify firewall rules and network segmentation are properly configured")
+        logger.warning(
+            "🚨 SECURITY WARNING: Server is accessible from all network interfaces"
+        )
+        logger.warning(
+            "🚨 Ensure proper authentication, authorization, and network security"
+        )
+        logger.warning(
+            "🚨 Consider using a reverse proxy or load balancer for production"
+        )
+        logger.warning(
+            "🚨 Verify firewall rules and network segmentation are properly configured"
+        )
     else:
         logger.info("✅ Server bound to localhost - secure for development")
         logger.info("✅ External access blocked - only localhost connections allowed")
-    
+
     logger.info(f"Starting server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)

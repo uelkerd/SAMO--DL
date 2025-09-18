@@ -54,6 +54,18 @@ class SAMOAPIClient {
         return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, this.retryAttempts);
     }
 
+    // Helper method to build query string for deployed API format
+    buildQueryString(data) {
+        if (!data || typeof data !== 'object') return '';
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(data)) {
+            if (value !== null && value !== undefined) {
+                params.append(key, value);
+            }
+        }
+        return params.toString();
+    }
+
     async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = 3) {
         const config = {
             method,
@@ -75,8 +87,12 @@ class SAMOAPIClient {
                 // For FormData, don't set Content-Type header - let browser set it with boundary
                 config.body = data;
             } else {
+                // For deployed API, use query parameters instead of JSON body
+                const queryString = this.buildQueryString(data);
+                if (queryString) {
+                    endpoint += `?${queryString}`;
+                }
                 config.headers['Content-Type'] = 'application/json';
-                config.body = JSON.stringify(data);
             }
         } else if (method === 'GET') {
             config.headers['Content-Type'] = 'application/json';
@@ -420,27 +436,18 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         console.log('🤖 Generating AI text with OpenAI API...');
 
-        // Use server-side proxy for OpenAI API calls with proper timeout handling
-        const apiClient = new SAMOAPIClient();
-        const openaiConfig = window.SAMO_CONFIG.OPENAI;
+        // OpenAI proxy not available in deployed API, use sample text
+        console.log('⚠️ OpenAI proxy not available in deployed API, using sample text');
+        showInlineSuccess('ℹ️ Using sample text (OpenAI proxy not available)', 'textInput');
         
-        const response = await apiClient.makeRequest('/proxy/openai', {
-            model: openaiConfig.MODEL,
-            messages: [
-                {
-                    role: 'system',
-                    content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.'
-                },
-                {
-                    role: 'user',
-                    content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic and emotionally detailed.`
-                }
-            ],
-            max_tokens: openaiConfig.MAX_TOKENS,
-            temperature: openaiConfig.TEMPERATURE + 0.1
-        });
+        const sampleTexts = [
+            "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
 
-        const generatedText = response.text;
+            "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We sat on my worn-out couch, the kind that sags just a little too much in the middle, the kind that has held countless conversations that linger in the air like the scent of old coffee.\n\nAs we talked, I found myself unraveling in ways I hadn't anticipated. I shared my fears about the future – the weight of expectations hanging over me like a thick fog, numbing my enthusiasm. I didn't realize just how heavy it had become until the words slipped out, almost unbidden. It felt like releasing a tightly wound spring.\n\nThe conversation drifted into territories I rarely explore with anyone, including myself. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. There's something both terrifying and liberating about being truly seen by another person.\n\nNow, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter. The vulnerability hangover is real, but so is the connection that was forged in those honest moments. I'm grateful for people who can hold space for all of our messy, complicated feelings."
+        ];
+
+        const randomIndex = Math.floor(Math.random() * sampleTexts.length);
+        const generatedText = sampleTexts[randomIndex];
         console.log('✅ AI text generated successfully');
 
         if (textInput) {
@@ -458,31 +465,7 @@ async function generateSampleText() {
     } catch (error) {
         console.error('❌ Error generating AI text:', error);
 
-        // If the OpenAI proxy is not available, fall back to static sample text
-        if (error.message.includes('404') || error.message.includes('proxy/openai')) {
-            console.log('⚠️ OpenAI proxy not available, using static sample text');
-            showInlineSuccess('ℹ️ Using sample text (OpenAI proxy not yet deployed)', 'textInput');
-            const sampleTexts = [
-                "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
-
-                "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We sat on my worn-out couch, the kind that sags just a little too much in the middle, the kind that has held countless conversations that linger in the air like the scent of old coffee.\n\nAs we talked, I found myself unraveling in ways I hadn't anticipated. I shared my fears about the future – the weight of expectations hanging over me like a thick fog, numbing my enthusiasm. I didn't realize just how heavy it had become until the words slipped out, almost unbidden. It felt like releasing a tightly wound spring.\n\nThe conversation drifted into territories I rarely explore with anyone, including myself. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. There's something both terrifying and liberating about being truly seen by another person.\n\nNow, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter. The vulnerability hangover is real, but so is the connection that was forged in those honest moments. I'm grateful for people who can hold space for all of our messy, complicated feelings."
-            ];
-
-            const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-
-            if (textInput) {
-                textInput.value = randomSample;
-                textInput.style.borderColor = '#10b981';
-                textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
-                setTimeout(() => {
-                    textInput.style.borderColor = '';
-                    textInput.style.boxShadow = '';
-                }, 2000);
-            }
-
-            showInlineSuccess('✅ Sample journal text loaded (OpenAI proxy not available)', 'textInput');
-            return;
-        }
+        // Sample text is now handled in the main flow, so just show error
 
         showInlineError(`❌ Failed to generate AI text: ${error.message}`, 'textInput');
 
