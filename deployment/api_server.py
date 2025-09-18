@@ -61,8 +61,8 @@ def predict_emotion():
         return jsonify(result)
 
     except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Prediction error: {e}", exc_info=True)
+        return jsonify({"error": "An internal error occurred during prediction."}), 500
 
 
 @app.route("/predict_batch", methods=["POST"])
@@ -82,8 +82,8 @@ def predict_batch():
         return jsonify({"results": results})
 
     except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Batch prediction error: {e}", exc_info=True)
+        return jsonify({"error": "An internal error occurred during batch prediction."}), 500
 
 
 @app.route("/emotions", methods=["GET"])
