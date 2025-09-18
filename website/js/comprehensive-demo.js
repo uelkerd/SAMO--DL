@@ -527,11 +527,11 @@ function manageApiKey() {
 
 // Essential Processing Functions (restored from simple-demo-functions.js)
 
-async function processText() {
+async function processText(skipStateCheck = false) {
     console.log('🚀 Processing text...');
 
-    // Check if processing is already in progress
-    if (typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
+    // Check if processing is already in progress (skip if state management is handled externally)
+    if (!skipStateCheck && typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
         console.warn('⚠️ Processing blocked - operation already in progress');
         return;
     }

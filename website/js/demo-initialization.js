@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (typeof processText === 'function') {
                 // Fallback to original function
                 LayoutManager.showProcessingState();
-                processText();
+                processText(true);  // Skip state check since showProcessingState() handles it
             } else {
                 console.error('❌ processText function not available');
             }

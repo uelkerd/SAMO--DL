@@ -353,7 +353,7 @@ window.processTextWithStateManagement = function() {
     if (typeof processText === 'function') {
         // Set up a promise to handle the transition to results
         const originalFunc = processText;
-        processText().then(() => {
+        processText(true).then(() => {  // Skip state check since we handle it here
             // After processing completes, show results state
             setTimeout(() => {
                 LayoutManager.showResultsState();
