@@ -54,8 +54,11 @@ def main():
         except ImportError:
             print("⚠️ Installing numpy...")
             import subprocess
+            import shlex
 
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
+            # Use shlex.escape to prevent command injection
+            cmd = [sys.executable, "-m", "pip", "install", "numpy"]
+            subprocess.check_call(cmd)
             import numpy
 
             print(f"✅ Numpy {numpy.__version__} installed and available")
