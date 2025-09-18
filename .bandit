@@ -1,0 +1,22 @@
+# Bandit security linter configuration for SAMO-DL project
+# This file configures bandit to ignore false positives and focus on real security issues
+
+[bandit]
+# Skip specific tests that generate false positives for this project
+skips = B104
+
+# B104: Binding to all interfaces - This is a false positive because:
+# 1. The application only binds to 0.0.0.0 in production environments (Cloud Run, Docker)
+# 2. This is required for containerized deployments to work properly
+# 3. In development, it defaults to 127.0.0.1 for security
+# 4. The production environment is properly secured with Cloud Run's network isolation
+
+# Other tests to potentially skip in the future:
+# B101: Test for use of assert_used - May be needed for testing
+# B601: Test for shell injection - May be needed for legitimate subprocess calls
+
+# Include specific files and directories
+include = src/, scripts/, deployment/
+
+# Exclude test files and build artifacts
+exclude = tests/, build/, __pycache__/, .git/, .pytest_cache/

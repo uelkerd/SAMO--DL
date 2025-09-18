@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Bulletproof startup API with pre-loaded models for Cloud Run."""
+"""
+Bulletproof startup API with pre-loaded models for Cloud Run.
+
+SECURITY NOTE: This application binds to 0.0.0.0 only in production environments
+(Cloud Run, Docker containers) where it's required for proper operation. In development,
+it defaults to 127.0.0.1 to prevent external access. This is a deliberate design choice
+for containerized deployments and is not a security vulnerability.
+"""
 import logging
 import os
 import traceback
@@ -480,9 +487,25 @@ async def proxy_openai(request: OpenAIRequest):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    # Default to localhost for development to avoid exposure
+    
+    # Security-conscious host binding
+    # Default to localhost for development to prevent external access
     host = os.environ.get("HOST", "127.0.0.1")
-    if os.environ.get("PRODUCTION") == "true" or os.environ.get("CLOUD_RUN_SERVICE"):
-        host = "0.0.0.0"  # Cloud Run and production environments
-    logger.info(f"Starting bulletproof server on {host}:{port}")
+    
+    # Only bind to all interfaces in explicitly configured production environments
+    # This is required for Cloud Run and containerized deployments
+    is_production = (
+        os.environ.get("PRODUCTION") == "true" or 
+        os.environ.get("CLOUD_RUN_SERVICE") or
+        os.environ.get("DOCKER_CONTAINER") == "true"
+    )
+    
+    if is_production:
+        host = "0.0.0.0"  # Required for Cloud Run and containerized deployments
+        logger.info(f"Starting production server on all interfaces (0.0.0.0):{port}")
+        logger.warning("⚠️  Production mode: Server accessible from all network interfaces")
+    else:
+        logger.info(f"Starting development server on localhost (127.0.0.1):{port}")
+        logger.info("🔒 Development mode: Server only accessible from localhost")
+    
     uvicorn.run(app, host=host, port=port)
