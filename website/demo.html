@@ -287,13 +287,29 @@
             box-shadow: var(--shadow-glow);
         }
 
+        /* Info icon styling */
+        .info-icon {
+            font-size: 12px !important;
+            color: #6b7280;
+            margin-left: 4px;
+            cursor: help;
+            opacity: 0.7;
+            transition: var(--transition-smooth);
+        }
+
+        .info-icon:hover {
+            color: var(--primary-color);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
         /* Responsive enhancements */
         @media (max-width: 768px) {
             .demo-container {
                 padding: 30px 20px;
                 margin: -50px 15px 30px 15px;
             }
-            
+
             .hero-section {
                 padding: 80px 0;
             }
@@ -497,7 +513,13 @@
                                     <div class="col-md-3">
                                         <div class="text-center">
                                             <i class="fas fa-chart-line text-warning mb-2" style="font-size: 1.5rem;"></i>
-                                            <p class="mb-0 fw-bold">Confidence</p>
+                                            <p class="mb-0 fw-bold">
+                                                Confidence
+                                                <i class="fas fa-info-circle info-icon"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="Average confidence level of the emotion predictions. Higher values indicate more certain results."></i>
+                                            </p>
                                             <small class="text-muted" id="avgConfidence">-</small>
                                         </div>
                                     </div>
@@ -698,12 +720,36 @@
             textarea.value = randomText;
         }
 
+        function clearPreviousResults() {
+            console.log('🧹 Clearing previous results to prevent remnants...');
+
+            // Clear emotion results container
+            const emotionResults = document.getElementById('emotionResults');
+            if (emotionResults) {
+                emotionResults.innerHTML = '';
+            }
+
+            // Clear API information
+            document.getElementById('responseTime').textContent = '-';
+            document.getElementById('apiStatus').textContent = 'Ready';
+            document.getElementById('avgConfidence').textContent = '-';
+
+            // Destroy existing charts using ChartManager
+            ChartManager.destroy('confidenceChart');
+            ChartManager.destroy('categoryChart');
+
+            console.log('✅ Previous results cleared');
+        }
+
         async function analyzeEmotion() {
             const text = document.getElementById('demoText').value.trim();
             if (!text) {
                 alert('Please enter some text to analyze');
                 return;
             }
+
+            // IMMEDIATELY clear previous results to prevent remnants
+            clearPreviousResults();
 
             // Show loading
             document.getElementById('loadingSection').classList.add('show');
@@ -1012,6 +1058,14 @@
         // Initialize with sample text
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('demoText').value = sampleTexts[0];
+
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            console.log('✅ Bootstrap tooltips initialized:', tooltipList.length);
         });
 
         // Smooth scrolling for navigation links

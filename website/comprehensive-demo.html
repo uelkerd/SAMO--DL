@@ -318,15 +318,39 @@
                                                     <div class="model-detail-value" id="primaryEmotion">-</div>
                                                 </div>
                                                 <div class="model-detail-card">
-                                                    <div class="model-detail-label">Emotional Intensity</div>
+                                                    <div class="model-detail-label">
+                                                        Emotional Intensity
+                                                        <span class="material-icons info-icon"
+                                                              data-bs-toggle="tooltip"
+                                                              data-bs-placement="top"
+                                                              title="Strength of the detected emotion (0-100%). Higher values indicate stronger emotional expression.">
+                                                            info
+                                                        </span>
+                                                    </div>
                                                     <div class="model-detail-value" id="emotionalIntensity">-</div>
                                                 </div>
                                                 <div class="model-detail-card">
-                                                    <div class="model-detail-label">Sentiment Score</div>
+                                                    <div class="model-detail-label">
+                                                        Sentiment Score
+                                                        <span class="material-icons info-icon"
+                                                              data-bs-toggle="tooltip"
+                                                              data-bs-placement="top"
+                                                              title="Overall sentiment polarity from the emotion analysis (0-100). Scores above 50 typically indicate positive sentiment.">
+                                                            info
+                                                        </span>
+                                                    </div>
                                                     <div class="model-detail-value" id="sentimentScore">-</div>
                                                 </div>
                                                 <div class="model-detail-card">
-                                                    <div class="model-detail-label">Confidence Range</div>
+                                                    <div class="model-detail-label">
+                                                        Confidence Range
+                                                        <span class="material-icons info-icon"
+                                                              data-bs-toggle="tooltip"
+                                                              data-bs-placement="top"
+                                                              title="Model's certainty range for the prediction. Narrower ranges indicate higher confidence in the results.">
+                                                            info
+                                                        </span>
+                                                    </div>
                                                     <div class="model-detail-value" id="confidenceRange">-</div>
                                                 </div>
                                                 <div class="model-detail-card">
@@ -550,6 +574,11 @@
                 console.log('🔄 Transitioning to processing state...');
                 this.currentState = 'processing';
 
+                // IMMEDIATELY clear all result content to prevent remnants during processing
+                if (typeof clearAllResultContent === 'function') {
+                    clearAllResultContent();
+                }
+
                 // Hide input layout with smooth transition
                 const inputLayout = document.getElementById('inputLayout');
                 if (inputLayout) {
@@ -595,6 +624,11 @@
             resetToInitialState() {
                 console.log('🔄 Resetting to initial state...');
                 this.currentState = 'initial';
+
+                // IMMEDIATELY clear all result content to prevent remnants
+                if (typeof clearAllResultContent === 'function') {
+                    clearAllResultContent();
+                }
 
                 // Hide results layout
                 const resultsLayout = document.getElementById('resultsLayout');
@@ -882,7 +916,14 @@
             // Initialize layout to initial state
             LayoutManager.resetToInitialState();
 
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
             console.log('✅ Enhanced layout manager initialized');
+            console.log('✅ Bootstrap tooltips initialized:', tooltipList.length);
         });
     </script>
 
