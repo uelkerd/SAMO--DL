@@ -46,5 +46,10 @@ COPY *.py ./
 # Expose port
 EXPOSE 8080
 
+# Set production environment variables for secure containerized deployment
+ENV PRODUCTION=true
+ENV DOCKER_CONTAINER=true
+ENV BIND_ALL_INTERFACES=true
+
 # Run the optimized API
 CMD ["python", "src/startup_api.py"]

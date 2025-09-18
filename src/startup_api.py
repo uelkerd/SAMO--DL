@@ -489,24 +489,48 @@ async def proxy_openai(request: OpenAIRequest):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     
-    # Security-conscious host binding
-    # Default to localhost for development to prevent external access
-    host = os.environ.get("HOST", "127.0.0.1")
+    # Security-first host binding configuration
+    # Default to localhost for maximum security, only bind to all interfaces when explicitly required
+    default_host = "127.0.0.1"
     
-    # Only bind to all interfaces in explicitly configured production environments
-    # This is required for Cloud Run and containerized deployments
-    is_production = (
-        os.environ.get("PRODUCTION") == "true" or 
+    # Check if we're in a containerized environment that requires 0.0.0.0
+    is_containerized = (
+        os.environ.get("DOCKER_CONTAINER") == "true" or
         os.environ.get("CLOUD_RUN_SERVICE") or
-        os.environ.get("DOCKER_CONTAINER") == "true"
+        os.environ.get("KUBERNETES_SERVICE_HOST") or
+        os.environ.get("CONTAINER") == "true"
     )
     
-    if is_production:
-        host = "0.0.0.0"  # Required for Cloud Run and containerized deployments
-        logger.info(f"Starting production server on all interfaces (0.0.0.0):{port}")
-        logger.warning("⚠️  Production mode: Server accessible from all network interfaces")
-    else:
-        logger.info(f"Starting development server on localhost (127.0.0.1):{port}")
-        logger.info("🔒 Development mode: Server only accessible from localhost")
+    # Check if production mode is explicitly enabled
+    is_production = os.environ.get("PRODUCTION") == "true"
     
+    # Determine host binding based on environment and explicit configuration
+    if os.environ.get("HOST"):
+        # Use explicitly configured host
+        host = os.environ.get("HOST")
+        logger.info(f"Using explicitly configured host: {host}")
+    elif is_containerized and (is_production or os.environ.get("BIND_ALL_INTERFACES") == "true"):
+        # Only bind to all interfaces in containerized production environments
+        # This is required for Cloud Run and containerized deployments
+        host = "0.0.0.0"
+        logger.warning("⚠️  Containerized production mode: Binding to all interfaces (0.0.0.0)")
+        logger.warning("🔒 Ensure proper network security and firewall rules are in place")
+        logger.warning("🚨 SECURITY: Server accessible from all network interfaces")
+    else:
+        # Default to localhost for security
+        host = default_host
+        logger.info(f"🔒 Security-first mode: Binding to localhost only ({host})")
+        logger.info("💡 To bind to all interfaces, set BIND_ALL_INTERFACES=true or HOST=0.0.0.0")
+    
+    # Additional security logging and warnings
+    if host == "0.0.0.0":
+        logger.warning("🚨 SECURITY WARNING: Server is accessible from all network interfaces")
+        logger.warning("🚨 Ensure proper authentication, authorization, and network security")
+        logger.warning("🚨 Consider using a reverse proxy or load balancer for production")
+        logger.warning("🚨 Verify firewall rules and network segmentation are properly configured")
+    else:
+        logger.info("✅ Server bound to localhost - secure for development")
+        logger.info("✅ External access blocked - only localhost connections allowed")
+    
+    logger.info(f"Starting server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)

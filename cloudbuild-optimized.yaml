@@ -45,7 +45,7 @@ steps:
       - '--min-instances=0'
       - '--concurrency=80'
       - '--startup-cpu-boost'  # Faster cold starts
-      - '--set-env-vars=PYTHONUNBUFFERED=1'  # Ensure logging works
+      - '--set-env-vars=PYTHONUNBUFFERED=1,PRODUCTION=true,CLOUD_RUN_SERVICE=true,BIND_ALL_INTERFACES=true'  # Production environment
 
 # Build options
 options:
