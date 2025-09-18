@@ -333,9 +333,8 @@ async def startup_load_models():
             import psutil
 
             memory_before = psutil.virtual_memory()
-            logger.info(
-                f"Memory before loading: {memory_before.used / (1024**3):.2f}GB used / {memory_before.total / (1024**3):.2f}GB total"
-            )
+            logger.info("Memory before loading: %.2fGB used / %.2fGB total",
+                        memory_before.used / (1024**3), memory_before.total / (1024**3))
         except ImportError:
             logger.info("psutil not available - cannot monitor memory usage")
 
@@ -355,16 +354,17 @@ async def startup_load_models():
                 "Continuing without Whisper - core emotion/summarization models loaded successfully"
             )
 
-        # Log memory usage after loading
+        # Log memory usage after loading (only if psutil available)
         try:
+            import psutil  # re-import safely
             memory_after = psutil.virtual_memory()
-            logger.info(
-                f"Memory after loading: {memory_after.used / (1024**3):.2f}GB used / {memory_after.total / (1024**3):.2f}GB total"
-            )
-            logger.info(
-                f"Memory increase: {(memory_after.used - memory_before.used) / (1024**3):.2f}GB"
-            )
-        except ImportError:
+            logger.info("Memory after loading: %.2fGB used / %.2fGB total",
+                        memory_after.used / (1024**3), memory_after.total / (1024**3))
+            if "memory_before" in locals():
+                logger.info("Memory increase: %.2fGB",
+                            (memory_after.used - memory_before.used) / (1024**3))
+        except Exception:
+            # psutil not available; skip memory logging
             pass
 
         models_loaded = True
