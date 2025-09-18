@@ -19,6 +19,9 @@ import torch
 import httpx
 from pydantic import BaseModel
 
+# Import security-first host binding
+from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+
 # Configure comprehensive logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -518,66 +521,15 @@ async def proxy_openai(request: OpenAIRequest):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-
-    # Security-first host binding configuration
-    # Default to localhost for maximum security, only bind to all interfaces when explicitly required
-    default_host = "127.0.0.1"
-
-    # Check if we're in a containerized environment that requires 0.0.0.0
-    is_containerized = (
-        os.environ.get("DOCKER_CONTAINER") == "true"
-        or os.environ.get("CLOUD_RUN_SERVICE")
-        or os.environ.get("KUBERNETES_SERVICE_HOST")
-        or os.environ.get("CONTAINER") == "true"
-    )
-
-    # Check if production mode is explicitly enabled
-    is_production = os.environ.get("PRODUCTION") == "true"
-
-    # Determine host binding based on environment and explicit configuration
-    if os.environ.get("HOST"):
-        # Use explicitly configured host
-        host = os.environ.get("HOST", "")
-        logger.info(f"Using explicitly configured host: {host}")
-    elif is_containerized and (
-        is_production or os.environ.get("BIND_ALL_INTERFACES") == "true"
-    ):
-        # Only bind to all interfaces in containerized production environments
-        # This is required for Cloud Run and containerized deployments
-        host = "0.0.0.0"
-        logger.warning(
-            "⚠️  Containerized production mode: Binding to all interfaces (0.0.0.0)"
-        )
-        logger.warning(
-            "🔒 Ensure proper network security and firewall rules are in place"
-        )
-        logger.warning("🚨 SECURITY: Server accessible from all network interfaces")
-    else:
-        # Default to localhost for security
-        host = default_host
-        logger.info(f"🔒 Security-first mode: Binding to localhost only ({host})")
-        logger.info(
-            "💡 To bind to all interfaces, set BIND_ALL_INTERFACES=true or HOST=0.0.0.0"
-        )
-
-    # Additional security logging and warnings
-    if host == "0.0.0.0":
-        logger.warning(
-            "🚨 SECURITY WARNING: Server is accessible from all network interfaces"
-        )
-        logger.warning(
-            "🚨 Ensure proper authentication, authorization, and network security"
-        )
-        logger.warning(
-            "🚨 Consider using a reverse proxy or load balancer for production"
-        )
-        logger.warning(
-            "🚨 Verify firewall rules and network segmentation are properly configured"
-        )
-    else:
-        logger.info("✅ Server bound to localhost - secure for development")
-        logger.info("✅ External access blocked - only localhost connections allowed")
-
-    logger.info(f"Starting server on {host}:{port}")
+    # Use centralized security-first host binding configuration
+    host, port = get_secure_host_binding(default_port=8080)
+    
+    # Validate the binding configuration
+    validate_host_binding(host, port)
+    
+    # Log security summary
+    security_summary = get_binding_security_summary(host, port)
+    logger.info("Security Summary: %s", security_summary)
+    
+    logger.info("Starting server on %s:%s", host, port)
     uvicorn.run(app, host=host, port=port)

@@ -155,17 +155,13 @@ if __name__ == '__main__':
 
     # Start server
     port = int(os.getenv('PORT', '8080'))
-    # Security-first host binding configuration
-    host = os.environ.get("HOST", "127.0.0.1")
-
-    # Only bind to all interfaces in production/container environments
-    if (os.environ.get("PRODUCTION") == "true" or
-        os.environ.get("DOCKER_CONTAINER") == "true" or
-        os.environ.get("CLOUD_RUN_SERVICE") or
-        os.environ.get("BIND_ALL_INTERFACES") == "true"):
-        host = "0.0.0.0"
-        logger.warning("⚠️  Production mode: Binding to all interfaces (0.0.0.0)")
-    else:
-        logger.info(f"🔒 Development mode: Binding to localhost only ({host})")
+    # Use centralized security-first host binding configuration
+    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    
+    host, port = get_secure_host_binding(default_port=port)
+    validate_host_binding(host, port)
+    
+    security_summary = get_binding_security_summary(host, port)
+    logger.info("Security Summary: %s", security_summary)
 
     app.run(host=host, port=port, debug=False, threaded=True)

@@ -119,11 +119,13 @@ if __name__ == "__main__":
     host = os.environ.get("FLASK_HOST", "127.0.0.1")
     port = int(os.environ.get("FLASK_PORT", "5000"))
 
-    # Only bind to all interfaces in production/container environments
-    if os.environ.get("FLASK_ENV") == "production" or os.environ.get("CONTAINER_ENV"):
-        host = "0.0.0.0"
-        logger.info("🔒 Production mode: Binding to all interfaces (0.0.0.0)")
-    else:
-        logger.info("🔒 Development mode: Binding to localhost only (%s)", host)
+    # Use centralized security-first host binding configuration
+    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    
+    host, port = get_secure_host_binding(default_port=port)
+    validate_host_binding(host, port)
+    
+    security_summary = get_binding_security_summary(host, port)
+    logger.info("Security Summary: %s", security_summary)
 
     app.run(host=host, port=port, debug=False)

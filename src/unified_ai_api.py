@@ -2217,12 +2217,13 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8000"))
 
-    # Only bind to all interfaces in production/container environments
-    if (
-        os.environ.get("FLASK_ENV") == "production"
-        or os.environ.get("CONTAINER_ENV")
-        or os.environ.get("BIND_ALL_INTERFACES") == "true"
-    ):
-        host = "0.0.0.0"
-
+    # Use centralized security-first host binding configuration
+    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    
+    host, port = get_secure_host_binding(default_port=port)
+    validate_host_binding(host, port)
+    
+    security_summary = get_binding_security_summary(host, port)
+    print(f"Security Summary: {security_summary}")
+    
     uvicorn.run(app, host=host, port=port)
