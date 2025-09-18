@@ -1213,7 +1213,23 @@ async function testWithRealAPI() {
             message.style.cssText = 'color: #6b7280; margin-bottom: 10px;';
             loadingDiv.appendChild(message);
 
+            const timeEstimate = document.createElement('small');
+            timeEstimate.textContent = 'First request may take 30-60 seconds (cold start)';
+            timeEstimate.style.cssText = 'color: #9ca3af; font-style: italic;';
+            loadingDiv.appendChild(timeEstimate);
+
             chartContainer.appendChild(loadingDiv);
+
+            // Update progress messages
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Loading DeBERTa v3 Large model (this may take a moment)...';
+            }, 5000);
+
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Processing your text with AI emotion analysis...';
+            }, 15000);
         }
 
         updateElement('primaryEmotion', 'Loading...');
@@ -1231,7 +1247,7 @@ async function testWithRealAPI() {
         const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const timeoutId = setTimeout(() => controller.abort('Request timeout after 90 seconds - API may be experiencing cold start delays'), 90000); // Increased for cold starts
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -1276,7 +1292,18 @@ async function testWithRealAPI() {
 
     } catch (error) {
         console.error('❌ Error in testWithRealAPI:', error);
-        showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
+
+        // Better error handling for different error types
+        if (error.name === 'AbortError') {
+            const reason = error.message || 'Request was cancelled';
+            showInlineError(`❌ Processing cancelled: ${reason}`, 'textInput');
+        } else if (error.message.includes('Failed to fetch')) {
+            showInlineError(`❌ Network error: Cannot reach API server. Please check your connection.`, 'textInput');
+        } else if (error.message.includes('timeout')) {
+            showInlineError(`❌ Request timeout: API server took too long to respond.`, 'textInput');
+        } else {
+            showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
+        }
     }
 }
 
