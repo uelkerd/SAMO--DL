@@ -5,8 +5,11 @@ import os
 import traceback
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+import torch
+import requests
+from pydantic import BaseModel
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -15,6 +18,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SAMO Unified AI API", version="1.0.0")
+
+
+# Pydantic models for request/response
+class OpenAIRequest(BaseModel):
+    prompt: str
+    max_tokens: int = 4000
+    temperature: float = 0.7
+
+
+class OpenAIResponse(BaseModel):
+    text: str
+    model: str
+    usage: dict = None
 
 
 # CORS configuration from environment variables
@@ -289,7 +305,7 @@ async def ready():
 
 
 @app.post("/analyze/emotion")
-async def analyze_emotion(text: str):
+async def analyze_emotion(text: str = Body(..., embed=True)):
     """Analyze emotion in text using pre-loaded DeBERTa model."""
     # Verify model is loaded
     if not models_loaded or emotion_model is None:
@@ -299,11 +315,12 @@ async def analyze_emotion(text: str):
 
     try:
         # Perform analysis with pre-loaded model
-        inputs = emotion_model["tokenizer"](
-            text, return_tensors="pt", truncation=True, max_length=512
-        )
-        outputs = emotion_model["model"](**inputs)
-        predictions = outputs.logits.sigmoid()
+        with torch.no_grad():
+            inputs = emotion_model["tokenizer"](
+                text, return_tensors="pt", truncation=True, max_length=512
+            )
+            outputs = emotion_model["model"](**inputs)
+            predictions = outputs.logits.sigmoid()
 
         emotion_labels = [
             "admiration",
@@ -349,7 +366,7 @@ async def analyze_emotion(text: str):
 
 
 @app.post("/analyze/summarize")
-async def summarize_text(text: str):
+async def summarize_text(text: str = Body(..., embed=True)):
     """Summarize text using pre-loaded T5 model."""
     # Verify model is loaded
     if not models_loaded or summarization_model is None:
@@ -359,24 +376,94 @@ async def summarize_text(text: str):
 
     try:
         # Perform summarization with pre-loaded model
-        inputs = summarization_model["tokenizer"](
-            f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
-        )
-        outputs = summarization_model["model"].generate(
-            inputs["input_ids"],
-            max_length=150,
-            min_length=30,
-            length_penalty=2.0,
-            num_beams=4,
-            early_stopping=True,
-        )
-        summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
+        with torch.no_grad():
+            inputs = summarization_model["tokenizer"](
+                f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
+            )
+            outputs = summarization_model["model"].generate(
+                inputs["input_ids"],
+                max_length=150,
+                min_length=30,
+                length_penalty=2.0,
+                num_beams=4,
+                early_stopping=True,
+            )
+            summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
 
         return {"original_text": text, "summary": summary}
 
     except Exception:
         logger.exception("Error in summarization")
         raise HTTPException(status_code=500, detail="Summarization failed")
+
+
+@app.post("/proxy/openai", response_model=OpenAIResponse)
+async def proxy_openai(request: OpenAIRequest):
+    """Proxy OpenAI API calls with server-side API key."""
+    try:
+        # Get API key from environment
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=500, 
+                detail="OpenAI API key not configured on server"
+            )
+
+        # Prepare OpenAI request
+        openai_url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions."
+                },
+                {
+                    "role": "user", 
+                    "content": request.prompt
+                }
+            ],
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature
+        }
+
+        # Make request to OpenAI
+        response = requests.post(openai_url, headers=headers, json=payload, timeout=30)
+        
+        if not response.ok:
+            logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"OpenAI API error: {response.text}"
+            )
+
+        data = response.json()
+        
+        if not data.get("choices") or not data["choices"][0].get("message"):
+            raise HTTPException(
+                status_code=500,
+                detail="Invalid response format from OpenAI API"
+            )
+
+        return OpenAIResponse(
+            text=data["choices"][0]["message"]["content"].strip(),
+            model=data.get("model", "gpt-4o-mini"),
+            usage=data.get("usage")
+        )
+
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="OpenAI API timeout")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"OpenAI API request error: {e}")
+        raise HTTPException(status_code=502, detail="OpenAI API unavailable")
+    except Exception as e:
+        logger.exception("Error in OpenAI proxy")
+        raise HTTPException(status_code=500, detail="OpenAI proxy failed")
 
 
 if __name__ == "__main__":

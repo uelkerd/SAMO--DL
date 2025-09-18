@@ -14,7 +14,8 @@ window.SAMO_CONFIG = {
             JOURNAL: '/analyze/journal',
             HEALTH: '/health',
             READY: '/ready',
-            TRANSCRIBE: '/transcribe'
+            TRANSCRIBE: '/transcribe',
+            OPENAI_PROXY: '/proxy/openai'
         },
         TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
         RETRY_ATTEMPTS: 3
@@ -22,10 +23,9 @@ window.SAMO_CONFIG = {
     
     // OpenAI Configuration (for client-side text generation)
     OPENAI: {
-        API_KEY: '', // Set via environment or server injection
         API_URL: 'https://api.openai.com/v1/chat/completions',
-        MODEL: 'gpt-3.5-turbo',
-        MAX_TOKENS: 200,
+        MODEL: 'gpt-4o-mini',
+        MAX_TOKENS: 4000, // Increased for gpt-4o-mini
         TEMPERATURE: 0.7
     },
     
@@ -49,7 +49,7 @@ window.SAMO_CONFIG = {
     
     // Feature flags
     FEATURES: {
-        ENABLE_OPENAI: true, // Enabled by default for core functionality
+        ENABLE_OPENAI: false, // Disabled by default - requires server-side proxy
         ENABLE_MOCK_DATA: false, // Always use real APIs
         ENABLE_ANALYTICS: false
     }
@@ -65,39 +65,67 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     console.log('🔧 Running in localhost development mode - using production API with CORS');
 }
 
+// Deep merge utility function
+function deepMerge(target, source) {
+    const result = { ...target };
+    
+    for (const key in source) {
+        if (source.hasOwnProperty(key)) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                // Recursively merge objects
+                result[key] = deepMerge(target[key] || {}, source[key]);
+            } else {
+                // Replace primitives and arrays
+                result[key] = source[key];
+            }
+        }
+    }
+    
+    return result;
+}
+
 // Server-side configuration injection (if available)
 if (window.SAMO_SERVER_CONFIG) {
-    Object.assign(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
+    window.SAMO_CONFIG = deepMerge(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
+}
+
+// Recursive redaction utility function
+function redactSensitiveValues(obj) {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+        return obj.map(item => redactSensitiveValues(item));
+    }
+    
+    const result = {};
+    const sensitiveKeys = [
+        'apikey', 'api_key', 'apiKey', 'secret', 'token', 'authorization', 
+        'password', 'clientsecret', 'client_secret', 'clientSecret',
+        'key', 'keys', 'credential', 'credentials', 'auth', 'authkey'
+    ];
+    
+    for (const [key, value] of Object.entries(obj)) {
+        const keyLower = key.toLowerCase();
+        const isSensitive = sensitiveKeys.some(sensitiveKey => 
+            keyLower.includes(sensitiveKey) || sensitiveKey.includes(keyLower)
+        );
+        
+        if (isSensitive) {
+            result[key] = 'REDACTED';
+        } else if (value && typeof value === 'object') {
+            result[key] = redactSensitiveValues(value);
+        } else {
+            result[key] = value;
+        }
+    }
+    
+    return result;
 }
 
 // Only log config in debug mode and redact sensitive fields
 if (window.SAMO_CONFIG && window.SAMO_CONFIG.DEBUG) {
-    const sanitizedConfig = { ...window.SAMO_CONFIG };
-    const sensitiveKeys = ['apiKey', 'secret', 'token', 'password', 'clientSecret'];
-    
-    // Redact sensitive fields
-    sensitiveKeys.forEach(key => {
-        if (sanitizedConfig[key]) {
-            sanitizedConfig[key] = 'REDACTED';
-        }
-    });
-    
-    // Also check nested objects
-    if (sanitizedConfig.API) {
-        sensitiveKeys.forEach(key => {
-            if (sanitizedConfig.API[key]) {
-                sanitizedConfig.API[key] = 'REDACTED';
-            }
-        });
-    }
-    
-    if (sanitizedConfig.OPENAI) {
-        sensitiveKeys.forEach(key => {
-            if (sanitizedConfig.OPENAI[key]) {
-                sanitizedConfig.OPENAI[key] = 'REDACTED';
-            }
-        });
-    }
-    
+    const sanitizedConfig = redactSensitiveValues(window.SAMO_CONFIG);
     console.log('🔧 SAMO Configuration loaded (debug mode):', sanitizedConfig);
 }
