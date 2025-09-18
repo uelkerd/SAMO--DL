@@ -88,10 +88,10 @@ def create_test_data():
 
     # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-    
+
     # Basic validation
     assert len(test_texts) == len(emotions), "Texts and emotions must have same length"
-    
+
     return test_texts, emotions, emotion_to_idx, tokenizer
 
 
@@ -102,7 +102,7 @@ def test_model_calibration():
 
         # Create test data
         test_texts, emotions, emotion_to_idx, tokenizer = create_test_data()
-        
+
         # Create model
         model = SimpleBERTClassifier("bert-base-uncased", num_emotions=28)
         model.eval()
@@ -119,11 +119,11 @@ def test_model_calibration():
                 truncation=True,
                 max_length=512
             )
-            
+
             # Get predictions (only pass required arguments)
             outputs = model(inputs["input_ids"], inputs["attention_mask"])
             probabilities = torch.sigmoid(outputs)
-            
+
             logger.info(f"✅ Model inference successful, output shape: {outputs.shape}")
 
         # Test temperature setting
@@ -141,7 +141,7 @@ def test_model_calibration():
             labels = torch.zeros(1, 28)  # Match the single prediction shape
             if emotions[0] in emotion_to_idx:
                 labels[0, emotion_to_idx[emotions[0]]] = 1.0
-            
+
             # Calculate F1 score
             f1 = f1_score(labels.flatten(), predictions.flatten(), average='micro')
             logger.info(f"✅ Metrics calculation successful, F1: {f1:.3f}")

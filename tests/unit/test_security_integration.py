@@ -44,10 +44,10 @@ class TestSecurityIntegration(unittest.TestCase):
     def test_comprehensive_security_headers(self):
         """Test that all security headers are properly set."""
         response = Response()
-        
+
         # Add all security headers
         self.middleware._add_security_headers(response)
-        
+
         # Define all required security headers with validation rules
         required_headers = [
             ('Content-Security-Policy', 'non-empty'),
@@ -62,7 +62,7 @@ class TestSecurityIntegration(unittest.TestCase):
             ('Cross-Origin-Resource-Policy', 'non-empty'),
             ('Origin-Agent-Cluster', 'non-empty')
         ]
-        
+
         # Test all headers with consistent validation
         for header, validation in required_headers:
             self.assertIn(header, response.headers, f"Missing security header: {header}")
@@ -156,12 +156,12 @@ class TestSecurityIntegration(unittest.TestCase):
         # Test with highly malicious user agent that will score >3
         malicious_ua = "sqlmap/1.0 + nmap/7.80 + nikto/2.1.6 + dirb/2.22"
         analysis = self.middleware._analyze_user_agent_enhanced(malicious_ua)
-        
+
         self.assertIn('score', analysis)
         self.assertIn('category', analysis)
         self.assertIn('risk_level', analysis)
         self.assertIn('patterns', analysis)
-        
+
         # Should detect malicious user agent with multiple attack tools
         self.assertGreater(analysis['score'], 3)
         self.assertIn('malicious', analysis['category'])
@@ -174,7 +174,7 @@ class TestSecurityIntegration(unittest.TestCase):
             'User-Agent': 'sqlmap/1.0'
         }):
             patterns = self.middleware._detect_suspicious_patterns()
-            
+
             # Should detect suspicious patterns
             self.assertIsInstance(patterns, list)
             # Always check for suspicious indicators regardless of pattern count
@@ -189,17 +189,17 @@ class TestSecurityIntegration(unittest.TestCase):
         with self.app.test_request_context('/test'):
             # Simulate before_request
             self.middleware._before_request()
-            
+
             # Create response
             response = Response()
-            
+
             # Add correlation headers
             self.middleware._add_correlation_headers(response)
-            
+
             # Check for correlation headers
             self.assertIn('X-Request-ID', response.headers)
             self.assertIn('X-Correlation-ID', response.headers)
-            
+
             # Headers should not be empty
             self.assertGreater(len(response.headers['X-Request-ID']), 0)
             self.assertGreater(len(response.headers['X-Correlation-ID']), 0)
@@ -341,7 +341,7 @@ class TestSecurityIntegration(unittest.TestCase):
         """Test that all production security headers are properly configured."""
         response = Response()
         self.middleware._add_security_headers(response)
-        
+
         # Test each production security header individually
         self.assertIn('X-Frame-Options', response.headers, "Missing X-Frame-Options header")
         self.assertEqual(response.headers['X-Frame-Options'], 'DENY',
@@ -362,18 +362,18 @@ class TestSecurityIntegration(unittest.TestCase):
     def test_csp_nonce_generation(self):
         """Test that CSP nonce is generated and available."""
         stats = self.middleware.get_security_stats()
-        
+
         self.assertIn('csp_nonce', stats)
         nonce = stats['csp_nonce']
-        
+
         # Nonce should be a hex string
         self.assertIsInstance(nonce, str)
         self.assertGreater(len(nonce), 0)
-        
+
         # Should be regenerated for each middleware instance
         middleware2 = SecurityHeadersMiddleware(self.app, self.config)
         stats2 = middleware2.get_security_stats()
-        
+
         # Nonces should be different (random generation)
         self.assertNotEqual(nonce, stats2['csp_nonce'])
 

@@ -523,13 +523,13 @@ async def proxy_openai(request: OpenAIRequest):
 if __name__ == "__main__":
     # Use centralized security-first host binding configuration
     host, port = get_secure_host_binding(default_port=8080)
-    
+
     # Validate the binding configuration
     validate_host_binding(host, port)
-    
+
     # Log security summary
     security_summary = get_binding_security_summary(host, port)
     logger.info("Security Summary: %s", security_summary)
-    
+
     logger.info("Starting server on %s:%s", host, port)
     uvicorn.run(app, host=host, port=port)

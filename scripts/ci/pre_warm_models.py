@@ -45,4 +45,4 @@ def pre_warm_models():
 
 if __name__ == "__main__":
     success = pre_warm_models()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

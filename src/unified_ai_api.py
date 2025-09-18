@@ -2219,11 +2219,11 @@ if __name__ == "__main__":
 
     # Use centralized security-first host binding configuration
     from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
-    
+
     host, port = get_secure_host_binding(default_port=port)
     validate_host_binding(host, port)
-    
+
     security_summary = get_binding_security_summary(host, port)
     print(f"Security Summary: {security_summary}")
-    
+
     uvicorn.run(app, host=host, port=port)
