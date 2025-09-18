@@ -313,10 +313,37 @@ window.processTextWithStateManagement = function() {
         return;
     }
 
-    // Transition to processing state (includes processing guard)
-    if (!LayoutManager.showProcessingState()) {
-        console.error('❌ Failed to start processing state');
+    // Start processing (sets guard) - don't call showProcessingState() here
+    if (!LayoutManager.startProcessing()) {
+        console.error('❌ Failed to start processing - operation already in progress');
         return;
+    }
+
+    // Set processing state and update UI
+    LayoutManager.currentState = 'processing';
+    
+    // IMMEDIATELY clear all result content to prevent remnants during processing
+    if (typeof clearAllResultContent === 'function') {
+        clearAllResultContent();
+    }
+
+    // Hide input layout with smooth transition
+    const inputLayout = document.getElementById('inputLayout');
+    if (inputLayout) {
+        inputLayout.style.opacity = '0';
+        setTimeout(() => {
+            inputLayout.style.display = 'none';
+        }, 300);
+    }
+
+    // Show processing layout
+    const processingLayout = document.getElementById('processingLayout');
+    if (processingLayout) {
+        processingLayout.style.display = 'block';
+        processingLayout.style.opacity = '0';
+        setTimeout(() => {
+            processingLayout.style.opacity = '1';
+        }, 50);
     }
 
     // Update progress steps
