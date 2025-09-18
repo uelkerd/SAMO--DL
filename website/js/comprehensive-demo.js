@@ -18,8 +18,13 @@ class SAMOAPIClient {
             HEALTH: '/health',
             READY: '/ready',
             TRANSCRIBE: '/transcribe',
-            VOICE_JOURNAL: '/analyze/voice-journal'
+            VOICE_JOURNAL: '/analyze/voice_journal'  // Match config.js format
         };
+        
+        // Ensure VOICE_JOURNAL has a fallback if missing from config
+        if (!this.endpoints.VOICE_JOURNAL) {
+            this.endpoints.VOICE_JOURNAL = '/analyze/voice_journal';
+        }
         this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 45000;
         this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
     }
@@ -124,20 +129,8 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
         
         try {
-            // Use VOICE_JOURNAL endpoint for audio analysis flows (no auth header)
-            const config = {
-                method: 'POST',
-                body: formData
-            };
-            const response = await fetch(`${this.baseURL}${this.endpoints.VOICE_JOURNAL}`, config);
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
-                throw new Error(msg);
-            }
-            
-            return await response.json();
+            // Use VOICE_JOURNAL endpoint for audio analysis flows with proper timeout handling
+            return await this.makeRequest(this.endpoints.VOICE_JOURNAL, formData, 'POST', true);
         } catch (error) {
             console.error('Transcription error:', error);
             throw error;
@@ -427,41 +420,27 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         console.log('🤖 Generating AI text with OpenAI API...');
 
+        // Use server-side proxy for OpenAI API calls with proper timeout handling
+        const apiClient = new SAMOAPIClient();
         const openaiConfig = window.SAMO_CONFIG.OPENAI;
-        const response = await fetch(openaiConfig.API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey.trim()}`
-            },
-            body: JSON.stringify({
-                model: openaiConfig.MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.'
-                    },
-                    {
-                        role: 'user',
-                        content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic and emotionally detailed.`
-                    }
-                ],
-                max_tokens: openaiConfig.MAX_TOKENS,
-                temperature: openaiConfig.TEMPERATURE + 0.1
-            })
+        
+        const response = await apiClient.makeRequest('/proxy/openai', {
+            model: openaiConfig.MODEL,
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.'
+                },
+                {
+                    role: 'user',
+                    content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic and emotionally detailed.`
+                }
+            ],
+            max_tokens: openaiConfig.MAX_TOKENS,
+            temperature: openaiConfig.TEMPERATURE + 0.1
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(`OpenAI API error: ${response.status} ${errorData.error?.message || ''}`);
-        }
-
-        const data = await response.json();
-        if (!data.choices?.[0]?.message) {
-            throw new Error('Invalid response format from OpenAI API');
-        }
-
-        const generatedText = data.choices[0].message.content.trim();
+        const generatedText = response.text;
         console.log('✅ AI text generated successfully');
 
         if (textInput) {
