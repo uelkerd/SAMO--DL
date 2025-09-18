@@ -60,16 +60,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // Use local CORS proxy for localhost development
-    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8000';
-    window.SAMO_CONFIG.API.ENDPOINTS = {
-        EMOTION: '/api/emotion',
-        SUMMARIZE: '/api/summarize',
-        JOURNAL: '/api/journal',
-        HEALTH: '/api/health',
-        READY: '/ready',
-        TRANSCRIBE: '/transcribe'
-    };
+    // For demo testing, use production API directly (CORS is enabled on the server)
+    // Keep production URL and endpoints for localhost development
+    console.log('🔧 Running in localhost development mode - using production API with CORS');
 }
 
 // Server-side configuration injection (if available)

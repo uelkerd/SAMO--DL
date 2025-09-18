@@ -449,6 +449,27 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Progress Console (Added for user-friendly feedback) -->
+                                    <div class="row mt-3" id="progressConsoleRow" style="display: none;">
+                                        <div class="col-12">
+                                            <div class="bg-dark bg-opacity-75 rounded p-3">
+                                                <h6 class="fw-bold mb-3 text-light">
+                                                    <span class="material-icons text-info me-2" style="font-size: 1.2rem;">terminal</span>
+                                                    Processing Console
+                                                </h6>
+                                                <div id="progressConsole" class="bg-black rounded p-2" style="height: 150px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.85rem;">
+                                                    <div class="text-success">SAMO-DL Processing Console Ready...</div>
+                                                </div>
+                                                <div class="mt-2 text-end">
+                                                    <button class="btn btn-outline-light btn-sm" onclick="clearProgressConsole()">
+                                                        <span class="material-icons me-1" style="font-size: 0.9rem;">clear</span>
+                                                        Clear Console
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1186,6 +1186,13 @@ async function testWithRealAPI() {
     console.log('🌐 Testing with real API...');
     const startTime = performance.now();
 
+    // Initialize progress console
+    addToProgressConsole('🚀 Starting AI processing pipeline...', 'info');
+    addToProgressConsole('Preparing text for analysis...', 'processing');
+
+    // Update processing status
+    updateElement('processingStatusCompact', 'Processing');
+
     try {
         // Show enhanced loading state
         const chartContainer = document.getElementById('emotionChart');
@@ -1240,15 +1247,19 @@ async function testWithRealAPI() {
         const MAX_TEXT_LENGTH = 400;
         if (testText.length > MAX_TEXT_LENGTH) {
             console.log(`⚠️ Text too long (${testText.length} chars), truncating to ${MAX_TEXT_LENGTH} chars`);
+            addToProgressConsole(`Text truncated from ${testText.length} to ${MAX_TEXT_LENGTH} characters`, 'warning');
             testText = testText.substring(0, MAX_TEXT_LENGTH) + "...";
         }
 
+        addToProgressConsole(`Text prepared for analysis (${testText.length} characters)`, 'success');
+        addToProgressConsole('🧠 Initializing DeBERTa v3 Large emotion model...', 'processing');
         console.log('🔥 Calling emotion API...');
         const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort('Request timeout after 90 seconds - API may be experiencing cold start delays'), 90000); // Increased for cold starts
 
+        addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -1262,46 +1273,88 @@ async function testWithRealAPI() {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
+            addToProgressConsole(`API call failed: ${response.status} ${response.statusText}`, 'error');
             throw new Error(`API call failed: ${response.status} ${response.statusText}`);
         }
 
+        addToProgressConsole('✅ Emotion analysis API response received', 'success');
         const data = await response.json();
         console.log('✅ Real API response:', data);
 
         // Process emotion data
+        addToProgressConsole('🔍 Processing emotion analysis results...', 'processing');
         let primaryEmotion = null;
         let primaryConfidence = 0;
+        let emotionArray = [];
 
         if (data.emotions && typeof data.emotions === 'object' && data.predicted_emotion) {
             primaryEmotion = data.predicted_emotion;
             primaryConfidence = data.emotions[data.predicted_emotion] || 0;
+
+            // Convert emotions object to array for chart
+            emotionArray = Object.entries(data.emotions)
+                .map(([emotion, confidence]) => ({ emotion, confidence }))
+                .sort((a, b) => b.confidence - a.confidence);
+
         } else if (data.emotion && data.confidence) {
             primaryEmotion = data.emotion;
             primaryConfidence = data.confidence;
+            emotionArray = [{ emotion: data.emotion, confidence: data.confidence }];
         }
+
+        addToProgressConsole(`Primary emotion detected: ${primaryEmotion} (${Math.round(primaryConfidence * 100)}%)`, 'success');
 
         // Update UI with results
         updateElement('primaryEmotion', primaryEmotion || 'Unknown');
         updateElement('emotionalIntensity', `${Math.round(primaryConfidence * 100)}%`);
 
+        // Fill in additional data fields
+        updateElement('sentimentScore', primaryConfidence ? (primaryConfidence * 100).toFixed(1) + '/100' : '-');
+        updateElement('confidenceRange', primaryConfidence ? `${(primaryConfidence * 80).toFixed(1)}-${(primaryConfidence * 100).toFixed(1)}%` : '-');
+        updateElement('modelDetails', 'DeBERTa v3 Large (SAMO-GoEmotions)');
+
+        // Create emotion chart
+        if (emotionArray.length > 0) {
+            createEmotionChart(emotionArray);
+        }
+
         // Call summarization API
+        addToProgressConsole('📝 Starting text summarization with T5 model...', 'processing');
         const summary = await callSummarizationAPI(testText);
 
+        // Update Processing Information box
+        const endTime = performance.now();
+        const processingTime = ((endTime - startTime) / 1000).toFixed(1);
+
+        updateElement('totalTimeCompact', `${processingTime}s`);
+        updateElement('processingStatusCompact', 'Complete');
+        updateElement('modelsUsedCompact', 'DeBERTa v3 + T5');
+        updateElement('avgConfidenceCompact', `${Math.round(primaryConfidence * 100)}%`);
+
         // Show results
+        addToProgressConsole('🎉 AI processing pipeline completed successfully!', 'success');
+        addToProgressConsole(`Total processing time: ${processingTime} seconds`, 'info');
         showResultsSections();
 
     } catch (error) {
         console.error('❌ Error in testWithRealAPI:', error);
 
+        // Update processing status to error
+        updateElement('processingStatusCompact', 'Error');
+
         // Better error handling for different error types
         if (error.name === 'AbortError') {
             const reason = error.message || 'Request was cancelled';
+            addToProgressConsole(`Processing cancelled: ${reason}`, 'error');
             showInlineError(`❌ Processing cancelled: ${reason}`, 'textInput');
         } else if (error.message.includes('Failed to fetch')) {
+            addToProgressConsole('Network error: Cannot reach API server', 'error');
             showInlineError(`❌ Network error: Cannot reach API server. Please check your connection.`, 'textInput');
         } else if (error.message.includes('timeout')) {
+            addToProgressConsole('Request timeout: API server took too long to respond', 'error');
             showInlineError(`❌ Request timeout: API server took too long to respond.`, 'textInput');
         } else {
+            addToProgressConsole(`Processing failed: ${error.message}`, 'error');
             showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
         }
     }
@@ -1309,13 +1362,11 @@ async function testWithRealAPI() {
 
 async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
+    addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
         const params = new URLSearchParams({
-            text: text,
-            style: 'third_person',
-            format: 'narrative',
-            mode: 'paraphrase'
+            text: text
         });
 
         const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?${params.toString()}`;
@@ -1336,13 +1387,16 @@ async function callSummarizationAPI(text) {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
+            addToProgressConsole(`Summarization API failed: ${response.status} ${response.statusText}`, 'error');
             throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
         }
 
+        addToProgressConsole('✅ Summarization API response received', 'success');
         const data = await response.json();
         console.log('✅ Summarization API response:', data);
 
         // Extract summary from response
+        addToProgressConsole('🔍 Processing summarization results...', 'processing');
         const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output'];
         let summaryText = null;
 
@@ -1355,15 +1409,20 @@ async function callSummarizationAPI(text) {
 
         if (summaryText) {
             updateElement('summaryText', summaryText);
-            updateElement('summarizationResults', 'Summarization completed');
+            updateElement('originalLength', text.length);
+            updateElement('summaryLength', summaryText.length);
+            addToProgressConsole(`Summary generated successfully (${summaryText.length} characters)`, 'success');
         } else {
             console.warn('⚠️ No valid summary found in response');
+            addToProgressConsole('No valid summary found in API response', 'warning');
+            updateElement('summaryText', 'Summary not available');
         }
 
         return summaryText;
 
     } catch (error) {
         console.error('❌ Error in callSummarizationAPI:', error);
+        addToProgressConsole(`Summarization failed: ${error.message}`, 'error');
         updateElement('summaryText', 'Failed to generate summary');
         return null;
     }
@@ -1407,6 +1466,207 @@ function showResultsSections() {
     }
 }
 
+// Progress Console Functions
+function addToProgressConsole(message, type = 'info') {
+    const console = document.getElementById('progressConsole');
+    const consoleRow = document.getElementById('progressConsoleRow');
+
+    if (!console) return;
+
+    // Show console if hidden
+    if (consoleRow) {
+        consoleRow.style.display = 'block';
+    }
+
+    const timestamp = new Date().toLocaleTimeString();
+    let className = 'text-light';
+    let icon = '•';
+
+    switch(type) {
+        case 'success':
+            className = 'text-success';
+            icon = '✓';
+            break;
+        case 'error':
+            className = 'text-danger';
+            icon = '✗';
+            break;
+        case 'warning':
+            className = 'text-warning';
+            icon = '⚠';
+            break;
+        case 'info':
+            className = 'text-info';
+            icon = 'ℹ';
+            break;
+        case 'processing':
+            className = 'text-primary';
+            icon = '⏳';
+            break;
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = className;
+    messageDiv.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${icon} ${message}`;
+
+    console.appendChild(messageDiv);
+    console.scrollTop = console.scrollHeight;
+}
+
+function clearProgressConsole() {
+    const console = document.getElementById('progressConsole');
+    if (console) {
+        console.innerHTML = '<div class="text-success">SAMO-DL Processing Console Ready...</div>';
+    }
+}
+
+// Enhanced updateElement function that handles different content types
+function updateElement(id, value) {
+    try {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id === 'summaryText') {
+                // Special handling for summary text - use dark-theme compatible styling
+                element.innerHTML = `<div class="p-3 bg-dark border border-secondary rounded text-light">${value !== null && value !== undefined ? value : 'No summary available'}</div>`;
+                console.log(`✅ Updated summary text: ${value}`);
+                // Only add success message if it's actually a successful summary (not an error message)
+                if (value && !value.includes('Failed to') && !value.includes('not available')) {
+                    addToProgressConsole(`Summary text updated successfully`, 'success');
+                }
+            } else {
+                element.textContent = value !== null && value !== undefined ? value : '-';
+                console.log(`✅ Updated ${id}: ${value}`);
+            }
+        } else {
+            console.warn(`⚠️ Element not found: ${id}`);
+            addToProgressConsole(`Warning: Element ${id} not found`, 'warning');
+        }
+    } catch (error) {
+        console.error(`❌ Error updating element ${id}:`, error);
+        addToProgressConsole(`Error updating ${id}: ${error.message}`, 'error');
+    }
+}
+
+// Enhanced emotion chart creation
+function createEmotionChart(emotionData) {
+    try {
+        addToProgressConsole('Creating emotion visualization chart...', 'processing');
+
+        const chartContainer = document.getElementById('emotionChart');
+        if (!chartContainer) {
+            addToProgressConsole('Error: Emotion chart container not found', 'error');
+            return;
+        }
+
+        // Clear any existing content
+        chartContainer.innerHTML = '';
+
+        if (!emotionData || emotionData.length === 0) {
+            chartContainer.innerHTML = '<div class="text-muted text-center p-3">No emotion data available</div>';
+            addToProgressConsole('No emotion data available for chart', 'warning');
+            return;
+        }
+
+        // Take top 5 emotions
+        const top5Emotions = emotionData.slice(0, 5);
+
+        // Create simple bar chart with Bootstrap classes
+        let chartHTML = '<div class="emotion-bars">';
+
+        top5Emotions.forEach((emotion, index) => {
+            const name = emotion.emotion || emotion.label || `Emotion ${index + 1}`;
+            const confidence = ((emotion.confidence || emotion.score || 0) * 100).toFixed(1);
+            const percentage = Math.max(5, confidence); // Minimum 5% for visibility
+
+            const colors = ['primary', 'success', 'warning', 'info', 'secondary'];
+            const colorClass = colors[index % colors.length];
+
+            chartHTML += `
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="fw-bold text-capitalize">${name}</small>
+                        <small class="text-muted">${confidence}%</small>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-${colorClass}"
+                             style="width: ${percentage}%;"
+                             role="progressbar"
+                             aria-valuenow="${confidence}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        chartHTML += '</div>';
+        chartContainer.innerHTML = chartHTML;
+
+        addToProgressConsole(`Emotion chart created with ${top5Emotions.length} emotions`, 'success');
+
+    } catch (error) {
+        console.error('Error creating emotion chart:', error);
+        addToProgressConsole(`Error creating emotion chart: ${error.message}`, 'error');
+        const chartContainer = document.getElementById('emotionChart');
+        if (chartContainer) {
+            chartContainer.innerHTML = '<div class="text-danger text-center p-3">Error creating chart</div>';
+        }
+    }
+}
+
+// Reset demo to input screen
+function resetToInputScreen() {
+    console.log('🔄 Resetting to input screen...');
+
+    // Clear text input
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = '';
+    }
+
+    // Clear any inline messages
+    const existingMessages = document.querySelectorAll('.inline-message');
+    existingMessages.forEach(msg => msg.remove());
+
+    // Reset Processing Information values
+    updateElement('totalTimeCompact', '-');
+    updateElement('processingStatusCompact', 'Ready');
+    updateElement('modelsUsedCompact', '-');
+    updateElement('avgConfidenceCompact', '-');
+
+    // Clear progress console
+    clearProgressConsole();
+
+    // Hide progress console
+    const progressConsoleRow = document.getElementById('progressConsoleRow');
+    if (progressConsoleRow) {
+        progressConsoleRow.style.display = 'none';
+    }
+
+    // Switch from results layout to input layout
+    const resultsLayout = document.getElementById('resultsLayout');
+    const inputLayout = document.getElementById('inputLayout');
+
+    if (resultsLayout && inputLayout) {
+        // Animate transition back to input
+        resultsLayout.style.opacity = '0';
+        resultsLayout.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            resultsLayout.classList.add('d-none');
+            inputLayout.classList.remove('d-none');
+
+            setTimeout(() => {
+                inputLayout.style.opacity = '1';
+                inputLayout.style.transform = 'translateY(0)';
+            }, 50);
+        }, 300);
+    }
+
+    console.log('✅ Reset completed');
+}
+
 // Make functions globally available
 window.generateSampleText = generateSampleText;
 window.processText = processText;
@@ -1414,3 +1674,7 @@ window.testWithRealAPI = testWithRealAPI;
 window.callSummarizationAPI = callSummarizationAPI;
 window.updateElement = updateElement;
 window.showResultsSections = showResultsSections;
+window.addToProgressConsole = addToProgressConsole;
+window.clearProgressConsole = clearProgressConsole;
+window.createEmotionChart = createEmotionChart;
+window.resetToInputScreen = resetToInputScreen;
