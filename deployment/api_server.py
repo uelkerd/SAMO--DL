@@ -35,11 +35,24 @@ except Exception as e:
 @app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint"""
+    # Safe access to detector's emotion mapping
+    emotions = []
+    if detector:
+        # Try to get mapping from detector safely
+        mapping = getattr(detector, "mapping", {})
+        if isinstance(mapping, dict):
+            emotions = list(mapping.values())
+        elif hasattr(mapping, "__iter__") and not isinstance(mapping, str):
+            emotions = list(mapping)
+        else:
+            # Fallback to empty list if mapping is not accessible
+            emotions = []
+    
     return jsonify(
         {
             "status": "healthy",
             "model_loaded": detector is not None,
-            "emotions": list(detector.label_encoder.classes_) if detector else [],
+            "emotions": emotions,
         }
     )
 

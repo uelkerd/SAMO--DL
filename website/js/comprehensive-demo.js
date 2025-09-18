@@ -335,10 +335,21 @@ class SAMOAPIClient {
 }
 
 
+// Global API client instance
+window.apiClient = null;
+
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, initializing demo...');
     console.log('🔧 Using simple-demo-functions.js for chart implementation');
+
+    // Initialize global API client
+    try {
+        window.apiClient = new SAMOAPIClient();
+        console.log('✅ Global API client initialized');
+    } catch (error) {
+        console.error('❌ Failed to initialize API client:', error);
+    }
 });
 
 // Smooth scrolling for in-page navigation links
@@ -733,19 +744,6 @@ async function callSummarizationAPI(text) {
     }
 }
 
-function updateElement(id, value) {
-    try {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value !== null && value !== undefined ? value : '-';
-            console.log(`✅ Updated ${id}: ${value}`);
-        } else {
-            console.warn(`⚠️ Element not found: ${id}`);
-        }
-    } catch (error) {
-        console.error(`❌ Error updating element ${id}:`, error);
-    }
-}
 
 function showResultsSections() {
     console.log('👁️ Showing results sections...');

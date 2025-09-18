@@ -155,10 +155,27 @@ class VoiceRecorder {
                 type: audioBlob.type
             });
 
-            // Use the existing API client to transcribe
-            if (window.apiClient && typeof window.apiClient.transcribeAudio === 'function') {
+            // Get or create API client
+            let apiClient = window.apiClient;
+            if (!apiClient) {
+                console.log('⚠️ Global API client not available, creating new instance...');
+                try {
+                    // Try to create a new SAMOAPIClient instance
+                    if (typeof SAMOAPIClient !== 'undefined') {
+                        apiClient = new SAMOAPIClient();
+                        console.log('✅ Created new API client instance');
+                    } else {
+                        throw new Error('SAMOAPIClient class not available');
+                    }
+                } catch (createError) {
+                    throw new Error(`Unable to create API client: ${createError.message}`);
+                }
+            }
+
+            // Use API client to transcribe
+            if (apiClient && typeof apiClient.transcribeAudio === 'function') {
                 console.log('🔄 Sending audio for transcription...');
-                const response = await window.apiClient.transcribeAudio(audioFile);
+                const response = await apiClient.transcribeAudio(audioFile);
 
                 if (response.ok) {
                     const result = await response.json();
@@ -167,10 +184,11 @@ class VoiceRecorder {
                     // Display results in the UI
                     this.displayTranscriptionResults(result);
                 } else {
-                    throw new Error(`API request failed: ${response.status}`);
+                    const errorText = await response.text().catch(() => 'Unknown error');
+                    throw new Error(`API request failed (${response.status}): ${errorText}`);
                 }
             } else {
-                throw new Error('API client not available');
+                throw new Error('API client transcribeAudio method not available');
             }
 
         } catch (error) {
