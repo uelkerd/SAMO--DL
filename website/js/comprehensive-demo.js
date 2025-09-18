@@ -457,6 +457,33 @@ async function generateSampleText() {
 
     } catch (error) {
         console.error('❌ Error generating AI text:', error);
+
+        // If the OpenAI proxy is not available, fall back to static sample text
+        if (error.message.includes('404') || error.message.includes('proxy/openai')) {
+            console.log('⚠️ OpenAI proxy not available, using static sample text');
+            showInlineSuccess('ℹ️ Using sample text (OpenAI proxy not yet deployed)', 'textInput');
+            const sampleTexts = [
+                "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
+
+                "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We sat on my worn-out couch, the kind that sags just a little too much in the middle, the kind that has held countless conversations that linger in the air like the scent of old coffee.\n\nAs we talked, I found myself unraveling in ways I hadn't anticipated. I shared my fears about the future – the weight of expectations hanging over me like a thick fog, numbing my enthusiasm. I didn't realize just how heavy it had become until the words slipped out, almost unbidden. It felt like releasing a tightly wound spring.\n\nThe conversation drifted into territories I rarely explore with anyone, including myself. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. There's something both terrifying and liberating about being truly seen by another person.\n\nNow, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter. The vulnerability hangover is real, but so is the connection that was forged in those honest moments. I'm grateful for people who can hold space for all of our messy, complicated feelings."
+            ];
+
+            const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+
+            if (textInput) {
+                textInput.value = randomSample;
+                textInput.style.borderColor = '#10b981';
+                textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+                setTimeout(() => {
+                    textInput.style.borderColor = '';
+                    textInput.style.boxShadow = '';
+                }, 2000);
+            }
+
+            showInlineSuccess('✅ Sample journal text loaded (OpenAI proxy not available)', 'textInput');
+            return;
+        }
+
         showInlineError(`❌ Failed to generate AI text: ${error.message}`, 'textInput');
 
         if (textInput) {
@@ -468,6 +495,39 @@ async function generateSampleText() {
                 textInput.style.boxShadow = '';
             }, 3000);
         }
+    }
+}
+
+// API Key Management Function
+function manageApiKey() {
+    console.log('🔑 Managing API Key...');
+
+    const currentKey = localStorage.getItem('openai_api_key') || '';
+    const maskedKey = currentKey ? `${currentKey.substring(0, 7)}...${currentKey.substring(currentKey.length - 4)}` : 'Not set';
+
+    const newKey = prompt(
+        `Current OpenAI API Key: ${maskedKey}\n\n` +
+        'Enter your OpenAI API Key (or leave empty to remove):\n\n' +
+        'Note: This key is stored locally in your browser and is only used for generating sample text.',
+        ''
+    );
+
+    if (newKey === null) {
+        console.log('🔑 API Key management cancelled');
+        return;
+    }
+
+    if (newKey.trim() === '') {
+        localStorage.removeItem('openai_api_key');
+        console.log('🔑 API Key removed');
+        alert('✅ API Key removed successfully');
+    } else if (newKey.startsWith('sk-')) {
+        localStorage.setItem('openai_api_key', newKey.trim());
+        console.log('🔑 API Key updated');
+        alert('✅ API Key saved successfully');
+    } else {
+        console.log('🔑 Invalid API Key format');
+        alert('❌ Invalid API Key format. OpenAI API keys should start with "sk-"');
     }
 }
 
