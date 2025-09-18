@@ -134,13 +134,20 @@ def run_emotion_analysis(text: str) -> dict:
         outputs = emotion_model["model"](**inputs)
         predictions = outputs.logits.sigmoid()
 
-    emotion_labels = [
-        "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-        "confusion", "curiosity", "desire", "disappointment", "disapproval",
-        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
-        "joy", "love", "nervousness", "optimism", "pride", "realization",
-        "relief", "remorse", "sadness", "surprise", "neutral",
-    ]
+    # Load emotion labels dynamically from model config
+    # This ensures compatibility if the model is updated with different labels
+    try:
+        emotion_labels = list(emotion_model["model"].config.id2label.values())
+    except (AttributeError, KeyError):
+        # Fallback to hardcoded labels if model config doesn't have id2label
+        logger.warning("Model config missing id2label, using fallback emotion labels")
+        emotion_labels = [
+            "admiration", "amusement", "anger", "annoyance", "approval", "caring",
+            "confusion", "curiosity", "desire", "disappointment", "disapproval",
+            "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+            "joy", "love", "nervousness", "optimism", "pride", "realization",
+            "relief", "remorse", "sadness", "surprise", "neutral",
+        ]
 
     emotion_scores = predictions[0].tolist()
     return {

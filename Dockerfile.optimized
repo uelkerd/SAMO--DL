@@ -35,42 +35,9 @@ RUN echo "🔍 Validating model cache..." && \
     du -sh /app/models/* && \
     echo "✅ Model validation completed successfully"
 
-# Create validation script
-RUN echo '#!/usr/bin/env python3\n\
-import os\n\
-import sys\n\
-print("🧪 Testing model accessibility...")\n\
-\n\
-# Test transformers cache\n\
-try:\n\
-    from transformers import AutoTokenizer\n\
-    tokenizer = AutoTokenizer.from_pretrained("duelker/samo-goemotions-deberta-v3-large", cache_dir="/app/models", local_files_only=True)\n\
-    print("✅ DeBERTa tokenizer loads successfully")\n\
-except Exception as e:\n\
-    print(f"❌ DeBERTa tokenizer failed: {e}")\n\
-    sys.exit(1)\n\
-\n\
-try:\n\
-    from transformers import T5Tokenizer\n\
-    t5_tokenizer = T5Tokenizer.from_pretrained("t5-small", cache_dir="/app/models", local_files_only=True)\n\
-    print("✅ T5 tokenizer loads successfully")\n\
-except Exception as e:\n\
-    print(f"❌ T5 tokenizer failed: {e}")\n\
-    sys.exit(1)\n\
-\n\
-# Test Whisper model file exists\n\
-whisper_path = "/app/models/base.pt"\n\
-if os.path.exists(whisper_path):\n\
-    print(f"✅ Whisper model file exists at {whisper_path}")\n\
-else:\n\
-    print(f"❌ Whisper model file missing at {whisper_path}")\n\
-    sys.exit(1)\n\
-\n\
-print("🎉 All model validation tests passed!")\n\
-' > validate_models.py && chmod +x validate_models.py
-
-# Run model validation
-RUN python validate_models.py
+# Copy and run model validation script
+COPY scripts/validate_models.py .
+RUN chmod +x validate_models.py && python validate_models.py
 
 # Copy source code
 COPY src/ ./src/

@@ -84,7 +84,7 @@ body.comprehensive-demo {
 }
 
 .result-section-visible {
-    display: block !important;
+    display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -892,8 +892,8 @@ body.comprehensive-demo {
     padding: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
-    display: block !important;
-    visibility: visible !important;
+    display: block;
+    visibility: visible;
 }
 
 .emotion-bar:hover {
