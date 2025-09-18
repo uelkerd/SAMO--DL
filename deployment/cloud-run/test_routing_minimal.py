@@ -54,4 +54,12 @@ if __name__ == '__main__':
         print(f"API: {rule.rule} -> {rule.endpoint}")
 
     print("\n=== Starting test server ===")
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)  # Debug mode disabled for security
+    # Use secure host binding for test server
+    try:
+        from src.security.host_binding import get_secure_host_binding, validate_host_binding
+        host, port = get_secure_host_binding(int(os.environ.get('PORT', 5000)))
+        validate_host_binding(host, port)
+        app.run(host=host, port=port, debug=False)
+    except ImportError:
+        # Fallback for test environment
+        app.run(host='127.0.0.1', port=int(os.environ.get('PORT', 5000)), debug=False)

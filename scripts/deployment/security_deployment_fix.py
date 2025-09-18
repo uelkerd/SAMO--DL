@@ -40,7 +40,7 @@ PORT = 8080
 ARTIFACT_REGISTRY = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/samo-dl"
 
 # Security configuration
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "")
 if not ADMIN_API_KEY:
     raise ValueError("ADMIN_API_KEY environment variable must be set for security")
 RATE_LIMIT_PER_MINUTE = 100

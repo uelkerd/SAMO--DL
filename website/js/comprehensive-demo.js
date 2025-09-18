@@ -529,6 +529,13 @@ function manageApiKey() {
 
 async function processText() {
     console.log('🚀 Processing text...');
+
+    // Check if processing is already in progress
+    if (typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
+        console.warn('⚠️ Processing blocked - operation already in progress');
+        return;
+    }
+
     const text = document.getElementById('textInput').value;
     console.log('🔍 Text from input:', text);
     console.log('🔍 Text length:', text.length);
@@ -542,6 +549,16 @@ async function processText() {
 
 async function testWithRealAPI() {
     console.log('🌐 Testing with real API...');
+
+    // Ensure processing state is properly set
+    if (typeof LayoutManager !== 'undefined' && !LayoutManager.isProcessing) {
+        console.warn('⚠️ testWithRealAPI called without processing state - setting now');
+        if (!LayoutManager.showProcessingState()) {
+            console.error('❌ Failed to set processing state in testWithRealAPI');
+            return;
+        }
+    }
+
     const startTime = performance.now();
 
     // Initialize progress console
@@ -678,6 +695,12 @@ async function testWithRealAPI() {
     } catch (error) {
         console.error('❌ Error in testWithRealAPI:', error.message, error.status, error.response?.data);
 
+        // Reset processing state on error
+        if (typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
+            LayoutManager.endProcessing();
+            console.log('🔧 Processing state reset due to error');
+        }
+
         // Update processing status to error
         updateElement('processingStatusCompact', 'Error');
 
@@ -696,6 +719,13 @@ async function testWithRealAPI() {
             addToProgressConsole(`Processing failed: ${error.message}`, 'error');
             showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
         }
+
+        // Return to initial state after error
+        setTimeout(() => {
+            if (typeof LayoutManager !== 'undefined') {
+                LayoutManager.resetToInitialState();
+            }
+        }, 3000);
     }
 }
 

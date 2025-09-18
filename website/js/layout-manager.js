@@ -6,10 +6,66 @@
 // Layout State Management Functions
 const LayoutManager = {
     currentState: 'initial', // initial, processing, results
+    isProcessing: false, // Processing guard to prevent concurrent operations
+    activeRequests: new Set(), // Track active API requests
+
+    // Check if processing is allowed (prevents concurrent operations)
+    canStartProcessing() {
+        return !this.isProcessing;
+    },
+
+    // Start processing (sets guard)
+    startProcessing() {
+        if (this.isProcessing) {
+            console.warn('⚠️ Processing already in progress, ignoring request');
+            return false;
+        }
+        this.isProcessing = true;
+        this.activeRequests.clear();
+        console.log('🚀 Processing started - locked for concurrent operations');
+        return true;
+    },
+
+    // End processing (removes guard)
+    endProcessing() {
+        this.isProcessing = false;
+        this.activeRequests.clear();
+        console.log('✅ Processing completed - ready for new operations');
+    },
+
+    // Cancel all active requests
+    cancelActiveRequests() {
+        console.log(`🚫 Cancelling ${this.activeRequests.size} active requests...`);
+        for (const controller of this.activeRequests) {
+            if (controller && typeof controller.abort === 'function') {
+                controller.abort();
+            }
+        }
+        this.activeRequests.clear();
+    },
+
+    // Add request controller for tracking
+    addActiveRequest(controller) {
+        if (controller) {
+            this.activeRequests.add(controller);
+        }
+    },
+
+    // Remove request controller
+    removeActiveRequest(controller) {
+        this.activeRequests.delete(controller);
+    },
 
     // Transition to processing state
     showProcessingState() {
         console.log('🔄 Transitioning to processing state...');
+
+        // Check if processing is allowed
+        if (!this.startProcessing()) {
+            console.warn('⚠️ Cannot start processing - operation already in progress');
+            return false;
+        }
+
         this.currentState = 'processing';
 
         // IMMEDIATELY clear all result content to prevent remnants during processing
@@ -37,6 +93,9 @@ const LayoutManager = {
         console.log('✅ Transitioning to results state...');
         this.currentState = 'results';
 
+        // End processing since we've reached results
+        this.endProcessing();
+
         // Hide loading
         this.hideLoadingState();
 
@@ -61,6 +120,13 @@ const LayoutManager = {
     // Return to initial state
     resetToInitialState() {
         console.log('🔄 Resetting to initial state...');
+
+        // Cancel any active requests first
+        this.cancelActiveRequests();
+
+        // End processing to remove lock
+        this.endProcessing();
+
         this.currentState = 'initial';
 
         // IMMEDIATELY clear all result content to prevent remnants
@@ -212,8 +278,17 @@ const LayoutManager = {
 window.processTextWithStateManagement = function() {
     console.log('🚀 Processing with enhanced state management...');
 
-    // Transition to processing state
-    LayoutManager.showProcessingState();
+    // Check if processing is allowed
+    if (!LayoutManager.canStartProcessing()) {
+        console.warn('⚠️ Processing blocked - operation already in progress');
+        return;
+    }
+
+    // Transition to processing state (includes processing guard)
+    if (!LayoutManager.showProcessingState()) {
+        console.error('❌ Failed to start processing state');
+        return;
+    }
 
     // Update progress steps
     LayoutManager.updateProgressStep(1, 'active');

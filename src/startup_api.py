@@ -248,7 +248,7 @@ def load_emotion_model():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to load emotion model: {e}")
+        logger.error("❌ Failed to load emotion model: %s", e)
         logger.error(traceback.format_exc())
         raise
 
@@ -289,7 +289,7 @@ def load_summarization_model():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to load summarization model: {e}")
+        logger.error("❌ Failed to load summarization model: %s", e)
         logger.error(traceback.format_exc())
         raise
 
@@ -315,7 +315,7 @@ def load_whisper_model():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to load Whisper model: {e}")
+        logger.error("❌ Failed to load Whisper model: %s", e)
         logger.error(traceback.format_exc())
         raise
 
@@ -349,7 +349,7 @@ async def startup_load_models():
         try:
             load_whisper_model()
         except Exception as e:
-            logger.warning(f"⚠️ Whisper model failed to load (non-critical): {e}")
+            logger.warning("⚠️ Whisper model failed to load (non-critical): %s", e)
             logger.info(
                 "Continuing without Whisper - core emotion/summarization models loaded successfully"
             )
@@ -373,7 +373,7 @@ async def startup_load_models():
     except Exception as e:
         startup_error = str(e)
         models_loaded = False
-        logger.error(f"💥 CRITICAL STARTUP FAILURE: {e}")
+        logger.error("💥 CRITICAL STARTUP FAILURE: %s", e)
         logger.error(traceback.format_exc())
         # Don't raise here - let the app start but mark as not ready
 
@@ -513,10 +513,10 @@ async def proxy_openai(request: OpenAIRequest):
     except httpx.ReadTimeout:
         raise HTTPException(status_code=504, detail="OpenAI API timeout")
     except httpx.RequestError as e:
-        logger.error(f"OpenAI API request error: {e}")
+        logger.error("OpenAI API request error: %s", e)
         raise HTTPException(status_code=502, detail="OpenAI API unavailable")
     except Exception as e:
-        logger.exception(f"Error in OpenAI proxy: {e}")
+        logger.exception("Error in OpenAI proxy: %s", e)
         raise HTTPException(status_code=500, detail="OpenAI proxy failed")
 
 

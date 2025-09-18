@@ -47,7 +47,7 @@ class TestConfig:
     def _get_api_key(self) -> str:
         """Get API key from environment or generate securely"""
         # Priority: environment variable > secure generation
-        api_key = os.environ.get("API_KEY")
+        api_key = os.environ.get("API_KEY", "")
         if api_key:
             return api_key
 

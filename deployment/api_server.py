@@ -47,7 +47,7 @@ def health_check():
         else:
             # Fallback to empty list if mapping is not accessible
             emotions = []
-    
+
     return jsonify(
         {
             "status": "healthy",

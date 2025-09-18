@@ -89,7 +89,7 @@ def get_secure_host_binding(default_port: int = DEFAULT_PORT) -> Tuple[str, int]
     port = int(os.environ.get("PORT", default_port))
 
     # Check for explicitly configured host
-    explicit_host = os.environ.get("HOST")
+    explicit_host = os.environ.get("HOST", "")
     if explicit_host:
         logger.info("Using explicitly configured host: %s", explicit_host)
         if explicit_host == ALL_INTERFACES_HOST:

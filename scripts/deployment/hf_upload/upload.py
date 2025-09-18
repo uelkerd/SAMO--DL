@@ -32,7 +32,7 @@ def choose_repository_privacy(cli_private: Optional[bool] = None) -> bool:
     if cli_private is not None:
         logging.info("Repository privacy from CLI: %s", 'private' if cli_private else 'public')
         return cli_private
-    hf_repo_private = os.environ.get("HF_REPO_PRIVATE")
+    hf_repo_private = os.environ.get("HF_REPO_PRIVATE", "")
     if hf_repo_private:
         if hf_repo_private.lower() == "true":
             logging.info("Using PRIVATE repository (HF_REPO_PRIVATE=true)")

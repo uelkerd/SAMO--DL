@@ -288,8 +288,18 @@ if __name__ == '__main__':
         def load(self):
             return self.application
 
+    # Use secure host binding for Gunicorn
+    try:
+        from src.security.host_binding import get_secure_host_binding, validate_host_binding
+        host, _ = get_secure_host_binding(port)
+        validate_host_binding(host, port)
+        bind_address = f'{host}:{port}'
+    except ImportError:
+        # Fallback for Gunicorn environment
+        bind_address = f'127.0.0.1:{port}'
+
     options = {
-        'bind': f'0.0.0.0:{port}',
+        'bind': bind_address,
         'workers': 1,  # Single worker for Cloud Run
         'threads': 8,
         'timeout': 0,  # No timeout for Cloud Run

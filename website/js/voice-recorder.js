@@ -193,7 +193,30 @@ class VoiceRecorder {
 
         } catch (error) {
             console.error('Failed to transcribe audio:', error);
-            this.showError(`Transcription failed: ${error.message}`);
+
+            // Provide specific error messages based on error type
+            let userMessage = 'Transcription failed';
+            if (error.message.includes('API client not available')) {
+                userMessage = 'Voice service unavailable. Please refresh the page and try again.';
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+                userMessage = 'Network error. Please check your connection and try again.';
+            } else if (error.message.includes('timeout')) {
+                userMessage = 'Request timeout. Please try with a shorter recording.';
+            } else if (error.message.includes('400')) {
+                userMessage = 'Invalid audio format. Please try recording again.';
+            } else if (error.message.includes('500')) {
+                userMessage = 'Server error. Please try again in a moment.';
+            } else {
+                userMessage = `Transcription failed: ${error.message}`;
+            }
+
+            this.showError(userMessage);
+
+            // Reset processing state on error
+            if (window.LayoutManager && window.LayoutManager.isProcessing) {
+                window.LayoutManager.endProcessing();
+                console.log('🔧 Processing state reset due to transcription error');
+            }
         } finally {
             this.hideProcessingState();
         }
@@ -290,14 +313,20 @@ class VoiceRecorder {
     showProcessingState() {
         // Use existing layout manager if available
         if (window.LayoutManager && typeof window.LayoutManager.showProcessingState === 'function') {
-            window.LayoutManager.showProcessingState();
+            // Check if processing is allowed first
+            if (!window.LayoutManager.canStartProcessing()) {
+                console.warn('⚠️ Cannot show processing state - operation already in progress');
+                return false;
+            }
+            return window.LayoutManager.showProcessingState();
         }
+        return true;
     }
 
     hideProcessingState() {
         // Use existing layout manager if available
-        if (window.LayoutManager && typeof window.LayoutManager.hideProcessingState === 'function') {
-            window.LayoutManager.hideProcessingState();
+        if (window.LayoutManager && typeof window.LayoutManager.showResultsState === 'function') {
+            window.LayoutManager.showResultsState();
         }
     }
 
@@ -349,17 +378,30 @@ class VoiceRecorder {
 
     handleRecordingError(error) {
         let errorMessage = 'Recording failed';
+        let helpText = '';
 
         if (error.name === 'NotAllowedError') {
-            errorMessage = 'Microphone access denied. Please allow microphone access and try again.';
+            errorMessage = 'Microphone access denied';
+            helpText = 'Please click the microphone icon in your browser\'s address bar and allow access, then try again.';
         } else if (error.name === 'NotFoundError') {
-            errorMessage = 'No microphone found. Please connect a microphone and try again.';
+            errorMessage = 'No microphone detected';
+            helpText = 'Please connect a microphone to your device and refresh the page.';
         } else if (error.name === 'NotSupportedError') {
-            errorMessage = 'Audio recording not supported in this browser.';
+            errorMessage = 'Audio recording not supported';
+            helpText = 'Please try using a modern browser like Chrome, Firefox, or Safari.';
+        } else if (error.name === 'SecurityError') {
+            errorMessage = 'Security error - HTTPS required';
+            helpText = 'Voice recording requires a secure connection. Please access this page via HTTPS.';
         }
 
-        this.showError(errorMessage);
+        console.error('Recording error:', error);
+        this.showError(`${errorMessage}. ${helpText}`);
         this.updateRecordingUI(false);
+
+        // Reset processing state if error occurs
+        if (window.LayoutManager && window.LayoutManager.isProcessing) {
+            window.LayoutManager.endProcessing();
+        }
     }
 
     disableRecording(reason) {

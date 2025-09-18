@@ -119,7 +119,7 @@ error_model = api.model('Error', {
 })
 
 # Security configuration from environment variables
-ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "")
 if not ADMIN_API_KEY:
     raise ValueError("ADMIN_API_KEY environment variable must be set")
 MAX_INPUT_LENGTH = int(os.environ.get("MAX_INPUT_LENGTH", "512"))
@@ -501,8 +501,18 @@ def initialize_model():
 # Initialize model when the application starts
 if __name__ == '__main__':
     initialize_model()
-    logger.info(f"🌐 Starting Flask development server on port {PORT}")
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+
+    # Use centralized host binding for security
+    try:
+        from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+        host, port = get_secure_host_binding(PORT)
+        validate_host_binding(host, port)
+        logger.info("🌐 Starting Flask development server: %s", get_binding_security_summary(host, port))
+        app.run(host=host, port=port, debug=False)
+    except ImportError:
+        # Fallback if host_binding module not available
+        logger.warning("⚠️ Host binding module not available, using default configuration")
+        app.run(host='127.0.0.1', port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts

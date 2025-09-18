@@ -25,7 +25,15 @@ try:
 
     def run_server():
         try:
-            app.run(host='0.0.0.0', port=8084, debug=False)
+            # Use secure host binding for test server
+            try:
+                from src.security.host_binding import get_secure_host_binding, validate_host_binding
+                host, port = get_secure_host_binding(8084)
+                validate_host_binding(host, port)
+                app.run(host=host, port=port, debug=False)
+            except ImportError:
+                # Fallback for test environment
+                app.run(host='127.0.0.1', port=8084, debug=False)
         except Exception as e:
             print(f"❌ Server error: {e}")
             traceback.print_exc()

@@ -126,7 +126,7 @@ def get_base_url():
     # Priority: command-line argument, environment variable, default
     if len(sys.argv) > 1 and sys.argv[1]:
         return sys.argv[1]
-    env_url = os.environ.get("MODEL_API_BASE_URL")
+    env_url = os.environ.get("MODEL_API_BASE_URL", "")
     if env_url:
         return env_url
     return "https://samo-emotion-api-optimized-secure-71517823771.us-central1.run.app"

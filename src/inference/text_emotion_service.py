@@ -53,7 +53,7 @@ class HFEmotionService(EmotionService):
             logger.error("Failed to import transformers components: %s", e)
             raise
 
-        model_dir = os.environ.get(self.model_dir_env)
+        model_dir = os.environ.get(self.model_dir_env, "")
         local_only = os.environ.get(
             self.local_only_env, "1"
         ).strip() not in {"", "0", "false", "False"}
