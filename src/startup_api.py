@@ -132,6 +132,12 @@ def load_emotion_model():
             raise FileNotFoundError(f"Cache directory {cache_dir} not found")
 
         # Load from cache only - no network downloads
+        # CRITICAL: local_files_only=True prevents network downloads during Cloud Run startup
+        # This is essential because:
+        # 1. Cloud Run has strict startup timeouts (10 minutes max)
+        # 2. Model downloads can take 5-10 minutes and would cause startup failures
+        # 3. Models are pre-downloaded during Docker build phase
+        # 4. Network downloads during runtime would cause 503 errors and service unavailability
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
             cache_dir=cache_dir,
@@ -167,6 +173,12 @@ def load_summarization_model():
         cache_dir = "/app/models"
 
         # Load from cache only - no network downloads
+        # CRITICAL: local_files_only=True prevents network downloads during Cloud Run startup
+        # This is essential because:
+        # 1. Cloud Run has strict startup timeouts (10 minutes max)
+        # 2. Model downloads can take 5-10 minutes and would cause startup failures
+        # 3. Models are pre-downloaded during Docker build phase
+        # 4. Network downloads during runtime would cause 503 errors and service unavailability
         tokenizer = T5Tokenizer.from_pretrained(
             model_name,
             cache_dir=cache_dir,

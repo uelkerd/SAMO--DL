@@ -38,14 +38,13 @@ steps:
       - '--region=us-central1'
       - '--allow-unauthenticated'
       - '--port=8080'
-      - '--timeout=1200'  # Extended timeout for model loading (20 minutes)
+      - '--timeout=600'  # Request timeout (10 minutes) - reasonable for API
       - '--cpu=2'
       - '--memory=6Gi'  # Increased memory for safe model loading
       - '--max-instances=10'
       - '--min-instances=0'
       - '--concurrency=80'
       - '--startup-cpu-boost'  # Faster cold starts
-      - '--timeout=3600'  # Request timeout (1 hour) - using supported flag
       - '--set-env-vars=PYTHONUNBUFFERED=1'  # Ensure logging works
 
 # Build options

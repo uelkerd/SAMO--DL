@@ -18,7 +18,9 @@ window.SAMO_CONFIG = {
             OPENAI_PROXY: '/proxy/openai'
         },
         TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
-        RETRY_ATTEMPTS: 3
+        RETRY_ATTEMPTS: 3,
+        API_KEY: null, // Set via server injection or user input
+        REQUIRE_AUTH: false // Set to true for production with API key requirement
     },
     
     // OpenAI Configuration (for client-side text generation)
