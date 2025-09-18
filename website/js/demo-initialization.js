@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
         LayoutManager.toggleDebugSection(true);
     }
 
+    // Safety reset to ensure clean processing state
+    LayoutManager.resetProcessingState();
+    
     // Initialize layout to initial state
     LayoutManager.resetToInitialState();
 

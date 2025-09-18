@@ -9,6 +9,26 @@ const LayoutManager = {
     isProcessing: false, // Processing guard to prevent concurrent operations
     activeRequests: new Set(), // Track active API requests
 
+    // Safety reset to ensure clean state on page load
+    resetProcessingState() {
+        console.log('🔄 Safety reset: clearing processing state...');
+        this.isProcessing = false;
+        this.activeRequests.clear();
+        this.currentState = 'initial';
+    },
+
+    // Emergency reset if processing gets stuck (with timeout)
+    emergencyReset() {
+        console.warn('🚨 Emergency reset: processing state appears stuck, forcing reset...');
+        this.isProcessing = false;
+        this.activeRequests.clear();
+        this.currentState = 'initial';
+        // Also clear any UI elements that might be stuck
+        if (typeof clearAllResultContent === 'function') {
+            clearAllResultContent();
+        }
+    },
+
     // Check if processing is allowed (prevents concurrent operations)
     canStartProcessing() {
         return !this.isProcessing;
@@ -18,6 +38,8 @@ const LayoutManager = {
     startProcessing() {
         if (this.isProcessing) {
             console.warn('⚠️ Processing already in progress, ignoring request');
+            console.warn('⚠️ Current state:', this.currentState);
+            console.warn('⚠️ Active requests:', this.activeRequests.size);
             return false;
         }
         this.isProcessing = true;
@@ -63,7 +85,14 @@ const LayoutManager = {
         // Check if processing is allowed
         if (!this.startProcessing()) {
             console.warn('⚠️ Cannot start processing - operation already in progress');
-            return false;
+            // Try emergency reset and retry once
+            console.warn('🔄 Attempting emergency reset and retry...');
+            this.emergencyReset();
+            if (!this.startProcessing()) {
+                console.error('❌ Emergency reset failed - processing still blocked');
+                return false;
+            }
+            console.log('✅ Emergency reset successful - processing can proceed');
         }
 
         this.currentState = 'processing';
