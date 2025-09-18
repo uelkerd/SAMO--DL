@@ -482,7 +482,7 @@ async def proxy_openai(request: OpenAIRequest):
         logger.error(f"OpenAI API request error: {e}")
         raise HTTPException(status_code=502, detail="OpenAI API unavailable")
     except Exception as e:
-        logger.exception("Error in OpenAI proxy")
+        logger.exception(f"Error in OpenAI proxy: {e}")
         raise HTTPException(status_code=500, detail="OpenAI proxy failed")
 
 

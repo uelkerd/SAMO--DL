@@ -12,7 +12,7 @@ def main():
     # Test transformers cache
     try:
         from transformers import AutoTokenizer
-        tokenizer = AutoTokenizer.from_pretrained(
+        _ = AutoTokenizer.from_pretrained(
             "duelker/samo-goemotions-deberta-v3-large", 
             cache_dir="/app/models", 
             local_files_only=True
@@ -24,7 +24,7 @@ def main():
     
     try:
         from transformers import T5Tokenizer
-        t5_tokenizer = T5Tokenizer.from_pretrained(
+        _ = T5Tokenizer.from_pretrained(
             "t5-small", 
             cache_dir="/app/models", 
             local_files_only=True
