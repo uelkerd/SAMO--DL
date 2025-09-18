@@ -1026,3 +1026,146 @@ document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[h
         }
     });
 });
+
+// Essential Demo Functions (restored from simple-demo-functions.js)
+
+// Inline message display functions
+function showInlineError(message, targetElementId) {
+    showInlineMessage(message, targetElementId, 'error');
+}
+
+function showInlineSuccess(message, targetElementId) {
+    showInlineMessage(message, targetElementId, 'success');
+}
+
+function showInlineMessage(message, targetElementId, type = 'error') {
+    const existingMessages = document.querySelectorAll('.inline-message');
+    existingMessages.forEach(msg => msg.remove());
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `inline-message alert ${type === 'error' ? 'alert-danger' : 'alert-success'} mt-2`;
+    messageDiv.setAttribute('role', 'alert');
+    messageDiv.style.cssText = 'animation: fadeIn 0.3s ease-in; font-size: 0.9rem;';
+    messageDiv.textContent = message;
+
+    const targetElement = document.getElementById(targetElementId);
+    if (targetElement) {
+        targetElement.parentNode.insertBefore(messageDiv, targetElement.nextSibling);
+    } else {
+        document.body.appendChild(messageDiv);
+    }
+
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 4000);
+}
+
+// Generate Sample Text Function
+async function generateSampleText() {
+    console.log('✨ Generating AI-powered sample journal text...');
+
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.value = '🤖 Generating AI text...';
+        textInput.style.borderColor = '#8b5cf6';
+        textInput.style.boxShadow = '0 0 0 0.2rem rgba(139, 92, 246, 0.25)';
+    }
+
+    try {
+        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY || localStorage.getItem('openai_api_key');
+
+        if (!apiKey || apiKey.trim() === '') {
+            showInlineError('⚠️ OpenAI API key required for AI text generation. Click "Manage API Key" to set up.', 'textInput');
+
+            if (textInput) {
+                textInput.value = '';
+                textInput.style.borderColor = '#ef4444';
+                textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+                setTimeout(() => {
+                    textInput.style.borderColor = '';
+                    textInput.style.boxShadow = '';
+                }, 3000);
+            }
+            return;
+        }
+
+        const prompts = [
+            "Today started like any other day, but something unexpected happened that completely changed my mood. I found myself feeling",
+            "I've been reflecting on recent changes in my life, and I'm experiencing a whirlwind of emotions. Right now I'm particularly",
+            "This week has been a journey of self-discovery. I wake up each morning feeling different, but today I'm especially",
+            "After a long conversation with someone close to me, I'm left feeling quite contemplative and",
+            "The weather outside perfectly matches my internal state today. I'm feeling deeply"
+        ];
+
+        const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+        console.log('🤖 Generating AI text with OpenAI API...');
+
+        const openaiConfig = window.SAMO_CONFIG.OPENAI;
+        const response = await fetch(openaiConfig.API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey.trim()}`
+            },
+            body: JSON.stringify({
+                model: openaiConfig.MODEL,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic and emotionally detailed.`
+                    }
+                ],
+                max_tokens: openaiConfig.MAX_TOKENS,
+                temperature: openaiConfig.TEMPERATURE + 0.1
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${errorData.error?.message || ''}`);
+        }
+
+        const data = await response.json();
+        if (!data.choices?.[0]?.message) {
+            throw new Error('Invalid response format from OpenAI API');
+        }
+
+        const generatedText = data.choices[0].message.content.trim();
+        console.log('✅ AI text generated successfully');
+
+        if (textInput) {
+            textInput.value = generatedText;
+            textInput.style.borderColor = '#10b981';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 2000);
+        }
+
+        showInlineSuccess('✅ AI text generated successfully!', 'textInput');
+
+    } catch (error) {
+        console.error('❌ Error generating AI text:', error);
+        showInlineError(`❌ Failed to generate AI text: ${error.message}`, 'textInput');
+
+        if (textInput) {
+            textInput.value = '';
+            textInput.style.borderColor = '#ef4444';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 3000);
+        }
+    }
+}
+
+// Make function globally available
+window.generateSampleText = generateSampleText;
