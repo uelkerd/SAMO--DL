@@ -12,6 +12,7 @@ we verify the saved model has the correct configuration before proceeding.
 
 import json
 
+
 def create_fixed_notebook():
     """Create a corrected training notebook with proper configuration preservation."""
 
@@ -27,8 +28,8 @@ def create_fixed_notebook():
                     "**CRITICAL FIX**: This notebook ensures emotion label mappings are properly preserved\n",
                     "in the saved model configuration to prevent the 8.3% vs 75% performance discrepancy.\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with consistent performance between Colab and local deployment"
-                ]
+                    "**Target**: Reliable 75-85% F1 score with consistent performance between Colab and local deployment",
+                ],
             },
             {
                 "cell_type": "code",
@@ -37,8 +38,8 @@ def create_fixed_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub"
-                ]
+                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub",
+                ],
             },
             {
                 "cell_type": "code",
@@ -57,8 +58,8 @@ def create_fixed_notebook():
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ Packages imported successfully')"
-                ]
+                    "print('✅ Packages imported successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -97,8 +98,8 @@ def create_fixed_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
-                ]
+                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -109,8 +110,8 @@ def create_fixed_notebook():
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
-                ]
+                    "print(f'📊 Number of emotions: {len(emotions)}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -303,8 +304,8 @@ def create_fixed_notebook():
                     "val_dataset = Dataset.from_pandas(val_data)\n",
                     "\n",
                     "print(f'✅ Training samples: {len(train_data)}')\n",
-                    "print(f'✅ Validation samples: {len(val_data)}')"
-                ]
+                    "print(f'✅ Validation samples: {len(val_data)}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -348,8 +349,8 @@ def create_fixed_notebook():
                     "    print('✅ CONFIRMED: Emotion label mappings set correctly')\n",
                     "else:\n",
                     "    print('❌ ERROR: Emotion label mappings not set correctly')\n",
-                    "    raise ValueError('Emotion label mappings not set correctly')"
-                ]
+                    "    raise ValueError('Emotion label mappings not set correctly')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -364,8 +365,8 @@ def create_fixed_notebook():
                     "train_dataset = train_dataset.map(tokenize_function, batched=True)\n",
                     "val_dataset = val_dataset.map(tokenize_function, batched=True)\n",
                     "\n",
-                    "print('✅ Data tokenized successfully')"
-                ]
+                    "print('✅ Data tokenized successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -398,8 +399,8 @@ def create_fixed_notebook():
                     "    save_total_limit=3\n",
                     ")\n",
                     "\n",
-                    "print('✅ Training arguments configured')"
-                ]
+                    "print('✅ Training arguments configured')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -420,8 +421,8 @@ def create_fixed_notebook():
                     "        'accuracy': report['accuracy'],\n",
                     "        'precision': report['weighted avg']['precision'],\n",
                     "        'recall': report['weighted avg']['recall']\n",
-                    "    }"
-                ]
+                    "    }",
+                ],
             },
             {
                 "cell_type": "code",
@@ -438,8 +439,8 @@ def create_fixed_notebook():
                     "    compute_metrics=compute_metrics\n",
                     ")\n",
                     "\n",
-                    "print('✅ Trainer initialized successfully')"
-                ]
+                    "print('✅ Trainer initialized successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -457,8 +458,8 @@ def create_fixed_notebook():
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print('✅ Training completed successfully')"
-                ]
+                    "print('✅ Training completed successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -474,8 +475,8 @@ def create_fixed_notebook():
                     "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
                     "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
                     "print(f'Final Precision: {results[\"eval_precision\"]:.3f}')\n",
-                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')"
-                ]
+                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -551,8 +552,8 @@ def create_fixed_notebook():
                     "    if accuracy < 0.8:\n",
                     "        print(f'❌ Accuracy too low: {accuracy:.1%} (need >80%)')\n",
                     "    if max_bias > 0.3:\n",
-                    "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')"
-                ]
+                    "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -588,9 +589,9 @@ def create_fixed_notebook():
                     "    with open(f'{output_dir}/config.json', 'r') as f:\n",
                     "        saved_config = json.load(f)\n",
                     "    \n",
-                    "    print(f'Saved model type: {saved_config.get(\"model_type\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved id2label: {saved_config.get(\"id2label\", \"NOT FOUND\")}')\n",
-                    "    print(f'Saved label2id: {saved_config.get(\"label2id\", \"NOT FOUND\")}')\n",
+                    '    print(f\'Saved model type: {saved_config.get("model_type", "NOT FOUND")}\')\n',
+                    '    print(f\'Saved id2label: {saved_config.get("id2label", "NOT FOUND")}\')\n',
+                    '    print(f\'Saved label2id: {saved_config.get("label2id", "NOT FOUND")}\')\n',
                     "    \n",
                     "    # Verify the emotion labels are saved correctly\n",
                     "    expected_id2label = {str(i): emotion for i, emotion in enumerate(emotions)}\n",
@@ -637,36 +638,29 @@ def create_fixed_notebook():
                     "print('\\n📋 Next steps:')\n",
                     "print('1. Download the model files')\n",
                     "print('2. Test locally with validation script')\n",
-                    "print('3. Deploy if all tests pass')"
-                ]
-            }
+                    "print('3. Deploy if all tests pass')",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook
     output_path = "notebooks/FIXED_SPECIALIZED_TRAINING_CONFIG_PRESERVATION.ipynb"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Created fixed training notebook: {output_path}")
@@ -678,6 +672,7 @@ def create_fixed_notebook():
     print("5. ✅ Comprehensive error checking")
 
     return output_path
+
 
 if __name__ == "__main__":
     create_fixed_notebook()

@@ -24,7 +24,8 @@ MAX_TIMESTAMP_DIFF = 60
 class TestCompleteWorkflows:
     """End-to-end tests for SAMO AI complete user workflows."""
 
-    def test_text_journal_complete_workflow(self, api_client, sample_journal_entry):
+    @staticmethod
+    def test_text_journal_complete_workflow(api_client, sample_journal_entry):
         """Test complete text journal analysis workflow."""
         start_time = time.time()
 
@@ -67,10 +68,13 @@ class TestCompleteWorkflows:
         assert isinstance(summary["key_emotions"], list)
 
         assert workflow_time < MAX_WORKFLOW_TIME  # Complete workflow under 3 seconds
-        assert data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000  # Processing time under 2 seconds
+        assert (
+            data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000
+        )  # Processing time under 2 seconds
 
     @pytest.mark.slow
-    def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
+    @staticmethod
+    def test_voice_journal_complete_workflow(api_client, sample_audio_data):
         """Test complete voice journal analysis workflow."""
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
             temp_audio.write(b"fake audio data for testing")
@@ -107,7 +111,8 @@ class TestCompleteWorkflows:
             # Clean up temporary file
             Path(temp_audio_path).unlink(missing_ok=True)
 
-    def test_error_recovery_workflow(self, api_client):
+    @staticmethod
+    def test_error_recovery_workflow(api_client):
         """Test error recovery and graceful degradation."""
         # Test with invalid input
         response = api_client.post(
@@ -135,10 +140,15 @@ class TestCompleteWorkflows:
         )
         assert response.status_code == HTTP_OK
 
-    def test_high_volume_workflow(self, api_client):
+    @staticmethod
+    def test_high_volume_workflow(api_client):
         """Test high volume processing with multiple requests."""
         requests_data = [
-            {"text": f"Request {i}: I had a great day!", "generate_summary": True, "emotion_threshold": 0.5}
+            {
+                "text": f"Request {i}: I had a great day!",
+                "generate_summary": True,
+                "emotion_threshold": 0.5,
+            }
             for i in range(5)
         ]
 
@@ -150,7 +160,8 @@ class TestCompleteWorkflows:
 
         assert success_count >= 4  # At least 80% success rate
 
-    def test_data_consistency_workflow(self, api_client):
+    @staticmethod
+    def test_data_consistency_workflow(api_client):
         """Test data consistency across multiple requests."""
         test_text = "I had a great day today!"
         responses = []
@@ -180,7 +191,8 @@ class TestCompleteWorkflows:
             assert "summary" in data
             assert "processing_time_ms" in data
 
-    def test_configuration_workflow(self, api_client):
+    @staticmethod
+    def test_configuration_workflow(api_client):
         """Test different configuration options."""
         test_text = "I had a great day today!"
 
@@ -207,7 +219,8 @@ class TestCompleteWorkflows:
         assert response.status_code == HTTP_OK
 
     @pytest.mark.model
-    def test_model_integration_workflow(self, api_client):
+    @staticmethod
+    def test_model_integration_workflow(api_client):
         """Test integration between different AI models."""
         test_text = "I had a great day today!"
 

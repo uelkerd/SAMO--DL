@@ -7,13 +7,13 @@ It installs all required dependencies and configures the environment
 for optimal performance in the Colab environment.
 """
 
-import os
-import sys
-import subprocess
 import logging
+import os
+import subprocess
+import sys
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -65,8 +65,12 @@ def install_dependencies():
     for package in packages:
         try:
             logger.info(f"📦 Installing {package}...")
-            subprocess.run([sys.executable, "-m", "pip", "install", package],
-                         check=True, capture_output=True, text=True)
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", package],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
             logger.info(f"✅ {package} installed successfully")
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Failed to install {package}: {e}")
@@ -114,7 +118,7 @@ def create_colab_notebook():
     """Create a Colab-ready notebook template."""
     logger.info("📓 Creating Colab notebook template...")
 
-    notebook_content = '''{
+    notebook_content = """{
   "cells": [
     {
       "cell_type": "markdown",
@@ -210,7 +214,7 @@ def create_colab_notebook():
   },
   "nbformat": 4,
   "nbformat_minor": 4
-}'''
+}"""
 
     with open("samo_dl_colab_setup.ipynb", "w") as f:
         f.write(notebook_content)
@@ -228,7 +232,7 @@ def run_ci_pipeline():
             [sys.executable, "scripts/ci/run_full_ci_pipeline.py"],
             capture_output=True,
             text=True,
-            timeout=600  # 10 minute timeout
+            timeout=600,  # 10 minute timeout
         )
 
         if result.returncode == 0:

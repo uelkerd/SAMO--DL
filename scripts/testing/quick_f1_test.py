@@ -7,17 +7,16 @@
         # Save the model
         # Train model
         import traceback
+import logging
+import sys
 # Add src to path
 # Configure logging
 from pathlib import Path
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-import logging
-import sys
+
 import torch
 
-
-
-
+from src.models.emotion_detection.training_pipeline import \
+    EmotionDetectionTrainer
 
 """
 Quick F1 Score Test and Improvement

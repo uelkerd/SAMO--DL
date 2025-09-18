@@ -1,32 +1,31 @@
-            # If no emotion column found, use the last column (typically labels)
-            # Save results to GCS
-            # Step 1: Load metadata
-            # Step 2: Create dataset
-            # Step 3: Train model
-            # Step 4: Monitor training
-            # Step 5: Deploy model
-            # Step 6: Save results
-        # Configure training job
-        # Create dataset
-        # Download first few lines to check structure
-        # Find the target column (should be the emotion labels column)
-        # Get model evaluation
-        # Get the correct target column
-        # Initialize Vertex AI
-        # Look for emotion-related columns
-        # Start training
-    # Initialize and run training
-# Configure logging
-#!/usr/bin/env python3
-from datetime import datetime
-from google.cloud import aiplatform
-from google.cloud import storage
+# If no emotion column found, use the last column (typically labels)
+# Save results to GCS
+# Step 1: Load metadata
+# Step 2: Create dataset
+# Step 3: Train model
+# Step 4: Monitor training
+# Step 5: Deploy model
+# Step 6: Save results
+# Configure training job
+# Create dataset
+# Download first few lines to check structure
+# Find the target column (should be the emotion labels column)
+# Get model evaluation
+# Get the correct target column
+# Initialize Vertex AI
+# Look for emotion-related columns
+# Start training
+# Initialize and run training
 import json
 import logging
 import sys
 import time
 
+# Configure logging
+#!/usr/bin/env python3
+from datetime import datetime
 
+from google.cloud import aiplatform, storage
 
 """
 SAMO Vertex AI AutoML Training Pipeline

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Ultra-basic API for testing Cloud Run deployment."""
-import os
 import logging
+import os
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import uvicorn
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SAMO Basic API", version="1.0.0")
+
 
 # CORS configuration from environment variables
 def get_cors_origins():
@@ -30,10 +32,11 @@ def get_cors_origins():
         "http://localhost:8082",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:8082"
+        "http://127.0.0.1:8082",
     ]
     logger.warning("No CORS_ORIGINS configured, using development defaults")
     return dev_origins
+
 
 def get_cors_origin_regex():
     """Get CORS origin regex patterns for dynamic hosts."""
@@ -48,11 +51,12 @@ def get_cors_origin_regex():
     default_patterns = [
         r"https://.*\.vercel\.app$",  # Vercel deployments
         r"https://.*\.netlify\.app$",  # Netlify deployments
-        r"https://.*\.github\.io$",    # GitHub Pages
-        r"http://localhost:\d+$",      # Local development with any port
-        r"http://127\.0\.0\.1:\d+$",   # Local development with any port
+        r"https://.*\.github\.io$",  # GitHub Pages
+        r"http://localhost:\d+$",  # Local development with any port
+        r"http://127\.0\.0\.1:\d+$",  # Local development with any port
     ]
     return default_patterns
+
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
@@ -67,17 +71,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class EmotionRequest(BaseModel):
     text: str
+
 
 @app.get("/")
 async def root():
     return {"message": "SAMO API is running", "status": "healthy"}
 
+
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
 
 @app.post("/analyze/emotion")
 async def analyze_emotion(request: EmotionRequest):
@@ -86,13 +94,10 @@ async def analyze_emotion(request: EmotionRequest):
 
     return {
         "text": request.text,
-        "emotions": {
-            "excitement": 0.9,
-            "joy": 0.8,
-            "optimism": 0.7
-        },
-        "predicted_emotion": "excitement"
+        "emotions": {"excitement": 0.9, "joy": 0.8, "optimism": 0.7},
+        "predicted_emotion": "excitement",
     }
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

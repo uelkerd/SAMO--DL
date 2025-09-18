@@ -1,17 +1,18 @@
-        # Parse JSON output would go here in a real implementation
-    # Save to logs directory
+# Parse JSON output would go here in a real implementation
+# Save to logs directory
 # SAMO Deep Learning - Code Quality Report
-#!/usr/bin/env python3
-## Pre-commit Status
-## Recommendations
-## Ruff Analysis
-from datetime import UTC, datetime
-from pathlib import Path
+
+
 import logging
 import subprocess
 
+## Recommendations
+## Ruff Analysis
+from datetime import UTC, datetime
 
-
+#!/usr/bin/env python3
+## Pre-commit Status
+from pathlib import Path
 
 
 """Generate code quality report for SAMO Deep Learning project.
@@ -19,6 +20,7 @@ import subprocess
 This script demonstrates the pre-commit hooks in action by creating
 a simple maintenance script that follows code quality standards.
 """
+
 
 def run_ruff_check() -> dict[str, int]:
     """Run Ruff check and return statistics."""

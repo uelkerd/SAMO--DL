@@ -7,11 +7,13 @@ refill, history, and block status to help diagnose rate-limit behavior.
 
 # pylint: disable=protected-access
 
-import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+import sys
 
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
+from src.api_rate_limiter import RateLimitConfig  # noqa: E402
+from src.api_rate_limiter import TokenBucketRateLimiter
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 
 def debug_rate_limiter():
@@ -49,10 +51,7 @@ def debug_rate_limiter():
     print(f"Buckets after second request: {rate_limiter.buckets}")
 
     # Check what's in the bucket for this client
-    client_key = (
-        meta1.get("client_key")
-        or rate_limiter._get_client_key(client_ip, user_agent)
-    )
+    client_key = meta1.get("client_key") or rate_limiter._get_client_key(client_ip, user_agent)
     print(f"\n🔑 Client key: {client_key}")
     print(f"Bucket value for client: {rate_limiter.buckets[client_key]}")
     print(f"Last refill time for client: {rate_limiter.last_refill[client_key]}")

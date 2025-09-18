@@ -13,12 +13,9 @@
 # Configure logging
 import logging
 import sys
+
 import torch
 import torch.nn.functional as F
-
-
-
-
 
 """
 Standalone Focal Loss Test

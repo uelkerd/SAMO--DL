@@ -1,18 +1,20 @@
 # Configure logging
 # Suppress warnings from audio processing
-from dataclasses import dataclass
-from pathlib import Path
-from pydub import AudioSegment
-from typing import Any, Optional, Union, Tuple, List, Dict
 import contextlib
 import logging
-import numpy as np
 import os
 import tempfile
 import time
-import torch
 import warnings
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import torch
 import whisper
+from pydub import AudioSegment
+
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
 This module implements OpenAI Whisper for high-accuracy voice-to-text transcription
@@ -27,7 +29,6 @@ Key Features:
 - Production-ready error handling and logging
 - Batch transcription for multiple audio files
 """
-
 
 
 logging.basicConfig(level=logging.INFO)
@@ -318,15 +319,11 @@ class WhisperTranscriber:
         Returns:
             List of TranscriptionResult objects
         """
-        logger.info(
-            f"Starting batch transcription of {len(audio_paths)} files..."
-        )
+        logger.info(f"Starting batch transcription of {len(audio_paths)} files...")
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
-            logger.info(
-                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}"
-            )
+            logger.info(f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}")
 
             try:
                 result = self.transcribe(
@@ -354,12 +351,8 @@ class WhisperTranscriber:
         total_duration = sum(r.duration for r in results)
         total_processing_time = sum(r.processing_time for r in results)
 
-        logger.info(
-            f"✅ Batch transcription complete: {len(results)} files"
-        )
-        logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
-        )
+        logger.info(f"✅ Batch transcription complete: {len(results)} files")
+        logger.info(f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s")
 
         return results
 
@@ -467,7 +460,6 @@ def test_whisper_transcriber() -> None:
 
     logger.info("Whisper transcriber initialized successfully")
     logger.info("Model info:", transcriber.get_model_info())
-
 
     logger.info("✅ Whisper transcriber test complete!")
 

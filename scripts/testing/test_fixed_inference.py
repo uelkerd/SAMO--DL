@@ -4,10 +4,12 @@ Fixed Inference Test Script for Emotion Detection Model
 Handles missing tokenizer and generic labels
 """
 
-import torch
 import json
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_fixed_inference():
     """Test inference with missing tokenizer and generic labels"""
@@ -16,8 +18,8 @@ def test_fixed_inference():
     print("=" * 50)
 
     # Check if model files exist
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     print(f"📁 Checking model directory: {model_dir}")
 
@@ -38,7 +40,7 @@ def test_fixed_inference():
 
     try:
         # Load the model config to understand the architecture
-        with open(model_dir / 'config.json', 'r') as f:
+        with open(model_dir / "config.json", "r") as f:
             config = json.load(f)
 
         print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
@@ -47,8 +49,18 @@ def test_fixed_inference():
         # Define the emotion mapping based on your training
         # This should match the order from your training
         emotion_mapping = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
         ]
 
         print(f"🎯 Emotion mapping: {emotion_mapping}")
@@ -63,7 +75,7 @@ def test_fixed_inference():
         print(f"🔧 Loading fine-tuned model from: {model_dir}")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
@@ -81,7 +93,7 @@ def test_fixed_inference():
             "I'm feeling sad and lonely today.",
             "I'm excited about the new opportunities.",
             "I feel calm and peaceful right now.",
-            "I'm hopeful that things will get better."
+            "I'm hopeful that things will get better.",
         ]
 
         print(f"\n📊 Testing predictions:")
@@ -90,12 +102,9 @@ def test_fixed_inference():
         for i, text in enumerate(test_texts, 1):
             try:
                 # Tokenize input
-                inputs = tokenizer(
-                    text,
-                    truncation=True,
-                    padding=True,
-                    return_tensors='pt'
-                ).to(device)
+                inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(
+                    device
+                )
 
                 # Get predictions
                 with torch.no_grad():
@@ -133,8 +142,10 @@ def test_fixed_inference():
     except Exception as e:
         print(f"❌ Error during inference: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - FIXED TEST")

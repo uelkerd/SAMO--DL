@@ -20,7 +20,6 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 from ...utils import count_model_params
-
 from .bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
 from .dataset_loader import GoEmotionsDataset, create_goemotions_loader
 
@@ -160,18 +159,13 @@ class EmotionDetectionTrainer:
             original_batch_size = self.batch_size
             # Increase batch size for dev mode
             self.batch_size = min(128, self.batch_size * 8)
-            dev_msg = (
-                "🔧 DEVELOPMENT MODE: Using %d training examples, "
-                "batch_size=%d (was %d)"
-            )
+            dev_msg = "🔧 DEVELOPMENT MODE: Using %d training examples, " "batch_size=%d (was %d)"
             logger.info(dev_msg, len(train_texts), self.batch_size, original_batch_size)
 
         self.train_dataset = GoEmotionsDataset(
             train_texts, train_labels, self.tokenizer, self.max_length
         )
-        self.val_dataset = GoEmotionsDataset(
-            val_texts, val_labels, self.tokenizer, self.max_length
-        )
+        self.val_dataset = GoEmotionsDataset(val_texts, val_labels, self.tokenizer, self.max_length)
         self.test_dataset = GoEmotionsDataset(
             test_texts, test_labels, self.tokenizer, self.max_length
         )
@@ -222,23 +216,16 @@ class EmotionDetectionTrainer:
             logger.debug("Loss Function Analysis")
             logger.debug("   Loss function type: %s", type(self.loss_fn).__name__)
 
-        if (
-            hasattr(self.loss_fn, "class_weights")
-            and self.loss_fn.class_weights is not None
-        ):
+        if hasattr(self.loss_fn, "class_weights") and self.loss_fn.class_weights is not None:
             weights = self.loss_fn.class_weights
             if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(
-                    "   Class weights shape: %s", getattr(weights, "shape", None)
-                )
+                logger.debug("   Class weights shape: %s", getattr(weights, "shape", None))
                 logger.debug("   Class weights min: %.6f", weights.min().item())
                 logger.debug("   Class weights mean: %.6f", weights.mean().item())
                 logger.debug("   Class weights max: %.6f", weights.max().item())
 
             if weights.min().item() <= 0:
-                logger.error(
-                    "❌ CRITICAL: Class weights contain zero or negative values!"
-                )
+                logger.error("❌ CRITICAL: Class weights contain zero or negative values!")
             if weights.max().item() > 100:
                 logger.error("❌ CRITICAL: Class weights contain very large values!")
         else:
@@ -383,9 +370,7 @@ class EmotionDetectionTrainer:
         loss.backward()
 
         # Gradient clipping
-        clip_norm = torch.nn.utils.clip_grad_norm_(
-            self.model.parameters(), max_norm=1.0
-        )
+        clip_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
 
         # Log gradient stats for first batch
         if batch_idx == 0:
@@ -507,9 +492,7 @@ class EmotionDetectionTrainer:
         logger.info("   Predictions mean: %.6f", predictions.mean().item())
 
     @staticmethod
-    def _log_loss_analysis(
-        loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor
-    ) -> None:
+    def _log_loss_analysis(loss: torch.Tensor, logits: torch.Tensor, labels: torch.Tensor) -> None:
         """Log detailed loss analysis for debugging.
 
         Args:
@@ -519,9 +502,7 @@ class EmotionDetectionTrainer:
         """
         logger.info("🔍 DEBUG: Loss Analysis")
         logger.info("   Raw loss: %.8f", loss.item())
-        bce_manual = F.binary_cross_entropy_with_logits(
-            logits, labels.float(), reduction="mean"
-        )
+        bce_manual = F.binary_cross_entropy_with_logits(logits, labels.float(), reduction="mean")
         logger.info("   Manual BCE loss: %.8f", bce_manual.item())
         if abs(loss.item()) < 1e-10:
             logger.error("❌ CRITICAL: Loss is effectively zero!")
@@ -591,13 +572,9 @@ class EmotionDetectionTrainer:
             current_lr,
         )
         if avg_loss < 1e-8:
-            logger.error(
-                "❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss
-            )
+            logger.error("❌ CRITICAL: Average loss is suspiciously small: %.8f", avg_loss)
         if avg_loss > 100:
-            logger.error(
-                "❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss
-            )
+            logger.error("❌ CRITICAL: Average loss is suspiciously large: %.8f", avg_loss)
 
     def _maybe_validate_and_early_stop(
         self,
@@ -677,9 +654,7 @@ class EmotionDetectionTrainer:
         """Check if training should stop early."""
         return self.patience_counter >= self.early_stopping_patience
 
-    def save_checkpoint(
-        self, epoch: int, metrics: Dict[str, float], is_best: bool = False
-    ) -> None:
+    def save_checkpoint(self, epoch: int, metrics: Dict[str, float], is_best: bool = False) -> None:
         """Save model checkpoint.
 
         Args:

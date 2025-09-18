@@ -6,6 +6,7 @@ Simple model test script that works with current Python environment.
 import json
 import os
 
+
 def test_model_files():
     """Test if model files exist and are valid."""
     print("🧪 SIMPLE MODEL TEST")
@@ -34,7 +35,7 @@ def test_model_files():
 
         # Try to load and parse
         try:
-            with open(results_file, 'r') as f:
+            with open(results_file, "r") as f:
                 results = json.load(f)
 
             print(f"✅ Results file is valid JSON")
@@ -50,6 +51,7 @@ def test_model_files():
 
     return True
 
+
 def test_python_environment():
     """Test Python environment and libraries."""
     print("\n🔧 Testing Python Environment:")
@@ -58,6 +60,7 @@ def test_python_environment():
     # Test basic imports
     try:
         import sys
+
         print(f"✅ Python version: {sys.version}")
     except ImportError:
         print("❌ Cannot import sys")
@@ -81,6 +84,7 @@ def test_python_environment():
 
     return True
 
+
 def suggest_next_steps():
     """Suggest next steps for testing."""
     print("\n📋 NEXT STEPS:")
@@ -90,7 +94,9 @@ def suggest_next_steps():
     print("   - You're using Python 3.8.6 but libraries are in Python 3.11")
     print("   - Options:")
     print("     a) Use: python3.11 scripts/test_emotion_model.py")
-    print("     b) Install libraries in current Python: pip3 install torch transformers scikit-learn")
+    print(
+        "     b) Install libraries in current Python: pip3 install torch transformers scikit-learn"
+    )
     print("     c) Create virtual environment")
 
     print("\n2. 🧪 Model Testing:")
@@ -104,6 +110,7 @@ def suggest_next_steps():
     print("\n4. 🚀 Retraining:")
     print("   - Use expanded dataset to retrain")
     print("   - Expect 75-85% F1 score!")
+
 
 def main():
     """Main test function."""
@@ -126,6 +133,7 @@ def main():
         print("\n⚠️ Some issues found. Check above.")
 
     suggest_next_steps()
+
 
 if __name__ == "__main__":
     main()

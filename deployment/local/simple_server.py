@@ -7,11 +7,12 @@ A lightweight Flask server for local development testing.
 Serves static files and provides basic CORS support.
 """
 
-import os
-import logging
-import requests
 import argparse
-from flask import Flask, send_from_directory, jsonify, request
+import logging
+import os
+
+import requests
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -21,29 +22,34 @@ CORS(app)  # Enable CORS for all domains on all routes
 logging.basicConfig(level=logging.INFO)
 
 # Resolve once
-WEBSITE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'website'))
+WEBSITE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "website"))
 
 # Environment-configurable upstream settings
-UPSTREAM_BASE = os.getenv("SAMO_UNIFIED_API_BASE", "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app")
+UPSTREAM_BASE = os.getenv(
+    "SAMO_UNIFIED_API_BASE", "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app"
+)
 API_KEY = os.getenv("SAMO_API_KEY")  # optional
 COMMON_HEADERS = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
 
-# Serve static files from website directory
-@app.route('/')
-def index():
-    return send_from_directory(WEBSITE_DIR, 'comprehensive-demo.html')
 
-@app.route('/<path:filename>')
+# Serve static files from website directory
+@app.route("/")
+def index():
+    return send_from_directory(WEBSITE_DIR, "comprehensive-demo.html")
+
+
+@app.route("/<path:filename>")
 def static_files(filename):
     return send_from_directory(WEBSITE_DIR, filename)
 
+
 # CORS Proxy for Real API
-@app.route('/api/emotion', methods=['POST'])
+@app.route("/api/emotion", methods=["POST"])
 def proxy_emotion():
     try:
         # Accept JSON body or query param
-        data = (request.get_json(silent=True) or {})
-        text = (data.get('text') or request.args.get('text', '')).strip()
+        data = request.get_json(silent=True) or {}
+        text = (data.get("text") or request.args.get("text", "")).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
@@ -59,12 +65,13 @@ def proxy_emotion():
         logging.exception("Unhandled exception in /api/emotion")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/summarize', methods=['POST'])
+
+@app.route("/api/summarize", methods=["POST"])
 def proxy_summarize():
     try:
         # Accept JSON body or query param
-        data = (request.get_json(silent=True) or {})
-        text = (data.get('text') or request.args.get('text', '')).strip()
+        data = request.get_json(silent=True) or {}
+        text = (data.get("text") or request.args.get("text", "")).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
@@ -80,16 +87,21 @@ def proxy_summarize():
         logging.exception("Unhandled exception in /api/summarize")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/health', methods=['GET'])
+
+@app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy", "server": "simple_local_dev"})
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Simple Local Development Server')
-    parser.add_argument('--port', type=int, default=int(os.getenv('PORT', 8000)),
-                       help='Port to run the server on (default: 8000)')
-    parser.add_argument('--host', default='127.0.0.1',
-                       help='Host to bind to (default: 127.0.0.1)')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Simple Local Development Server")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("PORT", 8000)),
+        help="Port to run the server on (default: 8000)",
+    )
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)")
     args = parser.parse_args()
 
     print("🚀 SIMPLE LOCAL DEVELOPMENT SERVER")

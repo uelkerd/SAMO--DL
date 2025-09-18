@@ -5,7 +5,8 @@ Optimized rate limiting and model loading settings
 """
 
 import os
-from typing import Dict, Any, ClassVar
+from typing import Any, ClassVar, Dict
+
 
 class ProductionConfig:
     """Production configuration for SAMO API."""
@@ -13,17 +14,15 @@ class ProductionConfig:
     # Rate Limiting Configuration (More permissive for production)
     RATE_LIMIT_CONFIG: ClassVar[Dict[str, Any]] = {
         "requests_per_minute": 300,  # Increased from 60
-        "burst_size": 50,           # Increased from 10
+        "burst_size": 50,  # Increased from 10
         "window_size_seconds": 60,
         "block_duration_seconds": 120,  # Reduced from 300
         "max_concurrent_requests": 20,  # Increased from 5
-
         # Abuse detection (More lenient)
-        "rapid_fire_threshold": 30,     # Increased from 10
-        "sustained_rate_threshold": 600, # Increased from 200
+        "rapid_fire_threshold": 30,  # Increased from 10
+        "sustained_rate_threshold": 600,  # Increased from 200
         "rapid_fire_window": 1.0,
         "sustained_rate_window": 60.0,
-
         # Disable some strict checks for production
         "enable_user_agent_analysis": False,
         "enable_request_pattern_analysis": False,
@@ -75,6 +74,7 @@ class ProductionConfig:
         """Get logging configuration."""
         return cls.LOGGING_CONFIG.copy()
 
+
 # Environment-specific overrides
 def get_production_overrides() -> Dict[str, Any]:
     """Get production-specific overrides."""
@@ -82,21 +82,26 @@ def get_production_overrides() -> Dict[str, Any]:
 
     # Cloud Run specific settings
     if os.getenv("K_SERVICE"):  # Running on Cloud Run
-        overrides.update({
-            "rate_limit_requests_per_minute": 500,  # Higher for Cloud Run
-            "rate_limit_burst_size": 100,
-            "enable_health_check_bypass": True,
-        })
+        overrides.update(
+            {
+                "rate_limit_requests_per_minute": 500,  # Higher for Cloud Run
+                "rate_limit_burst_size": 100,
+                "enable_health_check_bypass": True,
+            }
+        )
 
     # Performance mode
     if os.getenv("PERFORMANCE_MODE") == "high":
-        overrides.update({
-            "rate_limit_requests_per_minute": 1000,
-            "rate_limit_burst_size": 200,
-            "max_concurrent_requests": 50,
-        })
+        overrides.update(
+            {
+                "rate_limit_requests_per_minute": 1000,
+                "rate_limit_burst_size": 200,
+                "max_concurrent_requests": 50,
+            }
+        )
 
     return overrides
+
 
 # Usage example for API initialization
 def configure_production_api(_app):
@@ -112,5 +117,5 @@ def configure_production_api(_app):
         "rate_limiting": rate_config,
         "models": config.get_model_config(),
         "auth": config.get_auth_config(),
-        "logging": config.get_logging_config()
+        "logging": config.get_logging_config(),
     }

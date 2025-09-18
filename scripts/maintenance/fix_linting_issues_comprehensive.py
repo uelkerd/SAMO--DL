@@ -1,26 +1,29 @@
-                    # Only remove if it's clearly unused and not necessary
-                    # Restore backup
-                # Check if this import is actually used
-                # Keep all imports for now - we'll let ruff handle unused imports
-                # Validate syntax
-            # Add logging import if not present
-            # Apply fixes
-            # Create backup
-            # Only write if content changed
-            # Read content
-        # Find all import lines
-        # Fix unused exception variables
-        # Fix unused loop variables
-        # Reconstruct with imports at top
-        # Replace print statements
-        # Simple check - can be improved
-    # Directories to process
-#!/usr/bin/env python3
-from pathlib import Path
+# Only remove if it's clearly unused and not necessary
+# Restore backup
+# Check if this import is actually used
+# Keep all imports for now - we'll let ruff handle unused imports
+# Validate syntax
+# Add logging import if not present
+# Apply fixes
+# Create backup
+# Only write if content changed
+# Read content
+# Find all import lines
+# Fix unused exception variables
+# Fix unused loop variables
+# Reconstruct with imports at top
+# Replace print statements
+# Simple check - can be improved
+# Directories to process
 import ast
 import logging
 import re
 import shutil
+
+#!/usr/bin/env python3
+from pathlib import Path
+
+
 """
 Comprehensive Linting Fix Script for SAMO Deep Learning.
 
@@ -44,15 +47,28 @@ Safety features:
 """
 
 
-
 class ComprehensiveLintingFixer:
     """Comprehensive linting fixer for entire codebase."""
 
     def __init__(self):
         self.necessary_imports = {
-            'time', 'pytest', 'patch', 'Mock', 'json', 'logging',
-            'os', 'sys', 'pathlib', 'typing', 'datetime', 'tempfile',
-            'numpy', 'torch', 'whisper', 'fastapi', 'sqlalchemy'
+            "time",
+            "pytest",
+            "patch",
+            "Mock",
+            "json",
+            "logging",
+            "os",
+            "sys",
+            "pathlib",
+            "typing",
+            "datetime",
+            "tempfile",
+            "numpy",
+            "torch",
+            "whisper",
+            "fastapi",
+            "sqlalchemy",
         }
         self.fixed_files = []
         self.errors = []
@@ -72,9 +88,11 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if (stripped.startswith('import ') or
-                stripped.startswith('from ') or
-                stripped.startswith('#')):
+            if (
+                stripped.startswith("import ")
+                or stripped.startswith("from ")
+                or stripped.startswith("#")
+            ):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)
@@ -87,7 +105,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith('import ') or stripped.startswith('from '):
+            if stripped.startswith("import ") or stripped.startswith("from "):
                 filtered_lines.append(line)
             else:
                 filtered_lines.append(line)
@@ -103,7 +121,7 @@ class ComprehensiveLintingFixer:
     def validate_python_syntax(self, file_path: Path) -> bool:
         """Validate that the file has correct Python syntax."""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 ast.parse(f.read())
             return True
         except SyntaxError as e:
@@ -112,54 +130,60 @@ class ComprehensiveLintingFixer:
 
     def fix_import_order(self, content: str) -> str:
         """Fix import order by moving all imports to the top."""
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         import_lines = []
         non_import_lines = []
 
         for line in lines:
             stripped = line.strip()
-            if (stripped.startswith('import ') or
-                stripped.startswith('from ') or
-                stripped.startswith('#')):
+            if (
+                stripped.startswith("import ")
+                or stripped.startswith("from ")
+                or stripped.startswith("#")
+            ):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)
 
-        return '\n'.join(import_lines + non_import_lines)
+        return "\n".join(import_lines + non_import_lines)
 
     def fix_unused_variables(self, content: str) -> str:
         """Fix unused variables by replacing with underscore."""
-        content = re.sub(r'except Exception as e:', 'except Exception as e:', content)
-        content = re.sub(r'except Exception as e:', 'except Exception as e:', content)
+        content = re.sub(r"except Exception as e:", "except Exception as e:", content)
+        content = re.sub(r"except Exception as e:", "except Exception as e:", content)
 
-        content = re.sub(r'for (\w+) in (\w+):', r'for _\1 in \2:', content)
+        content = re.sub(r"for (\w+) in (\w+):", r"for _\1 in \2:", content)
 
         return content
 
     def fix_unused_imports(self, content: str) -> str:
         """Safely remove unused imports."""
-        lines = content.split('\n')
+        lines = content.split("\n")
         filtered_lines = []
 
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith('import ') or stripped.startswith('from '):
+            if stripped.startswith("import ") or stripped.startswith("from "):
                 import_name = self.extract_import_name(stripped)
-                if import_name and import_name not in self.necessary_imports and not self.is_import_used(content, import_name):
+                if (
+                    import_name
+                    and import_name not in self.necessary_imports
+                    and not self.is_import_used(content, import_name)
+                ):
                     continue  # Skip this line
             filtered_lines.append(line)
 
-        return '\n'.join(filtered_lines)
+        return "\n".join(filtered_lines)
 
     def extract_import_name(self, import_line: str) -> str:
         """Extract the main import name from an import line."""
-        if import_line.startswith('import '):
-            return import_line.split()[1].split('.')[0]
-        elif import_line.startswith('from '):
+        if import_line.startswith("import "):
+            return import_line.split()[1].split(".")[0]
+        elif import_line.startswith("from "):
             parts = import_line.split()
             if len(parts) >= 3:
-                return parts[1].split('.')[0]
+                return parts[1].split(".")[0]
         return ""
 
     def is_import_used(self, content: str, import_name: str) -> bool:
@@ -168,26 +192,28 @@ class ComprehensiveLintingFixer:
 
     def fix_trailing_whitespace(self, content: str) -> str:
         """Remove trailing whitespace."""
-        lines = content.split('\n')
-        return '\n'.join(line.rstrip() for line in lines)
+        lines = content.split("\n")
+        return "\n".join(line.rstrip() for line in lines)
 
     def fix_print_statements(self, content: str) -> str:
         """Replace print statements with logging."""
-        if 'print(' in content and 'import logging' not in content:
-            lines = content.split('\n')
+        if "print(" in content and "import logging" not in content:
+            lines = content.split("\n")
             import_added = False
             for i, line in enumerate(lines):
-                if (line.strip().startswith('import ') or line.strip().startswith('from ')) and not import_added:
-                    lines.insert(i, 'import logging')
+                if (
+                    line.strip().startswith("import ") or line.strip().startswith("from ")
+                ) and not import_added:
+                    lines.insert(i, "import logging")
                     import_added = True
                     break
 
             if not import_added:
-                lines.insert(0, 'import logging')
+                lines.insert(0, "import logging")
 
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
 
-        content = re.sub(r'print\((.*?)\)', r'logging.info(\1)', content)
+        content = re.sub(r"print\((.*?)\)", r"logging.info(\1)", content)
 
         return content
 
@@ -196,7 +222,7 @@ class ComprehensiveLintingFixer:
         try:
             backup_path = self.backup_file(file_path)
 
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -207,7 +233,7 @@ class ComprehensiveLintingFixer:
             content = self.fix_print_statements(content)
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 if not self.validate_python_syntax(file_path):
@@ -259,7 +285,7 @@ def main():
         "src/evaluation",
         "src/inference",
         "tests",
-        "scripts"
+        "scripts",
     ]
 
     fixer = ComprehensiveLintingFixer()

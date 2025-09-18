@@ -1,30 +1,33 @@
-        # Create trainer and load small dataset
-        # Find best threshold
-        # Load a pre-trained model if available, otherwise skip
-        # Load model
-        # Overall assessment
-        # Prepare small dataset
-        # Run training with development mode enabled
-        # Success criteria
-        # Test different thresholds
-        # Validate results
-    # Summary
-    # Test 1: Development mode training
-    # Test 2: Threshold tuning
-# Add src to path
-# Configure logging
-#!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-from pathlib import Path
+# Create trainer and load small dataset
+# Find best threshold
+# Load a pre-trained model if available, otherwise skip
+# Load model
+# Overall assessment
+# Prepare small dataset
+# Run training with development mode enabled
+# Success criteria
+# Test different thresholds
+# Validate results
+# Summary
+# Test 1: Development mode training
+# Test 2: Threshold tuning
+
 import logging
 import sys
 import time
+from pathlib import Path
+
 import torch
 
+# Configure logging
+#!/usr/bin/env python3
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
 
-
+# Add src to path
+from src.models.emotion_detection.training_pipeline import (
+    EmotionDetectionTrainer,
+    train_emotion_detection_model,
+)
 
 """Quick Training Test Script for SAMO Emotion Detection.
 
@@ -129,7 +132,6 @@ def test_threshold_tuning():
         if not model_path.exists():
             logger.info("No pre-trained model found, skipping threshold tuning test")
             return True
-
 
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
         trainer.model.load_state_dict(checkpoint["model_state_dict"])

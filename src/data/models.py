@@ -7,7 +7,6 @@ These models correspond to the tables in the PostgreSQL schema.
 import uuid
 from datetime import datetime
 
-from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
     Column,
@@ -23,11 +22,11 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
 
+from pgvector.sqlalchemy import Vector
+
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
-
-    pass
 
 
 # Junction table for many-to-many relationship between journal entries and tags
@@ -137,7 +136,9 @@ class Prediction(Base):
     __tablename__ = "predictions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
+    journal_entry_id = Column(
+        UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False
+    )
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     prediction_type = Column(String(100), nullable=False)
     prediction_value = Column(JSONB, nullable=False)
@@ -161,7 +162,9 @@ class VoiceTranscription(Base):
     __tablename__ = "voice_transcriptions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
+    journal_entry_id = Column(
+        UUID(as_uuid=True), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False
+    )
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     audio_file_path = Column(String(255))
     transcription_text = Column(Text, nullable=False)

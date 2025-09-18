@@ -7,16 +7,14 @@
     # Save metadata
     # Verify requirements
     import shutil
+
 # Add src to path
-# Configure logging
-# Constants
-from pathlib import Path
 import json
 import logging
 import sys
-
-
-
+# Configure logging
+# Constants
+from pathlib import Path
 
 """
 Simple Model Finalization Script

@@ -6,12 +6,14 @@ This script validates that the security configurations and documentation
 implemented in PR #4 are properly integrated and functional.
 """
 
-import sys
-import yaml
-import subprocess
 import shutil
+import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
+import yaml
+
 
 class PR4IntegrationTester:
     """Integration tester for PR #4 security and documentation enhancements."""
@@ -32,7 +34,7 @@ class PR4IntegrationTester:
             self.test_openapi_specification,
             self.test_dependencies_security,
             self.test_documentation_completeness,
-            self.test_security_scanning_tools
+            self.test_security_scanning_tools,
         ]
 
         for test in tests:
@@ -46,7 +48,7 @@ class PR4IntegrationTester:
                     "name": test.__name__,
                     "passed": False,
                     "message": f"Test failed with exception: {str(e)}",
-                    "details": str(e)
+                    "details": str(e),
                 }
                 self.test_results.append(error_result)
                 print(f"❌ FAIL {test.__name__}: {str(e)}")
@@ -60,15 +62,15 @@ class PR4IntegrationTester:
                 "name": "Security Configuration",
                 "passed": False,
                 "message": "Security configuration file not found",
-                "details": f"Expected: {self.security_config_path}"
+                "details": f"Expected: {self.security_config_path}",
             }
 
         try:
-            with open(self.security_config_path, 'r', encoding='utf-8') as f:
+            with open(self.security_config_path, "r", encoding="utf-8") as f:
                 config = yaml.safe_load(f)
 
             # Check required sections
-            required_sections = ['api', 'security_headers', 'logging', 'environment']
+            required_sections = ["api", "security_headers", "logging", "environment"]
             missing_sections = [section for section in required_sections if section not in config]
 
             if missing_sections:
@@ -76,24 +78,24 @@ class PR4IntegrationTester:
                     "name": "Security Configuration",
                     "passed": False,
                     "message": f"Missing required sections: {missing_sections}",
-                    "details": f"Found sections: {list(config.keys())}"
+                    "details": f"Found sections: {list(config.keys())}",
                 }
 
             # Check API security settings
-            api_config = config.get('api', {})
-            if not api_config.get('rate_limiting', {}).get('enabled'):
+            api_config = config.get("api", {})
+            if not api_config.get("rate_limiting", {}).get("enabled"):
                 return {
                     "name": "Security Configuration",
                     "passed": False,
                     "message": "Rate limiting not enabled in API configuration",
-                    "details": "Rate limiting is required for production security"
+                    "details": "Rate limiting is required for production security",
                 }
 
             return {
                 "name": "Security Configuration",
                 "passed": True,
                 "message": "Security configuration is valid and complete",
-                "details": f"All {len(required_sections)} required sections present"
+                "details": f"All {len(required_sections)} required sections present",
             }
 
         except yaml.YAMLError as e:
@@ -101,7 +103,7 @@ class PR4IntegrationTester:
                 "name": "Security Configuration",
                 "passed": False,
                 "message": f"Invalid YAML in security configuration: {str(e)}",
-                "details": str(e)
+                "details": str(e),
             }
 
     def test_openapi_specification(self) -> Dict[str, Any]:
@@ -111,24 +113,24 @@ class PR4IntegrationTester:
                 "name": "OpenAPI Specification",
                 "passed": False,
                 "message": "OpenAPI specification file not found",
-                "details": f"Expected: {self.openapi_spec_path}"
+                "details": f"Expected: {self.openapi_spec_path}",
             }
 
         try:
-            with open(self.openapi_spec_path, 'r') as f:
+            with open(self.openapi_spec_path, "r") as f:
                 spec = yaml.safe_load(f)
 
             # Check OpenAPI version
-            if spec.get('openapi') != '3.1.0':
+            if spec.get("openapi") != "3.1.0":
                 return {
                     "name": "OpenAPI Specification",
                     "passed": False,
                     "message": "OpenAPI version should be 3.1.0",
-                    "details": f"Found version: {spec.get('openapi')}"
+                    "details": f"Found version: {spec.get('openapi')}",
                 }
 
             # Check required sections
-            required_sections = ['info', 'paths', 'components']
+            required_sections = ["info", "paths", "components"]
             missing_sections = [section for section in required_sections if section not in spec]
 
             if missing_sections:
@@ -136,23 +138,23 @@ class PR4IntegrationTester:
                     "name": "OpenAPI Specification",
                     "passed": False,
                     "message": f"Missing required sections: {missing_sections}",
-                    "details": f"Found sections: {list(spec.keys())}"
+                    "details": f"Found sections: {list(spec.keys())}",
                 }
 
             # Check security definitions
-            if 'security' not in spec:
+            if "security" not in spec:
                 return {
                     "name": "OpenAPI Specification",
                     "passed": False,
                     "message": "Security definitions missing",
-                    "details": "API security should be documented"
+                    "details": "API security should be documented",
                 }
 
             return {
                 "name": "OpenAPI Specification",
                 "passed": True,
                 "message": "OpenAPI specification is valid and complete",
-                "details": f"Version {spec.get('openapi')} with all required sections"
+                "details": f"Version {spec.get('openapi')} with all required sections",
             }
 
         except yaml.YAMLError as e:
@@ -160,7 +162,7 @@ class PR4IntegrationTester:
                 "name": "OpenAPI Specification",
                 "passed": False,
                 "message": f"Invalid YAML in OpenAPI specification: {str(e)}",
-                "details": str(e)
+                "details": str(e),
             }
 
     def test_dependencies_security(self) -> Dict[str, Any]:
@@ -170,15 +172,15 @@ class PR4IntegrationTester:
                 "name": "Dependencies Security",
                 "passed": False,
                 "message": "Requirements file not found",
-                "details": f"Expected: {self.requirements_path}"
+                "details": f"Expected: {self.requirements_path}",
             }
 
         try:
-            with open(self.requirements_path, 'r') as f:
+            with open(self.requirements_path, "r") as f:
                 requirements = f.read()
 
             # Check for security scanning tools
-            security_tools = ['bandit', 'safety']
+            security_tools = ["bandit", "safety"]
             missing_tools = [tool for tool in security_tools if tool not in requirements]
 
             if missing_tools:
@@ -186,7 +188,7 @@ class PR4IntegrationTester:
                     "name": "Dependencies Security",
                     "passed": False,
                     "message": f"Missing security scanning tools: {missing_tools}",
-                    "details": "Security tools are required for vulnerability scanning"
+                    "details": "Security tools are required for vulnerability scanning",
                 }
 
             # Check for critical security packages
@@ -196,14 +198,20 @@ class PR4IntegrationTester:
             #   - certifi: Ensures up-to-date CA certificates for secure HTTPS connections.
             #   - urllib3: Secure HTTP client with robust TLS/SSL support.
             try:
-                with open(self.security_config_path, 'r') as secf:
+                with open(self.security_config_path, "r") as secf:
                     security_config = yaml.safe_load(secf)
-                critical_packages = security_config.get('critical_packages', ['cryptography', 'certifi', 'urllib3'])
-                if 'critical_packages' not in security_config:
-                    print("⚠️ Warning: 'critical_packages' not found in security.yaml, using default list.")
+                critical_packages = security_config.get(
+                    "critical_packages", ["cryptography", "certifi", "urllib3"]
+                )
+                if "critical_packages" not in security_config:
+                    print(
+                        "⚠️ Warning: 'critical_packages' not found in security.yaml, using default list."
+                    )
             except Exception as e:
-                print(f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list.")
-                critical_packages = ['cryptography', 'certifi', 'urllib3']
+                print(
+                    f"⚠️ Warning: Could not read security.yaml for critical_packages: {str(e)}. Using default list."
+                )
+                critical_packages = ["cryptography", "certifi", "urllib3"]
             missing_critical = [pkg for pkg in critical_packages if pkg not in requirements]
 
             if missing_critical:
@@ -211,14 +219,14 @@ class PR4IntegrationTester:
                     "name": "Dependencies Security",
                     "passed": False,
                     "message": f"Missing critical security packages: {missing_critical}",
-                    "details": "Critical security packages are required"
+                    "details": "Critical security packages are required",
                 }
 
             return {
                 "name": "Dependencies Security",
                 "passed": True,
                 "message": "Dependencies include required security packages",
-                "details": f"All {len(security_tools)} security tools and {len(critical_packages)} critical packages present"
+                "details": f"All {len(security_tools)} security tools and {len(critical_packages)} critical packages present",
             }
 
         except Exception as e:
@@ -226,7 +234,7 @@ class PR4IntegrationTester:
                 "name": "Dependencies Security",
                 "passed": False,
                 "message": f"Error reading requirements file: {str(e)}",
-                "details": str(e)
+                "details": str(e),
             }
 
     def test_documentation_completeness(self) -> Dict[str, Any]:
@@ -234,7 +242,7 @@ class PR4IntegrationTester:
         required_docs = [
             "docs/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md",
             "CONTRIBUTING.md",
-            "docs/monster-pr-8-breakdown-strategy.md"
+            "docs/monster-pr-8-breakdown-strategy.md",
         ]
 
         missing_docs = []
@@ -247,62 +255,64 @@ class PR4IntegrationTester:
                 "name": "Documentation Completeness",
                 "passed": False,
                 "message": f"Missing required documentation: {missing_docs}",
-                "details": "All required documentation should be present"
+                "details": "All required documentation should be present",
             }
 
         return {
             "name": "Documentation Completeness",
             "passed": True,
             "message": "All required documentation is present",
-            "details": f"Found {len(required_docs)} required documentation files"
+            "details": f"Found {len(required_docs)} required documentation files",
         }
 
     def test_security_scanning_tools(self) -> Dict[str, Any]:
         """Test that security scanning tools are available and functional."""
         try:
             # Test bandit availability
-            bandit_path = shutil.which('bandit')
+            bandit_path = shutil.which("bandit")
             if not bandit_path:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Bandit security scanner not found in PATH",
-                    "details": "Install bandit: pip install bandit"
+                    "details": "Install bandit: pip install bandit",
                 }
-            result = subprocess.run([bandit_path, '--version'],
-                                  capture_output=True, text=True, timeout=30)
+            result = subprocess.run(
+                [bandit_path, "--version"], capture_output=True, text=True, timeout=30
+            )
             if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Bandit security scanner not available",
-                    "details": f"Bandit error: {result.stderr}"
+                    "details": f"Bandit error: {result.stderr}",
                 }
 
             # Test safety availability
-            safety_path = shutil.which('safety')
+            safety_path = shutil.which("safety")
             if safety_path is None:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Safety vulnerability scanner not found in PATH",
-                    "details": "Install safety and ensure it is in a secure location"
+                    "details": "Install safety and ensure it is in a secure location",
                 }
-            result = subprocess.run([safety_path, '--version'],
-                                  capture_output=True, text=True, timeout=30)
+            result = subprocess.run(
+                [safety_path, "--version"], capture_output=True, text=True, timeout=30
+            )
             if result.returncode != 0:
                 return {
                     "name": "Security Scanning Tools",
                     "passed": False,
                     "message": "Safety vulnerability scanner not available",
-                    "details": f"Safety error: {result.stderr}"
+                    "details": f"Safety error: {result.stderr}",
                 }
 
             return {
                 "name": "Security Scanning Tools",
                 "passed": True,
                 "message": "Security scanning tools are available and functional",
-                "details": "Bandit and Safety scanners are working"
+                "details": "Bandit and Safety scanners are working",
             }
 
         except subprocess.TimeoutExpired:
@@ -310,14 +320,14 @@ class PR4IntegrationTester:
                 "name": "Security Scanning Tools",
                 "passed": False,
                 "message": "Security scanning tools timed out",
-                "details": "Tools may not be properly installed"
+                "details": "Tools may not be properly installed",
             }
         except FileNotFoundError:
             return {
                 "name": "Security Scanning Tools",
                 "passed": False,
                 "message": "Security scanning tools not found",
-                "details": "Install bandit and safety: pip install bandit safety"
+                "details": "Install bandit and safety: pip install bandit safety",
             }
 
     def generate_summary(self) -> Dict[str, Any]:
@@ -332,14 +342,12 @@ class PR4IntegrationTester:
             "failed": failed_tests,
             "success_rate": (passed_tests / total_tests) * 100 if total_tests > 0 else 0,
             "results": self.test_results,
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Generate recommendations based on failures
         if failed_tests > 0:
-            summary["recommendations"].append(
-                f"Fix {failed_tests} failing tests before proceeding"
-            )
+            summary["recommendations"].append(f"Fix {failed_tests} failing tests before proceeding")
 
         if summary["success_rate"] < 100:
             summary["recommendations"].append(
@@ -348,30 +356,32 @@ class PR4IntegrationTester:
 
         return summary
 
+
 def main():
     """Main function to run PR #4 integration tests."""
     tester = PR4IntegrationTester()
     summary = tester.run_all_tests()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("📊 PR #4 Integration Test Summary")
-    print("="*60)
+    print("=" * 60)
     print(f"Total Tests: {summary['total_tests']}")
     print(f"Passed: {summary['passed']}")
     print(f"Failed: {summary['failed']}")
     print(f"Success Rate: {summary['success_rate']:.1f}%")
 
-    if summary['recommendations']:
+    if summary["recommendations"]:
         print("\n🔧 Recommendations:")
-        for rec in summary['recommendations']:
+        for rec in summary["recommendations"]:
             print(f"  - {rec}")
 
-    if summary['failed'] > 0:
+    if summary["failed"] > 0:
         print("\n❌ PR #4 is NOT ready for submission")
         sys.exit(1)
     else:
         print("\n✅ PR #4 integration tests passed!")
         print("Ready for final review and submission")
+
 
 if __name__ == "__main__":
     main()

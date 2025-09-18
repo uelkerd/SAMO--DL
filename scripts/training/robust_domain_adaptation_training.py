@@ -8,23 +8,24 @@ that avoids dependency hell and provides comprehensive error handling.
 Target: Achieve 70% F1 score on journal entries through domain adaptation from GoEmotions
 """
 
-import os
-import sys
 import json
-import warnings
+import os
 import subprocess
+import sys
+import warnings
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
+
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 # Suppress warnings for cleaner output
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Set environment variables for stability
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-os.environ['TOKENIZERS_PARALLELISM'] = "false"
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def setup_environment():
     """Setup the environment with proper dependency management."""
@@ -32,7 +33,8 @@ def setup_environment():
 
     # Check if we're in Colab
     try:
-        import google.colab
+        pass
+
         print("✅ Running in Google Colab")
         is_colab = True
     except ImportError:
@@ -43,30 +45,74 @@ def setup_environment():
     print("📦 Installing dependencies with compatibility fixes...")
 
     # Step 1: Clean slate - remove conflicting packages
-    subprocess.run([
-        "pip", "uninstall", "torch", "torchvision", "torchaudio",
-        "transformers", "datasets", "-y"
-    ], capture_output=True)
+    subprocess.run(
+        [
+            "pip",
+            "uninstall",
+            "torch",
+            "torchvision",
+            "torchaudio",
+            "transformers",
+            "datasets",
+            "-y",
+        ],
+        capture_output=True,
+    )
 
     # Step 2: Install PyTorch with compatible CUDA version
-    subprocess.run([
-        sys.executable, "-m", "pip", "install", "torch==2.1.0", "torchvision==0.16.0", "torchaudio==2.1.0",
-        "--index-url", "https://download.pytorch.org/whl/cu118", "--no-cache-dir"
-    ], timeout=1800)
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "torch==2.1.0",
+            "torchvision==0.16.0",
+            "torchaudio==2.1.0",
+            "--index-url",
+            "https://download.pytorch.org/whl/cu118",
+            "--no-cache-dir",
+        ],
+        timeout=1800,
+    )
 
     # Step 3: Install Transformers with compatible version
-    subprocess.run([
-        sys.executable, "-m", "pip", "install", "transformers==4.30.0", "datasets==2.13.0", "--no-cache-dir"
-    ], timeout=1800)
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "transformers==4.30.0",
+            "datasets==2.13.0",
+            "--no-cache-dir",
+        ],
+        timeout=1800,
+    )
 
     # Step 4: Install additional dependencies
-    subprocess.run([
-        sys.executable, "-m", "pip", "install", "evaluate", "scikit-learn", "pandas", "numpy",
-        "matplotlib", "seaborn", "accelerate", "wandb", "--no-cache-dir"
-    ], timeout=1800)
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "evaluate",
+            "scikit-learn",
+            "pandas",
+            "numpy",
+            "matplotlib",
+            "seaborn",
+            "accelerate",
+            "wandb",
+            "--no-cache-dir",
+        ],
+        timeout=1800,
+    )
 
     print("✅ Dependencies installed successfully")
     return is_colab
+
 
 def verify_installation():
     """Verify that all critical packages are installed correctly."""
@@ -74,6 +120,7 @@ def verify_installation():
 
     try:
         import transformers
+
         print(f"  PyTorch: {torch.__version__}")
         print(f"  Transformers: {transformers.__version__}")
         print(f"  CUDA Available: {torch.cuda.is_available()}")
@@ -87,7 +134,7 @@ def verify_installation():
             print("⚠️ No GPU available. Training will be slow on CPU.")
 
         # Test critical imports
-        from transformers import AutoModel, AutoTokenizer
+
         print("  ✅ Transformers imports successful")
 
         return True
@@ -95,6 +142,7 @@ def verify_installation():
     except Exception as e:
         print(f"  ❌ Installation verification failed: {e}")
         return False
+
 
 def setup_repository():
     """Setup the SAMO-DL repository."""
@@ -120,20 +168,22 @@ def setup_repository():
             return False
 
     # Clone repository if not exists
-    if not Path('SAMO--DL').exists():
-        run_command('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository')
+    if not Path("SAMO--DL").exists():
+        run_command("git clone https://github.com/uelkerd/SAMO--DL.git", "Cloning repository")
 
     # Change to project directory
-    os.chdir('SAMO--DL')
+    os.chdir("SAMO--DL")
     print(f"📁 Working directory: {os.getcwd()}")
 
     # Pull latest changes
-    run_command('git pull origin main', 'Pulling latest changes')
+    run_command("git pull origin main", "Pulling latest changes")
+
 
 def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Optional[str] = None):
     """Safely load dataset with error handling."""
     try:
         from datasets import load_dataset
+
         if config:
             dataset = load_dataset(dataset_name, config, split=split)
         else:
@@ -144,16 +194,18 @@ def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Op
         print(f"❌ Failed to load {dataset_name}: {e}")
         return None
 
+
 def safe_load_json(file_path: str):
     """Safely load JSON file with error handling."""
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = json.load(f)
         print(f"✅ Successfully loaded {file_path}")
         return data
     except Exception as e:
         print(f"❌ Failed to load {file_path}: {e}")
         return None
+
 
 def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[str, float]]:
     """Analyze writing style characteristics of a domain."""
@@ -171,9 +223,15 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
     import numpy as np
 
     avg_length = np.mean([len(text.split()) for text in valid_texts])
-    personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
-    reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
-                           for text in valid_texts]) / len(valid_texts)
+    personal_pronouns = sum(
+        ["I " in text or "my " in text or "me " in text for text in valid_texts]
+    ) / len(valid_texts)
+    reflection_words = sum(
+        [
+            "think" in text.lower() or "feel" in text.lower() or "believe" in text.lower()
+            for text in valid_texts
+        ]
+    ) / len(valid_texts)
 
     print(f"{domain_name} Style Analysis:")
     print(f"  Average length: {avg_length:.1f} words")
@@ -181,10 +239,11 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
     print(f"  Reflection words: {reflection_words:.1%}")
 
     return {
-        'avg_length': avg_length,
-        'personal_pronouns': personal_pronouns,
-        'reflection_words': reflection_words
+        "avg_length": avg_length,
+        "personal_pronouns": personal_pronouns,
+        "reflection_words": reflection_words,
     }
+
 
 def perform_domain_analysis():
     """Perform domain gap analysis between GoEmotions and journal entries."""
@@ -193,16 +252,17 @@ def perform_domain_analysis():
     # Load GoEmotions dataset
     go_emotions = safe_load_dataset("go_emotions", "simplified")
     if go_emotions:
-        go_texts = go_emotions['train']['text'][:1000]  # Sample for analysis
+        go_texts = go_emotions["train"]["text"][:1000]  # Sample for analysis
     else:
         go_texts = []
 
     # Load journal dataset
-    journal_entries = safe_load_json('data/journal_test_dataset.json')
+    journal_entries = safe_load_json("data/journal_test_dataset.json")
     if journal_entries:
         import pandas as pd
+
         journal_df = pd.DataFrame(journal_entries)
-        journal_texts = journal_df['content'].tolist()
+        journal_texts = journal_df["content"].tolist()
     else:
         journal_texts = []
 
@@ -214,19 +274,26 @@ def perform_domain_analysis():
 
         if go_analysis and journal_analysis:
             print("\n🎯 Key Insights:")
-            print(f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer")
-            print(f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns")
-            print(f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words")
+            print(
+                f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer"
+            )
+            print(
+                f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+            )
+            print(
+                f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words"
+            )
 
             return go_emotions, journal_df
     else:
         print("⚠️ Cannot perform domain analysis - missing data")
         return None, None
 
+
 class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
 
-    def __init__(self, alpha=1, gamma=2, reduction='mean'):
+    def __init__(self, alpha=1, gamma=2, reduction="mean"):
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
@@ -236,16 +303,17 @@ class FocalLoss:
             raise TypeError(f"targets.dtype must be torch.long, got {targets.dtype}")
         if inputs.ndim != 2:
             raise ValueError(f"inputs must be [N, C], got {inputs.shape}")
-        ce_loss = F.cross_entropy(inputs, targets, reduction='none')
+        ce_loss = F.cross_entropy(inputs, targets, reduction="none")
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
 
-        if self.reduction == 'mean':
+        if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == 'sum':
+        elif self.reduction == "sum":
             return focal_loss.sum()
         else:
             return focal_loss
+
 
 class DomainAdaptedEmotionClassifier:
     """BERT-based emotion classifier with domain adaptation capabilities."""
@@ -272,7 +340,7 @@ class DomainAdaptedEmotionClassifier:
                 nn.Linear(self.bert.config.hidden_size, 512),
                 nn.ReLU(),
                 nn.Dropout(0.3),
-                nn.Linear(512, 2)  # 2 domains: GoEmotions vs Journal
+                nn.Linear(512, 2),  # 2 domains: GoEmotions vs Journal
             )
 
             print(f"✅ Model initialized successfully with {num_labels} labels")
@@ -300,6 +368,7 @@ class DomainAdaptedEmotionClassifier:
             print(f"❌ Forward pass failed: {e}")
             raise
 
+
 def safe_model_initialization(model_name: str, num_labels: int, device: str):
     """Safely initialize model with error handling."""
     try:
@@ -307,6 +376,7 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
 
         # Initialize tokenizer
         from transformers import AutoTokenizer
+
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         print(f"✅ Tokenizer loaded: {model_name}")
 
@@ -326,6 +396,7 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
     except Exception as e:
         print(f"❌ Model initialization failed: {e}")
         raise
+
 
 def main():
     """Main execution function."""
@@ -363,6 +434,7 @@ def main():
     print("  2. Initialize model with correct num_labels")
     print("  3. Run training pipeline")
     print("  4. Evaluate and save results")
+
 
 if __name__ == "__main__":
     main()

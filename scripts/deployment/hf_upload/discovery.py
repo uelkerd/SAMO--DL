@@ -1,14 +1,14 @@
+import logging
 import os
 import sys
-import logging
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 
 def get_base_model_name(override: Optional[str] = None) -> str:
     if override:
         logging.info("Using base model from CLI: %s", override)
         return override
-    base_model = os.getenv('BASE_MODEL_NAME')
+    base_model = os.getenv("BASE_MODEL_NAME")
     if base_model:
         logging.info("Using BASE_MODEL_NAME from environment: %s", base_model)
         return base_model
@@ -18,7 +18,7 @@ def get_base_model_name(override: Optional[str] = None) -> str:
 
 
 def get_model_base_directory() -> str:
-    env_base_dir = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
+    env_base_dir = os.getenv("SAMO_DL_BASE_DIR") or os.getenv("MODEL_BASE_DIR")
     if env_base_dir:
         base_dir = os.path.expanduser(env_base_dir)
         if os.path.exists(base_dir):
@@ -30,7 +30,7 @@ def get_model_base_directory() -> str:
     max_levels = 5
 
     for _ in range(max_levels):
-        indicators = ['deployment', 'src']
+        indicators = ["deployment", "src"]
         if all(os.path.exists(os.path.join(search_dir, indicator)) for indicator in indicators):
             return os.path.join(search_dir, "deployment", "models")
         parent_dir = os.path.dirname(search_dir)
@@ -43,10 +43,10 @@ def get_model_base_directory() -> str:
 
 def is_interactive_environment() -> bool:
     non_interactive_indicators = [
-        os.getenv('CI'),
-        os.getenv('DOCKER_CONTAINER'),
-        os.getenv('KUBERNETES_SERVICE_HOST'),
-        os.getenv('JENKINS_URL'),
+        os.getenv("CI"),
+        os.getenv("DOCKER_CONTAINER"),
+        os.getenv("KUBERNETES_SERVICE_HOST"),
+        os.getenv("JENKINS_URL"),
         not sys.stdin.isatty(),
     ]
     return not any(non_interactive_indicators)
@@ -67,7 +67,7 @@ def _calculate_directory_size(directory: str) -> int:
 def find_best_trained_model() -> Optional[str]:
     logging.info("Searching for trained models")
     primary_model_dir = get_model_base_directory()
-    env_override = os.getenv('SAMO_DL_BASE_DIR') or os.getenv('MODEL_BASE_DIR')
+    env_override = os.getenv("SAMO_DL_BASE_DIR") or os.getenv("MODEL_BASE_DIR")
     if env_override:
         logging.info("Using environment override: %s", env_override)
     logging.info("Primary search location: %s", primary_model_dir)
@@ -137,10 +137,16 @@ def find_best_trained_model() -> Optional[str]:
                 has_config = os.path.exists(config_file)
                 has_tokenizer = any(os.path.exists(p) for p in tokenizer_candidates)
                 weight_files = [
-                    os.path.join(path, f) for f in [
-                        "pytorch_model.bin", "model.safetensors", "pytorch_model.safetensors",
-                        "model.bin", "tf_model.h5", "flax_model.msgpack"
-                    ] if os.path.exists(os.path.join(path, f))
+                    os.path.join(path, f)
+                    for f in [
+                        "pytorch_model.bin",
+                        "model.safetensors",
+                        "pytorch_model.safetensors",
+                        "model.bin",
+                        "tf_model.h5",
+                        "flax_model.msgpack",
+                    ]
+                    if os.path.exists(os.path.join(path, f))
                 ]
                 has_weights = len(weight_files) > 0
                 if has_config and has_tokenizer and has_weights:
@@ -158,7 +164,12 @@ def find_best_trained_model() -> Optional[str]:
                         missing_components.append("tokenizer")
                     if not has_weights:
                         missing_components.append("model weights")
-                    logging.warning("Incomplete HF model: %s (%s bytes) missing: %s", path, f"{size:,}", ', '.join(missing_components))
+                    logging.warning(
+                        "Incomplete HF model: %s (%s bytes) missing: %s",
+                        path,
+                        f"{size:,}",
+                        ", ".join(missing_components),
+                    )
             else:
                 size = os.path.getsize(path)
                 found_models.append((path, size, "model_file"))

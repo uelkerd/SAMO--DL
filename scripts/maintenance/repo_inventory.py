@@ -5,15 +5,15 @@
 - Scans for references to candidate paths
 - Configurable via configs/repo_inventory.json and CLI flags
 """
-import os
-import json
 import argparse
+import json
+import os
 import subprocess
 import time
 from functools import lru_cache
 from pathlib import Path
 from shutil import which
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[2]
 LOGS = ROOT / ".logs"
@@ -80,11 +80,7 @@ def list_all_files() -> List[Path]:
                 continue
             # Include regular files and symlinks-to-files; skip vanished/dirs
             try:
-                if p.is_file() or (
-                    p.is_symlink()
-                    and p.exists()
-                    and p.resolve().is_file()
-                ):
+                if p.is_file() or (p.is_symlink() and p.exists() and p.resolve().is_file()):
                     files.append(p)
             except OSError:
                 continue

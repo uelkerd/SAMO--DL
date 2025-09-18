@@ -23,21 +23,13 @@
     # Get project ID from environment or user input
     # Setup complete infrastructure
     # Summary
-# Add src to path
-# Configure logging
-from pathlib import Path
-from typing import Dict, Any, Optional
 import logging
 import os
 import sys
-
-
-
-
-
-
-
-
+# Add src to path
+# Configure logging
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 """
 Vertex AI Setup for SAMO Deep Learning Project.

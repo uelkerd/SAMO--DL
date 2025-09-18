@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
-import torch
 
+import torch
 
 """
 Minimal test of evaluation logic to isolate the bug.

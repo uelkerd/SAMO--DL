@@ -1,13 +1,19 @@
-    # Create resume script
-    # Determine optimal batch size
-    # Disable tokenizers parallelism warning
-    # Enable CUDA optimizations
-    # GPU Info
-    # Load checkpoint
-    # Optimization recommendations
-    # Save configuration
-    # Setup environment
-    # Speed estimates
+# Create resume script
+# Determine optimal batch size
+# Disable tokenizers parallelism warning
+# Enable CUDA optimizations
+# GPU Info
+# Load checkpoint
+# Optimization recommendations
+# Save configuration
+# Setup environment
+# Speed estimates
+
+
+"""GPU Training Setup Script for SAMO Deep Learning.
+
+This script helps transition the current CPU training to GPU training
+with optimal settings for performance and memory efficiency.
 # Auto-generated GPU resume script
 # Auto-generated based on your GPU: {torch.cuda.get_device_name()}
 # Environment setup
@@ -18,23 +24,14 @@
 # Set up logging
 # TODO: Implement checkpoint resume functionality in trainer class
 # Train normally - the trainer will create a new model
-# Train the model
-#!/usr/bin/env python3
-from pathlib import Path
 import argparse
 import logging
 import os
+# Train the model
+#!/usr/bin/env python3
+from pathlib import Path
+
 import torch
-
-
-
-
-
-
-"""GPU Training Setup Script for SAMO Deep Learning.
-
-This script helps transition the current CPU training to GPU training
-with optimal settings for performance and memory efficiency.
 
 Usage:
     python scripts/setup_gpu_training.py --check

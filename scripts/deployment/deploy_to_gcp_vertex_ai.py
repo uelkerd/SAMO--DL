@@ -7,11 +7,12 @@ This script deploys the comprehensive emotion detection model to GCP/Vertex AI
 for production use.
 """
 
-import os
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
+
 
 def check_prerequisites():
     """Check if all prerequisites are met for GCP deployment."""
@@ -20,7 +21,7 @@ def check_prerequisites():
 
     # Check if gcloud is installed
     try:
-        result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True)
+        result = subprocess.run(["gcloud", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
             print("✅ gcloud CLI is installed")
         else:
@@ -33,8 +34,10 @@ def check_prerequisites():
 
     # Check if user is authenticated
     try:
-        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], capture_output=True, text=True)
-        if result.returncode == 0 and 'ACTIVE' in result.stdout:
+        result = subprocess.run(
+            ["gcloud", "auth", "list", "--filter=status:ACTIVE"], capture_output=True, text=True
+        )
+        if result.returncode == 0 and "ACTIVE" in result.stdout:
             print("✅ User is authenticated with gcloud")
         else:
             print("❌ User is not authenticated with gcloud")
@@ -46,7 +49,9 @@ def check_prerequisites():
 
     # Check if project is set
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], capture_output=True, text=True)
+        result = subprocess.run(
+            ["gcloud", "config", "get-value", "project"], capture_output=True, text=True
+        )
         if result.returncode == 0 and result.stdout.strip():
             project_id = result.stdout.strip()
             print(f"✅ Project is set: {project_id}")
@@ -60,8 +65,12 @@ def check_prerequisites():
 
     # Check if Vertex AI API is enabled
     try:
-        result = subprocess.run(['gcloud', 'services', 'list', '--enabled', '--filter=name:aiplatform.googleapis.com'], capture_output=True, text=True)
-        if result.returncode == 0 and 'aiplatform.googleapis.com' in result.stdout:
+        result = subprocess.run(
+            ["gcloud", "services", "list", "--enabled", "--filter=name:aiplatform.googleapis.com"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0 and "aiplatform.googleapis.com" in result.stdout:
             print("✅ Vertex AI API is enabled")
         else:
             print("❌ Vertex AI API is not enabled")
@@ -73,6 +82,7 @@ def check_prerequisites():
 
     print("✅ All prerequisites are met!")
     return True
+
 
 def prepare_model_for_deployment():
     """Prepare the model for deployment."""
@@ -86,7 +96,7 @@ def prepare_model_for_deployment():
         return False
 
     # Check model files
-    required_files = ['config.json', 'model.safetensors', 'tokenizer.json', 'vocab.json']
+    required_files = ["config.json", "model.safetensors", "tokenizer.json", "vocab.json"]
     missing_files = []
 
     for file in required_files:
@@ -102,7 +112,7 @@ def prepare_model_for_deployment():
     # Read model metadata
     metadata_path = os.path.join(default_model_path, "model_metadata.json")
     if os.path.exists(metadata_path):
-        with open(metadata_path, 'r') as f:
+        with open(metadata_path, "r") as f:
             metadata = json.load(f)
         print(f"✅ Model metadata: {metadata.get('version', 'Unknown')}")
         print(f"   Performance: {metadata.get('performance', {}).get('test_accuracy', 'Unknown')}")
@@ -110,6 +120,7 @@ def prepare_model_for_deployment():
         print("⚠️ No model metadata found")
 
     return True
+
 
 def create_deployment_package():
     """Create a deployment package for Vertex AI."""
@@ -120,6 +131,7 @@ def create_deployment_package():
     deployment_dir = "gcp_deployment"
     if os.path.exists(deployment_dir):
         import shutil
+
         shutil.rmtree(deployment_dir)
     os.makedirs(deployment_dir)
 
@@ -128,6 +140,7 @@ def create_deployment_package():
     model_dest = os.path.join(deployment_dir, "model")
 
     import shutil
+
     shutil.copytree(model_source, model_dest)
     print(f"✅ Model copied to: {model_dest}")
 
@@ -225,22 +238,22 @@ def predict(request):
         return json.dumps({'error': str(e)})
 '''
 
-    with open(os.path.join(deployment_dir, "predict.py"), 'w') as f:
+    with open(os.path.join(deployment_dir, "predict.py"), "w") as f:
         f.write(prediction_script)
     print("✅ Prediction script created")
 
     # Create requirements.txt
-    requirements = '''torch>=2.0.0
+    requirements = """torch>=2.0.0
 transformers>=4.30.0
 numpy>=1.21.0
-'''
+"""
 
-    with open(os.path.join(deployment_dir, "requirements.txt"), 'w') as f:
+    with open(os.path.join(deployment_dir, "requirements.txt"), "w") as f:
         f.write(requirements)
     print("✅ Requirements file created")
 
     # Create Dockerfile
-    dockerfile = '''FROM python:3.9-slim
+    dockerfile = """FROM python:3.9-slim
 
 WORKDIR /app
 
@@ -267,37 +280,38 @@ EXPOSE 8080
 
 # Run the prediction service
 CMD ["python", "predict.py"]
-'''
+"""
 
-    with open(os.path.join(deployment_dir, "Dockerfile"), 'w') as f:
+    with open(os.path.join(deployment_dir, "Dockerfile"), "w") as f:
         f.write(dockerfile)
     print("✅ Dockerfile created")
 
     # Create deployment configuration
     deployment_config = {
-        'model_info': {
-            'name': 'comprehensive_emotion_detection',
-            'version': '2.0',
-            'description': 'Comprehensive emotion detection model with focal loss, class weighting, and advanced data augmentation',
-            'performance': {
-                'basic_accuracy': '100.00%',
-                'real_world_accuracy': '93.75%',
-                'average_confidence': '83.9%'
-            }
+        "model_info": {
+            "name": "comprehensive_emotion_detection",
+            "version": "2.0",
+            "description": "Comprehensive emotion detection model with focal loss, class weighting, and advanced data augmentation",
+            "performance": {
+                "basic_accuracy": "100.00%",
+                "real_world_accuracy": "93.75%",
+                "average_confidence": "83.9%",
+            },
         },
-        'deployment_info': {
-            'created_at': datetime.now().isoformat(),
-            'model_path': model_source,
-            'deployment_package': deployment_dir
-        }
+        "deployment_info": {
+            "created_at": datetime.now().isoformat(),
+            "model_path": model_source,
+            "deployment_package": deployment_dir,
+        },
     }
 
-    with open(os.path.join(deployment_dir, "deployment_config.json"), 'w') as f:
+    with open(os.path.join(deployment_dir, "deployment_config.json"), "w") as f:
         json.dump(deployment_config, f, indent=2)
     print("✅ Deployment configuration created")
 
     print(f"✅ Deployment package created at: {deployment_dir}")
     return deployment_dir
+
 
 def deploy_to_vertex_ai(deployment_dir):
     """Deploy the model to Vertex AI."""
@@ -305,7 +319,9 @@ def deploy_to_vertex_ai(deployment_dir):
     print("=" * 50)
 
     # Get project ID
-    result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], capture_output=True, text=True)
+    result = subprocess.run(
+        ["gcloud", "config", "get-value", "project"], capture_output=True, text=True
+    )
     project_id = result.stdout.strip()
 
     # Set region
@@ -329,20 +345,18 @@ def deploy_to_vertex_ai(deployment_dir):
     repository_name = "emotion-detection"
 
     # Configure Docker for gcloud
-    subprocess.run(['gcloud', 'auth', 'configure-docker'], check=True)
+    subprocess.run(["gcloud", "auth", "configure-docker"], check=True)
 
     # Build and push image
     image_uri = f"gcr.io/{project_id}/{repository_name}:latest"
 
     try:
         # Build image
-        subprocess.run([
-            'docker', 'build', '-t', image_uri, deployment_dir
-        ], check=True)
+        subprocess.run(["docker", "build", "-t", image_uri, deployment_dir], check=True)
         print("✅ Docker image built")
 
         # Push image
-        subprocess.run(['docker', 'push', image_uri], check=True)
+        subprocess.run(["docker", "push", image_uri], check=True)
         print("✅ Docker image pushed to Container Registry")
 
     except subprocess.CalledProcessError as e:
@@ -354,14 +368,25 @@ def deploy_to_vertex_ai(deployment_dir):
 
     try:
         # Create model
-        subprocess.run([
-            'gcloud', 'ai', 'models', 'upload',
-            '--region', region,
-            '--display-name', model_name,
-            '--container-image-uri', image_uri,
-            '--container-predict-route', '/predict',
-            '--container-health-route', '/health'
-        ], check=True)
+        subprocess.run(
+            [
+                "gcloud",
+                "ai",
+                "models",
+                "upload",
+                "--region",
+                region,
+                "--display-name",
+                model_name,
+                "--container-image-uri",
+                image_uri,
+                "--container-predict-route",
+                "/predict",
+                "--container-health-route",
+                "/health",
+            ],
+            check=True,
+        )
         print("✅ Vertex AI model created")
 
     except subprocess.CalledProcessError as e:
@@ -372,11 +397,19 @@ def deploy_to_vertex_ai(deployment_dir):
     print("\n🌐 Creating endpoint...")
 
     try:
-        subprocess.run([
-            'gcloud', 'ai', 'endpoints', 'create',
-            '--region', region,
-            '--display-name', endpoint_name
-        ], check=True)
+        subprocess.run(
+            [
+                "gcloud",
+                "ai",
+                "endpoints",
+                "create",
+                "--region",
+                region,
+                "--display-name",
+                endpoint_name,
+            ],
+            check=True,
+        )
         print("✅ Endpoint created")
 
     except subprocess.CalledProcessError as e:
@@ -388,35 +421,70 @@ def deploy_to_vertex_ai(deployment_dir):
 
     try:
         # Get model ID
-        result = subprocess.run([
-            'gcloud', 'ai', 'models', 'list',
-            '--region', region,
-            '--filter', f'displayName={model_name}',
-            '--format', 'value(name)'
-        ], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            [
+                "gcloud",
+                "ai",
+                "models",
+                "list",
+                "--region",
+                region,
+                "--filter",
+                f"displayName={model_name}",
+                "--format",
+                "value(name)",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
         model_id = result.stdout.strip()
 
         # Get endpoint ID
-        result = subprocess.run([
-            'gcloud', 'ai', 'endpoints', 'list',
-            '--region', region,
-            '--filter', f'displayName={endpoint_name}',
-            '--format', 'value(name)'
-        ], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            [
+                "gcloud",
+                "ai",
+                "endpoints",
+                "list",
+                "--region",
+                region,
+                "--filter",
+                f"displayName={endpoint_name}",
+                "--format",
+                "value(name)",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
         endpoint_id = result.stdout.strip()
 
         # Deploy model
-        subprocess.run([
-            'gcloud', 'ai', 'endpoints', 'deploy-model', endpoint_id,
-            '--region', region,
-            '--model', model_id,
-            '--display-name', f'{model_name}-deployment',
-            '--machine-type', 'n1-standard-2',
-            '--min-replica-count', '1',
-            '--max-replica-count', '10'
-        ], check=True)
+        subprocess.run(
+            [
+                "gcloud",
+                "ai",
+                "endpoints",
+                "deploy-model",
+                endpoint_id,
+                "--region",
+                region,
+                "--model",
+                model_id,
+                "--display-name",
+                f"{model_name}-deployment",
+                "--machine-type",
+                "n1-standard-2",
+                "--min-replica-count",
+                "1",
+                "--max-replica-count",
+                "10",
+            ],
+            check=True,
+        )
         print("✅ Model deployed to endpoint")
 
     except subprocess.CalledProcessError as e:
@@ -430,22 +498,23 @@ def deploy_to_vertex_ai(deployment_dir):
 
     # Create deployment summary
     deployment_summary = {
-        'status': 'success',
-        'timestamp': datetime.now().isoformat(),
-        'project_id': project_id,
-        'region': region,
-        'model_name': model_name,
-        'endpoint_id': endpoint_id,
-        'image_uri': image_uri,
-        'deployment_dir': deployment_dir
+        "status": "success",
+        "timestamp": datetime.now().isoformat(),
+        "project_id": project_id,
+        "region": region,
+        "model_name": model_name,
+        "endpoint_id": endpoint_id,
+        "image_uri": image_uri,
+        "deployment_dir": deployment_dir,
     }
 
-    with open(os.path.join(deployment_dir, "deployment_summary.json"), 'w') as f:
+    with open(os.path.join(deployment_dir, "deployment_summary.json"), "w") as f:
         json.dump(deployment_summary, f, indent=2)
 
     print(f"\n📁 Deployment summary saved to: {deployment_dir}/deployment_summary.json")
 
     return True
+
 
 def main():
     """Main deployment function."""
@@ -481,6 +550,7 @@ def main():
     print("You can now make predictions using the Vertex AI endpoint.")
 
     return True
+
 
 if __name__ == "__main__":
     success = main()

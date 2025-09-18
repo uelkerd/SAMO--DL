@@ -5,21 +5,25 @@
 print("🚀 BULLETPROOF TRAINING FOR REQ-DL-012")
 print("=" * 50)
 
+import json
 # Step 1: Clear everything and validate environment
 import os
-import sys
-import json
 import pickle
-import torch
-import torch.nn as nn
+import sys
+
 import numpy as np
 import pandas as pd
-from datasets import load_dataset
-from torch.utils.data import Dataset, DataLoader
+import torch
+import torch.nn as nn
+# Download results
+from google.colab import files
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
+from torch.utils.data import DataLoader, Dataset
 from transformers import AutoModel, AutoTokenizer
+
+from datasets import load_dataset
 
 print("✅ Imports successful")
 
@@ -376,8 +380,6 @@ print("\n✅ Training completed successfully!")
 print(f"📊 Final F1 Score: {best_f1:.4f}")
 print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
-# Download results
-from google.colab import files
 files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 

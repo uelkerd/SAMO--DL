@@ -1,20 +1,21 @@
-        # Create trainer
-        # Load trained model
-        # Prepare data and model
-        # Success criteria
-        # Test different thresholds with fixed evaluation
-# Add src to path
+# Create trainer
+# Load trained model
+# Prepare data and model
+# Success criteria
+# Test different thresholds with fixed evaluation
+
+import logging
+import sys
+from pathlib import Path
+
+import torch
+
 # Configure logging
 #!/usr/bin/env python3
 from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+
+# Add src to path
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
-import logging
-import sys
-import torch
-
-
-
 
 """Test Fixed Evaluation Function.
 

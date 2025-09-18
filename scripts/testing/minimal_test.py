@@ -11,10 +11,11 @@ from pathlib import Path
 
 import torch
 
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")

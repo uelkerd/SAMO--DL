@@ -20,19 +20,16 @@
     # Load sample data
     # Set device
     # Test different temperatures
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from pathlib import Path
-from torch.utils.data import DataLoader
 import json
 import logging
 import sys
+from pathlib import Path
+
 import torch
+from torch.utils.data import DataLoader
 
-
-
-
-
-
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset, create_bert_emotion_classifier)
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.

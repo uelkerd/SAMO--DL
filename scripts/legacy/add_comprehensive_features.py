@@ -9,11 +9,12 @@ to make it truly complete with all the gains from previous iterations.
 
 import json
 
+
 def add_comprehensive_features():
     """Add all advanced features to the comprehensive notebook."""
 
     # Read the existing notebook
-    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb", "r") as f:
         notebook = json.load(f)
 
     # Add all the advanced features as new cells
@@ -21,9 +22,7 @@ def add_comprehensive_features():
         {
             "cell_type": "markdown",
             "metadata": {},
-            "source": [
-                "## 🔧 MODEL SETUP WITH ARCHITECTURE FIXES"
-            ]
+            "source": ["## 🔧 MODEL SETUP WITH ARCHITECTURE FIXES"],
         },
         {
             "cell_type": "code",
@@ -77,15 +76,13 @@ def add_comprehensive_features():
                 "    model = model.to('cuda')\n",
                 "    print('✅ Model moved to GPU')\n",
                 "else:\n",
-                "    print('⚠️ CUDA not available, model will run on CPU')"
-            ]
+                "    print('⚠️ CUDA not available, model will run on CPU')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
-            "source": [
-                "## 📊 DATA PREPROCESSING AND SPLITTING"
-            ]
+            "source": ["## 📊 DATA PREPROCESSING AND SPLITTING"],
         },
         {
             "cell_type": "code",
@@ -108,15 +105,13 @@ def add_comprehensive_features():
                 "train_dataset = {'text': train_texts, 'label': train_labels}\n",
                 "val_dataset = {'text': val_texts, 'label': val_labels}\n",
                 "\n",
-                "print('✅ Data split and prepared')"
-            ]
+                "print('✅ Data split and prepared')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
-            "source": [
-                "## ⚖️ FOCAL LOSS AND CLASS WEIGHTING"
-            ]
+            "source": ["## ⚖️ FOCAL LOSS AND CLASS WEIGHTING"],
         },
         {
             "cell_type": "code",
@@ -154,16 +149,10 @@ def add_comprehensive_features():
                 "        focal_loss = self.alpha * (1-pt)**self.gamma * ce_loss\n",
                 "        return focal_loss.mean()\n",
                 "\n",
-                "print('✅ Focal Loss class defined')"
-            ]
+                "print('✅ Focal Loss class defined')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 🎯 WEIGHTED LOSS TRAINER"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 🎯 WEIGHTED LOSS TRAINER"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -200,16 +189,10 @@ def add_comprehensive_features():
                 "        \n",
                 "        return (loss, outputs) if return_outputs else loss\n",
                 "\n",
-                "print('✅ WeightedLossTrainer created with focal loss and class weighting')"
-            ]
+                "print('✅ WeightedLossTrainer created with focal loss and class weighting')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 🔧 DATA PREPROCESSING FUNCTION"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 🔧 DATA PREPROCESSING FUNCTION"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -244,16 +227,10 @@ def add_comprehensive_features():
                 ")\n",
                 "\n",
                 "print('✅ Data preprocessing completed')\n",
-                "print('✅ Data collator created')"
-            ]
+                "print('✅ Data collator created')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## ⚙️ TRAINING ARGUMENTS"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## ⚙️ TRAINING ARGUMENTS"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -282,16 +259,10 @@ def add_comprehensive_features():
                 "    report_to=None if 'WANDB_API_KEY' not in os.environ else ['wandb']\n",
                 ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
-            ]
+                "print('✅ Training arguments configured')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 📊 COMPUTE METRICS FUNCTION"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 📊 COMPUTE METRICS FUNCTION"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -319,16 +290,10 @@ def add_comprehensive_features():
                 "        'recall': recall\n",
                 "    }\n",
                 "\n",
-                "print('✅ Compute metrics function defined')"
-            ]
+                "print('✅ Compute metrics function defined')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 🚀 TRAINING EXECUTION"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 🚀 TRAINING EXECUTION"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -364,16 +329,10 @@ def add_comprehensive_features():
                 "# Train the model\n",
                 "trainer.train()\n",
                 "\n",
-                "print('✅ Training completed successfully!')"
-            ]
+                "print('✅ Training completed successfully!')",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 📊 EVALUATION AND VALIDATION"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 📊 EVALUATION AND VALIDATION"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -397,16 +356,10 @@ def add_comprehensive_features():
                 "pred_labels = np.argmax(predictions.predictions, axis=1)\n",
                 "true_labels = val_labels\n",
                 "\n",
-                "print(classification_report(true_labels, pred_labels, target_names=emotions))"
-            ]
+                "print(classification_report(true_labels, pred_labels, target_names=emotions))",
+            ],
         },
-        {
-            "cell_type": "markdown",
-            "metadata": {},
-            "source": [
-                "## 🔍 ADVANCED VALIDATION"
-            ]
-        },
+        {"cell_type": "markdown", "metadata": {}, "source": ["## 🔍 ADVANCED VALIDATION"]},
         {
             "cell_type": "code",
             "execution_count": None,
@@ -463,15 +416,13 @@ def add_comprehensive_features():
                 "    percentage = (count / len(pred_labels)) * 100\n",
                 "    print(f'{emotion:12s}: {count:3d} ({percentage:5.1f}%)')\n",
                 "\n",
-                "print('\\n✅ Advanced validation completed')"
-            ]
+                "print('\\n✅ Advanced validation completed')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
-            "source": [
-                "## 💾 MODEL SAVING WITH VERIFICATION"
-            ]
+            "source": ["## 💾 MODEL SAVING WITH VERIFICATION"],
         },
         {
             "cell_type": "code",
@@ -530,33 +481,34 @@ def add_comprehensive_features():
                 "\n",
                 "print(f'\\n🎉 COMPREHENSIVE TRAINING COMPLETED!')\n",
                 "print(f'📁 Model saved to: {model_save_path}')\n",
-                "print(f'📊 Final F1 Score: {eval_results.get(\"eval_f1\", \"N/A\"):.4f}')\n",
-                "print(f'📊 Final Accuracy: {eval_results.get(\"eval_accuracy\", \"N/A\"):.4f}')"
-            ]
-        }
+                'print(f\'📊 Final F1 Score: {eval_results.get("eval_f1", "N/A"):.4f}\')\n',
+                'print(f\'📊 Final Accuracy: {eval_results.get("eval_accuracy", "N/A"):.4f}\')',
+            ],
+        },
     ]
 
     # Add all the advanced cells to the notebook
-    notebook['cells'].extend(advanced_cells)
+    notebook["cells"].extend(advanced_cells)
 
     # Save the updated notebook
-    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Added all comprehensive features!')
-    print('📋 Advanced features added:')
-    print('   ✅ Model setup with architecture fixes')
-    print('   ✅ Data preprocessing and splitting')
-    print('   ✅ Focal loss and class weighting')
-    print('   ✅ WeightedLossTrainer with advanced loss')
-    print('   ✅ Data preprocessing function')
-    print('   ✅ Training arguments configuration')
-    print('   ✅ Compute metrics function')
-    print('   ✅ Training execution')
-    print('   ✅ Evaluation and validation')
-    print('   ✅ Advanced validation with bias analysis')
-    print('   ✅ Model saving with verification')
-    print('\\n🚀 COMPREHENSIVE NOTEBOOK IS NOW COMPLETE!')
+    print("✅ Added all comprehensive features!")
+    print("📋 Advanced features added:")
+    print("   ✅ Model setup with architecture fixes")
+    print("   ✅ Data preprocessing and splitting")
+    print("   ✅ Focal loss and class weighting")
+    print("   ✅ WeightedLossTrainer with advanced loss")
+    print("   ✅ Data preprocessing function")
+    print("   ✅ Training arguments configuration")
+    print("   ✅ Compute metrics function")
+    print("   ✅ Training execution")
+    print("   ✅ Evaluation and validation")
+    print("   ✅ Advanced validation with bias analysis")
+    print("   ✅ Model saving with verification")
+    print("\\n🚀 COMPREHENSIVE NOTEBOOK IS NOW COMPLETE!")
+
 
 if __name__ == "__main__":
     add_comprehensive_features()

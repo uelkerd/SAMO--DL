@@ -13,15 +13,10 @@
         import torch
         import torch.nn.functional as F
     # Summary
-# Configure logging
-from pathlib import Path
 import logging
 import sys
-
-
-
-
-
+# Configure logging
+from pathlib import Path
 
 """
 Quick Focal Loss Test

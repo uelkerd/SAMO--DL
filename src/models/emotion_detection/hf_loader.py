@@ -71,9 +71,7 @@ class HFRemoteInferenceDetector:
             headers["Authorization"] = f"Bearer {self.token}"
         payload = {"inputs": text}
         try:
-            resp = requests.post(
-                self.endpoint_url, json=payload, headers=headers, timeout=30
-            )
+            resp = requests.post(self.endpoint_url, json=payload, headers=headers, timeout=30)
             resp.raise_for_status()
             data = resp.json()
             # data can be [[{"label":..., "score":...}, ...]] or {"error":...}
@@ -114,17 +112,13 @@ def _wrap_local_model(
     cfg = AutoConfig.from_pretrained(local_dir, token=token)
     tok = AutoTokenizer.from_pretrained(local_dir, token=token, use_fast=True)
     mdl = AutoModelForSequenceClassification.from_pretrained(local_dir, token=token)
-    id2label = getattr(cfg, "id2label", None) or {
-        i: str(i) for i in range(cfg.num_labels)
-    }
+    id2label = getattr(cfg, "id2label", None) or {i: str(i) for i in range(cfg.num_labels)}
     if force_multi_label is not None:
         multi_label = bool(force_multi_label)
     else:
         problem_type = getattr(cfg, "problem_type", None)
         multi_label = problem_type == "multi_label_classification"
-    return HFEmotionDetector(
-        model=mdl, tokenizer=tok, id2label=id2label, multi_label=multi_label
-    )
+    return HFEmotionDetector(model=mdl, tokenizer=tok, id2label=id2label, multi_label=multi_label)
 
 
 def load_hf_emotion_model(
@@ -155,18 +149,14 @@ def load_emotion_model_multi_source(
     # 1) Local directory
     if local_dir and os.path.isdir(local_dir):
         try:
-            return _wrap_local_model(
-                local_dir, token=token, force_multi_label=force_multi_label
-            )
+            return _wrap_local_model(local_dir, token=token, force_multi_label=force_multi_label)
         except Exception:
             pass
 
     # 2) HF Hub direct
     if model_id:
         try:
-            return load_hf_emotion_model(
-                model_id, token=token, force_multi_label=force_multi_label
-            )
+            return load_hf_emotion_model(model_id, token=token, force_multi_label=force_multi_label)
         except Exception:
             pass
 
@@ -174,12 +164,8 @@ def load_emotion_model_multi_source(
     if model_id:
         try:
             cache_base = os.getenv("HF_HOME", "/var/tmp/hf-cache")
-            snap_dir = snapshot_download(
-                repo_id=model_id, token=token, cache_dir=cache_base
-            )
-            return _wrap_local_model(
-                snap_dir, token=token, force_multi_label=force_multi_label
-            )
+            snap_dir = snapshot_download(repo_id=model_id, token=token, cache_dir=cache_base)
+            return _wrap_local_model(snap_dir, token=token, force_multi_label=force_multi_label)
         except Exception:
             pass
 
@@ -215,9 +201,7 @@ def load_emotion_model_multi_source(
                 os.path.join(extract_dir, d) for d in os.listdir(extract_dir)
             ]
             for cand in candidates:
-                if os.path.isdir(cand) and os.path.exists(
-                    os.path.join(cand, "config.json")
-                ):
+                if os.path.isdir(cand) and os.path.exists(os.path.join(cand, "config.json")):
                     try:
                         det = _wrap_local_model(
                             cand, token=token, force_multi_label=force_multi_label

@@ -6,18 +6,16 @@
         from scripts.model_monitoring import ModelHealthMonitor
     # Check if config file exists
     # Start monitoring system
+
 # Add src to path
-# Configure logging
-# Constants
-from pathlib import Path
 import argparse
 import logging
 import sys
 import threading
 import time
-
-
-
+# Configure logging
+# Constants
+from pathlib import Path
 
 """
 Model Monitoring Dashboard Starter

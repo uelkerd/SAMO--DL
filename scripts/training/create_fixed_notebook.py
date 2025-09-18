@@ -9,6 +9,7 @@ with proper JSON escaping
 import json
 from pathlib import Path
 
+
 def create_fixed_notebook():
     """Create a fixed notebook with proper JSON escaping"""
 
@@ -25,8 +26,8 @@ def create_fixed_notebook():
                     "**CRITICAL**: This notebook ensures we use the correct specialized emotion model\n",
                     "and verifies it's working properly before training.\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with proper emotion-specialized model"
-                ]
+                    "**Target**: Reliable 75-85% F1 score with proper emotion-specialized model",
+                ],
             },
             {
                 "cell_type": "code",
@@ -35,8 +36,8 @@ def create_fixed_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub"
-                ]
+                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub",
+                ],
             },
             {
                 "cell_type": "code",
@@ -55,8 +56,8 @@ def create_fixed_notebook():
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ Packages imported successfully')"
-                ]
+                    "print('✅ Packages imported successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -95,8 +96,8 @@ def create_fixed_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
-                ]
+                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -107,8 +108,8 @@ def create_fixed_notebook():
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
-                ]
+                    "print(f'📊 Number of emotions: {len(emotions)}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -301,8 +302,8 @@ def create_fixed_notebook():
                     "\n",
                     "print('\\n📈 Emotion distribution:')\n",
                     "for emotion, count in emotion_counts.items():\n",
-                    "    print(f'  {emotion}: {count} samples')"
-                ]
+                    "    print(f'  {emotion}: {count} samples')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -323,8 +324,8 @@ def create_fixed_notebook():
                     "train_dataset = Dataset.from_list(train_data)\n",
                     "val_dataset = Dataset.from_list(val_data)\n",
                     "\n",
-                    "print('✅ Datasets created successfully')"
-                ]
+                    "print('✅ Datasets created successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -355,8 +356,8 @@ def create_fixed_notebook():
                     "print(f'Hidden layers: {model.config.num_hidden_layers}')\n",
                     "print(f'Hidden size: {model.config.hidden_size}')\n",
                     "print(f'Number of labels: {model.config.num_labels}')\n",
-                    "print(f'Our labels: {model.config.id2label}')"
-                ]
+                    "print(f'Our labels: {model.config.id2label}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -371,8 +372,8 @@ def create_fixed_notebook():
                     "train_dataset = train_dataset.map(tokenize_function, batched=True)\n",
                     "val_dataset = val_dataset.map(tokenize_function, batched=True)\n",
                     "\n",
-                    "print('✅ Data tokenized successfully')"
-                ]
+                    "print('✅ Data tokenized successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -405,8 +406,8 @@ def create_fixed_notebook():
                     "    save_total_limit=3  # Keep only best 3 checkpoints\n",
                     ")\n",
                     "\n",
-                    "print('✅ Training arguments configured')"
-                ]
+                    "print('✅ Training arguments configured')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -427,8 +428,8 @@ def create_fixed_notebook():
                     "        'accuracy': report['accuracy'],\n",
                     "        'precision': report['weighted avg']['precision'],\n",
                     "        'recall': report['weighted avg']['recall']\n",
-                    "    }"
-                ]
+                    "    }",
+                ],
             },
             {
                 "cell_type": "code",
@@ -445,8 +446,8 @@ def create_fixed_notebook():
                     "    compute_metrics=compute_metrics\n",
                     ")\n",
                     "\n",
-                    "print('✅ Trainer initialized successfully')"
-                ]
+                    "print('✅ Trainer initialized successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -464,8 +465,8 @@ def create_fixed_notebook():
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print('✅ Training completed successfully')"
-                ]
+                    "print('✅ Training completed successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -481,8 +482,8 @@ def create_fixed_notebook():
                     "print(f'Final F1 Score: {results[\"eval_f1\"]:.3f}')\n",
                     "print(f'Final Accuracy: {results[\"eval_accuracy\"]:.3f}')\n",
                     "print(f'Final Precision: {results[\"eval_precision\"]:.3f}')\n",
-                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')"
-                ]
+                    "print(f'Final Recall: {results[\"eval_recall\"]:.3f}')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -558,8 +559,8 @@ def create_fixed_notebook():
                     "    if accuracy < 0.8:\n",
                     "        print(f'❌ Accuracy too low: {accuracy:.1%} (need >80%)')\n",
                     "    if max_bias > 0.3:\n",
-                    "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')"
-                ]
+                    "        print(f'❌ Too much bias: {max_bias:.1%} (need <30%)')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -597,36 +598,29 @@ def create_fixed_notebook():
                     "print('\\n📋 Next steps:')\n",
                     "print('1. Download the model files')\n",
                     "print('2. Test locally with validation script')\n",
-                    "print('3. Deploy if all tests pass')"
-                ]
-            }
+                    "print('3. Deploy if all tests pass')",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook with proper JSON formatting
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'FIXED_SPECIALIZED_TRAINING.ipynb'
-    with open(notebook_path, 'w') as f:
+    notebook_path = Path(__file__).parent.parent / "notebooks" / "FIXED_SPECIALIZED_TRAINING.ipynb"
+    with open(notebook_path, "w") as f:
         json.dump(notebook, f, indent=1)
 
     print(f"✅ Created fixed specialized notebook: {notebook_path}")
@@ -643,6 +637,7 @@ def create_fixed_notebook():
     print(f"   4. Run all cells")
     print(f"   5. Verify the model is actually using the specialized architecture")
     print(f"   6. Only deploy if reliability tests pass")
+
 
 if __name__ == "__main__":
     create_fixed_notebook()

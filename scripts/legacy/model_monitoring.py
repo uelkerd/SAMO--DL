@@ -40,31 +40,30 @@
     # Create monitor
     # Save configuration
     # Start monitoring
-# Add src to path
-# Configure logging
-# Constants
-from collections import deque
-from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from transformers import AutoTokenizer
-from typing import Any, Optional
+
 import argparse
 import json
 import logging
-import numpy as np
-import pandas as pd
 import sys
 import threading
 import time
+# Configure logging
+# Constants
+from collections import deque
+# Add src to path
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Optional
+
+import numpy as np
+import pandas as pd
 import torch
 import yaml
+from transformers import AutoTokenizer
 
-
-
-
-
+from src.models.emotion_detection.bert_classifier import \
+    create_bert_emotion_classifier
 
 """
 Model Monitoring Script for REQ-DL-010

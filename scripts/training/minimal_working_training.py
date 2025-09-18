@@ -17,16 +17,13 @@
         import traceback
     # Create random input data
     # Setup device
-# Configure logging
-from torch import nn
 import logging
 import os
 import sys
+
 import torch
-
-
-
-
+# Configure logging
+from torch import nn
 
 """
 Minimal Working Training Script

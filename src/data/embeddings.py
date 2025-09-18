@@ -1,18 +1,17 @@
-            # Average vectors or use zero vector if no tokens found
-            # Get vectors for tokens that are in vocabulary
-        # Create DataFrame with IDs and embeddings
+# Average vectors or use zero vector if no tokens found
+# Get vectors for tokens that are in vocabulary
+# Create DataFrame with IDs and embeddings
+import logging
+from typing import List, Optional
+
+import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
-from sklearn.feature_extraction.text import TfidfVectorizer
-import logging
-import numpy as np
-import pandas as pd
-from typing import List, Optional
-
-
-
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -26,7 +25,8 @@ class BaseEmbedder:
     def __init__(self) -> None:
         self.model = None
 
-    def fit(self, texts: List[str]) -> "BaseEmbedder":
+    @staticmethod
+    def fit(texts: List[str]) -> "BaseEmbedder":
         """Fit the embedding model on a list of texts.
 
         Args:
@@ -39,7 +39,8 @@ class BaseEmbedder:
         msg = "Subclasses must implement fit()"
         raise NotImplementedError(msg)
 
-    def transform(self, texts: List[str]) -> np.ndarray:
+    @staticmethod
+    def transform(texts: List[str]) -> np.ndarray:
         """Transform texts into embeddings.
 
         Args:
@@ -320,7 +321,8 @@ class EmbeddingPipeline:
             }
         )
 
-    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
+    @staticmethod
+    def save_embeddings_to_csv(embeddings_df: pd.DataFrame, output_path: str) -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:

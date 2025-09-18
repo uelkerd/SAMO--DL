@@ -1,43 +1,45 @@
-            # Check field types are consistent
-        # CI environment should respond within 2 seconds
-        # Check all requests succeeded
-        # Check all responses have same structure
-        # Check emotion analysis structure
-        # Check expected models
-        # Check model status structure
-        # Check processing time in response
-        # Check required fields
-        # Check response structure
-        # Create multiple threads
-        # For JSON-based endpoints, form data might not be accepted
-        # Mock the emotion detection
-        # Note: Depending on FastAPI configuration, this might need adjustment
-        # Test JSON content type (primary)
-        # Test empty text
-        # Test form data (fallback)
-        # Test invalid endpoint
-        # Test malformed request
-        # Test missing required field
-        # Test very long text
-        # Wait for all threads to complete
-from unittest.mock import patch
-import pytest
+# Check field types are consistent
+# CI environment should respond within 2 seconds
+# Check all requests succeeded
+# Check all responses have same structure
+# Check emotion analysis structure
+# Check expected models
+# Check model status structure
+# Check processing time in response
+# Check required fields
+# Check response structure
+# Create multiple threads
+# For JSON-based endpoints, form data might not be accepted
+# Mock the emotion detection
+# Note: Depending on FastAPI configuration, this might need adjustment
+# Test JSON content type (primary)
+# Test empty text
+# Test form data (fallback)
+# Test invalid endpoint
+# Test malformed request
+# Test missing required field
+# Test very long text
+# Wait for all threads to complete
 import queue
 import threading
 import time
+from unittest.mock import patch
+
+import pytest
+
+
 """
 Integration tests for API endpoints.
 Tests API functionality, request/response handling, and error scenarios.
 """
 
 
-
-
 @pytest.mark.integration
 class TestAPIEndpoints:
     """Integration tests for SAMO AI API endpoints."""
 
-    def test_health_endpoint(self, api_client):
+    @staticmethod
+    def test_health_endpoint(api_client):
         """Test /health endpoint returns correct status."""
         response = api_client.get("/health")
 
@@ -53,7 +55,8 @@ class TestAPIEndpoints:
             assert "loaded" in model_status
             assert "status" in model_status
 
-    def test_root_endpoint(self, api_client):
+    @staticmethod
+    def test_root_endpoint(api_client):
         """Test root endpoint returns welcome message."""
         response = api_client.get("/")
 
@@ -65,7 +68,8 @@ class TestAPIEndpoints:
         assert "version" in data
 
     @patch("src.models.emotion_detection.bert_classifier.BERTEmotionClassifier")
-    def test_journal_analysis_endpoint(self, mock_bert, api_client):
+    @staticmethod
+    def test_journal_analysis_endpoint(mock_bert, api_client):
         """Test /analyze/journal endpoint with text input."""
         mock_model = mock_bert.return_value
         mock_model.predict_emotions.return_value = [0, 13, 17]  # joy, excitement, gratitude
@@ -93,7 +97,8 @@ class TestAPIEndpoints:
         assert "confidence" in emotion_analysis
         assert isinstance(emotion_analysis["emotions"], dict)
 
-    def test_journal_analysis_validation(self, api_client):
+    @staticmethod
+    def test_journal_analysis_validation(api_client):
         """Test journal analysis input validation."""
         response = api_client.post("/analyze/journal", json={"text": ""})
         assert response.status_code == 422
@@ -105,7 +110,8 @@ class TestAPIEndpoints:
         response = api_client.post("/analyze/journal", json={})
         assert response.status_code == 422
 
-    def test_models_status_endpoint(self, api_client):
+    @staticmethod
+    def test_models_status_endpoint(api_client):
         """Test /models/status endpoint returns model information."""
         response = api_client.get("/models/status")
 
@@ -121,7 +127,8 @@ class TestAPIEndpoints:
             assert "capabilities" in data[model]
 
     @pytest.mark.slow
-    def test_performance_requirements(self, api_client):
+    @staticmethod
+    def test_performance_requirements(api_client):
         """Test API meets performance requirements."""
         test_data = {"text": "I feel great today! This is a wonderful experience."}
 
@@ -138,7 +145,8 @@ class TestAPIEndpoints:
         assert "processing_time_ms" in data
         assert data["processing_time_ms"] > 0
 
-    def test_error_handling(self, api_client):
+    @staticmethod
+    def test_error_handling(api_client):
         """Test API error handling and response format."""
         response = api_client.get("/invalid/endpoint")
         assert response.status_code == 404
@@ -150,7 +158,8 @@ class TestAPIEndpoints:
         )
         assert response.status_code == 422
 
-    def test_concurrent_requests(self, api_client):
+    @staticmethod
+    def test_concurrent_requests(api_client):
         """Test API handles concurrent requests."""
         results = queue.Queue()
         test_data = {"text": "Testing concurrent request handling."}
@@ -175,7 +184,8 @@ class TestAPIEndpoints:
             result = results.get()
             assert result == 200
 
-    def test_content_type_handling(self, api_client):
+    @staticmethod
+    def test_content_type_handling(api_client):
         """Test API handles different content types correctly."""
         test_data = {"text": "Testing content type handling."}
 
@@ -184,7 +194,8 @@ class TestAPIEndpoints:
 
         response = api_client.post("/analyze/journal", data=test_data)
 
-    def test_response_consistency(self, api_client):
+    @staticmethod
+    def test_response_consistency(api_client):
         """Test API response format consistency across multiple calls."""
         test_data = {"text": "Testing response consistency."}
 
@@ -194,7 +205,13 @@ class TestAPIEndpoints:
             assert response.status_code == 200
             responses.append(response.json())
 
-        required_fields = ["emotion_analysis", "summary", "processing_time_ms", "pipeline_status", "insights"]
+        required_fields = [
+            "emotion_analysis",
+            "summary",
+            "processing_time_ms",
+            "pipeline_status",
+            "insights",
+        ]
 
         for response_data in responses:
             for field in required_fields:

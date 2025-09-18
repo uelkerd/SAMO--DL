@@ -6,14 +6,18 @@ Tests the downloaded model files directly without API server
 
 import sys
 
-from scripts.testing._bootstrap import ensure_project_root_on_sys_path, ensure_path, configure_basic_logging
+from scripts.testing._bootstrap import (
+    configure_basic_logging,
+    ensure_path,
+    ensure_project_root_on_sys_path,
+)
 
 # Ensure project root and logging
 PROJECT_ROOT = ensure_project_root_on_sys_path()
 logger = configure_basic_logging()
 
 # Add the deployment directory to the path
-DEPLOYMENT_DIR = PROJECT_ROOT / 'deployment'
+DEPLOYMENT_DIR = PROJECT_ROOT / "deployment"
 ensure_path(DEPLOYMENT_DIR)
 
 
@@ -23,8 +27,8 @@ def test_local_inference():
     logger.info("=" * 50)
 
     # Check if model files exist
-    model_dir = DEPLOYMENT_DIR / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = DEPLOYMENT_DIR / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     logger.info("📁 Checking model directory: %s", model_dir)
 
@@ -55,7 +59,7 @@ def test_local_inference():
         "I'm feeling sad and lonely today.",
         "I'm excited about the new opportunities.",
         "I feel calm and peaceful right now.",
-        "I'm hopeful that things will get better."
+        "I'm hopeful that things will get better.",
     ]
 
     try:

@@ -1,24 +1,23 @@
-        # Split command for security (avoid shell=True)
-    # Change to project root
-    # Fix 1: Format code with ruff
-    # Fix 2: Check for any remaining formatting issues
-    # Fix 3: Run specific failing tests to verify fixes
-    # Summary
-#!/usr/bin/env python3
-from pathlib import Path
-from typing import Tuple
+# Split command for security (avoid shell=True)
+# Change to project root
+# Fix 1: Format code with ruff
+# Fix 2: Check for any remaining formatting issues
+# Fix 3: Run specific failing tests to verify fixes
+# Summary
 import logging
 import os
 import subprocess
 import sys
 
-
-
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Tuple
 
 
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.
 """
+
 
 def run_command(cmd: str, description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""

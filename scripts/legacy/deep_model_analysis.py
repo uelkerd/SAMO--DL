@@ -5,9 +5,11 @@ DEEP MODEL ANALYSIS SCRIPT
 Analyzes the model's behavior to understand performance discrepancies
 """
 
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def deep_model_analysis():
     """Deep analysis of the model's behavior"""
@@ -18,15 +20,28 @@ def deep_model_analysis():
     print("=" * 50)
 
     # Load model
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
 
     # Define emotion mapping
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+    emotion_mapping = [
+        "anxious",
+        "calm",
+        "content",
+        "excited",
+        "frustrated",
+        "grateful",
+        "happy",
+        "hopeful",
+        "overwhelmed",
+        "proud",
+        "sad",
+        "tired",
+    ]
 
     print(f"\n📊 EMOTION MAPPING ANALYSIS")
     print("-" * 40)
@@ -80,7 +95,18 @@ def deep_model_analysis():
 
     # Test with simple emotion words
     simple_tests = [
-        "happy", "sad", "angry", "excited", "calm", "anxious", "proud", "grateful", "hopeful", "tired", "content", "overwhelmed"
+        "happy",
+        "sad",
+        "angry",
+        "excited",
+        "calm",
+        "anxious",
+        "proud",
+        "grateful",
+        "hopeful",
+        "tired",
+        "content",
+        "overwhelmed",
     ]
 
     for word in simple_tests:
@@ -134,7 +160,7 @@ def deep_model_analysis():
         "I feel calm and peaceful.",
         "I am excited about the new opportunity.",
         "I feel content with my life.",
-        "I am hopeful for the future."
+        "I am hopeful for the future.",
     ]
 
     correct_training_like = 0
@@ -165,7 +191,9 @@ def deep_model_analysis():
             else:
                 status = "❌"
 
-            print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})"
+            )
 
     training_like_accuracy = correct_training_like / len(training_like_tests)
     print(f"\n📊 Training-like accuracy: {training_like_accuracy:.1%}")
@@ -184,6 +212,7 @@ def deep_model_analysis():
         print(f"💡 Solution: Retrain model with better data or check label mapping")
 
     return training_like_accuracy > 0.8
+
 
 if __name__ == "__main__":
     success = deep_model_analysis()

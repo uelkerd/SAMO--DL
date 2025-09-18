@@ -4,24 +4,23 @@ Fixed API Testing Script with Correct Request Formats
 Tests all 3 core features with proper request structures
 """
 
-import requests
-import json
-import time
-import os
-import logging
 import io
-from typing import Dict, Any, List, Optional, Tuple
+import json
+import logging
+import os
+import time
+from typing import Any, Dict
+
+import requests
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 class FixedAPITester:
     def __init__(self, base_url: str = "https://samo-unified-api-frrnetyhfa-uc.a.run.app"):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
         self.timeout = 30
         self.auth_token = None
@@ -34,19 +33,17 @@ class FixedAPITester:
             "username": f"fixed_test_{int(time.time())}@example.com",
             "email": f"fixed_test_{int(time.time())}@example.com",
             "password": "TestPassword123!",
-            "full_name": "Fixed Test User"
+            "full_name": "Fixed Test User",
         }
 
         try:
             response = self.session.post(
-                f"{self.base_url}/auth/register",
-                json=register_data,
-                timeout=self.timeout
+                f"{self.base_url}/auth/register", json=register_data, timeout=self.timeout
             )
 
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get('access_token')
+                self.auth_token = data.get("access_token")
                 logger.info("✅ Authentication successful")
                 return True
 
@@ -61,24 +58,18 @@ class FixedAPITester:
 
         try:
             # Create a minimal valid WAV file
-            wav_header = b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00'
-            silence_data = b'\x00' * 2048
+            wav_header = b"RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00"
+            silence_data = b"\x00" * 2048
             wav_data = wav_header + silence_data
 
             # Prepare files and data (NOT JSON)
-            files = {
-                'audio_file': ('test_audio.wav', io.BytesIO(wav_data), 'audio/wav')
-            }
+            files = {"audio_file": ("test_audio.wav", io.BytesIO(wav_data), "audio/wav")}
 
-            data = {
-                'language': 'en',
-                'model_size': 'base',
-                'timestamp': 'false'
-            }
+            data = {"language": "en", "model_size": "base", "timestamp": "false"}
 
             headers = {}
             if self.auth_token:
-                headers['Authorization'] = f'Bearer {self.auth_token}'
+                headers["Authorization"] = f"Bearer {self.auth_token}"
 
             start_time = time.time()
             response = self.session.post(
@@ -86,7 +77,7 @@ class FixedAPITester:
                 files=files,
                 data=data,  # Note: data, not json
                 headers=headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response_time = (time.time() - start_time) * 1000
 
@@ -96,8 +87,12 @@ class FixedAPITester:
                 "success": response.status_code < 400,
                 "status_code": response.status_code,
                 "response_time_ms": response_time,
-                "response_data": response.json() if response.headers.get('content-type', '').startswith('application/json') else {"raw": response.text},
-                "error": None if response.status_code < 400 else f"HTTP {response.status_code}"
+                "response_data": (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith("application/json")
+                    else {"raw": response.text}
+                ),
+                "error": None if response.status_code < 400 else f"HTTP {response.status_code}",
             }
 
         except Exception as e:
@@ -105,7 +100,7 @@ class FixedAPITester:
                 "endpoint": "/transcribe/voice",
                 "method": "POST",
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     def test_text_summarization_fixed(self) -> Dict[str, Any]:
@@ -116,23 +111,18 @@ class FixedAPITester:
             test_text = "I am feeling incredibly happy and excited about this new opportunity! This situation is making me quite anxious and nervous. I feel a deep sense of gratitude for all the support I've received. Today has been a rollercoaster of emotions with many ups and downs."
 
             # Use form data, NOT JSON
-            data = {
-                'text': test_text,
-                'model': 't5-small',
-                'max_length': '150',
-                'min_length': '30'
-            }
+            data = {"text": test_text, "model": "t5-small", "max_length": "150", "min_length": "30"}
 
             headers = {}
             if self.auth_token:
-                headers['Authorization'] = f'Bearer {self.auth_token}'
+                headers["Authorization"] = f"Bearer {self.auth_token}"
 
             start_time = time.time()
             response = self.session.post(
                 f"{self.base_url}/summarize/text",
                 data=data,  # Note: data, not json
                 headers=headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response_time = (time.time() - start_time) * 1000
 
@@ -142,8 +132,12 @@ class FixedAPITester:
                 "success": response.status_code < 400,
                 "status_code": response.status_code,
                 "response_time_ms": response_time,
-                "response_data": response.json() if response.headers.get('content-type', '').startswith('application/json') else {"raw": response.text},
-                "error": None if response.status_code < 400 else f"HTTP {response.status_code}"
+                "response_data": (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith("application/json")
+                    else {"raw": response.text}
+                ),
+                "error": None if response.status_code < 400 else f"HTTP {response.status_code}",
             }
 
         except Exception as e:
@@ -151,7 +145,7 @@ class FixedAPITester:
                 "endpoint": "/summarize/text",
                 "method": "POST",
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     def test_voice_journal_fixed(self) -> Dict[str, Any]:
@@ -160,23 +154,17 @@ class FixedAPITester:
 
         try:
             # Create minimal WAV file
-            wav_header = b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00'
-            silence_data = b'\x00' * 2048
+            wav_header = b"RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00"
+            silence_data = b"\x00" * 2048
             wav_data = wav_header + silence_data
 
-            files = {
-                'audio_file': ('test_journal.wav', io.BytesIO(wav_data), 'audio/wav')
-            }
+            files = {"audio_file": ("test_journal.wav", io.BytesIO(wav_data), "audio/wav")}
 
-            data = {
-                'language': 'en',
-                'generate_summary': 'true',
-                'emotion_threshold': '0.1'
-            }
+            data = {"language": "en", "generate_summary": "true", "emotion_threshold": "0.1"}
 
             headers = {}
             if self.auth_token:
-                headers['Authorization'] = f'Bearer {self.auth_token}'
+                headers["Authorization"] = f"Bearer {self.auth_token}"
 
             start_time = time.time()
             response = self.session.post(
@@ -184,7 +172,7 @@ class FixedAPITester:
                 files=files,
                 data=data,
                 headers=headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response_time = (time.time() - start_time) * 1000
 
@@ -194,8 +182,12 @@ class FixedAPITester:
                 "success": response.status_code < 400,
                 "status_code": response.status_code,
                 "response_time_ms": response_time,
-                "response_data": response.json() if response.headers.get('content-type', '').startswith('application/json') else {"raw": response.text},
-                "error": None if response.status_code < 400 else f"HTTP {response.status_code}"
+                "response_data": (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith("application/json")
+                    else {"raw": response.text}
+                ),
+                "error": None if response.status_code < 400 else f"HTTP {response.status_code}",
             }
 
         except Exception as e:
@@ -203,18 +195,14 @@ class FixedAPITester:
                 "endpoint": "/analyze/voice-journal",
                 "method": "POST",
                 "success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     def run_fixed_tests(self) -> Dict[str, Any]:
         """Run the corrected tests"""
         logger.info("🚀 Running Fixed API Tests...")
 
-        results = {
-            "timestamp": time.time(),
-            "base_url": self.base_url,
-            "tests": {}
-        }
+        results = {"timestamp": time.time(), "base_url": self.base_url, "tests": {}}
 
         # Authenticate first
         auth_success = self.authenticate()
@@ -234,6 +222,7 @@ class FixedAPITester:
         results["tests"]["voice_journal"] = self.test_voice_journal_fixed()
 
         return results
+
 
 def main():
     """Main testing function"""
@@ -287,7 +276,7 @@ def main():
     os.makedirs("test_reports", exist_ok=True)
     report_file = f"test_reports/fixed_api_test_{int(time.time())}.json"
 
-    with open(report_file, 'w') as f:
+    with open(report_file, "w") as f:
         json.dump(results, f, indent=2, default=str)
 
     print(f"\n💾 Results saved to: {report_file}")
@@ -312,6 +301,7 @@ def main():
     print("\n📝 NOTE: Voice processing model is not loaded (voice_processing: false)")
     print("   This may cause issues with voice transcription in production.")
     print("   Consider checking model loading in the deployment configuration.")
+
 
 if __name__ == "__main__":
     main()

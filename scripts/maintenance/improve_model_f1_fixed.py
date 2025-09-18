@@ -1,61 +1,63 @@
-                # Test loading the checkpoint
-        # Additional training with focal loss
-        # Apply class weights if provided
-        # Calculate binary cross entropy loss
-        # Calculate class weights
-        # Calculate focal loss
-        # Calculate focal weight
-        # Check if target achieved
-        # Check if target achieved
-        # Convert logits to probabilities
-        # Create focal loss
-        # Create or load model
-        # Create trainer for focal loss fine-tuning
-        # Evaluate final model
-        # For now, save the best individual model
-        # IMPORTANT: Disable dev mode to use full dataset
-        # Load dataset
-        # Model 1: Standard configuration
-        # Model 2: Different learning rate
-        # Model 3: With focal loss
-        # Note: This will be handled in the trainer initialization
-        # Save model
-        # Save model
-        # Simple ensemble prediction (average of predictions)
-        # Train fresh model with extended epochs and full dataset
-        # Train multiple models with different configurations
-    # Apply selected technique
-    # Create data loader
-    # Create model with optimal settings
-    # Create trainer with development mode disabled for better results
-    # Evaluate
-    # Find valid checkpoint (if any)
-    # Report results
-    # Set device
-    # Train model on full dataset
-    # Update output path
+# Test loading the checkpoint
+# Additional training with focal loss
+# Apply class weights if provided
+# Calculate binary cross entropy loss
+# Calculate class weights
+# Calculate focal loss
+# Calculate focal weight
+# Check if target achieved
+# Check if target achieved
+# Convert logits to probabilities
+# Create focal loss
+# Create or load model
+# Create trainer for focal loss fine-tuning
+# Evaluate final model
+# For now, save the best individual model
+# IMPORTANT: Disable dev mode to use full dataset
+# Load dataset
+# Model 1: Standard configuration
+# Model 2: Different learning rate
+# Model 3: With focal loss
+# Note: This will be handled in the trainer initialization
+# Save model
+# Save model
+# Simple ensemble prediction (average of predictions)
+# Train fresh model with extended epochs and full dataset
+# Train multiple models with different configurations
+# Apply selected technique
+# Create data loader
+# Create model with optimal settings
+# Create trainer with development mode disabled for better results
+# Evaluate
+# Find valid checkpoint (if any)
+# Report results
+# Set device
+# Train model on full dataset
+# Update output path
+
+# Add src to path
+import argparse
+import logging
+
 # Add src to path
 # Configure logging
+import sys
+import time
+
 # Constants
 #!/usr/bin/env python3
 from pathlib import Path
-import sys
+from typing import Optional
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+import torch
+import torch.nn.functional as F
+from torch import nn
 
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from torch import nn
-from typing import Optional
-import argparse
-import logging
-import time
-import torch
-import torch.nn.functional as F
 
-
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 
 """

@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """Test script to verify rate limiter fix."""
-from unittest.mock import MagicMock
 import asyncio
 import sys
 import time
+from unittest.mock import MagicMock
 
-from scripts.testing._bootstrap import ensure_project_root_on_sys_path, configure_basic_logging
+from scripts.testing._bootstrap import configure_basic_logging, ensure_project_root_on_sys_path
+from src.api_rate_limiter import RateLimitConfig  # noqa: E402
+from src.api_rate_limiter import TokenBucketRateLimiter
 
 # Ensure project root and logging
 PROJECT_ROOT = ensure_project_root_on_sys_path()
 logger = configure_basic_logging()
 
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
 
 async def test_token_refill_logic():
     """Test the token refill logic manually."""
@@ -20,9 +21,9 @@ async def test_token_refill_logic():
     config = RateLimitConfig(
         burst_size=5,
         requests_per_minute=10,
-        rapid_fire_threshold=1000,          # avoid rapid-fire trigger
-        sustained_rate_threshold=100000,    # avoid sustained-rate trigger
-        enable_user_agent_analysis=False,   # disable UA analysis for test
+        rapid_fire_threshold=1000,  # avoid rapid-fire trigger
+        sustained_rate_threshold=100000,  # avoid sustained-rate trigger
+        enable_user_agent_analysis=False,  # disable UA analysis for test
         enable_request_pattern_analysis=False,  # disable pattern analysis
     )
     rate_limiter = TokenBucketRateLimiter(config)
@@ -59,6 +60,7 @@ async def test_token_refill_logic():
     logger.info("✅ Final allowed: %s", allowed_final)
 
     return allowed_final
+
 
 if __name__ == "__main__":
     success = asyncio.run(test_token_refill_logic())

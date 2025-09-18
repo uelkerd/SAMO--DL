@@ -4,58 +4,63 @@ CORS Proxy for SAMO Emotion API
 This script creates a local proxy to bypass CORS restrictions
 """
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import urllib.parse
 import json
+import urllib.parse
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import requests
+
 
 class CORSProxyHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         # Handle preflight requests
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, Accept, Origin, X-Requested-With')
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization, Cache-Control, Pragma, Accept, Origin, X-Requested-With",
+        )
         self.end_headers()
 
     def do_GET(self):
         # Handle GET requests (fallback)
-        if self.path == '/emotion':
+        if self.path == "/emotion":
             self.send_response(405)
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Content-Type', 'application/json')
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Type", "application/json")
             self.end_headers()
             response = json.dumps({"error": "Method not allowed. Use POST instead."})
             self.wfile.write(response.encode())
         else:
             self.send_response(404)
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
 
     def do_POST(self):
-        if self.path == '/emotion':
+        if self.path == "/emotion":
             try:
                 # Read the request body
-                content_length = int(self.headers['Content-Length'])
+                content_length = int(self.headers["Content-Length"])
                 post_data = self.rfile.read(content_length)
 
                 # Debug: Print what we received
                 print(f"Received data: {post_data.decode('utf-8')}")
 
                 # Parse the JSON to extract the text
-                request_data = json.loads(post_data.decode('utf-8'))
-                text = request_data.get('text', '')
+                request_data = json.loads(post_data.decode("utf-8"))
+                text = request_data.get("text", "")
 
                 # URL encode the text for query parameter
                 encoded_text = urllib.parse.quote(text)
 
                 # Forward the request to the unified API with query parameters
-                api_url = f'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text={encoded_text}'
+                api_url = f"https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text={encoded_text}"
 
                 # Make POST request with query parameters using secure requests library
                 headers = {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '0'  # Required for POST requests with query params
+                    "Content-Type": "application/json",
+                    "Content-Length": "0",  # Required for POST requests with query params
                 }
 
                 # Debug: Print what we're sending
@@ -67,8 +72,8 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
 
                 # Send CORS headers
                 self.send_response(200)
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Content-Type', 'application/json')
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
 
                 # Send the API response
@@ -79,24 +84,24 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
                 print(f"HTTP Error {status_code}: {str(e)}")
                 # Forward the original error status code instead of converting to 500
                 self.send_response(status_code)
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Content-Type', 'application/json')
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 error_response = json.dumps({"error": f"API Error {status_code}: {str(e)}"})
                 self.wfile.write(error_response.encode())
             except requests.exceptions.RequestException as e:
                 print(f"Request Error: {str(e)}")
                 self.send_response(500)
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Content-Type', 'application/json')
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 error_response = json.dumps({"error": f"Request failed: {str(e)}"})
                 self.wfile.write(error_response.encode())
             except Exception as e:
                 print(f"Error: {e}")
                 self.send_response(500)
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Content-Type', 'application/json')
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 error_response = json.dumps({"error": str(e)})
                 self.wfile.write(error_response.encode())
@@ -108,9 +113,10 @@ class CORSProxyHandler(BaseHTTPRequestHandler):
         # Enable logging to see requests
         print(f"[{self.date_time_string()}] {fmt % args}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     port = 8081
-    server = HTTPServer(('localhost', port), CORSProxyHandler)
+    server = HTTPServer(("localhost", port), CORSProxyHandler)
     print(f"CORS Proxy running on http://localhost:{port}")
     print("Available endpoints:")
     print(f"  POST http://localhost:{port}/emotion")

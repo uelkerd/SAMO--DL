@@ -4,22 +4,23 @@
 Runs training/validation on Vertex AI and standardizes logging and path bootstrap.
 """
 
-from pathlib import Path
 import argparse
 import logging
+import os
 import sys
 import traceback
+from pathlib import Path
+
 import transformers
-import os
+
+from src.models.emotion_detection.bert_classifier import (
+    WeightedBCELoss,
+    create_bert_emotion_classifier,
+)
 
 # Import project-specific modules
 from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-from src.models.emotion_detection.bert_classifier import (
-    WeightedBCELoss, create_bert_emotion_classifier
-)
-from src.models.emotion_detection.training_pipeline import (
-    EmotionDetectionTrainer
-)
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 # Ensure project root on path
 try:
@@ -39,99 +40,46 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("/app/logs/vertex_training.log")
-    ]
+        logging.FileHandler("/app/logs/vertex_training.log"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
 
 def parse_arguments():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Vertex AI Training for SAMO Deep Learning"
+    parser = argparse.ArgumentParser(description="Vertex AI Training for SAMO Deep Learning")
+
+    parser.add_argument("--model_name", default="bert-base-uncased", help="Hugging Face model name")
+    parser.add_argument("--batch_size", type=int, default=16, help="Training batch size")
+    parser.add_argument(
+        "--learning_rate", type=float, default=2e-6, help="Learning rate (optimized for stability)"
+    )
+    parser.add_argument("--num_epochs", type=int, default=3, help="Number of training epochs")
+    parser.add_argument("--max_length", type=int, default=512, help="Maximum sequence length")
+    parser.add_argument(
+        "--freeze_bert_layers", type=int, default=6, help="Number of BERT layers to freeze"
     )
 
     parser.add_argument(
-        "--model_name",
-        default="bert-base-uncased",
-        help="Hugging Face model name"
+        "--use_focal_loss", action="store_true", help="Use focal loss instead of BCE"
     )
     parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=16,
-        help="Training batch size"
+        "--class_weights", action="store_true", help="Use class weights for imbalanced data"
     )
-    parser.add_argument(
-        "--learning_rate",
-        type=float,
-        default=2e-6,
-        help="Learning rate (optimized for stability)"
-    )
-    parser.add_argument(
-        "--num_epochs",
-        type=int,
-        default=3,
-        help="Number of training epochs"
-    )
-    parser.add_argument(
-        "--max_length",
-        type=int,
-        default=512,
-        help="Maximum sequence length"
-    )
-    parser.add_argument(
-        "--freeze_bert_layers",
-        type=int,
-        default=6,
-        help="Number of BERT layers to freeze"
-    )
+    parser.add_argument("--dev_mode", action="store_true", help="Run in development mode")
+    parser.add_argument("--debug_mode", action="store_true", help="Enable debugging mode")
 
+    parser.add_argument("--validation_mode", action="store_true", help="Run validation only")
     parser.add_argument(
-        "--use_focal_loss",
-        action="store_true",
-        help="Use focal loss instead of BCE"
+        "--check_data_distribution", action="store_true", help="Check data distribution"
     )
     parser.add_argument(
-        "--class_weights",
-        action="store_true",
-        help="Use class weights for imbalanced data"
+        "--check_model_architecture", action="store_true", help="Check model architecture"
     )
+    parser.add_argument("--check_loss_function", action="store_true", help="Check loss function")
     parser.add_argument(
-        "--dev_mode",
-        action="store_true",
-        help="Run in development mode"
-    )
-    parser.add_argument(
-        "--debug_mode",
-        action="store_true",
-        help="Enable debugging mode"
-    )
-
-    parser.add_argument(
-        "--validation_mode",
-        action="store_true",
-        help="Run validation only"
-    )
-    parser.add_argument(
-        "--check_data_distribution",
-        action="store_true",
-        help="Check data distribution"
-    )
-    parser.add_argument(
-        "--check_model_architecture",
-        action="store_true",
-        help="Check model architecture"
-    )
-    parser.add_argument(
-        "--check_loss_function",
-        action="store_true",
-        help="Check loss function"
-    )
-    parser.add_argument(
-        "--check_training_config",
-        action="store_true",
-        help="Check training configuration"
+        "--check_training_config", action="store_true", help="Check training configuration"
     )
 
     return parser.parse_args()
@@ -143,6 +91,7 @@ def validate_environment():
 
     try:
         import torch
+
         logger.info("✅ PyTorch: %s", torch.__version__)
         logger.info("✅ Transformers: %s", transformers.__version__)
         logger.info("✅ Vertex AI: Available")
@@ -231,6 +180,7 @@ def validate_model_architecture():
 
     try:
         import torch
+
         model, loss_fn = create_bert_emotion_classifier(
             model_name="bert-base-uncased",
             class_weights=None,
@@ -284,6 +234,7 @@ def validate_loss_function():
     try:
         import torch
         import torch.nn.functional as F
+
         batch_size = 4
         num_classes = 28
 
@@ -294,18 +245,14 @@ def validate_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(
-            logits, labels, reduction="mean"
-        )
+        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
 
         logger.info("✅ Mixed labels loss: %.8f", loss1.item())
         logger.info("✅ Manual BCE loss: %.8f", bce_manual.item())
 
         loss_diff = abs(loss1.item() - bce_manual.item())
         if loss_diff > 1.0:
-            logger.warning(
-                "⚠️  Large difference between custom and manual loss: %s", loss_diff
-            )
+            logger.warning("⚠️  Large difference between custom and manual loss: %s", loss_diff)
 
         labels_all_pos = torch.ones(batch_size, num_classes)
         loss2 = loss_fn(logits, labels_all_pos)
@@ -351,9 +298,7 @@ def validate_training_config(args):
 
         if not args.use_focal_loss and not args.class_weights:
             logger.warning("⚠️  No class balancing strategy")
-            logger.warning(
-                "   Consider using focal loss or class weights for imbalanced data"
-            )
+            logger.warning("   Consider using focal loss or class weights for imbalanced data")
 
         return True
 
@@ -412,9 +357,7 @@ def _build_validation_list(args):
         validations.append(("Loss Function", validate_loss_function))
 
     if args.check_training_config:
-        validations.append(
-            ("Training Config", lambda: validate_training_config(args))
-        )
+        validations.append(("Training Config", lambda: validate_training_config(args)))
 
     if not validations:
         validations = [
@@ -432,9 +375,9 @@ def _run_validations(validations):
     results = {}
 
     for name, validation_func in validations:
-        logger.info("\n%s", "="*40)
+        logger.info("\n%s", "=" * 40)
         logger.info("Running: %s", name)
-        logger.info("%s", "="*40)
+        logger.info("%s", "=" * 40)
 
         try:
             validation_func()  # Will raise exception on failure
@@ -453,9 +396,9 @@ def _print_validation_summary(results):
     passed = sum(results.values())
     total = len(results)
 
-    logger.info("\n%s", "="*50)
+    logger.info("\n%s", "=" * 50)
     logger.info("📊 VALIDATION SUMMARY")
-    logger.info("%s", "="*50)
+    logger.info("%s", "=" * 50)
     logger.info("Total checks: %d", total)
     logger.info("Passed: %d", passed)
     logger.info("Failed: %d", total - passed)

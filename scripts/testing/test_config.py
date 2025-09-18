@@ -4,8 +4,8 @@ Centralized Test Configuration
 Provides consistent configuration for all testing scripts.
 """
 
-import os
 import argparse
+import os
 import secrets
 from typing import Optional
 
@@ -21,19 +21,21 @@ class TestConfig:
         """Get base URL from environment or command line arguments"""
         # Priority: CLI arg > environment variable > default
         parser = argparse.ArgumentParser(add_help=False)
-        parser.add_argument('--base-url', help='API base URL')
+        parser.add_argument("--base-url", help="API base URL")
         args, _ = parser.parse_known_args()
 
         if args.base_url:
-            return args.base_url.rstrip('/')
+            return args.base_url.rstrip("/")
 
         # Check multiple environment variables for flexibility
-        env_url = (os.environ.get("API_BASE_URL") or
-                  os.environ.get("CLOUD_RUN_API_URL") or
-                  os.environ.get("MODEL_API_BASE_URL"))
+        env_url = (
+            os.environ.get("API_BASE_URL")
+            or os.environ.get("CLOUD_RUN_API_URL")
+            or os.environ.get("MODEL_API_BASE_URL")
+        )
 
         if env_url:
-            return env_url.rstrip('/')
+            return env_url.rstrip("/")
 
         # If no URL is provided, raise an error to force explicit configuration
         raise ValueError(
@@ -56,10 +58,7 @@ class TestConfig:
 
     def get_headers(self) -> dict:
         """Get standard headers for API requests"""
-        return {
-            "X-API-Key": self.api_key,
-            "Content-Type": "application/json"
-        }
+        return {"X-API-Key": self.api_key, "Content-Type": "application/json"}
 
     def get_rate_limit_requests(self) -> int:
         """Get number of requests for rate limiting tests"""
@@ -79,7 +78,7 @@ class APIClient:
         import requests
 
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
+        headers = {**self.headers, **kwargs.get("headers", {})}
 
         try:
             response = requests.get(url, headers=headers, timeout=30, **kwargs)
@@ -95,7 +94,7 @@ class APIClient:
         import requests
 
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        headers = {**self.headers, **kwargs.get('headers', {})}
+        headers = {**self.headers, **kwargs.get("headers", {})}
 
         try:
             response = requests.post(url, json=data, headers=headers, timeout=30, **kwargs)

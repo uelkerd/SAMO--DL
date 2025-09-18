@@ -56,27 +56,25 @@
     # Set models to evaluation mode
     # Verify GPU compatibility
     # Verify ONNX model
-# Add src to path
-# Configure logging
-# Constants
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from tqdm import tqdm
-from transformers import AutoTokenizer
-from typing import Any, Union, Optional
+
 import argparse
 import json
 import logging
-import numpy as np
 import sys
 import time
+# Configure logging
+# Constants
+from pathlib import Path
+from typing import Any, Optional, Union
+
+import numpy as np
 import torch
+from tqdm import tqdm
+from transformers import AutoTokenizer
 
-
-
-
-
-
+# Add src to path
+from src.models.emotion_detection.bert_classifier import \
+    create_bert_emotion_classifier
 
 """
 Model Optimization Script for REQ-DL-008

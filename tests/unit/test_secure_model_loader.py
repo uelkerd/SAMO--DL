@@ -18,10 +18,10 @@ import torch
 import torch.nn as nn
 
 from src.models.secure_loader import (
-    SecureModelLoader,
     IntegrityChecker,
+    ModelValidator,
     SandboxExecutor,
-    ModelValidator
+    SecureModelLoader,
 )
 
 
@@ -31,7 +31,7 @@ class TestModel(nn.Module):
     def __init__(self, input_size=10, output_size=5):
         super().__init__()
         self.linear = nn.Linear(input_size, output_size)
-        self.model_name = 'TestModel'  # Add required attribute
+        self.model_name = "TestModel"  # Add required attribute
 
     def forward(self, x):
         return self.linear(x)
@@ -43,7 +43,7 @@ class BERTEmotionClassifier(nn.Module):
     def __init__(self, num_emotions=5):
         super().__init__()
         self.linear = nn.Linear(768, num_emotions)  # BERT hidden size
-        self.model_name = 'BERTEmotionClassifier'
+        self.model_name = "BERTEmotionClassifier"
 
     def forward(self, x):
         return self.linear(x)
@@ -52,7 +52,6 @@ class BERTEmotionClassifier(nn.Module):
 # Keep the old class for backward compatibility in tests
 class TestBERTEmotionClassifier(BERTEmotionClassifier):
     """Legacy test model class."""
-    pass
 
 
 class TestIntegrityChecker(unittest.TestCase):
@@ -65,10 +64,10 @@ class TestIntegrityChecker(unittest.TestCase):
 
         # Create a simple test model
         model = TestModel()
-        torch.save({
-            'state_dict': model.state_dict(),
-            'config': {'model_name': 'test', 'num_emotions': 5}
-        }, self.test_file)
+        torch.save(
+            {"state_dict": model.state_dict(), "config": {"model_name": "test", "num_emotions": 5}},
+            self.test_file,
+        )
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -110,65 +109,60 @@ class TestIntegrityChecker(unittest.TestCase):
         """Test comprehensive validation."""
         # Create a test file with known checksum for validation
         test_checksum = self.checker.calculate_checksum(self.test_file)
-        is_valid, results = self.checker.comprehensive_validation(self.test_file, expected_checksum=test_checksum)
+        is_valid, results = self.checker.comprehensive_validation(
+            self.test_file, expected_checksum=test_checksum
+        )
         self.assertTrue(is_valid)
-        self.assertIn('file_path', results)
-        self.assertIn('size_valid', results)
-        self.assertIn('extension_valid', results)
+        self.assertIn("file_path", results)
+        self.assertIn("size_valid", results)
+        self.assertIn("extension_valid", results)
 
     def test_comprehensive_validation_no_checksum(self):
         """Test comprehensive validation without checksum (should fail)."""
         is_valid, results = self.checker.comprehensive_validation(self.test_file)
         self.assertFalse(is_valid)  # Should fail without expected checksum
-        self.assertIn('findings', results)
-        self.assertIn('Checksum verification failed', results['findings'])
+        self.assertIn("findings", results)
+        self.assertIn("Checksum verification failed", results["findings"])
 
 
 class TestSandboxExecutor(unittest.TestCase):
     """Test sandbox executor functionality."""
 
     def setUp(self):
-        self.executor = SandboxExecutor(
-            max_memory_mb=512,
-            max_cpu_time=10,
-            max_wall_time=20
-        )
+        self.executor = SandboxExecutor(max_memory_mb=512, max_cpu_time=10, max_wall_time=20)
 
     def test_execute_safely(self):
         """Test safe execution."""
+
         def test_func(x, y):
             return x + y
 
         result, info = self.executor.execute_safely(test_func, 2, 3)
         self.assertEqual(result, 5)
-        self.assertEqual(info['status'], 'success')  # Fixed: actual return value
+        self.assertEqual(info["status"], "success")  # Fixed: actual return value
         # Note: duration is not returned by the actual implementation
 
     def test_load_model_safely(self):
         """Test safe model loading."""
-        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
             model = TestModel()
-            torch.save({
-                'state_dict': model.state_dict(),
-                'config': {'model_name': 'test'}
-            }, f.name)
+            torch.save({"state_dict": model.state_dict(), "config": {"model_name": "test"}}, f.name)
 
             try:
-                result, info = self.executor.load_model_safely(f.name, TestModel)  # Now returns (model, info)
+                result, info = self.executor.load_model_safely(
+                    f.name, TestModel
+                )  # Now returns (model, info)
                 self.assertIsInstance(result, TestModel)
-                self.assertIn('status', info)
+                self.assertIn("status", info)
                 # Note: load_model_safely now returns both model and info dict
             finally:
                 os.unlink(f.name)
 
     def test_validate_model_safely(self):
         """Test safe model validation."""
-        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
             model = TestModel()
-            torch.save({
-                'state_dict': model.state_dict(),
-                'config': {'model_name': 'test'}
-            }, f.name)
+            torch.save({"state_dict": model.state_dict(), "config": {"model_name": "test"}}, f.name)
 
             try:
                 is_valid, info = self.executor.validate_model_safely(f.name)
@@ -185,36 +179,35 @@ class TestModelValidator(unittest.TestCase):
         # Use a model that meets validation criteria
         self.test_model = BERTEmotionClassifier()
         self.test_config = {
-            'model_name': 'BERTEmotionClassifier',
-            'num_emotions': 5,
-            'hidden_dropout_prob': 0.1
+            "model_name": "BERTEmotionClassifier",
+            "num_emotions": 5,
+            "hidden_dropout_prob": 0.1,
         }
 
     def test_validate_model_structure(self):
         """Test model structure validation."""
         is_valid, info = self.validator.validate_model_structure(self.test_model)
         self.assertTrue(is_valid)
-        self.assertIn('model_type', info)
-        self.assertIn('parameter_count', info)
+        self.assertIn("model_type", info)
+        self.assertIn("parameter_count", info)
 
     def test_validate_model_config(self):
         """Test model configuration validation."""
         is_valid, info = self.validator.validate_model_config(self.test_config)
         self.assertTrue(is_valid)
-        self.assertIn('config_keys', info)
+        self.assertIn("config_keys", info)
 
     def test_validate_model_file(self):
         """Test model file validation."""
-        with tempfile.NamedTemporaryFile(suffix='.pt', delete=False) as f:
-            torch.save({
-                'state_dict': self.test_model.state_dict(),
-                'config': self.test_config
-            }, f.name)
+        with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
+            torch.save(
+                {"state_dict": self.test_model.state_dict(), "config": self.test_config}, f.name
+            )
 
             try:
                 is_valid, info = self.validator.validate_model_file(f.name)
                 self.assertTrue(is_valid)
-                self.assertIn('file_size_mb', info)
+                self.assertIn("file_size_mb", info)
             finally:
                 os.unlink(f.name)
 
@@ -222,23 +215,23 @@ class TestModelValidator(unittest.TestCase):
         """Test version compatibility validation."""
         # Create a test config that should pass validation
         test_config = {
-            'model_name': 'BERTEmotionClassifier',
-            'torch_version': '1.9.0',  # Mock compatible version
-            'transformers_version': '4.20.0'
+            "model_name": "BERTEmotionClassifier",
+            "torch_version": "1.9.0",  # Mock compatible version
+            "transformers_version": "4.20.0",
         }
         is_valid, info = self.validator.validate_version_compatibility(test_config)
         # Note: This may fail with current PyTorch version, but that's expected behavior
         # The test validates that the validation logic works correctly
-        self.assertIn('current_versions', info)
-        self.assertIn('required_versions', info)
+        self.assertIn("current_versions", info)
+        self.assertIn("required_versions", info)
 
     def test_validate_model_performance(self):
         """Test model performance validation."""
         test_input = torch.randn(1, 768)  # BERT hidden size
         is_valid, info = self.validator.validate_model_performance(self.test_model, test_input)
         self.assertTrue(is_valid)
-        self.assertIn('forward_pass_time', info)
-        self.assertIn('output_shape', info)
+        self.assertIn("forward_pass_time", info)
+        self.assertIn("output_shape", info)
 
 
 class TestSecureModelLoader(unittest.TestCase):
@@ -249,23 +242,26 @@ class TestSecureModelLoader(unittest.TestCase):
         self.loader = SecureModelLoader(
             enable_sandbox=False,  # Disable for testing
             enable_caching=True,
-            cache_dir=self.temp_dir
+            cache_dir=self.temp_dir,
         )
 
         # Create test model file with proper model type
         self.test_model = BERTEmotionClassifier()
         self.test_config = {
-            'model_name': 'BERTEmotionClassifier',
-            'num_emotions': 5,
-            'hidden_dropout_prob': 0.1
+            "model_name": "BERTEmotionClassifier",
+            "num_emotions": 5,
+            "hidden_dropout_prob": 0.1,
         }
 
         self.model_file = os.path.join(self.temp_dir, "test_model.pt")
-        torch.save({
-            'state_dict': self.test_model.state_dict(),
-            'config': self.test_config,
-            'model_name': 'BERTEmotionClassifier'  # Add model_name at top level
-        }, self.model_file)
+        torch.save(
+            {
+                "state_dict": self.test_model.state_dict(),
+                "config": self.test_config,
+                "model_name": "BERTEmotionClassifier",  # Add model_name at top level
+            },
+            self.model_file,
+        )
 
         # Calculate checksum for validation
         self.checker = IntegrityChecker()
@@ -280,14 +276,14 @@ class TestSecureModelLoader(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
 
         self.assertIsInstance(model, BERTEmotionClassifier)
-        self.assertIn('loading_time', info)
-        self.assertIn('cache_used', info)
-        self.assertIn('integrity_check', info)
-        self.assertIn('validation', info)
+        self.assertIn("loading_time", info)
+        self.assertIn("cache_used", info)
+        self.assertIn("integrity_check", info)
+        self.assertIn("validation", info)
 
     def test_validate_model(self):
         """Test model validation."""
@@ -295,12 +291,12 @@ class TestSecureModelLoader(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
 
         self.assertTrue(is_valid)
-        self.assertIn('integrity_check', info)
-        self.assertIn('validation', info)
+        self.assertIn("integrity_check", info)
+        self.assertIn("validation", info)
 
     def test_caching(self):
         """Test model caching."""
@@ -309,25 +305,25 @@ class TestSecureModelLoader(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
-        self.assertFalse(info1['cache_used'])
+        self.assertFalse(info1["cache_used"])
 
         # Load model second time (should use cache)
         model2, info2 = self.loader.load_model(
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
-        self.assertTrue(info2['cache_used'])
+        self.assertTrue(info2["cache_used"])
 
     def test_get_cache_info(self):
         """Test cache information retrieval."""
         cache_info = self.loader.get_cache_info()
-        self.assertIn('enabled', cache_info)
-        self.assertIn('cache_dir', cache_info)
-        self.assertIn('cache_size_mb', cache_info)
+        self.assertIn("enabled", cache_info)
+        self.assertIn("cache_dir", cache_info)
+        self.assertIn("cache_size_mb", cache_info)
 
     def test_clear_cache(self):
         """Test cache clearing."""
@@ -336,7 +332,7 @@ class TestSecureModelLoader(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use the correct model class name
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
 
         # Clear cache
@@ -344,7 +340,7 @@ class TestSecureModelLoader(unittest.TestCase):
 
         # Check cache is empty
         cache_info = self.loader.get_cache_info()
-        self.assertEqual(cache_info['cached_models'], 0)
+        self.assertEqual(cache_info["cached_models"], 0)
 
     def test_cleanup(self):
         """Test cleanup functionality."""
@@ -357,27 +353,28 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         self.temp_dir = tempfile.mkdtemp()
         self.loader = SecureModelLoader(
             enable_sandbox=True,
             enable_caching=True,
             cache_dir=self.temp_dir,
-            audit_log_file=os.path.join(self.temp_dir, "audit.log")
+            audit_log_file=os.path.join(self.temp_dir, "audit.log"),
         )
 
         # Create test model file
         self.test_model = BERTEmotionClassifier()
         self.test_config = {
-            'model_name': 'BERTEmotionClassifier',
-            'num_emotions': 5,
-            'hidden_dropout_prob': 0.1
+            "model_name": "BERTEmotionClassifier",
+            "num_emotions": 5,
+            "hidden_dropout_prob": 0.1,
         }
 
         self.model_file = os.path.join(self.temp_dir, "test_model.pt")
-        torch.save({
-            'state_dict': self.test_model.state_dict(),
-            'config': self.test_config
-        }, self.model_file)
+        torch.save(
+            {"state_dict": self.test_model.state_dict(), "config": self.test_config},
+            self.model_file,
+        )
 
         # Calculate checksum for validation
         self.checker = IntegrityChecker()
@@ -397,20 +394,20 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             BERTEmotionClassifier,  # Use proper model class
             expected_checksum=self.model_checksum,  # Provide checksum
             test_input=test_input,
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
 
         # Verify model loaded successfully
         self.assertIsInstance(model, BERTEmotionClassifier)
-        self.assertTrue(info['loading_time'] > 0)
+        self.assertTrue(info["loading_time"] > 0)
 
         # Verify security checks were performed
-        self.assertIn('integrity_check', info)
-        self.assertIn('validation', info)
-        self.assertIn('sandbox_execution', info)
+        self.assertIn("integrity_check", info)
+        self.assertIn("validation", info)
+        self.assertIn("sandbox_execution", info)
 
         # Verify no issues
-        self.assertEqual(len(info['issues']), 0)
+        self.assertEqual(len(info["issues"]), 0)
 
         # Test model inference
         with torch.no_grad():
@@ -423,16 +420,13 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         corrupted_model_file = os.path.join(self.temp_dir, "corrupted_model.pt")
 
         # Write corrupted data to file
-        with open(corrupted_model_file, 'wb') as f:
-            f.write(b'corrupted_data_not_a_torch_file')
+        with open(corrupted_model_file, "wb") as f:
+            f.write(b"corrupted_data_not_a_torch_file")
 
         # Attempt to load corrupted model
         try:
             model, info = self.loader.load_model(
-                corrupted_model_file,
-                TestModel,
-                input_size=10,
-                output_size=5
+                corrupted_model_file, TestModel, input_size=10, output_size=5
             )
             # Should not reach here
             self.fail("Should have raised an exception for corrupted model")
@@ -447,23 +441,19 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         suspicious_model = TestModel()
         suspicious_state_dict = suspicious_model.state_dict()
         # Add suspicious key that might indicate tampering
-        suspicious_state_dict['suspicious_layer.weight'] = torch.randn(10, 10)
+        suspicious_state_dict["suspicious_layer.weight"] = torch.randn(10, 10)
 
-        torch.save({
-            'state_dict': suspicious_state_dict,
-            'config': self.test_config
-        }, tampered_model_file)
+        torch.save(
+            {"state_dict": suspicious_state_dict, "config": self.test_config}, tampered_model_file
+        )
 
         # Attempt to load tampered model
         try:
             model, info = self.loader.load_model(
-                tampered_model_file,
-                TestModel,
-                input_size=10,
-                output_size=5
+                tampered_model_file, TestModel, input_size=10, output_size=5
             )
             # Should detect tampering or suspicious content
-            self.assertGreater(len(info['issues']), 0)
+            self.assertGreater(len(info["issues"]), 0)
         except Exception as e:
             # Exception is also acceptable for tampered models
             self.assertIsInstance(e, Exception)
@@ -475,7 +465,7 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             self.model_file,
             BERTEmotionClassifier,  # Use proper model class
             expected_checksum=self.model_checksum,  # Provide checksum
-            **self.test_config  # Provide model configuration
+            **self.test_config,  # Provide model configuration
         )
 
         # Check audit log file exists
@@ -483,10 +473,10 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         self.assertTrue(os.path.exists(audit_log_path))
 
         # Check audit log contains entries
-        with open(audit_log_path, 'r') as f:
+        with open(audit_log_path, "r") as f:
             log_content = f.read()
-            self.assertIn('AUDIT:', log_content)
+            self.assertIn("AUDIT:", log_content)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

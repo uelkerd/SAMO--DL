@@ -1,29 +1,31 @@
-                # Try to load the checkpoint
-        # Create new model
-        # Get predictions
-        # Load existing model
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Convert to numpy arrays
-    # Create simple labels (one emotion per text)
-    # Create test data
-    # Create tokenizer
-    # Find valid checkpoint
-    # Process test data
-    # Set optimal temperature
-# Configure logging
+# Try to load the checkpoint
+# Create new model
+# Get predictions
+# Load existing model
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Convert to numpy arrays
+# Create simple labels (one emotion per text)
+# Create test data
+# Create tokenizer
+# Find valid checkpoint
+# Process test data
+# Set optimal temperature
+
+import logging
+import sys
+
 # Constants
 #!/usr/bin/env python3
 from pathlib import Path
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
-import logging
+
 import numpy as np
-import sys
 import torch
 
-
+# Configure logging
+from sklearn.metrics import f1_score
+from transformers import AutoModel, AutoTokenizer
 
 """
 Fixed Model Calibration Test

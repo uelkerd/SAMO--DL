@@ -1,22 +1,20 @@
-    # Analyze loss pattern
-    # Check training logs
-    # Common causes of 0.0000 loss
-    # Create test script
-    # Look for training log files
-    # Scenario 1: Normal case
-    # Scenario 2: All zeros
-    # Scenario 3: All ones
-    # Scenario 4: Perfect predictions
-    # Scenario 5: Very small logits
-    # Suggest debugging steps
-    # Summary
+# Analyze loss pattern
+# Check training logs
+# Common causes of 0.0000 loss
+# Create test script
+# Look for training log files
+# Scenario 1: Normal case
+# Scenario 2: All zeros
+# Scenario 3: All ones
+# Scenario 4: Perfect predictions
+# Scenario 5: Very small logits
+# Suggest debugging steps
+# Summary
+import logging
+
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-import logging
-
-
-
 
 """
 Simple Loss Debug Script for SAMO Deep Learning.
@@ -40,7 +38,7 @@ def analyze_loss_pattern():
         "5. **Loss function bug** - Incorrect loss calculation",
         "6. **Data loading issue** - Empty or corrupted batches",
         "7. **Model architecture issue** - Model produces constant outputs",
-        "8. **Numerical precision** - Loss is very small but not exactly 0"
+        "8. **Numerical precision** - Loss is very small but not exactly 0",
     ]
 
     logger.info("📋 Possible causes of 0.0000 loss:")
@@ -54,11 +52,7 @@ def check_training_logs():
     """Check for patterns in training logs."""
     logger.info("🔍 Checking training log patterns...")
 
-    log_patterns = [
-        "*.log",
-        "logs/*.log",
-        ".logs/*.log"
-    ]
+    log_patterns = ["*.log", "logs/*.log", ".logs/*.log"]
 
     found_logs = []
     for pattern in log_patterns:
@@ -87,7 +81,7 @@ def suggest_debugging_steps():
         "5. **Check model outputs** - Verify model produces varied predictions",
         "6. **Test loss function** - Manually compute loss on sample data",
         "7. **Check for NaN/Inf** - Look for numerical instability",
-        "8. **Verify data loading** - Ensure batches contain valid data"
+        "8. **Verify data loading** - Ensure batches contain valid data",
     ]
 
     logger.info("📋 Recommended debugging steps:")
@@ -163,9 +157,9 @@ def main():
 
     create_test_script()
 
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("📋 SIMPLE DEBUG SUMMARY")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     logger.info("🎯 Most likely causes of 0.0000 loss:")
     logger.info("   1. All labels are zero (most common)")

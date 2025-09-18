@@ -30,19 +30,13 @@
     # Run all validations
     # Run validations
     # Summary
+import logging
+import sys
 # Add src to path
 # Configure logging
 from pathlib import Path
-import logging
+
 import numpy as np
-import sys
-
-
-
-
-
-
-
 
 """
 Local Validation and Debug Script for SAMO Deep Learning.

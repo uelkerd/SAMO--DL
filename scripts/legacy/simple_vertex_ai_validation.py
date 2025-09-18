@@ -4,14 +4,11 @@
         # Import Vertex AI
         # Initialize Vertex AI
         from google.cloud import aiplatform
-# Configure logging
-from pathlib import Path
 import logging
 import os
 import sys
-
-
-
+# Configure logging
+from pathlib import Path
 
 """
 Simple Vertex AI Validation for SAMO Deep Learning.

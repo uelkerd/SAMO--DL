@@ -5,23 +5,25 @@
 Comprehensive unit tests for API security components.
 """
 
-import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
-import unittest
+import sys
 import time
+import unittest
 
 # Import security components
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 class TestRateLimiter(unittest.TestCase):
     """Test rate limiter functionality."""
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         self.config = RateLimitConfig(
             requests_per_minute=60,
             burst_size=5,
@@ -29,19 +31,19 @@ class TestRateLimiter(unittest.TestCase):
             block_duration_seconds=300,
             max_concurrent_requests=3,
             enable_ip_blacklist=True,
-            blacklisted_ips={'192.168.1.100'},
+            blacklisted_ips={"192.168.1.100"},
             # Disable abuse detection for tests to focus on rate limiting
             enable_user_agent_analysis=False,
-            enable_request_pattern_analysis=False
+            enable_request_pattern_analysis=False,
         )
         self.rate_limiter = TokenBucketRateLimiter(self.config)
 
     def test_initial_state(self):
         """Test initial rate limiter state."""
         stats = self.rate_limiter.get_stats()
-        self.assertEqual(stats['active_buckets'], 0)
-        self.assertEqual(stats['blocked_clients'], 0)
-        self.assertEqual(stats['concurrent_requests'], 0)
+        self.assertEqual(stats["active_buckets"], 0)
+        self.assertEqual(stats["blocked_clients"], 0)
+        self.assertEqual(stats["concurrent_requests"], 0)
 
     def test_basic_rate_limiting(self):
         """Test basic rate limiting functionality."""
@@ -58,8 +60,8 @@ class TestRateLimiter(unittest.TestCase):
 
         # Check stats
         stats = self.rate_limiter.get_stats()
-        self.assertEqual(stats['active_buckets'], 1)
-        self.assertEqual(stats['concurrent_requests'], 0)
+        self.assertEqual(stats["active_buckets"], 1)
+        self.assertEqual(stats["concurrent_requests"], 0)
 
     def test_rate_limit_exceeded(self):
         """Test rate limit exceeded scenario."""
@@ -120,7 +122,9 @@ class TestRateLimiter(unittest.TestCase):
 
         # Simulate rapid-fire requests
         for i in range(11):  # More than 10 requests in 1 second
-            self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
+            self.rate_limiter.request_history[
+                self.rate_limiter._get_client_key(client_ip, user_agent)
+            ].append(time.time())
 
         # Next request should trigger abuse detection
         allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
@@ -174,11 +178,13 @@ class TestRateLimiter(unittest.TestCase):
         self.rate_limiter.remove_from_whitelist(test_ip)
         self.assertNotIn(test_ip, self.rate_limiter.config.whitelisted_ips)
 
+
 class TestInputSanitizer(unittest.TestCase):
     """Test input sanitizer functionality."""
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         self.config = SanitizationConfig(
             max_text_length=1000,
             max_batch_size=10,
@@ -187,7 +193,7 @@ class TestInputSanitizer(unittest.TestCase):
             enable_path_traversal_protection=True,
             enable_command_injection_protection=True,
             enable_unicode_normalization=True,
-            enable_content_type_validation=True
+            enable_content_type_validation=True,
         )
         self.sanitizer = InputSanitizer(self.config)
 
@@ -304,10 +310,8 @@ class TestInputSanitizer(unittest.TestCase):
         """Test JSON sanitization."""
         data = {
             "text": "<script>alert('xss')</script>",
-            "nested": {
-                "value": "'; DROP TABLE users; --"
-            },
-            "list": ["normal", "<iframe>malicious</iframe>"]
+            "nested": {"value": "'; DROP TABLE users; --"},
+            "list": ["normal", "<iframe>malicious</iframe>"],
         }
 
         sanitized_data, warnings = self.sanitizer.sanitize_json(data)
@@ -329,16 +333,19 @@ class TestInputSanitizer(unittest.TestCase):
         sanitized_data, warnings = self.sanitizer.sanitize_json(deep_data)
         # The sanitizer should block or warn about excessive depth
         self.assertTrue(
-            any("max depth" in str(w).lower() or "depth" in str(w).lower() for w in warnings) or
-            "[BLOCKED]" in str(sanitized_data)
+            any("max depth" in str(w).lower() or "depth" in str(w).lower() for w in warnings)
+            or "[BLOCKED]" in str(sanitized_data)
         )
+
 
 class TestSecurityHeaders(unittest.TestCase):
     """Test security headers middleware."""
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         from flask import Flask
+
         self.app = Flask(__name__)
         self.config = SecurityHeadersConfig(
             enable_csp=True,
@@ -353,7 +360,7 @@ class TestSecurityHeaders(unittest.TestCase):
             enable_cross_origin_resource_policy=True,
             enable_origin_agent_cluster=True,
             enable_request_id=True,
-            enable_correlation_id=True
+            enable_correlation_id=True,
         )
         self.middleware = SecurityHeadersMiddleware(self.app, self.config)
 
@@ -376,10 +383,9 @@ class TestSecurityHeaders(unittest.TestCase):
     def test_suspicious_pattern_detection(self):
         """Test suspicious pattern detection."""
         # Mock request with suspicious headers
-        with self.app.test_request_context('/test', headers={
-            'X-Forwarded-Host': 'malicious.com',
-            'User-Agent': 'sqlmap'
-        }):
+        with self.app.test_request_context(
+            "/test", headers={"X-Forwarded-Host": "malicious.com", "User-Agent": "sqlmap"}
+        ):
             patterns = self.middleware._detect_suspicious_patterns()
             # Check that patterns are detected (may be empty if no suspicious patterns found)
             if len(patterns) > 0:
@@ -395,20 +401,17 @@ class TestSecurityHeaders(unittest.TestCase):
         self.assertTrue(stats["config"]["enable_csp"])
         self.assertTrue(stats["config"]["enable_hsts"])
 
+
 class TestSecurityIntegration(unittest.TestCase):
     """Test security components integration."""
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         self.rate_limit_config = RateLimitConfig(
-            requests_per_minute=100,
-            burst_size=10,
-            max_concurrent_requests=5
+            requests_per_minute=100, burst_size=10, max_concurrent_requests=5
         )
-        self.sanitization_config = SanitizationConfig(
-            max_text_length=1000,
-            max_batch_size=10
-        )
+        self.sanitization_config = SanitizationConfig(max_text_length=1000, max_batch_size=10)
         self.rate_limiter = TokenBucketRateLimiter(self.rate_limit_config)
         self.sanitizer = InputSanitizer(self.sanitization_config)
 
@@ -433,7 +436,7 @@ class TestSecurityIntegration(unittest.TestCase):
 
         # Verify final state
         stats = self.rate_limiter.get_stats()
-        self.assertEqual(stats['concurrent_requests'], 0)
+        self.assertEqual(stats["concurrent_requests"], 0)
 
     def test_security_violation_handling(self):
         """Test security violation handling."""
@@ -442,7 +445,9 @@ class TestSecurityIntegration(unittest.TestCase):
 
         # Simulate abuse
         for i in range(15):  # Trigger abuse detection
-            self.rate_limiter.request_history[self.rate_limiter._get_client_key(client_ip, user_agent)].append(time.time())
+            self.rate_limiter.request_history[
+                self.rate_limiter._get_client_key(client_ip, user_agent)
+            ].append(time.time())
 
         # Next request should be blocked
         allowed, reason, meta = self.rate_limiter.allow_request(client_ip, user_agent)
@@ -451,8 +456,9 @@ class TestSecurityIntegration(unittest.TestCase):
 
         # Client should be blocked
         stats = self.rate_limiter.get_stats()
-        self.assertEqual(stats['blocked_clients'], 1)
+        self.assertEqual(stats["blocked_clients"], 1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Run tests
     unittest.main(verbosity=2)

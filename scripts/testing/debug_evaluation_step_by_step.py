@@ -1,27 +1,28 @@
-                    # Find top-1 prediction
-        # Apply fallback manually to see what happens
-        # Apply threshold
-        # Calculate F1 scores manually
-        # Check which samples need fallback
-        # Micro F1
-    # Get validation data (small batch for debugging)
-    # Initialize trainer
-    # Load model
-    # Run model inference
-    # Take just one batch for detailed analysis
-    # Test different thresholds
+# Find top-1 prediction
+# Apply fallback manually to see what happens
+# Apply threshold
+# Calculate F1 scores manually
+# Check which samples need fallback
+# Micro F1
+# Get validation data (small batch for debugging)
+# Initialize trainer
+# Load model
+# Run model inference
+# Take just one batch for detailed analysis
+# Test different thresholds
+
+import logging
+import sys
+
 # Add src to path
+from pathlib import Path
+
+import numpy as np
+import torch
+
 # Set up logging
 #!/usr/bin/env python3
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
-import logging
-import numpy as np
-import sys
-import torch
-
-
-
 
 """
 Debug the evaluation function step by step to find the exact issue.

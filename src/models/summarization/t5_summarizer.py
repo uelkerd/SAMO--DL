@@ -9,7 +9,7 @@ journal entries and other text content.
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import torch
 import torch.nn as nn
@@ -177,9 +177,9 @@ class T5SummarizationModel(nn.Module):
         return {
             "loss": outputs.loss if labels is not None else None,
             "logits": outputs.logits,
-            "hidden_states": outputs.decoder_hidden_states
-            if hasattr(outputs, "decoder_hidden_states")
-            else None,
+            "hidden_states": (
+                outputs.decoder_hidden_states if hasattr(outputs, "decoder_hidden_states") else None
+            ),
         }
 
     def generate_summary(
@@ -212,10 +212,7 @@ class T5SummarizationModel(nn.Module):
         # Reduce beams for larger models to avoid long runtimes on CPU
         default_beams = (
             2
-            if (
-                "base" in self.model_name.lower()
-                or "large" in self.model_name.lower()
-            )
+            if ("base" in self.model_name.lower() or "large" in self.model_name.lower())
             else self.config.num_beams
         )
         num_beams = num_beams or default_beams
@@ -290,10 +287,7 @@ class T5SummarizationModel(nn.Module):
             # Reduce beams for larger models to avoid long runtimes on CPU
             default_beams = (
                 2
-                if (
-                    "base" in self.model_name.lower()
-                    or "large" in self.model_name.lower()
-                )
+                if ("base" in self.model_name.lower() or "large" in self.model_name.lower())
                 else self.config.num_beams
             )
 
@@ -308,9 +302,7 @@ class T5SummarizationModel(nn.Module):
                     min_new_tokens=generation_kwargs.get(
                         "min_length", self.config.min_target_length
                     ),
-                    num_beams=generation_kwargs.get(
-                        "num_beams", default_beams
-                    ),
+                    num_beams=generation_kwargs.get("num_beams", default_beams),
                     length_penalty=generation_kwargs.get(
                         "length_penalty", self.config.length_penalty
                     ),

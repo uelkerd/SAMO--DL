@@ -108,9 +108,8 @@ class TextPreprocessor:
         df[output_column] = df[text_column].astype(str).apply(self.preprocess_text)
         return df
 
-    def extract_features(
-        self, df: pd.DataFrame, text_column: str = "processed_text"
-    ) -> pd.DataFrame:
+    @staticmethod
+    def extract_features(df: pd.DataFrame, text_column: str = "processed_text") -> pd.DataFrame:
         """Extract basic text features from preprocessed text.
 
         Args:

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import os
 import json
-import time
+import os
 import sys
+import time
 from typing import List, Tuple
 
 import requests

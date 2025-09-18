@@ -19,11 +19,11 @@ import time
 from pathlib import Path
 
 import numpy as np
-import onnx
-import onnxruntime as ort
 import torch
 from transformers import AutoTokenizer
 
+import onnx
+import onnxruntime as ort
 from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 # Add project root to Python path - more robust for CI environments
@@ -37,7 +37,7 @@ logging.info(f"sys.path: {sys.path}")
 logging.info(f"Project root added to path: {project_root}")
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 

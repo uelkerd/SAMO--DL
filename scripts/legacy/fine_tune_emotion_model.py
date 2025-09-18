@@ -15,20 +15,19 @@
         # Training loop
         import traceback
     # Setup device
-# Add project root to path
-# Configure logging
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
 import logging
 import os
 import sys
+# Add project root to path
+# Configure logging
+from pathlib import Path
+
 import torch
+from torch import nn
 
-
-
-
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import \
+    create_bert_emotion_classifier
 
 """
 Fine-tune Emotion Detection Model on GoEmotions Dataset

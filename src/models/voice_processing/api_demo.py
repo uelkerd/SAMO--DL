@@ -1,51 +1,53 @@
-                # Add error result
-                # Add to results
-                # Save to temporary file
-                # Transcribe
-                # Validate audio
-                # Validate file
-            # Get audio metadata
-        # Calculate batch metrics
-        # Cleanup temporary file
-        # Cleanup temporary files
-        # Convert to API response
-        # Create temporary file
-        # In a real implementation, you might transcribe a short test audio
-        # Process each file
-        # Transcribe audio
-        # Validate audio file
-        # Validate with AudioPreprocessor
-        # Write uploaded content
-    # Add API information
-    # Basic format validation
-    # Save and validate audio content
-    # Save uploaded file temporarily
-    # Shutdown: Cleanup
-    # Startup: Load Whisper model
-    # Validate file type
+# Add error result
+# Add to results
+# Save to temporary file
+# Transcribe
+# Validate audio
+# Validate file
+# Get audio metadata
+# Calculate batch metrics
+# Cleanup temporary file
+# Cleanup temporary files
+# Convert to API response
+# Create temporary file
+# In a real implementation, you might transcribe a short test audio
+# Process each file
+# Transcribe audio
+# Validate audio file
+# Validate with AudioPreprocessor
+# Write uploaded content
+# Add API information
+# Basic format validation
+# Save and validate audio content
+# Save uploaded file temporarily
+# Shutdown: Cleanup
+# Startup: Load Whisper model
+# Validate file type
 # API Endpoints
 # Configure logging
 # Error Handlers
-# G004: Logging f-strings temporarily allowed for development
-# Global model instance (loaded on startup)
-# Initialize FastAPI with lifecycle management
-# Request/Response Models
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
-from contextlib import asynccontextmanager, suppress
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
+
+
 import logging
 import os
 import tempfile
 import time
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import uvicorn
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
+# Initialize FastAPI with lifecycle management
+# Request/Response Models
+from .audio_preprocessor import AudioPreprocessor
 
-
+# G004: Logging f-strings temporarily allowed for development
+# Global model instance (loaded on startup)
+from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

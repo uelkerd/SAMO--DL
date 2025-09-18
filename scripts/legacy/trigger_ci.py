@@ -8,7 +8,7 @@ import subprocess
 from typing import Tuple
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def run_command(cmd: str, description: str) -> Tuple[bool, str]:

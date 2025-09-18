@@ -19,6 +19,7 @@ except ImportError:
     # Alternative import path
     from src.models.summarization.samo_t5_summarizer import create_samo_t5_summarizer
 
+
 def test_summarizer_initialization():
     """Test summarizer initialization and model info."""
     print("1. Initializing SAMO T5 Summarizer...")
@@ -29,9 +30,9 @@ def test_summarizer_initialization():
     # Test model info
     print("\n2. Checking model information...")
     model_info = summarizer.get_model_info()
-    assert model_info['model_loaded'], "Model should be loaded"
-    assert model_info['tokenizer_loaded'], "Tokenizer should be loaded"
-    assert model_info['model_name'] == "t5-small", "Should use t5-small model"
+    assert model_info["model_loaded"], "Model should be loaded"
+    assert model_info["tokenizer_loaded"], "Tokenizer should be loaded"
+    assert model_info["model_name"] == "t5-small", "Should use t5-small model"
 
     print(f"   Model: {model_info['model_name']}")
     print(f"   Device: {model_info['device']}")
@@ -82,7 +83,7 @@ def test_batch_processing(summarizer):
     test_texts = [
         "I'm feeling really happy today because I accomplished my goals and I'm excited about the future possibilities that lie ahead.",
         "This has been a challenging week with many obstacles to overcome but I'm grateful for the lessons learned and the growth I've experienced.",
-        "I'm grateful for all the support I've received from my friends and family during this difficult time and I know I can count on them."
+        "I'm grateful for all the support I've received from my friends and family during this difficult time and I know I can count on them.",
     ]
 
     batch_results = summarizer.generate_batch_summaries(test_texts)
@@ -96,8 +97,12 @@ def test_batch_processing(summarizer):
     # Assert each summary is non-empty and emotional keywords are extracted
     for idx, result in enumerate(batch_results):
         assert result["success"], f"Batch summary {idx} failed"
-        assert "summary" in result and isinstance(result["summary"], str) and result["summary"].strip(), f"Summary {idx} is empty"
-        assert "emotional_keywords" in result and isinstance(result["emotional_keywords"], list), f"Emotional keywords missing for input {idx}"
+        assert (
+            "summary" in result and isinstance(result["summary"], str) and result["summary"].strip()
+        ), f"Summary {idx} is empty"
+        assert "emotional_keywords" in result and isinstance(
+            result["emotional_keywords"], list
+        ), f"Emotional keywords missing for input {idx}"
 
 
 def test_error_handling(summarizer):
@@ -148,8 +153,10 @@ def test_samo_t5_summarizer():
     except Exception as e:
         print(f"❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = test_samo_t5_summarizer()

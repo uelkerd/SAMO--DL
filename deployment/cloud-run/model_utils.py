@@ -9,10 +9,10 @@ import logging
 import os
 import threading
 import time
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 from transformers.pipelines import TextClassificationPipeline
 
 # Import centralized constants with fallback for non-package environments
@@ -20,8 +20,7 @@ try:
     from src.constants import EMOTION_MODEL_DIR  # single source of truth
 except ImportError:
     EMOTION_MODEL_DIR = os.getenv(
-        'EMOTION_MODEL_DIR',
-        '/app/models/emotion-english-distilroberta-base'
+        "EMOTION_MODEL_DIR", "/app/models/emotion-english-distilroberta-base"
     )
 
 logger = logging.getLogger(__name__)
@@ -34,16 +33,12 @@ model_lock = threading.Lock()
 model_ready_event = threading.Event()
 
 # Configuration
-EMOTION_PROVIDER = os.getenv('EMOTION_PROVIDER', 'hf')
-EMOTION_LOCAL_ONLY = os.getenv('EMOTION_LOCAL_ONLY', '1').lower() in (
-    '1', 'true', 'yes'
-)
-MAX_TEXT_LENGTH = int(os.getenv('MAX_TEXT_LENGTH', '1000'))
+EMOTION_PROVIDER = os.getenv("EMOTION_PROVIDER", "hf")
+EMOTION_LOCAL_ONLY = os.getenv("EMOTION_LOCAL_ONLY", "1").lower() in ("1", "true", "yes")
+MAX_TEXT_LENGTH = int(os.getenv("MAX_TEXT_LENGTH", "1000"))
 
 # Emotion labels for the HF emotion model (6 classes)
-EMOTION_LABELS = [
-    'anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise'
-]
+EMOTION_LABELS = ["anger", "disgust", "fear", "joy", "neutral", "sadness", "surprise"]
 
 # Runtime emotion labels
 emotion_labels_runtime: List[str] = EMOTION_LABELS.copy()
@@ -64,12 +59,12 @@ def _create_emotion_pipeline(tokenizer, model) -> TextClassificationPipeline:
         model=model,
         tokenizer=tokenizer,
         return_all_scores=True,
-        device=0 if torch.cuda.is_available() else -1
+        device=0 if torch.cuda.is_available() else -1,
     )
 
 
 def _validate_and_prepare_texts(
-    texts: List[str]
+    texts: List[str],
 ) -> Tuple[List[Optional[Dict[str, Any]]], List[str], List[int]]:
     """Validate input texts and prepare them for batch processing.
 
@@ -86,21 +81,21 @@ def _validate_and_prepare_texts(
     for i, text in enumerate(texts):
         if not isinstance(text, str):
             results[i] = {
-                'error': 'Text must be a non-empty string',
-                'emotions': [],
-                'confidence': 0.0
+                "error": "Text must be a non-empty string",
+                "emotions": [],
+                "confidence": 0.0,
             }
         elif not text.strip():
             results[i] = {
-                'error': 'Text must be a non-empty string',
-                'emotions': [],
-                'confidence': 0.0
+                "error": "Text must be a non-empty string",
+                "emotions": [],
+                "confidence": 0.0,
             }
         elif len(text) > MAX_TEXT_LENGTH:
             results[i] = {
-                'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)',
-                'emotions': [],
-                'confidence': 0.0
+                "error": f"Text too long (max {MAX_TEXT_LENGTH} characters)",
+                "emotions": [],
+                "confidence": 0.0,
             }
         else:
             valid_texts.append(text)
@@ -137,11 +132,8 @@ def ensure_model_loaded() -> bool:
         # Check if local model directory exists
         if EMOTION_LOCAL_ONLY and os.path.isdir(EMOTION_MODEL_DIR):
             # Load from local directory
-            logger.info("📁 Loading from local model directory: %s",
-                        EMOTION_MODEL_DIR)
-            tokenizer = AutoTokenizer.from_pretrained(
-                EMOTION_MODEL_DIR, local_files_only=True
-            )
+            logger.info("📁 Loading from local model directory: %s", EMOTION_MODEL_DIR)
+            tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
             model = AutoModelForSequenceClassification.from_pretrained(
                 EMOTION_MODEL_DIR, local_files_only=True
             )
@@ -155,25 +147,23 @@ def ensure_model_loaded() -> bool:
                     task="text-classification",
                     model="j-hartmann/emotion-english-distilroberta-base",
                     return_all_scores=True,
-                    device=0 if torch.cuda.is_available() else -1
+                    device=0 if torch.cuda.is_available() else -1,
                 )
                 logger.info("✅ Emotion model loaded from Hugging Face Hub")
             except Exception as download_error:
-                logger.warning("Failed to load from cache, downloading model: %s",
-                               download_error)
+                logger.warning("Failed to load from cache, downloading model: %s", download_error)
                 # Force download the model
                 from huggingface_hub import snapshot_download
+
                 model_path = snapshot_download(
                     repo_id="j-hartmann/emotion-english-distilroberta-base",
                     local_dir=EMOTION_MODEL_DIR,
-                    local_dir_use_symlinks=False
+                    local_dir_use_symlinks=False,
                 )
                 logger.info("📥 Model downloaded to: %s", model_path)
 
                 # Load from downloaded directory
-                tokenizer = AutoTokenizer.from_pretrained(
-                    EMOTION_MODEL_DIR, local_files_only=True
-                )
+                tokenizer = AutoTokenizer.from_pretrained(EMOTION_MODEL_DIR, local_files_only=True)
                 model = AutoModelForSequenceClassification.from_pretrained(
                     EMOTION_MODEL_DIR, local_files_only=True
                 )
@@ -183,9 +173,7 @@ def ensure_model_loaded() -> bool:
         # Update runtime labels from loaded model if available
         try:
             id2label = emotion_pipeline.model.config.id2label
-            emotion_labels_runtime = [
-                id2label[i] for i in range(len(id2label))
-            ]
+            emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
         except Exception as label_err:
             logger.debug("Unable to derive runtime labels from model config: %s", label_err)
         with model_lock:
@@ -217,14 +205,10 @@ def predict_emotions(text: str) -> Dict[str, Any]:
     # Validate input first
     ok, err = validate_text_input(text)
     if not ok:
-        return {'error': err, 'emotions': [], 'confidence': 0.0}
+        return {"error": err, "emotions": [], "confidence": 0.0}
 
     if not ensure_model_loaded():
-        return {
-            'error': 'Emotion model not available',
-            'emotions': [],
-            'confidence': 0.0
-        }
+        return {"error": "Emotion model not available", "emotions": [], "confidence": 0.0}
 
     try:
 
@@ -234,31 +218,24 @@ def predict_emotions(text: str) -> Dict[str, Any]:
         # Format results to match expected output
         emotions = []
         for result in results[0]:  # results is a list with one item for single text
-            emotions.append({
-                'emotion': result['label'],
-                'confidence': result['score']
-            })
+            emotions.append({"emotion": result["label"], "confidence": result["score"]})
 
         # Sort by confidence (highest first)
-        emotions.sort(key=lambda x: x['confidence'], reverse=True)
+        emotions.sort(key=lambda x: x["confidence"], reverse=True)
 
         # Overall confidence is the highest confidence score
-        overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+        overall_confidence = emotions[0]["confidence"] if emotions else 0.0
 
         return {
-            'text': text,
-            'emotions': emotions,
-            'confidence': overall_confidence,
-            'timestamp': time.time()
+            "text": text,
+            "emotions": emotions,
+            "confidence": overall_confidence,
+            "timestamp": time.time(),
         }
 
     except Exception as e:
         logger.exception("❌ Emotion prediction failed: %s", e)
-        return {
-            'error': 'Emotion prediction failed',
-            'emotions': [],
-            'confidence': 0.0
-        }
+        return {"error": "Emotion prediction failed", "emotions": [], "confidence": 0.0}
 
 
 def get_model_status() -> Dict[str, Any]:
@@ -268,14 +245,14 @@ def get_model_status() -> Dict[str, Any]:
         Dict[str, Any]: Model status information
     """
     return {
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'model_dir': EMOTION_MODEL_DIR,
-        'model_provider': EMOTION_PROVIDER,
-        'local_only': EMOTION_LOCAL_ONLY,
-        'max_text_length': MAX_TEXT_LENGTH,
-        'emotion_labels': emotion_labels_runtime,
-        'timestamp': time.time()
+        "model_loaded": model_loaded,
+        "model_loading": model_loading,
+        "model_dir": EMOTION_MODEL_DIR,
+        "model_provider": EMOTION_PROVIDER,
+        "local_only": EMOTION_LOCAL_ONLY,
+        "max_text_length": MAX_TEXT_LENGTH,
+        "emotion_labels": emotion_labels_runtime,
+        "timestamp": time.time(),
     }
 
 
@@ -289,16 +266,14 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
         List[Dict[str, Any]]: List of prediction results for each text
     """
     if not ensure_model_loaded():
-        return [{
-            'error': 'Emotion model not available',
-            'emotions': [],
-            'confidence': 0.0
-        } for _ in texts]
+        return [
+            {"error": "Emotion model not available", "emotions": [], "confidence": 0.0}
+            for _ in texts
+        ]
 
     try:
         # Validate and prepare texts for processing
-        results, valid_texts_to_process, valid_indices = \
-            _validate_and_prepare_texts(texts)
+        results, valid_texts_to_process, valid_indices = _validate_and_prepare_texts(texts)
 
         # Only run pipeline if there are valid texts
         if valid_texts_to_process:
@@ -312,35 +287,31 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
 
                 # Convert emotion results to list comprehension
                 emotions = [
-                    {
-                        'emotion': emotion_result['label'],
-                        'confidence': emotion_result['score']
-                    }
+                    {"emotion": emotion_result["label"], "confidence": emotion_result["score"]}
                     for emotion_result in result
                 ]
 
                 # Sort by confidence (highest first)
-                emotions.sort(key=lambda x: x['confidence'], reverse=True)
+                emotions.sort(key=lambda x: x["confidence"], reverse=True)
 
                 # Overall confidence is the highest confidence score
-                overall_confidence = emotions[0]['confidence'] if emotions else 0.0
+                overall_confidence = emotions[0]["confidence"] if emotions else 0.0
 
                 results[original_idx] = {
-                    'text': text,
-                    'emotions': emotions,
-                    'confidence': overall_confidence,
-                    'timestamp': time.time()
+                    "text": text,
+                    "emotions": emotions,
+                    "confidence": overall_confidence,
+                    "timestamp": time.time(),
                 }
 
         return results
 
     except Exception as e:
         logger.exception("❌ Batch emotion prediction failed: %s", e)
-        return [{
-            'error': 'Batch emotion prediction failed',
-            'emotions': [],
-            'confidence': 0.0
-        } for _ in texts]
+        return [
+            {"error": "Batch emotion prediction failed", "emotions": [], "confidence": 0.0}
+            for _ in texts
+        ]
 
 
 def validate_text_input(text: str) -> Tuple[bool, str]:
@@ -354,7 +325,7 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         Tuple[bool, str]: (is_valid, error_message)
     """
     if not isinstance(text, str) or not text.strip():
-        return False, 'Text must be a non-empty string'
+        return False, "Text must be a non-empty string"
     if len(text) > MAX_TEXT_LENGTH:
-        return False, f'Text too long (max {MAX_TEXT_LENGTH} characters)'
-    return True, ''
+        return False, f"Text too long (max {MAX_TEXT_LENGTH} characters)"
+    return True, ""

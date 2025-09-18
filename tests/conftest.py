@@ -1,17 +1,18 @@
-    # Create a simple sine wave for testing
+# Create a simple sine wave for testing
+import os
+import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import numpy as np
+import pytest
+import torch
+
 # Custom markers for test categorization
 # Skip GPU tests if CUDA not available
 from fastapi.testclient import TestClient
-from pathlib import Path
+
 from src.unified_ai_api import app
-from unittest.mock import Mock, patch
-import numpy as np
-import os
-import pytest
-import tempfile
-import torch
-
-
 
 """
 SAMO Deep Learning - Pytest Configuration and Shared Fixtures
@@ -105,7 +106,7 @@ def api_client():
     client = TestClient(app)
 
     # Reset rate limiter state before each test
-    if hasattr(app.state, 'rate_limiter'):
+    if hasattr(app.state, "rate_limiter"):
         app.state.rate_limiter.reset_state()
 
     return client

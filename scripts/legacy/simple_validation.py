@@ -9,18 +9,12 @@
     # Check if we have the deployment guide
     # Summary
     import subprocess
+import logging
+import sys
 # Configure logging
 from pathlib import Path
-import logging
+
 import numpy as np
-import sys
-
-
-
-
-
-
-
 
 """
 Simple Validation for GCP Deployment

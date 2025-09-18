@@ -1,24 +1,26 @@
-        # Create model
-        # Load checkpoint
-        # Load state dict
-        # Save model
-        # Set temperature
-        # Update threshold
-    # Find an existing model file
-# Add src to path
-# Configure logging
-# Constants
-#!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+# Create model
+# Load checkpoint
+# Load state dict
+# Save model
+# Set temperature
+# Update threshold
+# Find an existing model file
+
+
 import argparse
 import logging
 import os
 import sys
+
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+
 import torch
 
-
-
+# Add src to path
+# Configure logging
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Update Model Threshold

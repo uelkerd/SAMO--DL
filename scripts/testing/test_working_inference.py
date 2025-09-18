@@ -4,10 +4,12 @@ Working Inference Test Script for Emotion Detection Model
 Uses public roberta-base tokenizer and maps generic labels to emotions
 """
 
-import torch
 import json
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def test_working_inference():
     """Test inference with public roberta-base tokenizer"""
@@ -16,8 +18,8 @@ def test_working_inference():
     print("=" * 50)
 
     # Check if model files exist
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     print(f"📁 Checking model directory: {model_dir}")
 
@@ -37,14 +39,27 @@ def test_working_inference():
     print("\n✅ All model files found!")
 
     # Load config to understand the model
-    with open(model_dir / 'config.json', 'r') as f:
+    with open(model_dir / "config.json", "r") as f:
         config = json.load(f)
 
     print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
     print(f"📊 Number of labels: {len(config.get('id2label', {}))}")
 
     # Define emotion mapping based on your training order
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+    emotion_mapping = [
+        "anxious",
+        "calm",
+        "content",
+        "excited",
+        "frustrated",
+        "grateful",
+        "happy",
+        "hopeful",
+        "overwhelmed",
+        "proud",
+        "sad",
+        "tired",
+    ]
     print(f"🎯 Emotion mapping: {emotion_mapping}")
 
     try:
@@ -54,7 +69,7 @@ def test_working_inference():
         print(f"🔧 Loading model from: {model_dir}")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
@@ -66,7 +81,7 @@ def test_working_inference():
             "I'm so frustrated with this project.",
             "I feel anxious about the presentation.",
             "I'm grateful for all the support.",
-            "I'm feeling overwhelmed with tasks."
+            "I'm feeling overwhelmed with tasks.",
         ]
 
         print(f"\n🧪 Testing inference...")
@@ -76,7 +91,9 @@ def test_working_inference():
             print(f"\n{i}. Text: {text}")
 
             # Tokenize
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             # Predict
@@ -98,6 +115,7 @@ def test_working_inference():
         print(f"\n❌ Error during inference: {str(e)}")
         return False
 
+
 def test_simple_inference():
     """Simple inference test as fallback"""
 
@@ -105,7 +123,7 @@ def test_simple_inference():
     print("=" * 50)
 
     try:
-        model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
+        model_dir = Path(__file__).parent.parent / "deployment" / "model"
 
         print(f"🔧 Loading tokenizer and model from: {model_dir}")
 
@@ -113,7 +131,7 @@ def test_simple_inference():
         tokenizer = AutoTokenizer.from_pretrained("roberta-base")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
@@ -128,7 +146,20 @@ def test_simple_inference():
             predicted_class = torch.argmax(probabilities, dim=1).item()
             confidence = probabilities[0][predicted_class].item()
 
-        emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        emotion_mapping = [
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
+        ]
         emotion = emotion_mapping[predicted_class]
 
         print(f"✅ Simple test successful!")
@@ -139,6 +170,7 @@ def test_simple_inference():
     except Exception as e:
         print(f"❌ Error during simple inference: {str(e)}")
         return False
+
 
 if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - WORKING TEST")

@@ -1,25 +1,24 @@
-    # --- Calibration Search ---
-    # --- Load Data ---
-    # --- Load Model ---
-    # --- Report Results ---
-#!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+# --- Calibration Search ---
+# --- Load Data ---
+# --- Load Model ---
+# --- Report Results ---
+import logging
+import sys
 from pathlib import Path
+
+import numpy as np
+import torch
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import AutoTokenizer
-import logging
-import numpy as np
-import sys
-import torch
 
-
-
-
-
-
+#!/usr/bin/env python3
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset,
+    create_bert_emotion_classifier,
+)
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 """
 Model Calibration Script
@@ -29,6 +28,7 @@ model by evaluating its performance on the validation set across a range of valu
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
 
 def calibrate_model():
     """Find the best temperature and threshold for the model."""

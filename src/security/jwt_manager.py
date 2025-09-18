@@ -131,9 +131,7 @@ class JWTManager:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             exp_timestamp = payload.get("exp")
-            exp_datetime = (
-                datetime.fromtimestamp(exp_timestamp) if exp_timestamp else None
-            )
+            exp_datetime = datetime.fromtimestamp(exp_timestamp) if exp_timestamp else None
             self.blacklisted_tokens[token] = exp_datetime
             return True
         except jwt.InvalidTokenError:

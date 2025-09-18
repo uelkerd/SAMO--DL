@@ -3,14 +3,15 @@
 
 This is a simplified version that loads models on-demand to avoid startup timeout issues.
 """
-import os
 import logging
+import os
 from functools import lru_cache
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+
 import torch
 import uvicorn
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +20,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="SAMO Unified AI API",
     description="Unified AI API for emotion detection, text summarization, and voice processing",
-    version="1.0.0"
+    version="1.0.0",
 )
+
 
 # CORS configuration from environment variables
 def get_cors_origins():
@@ -39,10 +41,11 @@ def get_cors_origins():
         "http://localhost:8082",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:8082"
+        "http://127.0.0.1:8082",
     ]
     logger.warning("No CORS_ORIGINS configured, using development defaults")
     return dev_origins
+
 
 def get_cors_origin_regex():
     """Get CORS origin regex patterns for dynamic hosts."""
@@ -60,15 +63,16 @@ def get_cors_origin_regex():
     default_patterns = [
         r"https://.*\.vercel\.app$",  # Vercel deployments
         r"https://.*\.netlify\.app$",  # Netlify deployments
-        r"https://.*\.github\.io$",    # GitHub Pages
-        r"http://localhost:\d+$",      # Local development with any port
-        r"http://127\.0\.0\.1:\d+$",   # Local development with any port
+        r"https://.*\.github\.io$",  # GitHub Pages
+        r"http://localhost:\d+$",  # Local development with any port
+        r"http://127\.0\.0\.1:\d+$",  # Local development with any port
     ]
     # Combine default patterns with alternation operator and wrap in non-capturing group
     combined_regex = f"^(?:{'|'.join(default_patterns)})$"
     logger.info(f"Default CORS origin regex patterns: {default_patterns}")
     logger.info(f"Combined CORS origin regex: {combined_regex}")
     return combined_regex
+
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
@@ -83,22 +87,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class EmotionRequest(BaseModel):
     text: str
 
+
 class SummarizeRequest(BaseModel):
     text: str
 
+
 # Global variables for lazy loading
 emotion_model = None
+
 
 @lru_cache(maxsize=1)
 def _load_emotion_model():
     """Load and cache emotion detection model."""
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-    model_name = 'duelker/samo-goemotions-deberta-v3-large'
+    model_name = "duelker/samo-goemotions-deberta-v3-large"
     logger.info(f"Loading emotion model: {model_name}")
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -111,8 +119,11 @@ def _load_emotion_model():
 
     logger.info("Emotion model loaded and cached successfully")
     return tokenizer, model, device
+
+
 summarization_model = None
 whisper_model = None
+
 
 @app.get("/")
 async def root():
@@ -121,18 +132,21 @@ async def root():
         "message": "SAMO Unified AI API",
         "version": "1.0.0",
         "status": "running",
-        "features": ["emotion_detection", "text_summarization", "voice_processing"]
+        "features": ["emotion_detection", "text_summarization", "voice_processing"],
     }
+
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "message": "API is running"}
 
+
 @app.get("/api/health")
 async def api_health():
     """API health check endpoint."""
     return {"status": "healthy", "message": "API is running"}
+
 
 @app.post("/analyze/emotion")
 async def analyze_emotion(request: EmotionRequest):
@@ -167,24 +181,47 @@ async def analyze_emotion(request: EmotionRequest):
                 emotion_labels = list(id2label.values())
         else:
             emotion_labels = [
-                'admiration','amusement','anger','annoyance','approval','caring',
-                'confusion','curiosity','desire','disappointment','disapproval',
-                'disgust','embarrassment','excitement','fear','gratitude','grief',
-                'joy','love','nervousness','optimism','pride','realization',
-                'relief','remorse','sadness','surprise','neutral'
+                "admiration",
+                "amusement",
+                "anger",
+                "annoyance",
+                "approval",
+                "caring",
+                "confusion",
+                "curiosity",
+                "desire",
+                "disappointment",
+                "disapproval",
+                "disgust",
+                "embarrassment",
+                "excitement",
+                "fear",
+                "gratitude",
+                "grief",
+                "joy",
+                "love",
+                "nervousness",
+                "optimism",
+                "pride",
+                "realization",
+                "relief",
+                "remorse",
+                "sadness",
+                "surprise",
+                "neutral",
             ]
         emotion_scores = predictions[0].tolist()
         predicted_emotion = emotion_labels[emotion_scores.index(max(emotion_scores))]
 
-        logger.info("Emotion analysis completed successfully", extra={
-            "predicted_emotion": predicted_emotion,
-            "max_confidence": max(emotion_scores)
-        })
+        logger.info(
+            "Emotion analysis completed successfully",
+            extra={"predicted_emotion": predicted_emotion, "max_confidence": max(emotion_scores)},
+        )
 
         result = {
             "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
-            "predicted_emotion": predicted_emotion
+            "predicted_emotion": predicted_emotion,
         }
 
         return result
@@ -196,6 +233,7 @@ async def analyze_emotion(request: EmotionRequest):
         logger.exception("Error in emotion analysis")
         raise HTTPException(status_code=500, detail="Emotion analysis failed") from e
 
+
 @app.post("/analyze/summarize")
 async def summarize_text(request: SummarizeRequest):
     """Summarize text using T5 model."""
@@ -203,12 +241,17 @@ async def summarize_text(request: SummarizeRequest):
         # Input validation
         text = request.text
         if not text or not isinstance(text, str) or not text.strip():
-            raise HTTPException(status_code=400, detail="Text input is required and cannot be empty")
+            raise HTTPException(
+                status_code=400, detail="Text input is required and cannot be empty"
+            )
 
         # Enforce maximum length
         MAX_TEXT_LENGTH = 10000
         if len(text) > MAX_TEXT_LENGTH:
-            raise HTTPException(status_code=400, detail=f"Text too long. Maximum length is {MAX_TEXT_LENGTH} characters")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Text too long. Maximum length is {MAX_TEXT_LENGTH} characters",
+            )
 
         # Lazy load summarization model
         global summarization_model
@@ -217,12 +260,17 @@ async def summarize_text(request: SummarizeRequest):
             try:
                 import sentencepiece  # Required for T5 tokenizer
             except ImportError as e:
-                logger.exception("sentencepiece not installed. Please install it: pip install sentencepiece")
-                raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.") from e
+                logger.exception(
+                    "sentencepiece not installed. Please install it: pip install sentencepiece"
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Summarization model requires sentencepiece. Please install it.",
+                ) from e
 
             from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-            model_name = 't5-small'
+            model_name = "t5-small"
             tokenizer = T5Tokenizer.from_pretrained(model_name)
             model = T5ForConditionalGeneration.from_pretrained(model_name)
 
@@ -236,7 +284,9 @@ async def summarize_text(request: SummarizeRequest):
 
         # Perform summarization with safe inference
         device = summarization_model["device"]
-        inputs = summarization_model["tokenizer"](f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True)
+        inputs = summarization_model["tokenizer"](
+            f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
+        )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.no_grad():
@@ -246,24 +296,24 @@ async def summarize_text(request: SummarizeRequest):
                 min_length=30,
                 length_penalty=2.0,
                 num_beams=4,
-                early_stopping=True
+                early_stopping=True,
             )
 
         # Detach and move to CPU before decoding
         outputs = outputs.detach().cpu()
         summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
 
-        return {
-            "original_text": text,
-            "summary": summary
-        }
+        return {"original_text": text, "summary": summary}
 
     except ImportError as e:
         logger.exception("Missing dependency for summarization")
-        raise HTTPException(status_code=500, detail="Summarization model requires sentencepiece. Please install it.") from e
+        raise HTTPException(
+            status_code=500, detail="Summarization model requires sentencepiece. Please install it."
+        ) from e
     except Exception as e:
         logger.exception("Error in text summarization")
         raise HTTPException(status_code=500, detail="Text summarization failed") from e
+
 
 @app.post("/analyze/transcribe")
 async def transcribe_audio(audio_file: UploadFile = File(...)):
@@ -274,11 +324,13 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
         if whisper_model is None:
             logger.info("Loading Whisper model...")
             import whisper
+
             whisper_model = whisper.load_model("base")
             logger.info("Whisper model loaded successfully")
 
         # Validate audio file
         from pathlib import Path
+
         filename = getattr(audio_file, "filename", "") or ""
         suffix = Path(filename).suffix or ".wav"
         content = await audio_file.read()
@@ -286,13 +338,14 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Empty audio file")
         if len(content) > 25 * 1024 * 1024:
             raise HTTPException(status_code=413, detail="Audio file too large (max 25 MB)")
-        allowed_suffixes = {".wav",".mp3",".m4a",".mp4",".ogg",".webm",".flac",".aac"}
+        allowed_suffixes = {".wav", ".mp3", ".m4a", ".mp4", ".ogg", ".webm", ".flac", ".aac"}
         content_type = getattr(audio_file, "content_type", "") or ""
         if suffix.lower() not in allowed_suffixes and not content_type.startswith("audio/"):
             raise HTTPException(status_code=400, detail="Unsupported audio format")
 
         # Save audio file temporarily
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp_file:
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
@@ -302,10 +355,7 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
             result = whisper_model.transcribe(tmp_file_path)
             transcription = result["text"]
 
-            return {
-                "transcription": transcription,
-                "language": result.get("language", "unknown")
-            }
+            return {"transcription": transcription, "language": result.get("language", "unknown")}
         finally:
             # Clean up temporary file
             os.unlink(tmp_file_path)
@@ -313,6 +363,7 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
     except Exception:
         logger.exception("Error in audio transcription")
         raise HTTPException(status_code=500, detail="Audio transcription failed")
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

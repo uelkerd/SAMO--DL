@@ -65,9 +65,7 @@ class SecurityHeadersMiddleware:
         # Load CSP from YAML config if available
         self.csp_policy = None
         try:
-            config_path = os.path.join(
-                os.path.dirname(__file__), "../configs/security.yaml"
-            )
+            config_path = os.path.join(os.path.dirname(__file__), "../configs/security.yaml")
             with open(config_path) as f:
                 security_config = yaml.safe_load(f)
                 self.csp_policy = (
@@ -112,9 +110,8 @@ class SecurityHeadersMiddleware:
 
                 # Return 403 Forbidden response
                 from flask import make_response
-                response = make_response(
-                    "Access Forbidden - High-risk user agent detected", 403
-                )
+
+                response = make_response("Access Forbidden - High-risk user agent detected", 403)
                 response.headers["Content-Type"] = "text/plain"
                 return response
 
@@ -136,11 +133,11 @@ class SecurityHeadersMiddleware:
         self._log_response_security(response)
 
         # Log blocking information if request was blocked
-        if hasattr(g, 'security_patterns'):
+        if hasattr(g, "security_patterns"):
             logger.warning("Request blocked: %s", g.security_patterns)
-            if hasattr(g, 'block_reason'):
+            if hasattr(g, "block_reason"):
                 logger.warning("Block reason: %s", g.block_reason)
-            if hasattr(g, 'ua_analysis'):
+            if hasattr(g, "ua_analysis"):
                 logger.warning("User agent analysis: %s", g.ua_analysis)
 
         return response
@@ -506,9 +503,7 @@ class SecurityHeadersMiddleware:
                 "csp": response.headers.get("Content-Security-Policy", ""),
                 "hsts": response.headers.get("Strict-Transport-Security", ""),
                 "x_frame_options": response.headers.get("X-Frame-Options", ""),
-                "x_content_type_options": response.headers.get(
-                    "X-Content-Type-Options", ""
-                ),
+                "x_content_type_options": response.headers.get("X-Content-Type-Options", ""),
                 "x_xss_protection": response.headers.get("X-XSS-Protection", ""),
                 "referrer_policy": response.headers.get("Referrer-Policy", ""),
                 "permissions_policy": response.headers.get("Permissions-Policy", ""),
@@ -524,9 +519,7 @@ class SecurityHeadersMiddleware:
                 "enable_csp": self.config.enable_content_security_policy,
                 "enable_hsts": self.config.enable_strict_transport_security,
                 "enable_x_frame_options": self.config.enable_x_frame_options,
-                "enable_x_content_type_options": (
-                    self.config.enable_x_content_type_options
-                ),
+                "enable_x_content_type_options": (self.config.enable_x_content_type_options),
                 "enable_x_xss_protection": self.config.enable_x_xss_protection,
                 "enable_referrer_policy": self.config.enable_referrer_policy,
                 "enable_permissions_policy": self.config.enable_permissions_policy,
@@ -543,9 +536,7 @@ class SecurityHeadersMiddleware:
                 "enable_request_id": self.config.enable_request_id,
                 "enable_correlation_id": self.config.enable_correlation_id,
                 "enable_enhanced_ua_analysis": self.config.enable_enhanced_ua_analysis,
-                "ua_suspicious_score_threshold": (
-                    self.config.ua_suspicious_score_threshold
-                ),
+                "ua_suspicious_score_threshold": (self.config.ua_suspicious_score_threshold),
                 "ua_blocking_enabled": self.config.ua_blocking_enabled,
             },
             "csp_nonce": self._csp_nonce,

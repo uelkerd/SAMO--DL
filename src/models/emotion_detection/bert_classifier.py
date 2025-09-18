@@ -8,14 +8,14 @@ trained on the GoEmotions dataset for journal entry analysis.
 
 import logging
 import warnings
-from typing import Optional, Union, List, Dict, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
@@ -307,9 +307,7 @@ class WeightedBCELoss(nn.Module):
         probabilities = torch.sigmoid(logits)
 
         # Compute BCE loss
-        bce_loss = F.binary_cross_entropy(
-            probabilities, targets.float(), reduction="none"
-        )
+        bce_loss = F.binary_cross_entropy(probabilities, targets.float(), reduction="none")
 
         # Apply class weights if provided
         if self.class_weights is not None:

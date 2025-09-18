@@ -9,17 +9,12 @@
     # Step 1: Pre-training validation
     # Step 2: User confirmation
     # Step 3: Start training
-# Add src to path
-# Configure logging
-from pathlib import Path
 import logging
 import sys
 import time
-
-
-
-
-
+# Add src to path
+# Configure logging
+from pathlib import Path
 
 """
 Validate and Train Script for SAMO Deep Learning.

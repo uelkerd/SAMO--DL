@@ -5,15 +5,7 @@ Tests data models, schemas, and validation.
 
 from datetime import datetime, timezone
 
-from src.data.models import (
-    Base,
-    Embedding,
-    JournalEntry,
-    Prediction,
-    Tag,
-    User,
-    VoiceTranscription,
-)
+from src.data.models import Base, Embedding, JournalEntry, Prediction, Tag, User, VoiceTranscription
 
 TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105
 
@@ -21,7 +13,8 @@ TEST_USER_PASSWORD_HASH = "test_hashed_password_123"  # noqa: S105
 class TestBase:
     """Test suite for Base model."""
 
-    def test_base_class_exists(self):
+    @staticmethod
+    def test_base_class_exists():
         """Test that Base class exists."""
         assert Base is not None
 
@@ -29,17 +22,16 @@ class TestBase:
 class TestUser:
     """Test suite for User model."""
 
-    def test_user_initialization(self):
+    @staticmethod
+    def test_user_initialization():
         """Test User initialization."""
-        user = User(
-            email="test@example.com",
-            password_hash=TEST_USER_PASSWORD_HASH
-        )
+        user = User(email="test@example.com", password_hash=TEST_USER_PASSWORD_HASH)
 
         assert user.email == "test@example.com"
         assert user.password_hash == TEST_USER_PASSWORD_HASH
 
-    def test_user_with_all_fields(self):
+    @staticmethod
+    def test_user_with_all_fields():
         """Test User with all fields."""
         custom_time = datetime.now(timezone.utc)
         user = User(
@@ -47,7 +39,7 @@ class TestUser:
             password_hash=TEST_USER_PASSWORD_HASH,
             consent_version="1.0",
             consent_given_at=custom_time,
-            data_retention_policy="standard"
+            data_retention_policy="standard",
         )
 
         assert user.email == "test@example.com"
@@ -60,18 +52,17 @@ class TestUser:
 class TestJournalEntry:
     """Test suite for JournalEntry model."""
 
-    def test_journal_entry_initialization(self):
+    @staticmethod
+    def test_journal_entry_initialization():
         """Test JournalEntry initialization."""
-        entry = JournalEntry(
-            user_id="test-user-id",
-            content="Test journal entry"
-        )
+        entry = JournalEntry(user_id="test-user-id", content="Test journal entry")
 
         assert entry.user_id == "test-user-id"
         assert entry.content == "Test journal entry"
-        assert JournalEntry.__table__.columns['is_private'].default.arg is True
+        assert JournalEntry.__table__.columns["is_private"].default.arg is True
 
-    def test_journal_entry_with_all_fields(self):
+    @staticmethod
+    def test_journal_entry_with_all_fields():
         """Test JournalEntry with all fields."""
         custom_time = datetime.now(timezone.utc)
         entry = JournalEntry(
@@ -82,7 +73,7 @@ class TestJournalEntry:
             mood_category="happy",
             is_private=False,
             created_at=custom_time,
-            updated_at=custom_time
+            updated_at=custom_time,
         )
 
         assert entry.user_id == "test-user-id"
@@ -98,24 +89,23 @@ class TestJournalEntry:
 class TestEmbedding:
     """Test suite for Embedding model."""
 
-    def test_embedding_initialization(self):
+    @staticmethod
+    def test_embedding_initialization():
         """Test Embedding initialization."""
-        embedding = Embedding(
-            journal_entry_id="test-entry-id",
-            embedding_vector=[0.1, 0.2, 0.3]
-        )
+        embedding = Embedding(journal_entry_id="test-entry-id", embedding_vector=[0.1, 0.2, 0.3])
 
         assert embedding.journal_entry_id == "test-entry-id"
         assert embedding.embedding_vector == [0.1, 0.2, 0.3]
 
-    def test_embedding_with_all_fields(self):
+    @staticmethod
+    def test_embedding_with_all_fields():
         """Test Embedding with all fields."""
         custom_time = datetime.now(timezone.utc)
         embedding = Embedding(
             journal_entry_id="test-entry-id",
             embedding_vector=[0.1, 0.2, 0.3],
             model_name="test-model",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert embedding.journal_entry_id == "test-entry-id"
@@ -127,19 +117,21 @@ class TestEmbedding:
 class TestPrediction:
     """Test suite for Prediction model."""
 
-    def test_prediction_initialization(self):
+    @staticmethod
+    def test_prediction_initialization():
         """Test Prediction initialization."""
         prediction = Prediction(
             journal_entry_id="test-entry-id",
             prediction_type="emotion",
-            prediction_value={"happy": 0.8, "sad": 0.2}
+            prediction_value={"happy": 0.8, "sad": 0.2},
         )
 
         assert prediction.journal_entry_id == "test-entry-id"
         assert prediction.prediction_type == "emotion"
         assert prediction.prediction_value == {"happy": 0.8, "sad": 0.2}
 
-    def test_prediction_with_all_fields(self):
+    @staticmethod
+    def test_prediction_with_all_fields():
         """Test Prediction with all fields."""
         custom_time = datetime.now(timezone.utc)
         prediction = Prediction(
@@ -148,7 +140,7 @@ class TestPrediction:
             prediction_value={"happy": 0.8, "sad": 0.2},
             confidence_score=0.95,
             model_name="test-model",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert prediction.journal_entry_id == "test-entry-id"
@@ -162,17 +154,18 @@ class TestPrediction:
 class TestVoiceTranscription:
     """Test suite for VoiceTranscription model."""
 
-    def test_voice_transcription_initialization(self):
+    @staticmethod
+    def test_voice_transcription_initialization():
         """Test VoiceTranscription initialization."""
         transcription = VoiceTranscription(
-            journal_entry_id="test-entry-id",
-            transcription_text="Test transcription"
+            journal_entry_id="test-entry-id", transcription_text="Test transcription"
         )
 
         assert transcription.journal_entry_id == "test-entry-id"
         assert transcription.transcription_text == "Test transcription"
 
-    def test_voice_transcription_with_all_fields(self):
+    @staticmethod
+    def test_voice_transcription_with_all_fields():
         """Test VoiceTranscription with all fields."""
         custom_time = datetime.now(timezone.utc)
         transcription = VoiceTranscription(
@@ -182,7 +175,7 @@ class TestVoiceTranscription:
             confidence_score=0.95,
             model_name="whisper-large",
             processing_time=2.5,
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert transcription.journal_entry_id == "test-entry-id"
@@ -197,20 +190,22 @@ class TestVoiceTranscription:
 class TestTag:
     """Test suite for Tag model."""
 
-    def test_tag_initialization(self):
+    @staticmethod
+    def test_tag_initialization():
         """Test Tag initialization."""
         tag = Tag(name="test-tag")
 
         assert tag.name == "test-tag"
 
-    def test_tag_with_all_fields(self):
+    @staticmethod
+    def test_tag_with_all_fields():
         """Test Tag with all fields."""
         custom_time = datetime.now(timezone.utc)
         tag = Tag(
             name="test-tag",
             description="Test tag description",
             color="#FF0000",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert tag.name == "test-tag"

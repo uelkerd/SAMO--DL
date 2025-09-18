@@ -5,22 +5,25 @@
 Tests for refined anomaly detection and user agent analysis.
 """
 
-import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
-import unittest
+import sys
 import time
+import unittest
 
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 class TestAnomalyDetection(unittest.TestCase):
     """Test anomaly detection and user agent analysis."""
 
     def setUp(self):
         """Set up test fixtures."""
+        super().setUp()
         from flask import Flask
+
         self.app = Flask(__name__)
 
         # Rate limiter with enhanced anomaly detection
@@ -32,7 +35,7 @@ class TestAnomalyDetection(unittest.TestCase):
             enable_request_pattern_analysis=True,
             suspicious_user_agent_score_threshold=3,
             request_pattern_score_threshold=5,
-            anomaly_detection_window=300.0
+            anomaly_detection_window=300.0,
         )
         self.rate_limiter = TokenBucketRateLimiter(self.rate_limit_config)
 
@@ -40,7 +43,7 @@ class TestAnomalyDetection(unittest.TestCase):
         self.security_config = SecurityHeadersConfig(
             enable_enhanced_ua_analysis=True,
             ua_suspicious_score_threshold=4,
-            ua_blocking_enabled=False
+            ua_blocking_enabled=False,
         )
         self.middleware = SecurityHeadersMiddleware(self.app, self.security_config)
 
@@ -48,10 +51,10 @@ class TestAnomalyDetection(unittest.TestCase):
         """Test user agent analysis scoring system."""
         # Test legitimate bots (should have low/negative scores)
         legitimate_bots = [
-            'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-            'Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)',
-            'Mozilla/5.0 (compatible; UptimeRobot/2.0; +http://www.uptimerobot.com/)',
-            'GitHub-Camo/1.0'
+            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+            "Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)",
+            "Mozilla/5.0 (compatible; UptimeRobot/2.0; +http://www.uptimerobot.com/)",
+            "GitHub-Camo/1.0",
         ]
 
         for ua in legitimate_bots:
@@ -62,11 +65,11 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Test high-risk user agents
         high_risk_agents = [
-            'sqlmap/1.0',
-            'nikto/2.1.6',
-            'nmap/7.80',
-            'python-requests/2.25.1',
-            'curl/7.68.0'
+            "sqlmap/1.0",
+            "nikto/2.1.6",
+            "nmap/7.80",
+            "python-requests/2.25.1",
+            "curl/7.68.0",
         ]
 
         for ua in high_risk_agents:
@@ -115,7 +118,9 @@ class TestAnomalyDetection(unittest.TestCase):
         # Simulate normal request pattern
         current_time = time.time()
         for i in range(5):
-            self.rate_limiter.request_history[client_key].append(current_time - i * 2)  # 2s intervals
+            self.rate_limiter.request_history[client_key].append(
+                current_time - i * 2
+            )  # 2s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
         self.assertLess(score, 5, "Normal pattern should score low")
@@ -123,7 +128,9 @@ class TestAnomalyDetection(unittest.TestCase):
         # Simulate burst pattern
         self.rate_limiter.request_history[client_key].clear()
         for i in range(10):
-            self.rate_limiter.request_history[client_key].append(current_time - i * 0.1)  # 0.1s intervals
+            self.rate_limiter.request_history[client_key].append(
+                current_time - i * 0.1
+            )  # 0.1s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
         self.assertGreaterEqual(score, 2, "Burst pattern should score higher")
@@ -137,7 +144,9 @@ class TestAnomalyDetection(unittest.TestCase):
         # Simulate very regular intervals (automated)
         current_time = time.time()
         for i in range(10):
-            self.rate_limiter.request_history[client_key].append(current_time - i * 1.0)  # Exactly 1s intervals
+            self.rate_limiter.request_history[client_key].append(
+                current_time - i * 1.0
+            )  # Exactly 1s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
         self.assertGreaterEqual(score, 3, "Regular intervals should be detected")
@@ -172,14 +181,15 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Should not trigger abuse detection
         abuse_detected = self.rate_limiter._detect_abuse(client_key, client_ip, legitimate_ua)
-        self.assertFalse(abuse_detected, "Normal browsing pattern should not trigger abuse detection")
+        self.assertFalse(
+            abuse_detected, "Normal browsing pattern should not trigger abuse detection"
+        )
 
     def test_configuration_options(self):
         """Test that configuration options work correctly."""
         # Test with user agent analysis disabled
         config_disabled = RateLimitConfig(
-            enable_user_agent_analysis=False,
-            enable_request_pattern_analysis=False
+            enable_user_agent_analysis=False, enable_request_pattern_analysis=False
         )
         rate_limiter_disabled = TokenBucketRateLimiter(config_disabled)
 
@@ -220,7 +230,7 @@ class TestAnomalyDetection(unittest.TestCase):
         config_blocking = SecurityHeadersConfig(
             enable_enhanced_ua_analysis=True,
             ua_suspicious_score_threshold=4,
-            ua_blocking_enabled=True
+            ua_blocking_enabled=True,
         )
         middleware_blocking = SecurityHeadersMiddleware(self.app, config_blocking)
 
@@ -248,5 +258,6 @@ class TestAnomalyDetection(unittest.TestCase):
         processing_time = end_time - start_time
         self.assertLess(processing_time, 1.0, f"Anomaly detection too slow: {processing_time:.3f}s")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

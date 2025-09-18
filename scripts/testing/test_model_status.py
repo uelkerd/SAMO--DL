@@ -4,8 +4,10 @@ Test Model Status Endpoint
 Get detailed information about model loading status and any errors.
 """
 
-import requests
 import argparse
+
+import requests
+
 from test_config import create_api_client, create_test_config
 
 
@@ -28,7 +30,7 @@ def test_emotions_endpoint(client):
     print("\n2. Testing emotions from main endpoint...")
     try:
         data = client.get("/")
-        emotions_count = data.get('emotions_supported', 0)
+        emotions_count = data.get("emotions_supported", 0)
         print(f"   ✅ Emotions: {emotions_count} emotions available")
         return True
     except requests.exceptions.RequestException as e:
@@ -41,8 +43,8 @@ def test_model_status_endpoint(client):
     print("\n3. Testing model status from main endpoint...")
     try:
         data = client.get("/")
-        model_type = data.get('model_type', 'Unknown')
-        service = data.get('service', 'Unknown')
+        model_type = data.get("model_type", "Unknown")
+        service = data.get("service", "Unknown")
         print(f"   ✅ Model Type: {model_type}")
         print(f"   ✅ Service: {service}")
         return True
@@ -68,7 +70,7 @@ def test_model_status(base_url=None):
     """Test the model status endpoint"""
     config = create_test_config()
     if base_url:
-        config.base_url = base_url.rstrip('/')
+        config.base_url = base_url.rstrip("/")
     client = create_api_client()
 
     print("🔍 Testing Model Status")

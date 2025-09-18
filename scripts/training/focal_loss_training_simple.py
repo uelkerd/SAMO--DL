@@ -12,10 +12,11 @@ from pathlib import Path
 import torch
 from torch import nn
 
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -33,9 +34,7 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass of focal loss."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
-        )
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 

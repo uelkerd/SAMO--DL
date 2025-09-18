@@ -5,14 +5,15 @@ Test script to verify the server starts and responds correctly
 
 import os
 import time
+
 import requests
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8081'  # Different port to avoid conflicts
+os.environ["ADMIN_API_KEY"] = "test-key-123"
+os.environ["MAX_INPUT_LENGTH"] = "512"
+os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
+os.environ["MODEL_PATH"] = "/app/model"
+os.environ["PORT"] = "8081"  # Different port to avoid conflicts
 
 try:
     from secure_api_server import app
@@ -21,8 +22,9 @@ try:
 
     # Start server in background
     import threading
+
     def run_server():
-        app.run(host='0.0.0.0', port=8081, debug=False)
+        app.run(host="0.0.0.0", port=8081, debug=False)
 
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
@@ -62,4 +64,5 @@ try:
 except Exception as e:
     print(f"❌ Error testing server: {e}")
     import traceback
+
     traceback.print_exc()

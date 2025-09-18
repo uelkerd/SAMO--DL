@@ -9,18 +9,15 @@ including preprocessing, feature extraction, and dataset management.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
+
 import pandas as pd
+
+from .embeddings import EmbeddingPipeline, FastTextEmbedder, TfidfEmbedder, Word2VecEmbedder
 from .feature_engineering import FeatureEngineer
-from .validation import DataValidator
+from .loaders import load_entries_from_csv, load_entries_from_db, load_entries_from_json
 from .preprocessing import JournalEntryPreprocessor
-from .embeddings import (
-    TfidfEmbedder,
-    Word2VecEmbedder,
-    FastTextEmbedder,
-    EmbeddingPipeline
-)
-from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
+from .validation import DataValidator
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development

@@ -18,16 +18,17 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 import torch
-from datasets import load_dataset
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
+
+from datasets import load_dataset
+
+from .labels import GOEMOTIONS_EMOTIONS
 
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
 
 
 class GoEmotionsDataset(Dataset):
@@ -38,7 +39,7 @@ class GoEmotionsDataset(Dataset):
         texts: List[str],
         labels: List[List[int]],
         tokenizer: AutoTokenizer,
-        max_length: int = 512
+        max_length: int = 512,
     ):
         """Initialize the dataset.
 
@@ -64,18 +65,18 @@ class GoEmotionsDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         # Convert label to tensor
         label_tensor = torch.tensor(label, dtype=torch.float)
 
         return {
-            'input_ids': encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0),
-            'labels': label_tensor
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            "labels": label_tensor,
         }
 
 
@@ -93,7 +94,8 @@ class GoEmotionsPreprocessor:
         self.max_length = max_length
         logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
 
-    def clean_text(self, text: str) -> str:
+    @staticmethod
+    def clean_text(text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
 
         Following data documentation strategies for emotional understanding.
@@ -108,7 +110,7 @@ class GoEmotionsPreprocessor:
             return ""
 
         # Remove excessive whitespace while preserving structure
-        text = re.sub(r'\s+', ' ', text.strip())
+        text = re.sub(r"\s+", " ", text.strip())
 
         # The dataset is already split by HuggingFace
         # Tokenize with BERT tokenizer

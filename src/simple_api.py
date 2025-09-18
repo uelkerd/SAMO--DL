@@ -1,23 +1,24 @@
 """Ultra-simple API that starts immediately for Cloud Run."""
-import os
+
 import logging
+import os
 import threading
 from functools import lru_cache
+
+import torch
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import torch
-import uvicorn
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="SAMO Simple API",
-    description="Simple API that starts immediately",
-    version="1.0.0"
+    title="SAMO Simple API", description="Simple API that starts immediately", version="1.0.0"
 )
+
 
 # CORS configuration from environment variables
 def get_cors_origins():
@@ -36,10 +37,11 @@ def get_cors_origins():
         "http://localhost:8082",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:8080",
-        "http://127.0.0.1:8082"
+        "http://127.0.0.1:8082",
     ]
     logger.warning("No CORS_ORIGINS configured, using development defaults")
     return dev_origins
+
 
 def get_cors_origin_regex():
     """Get a single combined CORS origin regex (or None)."""
@@ -54,13 +56,14 @@ def get_cors_origin_regex():
     default_patterns = [
         r"https://.*\.vercel\.app$",  # Vercel deployments
         r"https://.*\.netlify\.app$",  # Netlify deployments
-        r"https://.*\.github\.io$",    # GitHub Pages
-        r"http://localhost:\d+$",      # Local development with any port
-        r"http://127\.0\.0\.1:\d+$",   # Local development with any port
+        r"https://.*\.github\.io$",  # GitHub Pages
+        r"http://localhost:\d+$",  # Local development with any port
+        r"http://127\.0\.0\.1:\d+$",  # Local development with any port
     ]
     combined = f"(?:{'|'.join(default_patterns)})"
     logger.info(f"Default CORS origin regex: {combined}")
     return combined
+
 
 # Add CORS middleware with secure configuration
 cors_origins = get_cors_origins()
@@ -76,18 +79,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class EmotionRequest(BaseModel):
     text: str
 
+
 _model_lock = threading.Lock()
+
 
 @lru_cache(maxsize=1)
 def _load_emotion_model():
     """Load and cache emotion detection model."""
     from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-    model_name = 'duelker/samo-goemotions-deberta-v3-large'
+    model_name = "duelker/samo-goemotions-deberta-v3-large"
     logger.info(f"Loading emotion model: {model_name}")
 
     with _model_lock:
@@ -98,15 +104,18 @@ def _load_emotion_model():
     logger.info("Emotion model loaded and cached successfully")
     return tokenizer, model
 
+
 @app.get("/")
 async def root():
     """Root endpoint."""
     return {"message": "SAMO API is running", "status": "healthy"}
 
+
 @app.get("/health")
 async def health():
     """Health check."""
     return {"status": "healthy"}
+
 
 @app.post("/analyze/emotion")
 def analyze_emotion(request: EmotionRequest):
@@ -138,37 +147,65 @@ def analyze_emotion(request: EmotionRequest):
                 emotion_labels = list(id2label.values())
         else:
             emotion_labels = [
-                'admiration','amusement','anger','annoyance','approval','caring',
-                'confusion','curiosity','desire','disappointment','disapproval',
-                'disgust','embarrassment','excitement','fear','gratitude','grief',
-                'joy','love','nervousness','optimism','pride','realization',
-                'relief','remorse','sadness','surprise','neutral'
+                "admiration",
+                "amusement",
+                "anger",
+                "annoyance",
+                "approval",
+                "caring",
+                "confusion",
+                "curiosity",
+                "desire",
+                "disappointment",
+                "disapproval",
+                "disgust",
+                "embarrassment",
+                "excitement",
+                "fear",
+                "gratitude",
+                "grief",
+                "joy",
+                "love",
+                "nervousness",
+                "optimism",
+                "pride",
+                "realization",
+                "relief",
+                "remorse",
+                "sadness",
+                "surprise",
+                "neutral",
             ]
 
         emotion_scores = predictions[0].tolist()
-        predicted_emotion = emotion_labels[max(range(len(emotion_scores)), key=emotion_scores.__getitem__)]
+        predicted_emotion = emotion_labels[
+            max(range(len(emotion_scores)), key=emotion_scores.__getitem__)
+        ]
 
         # Non-breaking: also return the top-3 emotions
         top_k = 3
-        top_idx = sorted(range(len(emotion_scores)), key=emotion_scores.__getitem__, reverse=True)[:top_k]
+        top_idx = sorted(range(len(emotion_scores)), key=emotion_scores.__getitem__, reverse=True)[
+            :top_k
+        ]
         top_emotions = [{"label": emotion_labels[i], "score": emotion_scores[i]} for i in top_idx]
 
         result = {
             "text": request.text,
             "emotions": dict(zip(emotion_labels, emotion_scores)),
             "predicted_emotion": predicted_emotion,
-            "top_emotions": top_emotions
+            "top_emotions": top_emotions,
         }
 
-        logger.info("Emotion analysis completed successfully", extra={
-            "predicted_emotion": predicted_emotion,
-            "max_confidence": max(emotion_scores)
-        })
+        logger.info(
+            "Emotion analysis completed successfully",
+            extra={"predicted_emotion": predicted_emotion, "max_confidence": max(emotion_scores)},
+        )
         return result
 
     except Exception as e:
         logger.exception("Error in emotion analysis")
         raise HTTPException(status_code=500, detail="Analysis failed") from e
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

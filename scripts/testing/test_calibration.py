@@ -1,31 +1,34 @@
-        # Get predictions
-        # Process labels
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Create model
-    # Create tokenizer
-    # Load checkpoint
-    # Load model
-    # Load validation data
-    # Process validation data
-    # Set optimal temperature
-# Add src to path
-# Configure logging
-# Constants
-#!/usr/bin/env python3
-from pathlib import Path
-from sklearn.metrics import f1_score
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from transformers import AutoTokenizer
+# Get predictions
+# Process labels
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Create model
+# Create tokenizer
+# Load checkpoint
+# Load model
+# Load validation data
+# Process validation data
+# Set optimal temperature
+
+
 import logging
 import os
 import sys
+
+# Constants
+#!/usr/bin/env python3
+from pathlib import Path
+
 import torch
 
+# Add src to path
+# Configure logging
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer
 
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 """
 Test Model Calibration

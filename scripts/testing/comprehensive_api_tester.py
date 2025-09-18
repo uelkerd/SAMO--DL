@@ -4,31 +4,31 @@ Comprehensive API Testing Script for SAMO Cloud Run Deployment
 Tests all 3 core features: Emotion Detection, Voice Transcription, Text Summarization
 """
 
-import requests
-import json
-import time
-import sys
-import os
-import logging
 import io
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+import json
+import logging
+import os
+import sys
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
+import requests
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('comprehensive_api_test.log')
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("comprehensive_api_test.log")],
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class TestResult:
     """Structure for test results"""
+
     endpoint: str
     method: str
     success: bool
@@ -38,9 +38,11 @@ class TestResult:
     error_message: Optional[str] = None
     feature: Optional[str] = None
 
+
 @dataclass
 class APITestReport:
     """Comprehensive test report"""
+
     timestamp: str
     base_url: str
     total_tests: int
@@ -53,14 +55,14 @@ class APITestReport:
     test_results: List[TestResult]
     recommendations: List[str]
 
+
 class ComprehensiveAPITester:
     def __init__(self, base_url: str = "https://samo-unified-api-frrnetyhfa-uc.a.run.app"):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'SAMO-Comprehensive-Tester/1.0',
-            'Accept': 'application/json'
-        })
+        self.session.headers.update(
+            {"User-Agent": "SAMO-Comprehensive-Tester/1.0", "Accept": "application/json"}
+        )
 
         # Test configuration
         self.timeout = 30
@@ -80,40 +82,51 @@ class ComprehensiveAPITester:
             "This situation is making me quite anxious and nervous.",
             "I feel a deep sense of gratitude for all the support I've received.",
             "I'm neutral about this entire situation.",
-            "This is absolutely frustrating and disappointing."
+            "This is absolutely frustrating and disappointing.",
         ]
 
-    def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None,
-                    files: Optional[Dict] = None, auth_required: bool = False,
-                    as_form: bool = False) -> TestResult:
+    def make_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Optional[Dict] = None,
+        files: Optional[Dict] = None,
+        auth_required: bool = False,
+        as_form: bool = False,
+    ) -> TestResult:
         """Make HTTP request with proper error handling and rate limiting"""
         url = f"{self.base_url}{endpoint}"
         headers = self.session.headers.copy()
 
         # Add authentication if required and available
         if auth_required and self.auth_token:
-            headers['Authorization'] = f'Bearer {self.auth_token}'
+            headers["Authorization"] = f"Bearer {self.auth_token}"
 
         start_time = time.time()
 
         try:
             # Make request based on method
-            if method.upper() == 'GET':
+            if method.upper() == "GET":
                 response = self.session.get(url, headers=headers, timeout=self.timeout)
-            elif method.upper() == 'POST':
+            elif method.upper() == "POST":
                 if files:
                     # For file uploads, don't set Content-Type (let requests handle it)
-                    headers.pop('Content-Type', None)
-                    response = self.session.post(url, headers=headers, files=files,
-                                               data=data, timeout=self.timeout)
+                    headers.pop("Content-Type", None)
+                    response = self.session.post(
+                        url, headers=headers, files=files, data=data, timeout=self.timeout
+                    )
                 elif as_form:
                     # For form data, set appropriate Content-Type
-                    headers['Content-Type'] = 'application/x-www-form-urlencoded'
-                    response = self.session.post(url, headers=headers, data=data, timeout=self.timeout)
+                    headers["Content-Type"] = "application/x-www-form-urlencoded"
+                    response = self.session.post(
+                        url, headers=headers, data=data, timeout=self.timeout
+                    )
                 else:
                     # For JSON data, set Content-Type and use json parameter
-                    headers['Content-Type'] = 'application/json'
-                    response = self.session.post(url, headers=headers, json=data, timeout=self.timeout)
+                    headers["Content-Type"] = "application/json"
+                    response = self.session.post(
+                        url, headers=headers, json=data, timeout=self.timeout
+                    )
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
 
@@ -121,7 +134,7 @@ class ComprehensiveAPITester:
 
             # Handle rate limiting
             if response.status_code == 429:
-                retry_after = int(response.headers.get('Retry-After', self.rate_limit_delay))
+                retry_after = int(response.headers.get("Retry-After", self.rate_limit_delay))
                 logger.warning(f"Rate limited on {endpoint}, waiting {retry_after}s")
                 time.sleep(retry_after)
                 return TestResult(
@@ -130,7 +143,7 @@ class ComprehensiveAPITester:
                     success=False,
                     status_code=429,
                     response_time_ms=response_time,
-                    error_message="Rate limited"
+                    error_message="Rate limited",
                 )
 
             # Parse response
@@ -148,7 +161,9 @@ class ComprehensiveAPITester:
                 status_code=response.status_code,
                 response_time_ms=response_time,
                 response_data=response_data,
-                error_message=None if success else response_data.get('error', f'HTTP {response.status_code}')
+                error_message=(
+                    None if success else response_data.get("error", f"HTTP {response.status_code}")
+                ),
             )
 
         except requests.exceptions.Timeout:
@@ -156,14 +171,14 @@ class ComprehensiveAPITester:
                 endpoint=endpoint,
                 method=method,
                 success=False,
-                error_message=f"Request timeout after {self.timeout}s"
+                error_message=f"Request timeout after {self.timeout}s",
             )
         except requests.exceptions.RequestException as e:
             return TestResult(
                 endpoint=endpoint,
                 method=method,
                 success=False,
-                error_message=f"Request failed: {str(e)}"
+                error_message=f"Request failed: {str(e)}",
             )
 
     def test_authentication(self) -> Tuple[bool, str]:
@@ -175,31 +190,28 @@ class ComprehensiveAPITester:
             "username": f"test_user_{int(time.time())}@example.com",
             "email": f"test_user_{int(time.time())}@example.com",
             "password": "TestPassword123!",
-            "full_name": "Test User"
+            "full_name": "Test User",
         }
 
-        register_result = self.make_request('POST', '/auth/register', register_data)
+        register_result = self.make_request("POST", "/auth/register", register_data)
         self.test_results.append(register_result)
 
         if register_result.success and register_result.response_data:
             # Extract token from registration response
-            access_token = register_result.response_data.get('access_token')
+            access_token = register_result.response_data.get("access_token")
             if access_token:
                 self.auth_token = access_token
                 logger.info("✅ Authentication successful - token obtained")
                 return True, "Authentication working"
 
         # Try login as fallback
-        login_data = {
-            "username": "test@example.com",
-            "password": "password123"
-        }
+        login_data = {"username": "test@example.com", "password": "password123"}
 
-        login_result = self.make_request('POST', '/auth/login', login_data)
+        login_result = self.make_request("POST", "/auth/login", login_data)
         self.test_results.append(login_result)
 
         if login_result.success and login_result.response_data:
-            access_token = login_result.response_data.get('access_token')
+            access_token = login_result.response_data.get("access_token")
             if access_token:
                 self.auth_token = access_token
                 logger.info("✅ Login successful - token obtained")
@@ -215,17 +227,17 @@ class ComprehensiveAPITester:
         results = []
 
         # Test basic health endpoint
-        health_result = self.make_request('GET', '/health')
+        health_result = self.make_request("GET", "/health")
         health_result.feature = "System Health"
         results.append(health_result)
 
         # Test root endpoint
-        root_result = self.make_request('GET', '/')
+        root_result = self.make_request("GET", "/")
         root_result.feature = "System Info"
         results.append(root_result)
 
         # Test models status
-        models_result = self.make_request('GET', '/models/status')
+        models_result = self.make_request("GET", "/models/status")
         models_result.feature = "Models Status"
         results.append(models_result)
 
@@ -240,13 +252,11 @@ class ComprehensiveAPITester:
 
         for _i, text in enumerate(self.test_texts[:3]):  # Test first 3 texts
             # Test unified journal analysis endpoint
-            journal_data = {
-                "text": text,
-                "generate_summary": True,
-                "emotion_threshold": 0.1
-            }
+            journal_data = {"text": text, "generate_summary": True, "emotion_threshold": 0.1}
 
-            journal_result = self.make_request('POST', '/analyze/journal', journal_data, auth_required=True)
+            journal_result = self.make_request(
+                "POST", "/analyze/journal", journal_data, auth_required=True
+            )
             journal_result.feature = "Emotion Detection"
             results.append(journal_result)
 
@@ -266,34 +276,30 @@ class ComprehensiveAPITester:
         def create_minimal_wav() -> bytes:
             """Create a minimal valid WAV file with silence"""
             # WAV header for 1 second of silence, mono, 16-bit, 8kHz
-            header = b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00'
+            header = b"RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00"
             # 1 second of silence at 8kHz, 16-bit = 16000 bytes of zeros
-            silence = b'\x00' * 2048  # Shorter for testing
+            silence = b"\x00" * 2048  # Shorter for testing
             return header + silence
 
         # Test voice transcription endpoint
         try:
             wav_data = create_minimal_wav()
-            files = {
-                'audio_file': ('test.wav', io.BytesIO(wav_data), 'audio/wav')
-            }
-            data = {
-                'language': 'en',
-                'model_size': 'base'
-            }
+            files = {"audio_file": ("test.wav", io.BytesIO(wav_data), "audio/wav")}
+            data = {"language": "en", "model_size": "base"}
 
-            transcribe_result = self.make_request('POST', '/transcribe/voice', data=data,
-                                                files=files, auth_required=True)
+            transcribe_result = self.make_request(
+                "POST", "/transcribe/voice", data=data, files=files, auth_required=True
+            )
             transcribe_result.feature = "Voice Transcription"
             results.append(transcribe_result)
 
         except Exception as e:
             error_result = TestResult(
-                endpoint='/transcribe/voice',
-                method='POST',
+                endpoint="/transcribe/voice",
+                method="POST",
                 success=False,
                 feature="Voice Transcription",
-                error_message=f"Failed to create test audio: {str(e)}"
+                error_message=f"Failed to create test audio: {str(e)}",
             )
             results.append(error_result)
 
@@ -310,14 +316,16 @@ class ComprehensiveAPITester:
         long_text = " ".join(self.test_texts)  # Combine texts for summarization
 
         summarize_data = {
-            'text': long_text,
-            'model': 't5-small',
-            'max_length': 150,
-            'min_length': 30
+            "text": long_text,
+            "model": "t5-small",
+            "max_length": 150,
+            "min_length": 30,
         }
 
         # Use form data for summarization endpoint
-        summarize_result = self.make_request('POST', '/summarize/text', summarize_data, auth_required=True, as_form=True)
+        summarize_result = self.make_request(
+            "POST", "/summarize/text", summarize_data, auth_required=True, as_form=True
+        )
         summarize_result.feature = "Text Summarization"
         results.append(summarize_result)
 
@@ -335,29 +343,27 @@ class ComprehensiveAPITester:
 
         # Test voice journal analysis (end-to-end)
         try:
-            wav_data = b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00' + b'\x00' * 2048
+            wav_data = (
+                b"RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00data\x00\x08\x00\x00"
+                + b"\x00" * 2048
+            )
 
-            files = {
-                'audio_file': ('test.wav', io.BytesIO(wav_data), 'audio/wav')
-            }
-            data = {
-                'language': 'en',
-                'generate_summary': 'true',
-                'emotion_threshold': '0.1'
-            }
+            files = {"audio_file": ("test.wav", io.BytesIO(wav_data), "audio/wav")}
+            data = {"language": "en", "generate_summary": "true", "emotion_threshold": "0.1"}
 
-            voice_journal_result = self.make_request('POST', '/analyze/voice-journal',
-                                                   data=data, files=files, auth_required=True)
+            voice_journal_result = self.make_request(
+                "POST", "/analyze/voice-journal", data=data, files=files, auth_required=True
+            )
             voice_journal_result.feature = "Voice Journal Analysis"
             results.append(voice_journal_result)
 
         except Exception as e:
             error_result = TestResult(
-                endpoint='/analyze/voice-journal',
-                method='POST',
+                endpoint="/analyze/voice-journal",
+                method="POST",
                 success=False,
                 feature="Voice Journal Analysis",
-                error_message=f"Failed to test voice journal: {str(e)}"
+                error_message=f"Failed to test voice journal: {str(e)}",
             )
             results.append(error_result)
 
@@ -396,7 +402,9 @@ class ComprehensiveAPITester:
         recommendations = []
 
         if rate_limited:
-            recommendations.append("API has aggressive rate limiting - consider implementing authentication for testing")
+            recommendations.append(
+                "API has aggressive rate limiting - consider implementing authentication for testing"
+            )
 
         if not auth_working:
             recommendations.append("Authentication should be implemented for secure testing")
@@ -404,7 +412,9 @@ class ComprehensiveAPITester:
         if failed_tests > 0:
             failed_features = {r.feature for r in self.test_results if not r.success and r.feature}
             if failed_features:
-                recommendations.append(f"The following features need attention: {', '.join(failed_features)}")
+                recommendations.append(
+                    f"The following features need attention: {', '.join(failed_features)}"
+                )
 
         # Check which core features are working
         core_features = ["Emotion Detection", "Voice Transcription", "Text Summarization"]
@@ -438,7 +448,7 @@ class ComprehensiveAPITester:
             authentication_working=auth_working,
             overall_status=overall_status,
             test_results=self.test_results,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
     def run_comprehensive_test(self) -> APITestReport:
@@ -473,6 +483,7 @@ class ComprehensiveAPITester:
 
         # Generate final report
         return self.generate_report()
+
 
 def main():
     """Main function"""
@@ -519,7 +530,7 @@ def main():
     os.makedirs("test_reports", exist_ok=True)
     report_file = f"test_reports/comprehensive_api_test_{int(time.time())}.json"
 
-    with open(report_file, 'w') as f:
+    with open(report_file, "w") as f:
         # Convert dataclasses to dict for JSON serialization
         report_dict = asdict(report)
         json.dump(report_dict, f, indent=2, default=str)
@@ -529,6 +540,7 @@ def main():
     # Exit with appropriate code
     exit_code = 0 if report.overall_status in ["EXCELLENT", "GOOD"] else 1
     sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

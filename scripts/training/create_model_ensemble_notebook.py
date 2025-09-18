@@ -8,6 +8,7 @@ and uses the best performing one. This addresses the 32.73% F1 score.
 
 import json
 
+
 def create_model_ensemble_notebook():
     """Create the model ensemble notebook content"""
 
@@ -28,8 +29,8 @@ def create_model_ensemble_notebook():
                     "- Uses **data augmentation** techniques\n",
                     "- Implements **hyperparameter optimization**\n",
                     "- **Ensembles** the best models\n",
-                    "- **Augments** the small dataset"
-                ]
+                    "- **Augments** the small dataset",
+                ],
             },
             {
                 "cell_type": "code",
@@ -38,8 +39,8 @@ def create_model_ensemble_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas nltk nlpaug"
-                ]
+                    "!pip install transformers torch scikit-learn numpy pandas nltk nlpaug",
+                ],
             },
             {
                 "cell_type": "code",
@@ -77,8 +78,8 @@ def create_model_ensemble_notebook():
                     "    print('NLTK data already downloaded')\n",
                     "\n",
                     "print('🚀 MODEL ENSEMBLE TRAINING - TEST ALL SPECIALIZED MODELS')\n",
-                    "print('=' * 70)"
-                ]
+                    "print('=' * 70)",
+                ],
             },
             {
                 "cell_type": "code",
@@ -119,8 +120,8 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print(f'✅ Data directory found: {data_path}')\n",
                     "print('📂 Listing data files:')\n",
-                    "!ls -la {data_path}/"
-                ]
+                    "!ls -la {data_path}/",
+                ],
             },
             {
                 "cell_type": "code",
@@ -185,8 +186,8 @@ def create_model_ensemble_notebook():
                     "if len(texts) != len(unique_texts):\n",
                     "    print('❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
                     "else:\n",
-                    "    print('✅ All samples are unique - no model collapse risk!')"
-                ]
+                    "    print('✅ All samples are unique - no model collapse risk!')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -199,7 +200,7 @@ def create_model_ensemble_notebook():
                     "print('=' * 50)\n",
                     "\n",
                     "def get_synonyms(word):\n",
-                    "    \"\"\"Get synonyms for a word using WordNet\"\"\"\n",
+                    '    """Get synonyms for a word using WordNet"""\n',
                     "    synonyms = []\n",
                     "    for syn in wordnet.synsets(word):\n",
                     "        for lemma in syn.lemmas():\n",
@@ -208,7 +209,7 @@ def create_model_ensemble_notebook():
                     "    return list(set(synonyms))\n",
                     "\n",
                     "def augment_text(text, emotion):\n",
-                    "    \"\"\"Create augmented versions of text\"\"\"\n",
+                    '    """Create augmented versions of text"""\n',
                     "    augmented_samples = []\n",
                     "    \n",
                     "    # Original sample\n",
@@ -271,8 +272,8 @@ def create_model_ensemble_notebook():
                     "\n",
                     "# Use augmented dataset\n",
                     "combined_samples = unique_augmented\n",
-                    "print(f'✅ Final augmented dataset size: {len(combined_samples)} samples')"
-                ]
+                    "print(f'✅ Final augmented dataset size: {len(combined_samples)} samples')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -308,8 +309,8 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print('\\n📊 Emotion Distribution:')\n",
                     "for emotion, count in sorted(emotion_counts.items()):\n",
-                    "    print(f'  {emotion}: {count} samples')"
-                ]
+                    "    print(f'  {emotion}: {count} samples')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -344,8 +345,8 @@ def create_model_ensemble_notebook():
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
                     "            'attention_mask': encoding['attention_mask'].flatten(),\n",
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
-                    "        }"
-                ]
+                    "        }",
+                ],
             },
             {
                 "cell_type": "code",
@@ -454,8 +455,8 @@ def create_model_ensemble_notebook():
                     "print(f'🏆 BEST F1 SCORE: {best_f1:.4f} ({best_f1*100:.2f}%)')\n",
                     "print('\\n📊 All Model Results:')\n",
                     "for model_name, f1 in sorted(model_results.items(), key=lambda x: x[1], reverse=True):\n",
-                    "    print(f'  {model_name}: {f1:.4f} ({f1*100:.2f}%)')"
-                ]
+                    "    print(f'  {model_name}: {f1:.4f} ({f1*100:.2f}%)')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -491,8 +492,8 @@ def create_model_ensemble_notebook():
                     "\n",
                     "print(f'✅ Best model loaded: {best_model}')\n",
                     "print(f'✅ Model initialized with {len(label_encoder.classes_)} labels')\n",
-                    "print(f'✅ Datasets created successfully')"
-                ]
+                    "print(f'✅ Datasets created successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -546,8 +547,8 @@ def create_model_ensemble_notebook():
                     "print(f'🎯 Using best model: {best_model}')\n",
                     "\n",
                     "# Start training\n",
-                    "trainer.train()"
-                ]
+                    "trainer.train()",
+                ],
             },
             {
                 "cell_type": "code",
@@ -559,15 +560,15 @@ def create_model_ensemble_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    'print(f\'🏆 Final F1 Score: {results["eval_f1"]:.4f} ({results["eval_f1"]*100:.2f}%)\')\n',
+                    'print(f\'🎯 Target achieved: {"✅ YES!" if results["eval_f1"] >= 0.75 else "❌ Not yet"}\')\n',
                     "print(f'📈 Improvement from baseline: {((results[\"eval_f1\"] - 0.052) / 0.052 * 100):.1f}%')\n",
                     "print(f'📈 Improvement from specialized: {((results[\"eval_f1\"] - 0.3273) / 0.3273 * 100):.1f}%')\n",
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_ensemble_final')\n",
-                    "print('💾 Model saved to ./emotion_model_ensemble_final')"
-                ]
+                    "print('💾 Model saved to ./emotion_model_ensemble_final')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -579,11 +580,11 @@ def create_model_ensemble_notebook():
                     "print('🧪 Testing on sample texts...')\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
-                    "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    '    "I\'m feeling really happy today!",\n',
+                    '    "I\'m so frustrated with this project.",\n',
+                    '    "I feel anxious about the presentation.",\n',
+                    '    "I\'m grateful for all the support.",\n',
+                    '    "I\'m feeling overwhelmed with tasks."\n',
                     "]\n",
                     "\n",
                     "model.eval()\n",
@@ -604,8 +605,8 @@ def create_model_ensemble_notebook():
                     "        predicted_emotion = label_encoder.inverse_transform([predicted_class])[0]\n",
                     "        \n",
                     "        print(f'{i}. Text: {text}')\n",
-                    "        print(f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')"
-                ]
+                    "        print(f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')",
+                ],
             },
             {
                 "cell_type": "markdown",
@@ -630,34 +631,27 @@ def create_model_ensemble_notebook():
                     "**Next Steps:**\n",
                     "1. Review the F1 score achieved\n",
                     "2. If still low, consider more aggressive augmentation\n",
-                    "3. Try ensemble voting of multiple models"
-                ]
-            }
+                    "3. Try ensemble voting of multiple models",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
-    with open('notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print("✅ Model ensemble notebook created: notebooks/MODEL_ENSEMBLE_TRAINING_COLAB.ipynb")
@@ -672,6 +666,7 @@ def create_model_ensemble_notebook():
     print("  - Data augmentation techniques")
     print("  - Automatic best model selection")
     print("  - Optimized hyperparameters")
+
 
 if __name__ == "__main__":
     create_model_ensemble_notebook()

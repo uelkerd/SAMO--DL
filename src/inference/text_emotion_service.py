@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
 import logging
-from typing import List, Dict, Any, Optional, Union
+import os
+from typing import Any, Dict, List, Union
 
 from .constants import EMOTION_MODEL_DIR
 
@@ -14,7 +14,8 @@ DEFAULT_LOCAL_MODEL_DIR = EMOTION_MODEL_DIR
 class EmotionService:
     """Abstract emotion classification service interface."""
 
-    def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
+    @staticmethod
+    def classify(texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
         """Classify one or many texts into emotion score distributions."""
         raise NotImplementedError
 
@@ -54,18 +55,19 @@ class HFEmotionService(EmotionService):
             raise
 
         model_dir = os.environ.get(self.model_dir_env)
-        local_only = os.environ.get(
-            self.local_only_env, "1"
-        ).strip() not in {"", "0", "false", "False"}
+        local_only = os.environ.get(self.local_only_env, "1").strip() not in {
+            "",
+            "0",
+            "false",
+            "False",
+        }
 
         if not model_dir and local_only:
             model_dir = DEFAULT_LOCAL_MODEL_DIR
 
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
-            tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, local_files_only=True
-            )
+            tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_dir, local_files_only=True
             )
@@ -92,7 +94,7 @@ class HFEmotionService(EmotionService):
             "model": self.model_name,
             "return_all_scores": True,
         }
-        if (token := os.environ.get(self.hf_token_env)):
+        if token := os.environ.get(self.hf_token_env):
             kwargs["token"] = token
         # Explicitly disable remote code execution for safety
         kwargs["trust_remote_code"] = False

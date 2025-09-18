@@ -25,11 +25,12 @@ from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -46,7 +47,7 @@ class FocalLoss(nn.Module):
         self.class_weights = class_weights
 
     def forward(self, inputs, targets):
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
+        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
@@ -67,7 +68,9 @@ def create_optimized_model(class_weights):
         classifier_dropout_prob=0.2,  # Reduced dropout
         freeze_bert_layers=0,  # Don't freeze initially
         temperature=1.0,
-        class_weights=torch.tensor(class_weights, dtype=torch.float32) if class_weights is not None else None
+        class_weights=(
+            torch.tensor(class_weights, dtype=torch.float32) if class_weights is not None else None
+        ),
     )
 
     return model
@@ -90,7 +93,7 @@ def prepare_training_data(datasets, tokenizer, batch_size=16):
             padding=True,
             truncation=True,
             max_length=256,  # Reduced for faster training
-            return_tensors="pt"
+            return_tensors="pt",
         )
 
         # Convert labels to one-hot
@@ -106,7 +109,7 @@ def prepare_training_data(datasets, tokenizer, batch_size=16):
         return TensorDataset(
             inputs["input_ids"],
             inputs["attention_mask"],
-            torch.tensor(label_vectors, dtype=torch.float32)
+            torch.tensor(label_vectors, dtype=torch.float32),
         )
 
     train_dataset = tokenize_dataset(train_data)
@@ -141,14 +144,14 @@ def evaluate_model(model, dataloader, device, threshold=0.3):
     all_predictions = np.array(all_predictions)
     all_labels = np.array(all_labels)
 
-    micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
-    macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
+    micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
+    macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
 
     return {
-        'micro_f1': micro_f1,
-        'macro_f1': macro_f1,
-        'predictions': all_predictions,
-        'labels': all_labels
+        "micro_f1": micro_f1,
+        "macro_f1": macro_f1,
+        "predictions": all_predictions,
+        "labels": all_labels,
     }
 
 
@@ -162,9 +165,7 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
     # Learning rate scheduler
     total_steps = len(train_loader) * epochs
     scheduler = get_linear_schedule_with_warmup(
-        optimizer,
-        num_warmup_steps=total_steps // 10,
-        num_training_steps=total_steps
+        optimizer, num_warmup_steps=total_steps // 10, num_training_steps=total_steps
     )
 
     # Focal loss
@@ -207,7 +208,7 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
 
         # Validation
         val_results = evaluate_model(model, val_loader, device, threshold=0.3)
-        val_f1 = val_results['micro_f1']
+        val_f1 = val_results["micro_f1"]
 
         logger.info(f"   Validation F1: {val_f1:.4f} ({val_f1*100:.2f}%)")
 
@@ -220,12 +221,15 @@ def train_with_focal_loss(model, train_loader, val_loader, device, epochs=5):
             checkpoint_path = Path("models/checkpoints/emergency_f1_fix.pt")
             checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                'epoch': epoch,
-                'val_f1': val_f1,
-                'optimizer_state_dict': optimizer.state_dict(),
-            }, checkpoint_path)
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                    "epoch": epoch,
+                    "val_f1": val_f1,
+                    "optimizer_state_dict": optimizer.state_dict(),
+                },
+                checkpoint_path,
+            )
 
             logger.info(f"   ✅ New best model saved! F1: {val_f1:.4f}")
         else:
@@ -268,7 +272,7 @@ def optimize_threshold(model, val_loader, device):
 
     for threshold in thresholds:
         predictions = all_outputs > threshold
-        f1 = f1_score(all_labels, predictions, average='micro', zero_division=0)
+        f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
 
         if f1 > best_f1:
             best_f1 = f1
@@ -294,7 +298,9 @@ def emergency_f1_fix():
 
         # Get class weights
         class_weights = datasets["class_weights"]
-        logger.info(f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}")
+        logger.info(
+            f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}"
+        )
 
         # Create model
         model = create_optimized_model(class_weights)
@@ -324,11 +330,7 @@ def emergency_f1_fix():
         test_labels = test_data["labels"]
 
         inputs = tokenizer(
-            test_texts,
-            padding=True,
-            truncation=True,
-            max_length=256,
-            return_tensors="pt"
+            test_texts, padding=True, truncation=True, max_length=256, return_tensors="pt"
         )
 
         # Convert labels to one-hot
@@ -344,7 +346,7 @@ def emergency_f1_fix():
         test_dataset = TensorDataset(
             inputs["input_ids"],
             inputs["attention_mask"],
-            torch.tensor(test_label_vectors, dtype=torch.float32)
+            torch.tensor(test_label_vectors, dtype=torch.float32),
         )
         test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
@@ -354,31 +356,36 @@ def emergency_f1_fix():
         # Display results
         logger.info("📊 FINAL RESULTS:")
         logger.info("=" * 60)
-        logger.info(f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1']*100:.2f}%)")
-        logger.info(f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1']*100:.2f}%)")
+        logger.info(
+            f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1']*100:.2f}%)"
+        )
+        logger.info(
+            f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1']*100:.2f}%)"
+        )
         logger.info(f"Best Threshold:     {best_threshold:.2f}")
         logger.info(f"Training Time:      {time.time() - start_time:.1f}s")
         logger.info("=" * 60)
 
         # Assessment
         target_f1 = 0.60  # 60% target for emergency fix
-        progress = (test_results['micro_f1'] / target_f1) * 100
+        progress = (test_results["micro_f1"] / target_f1) * 100
 
         logger.info(f"🎯 TARGET F1: {target_f1*100:.0f}%")
         logger.info(f"📊 ACHIEVED F1: {test_results['micro_f1']*100:.2f}%")
         logger.info(f"📈 PROGRESS: {progress:.1f}% of target")
 
-        if test_results['micro_f1'] >= target_f1:
+        if test_results["micro_f1"] >= target_f1:
             logger.info("🎉 EMERGENCY TARGET ACHIEVED!")
         else:
-            gap = target_f1 - test_results['micro_f1']
+            gap = target_f1 - test_results["micro_f1"]
             logger.info(f"📉 GAP: {gap*100:.2f} percentage points needed")
 
-        return test_results['micro_f1']
+        return test_results["micro_f1"]
 
     except Exception as e:
         logger.error(f"❌ Emergency F1 fix failed: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 

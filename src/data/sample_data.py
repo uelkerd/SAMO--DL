@@ -1,26 +1,28 @@
-        # Add hour/minute/second for more realistic timestamps
-        # Create the entry
-        # Generate a random date within the range
-        # Randomly select user_id
-    # Convert datetime objects to strings for JSON serialization
-    # Convert string dates back to datetime
-    # Ensure output directory exists
-    # Generate 100 entries from 5 users over the past 60 days
-    # Save to data/raw directory
+# Add hour/minute/second for more realistic timestamps
+# Create the entry
+# Generate a random date within the range
+# Randomly select user_id
+# Convert datetime objects to strings for JSON serialization
+# Convert string dates back to datetime
+# Ensure output directory exists
+# Generate 100 entries from 5 users over the past 60 days
+# Save to data/raw directory
 # Additional sentences to add variety
-# Emotion categories for entries
-# Sample topics to generate journal entries about
-# Templates for journal entry content
-# Title templates
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+
+
 import json
-import pandas as pd
 import random
 
+# Templates for journal entry content
+# Title templates
+from datetime import datetime, timedelta, timezone
 
+# Emotion categories for entries
+# Sample topics to generate journal entries about
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import pandas as pd
 
 TOPICS = [
     "work",
@@ -149,6 +151,7 @@ def generate_content(topic: str, emotion: str) -> str:
     if random.random() > 0.6:  # 40% chance of adding a reflection
         content += f" {random.choice(REFLECTION_TEMPLATES)}"
     return content
+
 
 def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
     """Generate a single journal entry."""

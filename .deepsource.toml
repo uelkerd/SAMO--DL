@@ -1,7 +1,29 @@
 version = 1
 
 exclude_patterns = [
-  "deprecated/**"
+  "deprecated/**",
+  "scripts/legacy/**",
+  "scripts/training/*_broken.py",
+  "scripts/training/working_training_script.py",
+  "scripts/training/simple_working_training.py",
+  "scripts/training/restart_training_debug.py",
+  "scripts/training/pre_training_validation.py",
+  "scripts/training/minimal_working_training.py",
+  "scripts/training/focal_loss_training.py",
+  "scripts/training/fixed_training_with_optimized_config.py",
+  "scripts/training/final_bulletproof_training_cell.py",
+  "scripts/training/bulletproof_training_cell_fixed.py",
+  "scripts/training/bulletproof_training_cell.py",
+  "scripts/testing/test_domain_adaptation.py",
+  "scripts/testing/standalone_focal_test.py",
+  "scripts/testing/simple_test.py",
+  "scripts/testing/simple_temperature_test_local.py",
+  "scripts/testing/quick_focal_test.py",
+  "scripts/testing/quick_f1_test.py",
+  "scripts/testing/local_validation_debug.py",
+  "scripts/maintenance/vertex_ai_setup_fixed.py",
+  "**/temp_*",
+  "**/test_temp_*"
 ]
 
 [[analyzers]]

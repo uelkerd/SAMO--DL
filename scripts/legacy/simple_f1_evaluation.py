@@ -11,13 +11,14 @@ from pathlib import Path
 
 import torch
 from sklearn.metrics import f1_score, precision_score, recall_score
+from transformers import AutoTokenizer
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from transformers import AutoTokenizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -102,11 +103,7 @@ def evaluate_current_f1():
 
                 # Tokenize
                 inputs = tokenizer(
-                    texts,
-                    padding=True,
-                    truncation=True,
-                    max_length=512,
-                    return_tensors="pt"
+                    texts, padding=True, truncation=True, max_length=512, return_tensors="pt"
                 )
 
                 input_ids = inputs["input_ids"].to(device)
@@ -130,13 +127,15 @@ def evaluate_current_f1():
         all_labels = np.array(all_labels)
 
         # Calculate F1 scores
-        micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
-        macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
-        weighted_f1 = f1_score(all_labels, all_predictions, average='weighted', zero_division=0)
+        micro_f1 = f1_score(all_labels, all_predictions, average="micro", zero_division=0)
+        macro_f1 = f1_score(all_labels, all_predictions, average="macro", zero_division=0)
+        weighted_f1 = f1_score(all_labels, all_predictions, average="weighted", zero_division=0)
 
         # Calculate precision and recall
-        micro_precision = precision_score(all_labels, all_predictions, average='micro', zero_division=0)
-        micro_recall = recall_score(all_labels, all_predictions, average='micro', zero_division=0)
+        micro_precision = precision_score(
+            all_labels, all_predictions, average="micro", zero_division=0
+        )
+        micro_recall = recall_score(all_labels, all_predictions, average="micro", zero_division=0)
 
         # Display results
         logger.info("📊 EVALUATION RESULTS:")
@@ -169,18 +168,20 @@ def evaluate_current_f1():
             "micro_precision": micro_precision,
             "micro_recall": micro_recall,
             "target_f1": target_f1,
-            "progress_percent": progress
+            "progress_percent": progress,
         }
 
     except Exception as e:
         logger.error(f"❌ Evaluation failed: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
 
 if __name__ == "__main__":
     import numpy as np
+
     results = evaluate_current_f1()
     if results:
         logger.info("✅ Evaluation completed successfully")

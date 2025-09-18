@@ -1,18 +1,16 @@
-        # Stop if we hit a KeyboardInterrupt
-    # Summary
-    # Test basic Python
-    # Test core modules one by one
+# Stop if we hit a KeyboardInterrupt
+# Summary
+# Test basic Python
+# Test core modules one by one
 #!/usr/bin/env python3
 import logging
 import sys
-
 
 
 """
 Basic Environment Test Script
 Tests imports one by one to identify issues
 """
-
 
 
 def test_import(module_name, description):

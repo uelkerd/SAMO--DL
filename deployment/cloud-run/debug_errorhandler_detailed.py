@@ -5,7 +5,8 @@ Detailed debug script to understand the errorhandler issue
 
 import os
 import sys
-os.environ.setdefault('ADMIN_API_KEY', 'test123')
+
+os.environ.setdefault("ADMIN_API_KEY", "test123")
 
 print("🔍 Starting detailed errorhandler debug...")
 
@@ -13,6 +14,7 @@ try:
     import flask
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -20,7 +22,7 @@ except Exception as e:
 
 try:
     app = Flask(__name__)
-    api = Api(app, version='1.0.0', title='Test')
+    api = Api(app, version="1.0.0", title="Test")
     print("✅ API object created")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
@@ -33,10 +35,12 @@ print(f"Dir: {[attr for attr in dir(api) if not attr.startswith('_')]}")
 print(f"Has errorhandler: {'errorhandler' in dir(api)}")
 
 try:
-    errorhandler_method = getattr(api, 'errorhandler')
+    errorhandler_method = getattr(api, "errorhandler")
     print(f"✅ errorhandler method found: {type(errorhandler_method)}")
     print(f"errorhandler callable: {callable(errorhandler_method)}")
-    print(f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}")
+    print(
+        f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}"
+    )
 except Exception as e:
     print(f"❌ errorhandler method access failed: {e}")
 
@@ -73,12 +77,14 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 # Let's check if there's a version issue
 try:
     import flask_restx
+
     print(f"\n🔍 Flask-RESTX version: {getattr(flask_restx, '__version__', 'unknown')}")
     try:
         from importlib.metadata import version as pkg_version
-        flask_ver = getattr(flask, '__version__', None) or pkg_version('flask')
+
+        flask_ver = getattr(flask, "__version__", None) or pkg_version("flask")
     except Exception:
-        flask_ver = getattr(flask, '__version__', 'unknown')
+        flask_ver = getattr(flask, "__version__", "unknown")
     print(f"Flask version: {flask_ver}")
 except Exception as e:
     print(f"❌ Could not get versions: {e}")

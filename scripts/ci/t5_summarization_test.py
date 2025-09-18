@@ -10,6 +10,8 @@ import logging
 import sys
 from pathlib import Path
 
+from .validation_utils import ensure, validate_hasattrs
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
@@ -24,7 +26,6 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .validation_utils import validate_hasattrs, ensure
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -72,11 +73,7 @@ def test_t5_summarization():
         """
 
         # Perform summarization
-        summary = model.generate_summary(
-            text=test_text.strip(),
-            max_length=50,
-            min_length=10
-        )
+        summary = model.generate_summary(text=test_text.strip(), max_length=50, min_length=10)
 
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 

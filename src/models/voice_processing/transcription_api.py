@@ -1,31 +1,32 @@
-            # Calculate WER
-            # Calculate additional metrics
-            # Format results and update metrics
-            # Get transcription
-            # Perform transcription
-            # Process batch through transcriber
-            # Return evaluation
-            # Return formatted response
-            # Update metrics
-            # Update processing time
-            # Validate audio before transcription
-        # Initialize transcriber
-        # Track performance metrics
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import create_whisper_transcriber
-from pathlib import Path
-from typing import Optional, Union, List
-import jiwer
+# Calculate WER
+# Calculate additional metrics
+# Format results and update metrics
+# Get transcription
+# Perform transcription
+# Process batch through transcriber
+# Return evaluation
+# Return formatted response
+# Update metrics
+# Update processing time
+# Validate audio before transcription
+# Initialize transcriber
+# Track performance metrics
 import logging
 import time
+from pathlib import Path
+from typing import List, Optional, Union
+
+import jiwer
+
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import create_whisper_transcriber
+
 """Transcription API for SAMO Voice Processing.
 
 This module provides integration between the WhisperTranscriber and the
 application API layer, handling transcription requests with proper error
 handling and performance monitoring.
 """
-
-
 
 
 logger = logging.getLogger(__name__)
@@ -121,9 +122,9 @@ class TranscriptionAPI:
                 "audio_quality": result.audio_quality,
                 "metrics": {
                     "processing_time": processing_time,
-                    "real_time_factor": processing_time / result.duration
-                    if result.duration > 0
-                    else 0,
+                    "real_time_factor": (
+                        processing_time / result.duration if result.duration > 0 else 0
+                    ),
                 },
             }
 
@@ -231,9 +232,11 @@ class TranscriptionAPI:
             "total_audio_duration": self.total_audio_duration,
             "total_processing_time": self.total_processing_time,
             "error_rate": self.error_count / self.total_requests if self.total_requests > 0 else 0,
-            "average_real_time_factor": self.total_processing_time / self.total_audio_duration
-            if self.total_audio_duration > 0
-            else 0,
+            "average_real_time_factor": (
+                self.total_processing_time / self.total_audio_duration
+                if self.total_audio_duration > 0
+                else 0
+            ),
             "model_info": self.transcriber.get_model_info() if self.transcriber else {},
         }
 

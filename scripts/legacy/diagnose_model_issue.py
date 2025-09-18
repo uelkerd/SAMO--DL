@@ -1,28 +1,29 @@
-            # Check if all probabilities are high
-            # Forward pass
-            # Sample analysis
-        # Check gradients
-        # Create fake logits and labels
-        # Create simple test case
-        # Create trainer
-        # Get a few samples from validation set
-        # Get one batch for detailed analysis
-        # Load trained model
-        # Prepare data
-        # Set some emotions as positive
-        # Test BCE loss
-        # Test with class weights
+# Check if all probabilities are high
+# Forward pass
+# Sample analysis
+# Check gradients
+# Create fake logits and labels
+# Create simple test case
+# Create trainer
+# Get a few samples from validation set
+# Get one batch for detailed analysis
+# Load trained model
+# Prepare data
+# Set some emotions as positive
+# Test BCE loss
+# Test with class weights
+
+import logging
+import sys
+
 # Add src to path
+from pathlib import Path
+
+import torch
+
 # Configure logging
 #!/usr/bin/env python3
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
-import logging
-import sys
-import torch
-
-
-
 
 """Diagnose Model Issue - Why is the model predicting all emotions?
 

@@ -1,10 +1,9 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from typing import Dict, List, Optional, Union
 import logging
+from typing import Dict, List, Optional, Union
+
 import pandas as pd
-
-
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -18,8 +17,9 @@ class DataValidator:
     def __init__(self) -> None:
         """Initialize data validator."""
 
+    @staticmethod
     def check_missing_values(
-        self, df: pd.DataFrame, required_columns: Optional[List[str]] = None
+        df: pd.DataFrame, required_columns: Optional[List[str]] = None
     ) -> Dict[str, float]:
         """Check for missing values in DataFrame.
 
@@ -49,9 +49,8 @@ class DataValidator:
 
         return missing_stats
 
-    def check_data_types(
-        self, df: pd.DataFrame, expected_types: Dict[str, type]
-    ) -> Dict[str, bool]:
+    @staticmethod
+    def check_data_types(df: pd.DataFrame, expected_types: Dict[str, type]) -> Dict[str, bool]:
         """Check if columns have expected data types.
 
         Args:
@@ -82,7 +81,9 @@ class DataValidator:
             elif expected_type is str and pd.api.types.is_string_dtype(actual_type):
                 type_check_results[column] = True
             # Handle datetime types
-            elif expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(actual_type):
+            elif expected_type is pd.Timestamp and pd.api.types.is_datetime64_any_dtype(
+                actual_type
+            ):
                 type_check_results[column] = True
             # Handle boolean types
             elif expected_type is bool and pd.api.types.is_bool_dtype(actual_type):
@@ -97,7 +98,8 @@ class DataValidator:
 
         return type_check_results
 
-    def check_text_quality(self, df: pd.DataFrame, text_column: str = "content") -> pd.DataFrame:
+    @staticmethod
+    def check_text_quality(df: pd.DataFrame, text_column: str = "content") -> pd.DataFrame:
         """Check text quality metrics.
 
         Args:
@@ -181,7 +183,7 @@ class DataValidator:
                 "missing_values": {},
                 "data_types": {},
                 "text_quality": df,
-                "error": f"Required columns missing: {missing_columns}"
+                "error": f"Required columns missing: {missing_columns}",
             }
 
         missing_stats = self.check_missing_values(df, required_columns)
@@ -205,11 +207,13 @@ class DataValidator:
             "missing_values": missing_stats,
             "data_types": type_check_results,
             "text_quality": df_with_quality,
-            "error": None if validation_passed else "Validation failed"
+            "error": None if validation_passed else "Validation failed",
         }
 
 
-def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 10000) -> Dict[str, Union[bool, str]]:
+def validate_text_input(
+    input_text: str, min_length: int = 1, max_length: int = 10000
+) -> Dict[str, Union[bool, str]]:
     """Validate text input for journal entries.
 
     Args:
@@ -235,18 +239,27 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
             return {"is_valid": False, "error": "Text cannot be whitespace only"}
 
     if len(stripped_text) < min_length:
-        return {"is_valid": False, "error": f"Text is too short, must be at least {min_length} characters long"}
+        return {
+            "is_valid": False,
+            "error": f"Text is too short, must be at least {min_length} characters long",
+        }
 
     if len(input_text) > max_length:
-        return {"is_valid": False, "error": f"Text must be no more than {max_length} characters long"}
+        return {
+            "is_valid": False,
+            "error": f"Text must be no more than {max_length} characters long",
+        }
 
     harmful_patterns = ["<script>", "javascript:", "data:text/html"]
     for pattern in harmful_patterns:
         if pattern.lower() in input_text.lower():
-            return {"is_valid": False, "error": f"Text contains potentially harmful content: {pattern}"}
+            return {
+                "is_valid": False,
+                "error": f"Text contains potentially harmful content: {pattern}",
+            }
 
     # Check for invalid characters
-    invalid_chars = ['\x00', '\x01', '\x02']
+    invalid_chars = ["\x00", "\x01", "\x02"]
     for char in invalid_chars:
         if char in input_text:
             return {"is_valid": False, "error": "Text contains invalid characters"}

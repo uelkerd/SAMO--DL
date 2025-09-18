@@ -3,28 +3,32 @@ Test suite for comprehensive demo functionality
 Tests the integration between the demo frontend and the Cloud Run API
 """
 
+import base64
+import os
+from unittest.mock import Mock, patch
+
 import pytest
 import requests
-import os
-import base64
-from unittest.mock import patch, Mock
 
 
 @pytest.fixture
 def demo_api_url():
     """Return the demo API URL from environment variable or default to local stub"""
-    return os.getenv('DEMO_API_URL', 'http://localhost:8000')
+    return os.getenv("DEMO_API_URL", "http://localhost:8000")
+
 
 @pytest.fixture
 def sample_text():
     """Return sample text for testing"""
     return "I'm feeling really happy and excited about this new project!"
 
+
 @pytest.fixture
 def sample_audio_data_bytes():
     """Return sample audio data as decoded bytes"""
     # This is a minimal WAV file header for testing
     return base64.b64decode("UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=")
+
 
 @pytest.mark.integration
 class TestDemoFunctionality:
@@ -38,7 +42,7 @@ class TestDemoFunctionality:
         mock_response.status_code = 200
         mock_response.json.return_value = {"status": "healthy"}
 
-        with patch('requests.get', return_value=mock_response) as mock_get:
+        with patch("requests.get", return_value=mock_response) as mock_get:
             response = requests.get(f"{demo_api_url}/health", timeout=10)
             # Verify the call was made with proper timeout
             mock_get.assert_called_once_with(f"{demo_api_url}/health", timeout=10)
@@ -50,9 +54,7 @@ class TestDemoFunctionality:
     def test_demo_emotion_detection_request_format(sample_text):
         """Test that the demo sends correctly formatted emotion detection requests"""
         # Test the request format without actually calling the API (to avoid rate limits)
-        expected_request = {
-            "text": sample_text
-        }
+        expected_request = {"text": sample_text}
 
         # Validate the request format
         assert "text" in expected_request
@@ -72,9 +74,10 @@ class TestDemoFunctionality:
             ({"text": "A" * 50000}, True),
         ],
     )
-    def test_emotion_edge_case_param(self, payload, expected_error, demo_api_url):
+    @staticmethod
+    def test_emotion_edge_case_param(payload, expected_error, demo_api_url):
         """Test emotion detection with edge cases and invalid inputs"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Mock appropriate response based on expected behavior
             mock_response = Mock()
             if expected_error:
@@ -84,7 +87,7 @@ class TestDemoFunctionality:
                 mock_response.status_code = 200
                 mock_response.json.return_value = {
                     "emotions": {"neutral": 0.8, "joy": 0.2},
-                    "predicted_emotion": "neutral"
+                    "predicted_emotion": "neutral",
                 }
 
             mock_post.return_value = mock_response
@@ -122,11 +125,11 @@ class TestDemoFunctionality:
         audio_file.content_type = "audio/wav"
 
         # Validate the multipart file format
-        assert hasattr(audio_file, 'read')
-        assert hasattr(audio_file, 'name')
-        assert hasattr(audio_file, 'content_type')
-        assert audio_file.name.endswith('.wav')
-        assert audio_file.content_type.startswith('audio/')
+        assert hasattr(audio_file, "read")
+        assert hasattr(audio_file, "name")
+        assert hasattr(audio_file, "content_type")
+        assert audio_file.name.endswith(".wav")
+        assert audio_file.content_type.startswith("audio/")
         assert isinstance(audio_file.read(), bytes)
 
     @staticmethod
@@ -141,11 +144,11 @@ class TestDemoFunctionality:
         audio_file.content_type = "audio/wav"
 
         # Test multipart file format validation
-        assert hasattr(audio_file, 'read')
-        assert hasattr(audio_file, 'name')
-        assert hasattr(audio_file, 'content_type')
-        assert audio_file.name.endswith('.wav')
-        assert audio_file.content_type.startswith('audio/')
+        assert hasattr(audio_file, "read")
+        assert hasattr(audio_file, "name")
+        assert hasattr(audio_file, "content_type")
+        assert audio_file.name.endswith(".wav")
+        assert audio_file.content_type.startswith("audio/")
         assert isinstance(audio_file.read(), bytes)
 
         # Test with empty audio data
@@ -161,7 +164,7 @@ class TestDemoFunctionality:
 
         # Test API error handling for invalid audio with mocked requests
 
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Mock error response for corrupted audio
             mock_error_response = Mock()
             mock_error_response.status_code = 400
@@ -169,7 +172,7 @@ class TestDemoFunctionality:
             mock_post.return_value = mock_error_response
 
             # Test corrupted audio handling
-            files = {'audio_file': ('corrupted.wav', io.BytesIO(b"not_audio"), 'audio/wav')}
+            files = {"audio_file": ("corrupted.wav", io.BytesIO(b"not_audio"), "audio/wav")}
             response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
@@ -183,35 +186,35 @@ class TestDemoFunctionality:
             mock_empty_response.json.return_value = {"error": "No audio data provided"}
             mock_post.return_value = mock_empty_response
 
-            files = {'audio_file': ('empty.wav', io.BytesIO(b""), 'audio/wav')}
+            files = {"audio_file": ("empty.wav", io.BytesIO(b""), "audio/wav")}
             response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
 
             assert response.status_code == 400
             error_data = response.json()
             assert "error" in error_data
 
-
     @staticmethod
     def test_demo_t5_request_format(sample_text):
         """Test that the demo sends correctly formatted T5 summarization requests"""
         # Test the request format for text summarization
-        expected_request = {
-            "text": sample_text,
-            "model": "t5"
-        }
+        expected_request = {"text": sample_text, "model": "t5"}
 
         # Validate the request format
         assert "text" in expected_request
         assert "model" in expected_request
         assert expected_request["model"] == "t5"
 
-    @pytest.mark.parametrize("scenario", [
-        {"status": 400, "message": "Bad Request"},
-        {"status": 429, "message": "Rate Limited"},
-        {"status": 500, "message": "Internal Server Error"},
-        {"status": 503, "message": "Service Unavailable"}
-    ])
-    def test_demo_error_handling_contract(self, scenario):
+    @pytest.mark.parametrize(
+        "scenario",
+        [
+            {"status": 400, "message": "Bad Request"},
+            {"status": 429, "message": "Rate Limited"},
+            {"status": 500, "message": "Internal Server Error"},
+            {"status": 503, "message": "Service Unavailable"},
+        ],
+    )
+    @staticmethod
+    def test_demo_error_handling_contract(scenario):
         """Test that the demo error handling contract is properly defined"""
         # Validate error scenario has required structure
         # This tests the error handling contract that the demo should follow
@@ -232,7 +235,7 @@ class TestDemoFunctionality:
             "emotion-detection",
             "text-summarization",
             "progress-tracking",
-            "results-display"
+            "results-display",
         ]
 
         # Validate all components are non-empty strings
@@ -247,11 +250,34 @@ class TestDemoFunctionality:
         """Test that the demo uses the correct GoEmotions labels"""
         # Expected GoEmotions labels (27 emotions + neutral)
         expected_emotions = [
-            "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-            "confusion", "curiosity", "desire", "disappointment", "disapproval",
-            "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
-            "joy", "love", "nervousness", "optimism", "pride", "realization",
-            "relief", "remorse", "sadness", "surprise", "neutral"
+            "admiration",
+            "amusement",
+            "anger",
+            "annoyance",
+            "approval",
+            "caring",
+            "confusion",
+            "curiosity",
+            "desire",
+            "disappointment",
+            "disapproval",
+            "disgust",
+            "embarrassment",
+            "excitement",
+            "fear",
+            "gratitude",
+            "grief",
+            "joy",
+            "love",
+            "nervousness",
+            "optimism",
+            "pride",
+            "realization",
+            "relief",
+            "remorse",
+            "sadness",
+            "surprise",
+            "neutral",
         ]
 
         # Validate that we have the correct number of emotions
@@ -262,9 +288,10 @@ class TestDemoFunctionality:
         assert all(len(emotion) > 0 for emotion in expected_emotions)
 
     @pytest.mark.integration
-    def test_demo_timeout_handling(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_timeout_handling(demo_api_url, sample_text):
         """Test that the demo handles API timeouts gracefully"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Mock timeout error
             mock_post.side_effect = requests.exceptions.Timeout("Request timed out")
 
@@ -280,7 +307,8 @@ class TestDemoFunctionality:
             assert "connection" in str(e2.value).lower()
 
     @pytest.mark.integration
-    def test_demo_full_workflow_mocked(self, demo_api_url, sample_text, sample_audio_data_bytes):
+    @staticmethod
+    def test_demo_full_workflow_mocked(demo_api_url, sample_text, sample_audio_data_bytes):
         """Test the complete demo workflow with API mocking"""
         import io
 
@@ -288,47 +316,43 @@ class TestDemoFunctionality:
         mock_transcription_response = {
             "transcription": "This is a test transcription",
             "confidence": 0.95,
-            "duration": 2.5
+            "duration": 2.5,
         }
 
         mock_summary_response = {
             "summary": "Test summary of the content",
-            "original_text": sample_text
+            "original_text": sample_text,
         }
 
         mock_emotion_response = {
-            "emotions": {
-                "joy": 0.8,
-                "sadness": 0.1,
-                "anger": 0.05,
-                "fear": 0.03,
-                "surprise": 0.02
-            },
+            "emotions": {"joy": 0.8, "sadness": 0.1, "anger": 0.05, "fear": 0.03, "surprise": 0.02},
             "predicted_emotion": "joy",
-            "confidence": 0.8
+            "confidence": 0.8,
         }
 
         # Test workflow steps with mocked API calls
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Configure mock responses based on endpoint
             def mock_api_response(url, **_kwargs):
                 mock_response = Mock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = {}
 
-                if '/transcribe/voice' in url:
+                if "/transcribe/voice" in url:
                     mock_response.json.return_value = mock_transcription_response
-                elif '/summarize/text' in url or '/analyze/summarize' in url:
+                elif "/summarize/text" in url or "/analyze/summarize" in url:
                     mock_response.json.return_value = mock_summary_response
-                elif '/predict' in url or '/analyze/emotion' in url:
+                elif "/predict" in url or "/analyze/emotion" in url:
                     mock_response.json.return_value = mock_emotion_response
 
                 return mock_response
 
             mock_post.side_effect = mock_api_response
             audio_file = io.BytesIO(sample_audio_data_bytes)
-            files = {'audio_file': ('test.wav', audio_file, 'audio/wav')}
-            transcription_response = requests.post(f"{demo_api_url}/transcribe/voice", files=files, timeout=10)
+            files = {"audio_file": ("test.wav", audio_file, "audio/wav")}
+            transcription_response = requests.post(
+                f"{demo_api_url}/transcribe/voice", files=files, timeout=10
+            )
 
             assert transcription_response.status_code == 200
             transcription_data = transcription_response.json()
@@ -337,8 +361,9 @@ class TestDemoFunctionality:
             assert len(transcription_data["transcription"]) > 0
 
             # Test summarization step
-            summary_response = requests.post(f"{demo_api_url}/analyze/summarize",
-                                           json={"text": sample_text}, timeout=10)
+            summary_response = requests.post(
+                f"{demo_api_url}/analyze/summarize", json={"text": sample_text}, timeout=10
+            )
 
             assert summary_response.status_code == 200
             summary_data = summary_response.json()
@@ -347,8 +372,9 @@ class TestDemoFunctionality:
             assert len(summary_data["summary"]) > 0
 
             # Test emotion detection step
-            emotion_response = requests.post(f"{demo_api_url}/analyze/emotion",
-                                           json={"text": sample_text}, timeout=10)
+            emotion_response = requests.post(
+                f"{demo_api_url}/analyze/emotion", json={"text": sample_text}, timeout=10
+            )
 
             assert emotion_response.status_code == 200
             emotion_data = emotion_response.json()
@@ -361,7 +387,7 @@ class TestDemoFunctionality:
             workflow_results = {
                 "transcription": transcription_data,
                 "summary": summary_data,
-                "emotions": emotion_data
+                "emotions": emotion_data,
             }
 
             # Verify all steps completed
@@ -372,9 +398,10 @@ class TestDemoFunctionality:
             assert mock_post.call_count >= 3
 
     @pytest.mark.integration
-    def test_demo_api_error_handling(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_api_error_handling(demo_api_url, sample_text):
         """Test that the demo handles API errors gracefully with actual HTTP requests"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Test API error responses
             mock_error_response = Mock()
             mock_error_response.status_code = 500
@@ -382,7 +409,9 @@ class TestDemoFunctionality:
             mock_post.return_value = mock_error_response
 
             # Test error handling for emotion detection
-            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
+            response = requests.post(
+                f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10
+            )
             assert response.status_code == 500
             error_data = response.json()
             assert "error" in error_data
@@ -392,37 +421,41 @@ class TestDemoFunctionality:
             assert "Traceback" not in error_data["error"]
 
     @pytest.mark.integration
-    def test_demo_rate_limiting(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_rate_limiting(demo_api_url, sample_text):
         """Test that the demo handles rate limiting gracefully"""
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Test rate limiting response
             mock_rate_limit_response = Mock()
             mock_rate_limit_response.status_code = 429
             mock_rate_limit_response.json.return_value = {
                 "error": "rate_limit_exceeded",
-                "retry_after": 60
+                "retry_after": 60,
             }
             mock_post.return_value = mock_rate_limit_response
 
-            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
+            response = requests.post(
+                f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10
+            )
             assert response.status_code == 429
             rate_limit_data = response.json()
             assert "error" in rate_limit_data
             assert rate_limit_data["error"] == "rate_limit_exceeded"
 
     @pytest.mark.integration
-    def test_demo_performance_metrics(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_performance_metrics(demo_api_url, sample_text):
         """Test that the demo tracks performance metrics correctly"""
         import time
 
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Mock successful response with timing
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json.return_value = {
                 "emotions": {"joy": 0.8, "neutral": 0.2},
                 "predicted_emotion": "joy",
-                "processing_time_ms": 150
+                "processing_time_ms": 150,
             }
 
             # Add artificial delay to test timing
@@ -434,7 +467,9 @@ class TestDemoFunctionality:
 
             # Test timing measurement
             start_time = time.time()
-            response = requests.post(f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10)
+            response = requests.post(
+                f"{demo_api_url}/predict", json={"text": sample_text}, timeout=10
+            )
             end_time = time.time()
 
             # Verify response
@@ -454,25 +489,29 @@ class TestDemoFunctionality:
                 assert processing_time > 0
 
     @pytest.mark.integration
-    def test_demo_concurrent_requests(self, demo_api_url, sample_text):
+    @staticmethod
+    def test_demo_concurrent_requests(demo_api_url, sample_text):
         """Test that the demo handles concurrent requests properly"""
         import threading
-        import time
 
-        with patch('requests.post') as mock_post:
+        with patch("requests.post") as mock_post:
             # Mock successful response
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json.return_value = {
                 "emotions": {"neutral": 0.9, "joy": 0.1},
-                "predicted_emotion": "neutral"
+                "predicted_emotion": "neutral",
             }
             mock_post.return_value = mock_response
 
             # Function to make a request
             def make_request(results, index):
                 try:
-                    response = requests.post(f"{demo_api_url}/predict", json={"text": f"{sample_text} {index}"}, timeout=10)
+                    response = requests.post(
+                        f"{demo_api_url}/predict",
+                        json={"text": f"{sample_text} {index}"},
+                        timeout=10,
+                    )
                     results[index] = response.status_code == 200
                 except requests.RequestException:
                     results[index] = False
@@ -493,6 +532,7 @@ class TestDemoFunctionality:
                 thread.join(timeout=10)  # 10 second timeout per thread
 
             # Verify all requests succeeded
-            assert len(results) == num_threads, f"Expected {num_threads} results, got {len(results)}"
+            assert (
+                len(results) == num_threads
+            ), f"Expected {num_threads} results, got {len(results)}"
             assert all(results.values()), f"Some requests failed: {results}"
-

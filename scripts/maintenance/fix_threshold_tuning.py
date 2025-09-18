@@ -1,20 +1,21 @@
-        # Create trainer and load dataset
-        # Initialize the model with class weights
-        # Load trained model
-        # Prepare dataset
-        # Test much lower thresholds
-# Add src to path
+# Create trainer and load dataset
+# Initialize the model with class weights
+# Load trained model
+# Prepare dataset
+# Test much lower thresholds
+
+import logging
+import sys
+from pathlib import Path
+
+import torch
+
 # Configure logging
 #!/usr/bin/env python3
 from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+
+# Add src to path
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
-import logging
-import sys
-import torch
-
-
-
 
 """Fix Threshold Tuning for Better F1 Scores.
 
