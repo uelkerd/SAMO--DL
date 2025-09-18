@@ -582,7 +582,7 @@ async function testWithRealAPI() {
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
-        const response = await apiClient.makeRequest('/analyze/emotion', { text: testText }, 'POST');
+        const response = await apiClient.makeRequest(`/analyze/emotion?text=${encodeURIComponent(testText)}`, {}, 'POST');
 
         if (!response.ok) {
             addToProgressConsole(`API call failed: ${response.status} ${response.statusText}`, 'error');
