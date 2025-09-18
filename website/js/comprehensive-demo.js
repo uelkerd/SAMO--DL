@@ -604,15 +604,9 @@ async function testWithRealAPI() {
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
-        const response = await apiClient.makeRequest(`/analyze/emotion?text=${encodeURIComponent(testText)}`, {}, 'POST');
-
-        if (!response.ok) {
-            addToProgressConsole(`API call failed: ${response.status} ${response.statusText}`, 'error');
-            throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-        }
+        const data = await apiClient.makeRequest('/analyze/emotion', { text: testText }, 'POST');
 
         addToProgressConsole('✅ Emotion analysis API response received', 'success');
-        const data = await response.json();
         console.log('✅ Real API response:', data);
 
         // Process emotion data
@@ -671,7 +665,7 @@ async function testWithRealAPI() {
         showResultsSections();
 
     } catch (error) {
-        console.error('❌ Error in testWithRealAPI:', error);
+        console.error('❌ Error in testWithRealAPI:', error.message, error.status, error.response?.data);
 
         // Update processing status to error
         updateElement('processingStatusCompact', 'Error');
@@ -701,15 +695,9 @@ async function callSummarizationAPI(text) {
     try {
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
-        const response = await apiClient.makeRequest('/analyze/summarize', { text: text }, 'POST');
-
-        if (!response.ok) {
-            addToProgressConsole(`Summarization API failed: ${response.status} ${response.statusText}`, 'error');
-            throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
-        }
+        const data = await apiClient.makeRequest('/analyze/summarize', { text: text }, 'POST');
 
         addToProgressConsole('✅ Summarization API response received', 'success');
-        const data = await response.json();
         console.log('✅ Summarization API response:', data);
 
         // Extract summary from response
