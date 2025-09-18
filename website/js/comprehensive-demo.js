@@ -1167,5 +1167,223 @@ async function generateSampleText() {
     }
 }
 
-// Make function globally available
+// Essential Processing Functions (restored from simple-demo-functions.js)
+
+async function processText() {
+    console.log('🚀 Processing text...');
+    const text = document.getElementById('textInput').value;
+    console.log('🔍 Text from input:', text);
+    console.log('🔍 Text length:', text.length);
+    if (!text.trim()) {
+        showInlineError('Please enter some text to analyze', 'textInput');
+        return;
+    }
+    console.log('🔍 About to call testWithRealAPI from processText');
+    await testWithRealAPI();
+}
+
+async function testWithRealAPI() {
+    console.log('🌐 Testing with real API...');
+    const startTime = performance.now();
+
+    try {
+        // Show enhanced loading state
+        const chartContainer = document.getElementById('emotionChart');
+        if (chartContainer) {
+            while (chartContainer.firstChild) {
+                chartContainer.removeChild(chartContainer.firstChild);
+            }
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'text-align: center; padding: 30px; background: rgba(139, 92, 246, 0.05); border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.2);';
+
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner-border text-primary mb-3';
+            spinner.style.cssText = 'width: 2rem; height: 2rem;';
+            loadingDiv.appendChild(spinner);
+
+            const title = document.createElement('h6');
+            title.textContent = '🧠 AI Analysis in Progress';
+            title.style.cssText = 'color: #8b5cf6; margin-bottom: 15px;';
+            loadingDiv.appendChild(title);
+
+            const message = document.createElement('p');
+            message.id = 'emotionLoadingMessage';
+            message.textContent = 'Initializing emotion analysis models...';
+            message.style.cssText = 'color: #6b7280; margin-bottom: 10px;';
+            loadingDiv.appendChild(message);
+
+            chartContainer.appendChild(loadingDiv);
+        }
+
+        updateElement('primaryEmotion', 'Loading...');
+
+        let testText = document.getElementById('textInput').value || "I am so excited and happy today! This is wonderful news!";
+
+        // Check text length limit
+        const MAX_TEXT_LENGTH = 400;
+        if (testText.length > MAX_TEXT_LENGTH) {
+            console.log(`⚠️ Text too long (${testText.length} chars), truncating to ${MAX_TEXT_LENGTH} chars`);
+            testText = testText.substring(0, MAX_TEXT_LENGTH) + "...";
+        }
+
+        console.log('🔥 Calling emotion API...');
+        const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Length': '0',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Real API response:', data);
+
+        // Process emotion data
+        let primaryEmotion = null;
+        let primaryConfidence = 0;
+
+        if (data.emotions && typeof data.emotions === 'object' && data.predicted_emotion) {
+            primaryEmotion = data.predicted_emotion;
+            primaryConfidence = data.emotions[data.predicted_emotion] || 0;
+        } else if (data.emotion && data.confidence) {
+            primaryEmotion = data.emotion;
+            primaryConfidence = data.confidence;
+        }
+
+        // Update UI with results
+        updateElement('primaryEmotion', primaryEmotion || 'Unknown');
+        updateElement('emotionalIntensity', `${Math.round(primaryConfidence * 100)}%`);
+
+        // Call summarization API
+        const summary = await callSummarizationAPI(testText);
+
+        // Show results
+        showResultsSections();
+
+    } catch (error) {
+        console.error('❌ Error in testWithRealAPI:', error);
+        showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
+    }
+}
+
+async function callSummarizationAPI(text) {
+    console.log('📝 Calling real summarization API...');
+
+    try {
+        const params = new URLSearchParams({
+            text: text,
+            style: 'third_person',
+            format: 'narrative',
+            mode: 'paraphrase'
+        });
+
+        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?${params.toString()}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Length': '0',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Summarization API response:', data);
+
+        // Extract summary from response
+        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output'];
+        let summaryText = null;
+
+        for (const field of possibleFields) {
+            if (data[field] && typeof data[field] === 'string') {
+                summaryText = data[field];
+                break;
+            }
+        }
+
+        if (summaryText) {
+            updateElement('summaryText', summaryText);
+            updateElement('summarizationResults', 'Summarization completed');
+        } else {
+            console.warn('⚠️ No valid summary found in response');
+        }
+
+        return summaryText;
+
+    } catch (error) {
+        console.error('❌ Error in callSummarizationAPI:', error);
+        updateElement('summaryText', 'Failed to generate summary');
+        return null;
+    }
+}
+
+function updateElement(id, value) {
+    try {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value !== null && value !== undefined ? value : '-';
+            console.log(`✅ Updated ${id}: ${value}`);
+        } else {
+            console.warn(`⚠️ Element not found: ${id}`);
+        }
+    } catch (error) {
+        console.error(`❌ Error updating element ${id}:`, error);
+    }
+}
+
+function showResultsSections() {
+    console.log('👁️ Showing results sections...');
+
+    try {
+        const emotionResults = document.getElementById('emotionResults');
+        if (emotionResults) {
+            emotionResults.classList.remove('result-section-hidden');
+            emotionResults.classList.add('result-section-visible');
+            emotionResults.style.display = 'block';
+            console.log('✅ Emotion results section shown');
+        }
+
+        const summarizationResults = document.getElementById('summarizationResults');
+        if (summarizationResults) {
+            summarizationResults.classList.remove('result-section-hidden');
+            summarizationResults.classList.add('result-section-visible');
+            summarizationResults.style.display = 'block';
+            console.log('✅ Summarization results section shown');
+        }
+    } catch (error) {
+        console.error('❌ Error showing results sections:', error);
+    }
+}
+
+// Make functions globally available
 window.generateSampleText = generateSampleText;
+window.processText = processText;
+window.testWithRealAPI = testWithRealAPI;
+window.callSummarizationAPI = callSummarizationAPI;
+window.updateElement = updateElement;
+window.showResultsSections = showResultsSections;
