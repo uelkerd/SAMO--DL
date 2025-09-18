@@ -49,7 +49,7 @@ def get_cors_origins():
     i = 1
     while True:
         origin_var = f"CORS_ORIGIN_{i}"
-        origin = os.environ.get(origin_var)
+        origin = os.environ.get(origin_var, "")
         if origin:
             origins.append(origin.strip())
             i += 1
@@ -58,7 +58,7 @@ def get_cors_origins():
 
     # If we found split origins, use them
     if origins:
-        logger.info(f"CORS origins from split environment variables: {origins}")
+        logger.info("CORS origins from split environment variables: %s", origins)
         return origins
 
     # Fall back to legacy format (CORS_ORIGINS comma-separated)
@@ -68,7 +68,7 @@ def get_cors_origins():
         origins = [
             origin.strip() for origin in origins_env.split(",") if origin.strip()
         ]
-        logger.info(f"CORS origins from legacy environment variable: {origins}")
+        logger.info("CORS origins from legacy environment variable: %s", origins)
         return origins
 
     # Safe development defaults when no config provided
@@ -92,7 +92,7 @@ def get_cors_origin_regex():
 
     if regex_env:
         # Use the provided regex pattern directly
-        logger.info(f"CORS origin regex pattern: {regex_env}")
+        logger.info("CORS origin regex pattern: %s", regex_env)
         return regex_env
     # Combine default patterns into single regex with alternation (|)
     default_patterns = [
@@ -104,7 +104,7 @@ def get_cors_origin_regex():
     ]
     # Join patterns with OR (|) to create single regex
     combined_pattern = "|".join(f"({pattern})" for pattern in default_patterns)
-    logger.info(f"CORS combined regex pattern: {combined_pattern}")
+    logger.info("CORS combined regex pattern: %s", combined_pattern)
     return combined_pattern
 
 
@@ -453,7 +453,7 @@ async def proxy_openai(request: OpenAIRequest):
     """Proxy OpenAI API calls with server-side API key."""
     try:
         # Get API key from environment
-        api_key = os.environ.get("OPENAI_API_KEY")
+        api_key = os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
             raise HTTPException(
                 status_code=500, detail="OpenAI API key not configured on server"
@@ -538,7 +538,7 @@ if __name__ == "__main__":
     # Determine host binding based on environment and explicit configuration
     if os.environ.get("HOST"):
         # Use explicitly configured host
-        host = os.environ.get("HOST")
+        host = os.environ.get("HOST", "")
         logger.info(f"Using explicitly configured host: {host}")
     elif is_containerized and (
         is_production or os.environ.get("BIND_ALL_INTERFACES") == "true"

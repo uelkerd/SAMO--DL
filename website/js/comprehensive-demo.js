@@ -18,12 +18,12 @@ class SAMOAPIClient {
             HEALTH: '/health',
             READY: '/ready',
             TRANSCRIBE: '/transcribe',
-            VOICE_JOURNAL: '/analyze/voice_journal'  // Match config.js format
+            VOICE_JOURNAL: '/analyze/voice-journal'  // Match actual API endpoint
         };
         
         // Ensure VOICE_JOURNAL has a fallback if missing from config
         if (!this.endpoints.VOICE_JOURNAL) {
-            this.endpoints.VOICE_JOURNAL = '/analyze/voice_journal';
+            this.endpoints.VOICE_JOURNAL = '/analyze/voice-journal';
         }
         this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 45000;
         this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;

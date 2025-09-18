@@ -184,11 +184,11 @@
                             <div id="audioFile-unavailable-explanation" class="form-text text-muted">Voice processing is temporarily unavailable. Please use text input below.</div>
                         </div>
 
-                        <!-- Audio Recording - Temporarily Disabled -->
-                        <div class="mb-4" style="opacity: 0.5;">
+                        <!-- Audio Recording -->
+                        <div class="mb-4">
                             <label class="form-label fw-bold fs-5">
                                 <span class="material-icons me-2">fiber_manual_record</span>
-                                Record Audio (Temporarily Unavailable)
+                                Record Audio
                             </label>
                             <div class="d-flex gap-3 justify-content-center">
                                 <button class="btn btn-outline-secondary btn-lg" id="recordBtn" disabled aria-label="Start audio recording">
@@ -200,6 +200,11 @@
                                     Stop Recording
                                 </button>
                             </div>
+
+                            <!-- Recording Timer -->
+                            <div class="recording-time text-center mt-2">
+                                <span class="badge bg-secondary" id="recordingTime" style="display: none;">0:00</span>
+                            </div>
                             <!-- Audio Visualizer -->
                             <div id="audioVisualizer" class="audio-visualizer mt-3" style="display: none;">
                                 <div class="text-center">
@@ -209,7 +214,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-text text-muted">Voice processing will be restored soon. Use text input for now.</div>
+                            <div class="form-text text-muted">Click "Start Recording" to begin voice transcription.</div>
                         </div>
 
                         <!-- Text Input -->
@@ -573,7 +578,10 @@
 
     <!-- Main comprehensive demo script -->
     <script src="js/comprehensive-demo.js"></script>
-    
+
+    <!-- Voice Recording Module -->
+    <script src="js/voice-recorder.js"></script>
+
     <!-- Legacy Scripts (commented out for now) -->
     <!-- <script src="js/api-client.js"></script> -->
     <!-- <script src="js/ui-controller.js"></script> -->

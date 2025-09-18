@@ -1,15 +1,14 @@
-    # Create tables
-    # Import all models here to ensure they're registered with Base.metadata
-# Create engine
-# Create scoped session for thread safety
-# Create sessionmaker
-# Create the database URL
-# Get database connection details from environment variables
+"""
+Database connection utilities for the SAMO-DL application.
+
+This module provides database connection management, session handling,
+and configuration for PostgreSQL with pgvector support.
+"""
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
-import os
 from pathlib import Path
 from urllib.parse import quote_plus
 from src.common.env import is_truthy
@@ -20,13 +19,13 @@ from src.common.env import is_truthy
 
 
 # Respect DATABASE_URL if provided explicitly (preferred)
-_env_database_url = os.environ.get("DATABASE_URL")
+_env_database_url = os.environ.get("DATABASE_URL", "")
 
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_USER = os.environ.get("DB_USER", "")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = os.environ.get("DB_PORT", "5432")
-DB_NAME = os.environ.get("DB_NAME")
+DB_NAME = os.environ.get("DB_NAME", "")
 
 if _env_database_url:
     DATABASE_URL = _env_database_url
