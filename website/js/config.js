@@ -12,6 +12,7 @@ window.SAMO_CONFIG = {
             EMOTION: '/analyze/emotion',
             SUMMARIZE: '/analyze/summarize',
             JOURNAL: '/analyze/journal',
+            VOICE_JOURNAL: '/analyze/voice_journal',
             HEALTH: '/health',
             READY: '/ready',
             TRANSCRIBE: '/transcribe',

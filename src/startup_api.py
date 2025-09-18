@@ -7,6 +7,7 @@ SECURITY NOTE: This application binds to 0.0.0.0 only in production environments
 it defaults to 127.0.0.1 to prevent external access. This is a deliberate design choice
 for containerized deployments and is not a security vulnerability.
 """
+import asyncio
 import logging
 import os
 import traceback
@@ -15,7 +16,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 import torch
-import requests
+import httpx
 from pydantic import BaseModel
 
 # Configure comprehensive logging
@@ -122,6 +123,50 @@ summarization_model = None
 whisper_model = None
 models_loaded = False
 startup_error = None
+
+
+def run_emotion_analysis(text: str) -> dict:
+    """Run emotion analysis in a separate thread to avoid blocking the event loop."""
+    with torch.no_grad():
+        inputs = emotion_model["tokenizer"](
+            text, return_tensors="pt", truncation=True, max_length=512
+        )
+        outputs = emotion_model["model"](**inputs)
+        predictions = outputs.logits.sigmoid()
+
+    emotion_labels = [
+        "admiration", "amusement", "anger", "annoyance", "approval", "caring",
+        "confusion", "curiosity", "desire", "disappointment", "disapproval",
+        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+        "joy", "love", "nervousness", "optimism", "pride", "realization",
+        "relief", "remorse", "sadness", "surprise", "neutral",
+    ]
+
+    emotion_scores = predictions[0].tolist()
+    return {
+        "text": text,
+        "emotions": dict(zip(emotion_labels, emotion_scores)),
+        "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))],
+    }
+
+
+def run_text_summarization(text: str) -> dict:
+    """Run text summarization in a separate thread to avoid blocking the event loop."""
+    with torch.no_grad():
+        inputs = summarization_model["tokenizer"](
+            f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
+        )
+        outputs = summarization_model["model"].generate(
+            inputs["input_ids"],
+            max_length=150,
+            min_length=30,
+            length_penalty=2.0,
+            num_beams=4,
+            early_stopping=True,
+        )
+        summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
+
+    return {"original_text": text, "summary": summary}
 
 
 def load_emotion_model():
@@ -333,51 +378,8 @@ async def analyze_emotion(text: str = Body(..., embed=True)):
         )
 
     try:
-        # Perform analysis with pre-loaded model
-        with torch.no_grad():
-            inputs = emotion_model["tokenizer"](
-                text, return_tensors="pt", truncation=True, max_length=512
-            )
-            outputs = emotion_model["model"](**inputs)
-            predictions = outputs.logits.sigmoid()
-
-        emotion_labels = [
-            "admiration",
-            "amusement",
-            "anger",
-            "annoyance",
-            "approval",
-            "caring",
-            "confusion",
-            "curiosity",
-            "desire",
-            "disappointment",
-            "disapproval",
-            "disgust",
-            "embarrassment",
-            "excitement",
-            "fear",
-            "gratitude",
-            "grief",
-            "joy",
-            "love",
-            "nervousness",
-            "optimism",
-            "pride",
-            "realization",
-            "relief",
-            "remorse",
-            "sadness",
-            "surprise",
-            "neutral",
-        ]
-
-        emotion_scores = predictions[0].tolist()
-        return {
-            "text": text,
-            "emotions": dict(zip(emotion_labels, emotion_scores)),
-            "predicted_emotion": emotion_labels[emotion_scores.index(max(emotion_scores))],
-        }
+        # Run emotion analysis in threadpool to avoid blocking event loop
+        return await asyncio.to_thread(run_emotion_analysis, text)
 
     except Exception:
         logger.exception("Error in emotion analysis")
@@ -394,22 +396,8 @@ async def summarize_text(text: str = Body(..., embed=True)):
         )
 
     try:
-        # Perform summarization with pre-loaded model
-        with torch.no_grad():
-            inputs = summarization_model["tokenizer"](
-                f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
-            )
-            outputs = summarization_model["model"].generate(
-                inputs["input_ids"],
-                max_length=150,
-                min_length=30,
-                length_penalty=2.0,
-                num_beams=4,
-                early_stopping=True,
-            )
-            summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
-
-        return {"original_text": text, "summary": summary}
+        # Run text summarization in threadpool to avoid blocking event loop
+        return await asyncio.to_thread(run_text_summarization, text)
 
     except Exception:
         logger.exception("Error in summarization")
@@ -451,17 +439,23 @@ async def proxy_openai(request: OpenAIRequest):
             "temperature": request.temperature
         }
 
-        # Make request to OpenAI
-        response = requests.post(openai_url, headers=headers, json=payload, timeout=30)
-        
-        if not response.ok:
-            logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"OpenAI API error: {response.text}"
+        # Make async request to OpenAI using httpx
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                openai_url, 
+                headers=headers, 
+                json=payload, 
+                timeout=httpx.Timeout(30.0)
             )
+            
+            if response.is_error:
+                logger.error(f"OpenAI API error: {response.status_code} - {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"OpenAI API error: {response.text}"
+                )
 
-        data = response.json()
+            data = response.json()
         
         if not data.get("choices") or not data["choices"][0].get("message"):
             raise HTTPException(
@@ -475,9 +469,9 @@ async def proxy_openai(request: OpenAIRequest):
             usage=data.get("usage")
         )
 
-    except requests.exceptions.Timeout:
+    except httpx.ReadTimeout:
         raise HTTPException(status_code=504, detail="OpenAI API timeout")
-    except requests.exceptions.RequestException as e:
+    except httpx.RequestError as e:
         logger.error(f"OpenAI API request error: {e}")
         raise HTTPException(status_code=502, detail="OpenAI API unavailable")
     except Exception as e:

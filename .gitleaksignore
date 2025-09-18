@@ -1,18 +1,8 @@
 # Gitleaks ignore file for SAMO-DL project
-# This file contains patterns and files to ignore during security scanning
+# This file contains specific patterns to ignore during security scanning
 
-# False positives for ML tokenizer imports
-# These are not actual API keys but ML model tokenizer objects
-scripts/pre_download_models.py
-src/startup_api.py
-
-# Additional ML-related false positives
-# Any file that imports transformers tokenizers
-**/transformers/**
-**/*tokenizer*
-**/*Tokenizer*
-
-# Model loading patterns that might trigger false positives
-**/from_pretrained*
-**/AutoTokenizer*
-**/T5Tokenizer*
+# ML tokenizer imports - these are false positives for "generic-api-key"
+# Only ignore specific lines that import tokenizers, not entire files
+scripts/pre_download_models.py:from transformers import T5Tokenizer, T5ForConditionalGeneration
+src/startup_api.py:from transformers import T5Tokenizer, T5ForConditionalGeneration
+src/startup_api.py:from transformers import AutoTokenizer, AutoModelForSequenceClassification

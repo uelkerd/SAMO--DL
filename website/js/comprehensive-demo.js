@@ -146,14 +146,8 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            // Use query parameters instead of JSON body for summarize API
-            const url = `${this.baseURL}${this.endpoints.SUMMARIZE}?text=${encodeURIComponent(text)}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Length': '0'
-                }
-            });
+            // Use makeRequest method for proper timeout and error handling
+            const response = await this.makeRequest(this.endpoints.SUMMARIZE, { text }, 'POST');
             
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -191,14 +185,8 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            // Use query parameters instead of JSON body for emotion API
-            const url = `${this.baseURL}${this.endpoints.EMOTION}?text=${encodeURIComponent(text)}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Length': '0'
-                }
-            });
+            // Use makeRequest method for proper timeout and error handling
+            const response = await this.makeRequest(this.endpoints.EMOTION, { text }, 'POST');
             
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -591,23 +579,10 @@ async function testWithRealAPI() {
         addToProgressConsole(`Text prepared for analysis (${testText.length} characters)`, 'success');
         addToProgressConsole('🧠 Initializing DeBERTa v3 Large emotion model...', 'processing');
         console.log('🔥 Calling emotion API...');
-        const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort('Request timeout after 90 seconds - API may be experiencing cold start delays'), 90000); // Increased for cold starts
-
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Length': '0',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
+        // Create API client instance for proper timeout and error handling
+        const apiClient = new SAMOAPIClient();
+        const response = await apiClient.makeRequest('/analyze/emotion', { text: testText }, 'POST');
 
         if (!response.ok) {
             addToProgressConsole(`API call failed: ${response.status} ${response.statusText}`, 'error');
@@ -702,26 +677,9 @@ async function callSummarizationAPI(text) {
     addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
-        const params = new URLSearchParams({
-            text: text
-        });
-
-        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?${params.toString()}`;
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000);
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Length': '0',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            },
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
+        // Create API client instance for proper timeout and error handling
+        const apiClient = new SAMOAPIClient();
+        const response = await apiClient.makeRequest('/analyze/summarize', { text: text }, 'POST');
 
         if (!response.ok) {
             addToProgressConsole(`Summarization API failed: ${response.status} ${response.statusText}`, 'error');
@@ -1021,6 +979,9 @@ function createEmotionChart(emotionData) {
 function resetToInputScreen() {
     console.log('🔄 Resetting to input screen...');
 
+    // IMMEDIATELY clear all result content to prevent remnants
+    clearAllResultContent();
+
     // Clear text input
     const textInput = document.getElementById('textInput');
     if (textInput) {
@@ -1069,6 +1030,54 @@ function resetToInputScreen() {
     console.log('✅ Reset completed');
 }
 
+// NEW: Function to immediately clear all result content
+function clearAllResultContent() {
+    console.log('🧹 Clearing all result content immediately...');
+
+    // Clear emotion analysis results
+    updateElement('primaryEmotion', '-');
+    updateElement('emotionalIntensity', '-');
+    updateElement('sentimentScore', '-');
+    updateElement('confidenceRange', '-');
+    updateElement('modelDetails', '-');
+
+    // Clear emotion chart
+    const emotionChart = document.getElementById('emotionChart');
+    if (emotionChart) {
+        emotionChart.textContent = '';
+    }
+
+    // Clear emotion badges
+    const emotionBadges = document.getElementById('emotionBadges');
+    if (emotionBadges) {
+        emotionBadges.textContent = '';
+    }
+
+    // Clear emotion details
+    const emotionDetails = document.getElementById('emotionDetails');
+    if (emotionDetails) {
+        emotionDetails.textContent = '';
+    }
+
+    // Clear summarization results
+    const summaryText = document.getElementById('summaryText');
+    if (summaryText) {
+        summaryText.textContent = '';
+    }
+    updateElement('originalLength', '-');
+    updateElement('summaryLength', '-');
+
+    // Clear transcription results
+    const transcriptionText = document.getElementById('transcriptionText');
+    if (transcriptionText) {
+        transcriptionText.textContent = '';
+    }
+    updateElement('transcriptionConfidence', '-');
+    updateElement('transcriptionDuration', '-');
+
+    console.log('✅ All result content cleared');
+}
+
 // Make functions globally available
 window.generateSampleText = generateSampleText;
 window.processText = processText;
@@ -1080,3 +1089,4 @@ window.addToProgressConsole = addToProgressConsole;
 window.clearProgressConsole = clearProgressConsole;
 window.createEmotionChart = createEmotionChart;
 window.resetToInputScreen = resetToInputScreen;
+window.clearAllResultContent = clearAllResultContent;
