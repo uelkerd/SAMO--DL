@@ -266,9 +266,9 @@ def health_check():
         return jsonify(health_data), 200
 
     except Exception as e:
-        logger.error(f"❌ Health check failed: {e}")
+        logger.error(f"❌ Health check failed: {e}", exc_info=True)
         REQUEST_COUNT.labels(endpoint='/health', status='error').inc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Health check failed'}), 500
 
 
 @app.route('/predict', methods=['POST'])
@@ -297,11 +297,11 @@ def predict():
         return jsonify(result), 200
 
     except Exception as e:
-        logger.error(f"❌ Prediction failed: {e}")
+        logger.error(f"❌ Prediction failed: {e}", exc_info=True)
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Prediction failed'}), 500
 
 
 @app.route('/metrics', methods=['GET'])

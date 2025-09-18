@@ -603,8 +603,8 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Health check failed: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Health check failed'}), 500
 
 @app.route('/predict', methods=['POST'])
 @secure_endpoint
@@ -669,8 +669,8 @@ def predict():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Secure prediction endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Secure prediction endpoint error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Prediction failed'}), 500
 
 @app.route('/predict_batch', methods=['POST'])
 @secure_endpoint
@@ -937,8 +937,8 @@ def add_to_blacklist():
         logger.info(f"Added {ip} to blacklist")
         return jsonify({'message': f'Added {ip} to blacklist'})
     except Exception as e:
-        logger.error(f"Blacklist error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Blacklist error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Blacklist operation failed'}), 500
 
 @app.route('/security/whitelist', methods=['POST'])
 @require_admin_api_key
@@ -954,8 +954,8 @@ def add_to_whitelist():
         logger.info(f"Added {ip} to whitelist")
         return jsonify({'message': f'Added {ip} to whitelist'})
     except Exception as e:
-        logger.error(f"Whitelist error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Whitelist error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Whitelist operation failed'}), 500
 
 @app.route('/', methods=['GET'])
 @secure_endpoint
@@ -1018,8 +1018,8 @@ def home():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Documentation endpoint error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Documentation service unavailable'}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
 def handle_bad_request(e):
