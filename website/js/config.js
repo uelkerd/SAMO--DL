@@ -63,21 +63,20 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // Use local development server proxies
-    window.SAMO_CONFIG.API.BASE_URL = `http://${window.location.hostname}:${window.location.port}`;
+    // Use local unified API server (the real API with all features)
+    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8002';
     window.SAMO_CONFIG.API.ENDPOINTS = {
-        EMOTION: '/api/emotion',
-        SUMMARIZE: '/api/summarize',
-        VOICE_JOURNAL: '/api/voice-journal',
-        HEALTH: '/api/health',
-        // Keep other endpoints as fallbacks
+        EMOTION: '/analyze/emotion',
+        SUMMARIZE: '/analyze/summarize',
+        VOICE_JOURNAL: '/analyze/voice-journal',
+        HEALTH: '/health',
         JOURNAL: '/analyze/journal',
         READY: '/ready',
         TRANSCRIBE: '/transcribe',
         OPENAI_PROXY: '/proxy/openai'
     };
 
-    console.log('🔧 Running in localhost development mode - using local API proxies with voice support');
+    console.log('🔧 Running in localhost development mode - using local unified API server (port 8002)');
 }
 
 // Deep merge utility function

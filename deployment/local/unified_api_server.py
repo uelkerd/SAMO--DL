@@ -45,7 +45,16 @@ model_loading = False
 models_loaded = False
 model_lock = threading.Lock()
 
-# Emotion mapping based on training order
+# GoEmotions emotion mapping for SAMO DeBERTa model
+GOEMOTIONS_EMOTIONS = [
+    "admiration", "amusement", "anger", "annoyance", "approval", "caring",
+    "confusion", "curiosity", "desire", "disappointment", "disapproval",
+    "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
+    "joy", "love", "nervousness", "optimism", "pride", "realization",
+    "relief", "remorse", "sadness", "surprise", "neutral"
+]
+
+# Fallback mapping (if needed)
 EMOTION_MAPPING = [
     'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
     'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
@@ -86,29 +95,27 @@ def load_models():
             emotion_tokenizer = AutoTokenizer.from_pretrained(str(model_path))
             logger.info("✅ Production model loaded successfully")
         except:
-            logger.warning("⚠️ Production model not found, "
-                          "using development fallback")
-            fallback_model_id = ("cardiffnlp/"
-                                 "twitter-roberta-base-emotion-multilabel-latest")
+            logger.warning("⚠️ Production model not found, loading REAL SAMO model")
+            samo_model_id = "duelker/samo-goemotions-deberta-v3-large"
+            logger.info(f"🚀 Loading REAL SAMO emotion model: {samo_model_id}")
             emotion_model = AutoModelForSequenceClassification.from_pretrained(
-                fallback_model_id)
-            emotion_tokenizer = AutoTokenizer.from_pretrained(fallback_model_id)
-            logger.info("✅ Fallback model loaded successfully")
+                samo_model_id)
+            emotion_tokenizer = AutoTokenizer.from_pretrained(samo_model_id)
+            logger.info("✅ REAL SAMO emotion model loaded successfully")
 
         # Set device (CPU for compatibility)
         device = torch.device('cpu')
         emotion_model.to(device)
         emotion_model.eval()
 
-        # Prefer model-provided labels when available
+        # Use GoEmotions labels for SAMO DeBERTa model
         try:
             id2label = getattr(emotion_model.config, "id2label", None)
-            if id2label:
-                # Ensure index order
-                emotion_mapping = [id2label[i] 
-                                  for i in range(emotion_model.config.num_labels)]
-                logger.info(f"✅ Using model-provided labels: "
-                           f"{emotion_mapping}")
+            if id2label and len(id2label) == len(GOEMOTIONS_EMOTIONS):
+                # SAMO model uses GoEmotions labels - map from LABEL_X to actual emotions
+                emotion_mapping = GOEMOTIONS_EMOTIONS
+                logger.info("✅ Using REAL SAMO GoEmotions mapping: 28 emotions")
+                logger.info(f"🎯 Sample emotions: {GOEMOTIONS_EMOTIONS[:5]}...{GOEMOTIONS_EMOTIONS[-3:]}")
             else:
                 emotion_mapping = EMOTION_MAPPING
                 logger.info("⚠️ Using fallback emotion mapping")

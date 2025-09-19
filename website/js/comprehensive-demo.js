@@ -778,7 +778,7 @@ async function callSummarizationAPI(text) {
     try {
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
-        const data = await apiClient.makeRequest('/analyze/summarize', { text: text }, 'POST');
+        const data = await apiClient.makeRequest(apiClient.endpoints.SUMMARIZE, { text: text }, 'POST');
 
         addToProgressConsole('✅ Summarization API response received', 'success');
         console.log('✅ Summarization API response:', data);

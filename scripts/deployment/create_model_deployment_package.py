@@ -105,7 +105,8 @@ class EmotionDetector:
 
             id2label = config.get('id2label', {})
             if not id2label:
-                raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
+                raise ValueError("Model config missing 'id2label' mapping. "
+                                "Cannot determine emotion classes.")
 
             # Create classes list ordered by integer label indices
             # Handle both string and integer keys in id2label
@@ -127,7 +128,8 @@ class EmotionDetector:
 
             self.label_encoder = LabelEncoder()
             self.label_encoder.classes_ = np.array(classes)
-            print(f"✅ Created label encoder from model config with {len(classes)} classes")
+            print(f"✅ Created label encoder from model config with "
+                  f"{len(classes)} classes")
 
         print(f"✅ Model loaded successfully!")
         print(f"🎯 Device: {self.device}")

@@ -65,14 +65,16 @@ def quick_label_fix():
                 if isinstance(label_id, int) and 0 <= label_id < len(go_label_names):
                     go_emotion_name = go_label_names[label_id]
                     # Map GoEmotions label to journal emotion using mapping
-                    mapped_emotion = emotion_mapping.get(go_emotion_name, go_emotion_name)
+                    mapped_emotion = emotion_mapping.get(go_emotion_name, 
+                                                         go_emotion_name)
                     go_labels.add(mapped_emotion)
                 else:
                     # Handle edge cases where label_id might be out of range
                     go_labels.add(f"unknown_{label_id}")
 
     # Ensure journal labels are strings for consistent comparison
-    journal_labels = {str(label).strip() for label in journal_df['emotion'].unique() if str(label).strip()}
+    journal_labels = {str(label).strip() for label in journal_df['emotion'].unique() 
+                      if str(label).strip()}
 
     # Use only common labels to avoid mismatches
     common_labels = sorted(list(go_labels.intersection(journal_labels)))

@@ -207,7 +207,8 @@ if __name__ == "__main__":
         "--model-dir",
         type=str,
         default=None,
-        help="Path to model directory (default: from MODEL_DIR env var or 'deployment/model')"
+        help=("Path to model directory (default: from MODEL_DIR env var "
+              "or 'deployment/model')")
     )
     args = parser.parse_args()
 

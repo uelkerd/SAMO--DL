@@ -56,10 +56,14 @@ class EmotionDetectionModel:
                 return labels
             # Fallback to hardcoded list if config doesn't have labels
             print("⚠️ No emotion labels found in model config, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
+                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
+                    'sad', 'tired']
         except Exception as e:
             print(f"⚠️ Error loading emotion labels: {e}, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
+                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
+                    'sad', 'tired']
 
     def _get_emotion_label(self, label_id):
         """Get emotion label for a given label ID."""
@@ -210,7 +214,8 @@ if __name__ == '__main__':
         print("⚠️ Host binding module not available, using fallback configuration")
         host = '0.0.0.0'
         port = int(os.environ.get('AIP_HTTP_PORT', '8080'))
-        security_summary = f"Fallback mode: host={host}, port={port} (AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')})"
+        security_summary = (f"Fallback mode: host={host}, port={port} "
+                           f"(AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')})")
         print(f"Security Summary: {security_summary}")
 
     print(f"🚀 Server starting on http://{host}:{port}")

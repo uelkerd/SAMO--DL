@@ -316,8 +316,10 @@ class SecureEmotionDetectionModel:
             # Log text length and hash instead of raw content to avoid PII exposure
             import hashlib
             text_hash = hashlib.sha256(sanitized_text.encode("utf-8")).hexdigest()[:8]
-            logger.info("Secure prediction completed in %.3fs: text_len=%d, text_hash=%s → %s (conf: %.3f)",
-                        prediction_time, len(sanitized_text), text_hash, predicted_emotion, confidence)
+            logger.info("Secure prediction completed in %.3fs: text_len=%d, "
+                       "text_hash=%s → %s (conf: %.3f)",
+                       prediction_time, len(sanitized_text), text_hash, 
+                       predicted_emotion, confidence)
 
             # Create secure response
             return {

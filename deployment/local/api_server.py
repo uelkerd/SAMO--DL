@@ -69,7 +69,8 @@ def rate_limit(f):
 
         with rate_limit_lock:
             # Clean old requests
-            while rate_limit_data[client_ip] and current_time - rate_limit_data[client_ip][0] > RATE_LIMIT_WINDOW:
+            while (rate_limit_data[client_ip] and 
+                   current_time - rate_limit_data[client_ip][0] > RATE_LIMIT_WINDOW):
                 rate_limit_data[client_ip].popleft()
 
             # Check rate limit
@@ -77,7 +78,8 @@ def rate_limit(f):
                 logger.warning(f"Rate limit exceeded for IP: {client_ip}")
                 return jsonify({
                     'error': 'Rate limit exceeded',
-                    'message': f'Maximum {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds'
+                    'message': (f'Maximum {RATE_LIMIT_MAX_REQUESTS} requests per '
+                               f'{RATE_LIMIT_WINDOW} seconds')
                 }), 429
 
             # Add current request
@@ -103,7 +105,8 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None):
 
         # Update average response time
         if metrics['response_times']:
-            metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
+            metrics['average_response_time'] = (sum(metrics['response_times']) / 
+                                               len(metrics['response_times']))
 
 class EmotionDetectionModel:
     def __init__(self):
@@ -113,7 +116,8 @@ class EmotionDetectionModel:
 
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
-            self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                self.model_path)
 
             # Move to GPU if available
             if torch.cuda.is_available():
@@ -137,20 +141,29 @@ class EmotionDetectionModel:
             if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
                 # Convert id2label dict to ordered list
                 max_id = max(self.model.config.id2label.keys())
-                labels = [self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)]
-                logger.info(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+                labels = [self.model.config.id2label.get(i, f"unknown_{i}") 
+                         for i in range(max_id + 1)]
+                logger.info(f"📊 Loaded {len(labels)} emotions from model config: "
+                           f"{labels}")
                 return labels
             if hasattr(self.model.config, 'label2id') and self.model.config.label2id:
                 # Convert label2id dict to ordered list
-                labels = sorted(self.model.config.label2id.keys(), key=lambda x: self.model.config.label2id[x])
-                logger.info(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+                labels = sorted(self.model.config.label2id.keys(), 
+                               key=lambda x: self.model.config.label2id[x])
+                logger.info(f"📊 Loaded {len(labels)} emotions from model config: "
+                           f"{labels}")
                 return labels
             # Fallback to hardcoded list if config doesn't have labels
-            logger.warning("⚠️ No emotion labels found in model config, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            logger.warning("⚠️ No emotion labels found in model config, "
+                          "using fallback")
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
+                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
+                    'sad', 'tired']
         except Exception as e:
             logger.warning(f"⚠️ Error loading emotion labels: {e}, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
+                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
+                    'sad', 'tired']
 
     def predict(self, text):
         """Make a prediction."""
@@ -158,7 +171,8 @@ class EmotionDetectionModel:
 
         try:
             # Tokenize input
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, 
+                                   padding=True, max_length=512)
 
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
@@ -183,8 +197,10 @@ class EmotionDetectionModel:
             # Log text length and hash instead of raw content to avoid PII exposure
             import hashlib
             text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
-            logger.info("Prediction completed in %.3fs: text_len=%d, text_hash=%s → %s (conf: %.3f)",
-                        prediction_time, len(text), text_hash, predicted_emotion, confidence)
+            logger.info("Prediction completed in %.3fs: text_len=%d, "
+                       "text_hash=%s → %s (conf: %.3f)",
+                       prediction_time, len(text), text_hash, 
+                       predicted_emotion, confidence)
 
             # Create response
             response = {
@@ -192,7 +208,8 @@ class EmotionDetectionModel:
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    emotion: float(prob) for emotion, prob in 
+                    zip(self.emotions, all_probs)
                 },
                 'model_version': '2.0',
                 'model_type': 'comprehensive_emotion_detection',
@@ -232,7 +249,8 @@ def health_check():
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2)
+                'average_response_time_ms': round(metrics['average_response_time'] 
+                                                 * 1000, 2)
             }
         }
 
@@ -310,7 +328,8 @@ def predict_batch():
         texts = data['texts']
         if not isinstance(texts, list):
             response_time = time.time() - start_time
-            update_metrics(response_time, success=False, error_type='invalid_texts_format')
+            update_metrics(response_time, success=False, 
+                          error_type='invalid_texts_format')
             return jsonify({'error': 'Texts must be a list'}), 400
 
         results = []
@@ -340,7 +359,8 @@ def predict_batch():
         return jsonify({'error': 'Invalid JSON format'}), 400
     except Exception:
         response_time = time.time() - start_time
-        update_metrics(response_time, success=False, error_type='batch_prediction_error')
+        update_metrics(response_time, success=False, 
+                      error_type='batch_prediction_error')
         logger.exception("Batch prediction endpoint error")
         return jsonify({'error': 'Batch prediction failed'}), 500
 
@@ -350,13 +370,18 @@ def get_metrics():
     with metrics_lock:
         return jsonify({
             'server_metrics': {
-                'uptime_seconds': (datetime.now() - metrics['start_time']).total_seconds(),
+                'uptime_seconds': (datetime.now() - metrics['start_time'])
+                .total_seconds(),
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'success_rate': f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2),
-                'requests_per_minute': metrics['total_requests'] / max((datetime.now() - metrics['start_time']).total_seconds() / 60, 1)
+                'success_rate': (f"{(metrics['successful_requests'] / "
+                                f"max(metrics['total_requests'], 1)) * 100:.2f}%"),
+                'average_response_time_ms': round(metrics['average_response_time'] 
+                                                 * 1000, 2),
+                'requests_per_minute': (metrics['total_requests'] / 
+                                       max((datetime.now() - metrics['start_time'])
+                                           .total_seconds() / 60, 1))
             },
             'emotion_distribution': dict(metrics['emotion_distribution']),
             'error_counts': dict(metrics['error_counts']),
@@ -381,7 +406,8 @@ def home():
                 'GET /health': 'Health check with basic metrics',
                 'GET /metrics': 'Detailed server metrics',
                 'POST /predict': 'Single prediction (send {"text": "your text"})',
-                'POST /predict_batch': 'Batch prediction (send {"texts": ["text1", "text2"]})'
+                'POST /predict_batch': ('Batch prediction (send '
+                                       '{"texts": ["text1", "text2"]})')
             },
             'model_info': {
                 'emotions': model.emotions,
@@ -392,7 +418,8 @@ def home():
                 }
             },
             'features': {
-                'rate_limiting': f'{RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds',
+                'rate_limiting': (f'{RATE_LIMIT_MAX_REQUESTS} requests per '
+                                 f'{RATE_LIMIT_WINDOW} seconds'),
                 'monitoring': 'Comprehensive metrics and logging',
                 'batch_processing': 'Efficient batch predictions',
                 'error_handling': 'Robust error handling and reporting'
