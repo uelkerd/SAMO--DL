@@ -73,11 +73,11 @@ class BERTEmotionClassifier(nn.Module):
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        config = AutoConfig.from_pretrained(model_name)
+        config = AutoConfig.from_pretrained(model_name, revision="main")
         config.hidden_dropout_prob = hidden_dropout_prob
         config.attention_probs_dropout_prob = hidden_dropout_prob
 
-        self.bert = AutoModel.from_pretrained(model_name, config=config)
+        self.bert = AutoModel.from_pretrained(model_name, config=config, revision="main")
 
         self.bert_hidden_size = config.hidden_size
 
@@ -222,7 +222,7 @@ class BERTEmotionClassifier(nn.Module):
             texts = [texts]
 
         # Tokenize texts
-        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision="main")
         encoded = tokenizer(
             texts,
             padding=True,

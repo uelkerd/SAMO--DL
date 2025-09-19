@@ -77,7 +77,8 @@ class SummarizationDataset(Dataset):
         self.max_source_length = max_source_length
         self.max_target_length = max_target_length
 
-        assert len(texts) == len(summaries), "Texts and summaries must have same length"
+        if len(texts) != len(summaries):
+            raise ValueError(f"Texts and summaries must have same length. Got {len(texts)} texts and {len(summaries)} summaries.")
         logger.info(
             "Initialized SummarizationDataset with {len(texts)} examples",
             extra={"format_args": True},
@@ -147,14 +148,14 @@ class T5SummarizationModel(nn.Module):
         )
 
         if "bart" in self.model_name.lower():
-            self.tokenizer = BartTokenizer.from_pretrained(self.model_name)
-            self.model = BartForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = BartTokenizer.from_pretrained(self.model_name, revision="main")
+            self.model = BartForConditionalGeneration.from_pretrained(self.model_name, revision="main")
         elif "t5" in self.model_name.lower():
-            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name)
-            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name)
+            self.tokenizer = T5Tokenizer.from_pretrained(self.model_name, revision="main")
+            self.model = T5ForConditionalGeneration.from_pretrained(self.model_name, revision="main")
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision="main")
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name, revision="main")
 
         self.model.to(self.device)
 

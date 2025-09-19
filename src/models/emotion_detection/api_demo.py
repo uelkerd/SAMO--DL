@@ -155,7 +155,7 @@ async def load_model() -> None:
             freeze_bert_layers=0,  # Unfreeze for demo
         )
 
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", revision="main")
 
         model.eval()
 

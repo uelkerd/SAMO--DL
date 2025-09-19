@@ -17,7 +17,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import json
 import pandas as pd
-import random
+import random  # noqa: B311 - Used only for sample data generation, not security
+import secrets
 
 
 

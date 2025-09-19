@@ -199,8 +199,10 @@ class CompleteAnalysisEndpoint(Resource):
                         finally:
                             try:
                                 os.unlink(temp_file.name)
-                            except Exception:
-                                pass
+                            except OSError as e:
+                                logger.warning(f"Failed to clean up temporary file {temp_file.name}: {e}")
+                            except Exception as e:
+                                logger.error(f"Unexpected error cleaning up temporary file {temp_file.name}: {e}")
                     except Exception as e:
                         logger.error(f"Transcription failed: {e}")
                         transcription = f"[FALLBACK] Transcription failed in {language}"

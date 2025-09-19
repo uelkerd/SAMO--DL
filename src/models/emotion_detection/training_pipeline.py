@@ -132,7 +132,7 @@ class EmotionDetectionTrainer:
 
         datasets = self.data_loader.prepare_datasets()
 
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision="main")
 
         train_texts = datasets["train"]["text"]
         train_labels = datasets["train"]["labels"]
@@ -274,7 +274,7 @@ class EmotionDetectionTrainer:
         """
         logger.info("Loading model from checkpoint: %s", checkpoint_path)
 
-        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+        checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=True)
 
         if not hasattr(self, "model"):
             datasets = self.prepare_data()

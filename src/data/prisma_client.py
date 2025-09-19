@@ -62,8 +62,14 @@ main();
 """)
 
         try:
+            # Use shutil.which to find node executable securely
+            import shutil
+            node_path = shutil.which("node")
+            if not node_path:
+                raise Exception("Node.js executable not found in PATH")
+
             result = subprocess.run(
-                ["node", "temp_prisma_script.js"],
+                [node_path, "temp_prisma_script.js"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -71,7 +77,7 @@ main();
 
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            msg = "Prisma command failed: {e.stderr}"
+            msg = f"Prisma command failed: {e.stderr}"
             raise Exception(msg) from e
         finally:
             if Path("temp_prisma_script.js").exists():
