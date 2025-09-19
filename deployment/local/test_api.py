@@ -143,11 +143,53 @@ def test_batch_predictions():
             print(f"   Total time: {total_time:.1f}ms")
 
             for i, pred in enumerate(predictions, 1):
-                # Handle both API schemas: primary_emotion/primary_confidence or predicted_emotion/confidence
-                emotion = pred.get('primary_emotion') or pred.get('predicted_emotion')
-                confidence = pred.get('primary_confidence') or pred.get('confidence', 0)
-                text = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
-                print(f"   {i}. '{text}' → {emotion} (conf: {confidence:.3f})")
+                # Normalize prediction data to handle both response shapes
+                def normalize_prediction(pred_item):
+                    """Normalize prediction item to extract emotion, confidence, and text."""
+                    # Check for direct keys first
+                    if 'predicted_emotion' in pred_item and 'confidence' in pred_item and 'text' in pred_item:
+                        return {
+                            'emotion': pred_item.get('predicted_emotion'),
+                            'confidence': pred_item.get('confidence', 0),
+                            'text': pred_item.get('text', '')
+                        }
+                    
+                    # Check for primary_emotion/primary_confidence keys
+                    if 'primary_emotion' in pred_item and 'primary_confidence' in pred_item and 'text' in pred_item:
+                        return {
+                            'emotion': pred_item.get('primary_emotion'),
+                            'confidence': pred_item.get('primary_confidence', 0),
+                            'text': pred_item.get('text', '')
+                        }
+                    
+                    # Try to extract from nested structures
+                    nested_data = pred_item.get('data') or pred_item.get('result') or pred_item.get('prediction')
+                    if nested_data:
+                        if isinstance(nested_data, list) and len(nested_data) > 0:
+                            nested_data = nested_data[0]
+                        if isinstance(nested_data, dict):
+                            return {
+                                'emotion': nested_data.get('predicted_emotion') or nested_data.get('primary_emotion'),
+                                'confidence': nested_data.get('confidence') or nested_data.get('primary_confidence', 0),
+                                'text': nested_data.get('text', pred_item.get('text', ''))
+                            }
+                    
+                    # Fallback to safe defaults
+                    return {
+                        'emotion': pred_item.get('primary_emotion') or pred_item.get('predicted_emotion', 'unknown'),
+                        'confidence': pred_item.get('primary_confidence') or pred_item.get('confidence', 0),
+                        'text': pred_item.get('text', '')
+                    }
+                
+                # Normalize the prediction
+                normalized = normalize_prediction(pred)
+                emotion = normalized['emotion']
+                confidence = normalized['confidence']
+                text = normalized['text']
+                
+                # Truncate text for display
+                display_text = text[:30] + "..." if len(text) > 30 else text
+                print(f"   {i}. '{display_text}' → {emotion} (conf: {confidence:.3f})")
 
             return True
         else:
