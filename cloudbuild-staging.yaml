@@ -44,7 +44,7 @@ steps:
       - '--max-instances=5'  # Lower max instances for staging
       - '--min-instances=0'
       - '--concurrency=40'
-      - '--startup-cpu-boost'  # Faster cold starts
+      - '--cpu-boost'  # Faster cold starts
       - '--set-env-vars=ENVIRONMENT=staging,DEBUG=true,LOG_LEVEL=debug,PYTHONUNBUFFERED=1'
 
   # Run integration tests against the deployed staging service
