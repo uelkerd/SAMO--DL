@@ -130,50 +130,50 @@ app.add_middleware(
 
 class ModelManager:
     """Manages the loading and state of all ML models."""
-    
+
     def __init__(self):
         self.emotion_model = None
         self.summarization_model = None
         self.whisper_model = None
         self.models_loaded = False
         self.startup_error = None
-    
+
     def is_ready(self) -> bool:
         """Check if all models are loaded and ready."""
         return self.models_loaded and self.emotion_model is not None and self.summarization_model is not None
-    
+
     def get_emotion_model(self):
         """Get the emotion model."""
         return self.emotion_model
-    
+
     def get_summarization_model(self):
         """Get the summarization model."""
         return self.summarization_model
-    
+
     def get_whisper_model(self):
         """Get the whisper model."""
         return self.whisper_model
-    
+
     def set_emotion_model(self, model):
         """Set the emotion model."""
         self.emotion_model = model
-    
+
     def set_summarization_model(self, model):
         """Set the summarization model."""
         self.summarization_model = model
-    
+
     def set_whisper_model(self, model):
         """Set the whisper model."""
         self.whisper_model = model
-    
+
     def set_models_loaded(self, loaded: bool):
         """Set the models loaded state."""
         self.models_loaded = loaded
-    
+
     def set_startup_error(self, error: str):
         """Set the startup error."""
         self.startup_error = error
-    
+
     def get_startup_error(self):
         """Get the startup error."""
         return self.startup_error
