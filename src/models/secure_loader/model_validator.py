@@ -265,11 +265,13 @@ class ModelValidator:
                         if not (current_version.startswith('1.') or 
                             current_version.startswith('2.')):
                             validation_info['compatibility_issues'].
-                                append(f"PyTorch version {current_version} may not be compatible")
+                                append(f"PyTorch version {current_version} "
+                                       f"may not be compatible")
                     elif package == 'transformers' and 
                         not current_version.startswith('4.'):
                         validation_info['compatibility_issues'].
-                            append(f"Transformers version {current_version} may not be compatible")
+                            append(f"Transformers version {current_version} "
+                                   f"may not be compatible")
 
             # Check for issues
             if validation_info['compatibility_issues']:
@@ -412,7 +414,8 @@ class ModelValidator:
                     if not structure_valid:
                         comprehensive_info['issues'].extend(structure_info['issues'])
 
-                    # 5. Performance validation (if structure is valid and test input provided)
+                    # 5. Performance validation (if structure is valid and 
+                    # test input provided)
                     if structure_valid and test_input is not None:
                         perf_valid, perf_info = self.validate_model_performance(model,
                             test_input)

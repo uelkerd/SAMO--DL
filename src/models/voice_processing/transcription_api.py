@@ -160,7 +160,8 @@ class TranscriptionAPI:
 
         try:
             transcription_results = self.transcriber.transcribe_batch(
-                audio_paths=audio_paths, language=language, initial_prompt=initial_prompt
+                audio_paths=audio_paths, language=language, 
+                initial_prompt=initial_prompt
             )
 
             for result in transcription_results:

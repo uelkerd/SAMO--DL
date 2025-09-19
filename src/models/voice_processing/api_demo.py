@@ -164,7 +164,8 @@ async def transcribe_audio(
     """
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503, 
+            detail="Whisper model not available - running in development mode"
         )
 
     if not audio_file.filename:
@@ -240,7 +241,8 @@ async def transcribe_batch(
     """
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503, 
+            detail="Whisper model not available - running in development mode"
         )
 
     if len(audio_files) > 10:  # Limit batch size
@@ -261,7 +263,8 @@ async def transcribe_batch(
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError("File {i + 1}: Unsupported format {file_extension}")
+                    raise ValueError(f"File {i + 1}: Unsupported format "
+                                   f"{file_extension}")
 
                 temp_file = tempfile.NamedTemporaryFile(suffix=file_extension,
                     delete=False)
@@ -336,7 +339,8 @@ async def transcribe_batch(
         )
 
         logger.info(
-            "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
+            "Batch transcription complete: {success_count}/{len(audio_files)} "
+            "successful, "
             "{total_processing_time:.2f}ms total"
         )
 
@@ -361,7 +365,8 @@ async def get_model_info() -> Dict[str, Any]:
     """Get detailed information about the loaded Whisper model."""
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503, 
+            detail="Whisper model not available - running in development mode"
         )
 
     info = whisper_transcriber.get_model_info()
@@ -429,7 +434,8 @@ async def validate_audio(audio_file: UploadFile = File(...)):
         else:
             return JSONResponse(
                 status_code=400,
-                content={"valid": False, "error": "validation_failed", "message": error_msg},
+                content={"valid": False, "error": "validation_failed", 
+                        "message": error_msg},
             )
 
     except Exception:
@@ -454,7 +460,8 @@ async def warm_up_model(background_tasks: BackgroundTasks):
     """Warm up the model for faster subsequent requests."""
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503, 
+            detail="Whisper model not available - running in development mode"
         )
 
     def warm_up() -> None:

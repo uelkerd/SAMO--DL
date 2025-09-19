@@ -95,7 +95,8 @@ class IntegrityChecker:
             file_size = os.path.getsize(file_path)
             if file_size > self.max_file_size:
                 logger.
-                    error(f"File {file_path} exceeds maximum size limit: {file_size} bytes")
+                    error(f"File {file_path} exceeds maximum size limit: "
+                          f"{file_size} bytes")
                 return False
             return True
         except Exception as e:
