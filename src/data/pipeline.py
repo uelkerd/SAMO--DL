@@ -9,7 +9,7 @@ including preprocessing, feature extraction, and dataset management.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
@@ -180,9 +180,9 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            user_info = " for user {user_id}" if user_id else ""
-            limit_info = " (limit: {limit})" if limit else ""
-            logger.info("Loading data from database{user_info}{limit_info}")
+            user_info = f" for user {user_id}" if user_id else ""
+            limit_info = f" (limit: {limit})" if limit else ""
+            logger.info(f"Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
 
         if source_type == "json" and isinstance(data_source, str):
@@ -226,12 +226,12 @@ class DataPipeline:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
-            Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
+            Path(output_dir, f"journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
+        logger.info(f"Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
-        embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
+        embeddings_path = Path(output_dir, f"journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         if topics_df is not None:

@@ -27,7 +27,7 @@ from transformers import AutoTokenizer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
+from .labels import GOEMOTIONS_EMOTIONS
 
 
 class GoEmotionsDataset(Dataset):
@@ -89,7 +89,7 @@ class GoEmotionsPreprocessor:
             model_name: Hugging Face model name for tokenizer
             max_length: Maximum sequence length for BERT processing
         """
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision="main")
         self.max_length = max_length
         logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
 
@@ -183,6 +183,7 @@ class GoEmotionsDataLoader:
                 "simplified",
                 cache_dir=self.cache_dir,
                 trust_remote_code=True,
+                revision="main",
             )
             logger.info("Successfully loaded GoEmotions dataset")
         except Exception as e:

@@ -97,11 +97,23 @@ def setup_repository():
     """Setup the SAMO-DL repository."""
     print("📁 Setting up repository...")
     
-    def run_command(command: str, description: str) -> bool:
-        """Execute command with error handling."""
+    def run_command(cmd_list: List[str], description: str) -> bool:
+        """Execute command with error handling - secure version using list format."""
         print(f"🔄 {description}...")
         try:
-            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            # Validate all arguments are strings and non-empty
+            if not all(isinstance(arg, str) and arg.strip() for arg in cmd_list):
+                print(f"  ❌ Invalid command arguments for {description}")
+                return False
+
+            # Additional security: Validate command is in allowed list for this context
+            allowed_commands = {'git', 'pip', 'python', 'pytest', 'black', 'isort', 'flake8'}
+            if cmd_list and cmd_list[0] not in allowed_commands:
+                print(f"  ❌ Command '{cmd_list[0]}' not in allowed commands list")
+                return False
+
+            # Security: Using list format prevents shell injection, validated above
+            result = subprocess.run(cmd_list, capture_output=True, text=True)  # nosec B603
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True
@@ -114,14 +126,14 @@ def setup_repository():
     
     # Clone repository if not exists
     if not Path('SAMO--DL').exists():
-        run_command('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository')
+        run_command(['git', 'clone', 'https://github.com/uelkerd/SAMO--DL.git'], 'Cloning repository')
     
     # Change to project directory
     os.chdir('SAMO--DL')
     print(f"📁 Working directory: {os.getcwd()}")
     
     # Pull latest changes
-    run_command('git pull origin main', 'Pulling latest changes')
+    run_command(['git', 'pull', 'origin', 'main'], 'Pulling latest changes')
 
 def safe_load_dataset(dataset_name: str, config: Optional[str] = None, split: Optional[str] = None):
     """Safely load dataset with error handling."""

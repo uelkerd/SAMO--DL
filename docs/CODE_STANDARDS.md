@@ -627,7 +627,7 @@ if not api_key:
     raise ValueError("OPENAI_API_KEY environment variable not set")
 
 # Bad practice - hardcoded secret
-api_key = "sk-1234567890abcdef1234567890abcdef"
+api_key = "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ```
 
 ### Input Validation

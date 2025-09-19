@@ -8,7 +8,7 @@ all security components: integrity checking, sandboxed execution, and validation
 import logging
 import os
 import time
-from typing import Any, Dict, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Tuple, Type
 
 import torch
 import torch.nn as nn

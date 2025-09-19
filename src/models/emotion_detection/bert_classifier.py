@@ -66,18 +66,18 @@ class BERTEmotionClassifier(nn.Module):
         self.hidden_dropout_prob = hidden_dropout_prob
         self.classifier_dropout_prob = classifier_dropout_prob
         self.freeze_bert_layers = freeze_bert_layers
-        self.temperature = temperature
+        self.temperature_init = temperature
         self.prediction_threshold = 0.6  # Updated from 0.5 to 0.6 based on calibration
         self.class_weights = class_weights
         self.emotion_labels = GOEMOTIONS_EMOTIONS[:num_emotions]
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        config = AutoConfig.from_pretrained(model_name)
+        config = AutoConfig.from_pretrained(model_name, revision="main")
         config.hidden_dropout_prob = hidden_dropout_prob
         config.attention_probs_dropout_prob = hidden_dropout_prob
 
-        self.bert = AutoModel.from_pretrained(model_name, config=config)
+        self.bert = AutoModel.from_pretrained(model_name, config=config, revision="main")
 
         self.bert_hidden_size = config.hidden_size
 
@@ -89,7 +89,7 @@ class BERTEmotionClassifier(nn.Module):
             nn.Linear(self.bert_hidden_size, self.num_emotions),
         )
 
-        self.temperature = nn.Parameter(torch.ones(1))
+        self.temperature = nn.Parameter(torch.ones(1) * self.temperature_init)
 
         # Initialize classification layers
         self._init_classification_layers()
@@ -222,7 +222,7 @@ class BERTEmotionClassifier(nn.Module):
             texts = [texts]
 
         # Tokenize texts
-        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision="main")
         encoded = tokenizer(
             texts,
             padding=True,

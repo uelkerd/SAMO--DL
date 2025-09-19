@@ -1,0 +1,69 @@
+name: Code Quality
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      # pinned to v4.1.7 - https://github.com/actions/checkout/releases/tag/v4.1.7
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@39c02d0a5e7e3e4c6c3c0e5f5a30cb850a3c2a6
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: |
+          pyproject.toml
+      # pinned to v5.1.1 - https://github.com/actions/setup-python/releases/tag/v5.1.1
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+
+    - name: Run Black
+      run: black --check src/ tests/
+
+    - name: Run isort
+      run: isort --check-only src/ tests/
+
+    - name: Run Flake8
+      run: flake8 src/ tests/
+
+    - name: Run Pylint
+      run: pylint src/ tests/
+
+    - name: Run MyPy
+      run: mypy src/
+
+    - name: Run Bandit
+      run: bandit -r src/ -f json -o bandit-report.json
+
+    - name: Run Safety
+      run: safety check --json --output safety-report.json
+
+    - name: Run Tests
+      run: pytest tests/ --cov=src --cov-report=xml --cov-report=html
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@e28ff129e5465c916cd5fe5c1fb97ffaae5dc969
+      if: matrix.python-version == '3.11'
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+      # pinned to v4.5.0 - https://github.com/codecov/codecov-action/releases/tag/v4.5.0

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 import tarfile
 import tempfile
+import zipfile
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -12,6 +14,8 @@ import requests
 import torch
 from huggingface_hub import snapshot_download
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -111,9 +115,9 @@ def _wrap_local_model(
     token: Optional[str] = None,
     force_multi_label: Optional[bool] = None,
 ) -> HFEmotionDetector:
-    cfg = AutoConfig.from_pretrained(local_dir, token=token)
-    tok = AutoTokenizer.from_pretrained(local_dir, token=token, use_fast=True)
-    mdl = AutoModelForSequenceClassification.from_pretrained(local_dir, token=token)
+    cfg = AutoConfig.from_pretrained(local_dir, token=token, revision="main")
+    tok = AutoTokenizer.from_pretrained(local_dir, token=token, use_fast=True, revision="main")
+    mdl = AutoModelForSequenceClassification.from_pretrained(local_dir, token=token, revision="main")
     id2label = getattr(cfg, "id2label", None) or {
         i: str(i) for i in range(cfg.num_labels)
     }
@@ -158,8 +162,8 @@ def load_emotion_model_multi_source(
             return _wrap_local_model(
                 local_dir, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
 
     # 2) HF Hub direct
     if model_id:
@@ -167,26 +171,32 @@ def load_emotion_model_multi_source(
             return load_hf_emotion_model(
                 model_id, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed HF Hub direct load for model_id '{model_id}': {e}")
 
     # 3) HF snapshot
     if model_id:
         try:
-            cache_base = os.getenv("HF_HOME", "/var/tmp/hf-cache")
+            cache_base = os.getenv("HF_HOME")
+            if not cache_base:
+                import tempfile
+                cache_base = os.path.join(tempfile.gettempdir(), "hf-cache")
             snap_dir = snapshot_download(
-                repo_id=model_id, token=token, cache_dir=cache_base
+                repo_id=model_id, token=token, cache_dir=cache_base, revision="main"
             )
             return _wrap_local_model(
                 snap_dir, token=token, force_multi_label=force_multi_label
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed HF snapshot download for model_id '{model_id}': {e}")
 
     # 4) Archive URL
     if archive_url:
         try:
-            cache_base = os.getenv("XDG_CACHE_HOME", "/var/tmp/hf-cache")
+            cache_base = os.getenv("XDG_CACHE_HOME")
+            if not cache_base:
+                import tempfile
+                cache_base = os.path.join(tempfile.gettempdir(), "hf-cache")
             cache_dir = os.path.join(cache_base, "model-archives")
             os.makedirs(cache_dir, exist_ok=True)
             archive_name = os.path.basename(archive_url.split("?")[0])
@@ -197,16 +207,34 @@ def load_emotion_model_multi_source(
                 r.raise_for_status()
                 with open(archive_path, "wb") as f:
                     f.write(r.content)
-            # Extract
+            # Extract safely
             extract_dir = tempfile.mkdtemp(prefix="model_", dir=cache_dir)
             if archive_path.endswith(".tar.gz") or archive_path.endswith(".tgz"):
                 with tarfile.open(archive_path, "r:gz") as tar:
-                    tar.extractall(path=extract_dir)
+                    for member in tar.getmembers():
+                        # Validate member name to prevent path traversal
+                        if os.path.isabs(member.name) or ".." in member.name:
+                            raise ValueError(f"Unsafe archive member: {member.name}")
+                        # Compute safe destination path
+                        dest_path = os.path.join(extract_dir, member.name)
+                        # Ensure resolved path is inside target directory
+                        if not os.path.abspath(dest_path).startswith(os.path.abspath(extract_dir)):
+                            raise ValueError(f"Path traversal attempt: {member.name}")
+                        # Extract member
+                        tar.extract(member, extract_dir)
             elif archive_path.endswith(".zip"):
-                import zipfile
-
                 with zipfile.ZipFile(archive_path, "r") as zf:
-                    zf.extractall(path=extract_dir)
+                    for member in zf.infolist():
+                        # Validate member name to prevent path traversal
+                        if os.path.isabs(member.filename) or ".." in member.filename:
+                            raise ValueError(f"Unsafe archive member: {member.filename}")
+                        # Compute safe destination path
+                        dest_path = os.path.join(extract_dir, member.filename)
+                        # Ensure resolved path is inside target directory
+                        if not os.path.abspath(dest_path).startswith(os.path.abspath(extract_dir)):
+                            raise ValueError(f"Path traversal attempt: {member.filename}")
+                        # Extract member
+                        zf.extract(member, extract_dir)
             else:
                 # Unknown archive, try treating as directory
                 pass
@@ -223,19 +251,20 @@ def load_emotion_model_multi_source(
                             cand, token=token, force_multi_label=force_multi_label
                         )
                         return det
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Failed to load from extracted directory {cand}: {e}")
                         continue
             # Clean up if nothing worked
             shutil.rmtree(extract_dir, ignore_errors=True)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load from archive URL '{archive_url}': {e}")
 
     # 5) Remote endpoint
     if endpoint_url:
         try:
             return HFRemoteInferenceDetector(endpoint_url=endpoint_url, token=token)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to initialize remote endpoint '{endpoint_url}': {e}")
 
     # Exhausted all sources
     raise RuntimeError("Could not load emotion model from any source")

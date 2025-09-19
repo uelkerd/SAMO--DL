@@ -9,11 +9,8 @@ This module provides real-time monitoring capabilities including:
 - Performance metrics visualization
 """
 
-import asyncio
-import json
 import logging
 import time
-from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from collections import defaultdict, deque

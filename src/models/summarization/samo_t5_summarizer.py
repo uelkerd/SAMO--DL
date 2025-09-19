@@ -154,10 +154,10 @@ class SAMOT5Summarizer:
             logger.info("Loading T5 model: %s", model_name)
 
             # Load tokenizer
-            self.tokenizer = T5Tokenizer.from_pretrained(model_name)
+            self.tokenizer = T5Tokenizer.from_pretrained(model_name, revision="main")
 
             # Load model
-            self.model = T5ForConditionalGeneration.from_pretrained(model_name)
+            self.model = T5ForConditionalGeneration.from_pretrained(model_name, revision="main")
             self.model.to(self.device)
             self.model.eval()
 

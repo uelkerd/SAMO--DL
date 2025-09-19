@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Unified AI API for SAMO Deep Learning.
 
 This module provides a unified FastAPI interface for all AI models
@@ -38,6 +37,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.websockets import WebSocketDisconnect
+from websockets.exceptions import ConnectionClosedError
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
@@ -328,7 +328,7 @@ class UserLogin(BaseModel):
     """User login request model."""
     username: str = Field(..., description="Username", example="user@example.com")
     password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
+        ..., description="Password", min_length=12, max_length=64, example="your_secure_password_here"
     )
 
 class UserRegister(BaseModel):
@@ -336,7 +336,7 @@ class UserRegister(BaseModel):
     username: str = Field(..., description="Username", example="user@example.com")
     email: str = Field(..., description="Email address", example="user@example.com")
     password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
+        ..., description="Password", min_length=12, max_length=64, example="your_secure_password_here"
     )
     full_name: str = Field(..., description="Full name", example="John Doe")
 
@@ -428,12 +428,16 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     exc_info=True,
                 )
                 logger.info("Falling back to local BERT emotion classifier...")
-                from src.models.emotion_detection.bert_classifier import (
-                    create_bert_emotion_classifier,
-                )
-                model, _ = create_bert_emotion_classifier()
-                emotion_detector = model
-                logger.info("Loaded local BERT emotion model (fallback successful)")
+                try:
+                    from src.models.emotion_detection.bert_classifier import (
+                        create_bert_emotion_classifier,
+                    )
+                    model, _ = create_bert_emotion_classifier()
+                    emotion_detector = model
+                    logger.info("Loaded local BERT emotion model (fallback successful)")
+                except ImportError as import_err:
+                    logger.warning("BERT emotion classifier dependencies not available: %s", import_err)
+                    raise RuntimeError("Emotion detection requires torch/numpy dependencies") from import_err
         except Exception as exc:
             logger.warning("Emotion detection model not available: %s", exc)
 
@@ -582,11 +586,15 @@ def _ensure_voice_transcriber_loaded() -> None:
     if voice_transcriber is not None:
         return
     try:
-        from src.models.voice_processing.whisper_transcriber import (
-            create_whisper_transcriber as _wcreate,
-        )
-        logger.info("Lazy-loading Whisper transcriber: small")
-        globals()["voice_transcriber"] = _wcreate("small")
+        try:
+            from src.models.voice_processing.whisper_transcriber import (
+                create_whisper_transcriber as _wcreate,
+            )
+            logger.info("Lazy-loading Whisper transcriber: small")
+            globals()["voice_transcriber"] = _wcreate("small")
+        except ImportError as import_err:
+            logger.warning("Whisper transcriber dependencies not available: %s", import_err)
+            raise RuntimeError("Voice transcription requires torch/pydub dependencies") from import_err
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Voice transcriber lazy-load failed: %s", exc)
         raise HTTPException(
@@ -865,7 +873,7 @@ class CompleteJournalAnalysis(BaseModel):
         example={
             "emotion_detection": True,
             "text_summarization": True,
-            "voice_processing": False
+            "voice": False
         },
     )
     insights: Dict[str, Any] = Field(
@@ -894,7 +902,7 @@ async def health_check() -> Dict[str, Any]:
                     "available" if text_summarizer is not None else "unavailable"
                 )
             },
-            "voice_processing": {
+            "voice": {
                 "loaded": voice_transcriber is not None,
                 "status": (
                     "available" if voice_transcriber is not None else "unavailable"
@@ -1051,8 +1059,6 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
         logger.info("Token refreshed for user: %s", payload.username)
         return token_response
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("Token refresh failed: %s", exc)
         raise HTTPException(
@@ -1333,7 +1339,8 @@ async def analyze_journal_entry(
             pipeline_status={
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
-                "voice_processing": False,
+                "voice": False,
+                "voice_processing": False,  # Compatibility alias
             },
             insights={
                 "word_count": len(request.text.split()),
@@ -1342,8 +1349,6 @@ async def analyze_journal_entry(
             },
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("❌ Error in journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Analysis failed") from exc
@@ -1481,7 +1486,8 @@ async def analyze_voice_journal(
             pipeline_status={
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
-                "voice_processing": voice_transcriber is not None,
+                "voice": voice_transcriber is not None,
+                "voice_journal": voice_transcriber is not None,  # Compatibility alias
             },
             insights={
                 **text_analysis.insights,
@@ -1495,8 +1501,6 @@ async def analyze_voice_journal(
             },
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("❌ Error in voice journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
@@ -1523,7 +1527,7 @@ async def transcribe_voice(
     current_user: TokenPayload = Depends(get_current_user),
 ) -> VoiceTranscription:
     """Enhanced voice transcription with detailed analysis."""
-    start_time = time.time()
+    time.time()
 
     try:
         # Validate file
@@ -1616,7 +1620,6 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            processing_time = (time.time() - start_time) * 1000
 
             return VoiceTranscription(
                 text=text_val,
@@ -1713,11 +1716,12 @@ async def batch_transcribe_voice(
                     Path(temp_file_path).unlink(missing_ok=True)
 
             except Exception as exc:
+                logger.error(f"Batch transcription failed for file {i}: {str(exc)}", exc_info=True)
                 results.append({
                     "file_index": i,
                     "filename": audio_file.filename,
                     "success": False,
-                    "error": str(exc)
+                    "error": "Transcription failed"
                 })
 
         processing_time = (time.time() - start_time) * 1000
@@ -1759,7 +1763,7 @@ async def summarize_text(
     current_user: TokenPayload = Depends(get_current_user),
 ) -> TextSummary:
     """Enhanced text summarization with multiple model options."""
-    start_time = time.time()
+    time.time()
 
     try:
         if not text.strip():
@@ -1803,7 +1807,6 @@ async def summarize_text(
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
-        processing_time = (time.time() - start_time) * 1000
 
         return TextSummary(
             summary=summary_text or "",
@@ -1812,8 +1815,6 @@ async def summarize_text(
             emotional_tone=emotional_tone
         )
 
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.error("Text summarization failed: %s", exc)
         raise HTTPException(
@@ -1843,7 +1844,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             return
 
     except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
+        logger.error(f"WebSocket authentication failed: {str(e)}", exc_info=True)
+        await websocket.close(code=4001, reason="Authentication failed")
         return
 
     await websocket.accept()
@@ -1878,7 +1880,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
 
         logger.info("WebSocket authenticated for user: %s", payload.username)
 
-    except Exception as exc:
+    except Exception:
         await websocket.send_json({
             "type": "error",
             "message": "Authentication failed"
@@ -1919,9 +1921,10 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         Path(temp_file_path).unlink(missing_ok=True)
 
                 except Exception as exc:
+                    logger.error(f"WebSocket voice processing failed: {str(exc)}", exc_info=True)
                     await websocket.send_json({
                         "type": "error",
-                        "message": str(exc)
+                        "message": "Voice processing failed"
                     })
             else:
                 await websocket.send_json({
@@ -1938,8 +1941,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 "type": "error",
                 "message": "Internal server error"
             })
-        except:
-            pass
+        except (WebSocketDisconnect, ConnectionClosedError, RuntimeError) as send_error:
+            logger.warning("Failed to send error message to WebSocket client: %s", send_error)
 
 # Monitoring and Analytics Endpoints
 @app.get(
@@ -1972,7 +1975,7 @@ async def get_performance_metrics(
                 "last_used": time.time() if text_summarizer else None,
                 "total_requests": 0
             },
-            "voice_processing": {
+            "voice": {
                 "loaded": voice_transcriber is not None,
                 "last_used": time.time() if voice_transcriber else None,
                 "total_requests": 0
@@ -2026,12 +2029,12 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Emotion detection model error: {exc}")
-            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+            model_checks["emotion_detection"] = {"status": "error", "error": "Model test failed"}
 
     if text_summarizer is None:
         health_status = "degraded"
@@ -2040,19 +2043,19 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize("This is a test text for summarization.")
+            text_summarizer.summarize("This is a test text for summarization.")  # Test execution only
             model_checks["text_summarization"] = {"status": "healthy", "test_passed": True}
         except Exception as exc:
             health_status = "degraded"
             issues.append(f"Text summarization model error: {exc}")
-            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+            model_checks["text_summarization"] = {"status": "error", "error": "Model test failed"}
 
     if voice_transcriber is None:
         health_status = "degraded"
         issues.append("Voice processing model not loaded")
-        model_checks["voice_processing"] = {"status": "unavailable", "error": "Model not loaded"}
+        model_checks["voice"] = {"status": "unavailable", "error": "Model not loaded"}
     else:
-        model_checks["voice_processing"] = {"status": "healthy", "test_passed": True}
+        model_checks["voice"] = {"status": "healthy", "test_passed": True}
 
     # Check system resources
     try:
@@ -2074,7 +2077,7 @@ async def detailed_health_check(
             "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "warning"
         }
     except Exception as exc:
-        system_checks = {"status": "error", "error": str(exc)}
+        system_checks = {"status": "error", "error": "System check failed"}
         health_status = "degraded"
         issues.append(f"System check failed: {exc}")
 
@@ -2155,4 +2158,5 @@ async def root() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Use localhost for security - deployment handles public binding
+    uvicorn.run(app, host="127.0.0.1", port=8000)

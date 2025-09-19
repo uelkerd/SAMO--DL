@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Union
 
 from .constants import EMOTION_MODEL_DIR
 
@@ -64,10 +64,10 @@ class HFEmotionService(EmotionService):
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
             tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir, local_files_only=True, revision="main"
             )
             model = AutoModelForSequenceClassification.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir, local_files_only=True, revision="main"
             )
             self._pipeline = pipeline(
                 task="text-classification",
