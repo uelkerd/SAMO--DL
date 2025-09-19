@@ -267,7 +267,7 @@ def proxy_voice_journal():
             if response.ok:
                 logging.info("✅ Voice processing successful")
                 return jsonify(response.json())
-            elif response.status_code == 404:
+            if response.status_code == 404:
                 # Upstream doesn't support voice processing, provide mock response
                 logging.info(
                     "⚠️ Upstream API doesn't support voice processing, "
@@ -278,7 +278,8 @@ def proxy_voice_journal():
                 logging.warning(f"⚠️ Upstream API error: {response.status_code}")
                 return (
                     jsonify({
-                        "error": f"Voice processing failed: {response.status_code}"
+                        "error": f"Voice processing failed: {response.status_code}",
+                        "details": response.text,
                     }),
                     response.status_code,
                 )
