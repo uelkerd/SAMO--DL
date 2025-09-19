@@ -112,7 +112,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--port",
         type=int,
-        default=int(os.getenv("PORT", 8000)),
+        default=int(os.getenv("PORT", "8000")),
         help="Port to run the server on (default: 8000)",
     )
     parser.add_argument(

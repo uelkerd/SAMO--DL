@@ -219,7 +219,7 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
-        logger.error(f"Health check failed: {str(e)}", exc_info=True)
+        logger.exception("Health check failed")
         return jsonify({'error': 'Health check failed'}), 500
 
 @app.route('/predict', methods=['POST'])
@@ -258,7 +258,7 @@ def predict():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
-        logger.error(f"Prediction endpoint error: {str(e)}", exc_info=True)
+        logger.exception("Prediction endpoint error")
         return jsonify({'error': 'Prediction failed'}), 500
 
 @app.route('/predict_batch', methods=['POST'])
@@ -304,7 +304,7 @@ def predict_batch():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
-        logger.error(f"Batch prediction endpoint error: {str(e)}", exc_info=True)
+        logger.exception("Batch prediction endpoint error")
         return jsonify({'error': 'Batch prediction failed'}), 500
 
 @app.route('/metrics', methods=['GET'])
@@ -380,7 +380,7 @@ def home():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
-        logger.error(f"Documentation endpoint error: {str(e)}", exc_info=True)
+        logger.exception("Documentation endpoint error")
         return jsonify({'error': 'Documentation service unavailable'}), 500
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)

@@ -119,7 +119,9 @@ def predict():
         return jsonify(result)
 
     except Exception as e:
-        print(f"Prediction endpoint error: {str(e)}", exc_info=True)
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Prediction endpoint error")
         return jsonify({'error': 'Prediction failed'}), 500
 
 @app.route('/', methods=['GET'])

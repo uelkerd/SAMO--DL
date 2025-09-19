@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Bulletproof startup API with pre-loaded models for Cloud Run.
 
@@ -300,8 +299,7 @@ def load_emotion_model():
         return True
 
     except Exception as e:
-        logger.error("❌ Failed to load emotion model: %s", e)
-        logger.error(traceback.format_exc())
+        logger.exception("❌ Failed to load emotion model")
         raise
 
 
@@ -340,8 +338,7 @@ def load_summarization_model():
         return True
 
     except Exception as e:
-        logger.error("❌ Failed to load summarization model: %s", e)
-        logger.error(traceback.format_exc())
+        logger.exception("❌ Failed to load summarization model")
         raise
 
 
@@ -365,8 +362,7 @@ def load_whisper_model():
         return True
 
     except Exception as e:
-        logger.error("❌ Failed to load Whisper model: %s", e)
-        logger.error(traceback.format_exc())
+        logger.exception("❌ Failed to load Whisper model")
         raise
 
 
@@ -377,9 +373,11 @@ async def startup_load_models():
         logger.info("🔥 STARTING MODEL LOADING SEQUENCE - CRITICAL FOR CLOUD RUN")
 
         # Log memory usage before loading
+        psutil_available = False
+        memory_before = None
         try:
-            import psutil
-
+            import psutil  # type: ignore
+            psutil_available = True
             memory_before = psutil.virtual_memory()
             logger.info("Memory before loading: %.2fGB used / %.2fGB total",
                         memory_before.used / (1024**3), memory_before.total / (1024**3))
@@ -403,18 +401,13 @@ async def startup_load_models():
                 "loaded successfully"
             )
 
-        # Log memory usage after loading (only if psutil available)
-        try:
-            import psutil  # re-import safely
-            memory_after = psutil.virtual_memory()
+        # Log memory usage after loading
+        if psutil_available and memory_before is not None:
+            memory_after = psutil.virtual_memory()  # type: ignore
             logger.info("Memory after loading: %.2fGB used / %.2fGB total",
                         memory_after.used / (1024**3), memory_after.total / (1024**3))
-            if "memory_before" in locals():
-                logger.info("Memory increase: %.2fGB",
-                            (memory_after.used - memory_before.used) / (1024**3))
-        except Exception:
-            # psutil not available; skip memory logging
-            pass
+            logger.info("Memory increase: %.2fGB",
+                        (memory_after.used - memory_before.used) / (1024**3))
 
         model_manager.set_models_loaded(True)
         logger.info("🎉 CORE MODELS LOADED SUCCESSFULLY - CLOUD RUN DEPLOYMENT READY!")
@@ -422,8 +415,7 @@ async def startup_load_models():
     except Exception as e:
         model_manager.set_startup_error(str(e))
         model_manager.set_models_loaded(False)
-        logger.error("💥 CRITICAL STARTUP FAILURE: %s", e)
-        logger.error(traceback.format_exc())
+        logger.exception("💥 CRITICAL STARTUP FAILURE")
         # Don't raise here - let the app start but mark as not ready
 
 
@@ -542,13 +534,8 @@ async def proxy_openai(request: OpenAIRequest):
             )
 
             if response.is_error:
-                logger.error(
-                    f"OpenAI API error: {response.status_code} - {response.text}"
-                )
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail=f"OpenAI API error: {response.text}",
-                )
+                logger.error("OpenAI API error: %s - %s", response.status_code, response.text)
+                raise HTTPException(status_code=response.status_code, detail="OpenAI API error")
 
             data = response.json()
 

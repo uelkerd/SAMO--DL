@@ -43,7 +43,7 @@ def is_production_environment() -> bool:
     """
     # Check for explicit production indicators
     for env_var, expected_value in PRODUCTION_INDICATORS.items():
-        if os.environ.get(env_var) == expected_value:
+        if os.environ.get(env_var, "").lower() == expected_value.lower():
             return True
 
     # Check for containerized environment indicators

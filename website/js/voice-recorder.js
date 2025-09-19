@@ -226,9 +226,21 @@ class VoiceRecorder {
         try {
             // Update text input with transcribed text
             const textInput = document.getElementById('textInput');
-            if (textInput && result.transcription) {
-                textInput.value = result.transcription;
-                console.log('📝 Transcribed text inserted into input');
+            if (textInput) {
+                let tx = '';
+                if (typeof result === 'string') {
+                    tx = result;
+                } else if (result?.text) {
+                    tx = result.text;
+                } else if (result?.transcription && typeof result.transcription === 'string') {
+                    tx = result.transcription;
+                } else if (result?.transcription?.text) {
+                    tx = result.transcription.text;
+                }
+                if (tx) {
+                    textInput.value = tx;
+                    console.log('📝 Transcribed text inserted into input');
+                }
             }
 
             // If we have complete analysis results, display them

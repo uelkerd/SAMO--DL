@@ -2,18 +2,11 @@
 # This file configures bandit to ignore false positives and focus on real security issues
 
 [bandit]
-# Skip specific tests that generate false positives for this project
-skips = B104
+# Keep B104 enabled; use inline `# nosec B104` on intentional 0.0.0.0 bindings.
+# This ensures we catch real security issues while allowing intentional production bindings.
 
-# B104: Binding to all interfaces - This is a false positive because:
-# 1. The application only binds to 0.0.0.0 in production environments (Cloud Run, Docker)
-# 2. This is required for containerized deployments to work properly
-# 3. In development, it defaults to 127.0.0.1 for security
-# 4. The production environment is properly secured with Cloud Run's network isolation
-
-# Other tests to potentially skip in the future:
-# B101: Test for use of assert_used - May be needed for testing
-# B601: Test for shell injection - May be needed for legitimate subprocess calls
+# B104: Binding to all interfaces - Use inline # nosec B104 only where 0.0.0.0 is strictly required
+# (e.g., Cloud Run entrypoint) with proper justification in code comments.
 
 # Include specific files and directories
 include = src/, scripts/, deployment/

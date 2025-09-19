@@ -39,8 +39,6 @@ class SAMOAPIClient {
     constructor() {
         // Use centralized configuration
         const windowRef = global.window || (typeof window !== 'undefined' ? window : {});
-        console.log('DEBUG: windowRef =', windowRef);
-        console.log('DEBUG: windowRef.SAMO_CONFIG =', windowRef.SAMO_CONFIG);
         if (!windowRef.SAMO_CONFIG) {
             console.warn('⚠️ SAMO_CONFIG not found, using fallback configuration');
         }

@@ -108,10 +108,11 @@ class SAMOAPIClient {
                 if (queryString) {
                     endpoint += `?${queryString}`;
                 }
-                config.headers['Content-Type'] = 'application/json';
+                // No JSON body; skip Content-Type to avoid misleading intermediaries
             }
         } else if (method === 'GET') {
-            config.headers['Content-Type'] = 'application/json';
+            // Optional: set Accept if needed
+            config.headers['Accept'] = 'application/json';
         }
 
         try {
@@ -390,7 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Smooth scrolling for in-page navigation links
 // Only applies to anchors within the main navigation to avoid interfering with external or footer anchors
-document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         // Only handle if the link is for the current page
         if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
@@ -406,6 +408,7 @@ document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[h
             }
         }
     });
+  });
 });
 
 // Essential Demo Functions (restored from simple-demo-functions.js)
@@ -660,7 +663,7 @@ async function testWithRealAPI() {
         let testText = document.getElementById('textInput').value || "I am so excited and happy today! This is wonderful news!";
 
         // Check text length limit
-        const MAX_TEXT_LENGTH = 400;
+        const MAX_TEXT_LENGTH = window.SAMO_CONFIG?.LIMITS?.TEXT_MAX ?? 400;
         if (testText.length > MAX_TEXT_LENGTH) {
             console.log(`⚠️ Text too long (${testText.length} chars), truncating to ${MAX_TEXT_LENGTH} chars`);
             addToProgressConsole(`Text truncated from ${testText.length} to ${MAX_TEXT_LENGTH} characters`, 'warning');
@@ -832,10 +835,10 @@ function showResultsSections() {
 
 // Progress Console Functions
 function addToProgressConsole(message, type = 'info') {
-    const console = document.getElementById('progressConsole');
+    const consoleEl = document.getElementById('progressConsole');
     const consoleRow = document.getElementById('progressConsoleRow');
 
-    if (!console) return;
+    if (!consoleEl) return;
 
     // Show console if hidden
     if (consoleRow) {
@@ -890,18 +893,18 @@ function addToProgressConsole(message, type = 'info') {
     messageDiv.appendChild(iconSpan);
     messageDiv.appendChild(messageSpan);
 
-    console.appendChild(messageDiv);
-    console.scrollTop = console.scrollHeight;
+    consoleEl.appendChild(messageDiv);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
 }
 
 function clearProgressConsole() {
-    const console = document.getElementById('progressConsole');
-    if (console) {
-        console.textContent = '';
+    const consoleEl = document.getElementById('progressConsole');
+    if (consoleEl) {
+        consoleEl.textContent = '';
         const readyDiv = document.createElement('div');
         readyDiv.className = 'text-success';
         readyDiv.textContent = 'SAMO-DL Processing Console Ready...';
-        console.appendChild(readyDiv);
+        consoleEl.appendChild(readyDiv);
     }
 }
 

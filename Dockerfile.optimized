@@ -28,12 +28,7 @@ COPY scripts/pre_download_models.py .
 # Pre-download models during build (this will take time but ensures fast startup)
 RUN python pre_download_models.py
 
-# Validate models were downloaded correctly (critical for Cloud Run success)
-RUN echo "🔍 Validating model cache..." && \
-    ls -la /app/models/ && \
-    echo "📊 Checking model sizes..." && \
-    du -sh /app/models/* && \
-    echo "✅ Model validation completed successfully"
+# Validation handled by validate_models.py
 
 # Copy and run model validation script
 COPY scripts/validate_models.py .

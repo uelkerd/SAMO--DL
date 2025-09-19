@@ -174,7 +174,7 @@ describe('SAMOAPIClient', () => {
       const data = { text: 'hello world', threshold: 0.5 };
       const queryString = apiClient.buildQueryString(data);
 
-      expect(queryString).toBe('text=hello+world&threshold=0.5');
+      expect(queryString).toBe('text=hello%20world&threshold=0.5');
     });
 
     test('should handle empty object', () => {

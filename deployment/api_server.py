@@ -12,7 +12,10 @@ from flask import Flask, request, jsonify
 from inference import EmotionDetector
 
 # Import security setup using relative import
-from ..src.security_setup import setup_security_middleware
+try:
+    from ..src.security_setup import setup_security_middleware
+except Exception:  # fallback when executed as script
+    from src.security_setup import setup_security_middleware
 
 # Configure logging after all imports
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +24,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Initialize security headers middleware
-security_middleware = setup_security_middleware(app, "development")
+security_middleware = setup_security_middleware(app, os.environ.get("FLASK_ENV", "development"))
 
 # Initialize emotion detector
 try:
@@ -64,7 +67,7 @@ def predict_emotion():
         return jsonify({"error": "Model not loaded"}), 500
 
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         text = data.get("text", "")
 
         if not text:
@@ -85,7 +88,7 @@ def predict_batch():
         return jsonify({"error": "Model not loaded"}), 500
 
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         texts = data.get("texts", [])
 
         if not texts:

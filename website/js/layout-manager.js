@@ -401,16 +401,21 @@ window.processTextWithStateManagement = function() {
     if (typeof processText === 'function') {
         // Set up a promise to handle the transition to results
         const originalFunc = processText;
-        processText(true).then(() => {  // Skip state check since we handle it here
-            // After processing completes, show results state
+        const maybe = processText(true);  // Skip state check since we handle it here
+        const onDone = () => {
             setTimeout(() => {
                 LayoutManager.showResultsState();
                 LayoutManager.updateProgressStep(4, 'completed');
             }, 1000);
-        }).catch((error) => {
-            console.error('Processing error:', error);
-            LayoutManager.resetToInitialState();
-        });
+        };
+        if (maybe && typeof maybe.then === 'function') {
+            maybe.then(onDone).catch((error) => {
+                console.error('Processing error:', error);
+                LayoutManager.resetToInitialState();
+            });
+        } else {
+            onDone();
+        }
     }
 };
 

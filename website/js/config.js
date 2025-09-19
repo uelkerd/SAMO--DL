@@ -103,17 +103,16 @@ function redactSensitiveValues(obj) {
     }
     
     const result = {};
-    const sensitiveKeys = [
-        'apikey', 'api_key', 'apiKey', 'secret', 'token', 'authorization', 
-        'password', 'clientsecret', 'client_secret', 'clientSecret',
-        'key', 'keys', 'credential', 'credentials', 'auth', 'authkey'
+    const SENSITIVE_PATTERNS = [
+      /^(api[-_]?key|authorization|x[-_]?api[-_]?key|bearer)$/i,
+      /^(token|access[_-]?token|refresh[_-]?token)$/i,
+      /^(secret|client[_-]?secret)$/i,
+      /^(password|passwd)$/i,
+      /^(credential|credentials|auth|authkey)$/i
     ];
     
     for (const [key, value] of Object.entries(obj)) {
-        const keyLower = key.toLowerCase();
-        const isSensitive = sensitiveKeys.some(sensitiveKey => 
-            keyLower.includes(sensitiveKey) || sensitiveKey.includes(keyLower)
-        );
+        const isSensitive = SENSITIVE_PATTERNS.some(re => re.test(key));
         
         if (isSensitive) {
             result[key] = 'REDACTED';

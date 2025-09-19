@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 processTextWithStateManagement();
             } else if (typeof processText === 'function') {
                 // Fallback to original function
-                LayoutManager.showProcessingState();
+                if (window.LayoutManager?.showProcessingState) {
+                    window.LayoutManager.showProcessingState();
+                }
                 processText(true);  // Skip state check since showProcessingState() handles it
             } else {
                 console.error('❌ processText function not available');
@@ -84,7 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearAllWithStateManagement();
             } else if (typeof clearAll === 'function') {
                 // Fallback to original function
-                LayoutManager.resetToInitialState();
+                if (window.LayoutManager?.resetToInitialState) {
+                    window.LayoutManager.resetToInitialState();
+                }
                 clearAll();
             } else {
                 console.error('❌ clearAll function not available');
@@ -101,10 +105,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Safety reset to ensure clean processing state
-    LayoutManager.resetProcessingState();
+    if (window.LayoutManager?.resetProcessingState) {
+        window.LayoutManager.resetProcessingState();
+    }
     
     // Initialize layout to initial state
-    LayoutManager.resetToInitialState();
+    if (window.LayoutManager?.resetToInitialState) {
+        window.LayoutManager.resetToInitialState();
+    }
 
     // Initialize Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

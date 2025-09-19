@@ -19,7 +19,7 @@ def main():
             local_files_only=True
         )
         print("✅ DeBERTa tokenizer loads successfully")
-    except Exception as e:
+    except (ImportError, OSError, RuntimeError) as e:
         print(f"❌ DeBERTa tokenizer failed: {e}")
         sys.exit(1)
 
@@ -31,7 +31,7 @@ def main():
             local_files_only=True
         )
         print("✅ T5 tokenizer loads successfully")
-    except Exception as e:
+    except (ImportError, OSError, RuntimeError) as e:
         print(f"❌ T5 tokenizer failed: {e}")
         sys.exit(1)
 
