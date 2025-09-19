@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Unified AI API for SAMO Deep Learning.
 
 This module provides a unified FastAPI interface for all AI models
@@ -1611,7 +1610,6 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            # processing_time = (time.time() - start_time) * 1000  # Currently unused
 
             return VoiceTranscription(
                 text=text_val,
@@ -1799,7 +1797,6 @@ async def summarize_text(
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
-        # processing_time = (time.time() - start_time) * 1000  # Currently unused
 
         return TextSummary(
             summary=summary_text or "",
