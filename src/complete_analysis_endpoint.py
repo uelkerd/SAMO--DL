@@ -119,7 +119,6 @@ class CompleteAnalysisEndpoint(Resource):
             # Extract parameters
             text = data.get('text', '').strip()
             audio_data = data.get('audio_data', '').strip()
-            # audio_format = data.get('audio_format', 'wav')  # Currently unused
             language = data.get('language', 'en')
             include_summary = data.get('include_summary', True)
             include_emotion = data.get('include_emotion', True)
