@@ -128,16 +128,64 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global variables for pre-loaded models
-emotion_model = None
-summarization_model = None
-whisper_model = None
-models_loaded = False
-startup_error = None
+class ModelManager:
+    """Manages the loading and state of all ML models."""
+    
+    def __init__(self):
+        self.emotion_model = None
+        self.summarization_model = None
+        self.whisper_model = None
+        self.models_loaded = False
+        self.startup_error = None
+    
+    def is_ready(self) -> bool:
+        """Check if all models are loaded and ready."""
+        return self.models_loaded and self.emotion_model is not None and self.summarization_model is not None
+    
+    def get_emotion_model(self):
+        """Get the emotion model."""
+        return self.emotion_model
+    
+    def get_summarization_model(self):
+        """Get the summarization model."""
+        return self.summarization_model
+    
+    def get_whisper_model(self):
+        """Get the whisper model."""
+        return self.whisper_model
+    
+    def set_emotion_model(self, model):
+        """Set the emotion model."""
+        self.emotion_model = model
+    
+    def set_summarization_model(self, model):
+        """Set the summarization model."""
+        self.summarization_model = model
+    
+    def set_whisper_model(self, model):
+        """Set the whisper model."""
+        self.whisper_model = model
+    
+    def set_models_loaded(self, loaded: bool):
+        """Set the models loaded state."""
+        self.models_loaded = loaded
+    
+    def set_startup_error(self, error: str):
+        """Set the startup error."""
+        self.startup_error = error
+    
+    def get_startup_error(self):
+        """Get the startup error."""
+        return self.startup_error
+
+
+# Global model manager instance
+model_manager = ModelManager()
 
 
 def run_emotion_analysis(text: str) -> dict:
     """Run emotion analysis in a separate thread to avoid blocking the event loop."""
+    emotion_model = model_manager.get_emotion_model()
     with torch.no_grad():
         inputs = emotion_model["tokenizer"](
             text, return_tensors="pt", truncation=True, max_length=512
@@ -193,6 +241,7 @@ def run_emotion_analysis(text: str) -> dict:
 
 def run_text_summarization(text: str) -> dict:
     """Run text summarization in a separate thread to avoid blocking the event loop."""
+    summarization_model = model_manager.get_summarization_model()
     with torch.no_grad():
         inputs = summarization_model["tokenizer"](
             f"summarize: {text}", return_tensors="pt", max_length=512, truncation=True
@@ -214,7 +263,6 @@ def run_text_summarization(text: str) -> dict:
 
 def load_emotion_model():
     """Load emotion analysis model from cache."""
-    global emotion_model
     try:
         logger.info("🚀 Loading DeBERTa-v3 emotion model from cache...")
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -247,7 +295,7 @@ def load_emotion_model():
         # Set model to evaluation mode for deterministic inference
         model.eval()
 
-        emotion_model = {"tokenizer": tokenizer, "model": model}
+        model_manager.set_emotion_model({"tokenizer": tokenizer, "model": model})
         logger.info("✅ DeBERTa-v3 emotion model loaded successfully")
         return True
 
@@ -259,7 +307,6 @@ def load_emotion_model():
 
 def load_summarization_model():
     """Load T5 summarization model from cache."""
-    global summarization_model
     try:
         logger.info("🚀 Loading T5 summarization model from cache...")
         from transformers import T5Tokenizer, T5ForConditionalGeneration
@@ -288,7 +335,7 @@ def load_summarization_model():
         # Set model to evaluation mode for deterministic inference
         model.eval()
 
-        summarization_model = {"tokenizer": tokenizer, "model": model}
+        model_manager.set_summarization_model({"tokenizer": tokenizer, "model": model})
         logger.info("✅ T5 summarization model loaded successfully")
         return True
 
@@ -300,7 +347,6 @@ def load_summarization_model():
 
 def load_whisper_model():
     """Load Whisper model from cache."""
-    global whisper_model
     try:
         logger.info("🚀 Loading Whisper model from cache...")
         import whisper
@@ -314,7 +360,7 @@ def load_whisper_model():
             raise FileNotFoundError(f"Whisper model not found at {expected_path}")
 
         # Load from cache only
-        whisper_model = whisper.load_model(model_name, download_root=download_root)
+        model_manager.set_whisper_model(whisper.load_model(model_name, download_root=download_root))
         logger.info("✅ Whisper model loaded successfully")
         return True
 
@@ -327,8 +373,6 @@ def load_whisper_model():
 @app.on_event("startup")
 async def startup_load_models():
     """Load all models during FastAPI startup - CRITICAL for Cloud Run success."""
-    global models_loaded, startup_error
-
     try:
         logger.info("🔥 STARTING MODEL LOADING SEQUENCE - CRITICAL FOR CLOUD RUN")
 
@@ -372,12 +416,12 @@ async def startup_load_models():
             # psutil not available; skip memory logging
             pass
 
-        models_loaded = True
+        model_manager.set_models_loaded(True)
         logger.info("🎉 CORE MODELS LOADED SUCCESSFULLY - CLOUD RUN DEPLOYMENT READY!")
 
     except Exception as e:
-        startup_error = str(e)
-        models_loaded = False
+        model_manager.set_startup_error(str(e))
+        model_manager.set_models_loaded(False)
         logger.error("💥 CRITICAL STARTUP FAILURE: %s", e)
         logger.error(traceback.format_exc())
         # Don't raise here - let the app start but mark as not ready
@@ -389,7 +433,7 @@ async def root():
     return {
         "message": "SAMO Unified AI API",
         "status": "running",
-        "models_loaded": models_loaded,
+        "models_loaded": model_manager.models_loaded,
     }
 
 
@@ -402,11 +446,11 @@ async def health():
 @app.get("/ready")
 async def ready():
     """Readiness probe - only returns ready after all models are loaded."""
-    if not models_loaded:
-        if startup_error:
+    if not model_manager.models_loaded:
+        if model_manager.get_startup_error():
             raise HTTPException(
                 status_code=503,
-                detail=f"Models not loaded due to startup error: {startup_error}",
+                detail=f"Models not loaded due to startup error: {model_manager.get_startup_error()}",
             )
         raise HTTPException(
             status_code=503, detail="Models still loading, please wait..."
@@ -423,7 +467,7 @@ async def ready():
 async def analyze_emotion(text: str = Body(..., embed=True)):
     """Analyze emotion in text using pre-loaded DeBERTa model."""
     # Verify model is loaded
-    if not models_loaded or emotion_model is None:
+    if not model_manager.models_loaded or model_manager.get_emotion_model() is None:
         raise HTTPException(
             status_code=503, detail="Emotion model not loaded. Check /ready endpoint."
         )
@@ -441,7 +485,7 @@ async def analyze_emotion(text: str = Body(..., embed=True)):
 async def summarize_text(text: str = Body(..., embed=True)):
     """Summarize text using pre-loaded T5 model."""
     # Verify model is loaded
-    if not models_loaded or summarization_model is None:
+    if not model_manager.models_loaded or model_manager.get_summarization_model() is None:
         raise HTTPException(
             status_code=503,
             detail="Summarization model not loaded. Check /ready endpoint.",

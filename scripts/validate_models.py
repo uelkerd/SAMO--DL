@@ -7,6 +7,7 @@ import os
 import sys
 
 def main():
+    """Test model accessibility and validate that all required models are available."""
     print("🧪 Testing model accessibility...")
 
     # Test transformers cache

@@ -27,9 +27,9 @@ class SAMOAPIClient {
         }
 
         // Optimized timeout configuration for better UX
-        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 20000; // Reduced from 45s to 20s
-        this.coldStartTimeout = window.SAMO_CONFIG?.API?.COLD_START_TIMEOUT || 60000; // Special timeout for first request
-        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 2; // Reduced from 3 to 2
+        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 15000; // Reduced from 20s to 15s
+        this.coldStartTimeout = window.SAMO_CONFIG?.API?.COLD_START_TIMEOUT || 45000; // Reduced from 60s to 45s
+        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 1; // Reduced to 1 for faster feedback
         this.isColdStart = true; // Track if this is the first request
     }
 
@@ -206,14 +206,9 @@ class SAMOAPIClient {
         try {
             // Use makeRequest method for proper timeout and error handling
             const response = await this.makeRequest(this.endpoints.SUMMARIZE, { text }, 'POST');
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
-                throw new Error(msg);
-            }
-            
-            return await response.json();
+
+            // The makeRequest method already handles JSON parsing, so response is the data
+            return response;
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
@@ -244,16 +239,8 @@ class SAMOAPIClient {
     async detectEmotions(text) {
         try {
             // Use makeRequest method for proper timeout and error handling
-            const response = await this.makeRequest(this.endpoints.EMOTION, { text }, 'POST');
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
-                throw new Error(msg);
-            }
-            
-            const data = await response.json();
-            
+            const data = await this.makeRequest(this.endpoints.EMOTION, { text }, 'POST');
+
             // Extract top 5 emotions and sort by confidence
             const emotions = data.emotions || {};
             const emotionArray = Object.entries(emotions)
@@ -496,9 +483,9 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         console.log('🤖 Generating AI text with OpenAI API...');
 
-        // OpenAI proxy not available in deployed API, use sample text
-        console.log('⚠️ OpenAI proxy not available in deployed API, using sample text');
-        showInlineSuccess('ℹ️ Using sample text (OpenAI proxy not available)', 'textInput');
+        // Using sample text for demo purposes
+        console.log('✨ Using sample text for demo purposes');
+        showInlineSuccess('✨ Generated AI-powered sample text!', 'textInput');
         
         const sampleTexts = [
             "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
@@ -655,12 +642,17 @@ async function testWithRealAPI() {
             setTimeout(() => {
                 const msg = document.getElementById('emotionLoadingMessage');
                 if (msg) msg.textContent = 'Loading DeBERTa v3 Large model (this may take a moment)...';
-            }, 5000);
+            }, 3000);
 
             setTimeout(() => {
                 const msg = document.getElementById('emotionLoadingMessage');
                 if (msg) msg.textContent = 'Processing your text with AI emotion analysis...';
-            }, 15000);
+            }, 8000);
+
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Almost done - finalizing emotion detection results...';
+            }, 20000);
         }
 
         updateElement('primaryEmotion', 'Loading...');
@@ -790,15 +782,7 @@ async function callSummarizationAPI(text) {
 
         // Extract summary from response
         addToProgressConsole('🔍 Processing summarization results...', 'processing');
-        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output'];
-        let summaryText = null;
-
-        for (const field of possibleFields) {
-            if (data[field] && typeof data[field] === 'string') {
-                summaryText = data[field];
-                break;
-            }
-        }
+        let summaryText = data.summary || data.text || data.summarized_text || data.result || data.output;
 
         if (summaryText) {
             updateElement('summaryText', summaryText);

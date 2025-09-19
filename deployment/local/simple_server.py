@@ -38,17 +38,20 @@ COMMON_HEADERS = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
 # Serve static files from website directory
 @app.route("/")
 def index():
+    """Serve the main demo page."""
     return send_from_directory(WEBSITE_DIR, "comprehensive-demo.html")
 
 
 @app.route("/<path:filename>")
 def static_files(filename):
+    """Serve static files from the website directory."""
     return send_from_directory(WEBSITE_DIR, filename)
 
 
 # CORS Proxy for Real API
 @app.route("/api/emotion", methods=["POST"])
 def proxy_emotion():
+    """Proxy emotion analysis requests to the real API."""
     try:
         # Accept JSON body or query param
         data = request.get_json(silent=True) or {}
@@ -74,6 +77,7 @@ def proxy_emotion():
 
 @app.route("/api/summarize", methods=["POST"])
 def proxy_summarize():
+    """Proxy text summarization requests to the real API."""
     try:
         # Accept JSON body or query param
         data = request.get_json(silent=True) or {}
@@ -99,6 +103,7 @@ def proxy_summarize():
 
 @app.route("/api/health", methods=["GET"])
 def health():
+    """Health check endpoint for the local development server."""
     return jsonify({"status": "healthy", "server": "simple_local_dev"})
 
 

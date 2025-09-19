@@ -1,0 +1,93 @@
+{
+  "name": "samo-dl-demo-website",
+  "version": "1.0.0",
+  "description": "SAMO Deep Learning Demo Website - Frontend Testing Suite",
+  "main": "website/js/comprehensive-demo.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch --coverage",
+    "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
+    "test:verbose": "jest --coverage --verbose",
+    "test:debug": "jest --detectOpenHandles --forceExit --coverage",
+    "coverage": "jest --coverage && open-cli coverage/lcov-report/index.html"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/tests/frontend/setup.js"],
+    "testMatch": [
+      "**/tests/frontend/**/*.test.js",
+      "**/tests/frontend/**/*.spec.js"
+    ],
+    "collectCoverageFrom": [
+      "website/js/**/*.js",
+      "!website/js/**/*.min.js",
+      "!**/node_modules/**"
+    ],
+    "coverageDirectory": "coverage/frontend",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html",
+      "json"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 85,
+        "lines": 85,
+        "statements": 85
+      }
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/website/js/$1"
+    },
+    "globals": {
+      "window": {},
+      "document": {},
+      "navigator": {},
+      "localStorage": {}
+    }
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "open-cli": "^8.0.0"
+  },
+  "keywords": [
+    "emotion-detection",
+    "ai",
+    "machine-learning",
+    "demo",
+    "frontend-testing",
+    "javascript",
+    "jest"
+  ],
+  "author": "SAMO-DL Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uelkerd/SAMO--DL.git"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
