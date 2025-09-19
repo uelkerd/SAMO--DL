@@ -27,7 +27,7 @@ class EmotionDetectionModel:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
             self.model = self.model.to(self.device)
             self.model.eval()  # Set to evaluation mode
-            
+
             if self.device == 'cuda':
                 print("✅ Model moved to GPU")
             else:
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     print("   GET  /health - Health check")
     print("   POST /predict - Single prediction")
     print("")
-    
+
     # Try to use centralized security-first host binding configuration
     try:
         from src.security.host_binding import (

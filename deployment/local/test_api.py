@@ -153,7 +153,7 @@ def test_batch_predictions():
                             'confidence': pred_item.get('confidence', 0),
                             'text': pred_item.get('text', '')
                         }
-                    
+
                     # Check for primary_emotion/primary_confidence keys
                     if 'primary_emotion' in pred_item and 'primary_confidence' in pred_item and 'text' in pred_item:
                         return {
@@ -161,7 +161,7 @@ def test_batch_predictions():
                             'confidence': pred_item.get('primary_confidence', 0),
                             'text': pred_item.get('text', '')
                         }
-                    
+
                     # Try to extract from nested structures
                     nested_data = pred_item.get('data') or pred_item.get('result') or pred_item.get('prediction')
                     if nested_data:
@@ -173,20 +173,20 @@ def test_batch_predictions():
                                 'confidence': nested_data.get('confidence') or nested_data.get('primary_confidence', 0),
                                 'text': nested_data.get('text', pred_item.get('text', ''))
                             }
-                    
+
                     # Fallback to safe defaults
                     return {
                         'emotion': pred_item.get('primary_emotion') or pred_item.get('predicted_emotion', 'unknown'),
                         'confidence': pred_item.get('primary_confidence') or pred_item.get('confidence', 0),
                         'text': pred_item.get('text', '')
                     }
-                
+
                 # Normalize the prediction
                 normalized = normalize_prediction(pred)
                 emotion = normalized['emotion']
                 confidence = normalized['confidence']
                 text = normalized['text']
-                
+
                 # Truncate text for display
                 display_text = text[:30] + "..." if len(text) > 30 else text
                 print(f"   {i}. '{display_text}' → {emotion} (conf: {confidence:.3f})")

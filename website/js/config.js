@@ -7,12 +7,12 @@
 window.SAMO_CONFIG = {
     // API Configuration
     API: {
-        BASE_URL: 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app',
+        BASE_URL: 'https://samo-unified-api-optimized-71517823771.us-central1.run.app',
         ENDPOINTS: {
             EMOTION: '/analyze/emotion',
             SUMMARIZE: '/analyze/summarize',
             JOURNAL: '/analyze/journal',
-            VOICE_JOURNAL: '/analyze/voice_journal',
+            VOICE_JOURNAL: '/analyze/voice-journal',
             HEALTH: '/health',
             READY: '/ready',
             TRANSCRIBE: '/transcribe',
@@ -23,7 +23,7 @@ window.SAMO_CONFIG = {
         API_KEY: null, // Set via server injection or user input
         REQUIRE_AUTH: false // Set to true for production with API key requirement
     },
-    
+
     // OpenAI Configuration (for client-side text generation)
     OPENAI: {
         API_URL: 'https://api.openai.com/v1/chat/completions',
@@ -31,7 +31,7 @@ window.SAMO_CONFIG = {
         MAX_TOKENS: 4000, // Increased for gpt-4o-mini
         TEMPERATURE: 0.7
     },
-    
+
     // External Services
     EXTERNAL: {
         HUGGINGFACE: {
@@ -45,11 +45,11 @@ window.SAMO_CONFIG = {
             FONT_AWESOME: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
         }
     },
-    
+
     // Development/Production flags
     ENVIRONMENT: 'production', // 'development' or 'production'
     DEBUG: false,
-    
+
     // Feature flags
     FEATURES: {
         ENABLE_OPENAI: false, // Disabled by default - requires server-side proxy
@@ -83,7 +83,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 // Deep merge utility function
 function deepMerge(target, source) {
     const result = { ...target };
-    
+
     for (const key in source) {
         if (source.hasOwnProperty(key)) {
             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
@@ -95,7 +95,7 @@ function deepMerge(target, source) {
             }
         }
     }
-    
+
     return result;
 }
 
@@ -109,11 +109,11 @@ function redactSensitiveValues(obj) {
     if (obj === null || typeof obj !== 'object') {
         return obj;
     }
-    
+
     if (Array.isArray(obj)) {
         return obj.map(item => redactSensitiveValues(item));
     }
-    
+
     const result = {};
     const SENSITIVE_PATTERNS = [
       /^(api[-_]?key|authorization|x[-_]?api[-_]?key|bearer)$/i,
@@ -122,10 +122,10 @@ function redactSensitiveValues(obj) {
       /^(password|passwd)$/i,
       /^(credential|credentials|auth|authkey)$/i
     ];
-    
+
     for (const [key, value] of Object.entries(obj)) {
         const isSensitive = SENSITIVE_PATTERNS.some(re => re.test(key));
-        
+
         if (isSensitive) {
             result[key] = 'REDACTED';
         } else if (value && typeof value === 'object') {
@@ -134,7 +134,7 @@ function redactSensitiveValues(obj) {
             result[key] = value;
         }
     }
-    
+
     return result;
 }
 

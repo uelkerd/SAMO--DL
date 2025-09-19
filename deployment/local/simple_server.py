@@ -40,6 +40,68 @@ COMMON_HEADERS = (
 )
 
 
+def create_mock_emotion_analysis(text):
+    """Create a mock emotion analysis response for development when upstream API is rate limited."""
+    import time
+    import random
+
+    # Mock emotion analysis matching the expected format
+    mock_emotions = {
+        'admiration': random.uniform(0.05, 0.15),
+        'amusement': random.uniform(0.05, 0.12),
+        'anger': random.uniform(0.01, 0.05),
+        'annoyance': random.uniform(0.01, 0.04),
+        'approval': random.uniform(0.10, 0.20),
+        'caring': random.uniform(0.05, 0.10),
+        'confusion': random.uniform(0.02, 0.06),
+        'curiosity': random.uniform(0.15, 0.25),
+        'desire': random.uniform(0.03, 0.08),
+        'disappointment': random.uniform(0.01, 0.04),
+        'disapproval': random.uniform(0.01, 0.03),
+        'disgust': random.uniform(0.01, 0.02),
+        'embarrassment': random.uniform(0.01, 0.03),
+        'excitement': random.uniform(0.60, 0.85),
+        'fear': random.uniform(0.01, 0.04),
+        'gratitude': random.uniform(0.08, 0.15),
+        'grief': random.uniform(0.01, 0.02),
+        'joy': random.uniform(0.55, 0.75),
+        'love': random.uniform(0.05, 0.12),
+        'nervousness': random.uniform(0.02, 0.05),
+        'optimism': random.uniform(0.50, 0.70),
+        'pride': random.uniform(0.04, 0.08),
+        'realization': random.uniform(0.04, 0.08),
+        'relief': random.uniform(0.03, 0.06),
+        'remorse': random.uniform(0.01, 0.02),
+        'sadness': random.uniform(0.01, 0.04),
+        'surprise': random.uniform(0.10, 0.18),
+        'neutral': random.uniform(0.05, 0.10)
+    }
+
+    # Create top emotions array
+    top_emotions = sorted(
+        mock_emotions.items(), key=lambda x: x[1], reverse=True
+    )[:5]
+    top_emotions_array = [
+        {"emotion": emotion, "confidence": confidence}
+        for emotion, confidence in top_emotions
+    ]
+
+    return {
+        "text": text,
+        "emotions": mock_emotions,
+        "predicted_emotion": top_emotions[0][0],
+        "top_emotions": top_emotions_array,
+        "confidence": top_emotions[0][1],
+        "processing_info": {
+            "mock": True,
+            "reason": "upstream_rate_limited",
+            "timestamp": time.time(),
+            "request_id": f"mock-emotion-{int(time.time())}-{random.randint(1000, 9999)}",
+            "model": "Mock DeBERTa v3 Large"
+        }
+    }
+
+
 def create_mock_voice_response(filename):
     """Create a mock voice processing response for development when upstream API doesn't support voice."""
     import time
@@ -98,7 +160,7 @@ def create_mock_voice_response(filename):
         mock_emotions.items(), key=lambda x: x[1], reverse=True
     )[:5]
     top_emotions_array = [
-        {"emotion": emotion, "confidence": confidence} 
+        {"emotion": emotion, "confidence": confidence}
         for emotion, confidence in top_emotions
     ]
 
@@ -166,18 +228,36 @@ def proxy_emotion():
         # Call real API with JSON body
         api_url = f"{UPSTREAM_BASE}/analyze/emotion"
         response = requests.post(
-            api_url, 
-            json={"text": text}, 
-            headers=COMMON_HEADERS, 
+            api_url,
+            json={"text": text},
+            headers=COMMON_HEADERS,
             timeout=30
         )
 
         if response.ok:
             return jsonify(response.json())
+        elif response.status_code == 429:
+            # Rate limited, provide mock response for development
+            logging.info("⚠️ Upstream API rate limited, providing mock emotion response")
+            mock_emotions = create_mock_emotion_analysis(text)
+            return jsonify(mock_emotions)
         return (
             jsonify({"error": f"API error: {response.status_code}"}),
             response.status_code,
         )
+
+    except requests.exceptions.ConnectionError:
+        # Network error, provide mock response for development
+        logging.warning("🌐 Network error, providing mock emotion response for development")
+        return jsonify(create_mock_emotion_analysis(text))
+
+    except requests.exceptions.Timeout:
+        logging.exception("⏰ Emotion analysis timeout")
+        return jsonify({"error": "Emotion analysis timeout. Please try again."}), 504
+
+    except requests.exceptions.RequestException as e:
+        logging.exception(f"🌐 Network error during emotion analysis: {e}")
+        return jsonify({"error": "Network error during emotion analysis. Please try again."}), 502
 
     except Exception:
         logging.exception("Unhandled exception in /api/emotion")
@@ -199,9 +279,9 @@ def proxy_summarize():
         # Call real API with JSON body
         api_url = f"{UPSTREAM_BASE}/analyze/summarize"
         response = requests.post(
-            api_url, 
-            json={"text": text}, 
-            headers=COMMON_HEADERS, 
+            api_url,
+            json={"text": text},
+            headers=COMMON_HEADERS,
             timeout=30
         )
 
@@ -323,8 +403,8 @@ if __name__ == "__main__":
         help="Port to run the server on (default: 8000)",
     )
     parser.add_argument(
-        "--host", 
-        default="127.0.0.1", 
+        "--host",
+        default="127.0.0.1",
         help="Host to bind to (default: 127.0.0.1)"
     )
     args = parser.parse_args()

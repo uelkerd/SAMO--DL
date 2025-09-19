@@ -9,7 +9,7 @@ class SAMOAPIClient {
         if (!window.SAMO_CONFIG) {
             console.warn('⚠️ SAMO_CONFIG not found, using fallback configuration');
         }
-        
+
         this.baseURL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app';
         this.endpoints = window.SAMO_CONFIG?.API?.ENDPOINTS || {
             EMOTION: '/analyze/emotion',
@@ -39,18 +39,18 @@ class SAMOAPIClient {
         if (window.SAMO_CONFIG?.API?.API_KEY) {
             return window.SAMO_CONFIG.API.API_KEY;
         }
-        
+
         // 2. From localStorage (user-set)
         const storedKey = localStorage.getItem('samo_api_key');
         if (storedKey && storedKey.trim()) {
             return storedKey.trim();
         }
-        
+
         // 3. From environment variable (if available in browser context)
         if (window.SAMO_CONFIG?.API?.API_KEY_ENV) {
             return window.SAMO_CONFIG.API.API_KEY_ENV;
         }
-        
+
         return null;
     }
 
@@ -193,7 +193,7 @@ class SAMOAPIClient {
     async transcribeAudio(audioFile) {
         const formData = new FormData();
         formData.append('audio_file', audioFile);
-        
+
         try {
             // Use VOICE_JOURNAL endpoint for audio analysis flows with proper timeout handling
             return await this.makeRequest(this.endpoints.VOICE_JOURNAL, formData, 'POST', true);
@@ -225,7 +225,7 @@ class SAMOAPIClient {
         const words = text.split(' ');
         const summaryLength = Math.max(10, Math.floor(words.length * 0.3));
         const summary = words.slice(0, summaryLength).join(' ') + '...';
-        
+
         return {
             summary: summary,
             original_length: text.length,
@@ -295,13 +295,13 @@ class SAMOAPIClient {
             'surprise': 0.15,
             'neutral': 0.08
         };
-        
+
         // Create top_emotions array for bar graphs
         const emotionArray = Object.entries(emotions)
             .map(([emotion, confidence]) => ({ emotion, confidence }))
             .sort((a, b) => b.confidence - a.confidence)
             .slice(0, 5);
-        
+
         return {
             text: text,
             emotions: emotions,
@@ -333,7 +333,7 @@ class SAMOAPIClient {
                 results.transcription = audioResponse.transcription || audioResponse;
                 results.summary = audioResponse.summary || null;
                 results.emotions = audioResponse.emotion_analysis || null;
-                
+
                 // Extract transcribed text for further processing if needed
                 const transcribedText = results.transcription.text || results.transcription.transcription;
                 currentText = transcribedText;
@@ -489,7 +489,7 @@ async function generateSampleText() {
         // Using sample text for demo purposes
         console.log('✨ Using sample text for demo purposes');
         showInlineSuccess('✨ Generated AI-powered sample text!', 'textInput');
-        
+
         const sampleTexts = [
             "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
 
@@ -676,7 +676,7 @@ async function testWithRealAPI() {
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
-        const data = await apiClient.makeRequest('/analyze/emotion', { text: testText }, 'POST');
+        const data = await apiClient.makeRequest(apiClient.endpoints.EMOTION, { text: testText }, 'POST');
 
         addToProgressConsole('✅ Emotion analysis API response received', 'success');
         console.log('✅ Real API response:', data);
@@ -874,20 +874,20 @@ function addToProgressConsole(message, type = 'info') {
 
     const messageDiv = document.createElement('div');
     messageDiv.className = className;
-    
+
     // Create timestamp span safely
     const timestampSpan = document.createElement('span');
     timestampSpan.className = 'text-muted';
     timestampSpan.textContent = `[${timestamp}]`;
-    
+
     // Create icon span safely
     const iconSpan = document.createElement('span');
     iconSpan.textContent = icon;
-    
+
     // Create message span safely
     const messageSpan = document.createElement('span');
     messageSpan.textContent = ` ${message}`;
-    
+
     // Append elements safely
     messageDiv.appendChild(timestampSpan);
     messageDiv.appendChild(iconSpan);
@@ -917,18 +917,18 @@ function updateElement(id, value) {
                 // Special handling for summary text - use dark-theme compatible styling
                 // Clear existing content safely
                 element.textContent = '';
-                
+
                 // Create container div safely
                 const containerDiv = document.createElement('div');
                 containerDiv.className = 'p-3 bg-dark border border-secondary rounded text-light';
-                
+
                 // Set text content safely
                 const textContent = value !== null && value !== undefined ? value : 'No summary available';
                 containerDiv.textContent = textContent;
-                
+
                 // Append to element
                 element.appendChild(containerDiv);
-                
+
                 console.log(`✅ Updated summary text: ${value}`);
                 // Only add success message if it's actually a successful summary (not an error message)
                 if (value && !value.includes('Failed to') && !value.includes('not available')) {

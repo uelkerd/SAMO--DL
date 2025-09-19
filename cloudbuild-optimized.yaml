@@ -17,12 +17,12 @@ steps:
 
   # Push the image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
+    args:
       - 'push'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:${COMMIT_SHA}'
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
+    args:
       - 'push'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-unified-api-optimized:latest'
 

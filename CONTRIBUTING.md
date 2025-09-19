@@ -39,7 +39,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    # Create virtual environment
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
    ```
@@ -48,7 +48,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    ```bash
    # Run all tests
    pytest
-   
+
    # Run with coverage
    pytest --cov=.
    ```
@@ -104,19 +104,19 @@ We follow **PEP 8** with some modifications:
 # ✅ Good
 def predict_emotion(text: str) -> Dict[str, Any]:
     """Predict emotion from text input.
-    
+
     Args:
         text: Input text to analyze
-        
+
     Returns:
         Dictionary containing emotion prediction and confidence
-        
+
     Raises:
         ValueError: If text is empty or invalid
     """
     if not text or not isinstance(text, str):
         raise ValueError("Text must be a non-empty string")
-    
+
     # Implementation here
     return {"emotion": "happy", "confidence": 0.95}
 
@@ -169,28 +169,28 @@ Use Google-style docstrings:
 ```python
 def process_text(text: str, max_length: int = 512) -> str:
     """Process and clean input text.
-    
+
     Args:
         text: Raw input text
         max_length: Maximum allowed text length
-        
+
     Returns:
         Processed and cleaned text
-        
+
     Raises:
         ValueError: If text exceeds maximum length
         TypeError: If text is not a string
-        
+
     Example:
         >>> process_text("Hello, world!", max_length=10)
         "Hello, wor"
     """
     if not isinstance(text, str):
         raise TypeError("Text must be a string")
-    
+
     if len(text) > max_length:
         text = text[:max_length]
-    
+
     return text.strip()
 ```
 
@@ -232,26 +232,26 @@ from src.emotion_detector import EmotionDetector
 
 class TestEmotionDetector:
     """Test cases for EmotionDetector class."""
-    
+
     @pytest.fixture
     def detector(self):
         """Create EmotionDetector instance for testing."""
         return EmotionDetector()
-    
+
     def test_predict_happy_text(self, detector):
         """Test emotion prediction for happy text."""
         text = "I'm feeling really happy today!"
         result = detector.predict(text)
-        
+
         assert result["emotion"] == "happy"
         assert result["confidence"] > 0.8
         assert "text" in result
-    
+
     def test_predict_empty_text(self, detector):
         """Test emotion prediction with empty text."""
         with pytest.raises(ValueError, match="Text cannot be empty"):
             detector.predict("")
-    
+
     def test_predict_invalid_input(self, detector):
         """Test emotion prediction with invalid input."""
         with pytest.raises(TypeError, match="Text must be a string"):
@@ -420,7 +420,7 @@ Brief description of changes
    # ✅ Good - Use environment variables
    import os
    api_key = os.getenv('API_KEY')
-   
+
    # ❌ Bad - Hardcoded secrets
    api_key = "your-api-key-here"  # Never commit real API keys
    ```
@@ -429,7 +429,7 @@ Brief description of changes
    ```python
    # ✅ Good - Use parameterized queries
    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-   
+
    # ❌ Bad - String concatenation
    cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
    ```
@@ -527,4 +527,4 @@ By contributing to SAMO-DL, you agree that your contributions will be licensed u
 
 **Thank you for contributing to SAMO-DL!** 🚀
 
-Your contributions help make this project better for everyone in the community. 
+Your contributions help make this project better for everyone in the community.

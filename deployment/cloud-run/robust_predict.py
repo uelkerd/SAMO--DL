@@ -34,7 +34,7 @@ model_lock = threading.Lock()
 
 # Emotion mapping fallback (used if model has no labels)
 EMOTION_MAPPING = [
-    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
+    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
     'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
 ]
 
@@ -111,10 +111,10 @@ def predict_emotion(text):
 
     # Tokenize
     inputs = tokenizer(
-        text, 
-        return_tensors="pt", 
-        truncation=True, 
-        max_length=MAX_INPUT_LENGTH, 
+        text,
+        return_tensors="pt",
+        truncation=True,
+        max_length=MAX_INPUT_LENGTH,
         padding=True
     )
 
@@ -152,7 +152,7 @@ def ensure_model_loaded():
     # Call load_model outside the lock if needed
     if should_load:
         load_model()
-    
+
     # Check again after loading
     with model_lock:
         if not model_loaded:
@@ -335,7 +335,7 @@ if __name__ == '__main__':
     # Use secure host binding for Gunicorn
     try:
         from src.security.host_binding import (
-            get_secure_host_binding, 
+            get_secure_host_binding,
             validate_host_binding
         )
         host, derived_port = get_secure_host_binding(port)

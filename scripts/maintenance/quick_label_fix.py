@@ -56,7 +56,7 @@ def quick_label_fix():
     # Get all unique labels - normalize to string format using emotion mapping
     # Get label names from GoEmotions dataset's ClassLabel feature
     go_label_names = go_emotions['train'].features['labels'].names
-    
+
     go_labels = set()
     for example in go_emotions['train']:
         if example['labels']:

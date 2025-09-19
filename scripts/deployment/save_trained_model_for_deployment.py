@@ -156,7 +156,7 @@ def test_saved_model(model_dir):
         # Get the repository root directory (go up from scripts/deployment to repo root)
         repo_root = Path(__file__).parent.parent.parent
         deployment_dir = repo_root / "deployment"
-        
+
         if str(deployment_dir) not in sys.path:
             sys.path.insert(0, str(deployment_dir))
 

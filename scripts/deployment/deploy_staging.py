@@ -60,7 +60,7 @@ def check_prerequisites():
 
     # Check authentication
     try:
-        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], 
+        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'],
                               capture_output=True, text=True, check=True)
         if 'ACTIVE' in result.stdout:
             print("✅ gcloud authenticated")
@@ -73,7 +73,7 @@ def check_prerequisites():
 
     # Check project
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
+        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
                               capture_output=True, text=True, check=True)
         if PROJECT_ID in result.stdout:
             print(f"✅ Project set to {PROJECT_ID}")
@@ -242,8 +242,8 @@ def run_integration_tests(service_url):
                 response = requests.get(test['url'], timeout=30)
             else:
                 response = requests.post(
-                    test['url'], 
-                    json=test.get('data', {}), 
+                    test['url'],
+                    json=test.get('data', {}),
                     timeout=30
                 )
 

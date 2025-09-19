@@ -94,8 +94,8 @@ api.add_namespace(admin_ns)
 # Define request/response models for Swagger
 text_input_model = api.model('TextInput', {
     'text': fields.String(
-        required=True, 
-        description='Text to analyze for emotion', 
+        required=True,
+        description='Text to analyze for emotion',
         example='I am feeling happy today!'
     )
 })
@@ -113,9 +113,9 @@ emotion_response_model = api.model('EmotionResponse', {
 
 batch_input_model = api.model('BatchInput', {
     'texts': fields.List(
-        fields.String, 
-        required=True, 
-        description='List of texts to analyze', 
+        fields.String,
+        required=True,
+        description='List of texts to analyze',
         example=['I am happy', 'I am sad']
     )
 })
@@ -150,7 +150,7 @@ model_lock = threading.Lock()
 
 # Emotion mapping based on training order
 EMOTION_MAPPING = [
-    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
+    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
     'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
 ]
 
@@ -178,7 +178,7 @@ def sanitize_input(text: str) -> str:
 
     # Remove potentially dangerous characters
     dangerous_chars = [
-        '<', '>', '"', "'", '&', ';', '|', '`', '$', 
+        '<', '>', '"', "'", '&', ';', '|', '`', '$',
         '(', ')', '{{', '}}'
     ]
     for char in dangerous_chars:
@@ -544,14 +544,14 @@ if __name__ == '__main__':
     # Use centralized host binding for security
     try:
         from src.security.host_binding import (
-            get_secure_host_binding, 
-            validate_host_binding, 
+            get_secure_host_binding,
+            validate_host_binding,
             get_binding_security_summary
         )
         host, port = get_secure_host_binding(PORT)
         validate_host_binding(host, port)
         logger.info(
-            "🌐 Starting Flask development server: %s", 
+            "🌐 Starting Flask development server: %s",
             get_binding_security_summary(host, port)
         )
         app.run(host=host, port=port, debug=False)

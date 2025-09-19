@@ -141,8 +141,8 @@ if __name__ == "__main__":
 
     # Use centralized security-first host binding configuration
     from src.security.host_binding import (
-        get_secure_host_binding, 
-        validate_host_binding, 
+        get_secure_host_binding,
+        validate_host_binding,
         get_binding_security_summary
     )
 

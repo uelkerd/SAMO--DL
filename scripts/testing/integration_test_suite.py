@@ -152,7 +152,7 @@ class SAMODLIntegrationTests(unittest.TestCase):
         self.assertIn('compression_ratio', data, "Response should contain compression_ratio")
 
         # Validate summary is shorter than original
-        self.assertLess(data['summary_length'], data['original_length'], 
+        self.assertLess(data['summary_length'], data['original_length'],
                        "Summary should be shorter than original text")
 
         print(f"✅ Text summarization test passed - Compression ratio: {data['compression_ratio']:.2f}")

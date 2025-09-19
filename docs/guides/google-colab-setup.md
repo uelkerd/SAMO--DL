@@ -74,27 +74,27 @@ def record_audio(duration=5, sample_rate=16000):
     chunk = 1024
     format = pyaudio.paInt16
     channels = 1
-    
+
     p = pyaudio.PyAudio()
     stream = p.open(format=format,
                    channels=channels,
                    rate=sample_rate,
                    input=True,
                    frames_per_buffer=chunk)
-    
+
     print("🎤 Recording... Speak now!")
     frames = []
-    
+
     for i in range(0, int(sample_rate / chunk * duration)):
         data = stream.read(chunk)
         frames.append(data)
-    
+
     print("✅ Recording complete!")
-    
+
     stream.stop_stream()
     stream.close()
     p.terminate()
-    
+
     return frames
 
 # Test recording
@@ -111,11 +111,11 @@ def voice_to_text(audio_frames, sample_rate=16000):
         wf.setsampwidth(2)
         wf.setframerate(sample_rate)
         wf.writeframes(b''.join(audio_frames))
-    
+
     # Transcribe with Whisper
     model = whisper.load_model("base")
     result = model.transcribe("temp_audio.wav")
-    
+
     return result["text"]
 
 # Test voice-to-text
@@ -129,16 +129,16 @@ def detect_emotion_from_voice(audio_frames, sample_rate=16000):
     """Detect emotion from voice using audio features."""
     import librosa
     import numpy as np
-    
+
     # Convert audio frames to numpy array
     audio_data = np.frombuffer(b''.join(audio_frames), dtype=np.int16)
     audio_data = audio_data.astype(np.float32) / 32768.0
-    
+
     # Extract audio features
     mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
     spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)
     zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
-    
+
     # Calculate statistics
     features = {
         'mfcc_mean': np.mean(mfccs),
@@ -146,7 +146,7 @@ def detect_emotion_from_voice(audio_frames, sample_rate=16000):
         'spectral_centroid_mean': np.mean(spectral_centroids),
         'zero_crossing_rate_mean': np.mean(zero_crossing_rate)
     }
-    
+
     # Simple emotion mapping (can be enhanced with ML model)
     if features['spectral_centroid_mean'] > 2000:
         emotion = "excited"
@@ -154,7 +154,7 @@ def detect_emotion_from_voice(audio_frames, sample_rate=16000):
         emotion = "sad"
     else:
         emotion = "neutral"
-    
+
     return emotion, features
 
 # Test emotion detection
@@ -168,21 +168,21 @@ def samo_voice_pipeline():
     """Complete SAMO voice-first processing pipeline."""
     print("🎤 SAMO Voice-First Pipeline")
     print("=" * 40)
-    
+
     # Step 1: Record voice
     print("1️⃣ Recording your voice...")
     audio_frames = record_audio(duration=5)
-    
+
     # Step 2: Convert to text
     print("2️⃣ Converting voice to text...")
     text = voice_to_text(audio_frames)
     print(f"   Text: {text}")
-    
+
     # Step 3: Detect emotion from voice
     print("3️⃣ Detecting emotion from voice...")
     voice_emotion, voice_features = detect_emotion_from_voice(audio_frames)
     print(f"   Voice emotion: {voice_emotion}")
-    
+
     # Step 4: Detect emotion from text
     print("4️⃣ Detecting emotion from text...")
     # Load SAMO emotion detection model
@@ -190,7 +190,7 @@ def samo_voice_pipeline():
     model = BERTEmotionClassifier()
     text_emotions = model.predict(text)
     print(f"   Text emotions: {text_emotions}")
-    
+
     # Step 5: Combine results
     print("5️⃣ Combining voice and text analysis...")
     combined_analysis = {
@@ -199,7 +199,7 @@ def samo_voice_pipeline():
         'text_emotions': text_emotions,
         'confidence': 0.85  # Can be calculated from model confidence
     }
-    
+
     return combined_analysis
 
 # Test complete pipeline
@@ -232,11 +232,11 @@ if torch.cuda.is_available():
 def monitor_f1_progress():
     """Monitor F1 score improvements during training."""
     import matplotlib.pyplot as plt
-    
+
     # Training history (example)
     epochs = [1, 2, 3, 4, 5]
     f1_scores = [13.2, 25.1, 35.8, 42.3, 48.7]  # Expected progression
-    
+
     plt.figure(figsize=(10, 6))
     plt.plot(epochs, f1_scores, 'bo-', linewidth=2, markersize=8)
     plt.axhline(y=50, color='r', linestyle='--', label='Target (50%)')
@@ -246,7 +246,7 @@ def monitor_f1_progress():
     plt.legend()
     plt.grid(True)
     plt.show()
-    
+
     print(f"🎯 Current F1: {f1_scores[-1]:.1f}%")
     print(f"🎯 Target F1: 50.0%")
     print(f"🎯 Remaining: {50 - f1_scores[-1]:.1f}%")
@@ -340,6 +340,6 @@ monitor_f1_progress()
 
 ---
 
-**Last Updated**: July 29, 2025  
-**Status**: 🚀 Ready for Google Colab Migration  
-**Priority**: HIGH - Voice-First Development 
+**Last Updated**: July 29, 2025
+**Status**: 🚀 Ready for Google Colab Migration
+**Priority**: HIGH - Voice-First Development

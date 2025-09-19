@@ -17,12 +17,12 @@ steps:
 
   # Push the image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
+    args:
       - 'push'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:${BUILD_ID}'
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
+    args:
       - 'push'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:latest'
 
@@ -56,10 +56,10 @@ steps:
         # Get the service URL
         SERVICE_URL=$$(gcloud run services describe samo-dl-api-staging --region=us-central1 --format='value(status.url)')
         echo "Testing service at: $$SERVICE_URL"
-        
+
         # Wait for service to be ready
         sleep 30
-        
+
         # Run integration tests
         export API_BASE_URL=$$SERVICE_URL
         python scripts/testing/integration_test_suite.py

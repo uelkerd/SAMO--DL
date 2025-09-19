@@ -513,7 +513,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add rate limiting middleware (1000 requests/minute per user for testing)
+# Add rate limiting middleware - permissive for development/testing
 add_rate_limiting(
     app,
     requests_per_minute=1000,
@@ -521,6 +521,11 @@ add_rate_limiting(
     max_concurrent_requests=50,
     rapid_fire_threshold=100,
     sustained_rate_threshold=2000,
+    # Disable aggressive abuse detection for development
+    enable_user_agent_analysis=False,
+    enable_request_pattern_analysis=False,
+    # Reduce block duration for faster recovery during testing
+    block_duration_seconds=60,  # 1 minute instead of 5
 )
 
 

@@ -99,7 +99,7 @@ For each identified issue:
    Fix Type: [code/config/dependency/resource]
    Files to modify:
    - [FILE_PATH]
-   
+
    Changes needed:
    [SPECIFIC CHANGES]
    ```

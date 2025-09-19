@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.LayoutManager?.resetProcessingState) {
         window.LayoutManager.resetProcessingState();
     }
-    
+
     // Initialize layout to initial state
     if (window.LayoutManager?.resetToInitialState) {
         window.LayoutManager.resetToInitialState();

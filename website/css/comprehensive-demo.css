@@ -6,7 +6,7 @@
     --secondary-gradient: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
     --dark-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
     --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #c084fc 100%);
-    
+
     --primary-color: #8b5cf6;
     --secondary-color: #a855f7;
     --accent-color: #c084fc;
@@ -17,7 +17,7 @@
     --glass-border: rgba(139, 92, 246, 0.2);
     --error-color: #ef4444;
     --success-color: #10b981;
-    
+
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);
@@ -137,7 +137,7 @@ body.comprehensive-demo {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
         radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
         radial-gradient(circle at 40% 80%, rgba(192, 132, 252, 0.2) 0%, transparent 50%);
@@ -1101,18 +1101,18 @@ body.comprehensive-demo {
 
 /* Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
-    * { 
-        animation: none !important; 
-        transition: none !important; 
+    * {
+        animation: none !important;
+        transition: none !important;
     }
-    .hero-section::before { 
-        animation: none !important; 
+    .hero-section::before {
+        animation: none !important;
     }
-    .floating-card { 
-        animation: none !important; 
+    .floating-card {
+        animation: none !important;
     }
-    .audio-bar { 
-        animation: none !important; 
+    .audio-bar {
+        animation: none !important;
     }
 }
 

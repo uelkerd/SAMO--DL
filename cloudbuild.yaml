@@ -26,7 +26,7 @@ steps:
       'us-central1-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPO}/emotion-detection-api:$BUILD_ID',
       '--region=us-central1'
     ]
-  
+
   # Deploy to Cloud Run with parameterized configuration
   # IMPORTANT: secretEnv is only applied to this specific step. Other build steps
   # that need access to secrets would require their own secretEnv declarations.
@@ -62,16 +62,16 @@ substitutions:
   _SERVICE_NAME: 'emotion-detection-api'
   _REGION: 'us-central1'
   _PORT: '8080'
-  
+
   # Resource allocation
   _MEMORY: '2Gi'
   _CPU: '2'
   _MAX_INSTANCES: '10'
-  
+
   # Build configuration
   _MACHINE_TYPE: 'E2_HIGHCPU_8'
   _DISK_SIZE: 100
-  
+
   # Artifact Registry configuration
   _ARTIFACT_REPO: 'samo-dl-repo'
 

@@ -60,7 +60,7 @@ def is_development_environment() -> bool:
         bool: True if running in development, False otherwise
     """
     return any(
-        os.environ.get(env_var) == expected_value 
+        os.environ.get(env_var) == expected_value
         for env_var, expected_value in DEVELOPMENT_INDICATORS.items()
     )
 
@@ -71,7 +71,7 @@ def get_secure_host_binding(default_port: int = DEFAULT_PORT) -> Tuple[str, int]
 
     This function implements a security-first approach:
     1. Defaults to localhost (127.0.0.1) for maximum security
-    2. Only binds to all interfaces (0.0.0.0) in explicitly configured 
+    2. Only binds to all interfaces (0.0.0.0) in explicitly configured
        production environments
     3. Provides comprehensive logging for security auditing
 

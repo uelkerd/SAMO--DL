@@ -48,12 +48,12 @@ def test_final_inference():
         id2label = config.get('id2label', {})
         if not id2label:
             raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
-        
+
         # Create emotion mapping ordered by integer label indices
         emotion_mapping = []
         for label_id in sorted(id2label.keys(), key=int):
             emotion_mapping.append(id2label[str(label_id)])
-        
+
         print(f"🎯 Emotion mapping from model config: {emotion_mapping}")
 
         # Try to load tokenizer from model directory first, fallback to roberta-base

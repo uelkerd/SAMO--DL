@@ -14,7 +14,7 @@ from pathlib import Path
 
 def deep_model_analysis(model_dir=None):
     """Deep analysis of the model's behavior"""
-    
+
     # Get model directory from argument, environment variable, or default
     if model_dir is None:
         model_dir = os.environ.get("MODEL_DIR", "deployment/model")
@@ -30,7 +30,7 @@ def deep_model_analysis(model_dir=None):
     # Check if model directory exists
     if not model_path.exists():
         raise FileNotFoundError(f"Model directory not found: {model_path.absolute()}")
-    
+
     if not (model_path / "config.json").exists():
         raise FileNotFoundError(f"Model config not found in: {model_path.absolute()}")
 
@@ -204,8 +204,8 @@ def deep_model_analysis(model_dir=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Deep model analysis script")
     parser.add_argument(
-        "--model-dir", 
-        type=str, 
+        "--model-dir",
+        type=str,
         default=None,
         help="Path to model directory (default: from MODEL_DIR env var or 'deployment/model')"
     )

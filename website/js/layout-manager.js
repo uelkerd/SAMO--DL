@@ -369,7 +369,7 @@ window.processTextWithStateManagement = function() {
 
     // Set processing state and update UI
     LayoutManager.currentState = 'processing';
-    
+
     // IMMEDIATELY clear all result content to prevent remnants during processing
     if (typeof clearAllResultContent === 'function') {
         clearAllResultContent();

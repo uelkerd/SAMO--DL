@@ -140,8 +140,8 @@ class ModelManager:
     def is_ready(self) -> bool:
         """Check if all models are loaded and ready."""
         return (
-            self.models_loaded and 
-            self.emotion_model is not None and 
+            self.models_loaded and
+            self.emotion_model is not None and
             self.summarization_model is not None
         )
 
@@ -283,7 +283,7 @@ def load_emotion_model():
         # 1. Cloud Run has strict startup timeouts (10 minutes max)
         # 2. Model downloads can take 5-10 minutes and would cause startup failures
         # 3. Models are pre-downloaded during Docker build phase
-        # 4. Network downloads during runtime would cause 503 errors and 
+        # 4. Network downloads during runtime would cause 503 errors and
         #    service unavailability
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
@@ -318,12 +318,12 @@ def load_summarization_model():
         cache_dir = "/app/models"
 
         # Load from cache only - no network downloads
-        # CRITICAL: local_files_only=True prevents network downloads during 
+        # CRITICAL: local_files_only=True prevents network downloads during
         # Cloud Run startup. This is essential because:
         # 1. Cloud Run has strict startup timeouts (10 minutes max)
         # 2. Model downloads can take 5-10 minutes and would cause startup failures
         # 3. Models are pre-downloaded during Docker build phase
-        # 4. Network downloads during runtime would cause 503 errors and 
+        # 4. Network downloads during runtime would cause 503 errors and
         #    service unavailability
         tokenizer = T5Tokenizer.from_pretrained(
             model_name,
@@ -488,7 +488,7 @@ async def analyze_emotion(text: str = Body(..., embed=True)):
 async def summarize_text(text: str = Body(..., embed=True)):
     """Summarize text using pre-loaded T5 model."""
     # Verify model is loaded
-    if (not model_manager.models_loaded or 
+    if (not model_manager.models_loaded or
         model_manager.get_summarization_model() is None):
         raise HTTPException(
             status_code=503,
@@ -548,12 +548,12 @@ async def proxy_openai(request: OpenAIRequest):
 
             if response.is_error:
                 logger.error(
-                    "OpenAI API error: %s - %s", 
-                    response.status_code, 
+                    "OpenAI API error: %s - %s",
+                    response.status_code,
                     response.text
                 )
                 raise HTTPException(
-                    status_code=response.status_code, 
+                    status_code=response.status_code,
                     detail="OpenAI API error"
                 )
 

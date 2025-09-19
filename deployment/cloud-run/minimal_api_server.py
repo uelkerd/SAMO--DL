@@ -54,7 +54,7 @@ def health_check():
         # Check model status using shared utilities
         model_status_info = get_model_status()
         model_status = (
-            "ready" if model_status_info.get('model_loaded', False) 
+            "ready" if model_status_info.get('model_loaded', False)
             else "loading"
         )
 
@@ -80,7 +80,7 @@ def health_check():
         logger.error(f"❌ Health check failed: {e}", exc_info=True)
         REQUEST_COUNT.labels(endpoint='/health', status='error').inc()
         return jsonify({
-            'status': 'unhealthy', 
+            'status': 'unhealthy',
             'error': 'Health check failed'
         }), 500
 
@@ -173,8 +173,8 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', '8080'))
     # Use centralized security-first host binding configuration
     from src.security.host_binding import (
-        get_secure_host_binding, 
-        validate_host_binding, 
+        get_secure_host_binding,
+        validate_host_binding,
         get_binding_security_summary
     )
 

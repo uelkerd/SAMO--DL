@@ -25,13 +25,13 @@ def deploy_locally():
         Path("deployment/model"),  # Primary location
         Path("deployment/models/default")  # Fallback location
     ]
-    
+
     model_path = None
     for path in model_paths:
         if path.exists():
             model_path = path
             break
-    
+
     if model_path is None:
         print("❌ Model not found in any of the expected locations:")
         for path in model_paths:

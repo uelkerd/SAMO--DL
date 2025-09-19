@@ -32,7 +32,7 @@ class FocalLoss(nn.Module):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
-    
+
     def forward(self, inputs, targets):
         bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
         pt = torch.exp(-bce_loss)
@@ -54,7 +54,7 @@ class TemperatureScaling(nn.Module):
     def __init__(self):
         super().__init__()
         self.temperature = nn.Parameter(torch.ones(1) * 1.5)
-    
+
     def forward(self, logits):
         return logits / self.temperature
 ```
@@ -239,6 +239,6 @@ def optimize_thresholds(val_logits, val_labels):
 
 ---
 
-**Last Updated**: July 29, 2025  
-**Status**: 🔄 Environment Crisis - Implementation Blocked  
-**Priority**: HIGH - Resume after environment fix 
+**Last Updated**: July 29, 2025
+**Status**: 🔄 Environment Crisis - Implementation Blocked
+**Priority**: HIGH - Resume after environment fix

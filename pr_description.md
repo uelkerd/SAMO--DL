@@ -1,6 +1,6 @@
 ## PR SCOPE CHECK ✅
 - [x] Changes EXACTLY one thing
-- [x] Affects < 25 files  
+- [x] Affects < 25 files
 - [x] Describable in one sentence
 - [x] Deep Learning track ONLY
 - [x] No mixed concerns
