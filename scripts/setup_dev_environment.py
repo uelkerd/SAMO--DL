@@ -23,10 +23,25 @@ def run_command(cmd: List[str], description: str) -> bool:
         escaped_cmd = ' '.join(shlex.quote(arg) for arg in cmd)
         print(f"Executing: {escaped_cmd}")
         
-        result = subprocess.run(cmd, cwd=Path(__file__).parent.parent, check=True)
+        result = subprocess.run(
+            cmd,
+            cwd=Path(__file__).parent.parent,
+            capture_output=True,
+            text=True,
+            check=True
+        )
         return result.returncode == 0
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {description}")
+        print(f"  Command: {' '.join(shlex.quote(arg) for arg in cmd)}")
+        print(f"  Return code: {e.returncode}")
+        if e.stdout:
+            print(f"  Stdout: {e.stdout.strip()}")
+        if e.stderr:
+            print(f"  Stderr: {e.stderr.strip()}")
+        return False
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Unexpected error during {description}: {e}")
         return False
 
 def main():

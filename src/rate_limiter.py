@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import abort, request
@@ -6,7 +6,7 @@ import threading
 from typing import Callable, Optional
 
 # Simple rate limiter using memory (use Redis for production)
-_rate_limit_storage = defaultdict(list)
+_rate_limit_storage = defaultdict(deque)
 _rate_limit_lock = threading.Lock()
 
 def _get_client_identifier(request) -> str:
@@ -48,18 +48,17 @@ def rate_limit(max_requests=100, window_minutes=1, key_func: Optional[Callable] 
             
             # Thread-safe operations
             with _rate_limit_lock:
-                # Clean old requests
-                _rate_limit_storage[client_id] = [
-                    req_time for req_time in _rate_limit_storage[client_id] 
-                    if req_time > window_start
-                ]
-                
+                # Clean old requests (O(1) with deque vs O(n) with list comprehension)
+                client_requests = _rate_limit_storage[client_id]
+                while client_requests and client_requests[0] < window_start:
+                    client_requests.popleft()
+
                 # Check rate limit
-                if len(_rate_limit_storage[client_id]) >= max_requests:
+                if len(client_requests) >= max_requests:
                     abort(429, description="Rate limit exceeded")
-                
+
                 # Add current request
-                _rate_limit_storage[client_id].append(now)
+                client_requests.append(now)
             
             return f(*args, **kwargs)
         return decorated_function
