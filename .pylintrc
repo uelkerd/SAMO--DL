@@ -37,7 +37,7 @@ persistent=yes
 
 # Minimum Python version to use for version dependent checks. Will default to
 # the version used to run pylint.
-py-version=3.8
+py-version=3.9
 
 # When enabled, pylint would attempt to discover all modules on the given
 # package and load them into the linter for analysis.

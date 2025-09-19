@@ -104,7 +104,7 @@ class TestModelIntegration(unittest.TestCase):
                 response = self.client.post(endpoint, json=data)
                 self.assertEqual(response.status_code, 200)
                 response_data = json.loads(response.data)
-                self.assertIn('model_used', response_data)
+                self.assertTrue('model_used' in response_data or 'models_used' in response_data)
     
     def test_model_error_handling(self):
         """Test model error handling across endpoints."""

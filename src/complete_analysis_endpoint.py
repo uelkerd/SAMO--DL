@@ -131,7 +131,9 @@ class CompleteAnalysisEndpoint(Resource):
         return True, ""
 
     @api.expect(complete_analysis_request)
-    @api.marshal_with(complete_analysis_response)
+    @api.response(200, 'Success', complete_analysis_response)
+    @api.response(400, 'Bad Request')
+    @api.response(500, 'Internal Server Error')
     def post(self):
         """Perform complete analysis combining all models."""
         try:
@@ -148,7 +150,19 @@ class CompleteAnalysisEndpoint(Resource):
 
             # Load models if not already loaded
             if not (self.emotion_model_loaded and self.summarization_model_loaded and self.transcription_model_loaded):
-                self.load_models()
+                try:
+                    self.load_models()
+                except Exception as e:
+                    logger.error(f"Failed to load models: {e}")
+                    # Set all model flags to False so fallback logic can run
+                    self.emotion_model_loaded = False
+                    self.summarization_model_loaded = False
+                    self.transcription_model_loaded = False
+                    # Update module-level flags as well
+                    global emotion_model_loaded, summarization_model_loaded, transcription_model_loaded
+                    emotion_model_loaded = False
+                    summarization_model_loaded = False
+                    transcription_model_loaded = False
 
             # Extract parameters
             text = data.get('text', '').strip()

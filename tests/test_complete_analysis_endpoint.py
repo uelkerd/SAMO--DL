@@ -31,7 +31,7 @@ class TestCompleteAnalysisEndpoint(unittest.TestCase):
         with patch.object(CompleteAnalysisEndpoint, 'load_models') as mock_load:
             mock_load.return_value = None
             response = self.client.post('/api/complete-analysis/', 
-                                      json={'text': 'I feel happy and content today.', 
+                                      json={'text': 'I feel happy and content today. This is a much longer text that meets the minimum character requirement for the complete analysis endpoint validation.', 
                                             'include_summary': True, 'include_emotion': True})
             self.assertEqual(response.status_code, 200)
             data = json.loads(response.data)
@@ -55,7 +55,7 @@ class TestCompleteAnalysisEndpoint(unittest.TestCase):
         with patch.object(CompleteAnalysisEndpoint, 'load_models') as mock_load:
             mock_load.return_value = None
             response = self.client.post('/api/complete-analysis/', 
-                                      json={'text': 'I feel happy today.', 
+                                      json={'text': 'I feel happy today. This is a much longer text that meets the minimum character requirement for the complete analysis endpoint validation.', 
                                             'audio_data': self.mock_audio_data,
                                             'include_summary': True, 'include_emotion': True, 'include_transcription': True})
             self.assertEqual(response.status_code, 200)

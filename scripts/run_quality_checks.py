@@ -22,6 +22,8 @@ def run_command(cmd: List[str], description: str) -> Tuple[bool, str]:
         success = result.returncode == 0
         output = result.stdout + result.stderr
         return success, output
+    except subprocess.CalledProcessError as e:
+        return False, e.stdout + e.stderr
     except Exception as e:
         return False, str(e)
 

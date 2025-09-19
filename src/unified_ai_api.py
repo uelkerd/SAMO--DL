@@ -1340,6 +1340,7 @@ async def analyze_journal_entry(
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
                 "voice": False,
+                "voice_processing": False,  # Compatibility alias
             },
             insights={
                 "word_count": len(request.text.split()),
@@ -1486,6 +1487,7 @@ async def analyze_voice_journal(
                 "emotion_detection": emotion_detector is not None,
                 "text_summarization": text_summarizer is not None,
                 "voice": voice_transcriber is not None,
+                "voice_journal": voice_transcriber is not None,  # Compatibility alias
             },
             insights={
                 **text_analysis.insights,

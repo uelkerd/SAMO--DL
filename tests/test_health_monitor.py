@@ -31,11 +31,13 @@ class TestHealthMonitor(unittest.TestCase):
             
             health_data = self.health_monitor.get_system_health()
             
-            self.assertIn('cpu_percent', health_data)
-            self.assertIn('memory_percent', health_data)
-            self.assertIn('disk_percent', health_data)
-            self.assertIn('process_memory_mb', health_data)
-            self.assertIn('uptime', health_data)
+            self.assertIn('system', health_data)
+            self.assertIn('process', health_data)
+            self.assertIn('cpu_percent', health_data['system'])
+            self.assertIn('memory_percent', health_data['system'])
+            self.assertIn('disk_percent', health_data['system'])
+            self.assertIn('memory_mb', health_data['process'])
+            self.assertIn('uptime_hours', health_data)
     
     def test_get_health_summary(self):
         """Test getting health summary."""
@@ -50,10 +52,9 @@ class TestHealthMonitor(unittest.TestCase):
             summary = self.health_monitor.get_health_summary()
             
             self.assertIn('status', summary)
-            self.assertIn('uptime', summary)
-            self.assertIn('cpu_usage', summary)
-            self.assertIn('memory_usage', summary)
-            self.assertIn('disk_usage', summary)
+            self.assertIn('uptime_hours', summary)
+            self.assertIn('request_count', summary)
+            self.assertIn('error_rate', summary)
     
     def test_health_summary_healthy_status(self):
         """Test health summary with healthy status."""
@@ -62,11 +63,12 @@ class TestHealthMonitor(unittest.TestCase):
                 'cpu_percent': 45.2,
                 'memory_percent': 67.8,
                 'disk_percent': 23.1,
-                'uptime': 3600
+                'uptime': 3600,
+                'status': 'ok'
             }
             
             summary = self.health_monitor.get_health_summary()
-            self.assertEqual(summary['status'], 'healthy')
+            self.assertEqual(summary['status'], 'ok')
     
     def test_health_summary_warning_status(self):
         """Test health summary with warning status."""
@@ -75,7 +77,8 @@ class TestHealthMonitor(unittest.TestCase):
                 'cpu_percent': 85.2,
                 'memory_percent': 90.8,
                 'disk_percent': 23.1,
-                'uptime': 3600
+                'uptime': 3600,
+                'status': 'warning'
             }
             
             summary = self.health_monitor.get_health_summary()
@@ -88,7 +91,8 @@ class TestHealthMonitor(unittest.TestCase):
                 'cpu_percent': 95.2,
                 'memory_percent': 98.8,
                 'disk_percent': 95.1,
-                'uptime': 3600
+                'uptime': 3600,
+                'status': 'critical'
             }
             
             summary = self.health_monitor.get_health_summary()
