@@ -120,8 +120,9 @@ def push_docker_image():
     print("=" * 40)
 
     try:
-        # Configure Docker authentication
-        auth_cmd = ['gcloud', 'auth', 'configure-docker', 'us-central1-docker.pkg.dev']
+        # Configure Docker authentication - derive registry host from region
+        registry_host = f"{REGION}-docker.pkg.dev"
+        auth_cmd = ['gcloud', 'auth', 'configure-docker', registry_host, '--quiet']
         subprocess.run(auth_cmd, check=True)
 
         # Push the image
@@ -181,6 +182,7 @@ def get_service_url():
         cmd = [
             'gcloud', 'run', 'services', 'describe', SERVICE_NAME,
             '--region', REGION,
+            '--project', PROJECT_ID,
             '--format', 'value(status.url)'
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -228,7 +230,8 @@ def run_integration_tests(service_url):
             'url': f'{service_url}/analyze/summarize',
             'method': 'POST',
             'expected_status': 200,
-            'data': {'text': 'This is a long text that should be summarized properly by the API.'}
+            'data': {'text': ('This is a long text that should be summarized '
+                              'properly by the API.')}
         }
     ]
 
@@ -253,7 +256,8 @@ def run_integration_tests(service_url):
             else:
                 print(f"❌ {test['name']} - Expected: {test['expected_status']}, Got: {response.status_code}")
                 # Log response length instead of content to avoid PII exposure
-                print(f"   Response length: {len(response.text)} chars, status: {response.status_code}")
+                print(f"   Response length: {len(response.text)} chars, "
+                      f"status: {response.status_code}")
 
         except requests.exceptions.RequestException as e:
             print(f"❌ {test['name']} - Request failed: {e}")

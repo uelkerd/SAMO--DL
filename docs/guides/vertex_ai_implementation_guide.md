@@ -1431,7 +1431,15 @@ class SAMOProductionIntegration:
             vertex_result['fallback_used'] = True
             vertex_result['primary_model_error'] = local_result.get('error', 'low_confidence')
 
-        result = vertex_result if prefer_vertex else local_result
+        # Return the actual successful prediction object after fallback
+        # After fallback branches, set result to the successful response
+        if prefer_vertex:
+            # If prefer_vertex is True, use local_result when fallback_used is True, else vertex_result
+            result = local_result if local_result.get('fallback_used', False) else vertex_result
+        else:
+            # If prefer_vertex is False, use vertex_result when fallback_used is True, else local_result
+            result = vertex_result if vertex_result.get('fallback_used', False) else local_result
+        
         result['total_response_time_ms'] = (datetime.now() - start_time).total_seconds() * 1000
         return result
 

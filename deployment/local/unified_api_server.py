@@ -19,7 +19,7 @@ from typing import Optional, Union
 import torch
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, T5Tokenizer, T5ForConditionalGeneration
 
 # Configure logging
 logging.basicConfig(
@@ -39,6 +39,8 @@ emotion_model = None
 emotion_tokenizer = None
 emotion_mapping = None
 voice_transcriber = None
+summarizer_model = None
+summarizer_tokenizer = None
 model_loading = False
 models_loaded = False
 model_lock = threading.Lock()
@@ -54,8 +56,8 @@ MAX_INPUT_LENGTH = 512
 
 
 def load_models():
-    """Load all AI models: emotion detection and voice processing"""
-    global model_loading, models_loaded, emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber
+    """Load all AI models: emotion detection, voice processing, and summarization"""
+    global model_loading, models_loaded, emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber, summarizer_model, summarizer_tokenizer
 
     with model_lock:
         if model_loading or models_loaded:
@@ -71,20 +73,25 @@ def load_models():
 
         # Fallback to local development path if production path doesn't exist
         if not model_path.exists():
-            logger.info("📁 Production model path not found, checking for local models...")
+            logger.info("📁 Production model path not found, "
+                       "checking for local models...")
             # For development, we'll use a basic emotion classifier
             # This can be replaced with actual trained models
 
         logger.info("📥 Loading emotion model...")
         try:
             # Try to load production model first
-            emotion_model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+            emotion_model = AutoModelForSequenceClassification.from_pretrained(
+                str(model_path))
             emotion_tokenizer = AutoTokenizer.from_pretrained(str(model_path))
             logger.info("✅ Production model loaded successfully")
         except:
-            logger.warning("⚠️ Production model not found, using development fallback")
-            fallback_model_id = "cardiffnlp/twitter-roberta-base-emotion-multilabel-latest"
-            emotion_model = AutoModelForSequenceClassification.from_pretrained(fallback_model_id)
+            logger.warning("⚠️ Production model not found, "
+                          "using development fallback")
+            fallback_model_id = ("cardiffnlp/"
+                                 "twitter-roberta-base-emotion-multilabel-latest")
+            emotion_model = AutoModelForSequenceClassification.from_pretrained(
+                fallback_model_id)
             emotion_tokenizer = AutoTokenizer.from_pretrained(fallback_model_id)
             logger.info("✅ Fallback model loaded successfully")
 
@@ -98,8 +105,10 @@ def load_models():
             id2label = getattr(emotion_model.config, "id2label", None)
             if id2label:
                 # Ensure index order
-                emotion_mapping = [id2label[i] for i in range(emotion_model.config.num_labels)]
-                logger.info(f"✅ Using model-provided labels: {emotion_mapping}")
+                emotion_mapping = [id2label[i] 
+                                  for i in range(emotion_model.config.num_labels)]
+                logger.info(f"✅ Using model-provided labels: "
+                           f"{emotion_mapping}")
             else:
                 emotion_mapping = EMOTION_MAPPING
                 logger.info("⚠️ Using fallback emotion mapping")
@@ -123,26 +132,115 @@ def load_models():
             logger.info("📝 Voice processing will use fallback mock responses")
             voice_transcriber = None
 
-        with model_lock:
-            models_loaded = True
-            model_loading = False
+        # Load text summarization model
+        logger.info("📝 Loading text summarization model...")
+        try:
+            summarizer_model = T5ForConditionalGeneration.from_pretrained("t5-small")
+            summarizer_tokenizer = T5Tokenizer.from_pretrained("t5-small")
+            summarizer_model.eval()
+            logger.info("✅ T5 summarization model loaded successfully")
+        except Exception as e:
+            logger.warning(f"⚠️ Summarization model failed to load: {e}")
+            logger.info("📝 Summarization will use enhanced fallback")
+            summarizer_model = None
+            summarizer_tokenizer = None
 
         logger.info("🎉 All models loaded successfully!")
         logger.info(f"🎯 Emotion mapping: {emotion_mapping}")
+        logger.info(f"📝 Summarization available: {summarizer_model is not None}")
 
     except Exception:
-        with model_lock:
-            model_loading = False
         logger.exception("❌ Failed to load models")
         # Continue without models for graceful degradation
     finally:
         with model_lock:
+            # Only set models_loaded = True when both model and tokenizer are present
+            models_loaded = (emotion_model is not None and emotion_tokenizer is not None)
             model_loading = False
+
+
+def summarize_text(text: str) -> dict:
+    """Generate real AI summary using T5 model"""
+    global summarizer_model, summarizer_tokenizer
+
+    if summarizer_model is None or summarizer_tokenizer is None:
+        # Enhanced fallback with better extraction
+        sentences = text.split('.')
+        if len(sentences) <= 3:
+            return {
+                'summary': text,
+                'original_length': len(text),
+                'summary_length': len(text),
+                'compression_ratio': 1.0,
+                'model': 'extractive_fallback'
+            }
+
+        # Take first 2 and last 1 sentence for better context
+        important_sentences = sentences[:2] + sentences[-1:]
+        summary = '. '.join(sent.strip() for sent in important_sentences if sent.strip()) + '.'
+
+        return {
+            'summary': summary,
+            'original_length': len(text),
+            'summary_length': len(summary),
+            'compression_ratio': round(len(summary) / len(text), 2),
+            'model': 'extractive_fallback'
+        }
+
+    try:
+        # Prepare text for T5
+        input_text = f"summarize: {text}"
+
+        # Tokenize
+        inputs = summarizer_tokenizer.encode(
+            input_text,
+            return_tensors="pt",
+            max_length=512,
+            truncation=True
+        )
+
+        # Generate summary
+        with torch.no_grad():
+            summary_ids = summarizer_model.generate(
+                inputs,
+                max_length=150,
+                min_length=30,
+                length_penalty=2.0,
+                num_beams=4,
+                early_stopping=True
+            )
+
+        # Decode summary
+        summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
+        return {
+            'summary': summary,
+            'original_length': len(text),
+            'summary_length': len(summary),
+            'compression_ratio': round(len(summary) / len(text), 2),
+            'model': 'T5-small'
+        }
+
+    except Exception as e:
+        logger.warning(f"T5 summarization failed: {e}, using fallback")
+        # Fallback to extractive
+        words = text.split()
+        summary_length = max(20, len(words) // 4)
+        summary = ' '.join(words[:summary_length])
+        if len(words) > summary_length:
+            summary += "..."
+
+        return {
+            'summary': summary,
+            'original_length': len(text),
+            'summary_length': len(summary),
+            'compression_ratio': round(len(summary) / len(text), 2),
+            'model': 'extractive_fallback'
+        }
 
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-    global models_loaded, emotion_model, emotion_tokenizer, emotion_mapping
 
     if not models_loaded or emotion_model is None:
         raise RuntimeError("Emotion model not loaded")
@@ -169,7 +267,8 @@ def predict_emotion(text: str) -> dict:
         outputs = emotion_model(**inputs)
 
         # Check if this is a multi-label classification model
-        is_multi_label = getattr(emotion_model.config, "problem_type", "") == "multi_label_classification"
+        is_multi_label = (getattr(emotion_model.config, "problem_type", "") == 
+                          "multi_label_classification")
 
         if is_multi_label:
             # Use sigmoid for multi-label classification
@@ -198,16 +297,31 @@ def predict_emotion(text: str) -> dict:
     else:
         emotion = "neutral"  # Fallback
 
+    # Create full emotions dictionary with all scores
+    emotions_dict = {}
+    for i, label in enumerate(emotion_mapping):
+        emotions_dict[label] = float(scores[i].item())
+
+    # Create top emotions array (sorted by confidence)
+    top_emotions = sorted(
+        [{"emotion": label, "confidence": score} 
+         for label, score in emotions_dict.items()],
+        key=lambda x: x["confidence"],
+        reverse=True
+    )[:5]
+
     return {
-        "emotion": emotion,
-        "confidence": confidence,
-        "text": text
+        "emotion": emotion,  # Keep backward compatibility
+        "confidence": confidence,  # Keep backward compatibility
+        "text": text,
+        "emotions": emotions_dict,  # Add full emotions for demo
+        "predicted_emotion": emotion,  # Add for demo compatibility
+        "top_emotions": top_emotions  # Add for demo compatibility
     }
 
 
 def transcribe_audio(audio_file) -> dict:
     """Transcribe audio file to text with emotion analysis"""
-    global voice_transcriber
 
     if voice_transcriber is None:
         raise RuntimeError("Voice processing model not available")
@@ -259,7 +373,6 @@ def transcribe_audio(audio_file) -> dict:
 
 def ensure_models_loaded():
     """Ensure models are loaded before processing requests"""
-    global models_loaded, model_loading
 
     if not models_loaded and not model_loading:
         load_models()
@@ -283,7 +396,6 @@ def create_error_response(message: str, status_code: int = 500) -> tuple:
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint"""
-    global models_loaded
 
     return jsonify({
         "message": "SAMO Unified AI API - Voice, Emotion & Summarization",
@@ -296,7 +408,6 @@ def root():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    global models_loaded, model_loading, voice_transcriber, emotion_model
 
     return jsonify({
         'status': 'healthy',
@@ -304,6 +415,7 @@ def health_check():
         'model_loading': model_loading,
         'voice_available': voice_transcriber is not None,
         'emotion_available': emotion_model is not None,
+        'summarization_available': summarizer_model is not None,
         'timestamp': time.time()
     })
 
@@ -343,7 +455,6 @@ def analyze_emotion():
 @app.route('/analyze/voice-journal', methods=['POST'])
 def analyze_voice_journal():
     """Analyze voice recording with transcription and emotion detection"""
-    global voice_transcriber
 
     try:
         # Ensure models are loaded
@@ -390,11 +501,16 @@ def create_enhanced_mock_response(filename: str) -> dict:
     import random
 
     sample_texts = [
-        "Today has been a wonderful day filled with excitement and new opportunities.",
-        "I'm feeling quite optimistic about the future and all the possibilities ahead.",
-        "The voice processing feature is working amazingly well for transcription.",
-        "I'm grateful for all the progress we've made on this project so far.",
-        "This technology is truly impressive and will help many people."
+        ("Today has been a wonderful day filled with excitement "
+         "and new opportunities."),
+        ("I'm feeling quite optimistic about the future "
+         "and all the possibilities ahead."),
+        ("The voice processing feature is working amazingly well "
+         "for transcription."),
+        ("I'm grateful for all the progress we've made "
+         "on this project so far."),
+        ("This technology is truly impressive "
+         "and will help many people.")
     ]
 
     transcribed_text = random.choice(sample_texts)
@@ -446,19 +562,15 @@ def analyze_summarize():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
-        # Simple extractive summarization (placeholder)
-        words = text.split()
-        summary_length = max(10, len(words) // 3)
-        summary = ' '.join(words[:summary_length])
-
-        if len(words) > summary_length:
-            summary += '...'
+        # Use REAL T5 AI summarization
+        summary_result = summarize_text(text)
 
         result = {
-            'summary': summary,
-            'original_length': len(text),
-            'summary_length': len(summary),
-            'compression_ratio': round(len(summary) / len(text), 2),
+            'summary': summary_result['summary'],
+            'original_length': summary_result['original_length'],
+            'summary_length': summary_result['summary_length'],
+            'compression_ratio': summary_result['compression_ratio'],
+            'model_used': summary_result['model'],
             'request_id': str(uuid.uuid4()),
             'timestamp': time.time()
         }
@@ -466,7 +578,8 @@ def analyze_summarize():
         return jsonify(result)
 
     except Exception:
-        return create_error_response('Text summarization failed. Please try again later.')
+        return create_error_response('Text summarization failed. '
+                                   'Please try again later.')
 
 
 # Initialize models on startup
