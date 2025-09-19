@@ -9,7 +9,6 @@ for containerized deployments and is not a security vulnerability.
 import asyncio
 import logging
 import os
-import traceback
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Body

@@ -237,13 +237,13 @@ def predict():
             return jsonify({'error': 'No text provided'}), 400
 
         text = data['text']
-        
+
         # Validate text type and content
         if not isinstance(text, str):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='invalid_text_type')
             return jsonify({'error': 'Text must be a string'}), 400
-            
+
         if not text.strip():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='empty_text')
@@ -293,7 +293,7 @@ def predict_batch():
             # Validate text type and content
             if not isinstance(text, str):
                 continue  # Skip non-string items
-                
+
             cleaned_text = text.strip()
             if cleaned_text:  # Only process non-empty strings
                 result = model.predict(cleaned_text)

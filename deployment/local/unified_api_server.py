@@ -52,7 +52,6 @@ MAX_INPUT_LENGTH = 512
 def load_models():
     """Load all AI models: emotion detection and voice processing"""
     global emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber
-    global model_loading, models_loaded, model_lock
 
     with model_lock:
         if model_loading or models_loaded:
@@ -123,7 +122,6 @@ def load_models():
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-    global emotion_model, emotion_tokenizer, emotion_mapping
 
     if not models_loaded or emotion_model is None:
         raise RuntimeError("Emotion model not loaded")
@@ -158,7 +156,6 @@ def predict_emotion(text: str) -> dict:
 
 def transcribe_audio(audio_file) -> dict:
     """Transcribe audio file to text with emotion analysis"""
-    global voice_transcriber
 
     if voice_transcriber is None:
         raise RuntimeError("Voice processing model not available")
@@ -304,10 +301,9 @@ def analyze_voice_journal():
             result = transcribe_audio(audio_file)
             logger.info("✅ Voice journal processing successful")
             return jsonify(result)
-        else:
-            # Fallback to mock if voice model not available
-            logger.warning("⚠️ Voice model not available, using enhanced mock response")
-            return jsonify(create_enhanced_mock_response(audio_file.filename))
+        # Fallback to mock if voice model not available
+        logger.warning("⚠️ Voice model not available, using enhanced mock response")
+        return jsonify(create_enhanced_mock_response(audio_file.filename))
 
     except Exception:
         return create_error_response('Voice processing failed. Please try again later.')
