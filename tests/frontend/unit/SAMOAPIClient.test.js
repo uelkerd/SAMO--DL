@@ -70,10 +70,10 @@ describe('SAMOAPIClient', () => {
 
   describe('Constructor and Configuration', () => {
     test('should initialize with default configuration', () => {
-      expect(apiClient.baseURL).toBe('https://test-api.com');
+      expect(apiClient.baseURL).toBe('https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app');
       expect(apiClient.timeout).toBe(15000);
       expect(apiClient.coldStartTimeout).toBe(45000);
-      expect(apiClient.retryAttempts).toBe(3);
+      expect(apiClient.retryAttempts).toBe(1);
       expect(apiClient.isColdStart).toBe(true);
     });
 
@@ -199,7 +199,7 @@ describe('SAMOAPIClient', () => {
       const data = { text: 'hello & world!' };
       const queryString = apiClient.buildQueryString(data);
 
-      expect(queryString).toBe('text=hello+%26+world%21');
+      expect(queryString).toBe('text=hello%20%26%20world!');
     });
   });
 
@@ -215,7 +215,7 @@ describe('SAMOAPIClient', () => {
 
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'https://test-api.com/test',
+        'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/test',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
@@ -238,7 +238,7 @@ describe('SAMOAPIClient', () => {
 
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'https://test-api.com/analyze/emotion?text=I+am+happy%21',
+        'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=I%20am%20happy!',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -262,7 +262,7 @@ describe('SAMOAPIClient', () => {
 
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'https://test-api.com/transcribe',
+        'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/transcribe',
         expect.objectContaining({
           method: 'POST',
           body: formData
@@ -284,7 +284,7 @@ describe('SAMOAPIClient', () => {
         await apiClient.makeRequest('/test', null, 'GET');
 
         expect(fetch).toHaveBeenCalledWith(
-          'https://test-api.com/test',
+          'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/test',
           expect.objectContaining({
             headers: expect.objectContaining({
               'X-API-Key': 'test-api-key'

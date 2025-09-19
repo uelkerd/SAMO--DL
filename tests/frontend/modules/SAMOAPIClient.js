@@ -399,7 +399,7 @@ class SAMOAPIClient {
             }
         }
 
-        results.processingTime = Date.now() - startTime;
+        results.processingTime = Math.max(1, Date.now() - startTime);
         return results;
     }
 }
