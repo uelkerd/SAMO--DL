@@ -2,9 +2,13 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from src.auth import require_api_key
 from src.rate_limiter import rate_limit
+from src.emotion_endpoint import register_emotion_endpoints
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+
+# Register emotion endpoints
+register_emotion_endpoints(app)
 
 @app.route('/api/health')
 def health():

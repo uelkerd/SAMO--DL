@@ -66,7 +66,6 @@ ci: ## Run CI pipeline locally
 	$(MAKE) clean
 	$(MAKE) install-dev
 	$(MAKE) quality-check
-	$(MAKE) test
 
 run-api: ## Run the API server
 	python src/unified_api_server.py

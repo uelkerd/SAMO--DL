@@ -5,6 +5,9 @@ import time
 
 logger = logging.getLogger(__name__)
 
+# Constants
+MAX_TEXT_LENGTH = 10000  # Maximum text length for analysis (10k characters)
+
 # Create emotion endpoint blueprint
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/api/analyze')
 
@@ -50,7 +53,7 @@ class EmotionAnalysis(Resource):
             if not isinstance(text, str) or len(text.strip()) == 0:
                 abort(400, 'Text must be a non-empty string')
 
-            if len(text) > 10000:  # 10k character limit
+            if len(text) > MAX_TEXT_LENGTH:  # 10k character limit
                 abort(400, 'Text too long (max 10,000 characters)')
 
             # Mock emotion analysis (replace with actual model integration)
