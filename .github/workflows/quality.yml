@@ -60,8 +60,9 @@ jobs:
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@e28ff129e5465c916cd5fe5c1fb97ffaae5dc969
+      if: matrix.python-version == '3.11'
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false

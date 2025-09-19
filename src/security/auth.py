@@ -6,6 +6,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 import os
 
+# Import JWT manager for secure token verification
+from .jwt_manager import jwt_manager, TokenPayload
+
 # Security settings
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:
@@ -22,7 +25,15 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    # Validate that 'sub' claim exists before encoding
+    if not data.get("sub"):
+        raise ValueError("JWT 'sub' claim is required and cannot be empty")
+
+    # Ensure 'sub' is a string
+    if not isinstance(data["sub"], str):
+        data["sub"] = str(data["sub"])
+
     to_encode = data.copy()
     now = datetime.now(timezone.utc)
     if expires_delta:
@@ -33,30 +44,31 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenPayload:
     # Check Authorization scheme
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid authentication scheme. Expected 'Bearer'",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        # Use jwt_manager for secure token verification
+        payload = jwt_manager.verify_token(credentials.credentials)
+        if payload is None:
             raise credentials_exception
+        return payload
     except JWTError as jwt_error:
         # Preserve original JWT error details for debugging
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"JWT validation failed: {str(jwt_error)}",
             headers={"WWW-Authenticate": "Bearer"},
         ) from jwt_error
-    return username
