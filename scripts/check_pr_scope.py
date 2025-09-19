@@ -190,11 +190,11 @@ def main():
         return 0
     else:
         print("❌ PR Scope Check FAILED")
-    print("\n💡 Remember the rules:")
-    print("   • Max 50 files changed")
-    print("   • Max 1500 lines changed")
-    print("   • ONE purpose per PR")
-    print("   • Single concern (no mixing API + tests + docs)")
+        print("\n💡 Remember the rules:")
+        print("   • Max 50 files changed")
+        print("   • Max 1500 lines changed")
+        print("   • ONE purpose per PR")
+        print("   • Single concern (no mixing API + tests + docs)")
         return 1
 
 
