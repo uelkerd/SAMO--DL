@@ -46,7 +46,8 @@ class DataPipeline:
             preprocessor: Journal entry preprocessor
             validator: Data validator
             feature_engineer: Feature engineer
-            embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
+            embedding_method: Method for generating embeddings 
+                ('tfid', 'word2vec', or 'fasttext')
 
         """
         self.preprocessor = preprocessor or JournalEntryPreprocessor()
@@ -81,7 +82,8 @@ class DataPipeline:
         """Run the complete data processing pipeline.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
+            data_source: Source of journal entries (DataFrame or path to 
+                file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             output_dir: Directory to save output files
             user_id: Filter entries by user_id
@@ -169,7 +171,8 @@ class DataPipeline:
         """Load data from specified source.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
+            data_source: Source of journal entries (DataFrame or path to 
+                file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             user_id: Filter entries by user_id
             limit: Maximum number of entries to process

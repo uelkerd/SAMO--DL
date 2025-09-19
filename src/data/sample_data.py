@@ -59,10 +59,14 @@ EMOTIONS = [
 
 ENTRY_TEMPLATES = [
     "Today I felt {emotion} about {topic}. {additional_sentence}",
-    "I spent time on {topic} today. {additional_sentence} Overall I'm feeling {emotion}.",
-    "I've been thinking a lot about {topic} lately. {additional_sentence} It makes me feel {emotion}.",
-    "My {topic} journey continues. {additional_sentence} I'm {emotion} about my progress.",
-    "{topic} has been on my mind. {additional_sentence} I'm feeling {emotion} about it.",
+    "I spent time on {topic} today. {additional_sentence} Overall I'm "
+    "feeling {emotion}.",
+    "I've been thinking a lot about {topic} lately. {additional_sentence} "
+    "It makes me feel {emotion}.",
+    "My {topic} journey continues. {additional_sentence} I'm {emotion} "
+    "about my progress.",
+    "{topic} has been on my mind. {additional_sentence} I'm feeling "
+    "{emotion} about it.",
     "I had an experience with {topic} today that left me feeling {emotion}. {additional_sentence}",
     "I'm {emotion} about my {topic} situation. {additional_sentence}",
     "When it comes to {topic}, I'm feeling {emotion}. {additional_sentence}",
