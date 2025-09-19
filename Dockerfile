@@ -17,10 +17,10 @@ WORKDIR /app
 # Install minimal system dependencies including audio processing
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    ffmpeg \
-    libsndfile1 \
+    ca-certificates=20230311 \
+    curl=7.88.1-10+deb12u6 \
+    ffmpeg=7:5.1.2-7+deb12u1 \
+    libsndfile1=1.2.0-3 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
