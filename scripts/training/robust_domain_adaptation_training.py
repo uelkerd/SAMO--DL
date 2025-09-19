@@ -106,6 +106,12 @@ def setup_repository():
                 print(f"  ❌ Invalid command arguments for {description}")
                 return False
 
+            # Additional security: Validate command is in allowed list for this context
+            allowed_commands = {'git', 'pip', 'python', 'pytest', 'black', 'isort', 'flake8'}
+            if cmd_list and cmd_list[0] not in allowed_commands:
+                print(f"  ❌ Command '{cmd_list[0]}' not in allowed commands list")
+                return False
+
             result = subprocess.run(cmd_list, capture_output=True, text=True)
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")

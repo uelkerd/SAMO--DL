@@ -64,12 +64,28 @@ main();
         try:
             # Use shutil.which to find node executable securely
             import shutil
+            import os
+
             node_path = shutil.which("node")
             if not node_path:
                 raise Exception("Node.js executable not found in PATH")
 
+            # Additional security validation: ensure node_path is absolute and executable
+            if not os.path.isabs(node_path):
+                raise Exception("Node.js path must be absolute")
+
+            # Validate script file exists and is readable
+            script_path = "temp_prisma_script.js"
+            if not os.path.exists(script_path):
+                raise Exception(f"Script file {script_path} does not exist")
+
+            # Security: Ensure script file is not writable by others
+            script_stat = os.stat(script_path)
+            if script_stat.st_mode & 0o022:  # Check if group or others can write
+                raise Exception(f"Script file {script_path} has insecure permissions")
+
             result = subprocess.run(
-                [node_path, "temp_prisma_script.js"],
+                [node_path, script_path],
                 capture_output=True,
                 text=True,
                 check=True,
