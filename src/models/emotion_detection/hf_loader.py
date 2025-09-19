@@ -172,7 +172,7 @@ def load_emotion_model_multi_source(
                 model_id, token=token, force_multi_label=force_multi_label
             )
         except Exception as e:
-            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
+            logger.debug(f"Failed HF Hub direct load for model_id '{model_id}': {e}")
 
     # 3) HF snapshot
     if model_id:
@@ -185,7 +185,7 @@ def load_emotion_model_multi_source(
                 snap_dir, token=token, force_multi_label=force_multi_label
             )
         except Exception as e:
-            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
+            logger.debug(f"Failed HF snapshot download for model_id '{model_id}': {e}")
 
     # 4) Archive URL
     if archive_url:
@@ -201,14 +201,34 @@ def load_emotion_model_multi_source(
                 r.raise_for_status()
                 with open(archive_path, "wb") as f:
                     f.write(r.content)
-            # Extract
+            # Extract safely
             extract_dir = tempfile.mkdtemp(prefix="model_", dir=cache_dir)
             if archive_path.endswith(".tar.gz") or archive_path.endswith(".tgz"):
                 with tarfile.open(archive_path, "r:gz") as tar:
-                    tar.extractall(path=extract_dir)
+                    for member in tar.getmembers():
+                        # Validate member name to prevent path traversal
+                        if os.path.isabs(member.name) or ".." in member.name:
+                            raise ValueError(f"Unsafe archive member: {member.name}")
+                        # Compute safe destination path
+                        dest_path = os.path.join(extract_dir, member.name)
+                        # Ensure resolved path is inside target directory
+                        if not os.path.abspath(dest_path).startswith(os.path.abspath(extract_dir)):
+                            raise ValueError(f"Path traversal attempt: {member.name}")
+                        # Extract member
+                        tar.extract(member, extract_dir)
             elif archive_path.endswith(".zip"):
                 with zipfile.ZipFile(archive_path, "r") as zf:
-                    zf.extractall(path=extract_dir)
+                    for member in zf.infolist():
+                        # Validate member name to prevent path traversal
+                        if os.path.isabs(member.filename) or ".." in member.filename:
+                            raise ValueError(f"Unsafe archive member: {member.filename}")
+                        # Compute safe destination path
+                        dest_path = os.path.join(extract_dir, member.filename)
+                        # Ensure resolved path is inside target directory
+                        if not os.path.abspath(dest_path).startswith(os.path.abspath(extract_dir)):
+                            raise ValueError(f"Path traversal attempt: {member.filename}")
+                        # Extract member
+                        zf.extract(member, extract_dir)
             else:
                 # Unknown archive, try treating as directory
                 pass
@@ -226,19 +246,19 @@ def load_emotion_model_multi_source(
                         )
                         return det
                     except Exception as e:
-                        logger.debug(f\"Failed to load from extracted directory {cand}: {e}\")
+                        logger.debug(f"Failed to load from extracted directory {cand}: {e}")
                         continue
             # Clean up if nothing worked
             shutil.rmtree(extract_dir, ignore_errors=True)
         except Exception as e:
-            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
+            logger.debug(f"Failed to load from archive URL '{archive_url}': {e}")
 
     # 5) Remote endpoint
     if endpoint_url:
         try:
             return HFRemoteInferenceDetector(endpoint_url=endpoint_url, token=token)
         except Exception as e:
-            logger.debug(f"Failed to load from local directory {local_dir}: {e}")
+            logger.debug(f"Failed to initialize remote endpoint '{endpoint_url}': {e}")
 
     # Exhausted all sources
     raise RuntimeError("Could not load emotion model from any source")

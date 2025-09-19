@@ -136,7 +136,7 @@ def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
         # Adapter for BERTEmotionClassifier.predict_emotions
         if hasattr(emotion_detector, "predict_emotions"):
             # Import labels lazily to avoid heavy deps at import time
-            from src.models.emotion.labels import (
+            from src.models.emotion_detection.labels import (
                 GOEMOTIONS_EMOTIONS as _LABELS
             )
             result = emotion_detector.predict_emotions(text, threshold=threshold) or {}
@@ -400,7 +400,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
-                from src.models.emotion.hf_loader import (
+                from src.models.emotion_detection.hf_loader import (
                     load_emotion_model_multi_source
                 )
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
@@ -429,12 +429,16 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     exc_info=True,
                 )
                 logger.info("Falling back to local BERT emotion classifier...")
-                from src.models.emotion.bert_classifier import (
-                    create_bert_emotion_classifier,
-                )
-                model, _ = create_bert_emotion_classifier()
-                emotion_detector = model
-                logger.info("Loaded local BERT emotion model (fallback successful)")
+                try:
+                    from src.models.emotion_detection.bert_classifier import (
+                        create_bert_emotion_classifier,
+                    )
+                    model, _ = create_bert_emotion_classifier()
+                    emotion_detector = model
+                    logger.info("Loaded local BERT emotion model (fallback successful)")
+                except ImportError as import_err:
+                    logger.warning("BERT emotion classifier dependencies not available: %s", import_err)
+                    raise RuntimeError("Emotion detection requires torch/numpy dependencies") from import_err
         except Exception as exc:
             logger.warning("Emotion detection model not available: %s", exc)
 
@@ -583,11 +587,15 @@ def _ensure_voice_transcriber_loaded() -> None:
     if voice_transcriber is not None:
         return
     try:
-        from src.models.voice.whisper_transcriber import (
-            create_whisper_transcriber as _wcreate,
-        )
-        logger.info("Lazy-loading Whisper transcriber: small")
-        globals()["voice_transcriber"] = _wcreate("small")
+        try:
+            from src.models.voice_processing.whisper_transcriber import (
+                create_whisper_transcriber as _wcreate,
+            )
+            logger.info("Lazy-loading Whisper transcriber: small")
+            globals()["voice_transcriber"] = _wcreate("small")
+        except ImportError as import_err:
+            logger.warning("Whisper transcriber dependencies not available: %s", import_err)
+            raise RuntimeError("Voice transcription requires torch/pydub dependencies") from import_err
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Voice transcriber lazy-load failed: %s", exc)
         raise HTTPException(
