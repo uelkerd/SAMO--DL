@@ -1041,7 +1041,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
         payload = jwt_manager.verify_token(request.refresh_token)
         if not payload or payload.type != "refresh":
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="Invalid refresh token"
             )
 

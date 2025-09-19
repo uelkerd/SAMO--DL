@@ -52,7 +52,7 @@ class TestSummarizeEndpoint(unittest.TestCase):
     def test_summarize_invalid_parameters(self):
         """Test summarization with invalid parameters."""
         response = self.client.post('/api/summarize/', 
-                                  json={'text': 'This is a long text for testing.', 
+                                  json={'text': 'This is a longer text for testing that intentionally exceeds fifty characters to satisfy validation.', 
                                         'max_length': 10, 'min_length': 20})
         self.assertEqual(response.status_code, 400)
         data = json.loads(response.data)
@@ -61,7 +61,7 @@ class TestSummarizeEndpoint(unittest.TestCase):
     def test_summarize_invalid_temperature(self):
         """Test summarization with invalid temperature."""
         response = self.client.post('/api/summarize/', 
-                                  json={'text': 'This is a long text for testing.', 
+                                  json={'text': 'This is a longer text for testing that intentionally exceeds fifty characters to satisfy validation.', 
                                         'temperature': 3.0})
         self.assertEqual(response.status_code, 400)
         data = json.loads(response.data)
