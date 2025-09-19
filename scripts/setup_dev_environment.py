@@ -6,6 +6,7 @@ Installs dependencies and sets up pre-commit hooks.
 
 import subprocess
 import sys
+import shlex
 from pathlib import Path
 from typing import List
 
@@ -13,6 +14,15 @@ def run_command(cmd: List[str], description: str) -> bool:
     """Run a command and return success status."""
     print(f"Setting up {description}...")
     try:
+        # Validate that all command arguments are strings and not empty
+        if not all(isinstance(arg, str) and arg.strip() for arg in cmd):
+            print("Error: Invalid command arguments - all arguments must be non-empty strings")
+            return False
+        
+        # Log the command being executed for security auditing
+        escaped_cmd = ' '.join(shlex.quote(arg) for arg in cmd)
+        print(f"Executing: {escaped_cmd}")
+        
         result = subprocess.run(cmd, cwd=Path(__file__).parent.parent, check=True)
         return result.returncode == 0
     except Exception as e:

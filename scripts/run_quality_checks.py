@@ -6,6 +6,7 @@ Runs all code quality checks and generates reports.
 
 import subprocess
 import sys
+import shlex
 from pathlib import Path
 from typing import List, Tuple
 
@@ -13,12 +14,20 @@ def run_command(cmd: List[str], description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""
     print(f"Running {description}...")
     try:
+        # Validate that all command arguments are strings and not empty
+        if not all(isinstance(arg, str) and arg.strip() for arg in cmd):
+            return False, "Invalid command arguments: all arguments must be non-empty strings"
+        
+        # Log the command being executed for security auditing
+        escaped_cmd = ' '.join(shlex.quote(arg) for arg in cmd)
+        print(f"Executing: {escaped_cmd}")
+        
         result = subprocess.run(
             cmd, 
             capture_output=True, 
             text=True, 
             cwd=Path(__file__).parent.parent, 
-        check=True)
+            check=True)
         success = result.returncode == 0
         output = result.stdout + result.stderr
         return success, output
