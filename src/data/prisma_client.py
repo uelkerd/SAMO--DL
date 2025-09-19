@@ -84,12 +84,13 @@ main();
             if script_stat.st_mode & 0o022:  # Check if group or others can write
                 raise Exception(f"Script file {script_path} has insecure permissions")
 
+            # Security: Node path validated with shutil.which(), script path validated for existence and permissions
             result = subprocess.run(
                 [node_path, script_path],
                 capture_output=True,
                 text=True,
                 check=True,
-            )
+            )  # nosec B603
 
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:

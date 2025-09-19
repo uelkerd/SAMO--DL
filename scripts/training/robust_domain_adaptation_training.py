@@ -112,7 +112,8 @@ def setup_repository():
                 print(f"  ❌ Command '{cmd_list[0]}' not in allowed commands list")
                 return False
 
-            result = subprocess.run(cmd_list, capture_output=True, text=True)
+            # Security: Using list format prevents shell injection, validated above
+            result = subprocess.run(cmd_list, capture_output=True, text=True)  # nosec B603
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
                 return True
