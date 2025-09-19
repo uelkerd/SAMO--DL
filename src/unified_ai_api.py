@@ -418,7 +418,10 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     load_emotion_model_multi_source,
                 )
 
-                hf_model_id = os.getenv("EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
+                hf_model_id = os.getenv(
+                    "EMOTION_MODEL_ID",
+                    "duelker/samo-goemotions-deberta-v3-large"
+                )
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
@@ -521,11 +524,6 @@ add_rate_limiting(
     max_concurrent_requests=50,
     rapid_fire_threshold=100,
     sustained_rate_threshold=2000,
-    # Disable aggressive abuse detection for development
-    enable_user_agent_analysis=False,
-    enable_request_pattern_analysis=False,
-    # Reduce block duration for faster recovery during testing
-    block_duration_seconds=60,  # 1 minute instead of 5
 )
 
 

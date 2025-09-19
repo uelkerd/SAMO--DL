@@ -166,7 +166,8 @@ def load_emotion_model_multi_source(
     if model_id:
         cache_base = os.getenv("HF_HOME", "/app/models")
         # Look for the model in the cache directory structure
-        # Hugging Face cache typically stores models as: cache_dir/models--{org}--{model_name}
+        # Hugging Face cache typically stores models as: 
+        # cache_dir/models--{org}--{model_name}
         model_cache_name = model_id.replace("/", "--")
         potential_cache_dirs = [
             os.path.join(cache_base, f"models--{model_cache_name}"),
@@ -175,9 +176,11 @@ def load_emotion_model_multi_source(
         ]
 
         for cache_dir in potential_cache_dirs:
-            if os.path.isdir(cache_dir) and os.path.exists(os.path.join(cache_dir, "config.json")):
+            if (os.path.isdir(cache_dir) and
+                os.path.exists(os.path.join(cache_dir, "config.json"))):
                 try:
-                    print(f"📁 Loading pre-downloaded model from cache: {cache_dir}")
+                    print(f"📁 Loading pre-downloaded model from cache: "
+                          f"{cache_dir}")
                     return _wrap_local_model(
                         cache_dir, token=token, force_multi_label=force_multi_label
                     )
@@ -187,7 +190,8 @@ def load_emotion_model_multi_source(
     # 3) HF Hub direct (only if not found in cache)
     if model_id:
         try:
-            print(f"🌐 Model not found in cache, downloading from Hugging Face Hub: {model_id}")
+            print(f"🌐 Model not found in cache, downloading from "
+                  f"Hugging Face Hub: {model_id}")
             return load_hf_emotion_model(
                 model_id, token=token, force_multi_label=force_multi_label
             )

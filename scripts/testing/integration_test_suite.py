@@ -31,8 +31,10 @@ class SAMODLIntegrationTests(unittest.TestCase):
             'happy_text': 'I am feeling absolutely wonderful and excited about today!',
             'sad_text': 'I am feeling really down and disappointed about everything.',
             'neutral_text': 'The weather is normal today and nothing special happened.',
-            'long_text': 'This is a very long text that should be properly handled by the API. ' * 10,
-            'special_chars': 'Testing with special characters: @#$%^&*()_+{}|:"<>?[]\\;\',./',
+            'long_text': ('This is a very long text that should be properly handled by the API. '
+                          * 10),
+            'special_chars': ('Testing with special characters: '
+                              '@#$%^&*()_+{}|:"<>?[]\\;\',./'),
             'unicode_text': 'Testing with unicode: 🎉😊🚀🌟💯'
         }
 
@@ -74,22 +76,30 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Emotion analysis should return 200")
+        self.assertEqual(response.status_code, 200, 
+                         "Emotion analysis should return 200")
 
         data = response.json()
-        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        self.assertIn('emotion_analysis', data, 
+                      "Response should contain emotion_analysis")
         self.assertIn('summary', data, "Response should contain summary")
 
         emotion_data = data['emotion_analysis']
-        self.assertIn('emotions', emotion_data, "Emotion analysis should contain emotions")
-        self.assertIn('primary_emotion', emotion_data, "Emotion analysis should contain primary_emotion")
-        self.assertIn('confidence', emotion_data, "Emotion analysis should contain confidence")
+        self.assertIn('emotions', emotion_data, 
+                      "Emotion analysis should contain emotions")
+        self.assertIn('primary_emotion', emotion_data, 
+                      "Emotion analysis should contain primary_emotion")
+        self.assertIn('confidence', emotion_data, 
+                      "Emotion analysis should contain confidence")
 
         # Validate confidence is between 0 and 1
-        self.assertGreaterEqual(emotion_data['confidence'], 0, "Confidence should be >= 0")
+        self.assertGreaterEqual(emotion_data['confidence'], 0, 
+                                "Confidence should be >= 0")
         self.assertLessEqual(emotion_data['confidence'], 1, "Confidence should be <= 1")
 
-        print(f"✅ Emotion analysis test passed - Detected: {emotion_data['primary_emotion']} (confidence: {emotion_data['confidence']:.3f})")
+        print(f"✅ Emotion analysis test passed - Detected: "
+              f"{emotion_data['primary_emotion']} "
+              f"(confidence: {emotion_data['confidence']:.3f})")
 
     def test_emotion_analysis_sad(self):
         """Test emotion analysis with sad text"""
@@ -102,15 +112,20 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Emotion analysis should return 200")
+        self.assertEqual(response.status_code, 200, 
+                         "Emotion analysis should return 200")
 
         data = response.json()
-        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        self.assertIn('emotion_analysis', data, 
+                      "Response should contain emotion_analysis")
         emotion_data = data['emotion_analysis']
-        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
+        self.assertIn('primary_emotion', emotion_data, 
+                      "Response should contain primary_emotion")
         self.assertIn('confidence', emotion_data, "Response should contain confidence")
 
-        print(f"✅ Sad emotion analysis test passed - Detected: {emotion_data['primary_emotion']} (confidence: {emotion_data['confidence']:.3f})")
+        print(f"✅ Sad emotion analysis test passed - Detected: "
+              f"{emotion_data['primary_emotion']} "
+              f"(confidence: {emotion_data['confidence']:.3f})")
 
     def test_emotion_analysis_query_params(self):
         """Test emotion analysis with query parameters"""
@@ -123,14 +138,18 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Emotion analysis with query params should return 200")
+        self.assertEqual(response.status_code, 200, 
+                         "Emotion analysis with query params should return 200")
 
         data = response.json()
-        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        self.assertIn('emotion_analysis', data, 
+                      "Response should contain emotion_analysis")
         emotion_data = data['emotion_analysis']
-        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
+        self.assertIn('primary_emotion', emotion_data, 
+                      "Response should contain primary_emotion")
 
-        print(f"✅ Query params emotion analysis test passed - Detected: {emotion_data['primary_emotion']}")
+        print(f"✅ Query params emotion analysis test passed - "
+              f"Detected: {emotion_data['primary_emotion']}")
 
     def test_text_summarization(self):
         """Test text summarization endpoint"""
@@ -143,19 +162,24 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Text summarization should return 200")
+        self.assertEqual(response.status_code, 200, 
+                         "Text summarization should return 200")
 
         data = response.json()
         self.assertIn('summary', data, "Response should contain summary")
-        self.assertIn('original_length', data, "Response should contain original_length")
-        self.assertIn('summary_length', data, "Response should contain summary_length")
-        self.assertIn('compression_ratio', data, "Response should contain compression_ratio")
+        self.assertIn('original_length', data, 
+                      "Response should contain original_length")
+        self.assertIn('summary_length', data, 
+                      "Response should contain summary_length")
+        self.assertIn('compression_ratio', data, 
+                      "Response should contain compression_ratio")
 
         # Validate summary is shorter than original
         self.assertLess(data['summary_length'], data['original_length'],
                        "Summary should be shorter than original text")
 
-        print(f"✅ Text summarization test passed - Compression ratio: {data['compression_ratio']:.2f}")
+        print(f"✅ Text summarization test passed - "
+              f"Compression ratio: {data['compression_ratio']:.2f}")
 
     def test_special_characters(self):
         """Test API with special characters"""
@@ -168,14 +192,18 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Special characters should be handled properly")
+        self.assertEqual(response.status_code, 200, 
+                         "Special characters should be handled properly")
 
         data = response.json()
-        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        self.assertIn('emotion_analysis', data, 
+                      "Response should contain emotion_analysis")
         emotion_data = data['emotion_analysis']
-        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
+        self.assertIn('primary_emotion', emotion_data, 
+                      "Response should contain primary_emotion")
 
-        print(f"✅ Special characters test passed - Detected: {emotion_data['primary_emotion']}")
+        print(f"✅ Special characters test passed - "
+              f"Detected: {emotion_data['primary_emotion']}")
 
     def test_unicode_text(self):
         """Test API with unicode text"""
@@ -188,14 +216,18 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 200, "Unicode text should be handled properly")
+        self.assertEqual(response.status_code, 200, 
+                         "Unicode text should be handled properly")
 
         data = response.json()
-        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        self.assertIn('emotion_analysis', data, 
+                      "Response should contain emotion_analysis")
         emotion_data = data['emotion_analysis']
-        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
+        self.assertIn('primary_emotion', emotion_data, 
+                      "Response should contain primary_emotion")
 
-        print(f"✅ Unicode text test passed - Detected: {emotion_data['primary_emotion']}")
+        print(f"✅ Unicode text test passed - "
+              f"Detected: {emotion_data['primary_emotion']}")
 
     def test_empty_text_handling(self):
         """Test API with empty text"""
@@ -226,7 +258,8 @@ class SAMODLIntegrationTests(unittest.TestCase):
             timeout=self.timeout
         )
 
-        self.assertEqual(response.status_code, 400, "Missing text field should return 400")
+        self.assertEqual(response.status_code, 400, 
+                         "Missing text field should return 400")
 
         data = response.json()
         self.assertIn('error', data, "Error response should contain error message")
@@ -246,7 +279,8 @@ class SAMODLIntegrationTests(unittest.TestCase):
         )
 
         # Should handle invalid JSON gracefully
-        self.assertIn(response.status_code, [200, 400], "Invalid JSON should be handled gracefully")
+        self.assertIn(response.status_code, [200, 400], 
+                      "Invalid JSON should be handled gracefully")
 
         print("✅ Invalid JSON handling test passed")
 
@@ -266,7 +300,8 @@ class SAMODLIntegrationTests(unittest.TestCase):
         response_time = end_time - start_time
 
         self.assertEqual(response.status_code, 200, "Response should be successful")
-        self.assertLess(response_time, 5.0, "Response time should be less than 5 seconds")
+        self.assertLess(response_time, 5.0, 
+                        "Response time should be less than 5 seconds")
 
         print(f"✅ Response time test passed - {response_time:.3f} seconds")
 
@@ -309,9 +344,12 @@ class SAMODLIntegrationTests(unittest.TestCase):
             if result_type == 'success' and result_data == 200:
                 success_count += 1
 
-        self.assertGreaterEqual(success_count, 4, "At least 4 out of 5 concurrent requests should succeed")
+        self.assertGreaterEqual(success_count, 4, 
+                                "At least 4 out of 5 concurrent requests "
+                                "should succeed")
 
-        print(f"✅ Concurrent requests test passed - {success_count}/5 requests successful")
+        print(f"✅ Concurrent requests test passed - "
+              f"{success_count}/5 requests successful")
 
 def run_performance_tests(base_url):
     """Run performance tests"""
