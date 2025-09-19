@@ -63,7 +63,7 @@ def load_model():
 
         # Load tokenizer and model
         logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
         logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
@@ -309,12 +309,12 @@ if __name__ == '__main__':
             get_secure_host_binding, 
             validate_host_binding
         )
-        host, _ = get_secure_host_binding(port)
-        validate_host_binding(host, port)
-        bind_address = f'{host}:{port}'
+        host, derived_port = get_secure_host_binding(port)
+        validate_host_binding(host, derived_port)
+        bind_address = f'{host}:{derived_port}'
     except ImportError:
-        # Fallback for Gunicorn environment
-        bind_address = f'127.0.0.1:{port}'
+        # Fallback for container environments
+        bind_address = f'0.0.0.0:{port}'
 
     options = {
         'bind': bind_address,
