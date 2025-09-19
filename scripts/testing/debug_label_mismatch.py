@@ -13,6 +13,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+def _norm(s: str) -> str:
+    """Normalize string to canonical form for comparison."""
+    return s.strip().lower()
+
 def debug_label_mismatch():
     """Debug the label mismatch causing CUDA errors."""
     logger.info("🔍 Debugging label mismatch issue...")
@@ -46,8 +50,9 @@ def debug_label_mismatch():
                 for label_id in example['labels']:
                     # Convert label ID to label name
                     label_name = go_label_names[label_id] if label_id < len(go_label_names) else f"unknown_{label_id}"
-                    go_labels.add(label_name)
-                    go_label_counts[label_name] = go_label_counts.get(label_name, 0) + 1
+                    key = _norm(label_name)
+                    go_labels.add(key)
+                    go_label_counts[key] = go_label_counts.get(key, 0) + 1
 
         logger.info(f"📊 GoEmotions unique labels: {len(go_labels)}")
         logger.info(f"📊 GoEmotions labels: {sorted(list(go_labels))}")
@@ -55,9 +60,10 @@ def debug_label_mismatch():
 
         # Step 3: Analyze journal labels
         logger.info("🔍 Analyzing journal labels...")
-        # Ensure journal labels are strings for consistent comparison
-        journal_labels = set(str(label) for label in journal_df['emotion'].unique())
-        journal_label_counts = {str(k): v for k, v in journal_df['emotion'].value_counts().to_dict().items()}
+        # Normalize journal labels to canonical form
+        journal_df['emotion'] = journal_df['emotion'].astype(str)
+        journal_labels = set(journal_df['emotion'].map(_norm).unique())
+        journal_label_counts = journal_df['emotion'].map(_norm).value_counts().to_dict()
 
         logger.info(f"📊 Journal unique labels: {len(journal_labels)}")
         logger.info(f"📊 Journal labels: {sorted(list(journal_labels))}")
@@ -110,14 +116,16 @@ def debug_label_mismatch():
             if example['labels']:
                 try:
                     # Take first label for simplicity
-                    label = example['labels'][0]
-                    if label in label_encoder.classes_:
-                        encoded = label_encoder.transform([label])[0]
+                    label_id = example['labels'][0]
+                    label_name = go_label_names[label_id] if label_id < len(go_label_names) else f"unknown_{label_id}"
+                    label_key = _norm(label_name)
+                    if label_key in label_encoder.classes_:
+                        encoded = label_encoder.transform([label_key])[0]
                         go_encoded.append(encoded)
                     else:
-                        go_encoding_errors.append(f"Label '{label}' not in encoder classes")
+                        go_encoding_errors.append(f"Label '{label_key}' not in encoder classes")
                 except Exception as e:
-                    go_encoding_errors.append(f"Error encoding label '{label}': {e}")
+                    go_encoding_errors.append(f"Error encoding label '{label_key}': {e}")
 
         # Test journal encoding
         journal_encoded = []
@@ -125,13 +133,14 @@ def debug_label_mismatch():
 
         for i, emotion in enumerate(journal_df['emotion'][:100]):  # Test first 100
             try:
-                if emotion in label_encoder.classes_:
-                    encoded = label_encoder.transform([emotion])[0]
+                emotion_key = _norm(emotion)
+                if emotion_key in label_encoder.classes_:
+                    encoded = label_encoder.transform([emotion_key])[0]
                     journal_encoded.append(encoded)
                 else:
-                    journal_encoding_errors.append(f"Label '{emotion}' not in encoder classes")
+                    journal_encoding_errors.append(f"Label '{emotion_key}' not in encoder classes")
             except Exception as e:
-                journal_encoding_errors.append(f"Error encoding label '{emotion}': {e}")
+                journal_encoding_errors.append(f"Error encoding label '{emotion_key}': {e}")
 
         # Report encoding results
         if go_encoded:
