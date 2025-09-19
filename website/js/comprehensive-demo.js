@@ -1097,19 +1097,25 @@ function resetToInputScreen() {
     const inputLayout = document.getElementById('inputLayout');
 
     if (resultsLayout && inputLayout) {
-        // Animate transition back to input
+        console.log('🔄 Transitioning layouts: results -> input');
+
+        // IMMEDIATELY show input layout (don't wait for animation)
+        inputLayout.classList.remove('d-none');
+        inputLayout.style.display = 'block'; // Force display
+        inputLayout.style.opacity = '1';
+        inputLayout.style.transform = 'translateY(0)';
+        console.log('✅ Input layout should now be visible');
+
+        // Animate results layout out
         resultsLayout.style.opacity = '0';
         resultsLayout.style.transform = 'translateY(20px)';
 
         setTimeout(() => {
             resultsLayout.classList.add('d-none');
-            inputLayout.classList.remove('d-none');
-
-            setTimeout(() => {
-                inputLayout.style.opacity = '1';
-                inputLayout.style.transform = 'translateY(0)';
-            }, 50);
+            console.log('✅ Results layout hidden');
         }, 300);
+    } else {
+        console.error('❌ Layout elements not found:', { resultsLayout: !!resultsLayout, inputLayout: !!inputLayout });
     }
 
     console.log('✅ Reset completed');

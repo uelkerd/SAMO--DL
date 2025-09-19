@@ -190,6 +190,24 @@ const LayoutManager = {
             clearAllResultContent();
         }
 
+        // Clear text input
+        const textInput = document.getElementById('textInput');
+        if (textInput) {
+            textInput.value = '';
+        }
+
+        // Clear any inline messages
+        const existingMessages = document.querySelectorAll('.inline-message');
+        existingMessages.forEach(msg => msg.remove());
+
+        // Reset Processing Information values
+        if (typeof updateElement === 'function') {
+            updateElement('totalTimeCompact', '-');
+            updateElement('processingStatusCompact', 'Ready');
+            updateElement('modelsUsedCompact', '-');
+            updateElement('avgConfidenceCompact', '-');
+        }
+
         // Hide results layout
         const resultsLayout = document.getElementById('resultsLayout');
         if (resultsLayout) {
@@ -201,14 +219,17 @@ const LayoutManager = {
             }, 300);
         }
 
-        // Show input layout
+        // Show input layout immediately
         const inputLayout = document.getElementById('inputLayout');
         if (inputLayout) {
-            setTimeout(() => {
-                inputLayout.classList.remove('d-none');
-                inputLayout.style.opacity = '1';
-                inputLayout.style.transform = 'translateY(0)';
-            }, 350);
+            console.log('🔄 LayoutManager: Showing input layout');
+            inputLayout.classList.remove('d-none');
+            inputLayout.style.display = 'block'; // Force display
+            inputLayout.style.opacity = '1';
+            inputLayout.style.transform = 'translateY(0)';
+            console.log('✅ LayoutManager: Input layout should be visible');
+        } else {
+            console.error('❌ LayoutManager: inputLayout element not found');
         }
 
         // Hide loading
@@ -397,10 +418,10 @@ window.processTextWithStateManagement = function() {
 window.clearAllWithStateManagement = function() {
     console.log('🧹 Clearing with enhanced state management...');
 
-    // Reset to initial state
+    // Reset to initial state using LayoutManager (this should handle everything)
     LayoutManager.resetToInitialState();
 
-    // Call original clear function
+    // Call original clear function if available
     if (typeof clearAll === 'function') {
         clearAll();
     }
