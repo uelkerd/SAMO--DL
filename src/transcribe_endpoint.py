@@ -60,8 +60,9 @@ class TranscribeEndpoint(Resource):
             if len(decoded_data) > 25 * 1024 * 1024:
                 return False
 
-            # Check format
-            if audio_format.lower() not in ['wav', 'mp3', 'flac', 'm4a']:
+            # Check format against allowlist
+            allowed_audio_formats = {'wav', 'mp3', 'flac', 'ogg', 'm4a', 'aac'}
+            if audio_format.lower() not in allowed_audio_formats:
                 return False
 
             return True
@@ -84,6 +85,11 @@ class TranscribeEndpoint(Resource):
             audio_format = data.get('audio_format', 'wav').lower()
             language = data.get('language', 'en')
             task = data.get('task', 'transcribe')
+
+            # Validate audio format against allowlist to prevent path traversal
+            allowed_audio_formats = {'wav', 'mp3', 'flac', 'ogg', 'm4a', 'aac'}
+            if audio_format not in allowed_audio_formats:
+                return {"error": "Unsupported or invalid audio format. Allowed formats: wav, mp3, flac, ogg, m4a, aac"}, 400
 
             # Validate parameters
             if task not in ['transcribe', 'translate']:

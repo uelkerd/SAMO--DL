@@ -181,7 +181,11 @@ class CompleteAnalysisEndpoint(Resource):
                         import tempfile
                         import os
 
-                        audio_format = data.get('audio_format', 'wav')
+                        # Validate audio format against allowlist to prevent path traversal
+                        allowed_audio_formats = {'wav', 'mp3', 'flac', 'ogg', 'm4a', 'aac'}
+                        req_audio_format = data.get('audio_format', 'wav').lower().strip()
+                        audio_format = req_audio_format if req_audio_format in allowed_audio_formats else 'wav'
+                        
                         decoded_audio = base64.b64decode(audio_data)
                         temp_file = tempfile.NamedTemporaryFile(
                             suffix=f".{audio_format}", delete=False
