@@ -26,6 +26,13 @@ quality-check: ## Run all quality checks
 	bandit -r src/ -s B101,B601
 	safety check --json --output safety-report.json || true
 
+check-scope: ## Check PR scope compliance
+	python scripts/check_pr_scope.py --strict
+
+pre-commit-install: ## Install pre-commit hooks
+	pre-commit install
+	git config commit.template .gitmessage.txt
+
 clean: ## Clean up generated files
 	rm -rf build/ dist/ *.egg-info/
 	rm -rf .pytest_cache/ .coverage htmlcov/

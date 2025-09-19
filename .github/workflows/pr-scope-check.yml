@@ -1,0 +1,65 @@
+name: PR Scope Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  scope-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get full history for proper diff
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Run PR Scope Check
+      run: |
+        python scripts/check_pr_scope.py --strict
+      continue-on-error: false
+
+    - name: Check branch naming
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        if [[ ! $BRANCH_NAME =~ ^(feat|fix|chore|refactor|docs|test)/[a-z-]+(-[a-z-]+)*$ ]]; then
+          echo "❌ Branch name must follow pattern: type/short-description"
+          echo "   Current: $BRANCH_NAME"
+          echo "   Examples: feat/add-user-auth, fix/validate-input, chore/update-deps"
+          exit 1
+        fi
+        echo "✅ Branch name follows convention: $BRANCH_NAME"
+
+    - name: Check PR size limits
+      run: |
+        # Get the base branch for comparison
+        BASE_BRANCH="${{ github.base_ref }}"
+
+        # Count files changed
+        FILES_CHANGED=$(git diff --name-only origin/$BASE_BRANCH | wc -l)
+        echo "Files changed: $FILES_CHANGED"
+
+        # Count lines changed
+        LINES_CHANGED=$(git diff --stat origin/$BASE_BRANCH | tail -1 | awk '{print $4+$6}')
+        LINES_CHANGED=${LINES_CHANGED:-0}
+        echo "Lines changed: $LINES_CHANGED"
+
+        # Check limits
+        if [ "$FILES_CHANGED" -gt 25 ]; then
+          echo "❌ Too many files changed: $FILES_CHANGED (max 25)"
+          exit 1
+        fi
+
+        if [ "$LINES_CHANGED" -gt 500 ]; then
+          echo "❌ Too many lines changed: $LINES_CHANGED (max 500)"
+          exit 1
+        fi
+
+        echo "✅ PR size within limits: $FILES_CHANGED files, $LINES_CHANGED lines"
