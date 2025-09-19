@@ -55,6 +55,7 @@ MAX_INPUT_LENGTH = 512
 
 def load_models():
     """Load all AI models: emotion detection and voice processing"""
+    global model_loading, models_loaded, emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber
 
     with model_lock:
         if model_loading or models_loaded:
