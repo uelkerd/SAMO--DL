@@ -20,7 +20,11 @@ import httpx
 from pydantic import BaseModel
 
 # Import security-first host binding
-from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+from src.security.host_binding import (
+    get_secure_host_binding,
+    validate_host_binding,
+    get_binding_security_summary,
+)
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -351,7 +355,8 @@ async def startup_load_models():
         except Exception as e:
             logger.warning("⚠️ Whisper model failed to load (non-critical): %s", e)
             logger.info(
-                "Continuing without Whisper - core emotion/summarization models loaded successfully"
+                "Continuing without Whisper - core emotion/summarization models "
+                "loaded successfully"
             )
 
         # Log memory usage after loading (only if psutil available)
@@ -474,7 +479,11 @@ async def proxy_openai(request: OpenAIRequest):
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.",
+                    "content": (
+                        "You are a creative writing assistant that generates authentic, "
+                        "emotionally rich personal journal entries. Write in first person, "
+                        "include specific details and genuine emotions."
+                    ),
                 },
                 {"role": "user", "content": request.prompt},
             ],

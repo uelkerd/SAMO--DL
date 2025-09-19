@@ -151,7 +151,11 @@ if __name__ == '__main__':
     print("   POST /predict - Single prediction")
     print("")
     # Use centralized security-first host binding configuration
-    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    from src.security.host_binding import (
+        get_secure_host_binding,
+        validate_host_binding,
+        get_binding_security_summary,
+    )
 
     host, port = get_secure_host_binding(default_port=8080)
     validate_host_binding(host, port)

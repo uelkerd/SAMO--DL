@@ -93,8 +93,12 @@ def get_secure_host_binding(default_port: int = DEFAULT_PORT) -> Tuple[str, int]
     if explicit_host:
         logger.info("Using explicitly configured host: %s", explicit_host)
         if explicit_host == ALL_INTERFACES_HOST:
-            logger.warning("⚠️  EXPLICIT CONFIGURATION: Binding to all interfaces (0.0.0.0)")
-            logger.warning("🔒 Ensure proper network security and firewall rules are in place")
+            logger.warning(
+                "⚠️  EXPLICIT CONFIGURATION: Binding to all interfaces (0.0.0.0)"
+            )
+            logger.warning(
+                "🔒 Ensure proper network security and firewall rules are in place"
+            )
         return explicit_host, port
 
     # Security-first default: localhost only
@@ -103,14 +107,26 @@ def get_secure_host_binding(default_port: int = DEFAULT_PORT) -> Tuple[str, int]
     # Only bind to all interfaces in production environments
     if is_production_environment():
         host = ALL_INTERFACES_HOST
-        logger.warning("⚠️  PRODUCTION MODE: Binding to all interfaces (0.0.0.0)")
-        logger.warning("🔒 Containerized deployment detected - external access required")
-        logger.warning("🚨 SECURITY: Server accessible from all network interfaces")
-        logger.warning("🚨 Ensure proper authentication, authorization, and network security")
+        logger.warning(
+            "⚠️  PRODUCTION MODE: Binding to all interfaces (0.0.0.0)"
+        )
+        logger.warning(
+            "🔒 Containerized deployment detected - external access required"
+        )
+        logger.warning(
+            "🚨 SECURITY: Server accessible from all network interfaces"
+        )
+        logger.warning(
+            "🚨 Ensure proper authentication, authorization, and network security"
+        )
     else:
         logger.info("🔒 DEVELOPMENT MODE: Binding to localhost only (%s)", host)
-        logger.info("✅ External access blocked - only localhost connections allowed")
-        logger.info("💡 To enable external access, set production environment variables")
+        logger.info(
+            "✅ External access blocked - only localhost connections allowed"
+        )
+        logger.info(
+            "💡 To enable external access, set production environment variables"
+        )
 
     return host, port
 
@@ -133,9 +149,15 @@ def validate_host_binding(host: str, port: int) -> None:
         raise ValueError("Port must be an integer between 1 and 65535")
 
     if host == ALL_INTERFACES_HOST:
-        logger.warning("🚨 SECURITY WARNING: Server will be accessible from all network interfaces")
-        logger.warning("🚨 Ensure proper network security, firewall rules, and authentication")
-        logger.warning("🚨 Consider using a reverse proxy or load balancer for production")
+        logger.warning(
+            "🚨 SECURITY WARNING: Server will be accessible from all network interfaces"
+        )
+        logger.warning(
+            "🚨 Ensure proper network security, firewall rules, and authentication"
+        )
+        logger.warning(
+            "🚨 Consider using a reverse proxy or load balancer for production"
+        )
     elif host == DEFAULT_SECURE_HOST:
         logger.info("✅ SECURE: Server bound to localhost only")
         logger.info("✅ External network access blocked")

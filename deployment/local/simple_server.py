@@ -22,11 +22,14 @@ CORS(app)  # Enable CORS for all domains on all routes
 logging.basicConfig(level=logging.INFO)
 
 # Resolve once
-WEBSITE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "website"))
+WEBSITE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "website")
+)
 
 # Environment-configurable upstream settings
 UPSTREAM_BASE = os.getenv(
-    "SAMO_UNIFIED_API_BASE", "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app"
+    "SAMO_UNIFIED_API_BASE",
+    "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app",
 )
 API_KEY = os.getenv("SAMO_API_KEY")  # optional
 COMMON_HEADERS = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
@@ -59,7 +62,10 @@ def proxy_emotion():
 
         if response.ok:
             return jsonify(response.json())
-        return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+        return (
+            jsonify({"error": f"API error: {response.status_code}"}),
+            response.status_code,
+        )
 
     except Exception:
         logging.exception("Unhandled exception in /api/emotion")
@@ -81,7 +87,10 @@ def proxy_summarize():
 
         if response.ok:
             return jsonify(response.json())
-        return jsonify({"error": f"API error: {response.status_code}"}), response.status_code
+        return (
+            jsonify({"error": f"API error: {response.status_code}"}),
+            response.status_code,
+        )
 
     except Exception:
         logging.exception("Unhandled exception in /api/summarize")
@@ -101,7 +110,9 @@ if __name__ == "__main__":
         default=int(os.getenv("PORT", 8000)),
         help="Port to run the server on (default: 8000)",
     )
-    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)")
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)"
+    )
     args = parser.parse_args()
 
     print("🚀 SIMPLE LOCAL DEVELOPMENT SERVER")

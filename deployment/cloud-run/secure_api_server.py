@@ -511,7 +511,9 @@ if __name__ == '__main__':
         app.run(host=host, port=port, debug=False)
     except ImportError:
         # Fallback if host_binding module not available
-        logger.warning("⚠️ Host binding module not available, using default configuration")
+        logger.warning(
+            "⚠️ Host binding module not available, using default configuration"
+        )
         app.run(host='127.0.0.1', port=PORT, debug=False)
 else:
     # For production deployment - don't initialize during import

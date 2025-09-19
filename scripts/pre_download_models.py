@@ -72,7 +72,9 @@ def main():
     except Exception as e:
         print(f"❌ Error downloading Whisper model: {e}")
         # Don't fail the entire build for Whisper - continue without it
-        print("⚠️ Continuing without Whisper model - will be downloaded at runtime if needed")
+        print(
+            "⚠️ Continuing without Whisper model - will be downloaded at runtime if needed"
+        )
 
     print("🎉 Core models pre-downloaded successfully!")
 

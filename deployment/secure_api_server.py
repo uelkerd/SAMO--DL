@@ -1072,7 +1072,11 @@ if __name__ == '__main__':
     logger.info("=" * 60)
 
     # Use centralized security-first host binding configuration
-    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    from src.security.host_binding import (
+        get_secure_host_binding,
+        validate_host_binding,
+        get_binding_security_summary,
+    )
 
     host, port = get_secure_host_binding(default_port=8000)
     validate_host_binding(host, port)

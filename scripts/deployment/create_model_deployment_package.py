@@ -352,7 +352,10 @@ if __name__ == '__main__':
 
     # Use secure host binding for deployment script
     try:
-        from src.security.host_binding import get_secure_host_binding, validate_host_binding
+        from src.security.host_binding import (
+            get_secure_host_binding,
+            validate_host_binding,
+        )
         host, port = get_secure_host_binding(5000)
         validate_host_binding(host, port)
         app.run(host=host, port=port, debug=False)
