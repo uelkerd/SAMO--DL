@@ -32,7 +32,7 @@ model_loading = False
 model_loaded = False
 model_lock = threading.Lock()
 
-# Emotion mapping based on training order
+# Emotion mapping fallback (used if model has no labels)
 EMOTION_MAPPING = [
     'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
     'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
@@ -73,7 +73,14 @@ def load_model():
         model.to(device)
         model.eval()
 
-        emotion_mapping = EMOTION_MAPPING
+        # Derive mapping from model config (fallback to constant)
+        id2label = getattr(model.config, "id2label", {}) or {}
+        try:
+            pairs = [(int(k), v) for k, v in id2label.items()]
+            pairs.sort(key=lambda kv: kv[0])
+            emotion_mapping = [v for _, v in pairs] or EMOTION_MAPPING
+        except Exception:
+            emotion_mapping = EMOTION_MAPPING
 
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
@@ -119,7 +126,11 @@ def predict_emotion(text):
         confidence = probabilities[0][predicted_class].item()
 
     # Map to emotion name
-    emotion = emotion_mapping[predicted_class]
+    emotion = (
+        emotion_mapping[predicted_class]
+        if 0 <= predicted_class < len(emotion_mapping)
+        else f"label_{predicted_class}"
+    )
 
     return {
         "emotion": emotion,
@@ -248,10 +259,12 @@ def predict_batch():
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
     """Get list of supported emotions"""
-    return jsonify({
-        'emotions': EMOTION_MAPPING,
-        'count': len(EMOTION_MAPPING)
-    })
+    with model_lock:
+        current_emotions = emotion_mapping if model_loaded else EMOTION_MAPPING
+        return jsonify({
+            'emotions': current_emotions,
+            'count': len(current_emotions)
+        })
 
 @app.route('/model_status', methods=['GET'])
 def model_status():
@@ -260,7 +273,7 @@ def model_status():
         return jsonify({
             'model_loaded': model_loaded,
             'model_loading': model_loading,
-            'emotions': EMOTION_MAPPING if model_loaded else [],
+            'emotions': emotion_mapping if model_loaded else EMOTION_MAPPING,
             'device': 'cpu',
             'timestamp': time.time()
         })

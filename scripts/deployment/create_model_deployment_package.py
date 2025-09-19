@@ -108,9 +108,22 @@ class EmotionDetector:
                 raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
             
             # Create classes list ordered by integer label indices
+            # Handle both string and integer keys in id2label
             classes = []
-            for label_id in sorted(id2label.keys(), key=int):
-                classes.append(id2label[str(label_id)])
+            # Create list of (int_key, original_key) pairs from id2label.keys()
+            key_pairs = []
+            for key in id2label.keys():
+                try:
+                    int_key = int(key)
+                    key_pairs.append((int_key, key))
+                except (ValueError, TypeError):
+                    # Skip invalid keys
+                    continue
+            
+            # Sort by int_key and build classes list using original keys
+            key_pairs.sort(key=lambda x: x[0])
+            for int_key, original_key in key_pairs:
+                classes.append(id2label[original_key])
             
             self.label_encoder = LabelEncoder()
             self.label_encoder.classes_ = np.array(classes)

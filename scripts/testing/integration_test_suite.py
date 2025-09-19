@@ -106,10 +106,12 @@ class SAMODLIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "Emotion analysis should return 200")
         
         data = response.json()
-        self.assertIn('emotion', data, "Response should contain emotion")
-        self.assertIn('confidence', data, "Response should contain confidence")
+        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        emotion_data = data['emotion_analysis']
+        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
+        self.assertIn('confidence', emotion_data, "Response should contain confidence")
         
-        print(f"✅ Sad emotion analysis test passed - Detected: {data['emotion']} (confidence: {data['confidence']:.3f})")
+        print(f"✅ Sad emotion analysis test passed - Detected: {emotion_data['primary_emotion']} (confidence: {emotion_data['confidence']:.3f})")
     
     def test_emotion_analysis_query_params(self):
         """Test emotion analysis with query parameters"""
@@ -125,9 +127,11 @@ class SAMODLIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "Emotion analysis with query params should return 200")
         
         data = response.json()
-        self.assertIn('emotion', data, "Response should contain emotion")
+        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        emotion_data = data['emotion_analysis']
+        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
         
-        print(f"✅ Query params emotion analysis test passed - Detected: {data['emotion']}")
+        print(f"✅ Query params emotion analysis test passed - Detected: {emotion_data['primary_emotion']}")
     
     def test_text_summarization(self):
         """Test text summarization endpoint"""
@@ -168,9 +172,11 @@ class SAMODLIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "Special characters should be handled properly")
         
         data = response.json()
-        self.assertIn('emotion', data, "Response should contain emotion")
+        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        emotion_data = data['emotion_analysis']
+        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
         
-        print(f"✅ Special characters test passed - Detected: {data['emotion']}")
+        print(f"✅ Special characters test passed - Detected: {emotion_data['primary_emotion']}")
     
     def test_unicode_text(self):
         """Test API with unicode text"""
@@ -186,9 +192,11 @@ class SAMODLIntegrationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "Unicode text should be handled properly")
         
         data = response.json()
-        self.assertIn('emotion', data, "Response should contain emotion")
+        self.assertIn('emotion_analysis', data, "Response should contain emotion_analysis")
+        emotion_data = data['emotion_analysis']
+        self.assertIn('primary_emotion', emotion_data, "Response should contain primary_emotion")
         
-        print(f"✅ Unicode text test passed - Detected: {data['emotion']}")
+        print(f"✅ Unicode text test passed - Detected: {emotion_data['primary_emotion']}")
     
     def test_empty_text_handling(self):
         """Test API with empty text"""
@@ -311,6 +319,9 @@ def run_performance_tests(base_url):
     print("\n🚀 PERFORMANCE TESTS")
     print("=" * 40)
     
+    # Create a local session for performance tests
+    session = requests.Session()
+    
     test_texts = [
         "I am feeling happy and excited about the future!",
         "This is a very sad and disappointing situation.",
@@ -327,7 +338,7 @@ def run_performance_tests(base_url):
         for j in range(3):  # 3 requests per text
             try:
                 start_time = time.time()
-                response = self.session.post(
+                response = session.post(
                     f'{base_url}/analyze/journal',
                     json={'text': text},
                     timeout=30

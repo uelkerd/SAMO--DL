@@ -11,6 +11,39 @@ import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.preprocessing import LabelEncoder
 
+def _get_emotion_labels_from_model(model):
+    """Extract emotion labels from model config."""
+    try:
+        # Try to get labels from model config
+        if hasattr(model.config, 'id2label') and model.config.id2label:
+            # Convert id2label dict to ordered list by numeric key
+            id2label = model.config.id2label
+            # Convert keys to ints and sort by numeric key
+            sorted_pairs = sorted([(int(k), v) for k, v in id2label.items()])
+            labels = [v for _, v in sorted_pairs]
+            print(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+            return labels
+        elif hasattr(model.config, 'label2id') and model.config.label2id:
+            # Convert label2id dict to ordered list
+            label2id = model.config.label2id
+            sorted_pairs = sorted([(v, k) for k, v in label2id.items()])
+            labels = [k for _, k in sorted_pairs]
+            print(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+            return labels
+        else:
+            # Fallback to hardcoded list if config doesn't have labels
+            print("⚠️ No emotion labels found in model config, using fallback")
+            return [
+                'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+                'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            ]
+    except Exception as e:
+        print(f"⚠️ Error loading emotion labels: {e}, using fallback")
+        return [
+            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+        ]
+
 def save_model_for_deployment():
     """Save the trained model for deployment"""
 
@@ -57,12 +90,9 @@ def save_model_for_deployment():
         model.save_pretrained(deployment_model_dir)
         tokenizer.save_pretrained(deployment_model_dir)
 
-        # Create label encoder (12 emotions)
+        # Create label encoder from model config
         print("🏷️ Creating label encoder...")
-        emotions = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
-        ]
+        emotions = _get_emotion_labels_from_model(model)
 
         label_encoder = LabelEncoder()
         label_encoder.fit(emotions)

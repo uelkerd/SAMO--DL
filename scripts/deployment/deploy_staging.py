@@ -14,12 +14,27 @@ import requests
 from datetime import datetime
 from pathlib import Path
 
-# Configuration
-PROJECT_ID = "the-tendril-466607-n8"
-REGION = "us-central1"
-SERVICE_NAME = "samo-dl-api-staging"
-IMAGE_NAME = f"us-central1-docker.pkg.dev/{PROJECT_ID}/samo-dl/samo-dl-api-staging"
-PORT = 8080
+# Configuration - Read from environment variables with fallbacks
+PROJECT_ID = os.getenv("GCP_PROJECT_ID", "the-tendril-466607-n8")
+REGION = os.getenv("GCP_REGION", "us-central1")
+SERVICE_NAME = os.getenv("GCP_SERVICE_NAME", "samo-dl-api-staging")
+PORT = int(os.getenv("GCP_PORT", "8080"))
+
+# Validate required environment variables
+if not PROJECT_ID:
+    raise ValueError("GCP_PROJECT_ID environment variable is required")
+if not REGION:
+    raise ValueError("GCP_REGION environment variable is required")
+
+# Build IMAGE_NAME dynamically from PROJECT_ID and REGION
+IMAGE_NAME = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/samo-dl/{SERVICE_NAME}"
+
+print(f"📊 Configuration:")
+print(f"   PROJECT_ID: {PROJECT_ID}")
+print(f"   REGION: {REGION}")
+print(f"   SERVICE_NAME: {SERVICE_NAME}")
+print(f"   IMAGE_NAME: {IMAGE_NAME}")
+print(f"   PORT: {PORT}")
 
 def print_banner():
     """Print deployment banner"""
