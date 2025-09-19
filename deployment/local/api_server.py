@@ -122,12 +122,36 @@ class EmotionDetectionModel:
             else:
                 logger.info("⚠️ CUDA not available, using CPU")
 
-            self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            # Derive emotions from model config
+            self.emotions = self._load_emotion_labels()
             logger.info("✅ Model loaded successfully")
 
         except Exception as e:
             logger.error(f"❌ Failed to load model: {str(e)}")
             raise
+
+    def _load_emotion_labels(self):
+        """Load emotion labels from model config."""
+        try:
+            # Try to get labels from model config
+            if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+                # Convert id2label dict to ordered list
+                max_id = max(self.model.config.id2label.keys())
+                labels = [self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)]
+                logger.info(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+                return labels
+            elif hasattr(self.model.config, 'label2id') and self.model.config.label2id:
+                # Convert label2id dict to ordered list
+                labels = sorted(self.model.config.label2id.keys(), key=lambda x: self.model.config.label2id[x])
+                logger.info(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
+                return labels
+            else:
+                # Fallback to hardcoded list if config doesn't have labels
+                logger.warning("⚠️ No emotion labels found in model config, using fallback")
+                return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        except Exception as e:
+            logger.warning(f"⚠️ Error loading emotion labels: {e}, using fallback")
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
     def predict(self, text):
         """Make a prediction."""
@@ -150,11 +174,9 @@ class EmotionDetectionModel:
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
 
-            # Get predicted emotion
-            if predicted_label in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[predicted_label]
-            elif str(predicted_label) in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[str(predicted_label)]
+            # Get predicted emotion using derived emotions list
+            if 0 <= predicted_label < len(self.emotions):
+                predicted_emotion = self.emotions[predicted_label]
             else:
                 predicted_emotion = f"unknown_{predicted_label}"
 

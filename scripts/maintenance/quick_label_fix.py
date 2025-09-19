@@ -30,11 +30,15 @@ def quick_label_fix():
         if example['labels']:
             for label_id in example['labels']:
                 # Convert label ID to label name
-                label_name = go_label_names[label_id] if label_id < len(go_label_names) else f"unknown_{label_id}"
+                if isinstance(label_id, int) and 0 <= label_id < len(go_label_names):
+                    label_name = go_label_names[label_id]
+                else:
+                    # Handle edge cases where label_id might be out of range
+                    label_name = f"unknown_{label_id}"
                 go_labels.add(label_name)
 
     # Ensure journal labels are strings for consistent comparison
-    journal_labels = set(str(label) for label in journal_df['emotion'].unique())
+    journal_labels = set(str(label).strip() for label in journal_df['emotion'].unique() if str(label).strip())
 
     # Use only common labels to avoid mismatches
     common_labels = sorted(list(go_labels.intersection(journal_labels)))

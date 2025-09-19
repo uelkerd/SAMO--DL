@@ -192,20 +192,30 @@ if __name__ == '__main__':
     print("   GET  /health - Health check")
     print("   POST /predict - Single prediction")
     print("")
-    # Use centralized security-first host binding configuration
-    from src.security.host_binding import (
-        get_secure_host_binding,
-        validate_host_binding,
-        get_binding_security_summary,
-    )
-
-    host, port = get_secure_host_binding(default_port=8080)
-    validate_host_binding(host, port)
-
-    security_summary = get_binding_security_summary(host, port)
-    print(f"Security Summary: {security_summary}")
+    
+    # Try to use centralized security-first host binding configuration
+    try:
+        from src.security.host_binding import (
+            get_secure_host_binding,
+            validate_host_binding,
+            get_binding_security_summary,
+        )
+        
+        host, port = get_secure_host_binding(default_port=8080)
+        validate_host_binding(host, port)
+        security_summary = get_binding_security_summary(host, port)
+        print(f"Security Summary: {security_summary}")
+        
+    except ImportError:
+        # Fallback for container environments where host_binding module is not available
+        print("⚠️ Host binding module not available, using fallback configuration")
+        host = '0.0.0.0'
+        port = int(os.environ.get('AIP_HTTP_PORT', '8080'))
+        security_summary = f"Fallback mode: host={host}, port={port} (AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')})"
+        print(f"Security Summary: {security_summary}")
+    
     print(f"🚀 Server starting on http://{host}:{port}")
     print("")
 
     # Run the Flask app
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=int(port), debug=False)

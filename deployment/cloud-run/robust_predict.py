@@ -48,8 +48,8 @@ def load_model():
     with model_lock:
         if model_loading or model_loaded:
             return
+        model_loading = True
 
-    model_loading = True
     logger.info("🔄 Starting model loading...")
 
     try:
@@ -74,25 +74,27 @@ def load_model():
         model.eval()
 
         emotion_mapping = EMOTION_MAPPING
-        model_loaded = True
-        model_loading = False
 
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
 
     except Exception:
-        model_loading = False
         logger.exception("❌ Failed to load model")
         # Do not re-raise to maintain secure error handling
     finally:
-        model_loading = False
+        # Update flags under lock to prevent race conditions
+        with model_lock:
+            if 'emotion_mapping' in locals() and emotion_mapping is not None:
+                model_loaded = True
+            model_loading = False
 
 def predict_emotion(text):
     """Predict emotion for given text"""
     global model, tokenizer, emotion_mapping
 
-    if not model_loaded:
-        raise RuntimeError("Model not loaded")
+    with model_lock:
+        if not model_loaded:
+            raise RuntimeError("Model not loaded")
 
     # Input sanitization and length check
     if not isinstance(text, str):
@@ -127,11 +129,23 @@ def predict_emotion(text):
 
 def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
-    if not model_loaded and not model_loading:
+    should_load = False
+    
+    with model_lock:
+        if model_loaded:
+            return
+        elif not model_loading:
+            should_load = True
+        # If model_loading is True, just return and let the loading complete
+    
+    # Call load_model outside the lock if needed
+    if should_load:
         load_model()
-
-    if not model_loaded:
-        raise RuntimeError("Model not loaded")
+    
+    # Check again after loading
+    with model_lock:
+        if not model_loaded:
+            raise RuntimeError("Model not loaded")
 
 def create_error_response(message, status_code=500):
     """Create standardized error response with request ID for debugging"""
@@ -154,13 +168,14 @@ def root():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'port': os.environ.get('PORT', '8080'),
-        'timestamp': time.time()
-    })
+    with model_lock:
+        return jsonify({
+            'status': 'healthy',
+            'model_loaded': model_loaded,
+            'model_loading': model_loading,
+            'port': os.environ.get('PORT', '8080'),
+            'timestamp': time.time()
+        })
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -241,13 +256,14 @@ def get_emotions():
 @app.route('/model_status', methods=['GET'])
 def model_status():
     """Get detailed model status"""
-    return jsonify({
-        'model_loaded': model_loaded,
-        'model_loading': model_loading,
-        'emotions': EMOTION_MAPPING if model_loaded else [],
-        'device': 'cpu',
-        'timestamp': time.time()
-    })
+    with model_lock:
+        return jsonify({
+            'model_loaded': model_loaded,
+            'model_loading': model_loading,
+            'emotions': EMOTION_MAPPING if model_loaded else [],
+            'device': 'cpu',
+            'timestamp': time.time()
+        })
 
 # Load model on startup
 def initialize_model():
