@@ -37,13 +37,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     # Check Authorization scheme
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid authentication scheme. Expected 'Bearer'",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
@@ -55,7 +55,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except JWTError as jwt_error:
         # Preserve original JWT error details for debugging
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"JWT validation failed: {str(jwt_error)}",
             headers={"WWW-Authenticate": "Bearer"},
         ) from jwt_error

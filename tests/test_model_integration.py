@@ -95,7 +95,7 @@ class TestModelIntegration(unittest.TestCase):
             # Test all endpoints to trigger model loading
             endpoints = [
                 ('/api/analyze/journal', {'text': 'I feel happy today.', 'generate_summary': True}),
-                ('/api/summarize/', {'text': 'This is a long text for testing.', 'max_length': 50}),
+                ('/api/summarize/', {'text': 'This is a longer text for testing that intentionally exceeds fifty characters to satisfy validation.', 'max_length': 50}),
                 ('/api/transcribe/', {'audio_data': self.mock_audio_data, 'language': 'en'}),
                 ('/api/complete-analysis/', {'text': 'I feel happy today.', 'include_summary': True, 'include_emotion': True})
             ]
@@ -122,7 +122,7 @@ class TestModelIntegration(unittest.TestCase):
             # Test that endpoints handle model loading failures gracefully
             endpoints = [
                 ('/api/analyze/journal', {'text': 'I feel happy today.', 'generate_summary': True}),
-                ('/api/summarize/', {'text': 'This is a long text for testing.', 'max_length': 50}),
+                ('/api/summarize/', {'text': 'This is a longer text for testing that intentionally exceeds fifty characters to satisfy validation.', 'max_length': 50}),
                 ('/api/transcribe/', {'audio_data': self.mock_audio_data, 'language': 'en'}),
                 ('/api/complete-analysis/', {'text': 'I feel happy today.', 'include_summary': True, 'include_emotion': True})
             ]
