@@ -62,6 +62,26 @@ class EmotionDetectionModel:
             print(f"⚠️ Error loading emotion labels: {e}, using fallback")
             return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
+    def _get_emotion_label(self, label_id):
+        """Get emotion label for a given label ID."""
+        try:
+            # Try to get from model config first
+            if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+                # Handle both int and str keys
+                if label_id in self.model.config.id2label:
+                    return self.model.config.id2label[label_id]
+                elif str(label_id) in self.model.config.id2label:
+                    return self.model.config.id2label[str(label_id)]
+            
+            # Fallback to emotions list if available
+            if hasattr(self, 'emotions') and 0 <= label_id < len(self.emotions):
+                return self.emotions[label_id]
+            
+            # Final fallback
+            return f"unknown_{label_id}"
+        except Exception:
+            return f"unknown_{label_id}"
+
     def predict(self, text):
         """Make a prediction."""
         try:
@@ -81,13 +101,8 @@ class EmotionDetectionModel:
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
 
-            # Get predicted emotion
-            if predicted_label in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[predicted_label]
-            elif str(predicted_label) in self.model.config.id2label:
-                predicted_emotion = self.model.config.id2label[str(predicted_label)]
-            else:
-                predicted_emotion = f"unknown_{predicted_label}"
+            # Get predicted emotion using proper mapping
+            predicted_emotion = self._get_emotion_label(predicted_label)
 
             # Create response
             response = {
@@ -95,7 +110,7 @@ class EmotionDetectionModel:
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    self._get_emotion_label(i): float(prob) for i, prob in enumerate(all_probs)
                 },
                 'model_version': '2.0',
                 'model_type': 'comprehensive_emotion_detection',
