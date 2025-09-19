@@ -20,13 +20,25 @@ def deploy_locally():
     print(f"⏰ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print()
 
-    # Check if model exists
-    model_path = Path("deployment/models/default")
-    if not model_path.exists():
-        print(f"❌ Model not found at: {model_path}")
+    # Check if model exists - try both possible locations
+    model_paths = [
+        Path("deployment/model"),  # Primary location
+        Path("deployment/models/default")  # Fallback location
+    ]
+    
+    model_path = None
+    for path in model_paths:
+        if path.exists():
+            model_path = path
+            break
+    
+    if model_path is None:
+        print("❌ Model not found in any of the expected locations:")
+        for path in model_paths:
+            print(f"   - {path}")
         return False
 
-    print("✅ Model found")
+    print(f"✅ Model found at: {model_path}")
 
     # Create local deployment directory
     local_deployment_dir = Path("local_deployment")

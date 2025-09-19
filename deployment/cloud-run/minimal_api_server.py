@@ -53,7 +53,10 @@ def health_check():
     try:
         # Check model status using shared utilities
         model_status_info = get_model_status()
-        model_status = "ready" if model_status_info.get('model_loaded', False) else "loading"
+        model_status = (
+            "ready" if model_status_info.get('model_loaded', False) 
+            else "loading"
+        )
 
         # System metrics
         cpu_percent = psutil.cpu_percent()
@@ -76,7 +79,10 @@ def health_check():
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}", exc_info=True)
         REQUEST_COUNT.labels(endpoint='/health', status='error').inc()
-        return jsonify({'status': 'unhealthy', 'error': 'Health check failed'}), 500
+        return jsonify({
+            'status': 'unhealthy', 
+            'error': 'Health check failed'
+        }), 500
 
 
 @app.route('/predict', methods=['POST'])
@@ -88,18 +94,24 @@ def predict():
         # Validate request
         if not request.is_json:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-            return jsonify({'error': 'Content-Type must be application/json'}), 400
+            return jsonify({
+                'error': 'Content-Type must be application/json'
+            }), 400
 
         data = request.get_json()
         text = data.get('text', '').strip()
 
         if not text:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-            return jsonify({'error': 'Text field is required'}), 400
+            return jsonify({
+                'error': 'Text field is required'
+            }), 400
 
         if len(text) > MAX_TEXT_LENGTH:
             REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-            return jsonify({'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)'}), 400
+            return jsonify({
+                'error': f'Text too long (max {MAX_TEXT_LENGTH} characters)'
+            }), 400
 
         # Ensure model is loaded
         initialize_model()
@@ -119,7 +131,9 @@ def predict():
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint='/predict').observe(duration)
         REQUEST_COUNT.labels(endpoint='/predict', status='error').inc()
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({
+            'error': 'Internal server error'
+        }), 500
 
 
 @app.route('/metrics', methods=['GET'])
@@ -144,7 +158,9 @@ def root():
             'metrics': '/metrics'
         },
         'model_type': 'roberta_single_label',
-        'emotions_supported': len(model_status.get('emotion_labels', [])),
+        'emotions_supported': len(
+            model_status.get('emotion_labels', [])
+        ),
         'emotions': model_status.get('emotion_labels', [])
     }), 200
 
@@ -156,7 +172,11 @@ if __name__ == '__main__':
     # Start server
     port = int(os.getenv('PORT', '8080'))
     # Use centralized security-first host binding configuration
-    from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+    from src.security.host_binding import (
+        get_secure_host_binding, 
+        validate_host_binding, 
+        get_binding_security_summary
+    )
 
     host, port = get_secure_host_binding(default_port=port)
     validate_host_binding(host, port)

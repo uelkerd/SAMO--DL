@@ -66,22 +66,29 @@ class CodeQualityFixer:
         return content
 
     def fix_import_order(self, content: str) -> str:
-        """Fix import order and grouping."""
-        lines = content.split("\n")
-        import_lines = []
-        other_lines = []
+        """Fix import order and grouping using isort API."""
+        try:
+            import isort
+            # Use isort to safely reorder imports
+            return isort.code(content)
+        except ImportError:
+            # Fallback to manual sorting if isort is not available
+            print("⚠️ isort not available, using manual import sorting")
+            lines = content.split("\n")
+            import_lines = []
+            other_lines = []
 
-        for line in lines:
-            if line.strip().startswith(("import ", "from ")):
-                import_lines.append(line)
-            else:
-                other_lines.append(line)
+            for line in lines:
+                if line.strip().startswith(("import ", "from ")):
+                    import_lines.append(line)
+                else:
+                    other_lines.append(line)
 
-        # Sort import lines
-        import_lines.sort()
+            # Sort import lines
+            import_lines.sort()
 
-        # Reconstruct content
-        return "\n".join(import_lines + [""] + other_lines)
+            # Reconstruct content
+            return "\n".join(import_lines + [""] + other_lines)
 
     def fix_unused_imports(self, content: str) -> str:
         """Remove unused imports."""

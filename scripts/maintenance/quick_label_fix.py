@@ -21,13 +21,20 @@ def quick_label_fix():
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
 
-    # Get all unique labels
+    # Get all unique labels - normalize to string format
+    # Get label names from GoEmotions dataset's ClassLabel feature
+    go_label_names = go_emotions['train'].features['labels'].names
+    
     go_labels = set()
     for example in go_emotions['train']:
         if example['labels']:
-            go_labels.update(example['labels'])
+            for label_id in example['labels']:
+                # Convert label ID to label name
+                label_name = go_label_names[label_id] if label_id < len(go_label_names) else f"unknown_{label_id}"
+                go_labels.add(label_name)
 
-    journal_labels = set(journal_df['emotion'].unique())
+    # Ensure journal labels are strings for consistent comparison
+    journal_labels = set(str(label) for label in journal_df['emotion'].unique())
 
     # Use only common labels to avoid mismatches
     common_labels = sorted(list(go_labels.intersection(journal_labels)))

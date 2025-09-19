@@ -35,7 +35,9 @@ UPSTREAM_BASE = os.getenv(
     "https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app",
 )
 API_KEY = os.getenv("SAMO_API_KEY")  # optional
-COMMON_HEADERS = {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
+COMMON_HEADERS = (
+    {"Authorization": f"Bearer {API_KEY}"} if API_KEY else {}
+)
 
 
 def create_mock_voice_response(filename):
@@ -45,11 +47,16 @@ def create_mock_voice_response(filename):
 
     # Sample transcription text based on filename or random
     sample_texts = [
-        "Hello, this is a test recording. I'm speaking into the microphone to test the voice processing functionality.",
-        "The weather is beautiful today. I think I'll go for a walk in the park after finishing this demo.",
-        "Voice recognition technology has come a long way. It's amazing how accurately it can transcribe speech now.",
-        "Testing the SAMO voice analysis system. This should analyze both the transcription and emotions.",
-        "I'm feeling quite optimistic about this new feature. It will make the demo much more interactive."
+        "Hello, this is a test recording. I'm speaking into the microphone to "
+        "test the voice processing functionality.",
+        "The weather is beautiful today. I think I'll go for a walk in the park "
+        "after finishing this demo.",
+        "Voice recognition technology has come a long way. It's amazing how "
+        "accurately it can transcribe speech now.",
+        "Testing the SAMO voice analysis system. This should analyze both the "
+        "transcription and emotions.",
+        "I'm feeling quite optimistic about this new feature. It will make the "
+        "demo much more interactive."
     ]
 
     transcribed_text = random.choice(sample_texts)
@@ -87,11 +94,19 @@ def create_mock_voice_response(filename):
     }
 
     # Create top emotions array
-    top_emotions = sorted(mock_emotions.items(), key=lambda x: x[1], reverse=True)[:5]
-    top_emotions_array = [{"emotion": emotion, "confidence": confidence} for emotion, confidence in top_emotions]
+    top_emotions = sorted(
+        mock_emotions.items(), key=lambda x: x[1], reverse=True
+    )[:5]
+    top_emotions_array = [
+        {"emotion": emotion, "confidence": confidence} 
+        for emotion, confidence in top_emotions
+    ]
 
     # Mock summary
-    summary_text = transcribed_text[:min(len(transcribed_text), 100)] + "..." if len(transcribed_text) > 100 else transcribed_text
+    if len(transcribed_text) > 100:
+        summary_text = transcribed_text[:100] + "..."
+    else:
+        summary_text = transcribed_text
 
     return {
         "transcription": {
@@ -142,7 +157,9 @@ def proxy_emotion():
     try:
         # Accept JSON body or query param
         data = request.get_json(silent=True) or {}
-        text = (data.get("text") or request.args.get("text", "")).strip()
+        text = (
+            data.get("text") or request.args.get("text", "")
+        ).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
@@ -173,7 +190,9 @@ def proxy_summarize():
     try:
         # Accept JSON body or query param
         data = request.get_json(silent=True) or {}
-        text = (data.get("text") or request.args.get("text", "")).strip()
+        text = (
+            data.get("text") or request.args.get("text", "")
+        ).strip()
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
@@ -214,11 +233,17 @@ def proxy_voice_journal():
         allowed_types = ['audio/webm', 'audio/wav', 'audio/mp4', 'audio/mpeg']
         if audio_file.content_type not in allowed_types:
             return jsonify({
-                "error": f"Unsupported audio format: {audio_file.content_type}. Supported: {', '.join(allowed_types)}"
+                "error": (
+                    f"Unsupported audio format: {audio_file.content_type}. "
+                    f"Supported: {', '.join(allowed_types)}"
+                )
             }), 400
 
         # Log the upload attempt
-        logging.info(f"🎙️ Processing audio upload: {audio_file.filename} ({audio_file.content_type})")
+        logging.info(
+            f"🎙️ Processing audio upload: {audio_file.filename} "
+            f"({audio_file.content_type})"
+        )
 
         # Create files dict for requests - keeps file in memory only
         files = {
@@ -244,30 +269,43 @@ def proxy_voice_journal():
                 return jsonify(response.json())
             elif response.status_code == 404:
                 # Upstream doesn't support voice processing, provide mock response
-                logging.info("⚠️ Upstream API doesn't support voice processing, returning mock response")
+                logging.info(
+                    "⚠️ Upstream API doesn't support voice processing, "
+                    "returning mock response"
+                )
                 return jsonify(create_mock_voice_response(audio_file.filename))
             else:
                 logging.warning(f"⚠️ Upstream API error: {response.status_code}")
                 return (
-                    jsonify({"error": f"Voice processing failed: {response.status_code}"}),
+                    jsonify({
+                        "error": f"Voice processing failed: {response.status_code}"
+                    }),
                     response.status_code,
                 )
         except requests.exceptions.ConnectionError:
             # Network error, provide mock response for development
-            logging.warning("🌐 Network error, providing mock voice response for development")
+            logging.warning(
+                "🌐 Network error, providing mock voice response for development"
+            )
             return jsonify(create_mock_voice_response(audio_file.filename))
 
     except requests.exceptions.Timeout:
         logging.exception("⏰ Voice processing timeout")
-        return jsonify({"error": "Voice processing timeout. Please try with a shorter recording."}), 504
+        return jsonify({
+            "error": "Voice processing timeout. Please try with a shorter recording."
+        }), 504
 
     except requests.exceptions.RequestException as e:
         logging.exception(f"🌐 Network error during voice processing: {e}")
-        return jsonify({"error": "Network error during voice processing. Please try again."}), 502
+        return jsonify({
+            "error": "Network error during voice processing. Please try again."
+        }), 502
 
     except Exception:
         logging.exception("❌ Unhandled exception in /api/voice-journal")
-        return jsonify({"error": "Internal server error during voice processing"}), 500
+        return jsonify({
+            "error": "Internal server error during voice processing"
+        }), 500
 
 
 @app.route("/api/health", methods=["GET"])
@@ -285,7 +323,9 @@ if __name__ == "__main__":
         help="Port to run the server on (default: 8000)",
     )
     parser.add_argument(
-        "--host", default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)"
+        "--host", 
+        default="127.0.0.1", 
+        help="Host to bind to (default: 127.0.0.1)"
     )
     args = parser.parse_args()
 

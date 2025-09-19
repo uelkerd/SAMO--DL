@@ -5,22 +5,37 @@ DEEP MODEL ANALYSIS SCRIPT
 Analyzes the model's behavior to understand performance discrepancies
 """
 
+import argparse
+import os
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
-def deep_model_analysis():
+def deep_model_analysis(model_dir=None):
     """Deep analysis of the model's behavior"""
-
+    
+    # Get model directory from argument, environment variable, or default
+    if model_dir is None:
+        model_dir = os.environ.get("MODEL_DIR", "deployment/model")
+    
+    model_path = Path(model_dir)
+    
     print("🔍 DEEP MODEL ANALYSIS")
     print("=" * 50)
     print("🎯 Goal: Understand 99.54% F1 vs 58.3% basic accuracy")
     print("=" * 50)
+    print(f"📁 Model directory: {model_path.absolute()}")
+
+    # Check if model directory exists
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model directory not found: {model_path.absolute()}")
+    
+    if not (model_path / "config.json").exists():
+        raise FileNotFoundError(f"Model config not found in: {model_path.absolute()}")
 
     # Load model
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-    model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
+    model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     model.eval()
@@ -186,5 +201,21 @@ def deep_model_analysis():
     return training_like_accuracy > 0.8
 
 if __name__ == "__main__":
-    success = deep_model_analysis()
-    exit(0 if success else 1)
+    parser = argparse.ArgumentParser(description="Deep model analysis script")
+    parser.add_argument(
+        "--model-dir", 
+        type=str, 
+        default=None,
+        help="Path to model directory (default: from MODEL_DIR env var or 'deployment/model')"
+    )
+    args = parser.parse_args()
+    
+    try:
+        success = deep_model_analysis(args.model_dir)
+        exit(0 if success else 1)
+    except FileNotFoundError as e:
+        print(f"❌ Error: {e}")
+        exit(1)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        exit(1)

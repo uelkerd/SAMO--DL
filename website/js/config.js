@@ -58,14 +58,26 @@ window.SAMO_CONFIG = {
     }
 };
 
-// Environment-specific overrides - ALWAYS USE REAL APIS
+// Environment-specific overrides - USE LOCAL PROXY FOR DEVELOPMENT
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // For demo testing, use production API directly (CORS is enabled on the server)
-    // Keep production URL and endpoints for localhost development
-    console.log('🔧 Running in localhost development mode - using production API with CORS');
+    // Use local development server proxies
+    window.SAMO_CONFIG.API.BASE_URL = `http://${window.location.hostname}:${window.location.port}`;
+    window.SAMO_CONFIG.API.ENDPOINTS = {
+        EMOTION: '/api/emotion',
+        SUMMARIZE: '/api/summarize',
+        VOICE_JOURNAL: '/api/voice-journal',
+        HEALTH: '/api/health',
+        // Keep other endpoints as fallbacks
+        JOURNAL: '/analyze/journal',
+        READY: '/ready',
+        TRANSCRIBE: '/transcribe',
+        OPENAI_PROXY: '/proxy/openai'
+    };
+
+    console.log('🔧 Running in localhost development mode - using local API proxies with voice support');
 }
 
 // Deep merge utility function

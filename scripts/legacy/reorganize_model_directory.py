@@ -247,11 +247,13 @@ Each model directory contains:
 
     # Create symlink to default model
     try:
-        os.symlink(default_model_path, symlink_path)
-        print(f"✅ Created symlink: {symlink_path} -> {default_model_path}")
-    except Exception as e:
+        # Use absolute path for symlink target to avoid broken links
+        target_path = os.path.abspath(default_model_path)
+        os.symlink(target_path, symlink_path)
+        print(f"✅ Created symlink: {symlink_path} -> {target_path}")
+    except OSError as e:
         print(f"⚠️ Could not create symlink: {e}")
-        print(f"   You can manually link {symlink_path} to {default_model_path}")
+        print(f"   You can manually link {symlink_path} to {target_path}")
 
     # 6. Summary
     print(f"\n📋 REORGANIZATION SUMMARY")

@@ -170,18 +170,18 @@
                         <!-- API Notice -->
                         <div class="alert alert-info mb-3" role="alert">
                             <span class="material-icons me-2">info</span>
-                            <strong>Live API Demo:</strong> This demo connects to our live SAMO APIs. Voice processing is temporarily unavailable - please use text input for now.
+                            <strong>Live API Demo:</strong> This demo connects to our live SAMO APIs. Full voice processing now available!
                         </div>
 
                         <!-- Input Section -->
-                        <!-- Audio Upload - Temporarily Disabled -->
-                        <div class="mb-4" style="opacity: 0.5;">
+                        <!-- Audio Upload -->
+                        <div class="mb-4">
                             <label for="audioFile" class="form-label fw-bold fs-5">
                                 <i class="fas fa-microphone me-2"></i>
-                                Upload Audio File (Temporarily Unavailable)
+                                Upload Audio File
                             </label>
-                            <input type="file" class="form-control form-control-lg" id="audioFile" accept="audio/*" disabled aria-disabled="true" aria-describedby="audioFile-unavailable-explanation">
-                            <div id="audioFile-unavailable-explanation" class="form-text text-muted">Voice processing is temporarily unavailable. Please use text input below.</div>
+                            <input type="file" class="form-control form-control-lg" id="audioFile" accept="audio/*" aria-describedby="audioFile-help">
+                            <div id="audioFile-help" class="form-text">Upload an audio file for transcription and emotion analysis. Supported formats: WebM, WAV, MP4.</div>
                         </div>
 
                         <!-- Audio Recording -->

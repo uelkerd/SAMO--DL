@@ -120,6 +120,13 @@ def save_model_for_deployment():
 def test_saved_model(model_dir):
     """Test the saved model"""
     try:
+        # Add the deployment directory to sys.path for proper import
+        import sys
+        from pathlib import Path
+        deployment_dir = Path(__file__).parent
+        if str(deployment_dir) not in sys.path:
+            sys.path.insert(0, str(deployment_dir))
+        
         from inference import EmotionDetector
 
         # Initialize detector with saved model

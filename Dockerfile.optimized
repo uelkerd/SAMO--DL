@@ -11,7 +11,6 @@ WORKDIR /app
 
 # Set environment variables for model caching
 ENV HF_HOME=/app/models
-ENV TRANSFORMERS_CACHE=/app/models
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
@@ -28,11 +27,9 @@ COPY scripts/pre_download_models.py .
 # Pre-download models during build (this will take time but ensures fast startup)
 RUN python pre_download_models.py
 
-# Validation handled by validate_models.py
-
-# Copy and run model validation script
+# Copy model validation script (will be run at startup, not during build)
 COPY scripts/validate_models.py .
-RUN chmod +x validate_models.py && python validate_models.py
+RUN chmod +x validate_models.py
 
 # Copy source code
 COPY src/ ./src/
@@ -44,7 +41,7 @@ RUN groupadd -r samo && useradd -r -g samo -d /app -s /bin/bash samo
 # Set proper ownership and permissions
 RUN chown -R samo:samo /app && \
     chmod -R 755 /app && \
-    chmod +x /app/scripts/validate_models.py
+    chmod +x /app/validate_models.py
 
 # Switch to non-root user
 USER samo

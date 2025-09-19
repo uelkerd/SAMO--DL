@@ -44,21 +44,23 @@ models_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = [
+    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
+    'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+]
 
 # Constants
 MAX_INPUT_LENGTH = 512
 
+
 def load_models():
     """Load all AI models: emotion detection and voice processing"""
-    global emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber
-    global model_loading, models_loaded, model_lock
+    global emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber, model_loading, models_loaded, model_lock
 
     with model_lock:
         if model_loading or models_loaded:
             return
-
-    model_loading = True
+        model_loading = True
     logger.info("🔄 Starting unified model loading...")
 
     try:
@@ -81,7 +83,9 @@ def load_models():
         try:
             emotion_model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
         except:
-            logger.warning("⚠️ Production model not found, using development fallback")
+            logger.warning(
+                "⚠️ Production model not found, using development fallback"
+            )
             emotion_model = AutoModelForSequenceClassification.from_pretrained(
                 "cardiffnlp/twitter-roberta-base-emotion-multilabel-latest"
             )
@@ -108,18 +112,22 @@ def load_models():
             logger.info("📝 Voice processing will use fallback mock responses")
             voice_transcriber = None
 
-        models_loaded = True
-        model_loading = False
+        with model_lock:
+            models_loaded = True
+            model_loading = False
 
         logger.info("🎉 All models loaded successfully!")
         logger.info(f"🎯 Emotion mapping: {emotion_mapping}")
 
     except Exception:
-        model_loading = False
+        with model_lock:
+            model_loading = False
         logger.exception("❌ Failed to load models")
         # Continue without models for graceful degradation
     finally:
-        model_loading = False
+        with model_lock:
+            model_loading = False
+
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
@@ -132,10 +140,18 @@ def predict_emotion(text: str) -> dict:
     if not isinstance(text, str):
         raise ValueError("Input text must be a string.")
     if len(text) > MAX_INPUT_LENGTH:
-        raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
+        raise ValueError(
+            f"Input text too long (>{MAX_INPUT_LENGTH} characters)."
+        )
 
     # Tokenize
-    inputs = emotion_tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
+    inputs = emotion_tokenizer(
+        text, 
+        return_tensors="pt", 
+        truncation=True, 
+        max_length=MAX_INPUT_LENGTH, 
+        padding=True
+    )
 
     # Predict
     with torch.no_grad():
@@ -155,6 +171,7 @@ def predict_emotion(text: str) -> dict:
         "confidence": confidence,
         "text": text
     }
+
 
 def transcribe_audio(audio_file) -> dict:
     """Transcribe audio file to text with emotion analysis"""
@@ -203,13 +220,16 @@ def transcribe_audio(audio_file) -> dict:
         except:
             pass
 
+
 def ensure_models_loaded():
     """Ensure models are loaded before processing requests"""
+    global models_loaded, model_loading
     if not models_loaded and not model_loading:
         load_models()
 
     if not models_loaded:
         raise RuntimeError("Models not loaded")
+
 
 def create_error_response(message: str, status_code: int = 500) -> tuple:
     """Create standardized error response with request ID for debugging"""
@@ -222,6 +242,7 @@ def create_error_response(message: str, status_code: int = 500) -> tuple:
 
 # API Routes
 
+
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint"""
@@ -232,9 +253,11 @@ def root():
         "timestamp": time.time()
     })
 
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
+    global models_loaded, model_loading, voice_transcriber, emotion_model
     return jsonify({
         'status': 'healthy',
         'models_loaded': models_loaded,
@@ -243,6 +266,7 @@ def health_check():
         'emotion_available': emotion_model is not None,
         'timestamp': time.time()
     })
+
 
 @app.route('/analyze/emotion', methods=['POST'])
 def analyze_emotion():
@@ -275,6 +299,7 @@ def analyze_emotion():
     except Exception:
         return create_error_response('Emotion analysis failed. Please try again later.')
 
+
 @app.route('/analyze/voice-journal', methods=['POST'])
 def analyze_voice_journal():
     """Analyze voice recording with transcription and emotion detection"""
@@ -294,10 +319,16 @@ def analyze_voice_journal():
         allowed_types = ['audio/webm', 'audio/wav', 'audio/mp4', 'audio/mpeg']
         if audio_file.content_type not in allowed_types:
             return jsonify({
-                "error": f"Unsupported audio format: {audio_file.content_type}. Supported: {', '.join(allowed_types)}"
+                "error": (
+                    f"Unsupported audio format: {audio_file.content_type}. "
+                    f"Supported: {', '.join(allowed_types)}"
+                )
             }), 400
 
-        logger.info(f"🎙️ Processing voice journal: {audio_file.filename} ({audio_file.content_type})")
+        logger.info(
+            f"🎙️ Processing voice journal: {audio_file.filename} "
+            f"({audio_file.content_type})"
+        )
 
         # Transcribe and analyze
         if voice_transcriber is not None:
@@ -311,6 +342,7 @@ def analyze_voice_journal():
 
     except Exception:
         return create_error_response('Voice processing failed. Please try again later.')
+
 
 def create_enhanced_mock_response(filename: str) -> dict:
     """Create an enhanced mock response that looks more realistic"""
@@ -359,6 +391,7 @@ def create_enhanced_mock_response(filename: str) -> dict:
         }
     }
 
+
 @app.route('/analyze/summarize', methods=['POST'])
 def analyze_summarize():
     """Summarize text (placeholder for future implementation)"""
@@ -393,6 +426,7 @@ def analyze_summarize():
 
     except Exception:
         return create_error_response('Text summarization failed. Please try again later.')
+
 
 # Initialize models on startup
 def initialize_models():

@@ -44,10 +44,15 @@ else:
     )
     if not allow_sqlite:
         raise RuntimeError(
-            "SQLite fallback is disabled. Set DATABASE_URL or set DB_USER, DB_PASSWORD, DB_NAME "
-            "(optionally DB_HOST/DB_PORT), or allow SQLite via ALLOW_SQLITE_FALLBACK=1 in dev/test."
+            "SQLite fallback is disabled. Set DATABASE_URL or set DB_USER, "
+            "DB_PASSWORD, DB_NAME (optionally DB_HOST/DB_PORT), or allow "
+            "SQLite via ALLOW_SQLITE_FALLBACK=1 in dev/test."
         )
-    default_sqlite_path = Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+    default_sqlite_path = (
+        Path(os.environ.get("SQLITE_PATH", "./samo_local.db"))
+        .expanduser()
+        .resolve()
+    )
     # Ensure directory for SQLite exists before engine creation
     sqlite_dir = default_sqlite_path.parent
     try:

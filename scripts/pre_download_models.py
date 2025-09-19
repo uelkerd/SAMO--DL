@@ -11,22 +11,40 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Pre-download all required models."""
-    # Create models directory
-    os.makedirs("/app/models", exist_ok=True)
+    # Get model directory from environment variable, fallback to /app/models
+    model_dir = os.environ.get("MODEL_DIR", "/app/models")
+    os.makedirs(model_dir, exist_ok=True)
+    
+    # Set cache environment variables to use the same directory
+    os.environ["HF_HOME"] = model_dir
+    
+    print(f"📁 Using model directory: {model_dir}")
 
-    print("🚀 Pre-downloading DeBERTa-v3 emotion model...")
+    print("🚀 Pre-downloading SAMO emotion model...")
     try:
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
+        # Try the real SAMO model first
         model_name = "duelker/samo-goemotions-deberta-v3-large"
         print(f"Downloading {model_name}...")
-        _tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir="/app/models")
-        _model = AutoModelForSequenceClassification.from_pretrained(
-            model_name, cache_dir="/app/models"
-        )
-        print("✅ DeBERTa-v3 model downloaded successfully")
+        try:
+            _tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=model_dir)
+            _model = AutoModelForSequenceClassification.from_pretrained(
+                model_name, cache_dir=model_dir
+            )
+            print("✅ SAMO model downloaded successfully")
+        except Exception as e:
+            print(f"⚠️ SAMO model not available ({e}), trying fallback...")
+            # Fallback to a compatible emotion model
+            fallback_model = "j-hartmann/emotion-english-distilroberta-base"
+            print(f"Downloading fallback model {fallback_model}...")
+            _tokenizer = AutoTokenizer.from_pretrained(fallback_model, cache_dir=model_dir)
+            _model = AutoModelForSequenceClassification.from_pretrained(
+                fallback_model, cache_dir=model_dir
+            )
+            print("✅ Fallback emotion model downloaded successfully")
     except Exception as e:
-        print(f"❌ Error downloading DeBERTa-v3 model: {e}")
+        print(f"❌ Error downloading emotion model: {e}")
         raise
 
     print("🚀 Pre-downloading T5 summarization model...")
@@ -35,45 +53,34 @@ def main():
 
         t5_model = "t5-small"
         print(f"Downloading {t5_model}...")
-        _t5_tokenizer = T5Tokenizer.from_pretrained(t5_model, cache_dir="/app/models")
+        _t5_tokenizer = T5Tokenizer.from_pretrained(t5_model, cache_dir=model_dir)
         _t5_model_obj = T5ForConditionalGeneration.from_pretrained(
-            t5_model, cache_dir="/app/models"
+            t5_model, cache_dir=model_dir
         )
         print("✅ T5 model downloaded successfully")
     except Exception as e:
-        print(f"❌ Error downloading T5 model: {e}")
-        raise
+        print(f"⚠️ Error downloading T5 model: {e}")
+        print("📝 T5 summarization will be downloaded at runtime if needed")
+        # Don't fail the build for T5 - continue without it
 
     print("🚀 Pre-downloading Whisper model...")
     try:
-        # Check numpy availability first
+        # Check if whisper is available
         try:
-            import numpy
-
-            print(f"✅ Numpy {numpy.__version__} available")
+            import whisper
+            whisper_model = "base"
+            print(f"Downloading Whisper {whisper_model}...")
+            whisper.load_model(whisper_model, download_root=model_dir)
+            print("✅ Whisper model downloaded successfully")
         except ImportError:
-            print("⚠️ Installing numpy...")
-            import subprocess
-            import shlex
-
-            # Use shlex.escape to prevent command injection
-            cmd = [sys.executable, "-m", "pip", "install", "numpy"]
-            subprocess.check_call(cmd)
-            import numpy
-
-            print(f"✅ Numpy {numpy.__version__} installed and available")
-
-        import whisper
-
-        whisper_model = "base"
-        print(f"Downloading Whisper {whisper_model}...")
-        whisper.load_model(whisper_model, download_root="/app/models")
-        print("✅ Whisper model downloaded successfully")
+            print("⚠️ Whisper not available - skipping Whisper model download")
+            print("📝 Whisper will be downloaded at runtime if needed")
     except Exception as e:
         print(f"❌ Error downloading Whisper model: {e}")
         # Don't fail the entire build for Whisper - continue without it
         print(
-            "⚠️ Continuing without Whisper model - will be downloaded at runtime if needed"
+            "⚠️ Continuing without Whisper model - will be downloaded at "
+            "runtime if needed"
         )
 
     print("🎉 Core models pre-downloaded successfully!")

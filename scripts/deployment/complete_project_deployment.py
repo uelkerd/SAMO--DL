@@ -56,7 +56,7 @@ def save_model_for_deployment():
     try:
         # Run the model saving script
         result = subprocess.run([
-            sys.executable, "scripts/save_trained_model_for_deployment.py"
+            sys.executable, "scripts/deployment/save_trained_model_for_deployment.py"
         ], capture_output=True, text=True)
 
         if result.returncode == 0:

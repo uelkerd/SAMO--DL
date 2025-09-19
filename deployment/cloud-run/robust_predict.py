@@ -33,7 +33,10 @@ model_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = [
+    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
+    'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+]
 
 # Constants
 MAX_INPUT_LENGTH = 512
@@ -98,7 +101,13 @@ def predict_emotion(text):
         raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
 
     # Tokenize
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=MAX_INPUT_LENGTH, padding=True)
+    inputs = tokenizer(
+        text, 
+        return_tensors="pt", 
+        truncation=True, 
+        max_length=MAX_INPUT_LENGTH, 
+        padding=True
+    )
 
     # Predict
     with torch.no_grad():
@@ -181,7 +190,9 @@ def predict():
         return jsonify(result)
 
     except Exception:
-        return create_error_response('Prediction processing failed. Please try again later.')
+        return create_error_response(
+            'Prediction processing failed. Please try again later.'
+        )
 
 @app.route('/predict_batch', methods=['POST'])
 def predict_batch():
@@ -215,7 +226,9 @@ def predict_batch():
         return jsonify({'results': results})
 
     except Exception:
-        return create_error_response('Batch prediction processing failed. Please try again later.')
+        return create_error_response(
+            'Batch prediction processing failed. Please try again later.'
+        )
 
 @app.route('/emotions', methods=['GET'])
 def get_emotions():
@@ -280,8 +293,10 @@ if __name__ == '__main__':
             super().__init__()
 
         def load_config(self):
-            config = {key: value for key, value in self.options.items()
-                     if key in self.cfg.settings and value is not None}
+            config = {
+                key: value for key, value in self.options.items()
+                if key in self.cfg.settings and value is not None
+            }
             for key, value in config.items():
                 self.cfg.set(key.lower(), value)
 
@@ -290,7 +305,10 @@ if __name__ == '__main__':
 
     # Use secure host binding for Gunicorn
     try:
-        from src.security.host_binding import get_secure_host_binding, validate_host_binding
+        from src.security.host_binding import (
+            get_secure_host_binding, 
+            validate_host_binding
+        )
         host, _ = get_secure_host_binding(port)
         validate_host_binding(host, port)
         bind_address = f'{host}:{port}'

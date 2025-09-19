@@ -90,11 +90,31 @@ class EmotionDetector:
         self.model.to(self.device)
         self.model.eval()
 
-        # Load label encoder
-        with open(f"{model_path}/label_encoder.json", 'r') as f:
-            label_data = json.load(f)
+        # Load label encoder with fallback to model config
+        try:
+            with open(f"{model_path}/label_encoder.json", 'r') as f:
+                label_data = json.load(f)
+                self.label_encoder = LabelEncoder()
+                self.label_encoder.classes_ = np.array(label_data['classes'])
+                print("✅ Loaded label encoder from label_encoder.json")
+        except FileNotFoundError:
+            print("⚠️ label_encoder.json not found, falling back to model config")
+            # Load model config to extract id2label mapping
+            with open(f"{model_path}/config.json", 'r') as f:
+                config = json.load(f)
+            
+            id2label = config.get('id2label', {})
+            if not id2label:
+                raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
+            
+            # Create classes list ordered by integer label indices
+            classes = []
+            for label_id in sorted(id2label.keys(), key=int):
+                classes.append(id2label[str(label_id)])
+            
             self.label_encoder = LabelEncoder()
-            self.label_encoder.classes_ = np.array(label_data['classes'])
+            self.label_encoder.classes_ = np.array(classes)
+            print(f"✅ Created label encoder from model config with {len(classes)} classes")
 
         print(f"✅ Model loaded successfully!")
         print(f"🎯 Device: {self.device}")

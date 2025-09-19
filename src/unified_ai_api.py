@@ -418,7 +418,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                     load_emotion_model_multi_source,
                 )
 
-                hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
+                hf_model_id = os.getenv("EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")

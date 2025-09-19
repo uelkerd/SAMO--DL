@@ -121,7 +121,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 The consolidated Dockerfile supports multiple sources for loading the emotion detection model:
 
 ```bash
-# Hugging Face Hub model (default: "0xmnrv/samo")
+# Hugging Face Hub model (default: "duelker/samo-goemotions-deberta-v3-large")
 EMOTION_MODEL_ID=your-model-id
 
 # Hugging Face authentication token (if model is private)
@@ -148,7 +148,7 @@ EMOTION_MODEL_ENDPOINT_URL=https://your-endpoint.com/predict
 ### **Example Environment Configuration:**
 ```bash
 # For production with HF Hub model
-export EMOTION_MODEL_ID="0xmnrv/samo"
+export EMOTION_MODEL_ID="duelker/samo-goemotions-deberta-v3-large"
 export HF_TOKEN="hf_your_token_here"
 
 # For local development

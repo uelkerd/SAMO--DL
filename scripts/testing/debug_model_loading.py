@@ -6,7 +6,6 @@ Get detailed information about why the model is not loading properly.
 
 import requests
 import json
-import time
 import argparse
 from test_config import create_api_client, create_test_config
 
@@ -19,7 +18,7 @@ def debug_model_loading():
     print("🔍 Debugging Model Loading Issues")
     print("=" * 50)
     print(f"Testing URL: {config.base_url}")
-    print(f"API Key: {config.api_key[:20]}...")
+    print(f"API Key: {'*' * (len(config.api_key) - 4) + config.api_key[-4:] if config.api_key else '[NOT SET]'}")
 
     # Test model status with API key
     print("\n1. Testing model status with API key...")

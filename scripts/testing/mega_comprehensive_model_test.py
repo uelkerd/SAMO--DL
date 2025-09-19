@@ -568,7 +568,7 @@ class MegaComprehensiveModelTester:
 
         # Show worst performing emotions
         worst_emotions = sorted(emotion_performance.items(), key=lambda x: x[1]['accuracy'])[:3]
-        print(f"   Worst performing emotions: {', '.join([f'{e[0]} ({e[1]['accuracy']:.1f}%)' for e in worst_emotions])}")
+        print(f"   Worst performing emotions: {', '.join([f\"{e[0]} ({e[1]['accuracy']:.1f}%)\" for e in worst_emotions])}")
 
     def analyze_confidence_distribution(self):
         """Analyze confidence distribution across all tests."""

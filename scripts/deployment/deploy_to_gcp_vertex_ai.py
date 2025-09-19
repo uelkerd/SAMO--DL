@@ -233,6 +233,8 @@ def predict(request):
     requirements = '''torch>=2.0.0
 transformers>=4.30.0
 numpy>=1.21.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
 '''
 
     with open(os.path.join(deployment_dir, "requirements.txt"), 'w') as f:

@@ -105,12 +105,13 @@ def analyze_training_progress(history: list[dict]) -> dict:
 
 def generate_training_report(analysis: dict) -> str:
     """Generate a comprehensive training report."""
-    report = []
-    report.append("=" * 60)
-    report.append("🧠 SAMO Emotion Detection Training Report")
-    report.append("=" * 60)
-    report.append(f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    report.append("")
+    report = [
+        "=" * 60,
+        "🧠 SAMO Emotion Detection Training Report",
+        "=" * 60,
+        f"📅 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        ""
+    ]
 
     report.append("📊 TRAINING PROGRESS")
     report.append("-" * 30)

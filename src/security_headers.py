@@ -217,7 +217,8 @@ class SecurityHeadersMiddleware:
             "block-all-mixed-content"  # Block mixed content
         )
 
-    def _build_permissions_policy(self) -> str:
+    @staticmethod
+    def _build_permissions_policy() -> str:
         """Build Permissions Policy."""
         policies = [
             "accelerometer=()",
@@ -284,7 +285,8 @@ class SecurityHeadersMiddleware:
 
         logger.info("Security audit: %s", security_info)
 
-    def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
+    @staticmethod
+    def _analyze_user_agent_enhanced(user_agent: str) -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
         if not user_agent:
             return {
@@ -494,7 +496,8 @@ class SecurityHeadersMiddleware:
 
         return patterns
 
-    def _log_response_security(self, response: Response):
+    @staticmethod
+    def _log_response_security(response: Response):
         """Log security-relevant response information."""
         security_info = {
             "timestamp": time.time(),

@@ -44,20 +44,29 @@ def test_final_inference():
         print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
         print(f"📊 Number of labels: {len(config.get('id2label', {}))}")
 
-        # Define the emotion mapping based on your training
-        # This should match the order from your training
-        emotion_mapping = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
-        ]
+        # Load emotion mapping from model config to ensure alignment
+        id2label = config.get('id2label', {})
+        if not id2label:
+            raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
+        
+        # Create emotion mapping ordered by integer label indices
+        emotion_mapping = []
+        for label_id in sorted(id2label.keys(), key=int):
+            emotion_mapping.append(id2label[str(label_id)])
+        
+        print(f"🎯 Emotion mapping from model config: {emotion_mapping}")
 
-        print(f"🎯 Emotion mapping: {emotion_mapping}")
-
-        # Use a public RoBERTa tokenizer instead of the private one
-        base_model_name = "roberta-base"  # Public model, no authentication needed
-        print(f"🔧 Loading public tokenizer: {base_model_name}")
-
-        tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+        # Try to load tokenizer from model directory first, fallback to roberta-base
+        try:
+            print(f"🔧 Loading tokenizer from model directory: {model_dir}")
+            tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
+            print("✅ Loaded tokenizer from model directory")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not load tokenizer from model directory: {e}")
+            print("🔧 Falling back to roberta-base tokenizer")
+            base_model_name = "roberta-base"  # Public model, no authentication needed
+            tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+            print("⚠️ Warning: Using mismatched tokenizer may cause issues")
 
         # Load the fine-tuned model
         print(f"🔧 Loading fine-tuned model from: {model_dir}")

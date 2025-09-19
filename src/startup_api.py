@@ -9,7 +9,6 @@ for containerized deployments and is not a security vulnerability.
 import asyncio
 import logging
 import os
-import traceback
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Body
@@ -127,6 +126,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class ModelManager:
     """Manages the loading and state of all ML models."""
 
@@ -139,7 +139,11 @@ class ModelManager:
 
     def is_ready(self) -> bool:
         """Check if all models are loaded and ready."""
-        return self.models_loaded and self.emotion_model is not None and self.summarization_model is not None
+        return (
+            self.models_loaded and 
+            self.emotion_model is not None and 
+            self.summarization_model is not None
+        )
 
     def get_emotion_model(self):
         """Get the emotion model."""
@@ -279,7 +283,8 @@ def load_emotion_model():
         # 1. Cloud Run has strict startup timeouts (10 minutes max)
         # 2. Model downloads can take 5-10 minutes and would cause startup failures
         # 3. Models are pre-downloaded during Docker build phase
-        # 4. Network downloads during runtime would cause 503 errors and service unavailability
+        # 4. Network downloads during runtime would cause 503 errors and 
+        #    service unavailability
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
             cache_dir=cache_dir,
@@ -298,7 +303,7 @@ def load_emotion_model():
         logger.info("✅ DeBERTa-v3 emotion model loaded successfully")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Failed to load emotion model")
         raise
 
@@ -313,12 +318,13 @@ def load_summarization_model():
         cache_dir = "/app/models"
 
         # Load from cache only - no network downloads
-        # CRITICAL: local_files_only=True prevents network downloads during Cloud Run startup
-        # This is essential because:
+        # CRITICAL: local_files_only=True prevents network downloads during 
+        # Cloud Run startup. This is essential because:
         # 1. Cloud Run has strict startup timeouts (10 minutes max)
         # 2. Model downloads can take 5-10 minutes and would cause startup failures
         # 3. Models are pre-downloaded during Docker build phase
-        # 4. Network downloads during runtime would cause 503 errors and service unavailability
+        # 4. Network downloads during runtime would cause 503 errors and 
+        #    service unavailability
         tokenizer = T5Tokenizer.from_pretrained(
             model_name,
             cache_dir=cache_dir,
@@ -337,7 +343,7 @@ def load_summarization_model():
         logger.info("✅ T5 summarization model loaded successfully")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Failed to load summarization model")
         raise
 
@@ -357,11 +363,13 @@ def load_whisper_model():
             raise FileNotFoundError(f"Whisper model not found at {expected_path}")
 
         # Load from cache only
-        model_manager.set_whisper_model(whisper.load_model(model_name, download_root=download_root))
+        model_manager.set_whisper_model(
+            whisper.load_model(model_name, download_root=download_root)
+        )
         logger.info("✅ Whisper model loaded successfully")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Failed to load Whisper model")
         raise
 
@@ -442,7 +450,10 @@ async def ready():
         if model_manager.get_startup_error():
             raise HTTPException(
                 status_code=503,
-                detail=f"Models not loaded due to startup error: {model_manager.get_startup_error()}",
+                detail=(
+                    f"Models not loaded due to startup error: "
+                    f"{model_manager.get_startup_error()}"
+                ),
             )
         raise HTTPException(
             status_code=503, detail="Models still loading, please wait..."
@@ -477,7 +488,8 @@ async def analyze_emotion(text: str = Body(..., embed=True)):
 async def summarize_text(text: str = Body(..., embed=True)):
     """Summarize text using pre-loaded T5 model."""
     # Verify model is loaded
-    if not model_manager.models_loaded or model_manager.get_summarization_model() is None:
+    if (not model_manager.models_loaded or 
+        model_manager.get_summarization_model() is None):
         raise HTTPException(
             status_code=503,
             detail="Summarization model not loaded. Check /ready endpoint.",
@@ -516,9 +528,10 @@ async def proxy_openai(request: OpenAIRequest):
                 {
                     "role": "system",
                     "content": (
-                        "You are a creative writing assistant that generates authentic, "
-                        "emotionally rich personal journal entries. Write in first person, "
-                        "include specific details and genuine emotions."
+                        "You are a creative writing assistant that generates "
+                        "authentic, emotionally rich personal journal entries. "
+                        "Write in first person, include specific details and "
+                        "genuine emotions."
                     ),
                 },
                 {"role": "user", "content": request.prompt},
@@ -534,8 +547,15 @@ async def proxy_openai(request: OpenAIRequest):
             )
 
             if response.is_error:
-                logger.error("OpenAI API error: %s - %s", response.status_code, response.text)
-                raise HTTPException(status_code=response.status_code, detail="OpenAI API error")
+                logger.error(
+                    "OpenAI API error: %s - %s", 
+                    response.status_code, 
+                    response.text
+                )
+                raise HTTPException(
+                    status_code=response.status_code, 
+                    detail="OpenAI API error"
+                )
 
             data = response.json()
 

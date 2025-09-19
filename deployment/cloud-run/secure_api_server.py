@@ -60,7 +60,10 @@ api = Api(
     app,
     version='2.0.0',
     title='SAMO Emotion Detection API',
-    description='Secure, production-ready emotion detection API with comprehensive security features',
+    description=(
+        'Secure, production-ready emotion detection API with '
+        'comprehensive security features'
+    ),
     # Temporarily disable Swagger docs to avoid 500 errors
     # doc='/docs',
     authorizations={
@@ -74,7 +77,8 @@ api = Api(
 )
 
 # Create namespaces for better organization
-main_ns = Namespace('api', description='Main API operations')  # Removed leading slash to avoid double slashes
+# Removed leading slash to avoid double slashes
+main_ns = Namespace('api', description='Main API operations')
 admin_ns = Namespace('/admin', description='Admin operations', authorizations={
     'apikey': {
         'type': 'apiKey',
@@ -89,7 +93,11 @@ api.add_namespace(admin_ns)
 
 # Define request/response models for Swagger
 text_input_model = api.model('TextInput', {
-    'text': fields.String(required=True, description='Text to analyze for emotion', example='I am feeling happy today!')
+    'text': fields.String(
+        required=True, 
+        description='Text to analyze for emotion', 
+        example='I am feeling happy today!'
+    )
 })
 
 emotion_response_model = api.model('EmotionResponse', {
@@ -104,7 +112,12 @@ emotion_response_model = api.model('EmotionResponse', {
 })
 
 batch_input_model = api.model('BatchInput', {
-    'texts': fields.List(fields.String, required=True, description='List of texts to analyze', example=['I am happy', 'I am sad'])
+    'texts': fields.List(
+        fields.String, 
+        required=True, 
+        description='List of texts to analyze', 
+        example=['I am happy', 'I am sad']
+    )
 })
 
 batch_response_model = api.model('BatchResponse', {
@@ -136,7 +149,10 @@ model_loaded = False
 model_lock = threading.Lock()
 
 # Emotion mapping based on training order
-EMOTION_MAPPING = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+EMOTION_MAPPING = [
+    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 
+    'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+]
 
 def require_api_key(f):
     """Decorator to require API key via X-API-Key header"""
@@ -161,7 +177,10 @@ def sanitize_input(text: str) -> str:
         raise ValueError("Input must be a string")
 
     # Remove potentially dangerous characters
-    dangerous_chars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{{', '}}']
+    dangerous_chars = [
+        '<', '>', '"', "'", '&', ';', '|', '`', '$', 
+        '(', ')', '{{', '}}'
+    ]
     for char in dangerous_chars:
         text = text.replace(char, '')
 
@@ -226,7 +245,10 @@ def before_request():
         initialize_model()
 
     # Log incoming requests for debugging
-    logger.info(f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})")
+    logger.info(
+        f"📥 Request: {request.method} {request.path} from "
+        f"{request.remote_addr} (ID: {g.request_id})"
+    )
 
     # Log request headers for debugging (excluding sensitive ones)
     headers_to_log = {k: v for k, v in request.headers.items()
@@ -243,8 +265,11 @@ def after_request(response):
         response.headers['X-Request-ID'] = g.request_id
 
     # Log response for debugging
-    logger.info(f"📤 Response: {response.status_code} for {request.method} {request.path} "
-                f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)")
+    logger.info(
+        f"📤 Response: {response.status_code} for {request.method} "
+        f"{request.path} from {request.remote_addr} "
+        f"(ID: {g.request_id}, Duration: {duration:.3f}s)"
+    )
 
     return response
 
@@ -273,7 +298,9 @@ class Health(Resource):
                 }
             else:
                 logger.warning("Health check failed - model not ready")
-                return create_error_response('Service unavailable - model not ready', 503)
+                return create_error_response(
+                    'Service unavailable - model not ready', 503
+                )
 
         except Exception as e:
             logger.error(f"Health check error for {request.remote_addr}: {str(e)}")
@@ -348,7 +375,10 @@ class PredictBatch(Resource):
             # Get and validate input
             data = request.get_json()
             if not data or 'texts' not in data:
-                logger.warning(f"Missing texts field in batch request from {request.remote_addr}")
+                logger.warning(
+                    f"Missing texts field in batch request from "
+                    f"{request.remote_addr}"
+                )
                 return create_error_response('Missing texts field', 400)
 
             texts = data['texts']
@@ -377,7 +407,10 @@ class PredictBatch(Resource):
                     result = predict_emotion(text)
                     results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to process text in batch from {request.remote_addr}: {str(e)}")
+                    logger.warning(
+                        f"Failed to process text in batch from "
+                        f"{request.remote_addr}: {str(e)}"
+                    )
                     continue
 
             return {'results': results}
@@ -464,7 +497,10 @@ def not_found(error):
 
 def method_not_allowed(error):
     """Handle method not allowed errors"""
-    logger.warning(f"Method not allowed for {request.remote_addr}: {request.method} {request.url}")
+    logger.warning(
+        f"Method not allowed for {request.remote_addr}: "
+        f"{request.method} {request.url}"
+    )
     return create_error_response('Method not allowed', 405)
 
 def handle_unexpected_error(error):
@@ -483,7 +519,10 @@ def initialize_model():
     """Initialize the emotion detection model"""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
-        logger.info(f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min")
+        logger.info(
+            f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, "
+            f"RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min"
+        )
         logger.info(f"🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
         logger.info(f"🔄 Rate limiting: {RATE_LIMIT_PER_MINUTE} requests per minute")
@@ -504,10 +543,17 @@ if __name__ == '__main__':
 
     # Use centralized host binding for security
     try:
-        from src.security.host_binding import get_secure_host_binding, validate_host_binding, get_binding_security_summary
+        from src.security.host_binding import (
+            get_secure_host_binding, 
+            validate_host_binding, 
+            get_binding_security_summary
+        )
         host, port = get_secure_host_binding(PORT)
         validate_host_binding(host, port)
-        logger.info("🌐 Starting Flask development server: %s", get_binding_security_summary(host, port))
+        logger.info(
+            "🌐 Starting Flask development server: %s", 
+            get_binding_security_summary(host, port)
+        )
         app.run(host=host, port=port, debug=False)
     except ImportError:
         # Fallback if host_binding module not available

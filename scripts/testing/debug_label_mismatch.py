@@ -33,14 +33,21 @@ def debug_label_mismatch():
 
         # Step 2: Analyze GoEmotions labels
         logger.info("🔍 Analyzing GoEmotions labels...")
+        
+        # Get label names from GoEmotions dataset's ClassLabel feature
+        go_label_names = go_emotions['train'].features['labels'].names
+        logger.info(f"📊 GoEmotions label names: {go_label_names}")
+        
         go_labels = set()
         go_label_counts = {}
 
         for example in go_emotions['train']:
             if example['labels']:
-                for label in example['labels']:
-                    go_labels.add(label)
-                    go_label_counts[label] = go_label_counts.get(label, 0) + 1
+                for label_id in example['labels']:
+                    # Convert label ID to label name
+                    label_name = go_label_names[label_id] if label_id < len(go_label_names) else f"unknown_{label_id}"
+                    go_labels.add(label_name)
+                    go_label_counts[label_name] = go_label_counts.get(label_name, 0) + 1
 
         logger.info(f"📊 GoEmotions unique labels: {len(go_labels)}")
         logger.info(f"📊 GoEmotions labels: {sorted(list(go_labels))}")
@@ -48,8 +55,9 @@ def debug_label_mismatch():
 
         # Step 3: Analyze journal labels
         logger.info("🔍 Analyzing journal labels...")
-        journal_labels = set(journal_df['emotion'].unique())
-        journal_label_counts = journal_df['emotion'].value_counts().to_dict()
+        # Ensure journal labels are strings for consistent comparison
+        journal_labels = set(str(label) for label in journal_df['emotion'].unique())
+        journal_label_counts = {str(k): v for k, v in journal_df['emotion'].value_counts().to_dict().items()}
 
         logger.info(f"📊 Journal unique labels: {len(journal_labels)}")
         logger.info(f"📊 Journal labels: {sorted(list(journal_labels))}")

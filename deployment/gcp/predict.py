@@ -23,19 +23,44 @@ class EmotionDetectionModel:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
 
-            # Move to GPU if available
-            if torch.cuda.is_available():
-                self.model = self.model.to('cuda')
+            # Set device once and move model
+            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self.model = self.model.to(self.device)
+            self.model.eval()  # Set to evaluation mode
+            
+            if self.device == 'cuda':
                 print("✅ Model moved to GPU")
             else:
                 print("⚠️ CUDA not available, using CPU")
 
-            self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            # Load emotions from model config
+            self.emotions = self._load_emotion_labels()
             print("✅ Model loaded successfully")
 
         except Exception as e:
             print(f"❌ Failed to load model: {str(e)}")
             raise
+
+    def _load_emotion_labels(self):
+        """Load emotion labels from model config."""
+        try:
+            # Try to get labels from model config
+            if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+                # Convert id2label dict to ordered list
+                max_id = max(self.model.config.id2label.keys())
+                labels = [self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)]
+                return labels
+            elif hasattr(self.model.config, 'label2id') and self.model.config.label2id:
+                # Convert label2id dict to ordered list
+                labels = sorted(self.model.config.label2id.keys(), key=lambda x: self.model.config.label2id[x])
+                return labels
+            else:
+                # Fallback to hardcoded list if config doesn't have labels
+                print("⚠️ No emotion labels found in model config, using fallback")
+                return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        except Exception as e:
+            print(f"⚠️ Error loading emotion labels: {e}, using fallback")
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
 
     def predict(self, text):
         """Make a prediction."""
@@ -43,8 +68,8 @@ class EmotionDetectionModel:
             # Tokenize input
             inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
 
-            if torch.cuda.is_available():
-                inputs = {k: v.to('cuda') for k, v in inputs.items()}
+            # Move inputs to the same device as the model
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
             # Get prediction
             with torch.no_grad():
@@ -118,7 +143,7 @@ def predict():
 
         return jsonify(result)
 
-    except Exception as e:
+    except Exception:
         import logging
         logger = logging.getLogger(__name__)
         logger.exception("Prediction endpoint error")
