@@ -20,13 +20,17 @@ class SAMOAPIClient {
             TRANSCRIBE: '/transcribe',
             VOICE_JOURNAL: '/analyze/voice-journal'  // Match actual API endpoint
         };
-        
+
         // Ensure VOICE_JOURNAL has a fallback if missing from config
         if (!this.endpoints.VOICE_JOURNAL) {
             this.endpoints.VOICE_JOURNAL = '/analyze/voice-journal';
         }
-        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 45000;
-        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
+
+        // Optimized timeout configuration for better UX
+        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 20000; // Reduced from 45s to 20s
+        this.coldStartTimeout = window.SAMO_CONFIG?.API?.COLD_START_TIMEOUT || 60000; // Special timeout for first request
+        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 2; // Reduced from 3 to 2
+        this.isColdStart = true; // Track if this is the first request
     }
 
     getApiKey() {
@@ -66,15 +70,27 @@ class SAMOAPIClient {
         return params.toString();
     }
 
-    async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = 3) {
+    async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = null) {
+        // Use class defaults if not specified
+        if (attemptsLeft === null) attemptsLeft = this.retryAttempts;
+
         const config = {
             method,
             headers: {}
         };
         const controller = new AbortController();
-        const timeout = timeoutMs || this.timeout;
-        const timer = setTimeout(() => controller.abort(new Error('Request timeout')), timeout);
+
+        // Use cold start timeout for first request, regular timeout otherwise
+        const timeout = timeoutMs || (this.isColdStart ? this.coldStartTimeout : this.timeout);
+        const timer = setTimeout(() => {
+            controller.abort(new Error(`Request timeout after ${timeout/1000}s`));
+        }, timeout);
         config.signal = controller.signal;
+
+        // Track this request in LayoutManager if available
+        if (typeof LayoutManager !== 'undefined') {
+            LayoutManager.addActiveRequest(controller);
+        }
 
         // Add API key for production endpoints if available
         const apiKey = this.getApiKey();
@@ -100,6 +116,16 @@ class SAMOAPIClient {
 
         try {
             const url = `${this.baseURL}${endpoint}`;
+
+            // Log retry attempt info for user feedback
+            const attemptNumber = this.retryAttempts - attemptsLeft + 1;
+            if (attemptNumber > 1) {
+                console.log(`🔄 Retry attempt ${attemptNumber}/${this.retryAttempts} for ${endpoint}`);
+                if (typeof addToProgressConsole === 'function') {
+                    addToProgressConsole(`Retry attempt ${attemptNumber}/${this.retryAttempts} - ${endpoint}`, 'warning');
+                }
+            }
+
             const response = await fetch(url, config);
 
             if (!response.ok) {
@@ -111,6 +137,12 @@ class SAMOAPIClient {
                     if (attemptsLeft > 1) {
                         const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000; // Exponential backoff
                         console.warn(`Request failed (${response.status}), retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`);
+
+                        // Provide user feedback about retry
+                        if (typeof addToProgressConsole === 'function') {
+                            addToProgressConsole(`Request failed (${response.status}), retrying in ${backoffDelay/1000}s...`, 'warning');
+                        }
+
                         await new Promise(resolve => setTimeout(resolve, backoffDelay));
                         return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
                     }
@@ -123,12 +155,24 @@ class SAMOAPIClient {
                 throw new Error(msg);
             }
 
+            // Mark cold start as complete after first successful request
+            if (this.isColdStart) {
+                this.isColdStart = false;
+                console.log('✅ Cold start completed, future requests will use faster timeout');
+            }
+
             return await response.json();
         } catch (error) {
             // Handle network errors with retry
             if ((error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('network')) && attemptsLeft > 1) {
                 const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000;
                 console.warn(`Network error, retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`, error.message);
+
+                // Provide user feedback about network retry
+                if (typeof addToProgressConsole === 'function') {
+                    addToProgressConsole(`Network error, retrying in ${backoffDelay/1000}s...`, 'warning');
+                }
+
                 await new Promise(resolve => setTimeout(resolve, backoffDelay));
                 return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
             }
@@ -137,6 +181,11 @@ class SAMOAPIClient {
             throw error;
         } finally {
             clearTimeout(timer);
+
+            // Remove request from LayoutManager tracking
+            if (typeof LayoutManager !== 'undefined') {
+                LayoutManager.removeActiveRequest(controller);
+            }
         }
     }
 
@@ -720,12 +769,10 @@ async function testWithRealAPI() {
             showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
         }
 
-        // Return to initial state after error
-        setTimeout(() => {
-            if (typeof LayoutManager !== 'undefined') {
-                LayoutManager.resetToInitialState();
-            }
-        }, 3000);
+        // IMMEDIATELY return to initial state on error (no delay)
+        if (typeof LayoutManager !== 'undefined') {
+            LayoutManager.resetToInitialState();
+        }
     }
 }
 

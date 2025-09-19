@@ -8,6 +8,8 @@ const LayoutManager = {
     currentState: 'initial', // initial, processing, results
     isProcessing: false, // Processing guard to prevent concurrent operations
     activeRequests: new Set(), // Track active API requests
+    processingStartTime: null, // Track when processing started
+    maxProcessingTime: 120000, // Maximum processing time (2 minutes) before auto-reset
 
     // Safety reset to ensure clean state on page load
     resetProcessingState() {
@@ -37,12 +39,21 @@ const LayoutManager = {
     // Start processing (sets guard)
     startProcessing() {
         if (this.isProcessing) {
-            console.warn('⚠️ Processing already in progress, ignoring request');
-            console.warn('⚠️ Current state:', this.currentState);
-            console.warn('⚠️ Active requests:', this.activeRequests.size);
-            return false;
+            // Check if processing has been stuck for too long
+            const timeElapsed = Date.now() - this.processingStartTime;
+            if (timeElapsed > this.maxProcessingTime) {
+                console.warn(`⚠️ Processing stuck for ${timeElapsed/1000}s, forcing reset...`);
+                this.forceResetProcessing();
+            } else {
+                console.warn('⚠️ Processing already in progress, ignoring request');
+                console.warn('⚠️ Current state:', this.currentState);
+                console.warn('⚠️ Active requests:', this.activeRequests.size);
+                console.warn(`⚠️ Time elapsed: ${timeElapsed/1000}s`);
+                return false;
+            }
         }
         this.isProcessing = true;
+        this.processingStartTime = Date.now();
         this.activeRequests.clear();
         console.log('🚀 Processing started - locked for concurrent operations');
         return true;
@@ -51,6 +62,7 @@ const LayoutManager = {
     // End processing (removes guard)
     endProcessing() {
         this.isProcessing = false;
+        this.processingStartTime = null;
         this.activeRequests.clear();
         console.log('✅ Processing completed - ready for new operations');
     },
@@ -70,12 +82,25 @@ const LayoutManager = {
     addActiveRequest(controller) {
         if (controller) {
             this.activeRequests.add(controller);
+            console.log(`📡 Added request to tracking (${this.activeRequests.size} active)`);
         }
     },
 
     // Remove request controller
     removeActiveRequest(controller) {
-        this.activeRequests.delete(controller);
+        if (this.activeRequests.delete(controller)) {
+            console.log(`📡 Removed request from tracking (${this.activeRequests.size} remaining)`);
+        }
+    },
+
+    // Force cancel all active requests immediately
+    forceResetProcessing() {
+        console.warn('🚨 Force resetting processing state and cancelling all requests...');
+        this.cancelActiveRequests();
+        this.isProcessing = false;
+        this.processingStartTime = null;
+        this.currentState = 'initial';
+        console.log('✅ Force reset completed');
     },
 
     // Transition to processing state
@@ -153,10 +178,12 @@ const LayoutManager = {
         // Cancel any active requests first
         this.cancelActiveRequests();
 
-        // End processing to remove lock
-        this.endProcessing();
-
+        // Force end processing to remove lock (no matter what state we're in)
+        this.isProcessing = false;
+        this.processingStartTime = null;
+        this.activeRequests.clear();
         this.currentState = 'initial';
+        console.log('🔧 Processing state forcibly reset');
 
         // IMMEDIATELY clear all result content to prevent remnants
         if (typeof clearAllResultContent === 'function') {
