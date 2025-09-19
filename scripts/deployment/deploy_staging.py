@@ -245,7 +245,8 @@ def run_integration_tests(service_url):
                 passed_tests += 1
             else:
                 print(f"❌ {test['name']} - Expected: {test['expected_status']}, Got: {response.status_code}")
-                print(f"   Response: {response.text[:200]}...")
+                # Log response length instead of content to avoid PII exposure
+                print(f"   Response length: {len(response.text)} chars, status: {response.status_code}")
                 
         except requests.exceptions.RequestException as e:
             print(f"❌ {test['name']} - Request failed: {e}")

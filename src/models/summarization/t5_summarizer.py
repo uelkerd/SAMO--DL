@@ -401,7 +401,10 @@ def test_summarization_model() -> None:
         model.generate_summary(text)
 
         logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
-        logger.info("Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True})
+        # Log text length and hash instead of raw content to avoid PII exposure
+        import hashlib
+        text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
+        logger.info("Original (%d chars, hash: %s)", len(text), text_hash)
         logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
 
     logger.info("\nTesting batch summarization...")

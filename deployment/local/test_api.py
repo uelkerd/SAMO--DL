@@ -93,7 +93,10 @@ def test_single_predictions():
                 prediction_time = data.get('prediction_time_ms', 0)
                 total_time = (end_time - start_time) * 1000
 
-                print(f"✅ Test {i}: '{text[:30]}...' → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)")
+                # Log text length and hash instead of raw content to avoid PII exposure
+                import hashlib
+                text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
+                print(f"✅ Test {i}: text_len={len(text)}, text_hash={text_hash} → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)")
                 results.append({
                     'text': text,
                     'emotion': emotion,
