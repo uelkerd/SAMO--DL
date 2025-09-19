@@ -7,6 +7,11 @@ import base64
 
 logger = logging.getLogger(__name__)
 
+# Module-level state variables for health check
+emotion_model_loaded = False
+summarization_model_loaded = False
+transcription_model_loaded = False
+
 # Create complete analysis endpoint blueprint
 complete_analysis_bp = Blueprint('complete_analysis', __name__, url_prefix='/api/complete-analysis')
 
@@ -50,33 +55,58 @@ class CompleteAnalysisEndpoint(Resource):
 
     def load_models(self):
         """Load all required models for complete analysis."""
+        global emotion_model_loaded, summarization_model_loaded, transcription_model_loaded
+        
+        # Load emotion detection model
         try:
-            # Load emotion detection model
             from src.inference.text_emotion_service import HFEmotionService
             self.emotion_model = HFEmotionService()
             self.emotion_model_loaded = True
+            emotion_model_loaded = True
+            logger.info("Emotion detection model loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to load emotion detection model: {e}")
+            self.emotion_model_loaded = False
+            emotion_model_loaded = False
 
-            # Load summarization model
+        # Load summarization model
+        try:
             from src.models.summarization.samo_t5_summarizer import SAMOT5Summarizer
             self.summarization_model = SAMOT5Summarizer()
             self.summarization_model_loaded = True
+            summarization_model_loaded = True
+            logger.info("Summarization model loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to load summarization model: {e}")
+            self.summarization_model_loaded = False
+            summarization_model_loaded = False
 
-            # Load transcription model
+        # Load transcription model
+        try:
             from src.models.voice_processing.whisper_transcriber import WhisperTranscriber, TranscriptionConfig
             config = TranscriptionConfig(model_size="base")
             self.transcription_model = WhisperTranscriber(config)
             self.transcription_model_loaded = True
-
-            logger.info("All models loaded successfully for complete analysis")
+            transcription_model_loaded = True
+            logger.info("Transcription model loaded successfully")
         except Exception as e:
-            logger.error(f"Failed to load models: {e}")
-            self.emotion_model_loaded = False
-            self.summarization_model_loaded = False
+            logger.error(f"Failed to load transcription model: {e}")
             self.transcription_model_loaded = False
+            transcription_model_loaded = False
+
+        # Log overall status
+        if self.emotion_model_loaded and self.summarization_model_loaded and self.transcription_model_loaded:
+            logger.info("All models loaded successfully for complete analysis")
+        else:
+            logger.warning("Some models failed to load - check individual model logs above")
 
     @staticmethod
     def validate_input(data: Dict[str, Any]) -> tuple[bool, str]:
         """Validate input data for complete analysis."""
+        # Type check for expected fields
+        if not isinstance(data, dict):
+            return False, "Request body must be a JSON object"
+        
         text = data.get('text', '').strip()
         audio_data = data.get('audio_data', '').strip()
 
@@ -88,11 +118,15 @@ class CompleteAnalysisEndpoint(Resource):
 
         if audio_data:
             try:
-                decoded_data = base64.b64decode(audio_data)
+                # Use strict base64 decoding
+                import binascii
+                decoded_data = base64.b64decode(audio_data, validate=True)
                 if len(decoded_data) > 25 * 1024 * 1024:  # 25MB limit
                     return False, "Audio file too large (max 25MB)"
-            except Exception:
-                return False, "Invalid audio data format"
+            except (binascii.Error, ValueError) as e:
+                return False, f"Invalid base64 audio data: {str(e)}"
+            except Exception as e:
+                return False, f"Audio data processing error: {str(e)}"
 
         return True, ""
 
@@ -230,13 +264,12 @@ api.add_resource(CompleteAnalysisEndpoint, '/')
 @complete_analysis_bp.route('/health', methods=['GET'])
 def health_check():
     """Health check for complete analysis endpoint."""
-    endpoint = CompleteAnalysisEndpoint()
     return jsonify({
         "status": "healthy",
         "endpoint": "complete_analysis",
         "models_loaded": {
-            "emotion": endpoint.emotion_model_loaded,
-            "summarization": endpoint.summarization_model_loaded,
-            "transcription": endpoint.transcription_model_loaded
+            "emotion": emotion_model_loaded,
+            "summarization": summarization_model_loaded,
+            "transcription": transcription_model_loaded
         }
     })

@@ -3,6 +3,7 @@ import psutil
 from datetime import datetime
 from typing import Dict, Any
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -14,12 +15,13 @@ class HealthMonitor:
         self.request_count = 0
         self.error_count = 0
         self.last_health_check = None
+        self._lock = threading.Lock()
 
     def get_system_health(self) -> Dict[str, Any]:
         """Get comprehensive system health metrics."""
         try:
-            # System resource usage
-            cpu_percent = psutil.cpu_percent(interval=1)
+            # System resource usage (non-blocking)
+            cpu_percent = psutil.cpu_percent(interval=0.0)
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage('/')
 
@@ -51,13 +53,19 @@ class HealthMonitor:
                 "last_health_check": self.last_health_check
             }
 
-            # Determine overall health status
-            if cpu_percent > 90 or memory.percent > 90 or disk.percent > 90:
-                health_data["status"] = "warning"
-            if cpu_percent > 95 or memory.percent > 95 or disk.percent > 95:
+            # Determine overall health status with explicit priority
+            is_critical = cpu_percent > 95 or memory.percent > 95 or disk.percent > 95
+            is_degraded = self.error_count > 0 and self.error_count / max(self.request_count, 1) > 0.1
+            is_warning = cpu_percent > 90 or memory.percent > 90 or disk.percent > 90
+            
+            if is_critical:
                 health_data["status"] = "critical"
-            if self.error_count > 0 and self.error_count / max(self.request_count, 1) > 0.1:
+            elif is_degraded:
                 health_data["status"] = "degraded"
+            elif is_warning:
+                health_data["status"] = "warning"
+            else:
+                health_data["status"] = "ok"
 
             self.last_health_check = health_data["timestamp"]
             return health_data
@@ -72,9 +80,10 @@ class HealthMonitor:
 
     def record_request(self, success: bool = True):
         """Record a request for health monitoring."""
-        self.request_count += 1
-        if not success:
-            self.error_count += 1
+        with self._lock:
+            self.request_count += 1
+            if not success:
+                self.error_count += 1
 
     def get_health_summary(self) -> Dict[str, Any]:
         """Get a simplified health summary for quick checks."""

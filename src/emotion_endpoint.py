@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from flask_restx import Api, Resource, fields
+from flask_restx import Api, Resource, fields, abort
 import logging
 import time
 
@@ -23,7 +23,8 @@ emotion_response = api.model('EmotionResponse', {
     'summary': fields.String(description='Text summary (if requested)'),
     'processing_time': fields.Float(description='Processing time in seconds'),
     'text_length': fields.Integer(description='Length of input text'),
-    'timestamp': fields.String(description='Analysis timestamp')
+    'timestamp': fields.String(description='Analysis timestamp'),
+    'model_used': fields.String(description='Model identifier used for analysis')
 })
 
 @api.route('/journal')
@@ -40,17 +41,17 @@ class EmotionAnalysis(Resource):
             # Get request data
             data = request.get_json()
             if not data or 'text' not in data:
-                return {'error': 'Text is required'}, 400
+                abort(400, 'Text is required')
 
             text = data['text']
             generate_summary = data.get('generate_summary', False)
 
             # Validate input
             if not isinstance(text, str) or len(text.strip()) == 0:
-                return {'error': 'Text must be a non-empty string'}, 400
+                abort(400, 'Text must be a non-empty string')
 
             if len(text) > 10000:  # 10k character limit
-                return {'error': 'Text too long (max 10,000 characters)'}, 400
+                abort(400, 'Text too long (max 10,000 characters)')
 
             # Mock emotion analysis (replace with actual model integration)
             emotions, confidence_scores = self._analyze_emotions(text)
@@ -69,15 +70,16 @@ class EmotionAnalysis(Resource):
                 'summary': summary,
                 'processing_time': round(processing_time, 3),
                 'text_length': len(text),
-                'timestamp': time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())
+                'timestamp': time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime()),
+                'model_used': 'mock-emotion-analyzer-v1.0'
             }
 
             logger.info(f"Emotion analysis completed: {len(emotions)} emotions detected in {processing_time:.3f}s")
             return response, 200
 
         except Exception as e:
-            logger.error(f"Emotion analysis failed: {e}")
-            return {'error': 'Emotion analysis failed'}, 500
+            logger.exception("Emotion analysis failed")
+            abort(500, 'Emotion analysis failed')
 
     @staticmethod
     def _analyze_emotions(text: str) -> tuple[list[str], list[float]]:

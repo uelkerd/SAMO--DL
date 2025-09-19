@@ -125,15 +125,17 @@ class SurgicalBreakdownExecutor:
         print(json.dumps(status_data, indent=2))
 
     def next_pr(self, pr_id: int):
-        if pr_id - 1 < len(self.prs):
-            pr = self.prs[pr_id - 1]
-            print(f"Advancing to PR-{pr_id}: {pr['title']}")
-            print(f"Branch: {pr['branch']}")
-            # Simulate advancing by marking as in-progress
-            pr["status"] = "in-progress"
-            print("PR marked as in-progress. Implement the changes.")
-        else:
+        # Validate bounds explicitly
+        if pr_id < 1 or pr_id > len(self.prs):
             print("PR not found.")
+            return
+        
+        pr = self.prs[pr_id - 1]
+        print(f"Advancing to PR-{pr_id}: {pr['title']}")
+        print(f"Branch: {pr['branch']}")
+        # Simulate advancing by marking as in-progress
+        pr["status"] = "in-progress"
+        print("PR marked as in-progress. Implement the changes.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

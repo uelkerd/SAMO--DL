@@ -109,6 +109,9 @@ class SummarizeEndpoint(Resource):
             logger.error(f"Summarization failed: {e}")
             return {"error": "Summarization failed"}, 500
 
+# Create module-level singleton
+_summarize_endpoint = SummarizeEndpoint()
+
 # Register the endpoint
 api.add_resource(SummarizeEndpoint, '/')
 
@@ -119,5 +122,5 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "endpoint": "summarize",
-        "model_loaded": SummarizeEndpoint().model_loaded
+        "model_loaded": _summarize_endpoint.model_loaded
     })

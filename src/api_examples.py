@@ -121,22 +121,50 @@ class APIExamples(Resource):
         }
 
     @api.marshal_with(example_response)
-    def get(self, example_type: str = None):
-        """Get API examples for specific endpoint or all endpoints."""
+    def get(self, example_type: str):
+        """Get a specific API example."""
         try:
-            if example_type:
-                if example_type not in self.examples:
-                    return {"error": "Example type not found"}, 404
+            if example_type not in self.examples:
+                return {"error": "Example type not found"}, 404
 
-                example = self.examples[example_type]
-                return {
-                    "endpoint": example["endpoint"],
-                    "description": example["description"],
-                    "request": json.dumps(example["request"], indent=2),
-                    "response": json.dumps(example["response"], indent=2),
-                    "curl_command": example["curl_command"]
-                }
-            # Return all examples
+            example = self.examples[example_type]
+            return {
+                "endpoint": example["endpoint"],
+                "description": example["description"],
+                "request": json.dumps(example["request"], indent=2),
+                "response": json.dumps(example["response"], indent=2),
+                "curl_command": example["curl_command"]
+            }
+        except Exception as e:
+            logger.error(f"Failed to get example: {e}")
+            return {"error": "Failed to get example"}, 500
+
+
+    def get_example_types(self):
+        """Get list of available example types."""
+        try:
+            return list(self.examples.keys())
+        except Exception as e:
+            logger.error(f"Failed to get example types: {e}")
+            return {"error": "Failed to get example types"}, 500
+
+# Register the endpoints
+api.add_resource(APIExamples, '/')
+api.add_resource(APIExamples, '/<string:example_type>')
+
+# Add route for getting all examples
+@api.route('/all')
+class AllAPIExamples(Resource):
+    """Get all API examples."""
+    
+    def __init__(self):
+        super().__init__()
+        self.examples = APIExamples().examples
+    
+    @api.marshal_list_with(example_response)
+    def get(self):
+        """Get all API examples."""
+        try:
             all_examples = []
             for example_type, example in self.examples.items():
                 all_examples.append({
@@ -150,18 +178,6 @@ class APIExamples(Resource):
         except Exception as e:
             logger.error(f"Failed to get examples: {e}")
             return {"error": "Failed to get examples"}, 500
-
-    def get_example_types(self):
-        """Get list of available example types."""
-        try:
-            return list(self.examples.keys())
-        except Exception as e:
-            logger.error(f"Failed to get example types: {e}")
-            return {"error": "Failed to get example types"}, 500
-
-# Register the endpoints
-api.add_resource(APIExamples, '/')
-api.add_resource(APIExamples, '/<string:example_type>')
 
 # Get available example types endpoint
 @api_examples_bp.route('/types', methods=['GET'])
