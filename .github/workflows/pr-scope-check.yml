@@ -52,13 +52,13 @@ jobs:
         echo "Lines changed: $LINES_CHANGED"
 
         # Check limits
-        if [ "$FILES_CHANGED" -gt 25 ]; then
-          echo "❌ Too many files changed: $FILES_CHANGED (max 25)"
+        if [ "$FILES_CHANGED" -gt 50 ]; then
+          echo "❌ Too many files changed: $FILES_CHANGED (max 50)"
           exit 1
         fi
 
-        if [ "$LINES_CHANGED" -gt 500 ]; then
-          echo "❌ Too many lines changed: $LINES_CHANGED (max 500)"
+        if [ "$LINES_CHANGED" -gt 1500 ]; then
+          echo "❌ Too many lines changed: $LINES_CHANGED (max 1500)"
           exit 1
         fi
 

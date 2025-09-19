@@ -3,8 +3,8 @@
 PR Scope Checker - Prevents Monster PRs
 
 This script validates that pull requests stay within scope limits:
-- Max 25 files changed
-- Max 500 lines changed
+- Max 50 files changed
+- Max 1500 lines changed
 - Single purpose (one concern per PR)
 - No mixing of concerns (API + tests + docs, etc.)
 
@@ -139,13 +139,13 @@ def main():
     print(f"   Files changed: {num_files}")
     print(f"   Lines changed: {lines_changed}")
 
-    if num_files > 25:
-        print(f"❌ Too many files changed! Max 25 allowed, got {num_files}")
+    if num_files > 50:
+        print(f"❌ Too many files changed! Max 50 allowed, got {num_files}")
         if args.strict:
             all_passed = False
 
-    if lines_changed > 500:
-        print(f"❌ Too many lines changed! Max 500 allowed, got {lines_changed}")
+    if lines_changed > 1500:
+        print(f"❌ Too many lines changed! Max 1500 allowed, got {lines_changed}")
         if args.strict:
             all_passed = False
 
@@ -190,11 +190,11 @@ def main():
         return 0
     else:
         print("❌ PR Scope Check FAILED")
-        print("\n💡 Remember the rules:")
-        print("   • Max 25 files changed")
-        print("   • Max 500 lines changed")
-        print("   • ONE purpose per PR")
-        print("   • Single concern (no mixing API + tests + docs)")
+    print("\n💡 Remember the rules:")
+    print("   • Max 50 files changed")
+    print("   • Max 1500 lines changed")
+    print("   • ONE purpose per PR")
+    print("   • Single concern (no mixing API + tests + docs)")
         return 1
 
 

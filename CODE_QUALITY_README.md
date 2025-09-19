@@ -19,8 +19,8 @@ This document outlines the **strict rules** and **automated enforcement** design
 ### **Hard Limits (Automated Enforcement)**
 ```yaml
 # GitHub Actions - PR Size Guard
-max_files_changed: 25     # HARD STOP at 25 files
-max_lines_changed: 500    # HARD STOP at 500 lines
+max_files_changed: 50     # HARD STOP at 50 files
+max_lines_changed: 1500   # HARD STOP at 1500 lines
 max_commits_per_pr: 5     # HARD STOP at 5 commits
 branch_lifetime: 48h      # FORCE merge or close after 48h
 ```
@@ -46,8 +46,8 @@ The `.git/hooks/pre-commit` script automatically:
 python scripts/check_pr_scope.py --strict
 ```
 Validates:
-- File count ≤ 25
-- Line changes ≤ 500
+- File count ≤ 50
+- Line changes ≤ 1500
 - Single purpose (no mixing concerns)
 - Branch naming compliance
 
@@ -63,7 +63,7 @@ GitHub Actions automatically:
 ```bash
 # Answer these questions:
 1. Can I describe this in ONE sentence?
-2. Will this affect < 25 files?
+2. Will this affect < 50 files?
 3. Can I complete this in < 4 hours?
 4. Is this EXACTLY ONE concern?
 5. Am I mixing API + tests + docs?
@@ -148,7 +148,7 @@ auto_close_after: 8h
 - Merge conflicts: < 1 per week
 
 **Red Flags (Auto-alert):**
-- Any PR > 25 files
+- Any PR > 50 files
 - Any branch > 48 hours old
 - Any PR title with "and", "also", "plus"
 - Any description > 2 sentences
@@ -163,7 +163,7 @@ auto_close_after: 8h
 
 ### **Technical Benefits**
 - **Fewer merge conflicts**: Smaller, focused changes
-- **Easier reviews**: 25 files vs 100+ files
+- **Easier reviews**: 50 files vs 100+ files
 - **Better testing**: Isolated changes = targeted tests
 - **Faster CI/CD**: Smaller PRs = faster pipelines
 
@@ -189,8 +189,8 @@ auto_close_after: 8h
 ```
 🚨 **SCOPE VIOLATION DETECTED**
 This PR exceeds our size limits:
-- Files: [count]/25 max
-- Lines: [count]/500 max
+- Files: [count]/50 max
+- Lines: [count]/1500 max
 - Multiple concerns: [list them]
 
 Please split into focused micro-PRs.
