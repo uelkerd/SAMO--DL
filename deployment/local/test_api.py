@@ -87,8 +87,9 @@ def test_single_predictions():
 
             if response.status_code == 200:
                 data = response.json()
-                emotion = data['predicted_emotion']
-                confidence = data['confidence']
+                # Handle both API schemas: primary_emotion/primary_confidence or predicted_emotion/confidence
+                emotion = data.get('primary_emotion') or data.get('predicted_emotion')
+                confidence = data.get('primary_confidence') or data.get('confidence', 0)
                 prediction_time = data.get('prediction_time_ms', 0)
                 total_time = (end_time - start_time) * 1000
 
@@ -139,8 +140,9 @@ def test_batch_predictions():
             print(f"   Total time: {total_time:.1f}ms")
 
             for i, pred in enumerate(predictions, 1):
-                emotion = pred['predicted_emotion']
-                confidence = pred['confidence']
+                # Handle both API schemas: primary_emotion/primary_confidence or predicted_emotion/confidence
+                emotion = pred.get('primary_emotion') or pred.get('predicted_emotion')
+                confidence = pred.get('primary_confidence') or pred.get('confidence', 0)
                 text = pred['text'][:30] + "..." if len(pred['text']) > 30 else pred['text']
                 print(f"   {i}. '{text}' → {emotion} (conf: {confidence:.3f})")
 

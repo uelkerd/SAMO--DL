@@ -216,7 +216,7 @@ def health_check():
 
         return jsonify(response)
 
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
         logger.exception("Health check failed")
@@ -237,6 +237,13 @@ def predict():
             return jsonify({'error': 'No text provided'}), 400
 
         text = data['text']
+        
+        # Validate text type and content
+        if not isinstance(text, str):
+            response_time = time.time() - start_time
+            update_metrics(response_time, success=False, error_type='invalid_text_type')
+            return jsonify({'error': 'Text must be a string'}), 400
+            
         if not text.strip():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='empty_text')
@@ -255,7 +262,7 @@ def predict():
         update_metrics(response_time, success=False, error_type='invalid_json')
         logger.error(f"Invalid JSON in request")
         return jsonify({'error': 'Invalid JSON format'}), 400
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
         logger.exception("Prediction endpoint error")
@@ -283,8 +290,13 @@ def predict_batch():
 
         results = []
         for text in texts:
-            if text.strip():
-                result = model.predict(text)
+            # Validate text type and content
+            if not isinstance(text, str):
+                continue  # Skip non-string items
+                
+            cleaned_text = text.strip()
+            if cleaned_text:  # Only process non-empty strings
+                result = model.predict(cleaned_text)
                 results.append(result)
 
         response_time = time.time() - start_time
@@ -301,7 +313,7 @@ def predict_batch():
         update_metrics(response_time, success=False, error_type='invalid_json')
         logger.error(f"Invalid JSON in batch request")
         return jsonify({'error': 'Invalid JSON format'}), 400
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='batch_prediction_error')
         logger.exception("Batch prediction endpoint error")
@@ -377,7 +389,7 @@ def home():
 
         return jsonify(response)
 
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
         logger.exception("Documentation endpoint error")
