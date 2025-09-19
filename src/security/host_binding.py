@@ -60,10 +60,7 @@ def is_development_environment() -> bool:
     Returns:
         bool: True if running in development, False otherwise
     """
-    for env_var, expected_value in DEVELOPMENT_INDICATORS.items():
-        if os.environ.get(env_var) == expected_value:
-            return True
-    return False
+    return any(os.environ.get(env_var) == expected_value for env_var, expected_value in DEVELOPMENT_INDICATORS.items())
 
 
 def get_secure_host_binding(default_port: int = DEFAULT_PORT) -> Tuple[str, int]:
@@ -179,7 +176,6 @@ def get_binding_security_summary(host: str, port: int) -> str:
     """
     if host == ALL_INTERFACES_HOST:
         return f"⚠️  SECURITY: Server accessible from all interfaces on port {port}"
-    elif host == DEFAULT_SECURE_HOST:
+    if host == DEFAULT_SECURE_HOST:
         return f"✅ SECURE: Server bound to localhost only on port {port}"
-    else:
-        return f"⚠️  CUSTOM: Server bound to {host} on port {port}"
+    return f"⚠️  CUSTOM: Server bound to {host} on port {port}"
