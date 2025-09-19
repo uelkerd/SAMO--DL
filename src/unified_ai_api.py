@@ -1266,7 +1266,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
                         exc,
                         exc_info=True,
                     )
-                    response["summary_error"] = str(exc)
+                    response["summary_error"] = "Internal processing error"
 
             await websocket.send_json(response)
     except WebSocketDisconnect:
@@ -1749,12 +1749,13 @@ async def batch_transcribe_voice(
                     Path(temp_file_path).unlink(missing_ok=True)
 
             except Exception as exc:
+                logger.exception("Error processing audio file: %s", audio_file.filename)
                 results.append(
                     {
                         "file_index": i,
                         "filename": audio_file.filename,
                         "success": False,
-                        "error": str(exc),
+                        "error": "Internal processing error",
                     }
                 )
 
@@ -1955,7 +1956,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         Path(temp_file_path).unlink(missing_ok=True)
 
                 except Exception as exc:
-                    await websocket.send_json({"type": "error", "message": str(exc)})
+                    logger.exception("Error during voice transcription websocket processing")
+                    await websocket.send_json({"type": "error", "message": "Internal processing error"})
             else:
                 await websocket.send_json(
                     {
@@ -2071,9 +2073,10 @@ async def detailed_health_check(
                 "test_passed": True,
             }
         except Exception as exc:
+            logging.exception("Emotion detection model error during health check")
             health_status = "degraded"
-            issues.append(f"Emotion detection model error: {exc}")
-            model_checks["emotion_detection"] = {"status": "error", "error": str(exc)}
+            issues.append("Emotion detection model error")
+            model_checks["emotion_detection"] = {"status": "error", "error": "Internal model error"}
 
     if text_summarizer is None:
         health_status = "degraded"
@@ -2093,9 +2096,10 @@ async def detailed_health_check(
                 "test_passed": True,
             }
         except Exception as exc:
+            logging.exception("Text summarization model error during health check")
             health_status = "degraded"
-            issues.append(f"Text summarization model error: {exc}")
-            model_checks["text_summarization"] = {"status": "error", "error": str(exc)}
+            issues.append("Text summarization model error")
+            model_checks["text_summarization"] = {"status": "error", "error": "Internal model error"}
 
     if voice_transcriber is None:
         health_status = "degraded"
@@ -2130,9 +2134,10 @@ async def detailed_health_check(
             ),
         }
     except Exception as exc:
-        system_checks = {"status": "error", "error": str(exc)}
+        logging.exception("System resource check failed during health check")
+        system_checks = {"status": "error", "error": "Internal system error"}
         health_status = "degraded"
-        issues.append(f"System check failed: {exc}")
+        issues.append("System check failed")
 
     return {
         "status": health_status,
