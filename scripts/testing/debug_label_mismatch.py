@@ -37,11 +37,11 @@ def debug_label_mismatch():
 
         # Step 2: Analyze GoEmotions labels
         logger.info("🔍 Analyzing GoEmotions labels...")
-        
+
         # Get label names from GoEmotions dataset's ClassLabel feature
         go_label_names = go_emotions['train'].features['labels'].names
         logger.info(f"📊 GoEmotions label names: {go_label_names}")
-        
+
         go_labels = set()
         go_label_counts = {}
 

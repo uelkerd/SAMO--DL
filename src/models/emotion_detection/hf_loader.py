@@ -173,7 +173,7 @@ def load_emotion_model_multi_source(
             os.path.join(cache_base, "hub", f"models--{model_cache_name}"),
             os.path.join(cache_base, model_id),
         ]
-        
+
         for cache_dir in potential_cache_dirs:
             if os.path.isdir(cache_dir) and os.path.exists(os.path.join(cache_dir, "config.json")):
                 try:

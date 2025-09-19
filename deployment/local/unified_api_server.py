@@ -55,13 +55,12 @@ MAX_INPUT_LENGTH = 512
 
 def load_models():
     """Load all AI models: emotion detection and voice processing"""
-    global emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber, model_loading, models_loaded, model_lock
 
     with model_lock:
         if model_loading or models_loaded:
             return
         model_loading = True
-    
+
     logger.info("🔄 Starting unified model loading...")
 
     try:
@@ -106,7 +105,7 @@ def load_models():
         except Exception:
             emotion_mapping = EMOTION_MAPPING
             logger.info("⚠️ Using fallback emotion mapping due to error")
-        
+
         logger.info(f"✅ Emotion model loaded successfully on {device}")
 
         # Load voice processing model (lightweight approach)
@@ -142,7 +141,6 @@ def load_models():
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-
     if not models_loaded or emotion_model is None:
         raise RuntimeError("Emotion model not loaded")
 
@@ -166,17 +164,17 @@ def predict_emotion(text: str) -> dict:
     # Predict
     with torch.no_grad():
         outputs = emotion_model(**inputs)
-        
+
         # Check if this is a multi-label classification model
         is_multi_label = getattr(emotion_model.config, "problem_type", "") == "multi_label_classification"
-        
+
         if is_multi_label:
             # Use sigmoid for multi-label classification
             scores = torch.sigmoid(outputs.logits)[0]
             # Apply threshold for multi-label decisions
             threshold = 0.5
             predicted_labels = (scores > threshold).nonzero(as_tuple=True)[0].tolist()
-            
+
             if predicted_labels:
                 # Get the highest scoring label as primary
                 predicted_class = int(torch.argmax(scores).item())
@@ -206,7 +204,6 @@ def predict_emotion(text: str) -> dict:
 
 def transcribe_audio(audio_file) -> dict:
     """Transcribe audio file to text with emotion analysis"""
-
     if voice_transcriber is None:
         raise RuntimeError("Voice processing model not available")
 
@@ -218,10 +215,10 @@ def transcribe_audio(audio_file) -> dict:
     try:
         # Transcribe audio
         result = voice_transcriber.transcribe(temp_path)
-        
+
         if not result or 'text' not in result:
             raise RuntimeError("Transcription failed - no text returned")
-        
+
         transcribed_text = result.get('text', '')
         # Whisper doesn't provide a calibrated confidence; keep a placeholder
         confidence = 0.9
@@ -257,7 +254,6 @@ def transcribe_audio(audio_file) -> dict:
 
 def ensure_models_loaded():
     """Ensure models are loaded before processing requests"""
-    global models_loaded, model_loading
     if not models_loaded and not model_loading:
         load_models()
 
@@ -291,7 +287,6 @@ def root():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    global models_loaded, model_loading, voice_transcriber, emotion_model
     return jsonify({
         'status': 'healthy',
         'models_loaded': models_loaded,

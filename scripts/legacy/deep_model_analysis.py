@@ -7,6 +7,7 @@ Analyzes the model's behavior to understand performance discrepancies
 
 import argparse
 import os
+import sys
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
@@ -17,9 +18,9 @@ def deep_model_analysis(model_dir=None):
     # Get model directory from argument, environment variable, or default
     if model_dir is None:
         model_dir = os.environ.get("MODEL_DIR", "deployment/model")
-    
+
     model_path = Path(model_dir)
-    
+
     print("🔍 DEEP MODEL ANALYSIS")
     print("=" * 50)
     print("🎯 Goal: Understand 99.54% F1 vs 58.3% basic accuracy")
@@ -209,13 +210,13 @@ if __name__ == "__main__":
         help="Path to model directory (default: from MODEL_DIR env var or 'deployment/model')"
     )
     args = parser.parse_args()
-    
+
     try:
         success = deep_model_analysis(args.model_dir)
-        exit(0 if success else 1)
+        sys.exit(0 if success else 1)
     except FileNotFoundError as e:
         print(f"❌ Error: {e}")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        exit(1)
+        sys.exit(1)

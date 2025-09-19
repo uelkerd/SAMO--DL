@@ -102,11 +102,11 @@ class EmotionDetector:
             # Load model config to extract id2label mapping
             with open(f"{model_path}/config.json", 'r') as f:
                 config = json.load(f)
-            
+
             id2label = config.get('id2label', {})
             if not id2label:
                 raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
-            
+
             # Create classes list ordered by integer label indices
             # Handle both string and integer keys in id2label
             classes = []
@@ -119,12 +119,12 @@ class EmotionDetector:
                 except (ValueError, TypeError):
                     # Skip invalid keys
                     continue
-            
+
             # Sort by int_key and build classes list using original keys
             key_pairs.sort(key=lambda x: x[0])
             for int_key, original_key in key_pairs:
                 classes.append(id2label[original_key])
-            
+
             self.label_encoder = LabelEncoder()
             self.label_encoder.classes_ = np.array(classes)
             print(f"✅ Created label encoder from model config with {len(classes)} classes")

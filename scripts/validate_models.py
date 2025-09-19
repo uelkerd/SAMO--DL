@@ -4,13 +4,12 @@ Model validation script for Docker builds.
 Tests that all required models are accessible and load correctly.
 """
 import os
-import sys
 
 
 def main():
     """Test model accessibility and validate that all required models are available."""
     print("🧪 Testing model accessibility...")
-    
+
     validation_passed = True
 
     # Test transformers cache

@@ -72,7 +72,7 @@ def quick_label_fix():
                     go_labels.add(f"unknown_{label_id}")
 
     # Ensure journal labels are strings for consistent comparison
-    journal_labels = set(str(label).strip() for label in journal_df['emotion'].unique() if str(label).strip())
+    journal_labels = {str(label).strip() for label in journal_df['emotion'].unique() if str(label).strip()}
 
     # Use only common labels to avoid mismatches
     common_labels = sorted(list(go_labels.intersection(journal_labels)))

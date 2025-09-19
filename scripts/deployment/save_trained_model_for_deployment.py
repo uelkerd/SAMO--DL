@@ -23,20 +23,19 @@ def _get_emotion_labels_from_model(model):
             labels = [v for _, v in sorted_pairs]
             print(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
             return labels
-        elif hasattr(model.config, 'label2id') and model.config.label2id:
+        if hasattr(model.config, 'label2id') and model.config.label2id:
             # Convert label2id dict to ordered list
             label2id = model.config.label2id
             sorted_pairs = sorted([(v, k) for k, v in label2id.items()])
             labels = [k for _, k in sorted_pairs]
             print(f"📊 Loaded {len(labels)} emotions from model config: {labels}")
             return labels
-        else:
-            # Fallback to hardcoded list if config doesn't have labels
-            print("⚠️ No emotion labels found in model config, using fallback")
-            return [
-                'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-                'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
-            ]
+        # Fallback to hardcoded list if config doesn't have labels
+        print("⚠️ No emotion labels found in model config, using fallback")
+        return [
+            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+        ]
     except Exception as e:
         print(f"⚠️ Error loading emotion labels: {e}, using fallback")
         return [
@@ -153,14 +152,14 @@ def test_saved_model(model_dir):
         # Add the deployment directory to sys.path for proper import
         import sys
         from pathlib import Path
-        
+
         # Get the repository root directory (go up from scripts/deployment to repo root)
         repo_root = Path(__file__).parent.parent.parent
         deployment_dir = repo_root / "deployment"
         
         if str(deployment_dir) not in sys.path:
             sys.path.insert(0, str(deployment_dir))
-        
+
         from inference import EmotionDetector
 
         # Initialize detector with saved model

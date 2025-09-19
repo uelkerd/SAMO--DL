@@ -6,13 +6,11 @@ Deploy SAMO-DL API to staging environment with comprehensive testing.
 """
 
 import os
-import json
 import subprocess
 import sys
 import time
 import requests
 from datetime import datetime
-from pathlib import Path
 
 # Configuration - Read from environment variables with fallbacks
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "the-tendril-466607-n8")
@@ -29,7 +27,7 @@ if not REGION:
 # Build IMAGE_NAME dynamically from PROJECT_ID and REGION
 IMAGE_NAME = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/samo-dl/{SERVICE_NAME}"
 
-print(f"📊 Configuration:")
+print("📊 Configuration:")
 print(f"   PROJECT_ID: {PROJECT_ID}")
 print(f"   REGION: {REGION}")
 print(f"   SERVICE_NAME: {SERVICE_NAME}")
@@ -47,10 +45,10 @@ def check_prerequisites():
     """Check deployment prerequisites"""
     print("🔍 CHECKING PREREQUISITES")
     print("=" * 40)
-    
+
     # Check gcloud CLI
     try:
-        result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True)
+        result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True, check=True)
         if result.returncode == 0:
             print("✅ gcloud CLI installed")
         else:
@@ -59,11 +57,11 @@ def check_prerequisites():
     except FileNotFoundError:
         print("❌ gcloud CLI not installed")
         return False
-    
+
     # Check authentication
     try:
         result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'], 
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, check=True)
         if 'ACTIVE' in result.stdout:
             print("✅ gcloud authenticated")
         else:
@@ -72,11 +70,11 @@ def check_prerequisites():
     except Exception as e:
         print(f"❌ Authentication check failed: {e}")
         return False
-    
+
     # Check project
     try:
         result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, check=True)
         if PROJECT_ID in result.stdout:
             print(f"✅ Project set to {PROJECT_ID}")
         else:
@@ -85,14 +83,14 @@ def check_prerequisites():
     except Exception as e:
         print(f"❌ Project check failed: {e}")
         return False
-    
+
     return True
 
 def build_docker_image():
     """Build Docker image for staging"""
     print("\n🐳 BUILDING DOCKER IMAGE")
     print("=" * 40)
-    
+
     try:
         # Build the image
         cmd = [
@@ -102,18 +100,16 @@ def build_docker_image():
             '-t', f'{IMAGE_NAME}:{int(time.time())}',
             '.'
         ]
-        
+
         print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
         if result.returncode == 0:
             print("✅ Docker image built successfully")
             return True
-        else:
-            print("❌ Docker build failed")
-            print(result.stderr)
-            return False
-            
+        print("❌ Docker build failed")
+        print(result.stderr)
+        return False
     except Exception as e:
         print(f"❌ Docker build error: {e}")
         return False
@@ -122,25 +118,23 @@ def push_docker_image():
     """Push Docker image to Artifact Registry"""
     print("\n📤 PUSHING DOCKER IMAGE")
     print("=" * 40)
-    
+
     try:
         # Configure Docker authentication
         auth_cmd = ['gcloud', 'auth', 'configure-docker', 'us-central1-docker.pkg.dev']
         subprocess.run(auth_cmd, check=True)
-        
+
         # Push the image
         push_cmd = ['docker', 'push', f'{IMAGE_NAME}:latest']
         print(f"Running: {' '.join(push_cmd)}")
-        result = subprocess.run(push_cmd, capture_output=True, text=True)
-        
+        result = subprocess.run(push_cmd, capture_output=True, text=True, check=True)
+
         if result.returncode == 0:
             print("✅ Docker image pushed successfully")
             return True
-        else:
-            print("❌ Docker push failed")
-            print(result.stderr)
-            return False
-            
+        print("❌ Docker push failed")
+        print(result.stderr)
+        return False
     except Exception as e:
         print(f"❌ Docker push error: {e}")
         return False
@@ -149,7 +143,7 @@ def deploy_to_cloud_run():
     """Deploy to Cloud Run staging"""
     print("\n🚀 DEPLOYING TO CLOUD RUN STAGING")
     print("=" * 40)
-    
+
     try:
         # Deploy command
         deploy_cmd = [
@@ -167,18 +161,16 @@ def deploy_to_cloud_run():
             '--concurrency', '40',
             '--set-env-vars', 'ENVIRONMENT=staging,DEBUG=true,LOG_LEVEL=debug'
         ]
-        
+
         print(f"Running: {' '.join(deploy_cmd)}")
-        result = subprocess.run(deploy_cmd, capture_output=True, text=True)
-        
+        result = subprocess.run(deploy_cmd, capture_output=True, text=True, check=True)
+
         if result.returncode == 0:
             print("✅ Cloud Run deployment successful")
             return True
-        else:
-            print("❌ Cloud Run deployment failed")
-            print(result.stderr)
-            return False
-            
+        print("❌ Cloud Run deployment failed")
+        print(result.stderr)
+        return False
     except Exception as e:
         print(f"❌ Cloud Run deployment error: {e}")
         return False
@@ -191,7 +183,7 @@ def get_service_url():
             '--region', REGION,
             '--format', 'value(status.url)'
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         if result.returncode == 0:
             return result.stdout.strip()
         return None
@@ -203,13 +195,13 @@ def run_integration_tests(service_url):
     """Run comprehensive integration tests"""
     print("\n🧪 RUNNING INTEGRATION TESTS")
     print("=" * 40)
-    
+
     if not service_url:
         print("❌ No service URL available for testing")
         return False
-    
+
     print(f"Testing service at: {service_url}")
-    
+
     # Test cases
     test_cases = [
         {
@@ -239,10 +231,10 @@ def run_integration_tests(service_url):
             'data': {'text': 'This is a long text that should be summarized properly by the API.'}
         }
     ]
-    
+
     passed_tests = 0
     total_tests = len(test_cases)
-    
+
     for test in test_cases:
         print(f"\n🔍 Testing: {test['name']}")
         try:
@@ -254,7 +246,7 @@ def run_integration_tests(service_url):
                     json=test.get('data', {}), 
                     timeout=30
                 )
-            
+
             if response.status_code == test['expected_status']:
                 print(f"✅ {test['name']} - Status: {response.status_code}")
                 passed_tests += 1
@@ -262,59 +254,59 @@ def run_integration_tests(service_url):
                 print(f"❌ {test['name']} - Expected: {test['expected_status']}, Got: {response.status_code}")
                 # Log response length instead of content to avoid PII exposure
                 print(f"   Response length: {len(response.text)} chars, status: {response.status_code}")
-                
+
         except requests.exceptions.RequestException as e:
             print(f"❌ {test['name']} - Request failed: {e}")
         except Exception as e:
             print(f"❌ {test['name']} - Error: {e}")
-    
+
     print(f"\n📊 TEST RESULTS: {passed_tests}/{total_tests} tests passed")
     return passed_tests == total_tests
 
 def main():
     """Main deployment function"""
     print_banner()
-    
+
     # Check prerequisites
     if not check_prerequisites():
         print("\n❌ Prerequisites not met. Exiting.")
         sys.exit(1)
-    
+
     # Build Docker image
     if not build_docker_image():
         print("\n❌ Docker build failed. Exiting.")
         sys.exit(1)
-    
+
     # Push Docker image
     if not push_docker_image():
         print("\n❌ Docker push failed. Exiting.")
         sys.exit(1)
-    
+
     # Deploy to Cloud Run
     if not deploy_to_cloud_run():
         print("\n❌ Cloud Run deployment failed. Exiting.")
         sys.exit(1)
-    
+
     # Get service URL
     service_url = get_service_url()
     if not service_url:
         print("\n❌ Could not get service URL. Exiting.")
         sys.exit(1)
-    
-    print(f"\n🎉 DEPLOYMENT SUCCESSFUL!")
+
+    print("\n🎉 DEPLOYMENT SUCCESSFUL!")
     print(f"🌐 Service URL: {service_url}")
-    
+
     # Wait for service to be ready
     print("\n⏳ Waiting for service to be ready...")
     time.sleep(30)
-    
+
     # Run integration tests
     if run_integration_tests(service_url):
         print("\n🎉 ALL TESTS PASSED! Staging deployment is ready.")
     else:
         print("\n⚠️ Some tests failed. Check the service logs.")
-    
-    print(f"\n📋 STAGING DEPLOYMENT SUMMARY")
+
+    print("\n📋 STAGING DEPLOYMENT SUMMARY")
     print(f"   Service: {SERVICE_NAME}")
     print(f"   URL: {service_url}")
     print(f"   Region: {REGION}")

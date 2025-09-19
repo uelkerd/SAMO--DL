@@ -2,7 +2,6 @@
 """Pre-download models for Docker build optimization."""
 import logging
 import os
-import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -14,10 +13,10 @@ def main():
     # Get model directory from environment variable, fallback to /app/models
     model_dir = os.environ.get("MODEL_DIR", "/app/models")
     os.makedirs(model_dir, exist_ok=True)
-    
+
     # Set cache environment variables to use the same directory
     os.environ["HF_HOME"] = model_dir
-    
+
     print(f"📁 Using model directory: {model_dir}")
 
     print("🚀 Pre-downloading SAMO emotion model...")

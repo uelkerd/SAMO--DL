@@ -5,7 +5,6 @@ This tests the core models and functions directly.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add project root to path
@@ -151,9 +150,8 @@ def main():
     if passed == total:
         print("🎉 All tests passed! API functionality is working correctly.")
         return 0
-    else:
-        print("⚠️ Some tests failed. Check the output above for details.")
-        return 1
+    print("⚠️ Some tests failed. Check the output above for details.")
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -274,15 +274,14 @@ def proxy_voice_journal():
                     "returning mock response"
                 )
                 return jsonify(create_mock_voice_response(audio_file.filename))
-            else:
-                logging.warning(f"⚠️ Upstream API error: {response.status_code}")
-                return (
-                    jsonify({
-                        "error": f"Voice processing failed: {response.status_code}",
-                        "details": response.text,
-                    }),
-                    response.status_code,
-                )
+            logging.warning(f"⚠️ Upstream API error: {response.status_code}")
+            return (
+                jsonify({
+                    "error": f"Voice processing failed: {response.status_code}",
+                    "details": response.text,
+                }),
+                response.status_code,
+            )
         except requests.exceptions.ConnectionError:
             # Network error, provide mock response for development
             logging.warning(

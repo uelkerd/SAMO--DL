@@ -141,14 +141,14 @@ def predict_emotion(text):
 def ensure_model_loaded():
     """Ensure model is loaded before processing requests"""
     should_load = False
-    
+
     with model_lock:
         if model_loaded:
             return
-        elif not model_loading:
+        if not model_loading:
             should_load = True
         # If model_loading is True, just return and let the loading complete
-    
+
     # Call load_model outside the lock if needed
     if should_load:
         load_model()

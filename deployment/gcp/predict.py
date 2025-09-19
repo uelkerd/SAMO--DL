@@ -50,14 +50,13 @@ class EmotionDetectionModel:
                 max_id = max(self.model.config.id2label.keys())
                 labels = [self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)]
                 return labels
-            elif hasattr(self.model.config, 'label2id') and self.model.config.label2id:
+            if hasattr(self.model.config, 'label2id') and self.model.config.label2id:
                 # Convert label2id dict to ordered list
                 labels = sorted(self.model.config.label2id.keys(), key=lambda x: self.model.config.label2id[x])
                 return labels
-            else:
-                # Fallback to hardcoded list if config doesn't have labels
-                print("⚠️ No emotion labels found in model config, using fallback")
-                return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+            # Fallback to hardcoded list if config doesn't have labels
+            print("⚠️ No emotion labels found in model config, using fallback")
+            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
         except Exception as e:
             print(f"⚠️ Error loading emotion labels: {e}, using fallback")
             return ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
@@ -70,13 +69,13 @@ class EmotionDetectionModel:
                 # Handle both int and str keys
                 if label_id in self.model.config.id2label:
                     return self.model.config.id2label[label_id]
-                elif str(label_id) in self.model.config.id2label:
+                if str(label_id) in self.model.config.id2label:
                     return self.model.config.id2label[str(label_id)]
-            
+
             # Fallback to emotions list if available
             if hasattr(self, 'emotions') and 0 <= label_id < len(self.emotions):
                 return self.emotions[label_id]
-            
+
             # Final fallback
             return f"unknown_{label_id}"
         except Exception:
@@ -200,12 +199,12 @@ if __name__ == '__main__':
             validate_host_binding,
             get_binding_security_summary,
         )
-        
+
         host, port = get_secure_host_binding(default_port=8080)
         validate_host_binding(host, port)
         security_summary = get_binding_security_summary(host, port)
         print(f"Security Summary: {security_summary}")
-        
+
     except ImportError:
         # Fallback for container environments where host_binding module is not available
         print("⚠️ Host binding module not available, using fallback configuration")
@@ -213,7 +212,7 @@ if __name__ == '__main__':
         port = int(os.environ.get('AIP_HTTP_PORT', '8080'))
         security_summary = f"Fallback mode: host={host}, port={port} (AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')})"
         print(f"Security Summary: {security_summary}")
-    
+
     print(f"🚀 Server starting on http://{host}:{port}")
     print("")
 
