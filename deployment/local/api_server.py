@@ -159,7 +159,11 @@ class EmotionDetectionModel:
                 predicted_emotion = f"unknown_{predicted_label}"
 
             prediction_time = time.time() - start_time
-            logger.info(f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})")
+            # Log text length and hash instead of raw content to avoid PII exposure
+            import hashlib
+            text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
+            logger.info("Prediction completed in %.3fs: text_len=%d, text_hash=%s → %s (conf: %.3f)",
+                        prediction_time, len(text), text_hash, predicted_emotion, confidence)
 
             # Create response
             response = {

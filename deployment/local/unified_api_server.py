@@ -61,6 +61,7 @@ def load_models():
         if model_loading or models_loaded:
             return
         model_loading = True
+    
     logger.info("🔄 Starting unified model loading...")
 
     try:
@@ -74,28 +75,38 @@ def load_models():
             # For development, we'll use a basic emotion classifier
             # This can be replaced with actual trained models
 
-        logger.info("📥 Loading tokenizer...")
-        emotion_tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-
-        # For development, we'll initialize with a basic model
-        # In production, this would load the actual trained SAMO emotion model
         logger.info("📥 Loading emotion model...")
         try:
+            # Try to load production model first
             emotion_model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+            emotion_tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+            logger.info("✅ Production model loaded successfully")
         except:
-            logger.warning(
-                "⚠️ Production model not found, using development fallback"
-            )
-            emotion_model = AutoModelForSequenceClassification.from_pretrained(
-                "cardiffnlp/twitter-roberta-base-emotion-multilabel-latest"
-            )
+            logger.warning("⚠️ Production model not found, using development fallback")
+            fallback_model_id = "cardiffnlp/twitter-roberta-base-emotion-multilabel-latest"
+            emotion_model = AutoModelForSequenceClassification.from_pretrained(fallback_model_id)
+            emotion_tokenizer = AutoTokenizer.from_pretrained(fallback_model_id)
+            logger.info("✅ Fallback model loaded successfully")
 
         # Set device (CPU for compatibility)
         device = torch.device('cpu')
         emotion_model.to(device)
         emotion_model.eval()
 
-        emotion_mapping = EMOTION_MAPPING
+        # Prefer model-provided labels when available
+        try:
+            id2label = getattr(emotion_model.config, "id2label", None)
+            if id2label:
+                # Ensure index order
+                emotion_mapping = [id2label[i] for i in range(emotion_model.config.num_labels)]
+                logger.info(f"✅ Using model-provided labels: {emotion_mapping}")
+            else:
+                emotion_mapping = EMOTION_MAPPING
+                logger.info("⚠️ Using fallback emotion mapping")
+        except Exception:
+            emotion_mapping = EMOTION_MAPPING
+            logger.info("⚠️ Using fallback emotion mapping due to error")
+        
         logger.info(f"✅ Emotion model loaded successfully on {device}")
 
         # Load voice processing model (lightweight approach)
@@ -156,9 +167,30 @@ def predict_emotion(text: str) -> dict:
     # Predict
     with torch.no_grad():
         outputs = emotion_model(**inputs)
-        probabilities = torch.softmax(outputs.logits, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1).item()
-        confidence = probabilities[0][predicted_class].item()
+        
+        # Check if this is a multi-label classification model
+        is_multi_label = getattr(emotion_model.config, "problem_type", "") == "multi_label_classification"
+        
+        if is_multi_label:
+            # Use sigmoid for multi-label classification
+            scores = torch.sigmoid(outputs.logits)[0]
+            # Apply threshold for multi-label decisions
+            threshold = 0.5
+            predicted_labels = (scores > threshold).nonzero(as_tuple=True)[0].tolist()
+            
+            if predicted_labels:
+                # Get the highest scoring label as primary
+                predicted_class = int(torch.argmax(scores).item())
+                confidence = float(scores[predicted_class].item())
+            else:
+                # No labels above threshold, use highest scoring
+                predicted_class = int(torch.argmax(scores).item())
+                confidence = float(scores[predicted_class].item())
+        else:
+            # Use softmax for single-label classification
+            scores = torch.softmax(outputs.logits, dim=-1)[0]
+            predicted_class = int(torch.argmax(scores).item())
+            confidence = float(scores[predicted_class].item())
 
     # Map to emotion name (use index if available, otherwise fallback)
     if predicted_class < len(emotion_mapping):
@@ -187,13 +219,17 @@ def transcribe_audio(audio_file) -> dict:
 
     try:
         # Transcribe audio
-        result = voice_transcriber.transcribe_file(temp_path)
-
-        if not result or not hasattr(result, 'text'):
+        result = voice_transcriber.transcribe(temp_path)
+        
+        if not result or 'text' not in result:
             raise RuntimeError("Transcription failed - no text returned")
-
-        transcribed_text = result.text
-        confidence = getattr(result, 'confidence', 0.9)
+        
+        transcribed_text = result.get('text', '')
+        # Whisper doesn't provide a calibrated confidence; keep a placeholder
+        confidence = 0.9
+        # Approximate duration from segments if available
+        segs = result.get('segments') or []
+        duration = float(segs[-1]['end']) if segs else 0.0
 
         # Analyze emotions in transcribed text
         emotion_analysis = predict_emotion(transcribed_text)
@@ -203,7 +239,7 @@ def transcribe_audio(audio_file) -> dict:
             "transcription": {
                 "text": transcribed_text,
                 "confidence": confidence,
-                "duration": getattr(result, 'duration', 0.0)
+                "duration": duration
             },
             "emotion_analysis": emotion_analysis,
             "processing_info": {
