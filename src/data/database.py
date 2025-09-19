@@ -34,7 +34,9 @@ elif DB_USER and DB_PASSWORD and DB_NAME:
     safe_host = DB_HOST
     safe_port = DB_PORT
     safe_db = quote_plus(DB_NAME)
-    DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
+    DATABASE_URL = (
+        f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
+    )
 else:
     # Fall back to SQLite only when explicitly allowed or in CI/TEST
     allow_sqlite = (

@@ -31,7 +31,8 @@ class SandboxError(Exception):
     def to_dict(self):
         return {
             "error": str(self),
-            "exception_type": type(self.original_exception).__name__ if self.original_exception else None
+            "exception_type": type(self.original_exception).__name__ if 
+                self.original_exception else None
         }
 
 
@@ -83,12 +84,15 @@ class SandboxExecutor:
             resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
 
             # CPU time limit
-            resource.setrlimit(resource.RLIMIT_CPU, (self.max_cpu_time, self.max_cpu_time))
+            resource.setrlimit(resource.RLIMIT_CPU, (self.max_cpu_time,
+                self.max_cpu_time))
 
             # File size limit
-            resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024 * 1024, 1024 * 1024 * 1024))  # 1GB
+            resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024 * 1024,
+                1024 * 1024 * 1024))  # 1GB
 
-            logger.debug(f"Resource limits set: memory={self.max_memory_mb}MB, cpu={self.max_cpu_time}s")
+            logger.debug(f"Resource limits set: memory={self.max_memory_mb}MB,
+                cpu={self.max_cpu_time}s")
 
         except Exception as e:
             logger.error(f"Failed to set resource limits: {e}")
@@ -103,7 +107,9 @@ class SandboxExecutor:
             'oct', 'ord', 'pow', 'range', 'repr', 'reversed', 'round', 'set', 'slice', 'sorted',
             'str', 'sum', 'tuple', 'zip', 'Exception', 'ValueError', 'TypeError', 'print'
         ]
-        safe_builtins = {name: getattr(py_builtins, name) for name in allowed_names if hasattr(py_builtins, name)}
+        safe_builtins = {name: getattr(py_builtins,
+            name) for name in allowed_names if hasattr(py_builtins,
+            name)}
         return {'__builtins__': safe_builtins}
 
     def _timeout_handler(self, signum, frame):
@@ -120,7 +126,8 @@ class SandboxExecutor:
         if self._is_main_thread():
             signal.alarm(self.max_wall_time)
         else:
-            logger.warning("Timeout not set: signal.alarm not available in non-main thread")
+            logger.warning("Timeout not set: signal.
+                alarm not available in non-main thread")
 
     @contextmanager
     def sandbox_context(self):
@@ -130,7 +137,8 @@ class SandboxExecutor:
             self._set_resource_limits()
             # Set up signal handlers for timeout (only in main thread)
             if self._is_main_thread():
-                original_signal_handlers[signal.SIGALRM] = signal.signal(signal.SIGALRM, self._timeout_handler)
+                original_signal_handlers[signal.SIGALRM] = signal.signal(signal.SIGALRM,
+                    self._timeout_handler)
                 self._set_timeout_safe()
             else:
                 logger.warning("Signal-based timeout not available in non-main thread")

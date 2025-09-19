@@ -89,7 +89,8 @@ class InputSanitizer:
                 'p', 'br', 'strong', 'em', 'u', 'i', 'b', 'span', 'div'
             }
 
-    def sanitize_text(self, text: str, context: str = "general") -> Tuple[str, List[str]]:
+    def sanitize_text(self, text: str, context: str = "general") -> Tuple[str,
+        List[str]]:
         """
         Sanitize text input.
 

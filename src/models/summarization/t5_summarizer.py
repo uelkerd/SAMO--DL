@@ -143,7 +143,8 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...", extra={"format_args": True}
+            "Initializing {self.model_name} summarization model...
+                ", extra={"format_args": True}
         )
 
         if "bart" in self.model_name.lower():
@@ -172,7 +173,8 @@ class T5SummarizationModel(nn.Module):
         labels: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         """Forward pass for training."""
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask,
+            labels=labels)
 
         return {
             "loss": outputs.loss if labels is not None else None,
@@ -394,7 +396,8 @@ def test_summarization_model() -> None:
     ]
 
     logger.info(
-        "Generating summaries for {len(test_texts)} journal entries...", extra={"format_args": True}
+        "Generating summaries for {len(test_texts)} journal entries...",
+            extra={"format_args": True}
     )
 
     for _i, text in enumerate(test_texts, 1):
@@ -405,7 +408,8 @@ def test_summarization_model() -> None:
         import hashlib
         text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
         logger.info("Original (%d chars, hash: %s)", len(text), text_hash)
-        logger.info("Summary ({len(summary)} chars): {summary}", extra={"format_args": True})
+        logger.info("Summary ({len(summary)} chars): {summary}",
+            extra={"format_args": True})
 
     logger.info("\nTesting batch summarization...")
     batch_summaries = model.generate_batch_summaries(test_texts, batch_size=2)

@@ -22,7 +22,9 @@ logger = logging.getLogger(__name__)
 class AudioPreprocessor:
     """Audio preprocessing for optimal Whisper performance."""
 
-    SUPPORTED_FORMATS: ClassVar[Set[str]] = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
+    SUPPORTED_FORMATS: ClassVar[Set[str]] = (
+        {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
+    )
     TARGET_SAMPLE_RATE: ClassVar[int] = 16000  # Whisper expects 16kHz
     MAX_DURATION: ClassVar[int] = 300  # 5 minutes maximum
 

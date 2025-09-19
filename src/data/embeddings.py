@@ -187,7 +187,8 @@ class Word2VecEmbedder(BaseEmbedder):
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for Word2Vec", extra={"format_args": True})
+        logger.info("Preprocessing {len(texts)} texts for Word2Vec",
+            extra={"format_args": True})
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
@@ -226,9 +227,11 @@ class Word2VecEmbedder(BaseEmbedder):
         embeddings = []
 
         for tokens in tokenized_texts:
-            vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
+            vectors = [self.model.wv[token] for token in tokens if 
+                token in self.model.wv]
 
-            embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
+            embedding = np.mean(vectors,
+                axis=0) if vectors else np.zeros(self.vector_size)
 
             embeddings.append(embedding)
 
@@ -248,7 +251,8 @@ class FastTextEmbedder(Word2VecEmbedder):
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for FastText", extra={"format_args": True})
+        logger.info("Preprocessing {len(texts)} texts for FastText",
+            extra={"format_args": True})
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
@@ -305,7 +309,8 @@ class EmbeddingPipeline:
 
         texts = df[text_column].tolist()
 
-        logger.info("Generating embeddings for {len(texts)} texts", extra={"format_args": True})
+        logger.info("Generating embeddings for {len(texts)} texts",
+            extra={"format_args": True})
         embeddings = self.embedder.fit_transform(texts)
 
         logger.info(
@@ -320,7 +325,8 @@ class EmbeddingPipeline:
             }
         )
 
-    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
+    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame,
+        output_path: str) -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:
