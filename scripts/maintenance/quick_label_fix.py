@@ -21,7 +21,39 @@ def quick_label_fix():
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
 
-    # Get all unique labels - normalize to string format
+    # GoEmotions to Journal emotion mapping
+    emotion_mapping = {
+        'admiration': 'proud',
+        'amusement': 'happy',
+        'anger': 'frustrated',
+        'annoyance': 'frustrated',
+        'approval': 'proud',
+        'caring': 'content',
+        'confusion': 'overwhelmed',
+        'curiosity': 'excited',
+        'desire': 'excited',
+        'disappointment': 'sad',
+        'disapproval': 'frustrated',
+        'disgust': 'frustrated',
+        'embarrassment': 'anxious',
+        'excitement': 'excited',
+        'fear': 'anxious',
+        'gratitude': 'grateful',
+        'grief': 'sad',
+        'joy': 'happy',
+        'love': 'content',
+        'nervousness': 'anxious',
+        'optimism': 'hopeful',
+        'pride': 'proud',
+        'realization': 'content',
+        'relief': 'calm',
+        'remorse': 'sad',
+        'sadness': 'sad',
+        'surprise': 'excited',
+        'neutral': 'calm'
+    }
+
+    # Get all unique labels - normalize to string format using emotion mapping
     # Get label names from GoEmotions dataset's ClassLabel feature
     go_label_names = go_emotions['train'].features['labels'].names
     
@@ -31,11 +63,13 @@ def quick_label_fix():
             for label_id in example['labels']:
                 # Convert label ID to label name
                 if isinstance(label_id, int) and 0 <= label_id < len(go_label_names):
-                    label_name = go_label_names[label_id]
+                    go_emotion_name = go_label_names[label_id]
+                    # Map GoEmotions label to journal emotion using mapping
+                    mapped_emotion = emotion_mapping.get(go_emotion_name, go_emotion_name)
+                    go_labels.add(mapped_emotion)
                 else:
                     # Handle edge cases where label_id might be out of range
-                    label_name = f"unknown_{label_id}"
-                go_labels.add(label_name)
+                    go_labels.add(f"unknown_{label_id}")
 
     # Ensure journal labels are strings for consistent comparison
     journal_labels = set(str(label).strip() for label in journal_df['emotion'].unique() if str(label).strip())
