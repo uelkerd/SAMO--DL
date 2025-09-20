@@ -85,7 +85,16 @@ class EmotionDetectionModel:
         else:
             print("⚠️ CUDA not available, using CPU")
 
-        self.emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        # Derive labels from model config; fallback to default list
+        default_labels = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
+                          'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        raw = getattr(self.model.config, "id2label", {}) or {}
+        try:
+            pairs = [(int(k), v) for k, v in raw.items()]
+            pairs.sort(key=lambda kv: kv[0])
+            self.emotions = [v for _, v in pairs] or default_labels
+        except Exception:
+            self.emotions = default_labels
         print("✅ Model loaded successfully")
 
     def predict(self, text):
@@ -99,12 +108,17 @@ class EmotionDetectionModel:
         # Get prediction
         with torch.no_grad():
             outputs = self.model(**inputs)
-            probabilities = torch.softmax(outputs.logits, dim=1)
-            predicted_label = torch.argmax(probabilities, dim=1).item()
-            confidence = probabilities[0][predicted_label].item()
+            # Support both single- and multi-label heads
+            problem_type = getattr(self.model.config, "problem_type", "")
+            if problem_type == "multi_label_classification":
+                scores = torch.sigmoid(outputs.logits)[0]
+            else:
+                scores = torch.softmax(outputs.logits, dim=-1)[0]
+            predicted_label = int(torch.argmax(scores).item())
+            confidence = float(scores[predicted_label].item())
 
-            # Get all probabilities
-            all_probs = probabilities[0].cpu().numpy()
+            # Get all probabilities/scores
+            all_probs = scores.cpu().numpy()
 
         # Get predicted emotion
         if predicted_label in self.model.config.id2label:
