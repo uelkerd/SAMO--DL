@@ -63,9 +63,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // Use deployed Cloud Run API (the real API with all features)
-    // Keep the same deployed URL since local API server on port 8002 is not running
-    window.SAMO_CONFIG.API.BASE_URL = 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app';
+    // Use local unified API server (has the correct /analyze/emotion endpoints)
+    // This server has the exact endpoints the frontend expects
+    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8002';
     window.SAMO_CONFIG.API.ENDPOINTS = {
         EMOTION: '/analyze/emotion',
         SUMMARIZE: '/analyze/summarize',
