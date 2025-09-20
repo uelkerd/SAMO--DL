@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "samo-dl"
-version = "1.0.0"
+version = "1.0.0b1"
 description = "SAMO Deep Learning - Voice-First AI API"
 authors = [
     {name = "SAMO Team", email = "team@samo.ai"}

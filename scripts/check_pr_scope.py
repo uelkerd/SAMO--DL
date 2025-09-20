@@ -13,6 +13,7 @@ Usage:
 """
 
 import os
+import re
 import subprocess
 import sys
 from typing import List, Tuple
@@ -142,7 +143,6 @@ def check_branch_name_quality() -> bool:
         return False
 
     # Check naming pattern: type/short-description
-    import re
     pattern = r'^(feat|fix|chore|refactor|docs|test)/[a-z]+(?:-[a-z]+)*$'
     if not re.match(pattern, branch_name):
         print("❌ Branch name must follow pattern: type/short-description")

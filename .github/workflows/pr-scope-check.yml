@@ -33,7 +33,7 @@ jobs:
     - name: Check branch naming
       run: |
         BRANCH_NAME="${{ github.head_ref }}"
-        if [[ ! $BRANCH_NAME =~ ^(feat|fix|chore|refactor|docs|test)/[a-z-]+(-[a-z-]+)*$ ]]; then
+        if [[ ! $BRANCH_NAME =~ ^(feat|fix|chore|refactor|docs|test)/[a-z]+(-[a-z]+)*$ ]]; then
           echo "❌ Branch name must follow pattern: type/short-description"
           echo "   Current: $BRANCH_NAME"
           echo "   Examples: feat/add-user-auth, fix/validate-input, chore/update-deps"
@@ -51,7 +51,16 @@ jobs:
         echo "Files changed: $FILES_CHANGED"
 
         # Count lines changed
-        LINES_CHANGED=$(git diff --stat origin/$BASE_BRANCH | tail -1 | awk '{print $4+$6}')
+        LINES_CHANGED=$(git diff --stat origin/$BASE_BRANCH | tail -1 | awk '{
+          ins=0; del=0;
+          for(i=1;i<=NF;i++) {
+            if ($i ~ /insertion/) {ins=$(i-1)}
+            if ($i ~ /deletion/) {del=$(i-1)}
+          }
+          if(ins=="") ins=0;
+          if(del=="") del=0;
+          print ins+del
+        }')
         LINES_CHANGED=${LINES_CHANGED:-0}
         echo "Lines changed: $LINES_CHANGED"
 
