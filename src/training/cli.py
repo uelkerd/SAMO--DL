@@ -13,6 +13,15 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+def _is_relative_to(path: Path, other: Path) -> bool:
+    """Check if path is relative to other (Python 3.8 compatible)."""
+    try:
+        path.resolve().relative_to(other.resolve())
+        return True
+    except ValueError:
+        return False
+
+
 def main():
     """Main CLI entry point for training operations."""
     parser = argparse.ArgumentParser(
@@ -111,7 +120,7 @@ def train_emotion_model(args):
         script_path = script_path.resolve()
         project_root = Path(__file__).parent.parent.parent.resolve()
 
-        if script_path.exists() and script_path.is_file() and script_path.is_relative_to(project_root):
+        if script_path.exists() and script_path.is_file() and _is_relative_to(script_path, project_root):
             cmd = [sys.executable, str(script_path)]
             if args.gpu:
                 cmd.append("--gpu")
