@@ -21,7 +21,7 @@ from typing import List, Tuple
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
     """Run command and return (stdout, stderr, returncode)."""
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
 
