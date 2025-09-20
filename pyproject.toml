@@ -2,6 +2,9 @@
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [project]
 name = "samo-dl"
 version = "1.0.0b1"
@@ -61,11 +64,10 @@ test = [
 ]
 dev = [
     "ruff>=0.0.280",
-    "black>=23.7.0",
-    "mypy>=1.5.0",
-    "bandit[toml]>=1.7.5",
+    "mypy>=1.7.1",
+    "bandit[toml]>=1.7.6",
     # safety removed - kept optional in CI to avoid resolver backtracking
-    "pre-commit>=3.3.0",
+    "pre-commit>=3.5.0",
     "jupyterlab>=4.0.0",
     "ipykernel>=6.25.0",
 ]
@@ -79,33 +81,18 @@ samo-api = "unified_ai_api:main"
 "Bug Reports" = "https://github.com/samo-ai/samo-dl/issues"
 "Source" = "https://github.com/samo-ai/samo-dl"
 
-[tool.black]
-line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+[tool.ruff.lint]
+# Enable pycodestyle, Pyflakes, and additional useful rules
+select = ["E", "F", "B", "C4", "UP"]
+ignore = ["E501"]  # line too long (handled by formatter)
 
-[tool.isort]
-profile = "black"
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
+[tool.ruff.lint.per-file-ignores]
+# Allow imports to be at the top level in __init__.py files
+"__init__.py" = ["F401"]
+# Tests can use assertions and magic values
+"tests/**/*" = ["S101", "PLR2004"]
+# Scripts can use print statements and complex logic
+"scripts/**/*" = ["T201", "PLR0915", "PLR0912"]
 
 [tool.pylint.messages_control]
 disable = [
@@ -115,7 +102,6 @@ disable = [
     "R0903",  # too-few-public-methods
     "R0913",  # too-many-arguments
     "W0613",  # unused-argument
-    "R0801",  # duplicate-code
     "C0103",  # invalid-name
 ]
 
