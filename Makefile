@@ -21,7 +21,7 @@ quality-check: ## Run all quality checks
 	ruff format --check src/ tests/ scripts/
 	ruff check src/ tests/ scripts/
 	pylint src/ tests/ scripts/
-	bandit -r src/ -s B101,B601
+	bandit -r src/ -s B101,B601  # Skip assert statements and subprocess shell injection checks
 	safety check --json --output safety-report.json
 
 check-scope: ## Check PR scope compliance
