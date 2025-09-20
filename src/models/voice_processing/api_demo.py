@@ -250,14 +250,14 @@ async def transcribe_batch(
     try:
         start_time = time.time()
 
-        for __i, audio_file in enumerate(audio_files):
+        for i, audio_file in enumerate(audio_files):
             try:
                 if not audio_file.filename:
-                    raise ValueError(f"File {__i + 1}: No filename provided")
+                    raise ValueError(f"File {i + 1}: No filename provided")
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError(f"File {__i + 1}: Unsupported format {file_extension}")
+                    raise ValueError(f"File {i + 1}: Unsupported format {file_extension}")
 
                 temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
                 temp_files.append(temp_file.name)
@@ -268,7 +268,7 @@ async def transcribe_batch(
 
                 is_valid, error_msg = AudioPreprocessor.validate_audio_file(temp_file.name)
                 if not is_valid:
-                    raise ValueError(f"File {__i + 1}: {error_msg}")
+                    raise ValueError(f"File {i + 1}: {error_msg}")
 
                 result = whisper_transcriber.transcribe_audio(
                     temp_file.name, language=language, initial_prompt=initial_prompt
@@ -290,13 +290,13 @@ async def transcribe_batch(
                 )
 
                 logger.info(
-                    f"Batch item {__i + 1}: {result.word_count} words, {result.confidence:.2f} confidence",
+                    f"Batch item {i + 1}: {result.word_count} words, {result.confidence:.2f} confidence",
                     extra={"format_args": True},
                 )
 
             except Exception as e:
                 logger.error(
-                    f"Failed to process file {__i + 1} ({audio_file.filename}): {e}",
+                    f"Failed to process file {i + 1} ({audio_file.filename}): {e}",
                     extra={"format_args": True},
                 )
                 transcriptions.append(

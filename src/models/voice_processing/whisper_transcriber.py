@@ -153,8 +153,7 @@ class AudioPreprocessor:
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
-                "Resampled to {AudioPreprocessor.
-                    TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+                f"Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
             )
 
         audio = audio.normalize()
@@ -183,9 +182,7 @@ class WhisperTranscriber:
     """OpenAI Whisper transcriber for journal voice processing."""
 
     def __init__(
-        self, config: Optional[TranscriptionConfig] = (
-            None, model_size: Optional[str] = None
-        )
+        self, config: Optional[TranscriptionConfig] = None, model_size: Optional[str] = None
     ) -> None:
         """Initialize Whisper transcriber.
 
@@ -203,10 +200,10 @@ class WhisperTranscriber:
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing Whisper {self.config.model_size} model...
-                ", extra={"format_args": True}
+            f"Initializing Whisper {self.config.model_size} model...",
+            extra={"format_args": True}
         )
-        logger.info("Device: {self.device}", extra={"format_args": True})
+        logger.info(f"Device: {self.device}", extra={"format_args": True})
 
         try:
             self.model = whisper.load_model(self.config.model_size, device=self.device)
@@ -239,10 +236,9 @@ class WhisperTranscriber:
         """
         start_time = time.time()
 
-        logger.info("Starting transcription: {audio_path}", extra={"format_args": True})
+        logger.info(f"Starting transcription: {audio_path}", extra={"format_args": True})
 
-        processed_audio_path,
-            audio_metadata = self.preprocessor.preprocess_audio(audio_path)
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
 
         try:
             transcribe_options = {
@@ -293,12 +289,11 @@ class WhisperTranscriber:
             )
 
             logger.info(
-                "✅ Transcription complete: {word_count} words, {confidence:.
-                    2f} confidence",
+                f"✅ Transcription complete: {word_count} words, {confidence:.2f} confidence",
                 extra={"format_args": True},
             )
             logger.info(
-                "Processing time: {processing_time:.2f}s, Quality: {audio_quality}",
+                f"Processing time: {processing_time:.2f}s, Quality: {audio_quality}",
                 extra={"format_args": True},
             )
 
@@ -365,8 +360,7 @@ class WhisperTranscriber:
             f"✅ Batch transcription complete: {len(results)} files"
         )
         logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.
-                1f}s"
+            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
         )
 
         return results
@@ -448,9 +442,7 @@ class WhisperTranscriber:
 
 
 def create_whisper_transcriber(
-    model_size: str = (
-        "base", language: Optional[str] = None, device: Optional[str] = None
-    )
+    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
 ) -> WhisperTranscriber:
     """Create Whisper transcriber with specified configuration.
 

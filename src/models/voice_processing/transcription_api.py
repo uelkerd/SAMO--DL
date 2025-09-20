@@ -255,9 +255,7 @@ class TranscriptionAPI:
 
 
 def create_transcription_api(
-    model_size: str = (
-        "base", language: Optional[str] = None, device: Optional[str] = None
-    )
+    model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
 ) -> TranscriptionAPI:
     """Create TranscriptionAPI with specified configuration.
 

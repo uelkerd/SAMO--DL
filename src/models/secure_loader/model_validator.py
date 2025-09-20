@@ -131,23 +131,19 @@ class ModelValidator:
             if 'num_emotions' in config:
                 num_emotions = config['num_emotions']
                 if not isinstance(num_emotions, int) or num_emotions <= 0:
-                    validation_info['invalid_values'].
-                        append(f"num_emotions: {num_emotions}")
+                    validation_info['invalid_values'].append(f"num_emotions: {num_emotions}")
 
             if 'hidden_dropout_prob' in config:
                 dropout = config['hidden_dropout_prob']
                 if not isinstance(dropout, (int, float)) or dropout < 0 or dropout > 1:
-                    validation_info['invalid_values'].
-                        append(f"hidden_dropout_prob: {dropout}")
+                    validation_info['invalid_values'].append(f"hidden_dropout_prob: {dropout}")
 
             # Check for issues
             if validation_info['missing_keys']:
-                validation_info['issues'].
-                    append(f"Missing required keys: {validation_info['missing_keys']}")
+                validation_info['issues'].append(f"Missing required keys: {validation_info['missing_keys']}")
 
             if validation_info['invalid_values']:
-                validation_info['issues'].
-                    append(f"Invalid values: {validation_info['invalid_values']}")
+                validation_info['issues'].append(f"Invalid values: {validation_info['invalid_values']}")
 
             is_valid = len(validation_info['issues']) == 0
             return is_valid, validation_info
