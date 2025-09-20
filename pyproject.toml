@@ -81,6 +81,10 @@ samo-api = "unified_ai_api:main"
 "Bug Reports" = "https://github.com/samo-ai/samo-dl/issues"
 "Source" = "https://github.com/samo-ai/samo-dl"
 
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
 [tool.ruff.lint]
 # Enable pycodestyle, Pyflakes, and additional useful rules
 select = ["E", "F", "B", "C4", "UP"]
@@ -101,7 +105,7 @@ disable = [
     "C0116",  # missing-function-docstring
     "R0903",  # too-few-public-methods
     "R0913",  # too-many-arguments
-    "W0613",  # unused-argument
+    "W0613",  # unused-argument (legitimate in interface implementations)
     "C0103",  # invalid-name
 ]
 
