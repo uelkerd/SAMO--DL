@@ -168,7 +168,6 @@ def load_models():
 
 def summarize_text(text: str) -> dict:
     """Generate real AI summary using T5 model"""
-    global summarizer_model, summarizer_tokenizer
 
     if summarizer_model is None or summarizer_tokenizer is None:
         # Enhanced fallback with better extraction
@@ -248,7 +247,6 @@ def summarize_text(text: str) -> dict:
 
 def predict_emotion(text: str) -> dict:
     """Predict emotion for given text"""
-
     if not models_loaded or emotion_model is None:
         raise RuntimeError("Emotion model not loaded")
 
@@ -329,7 +327,6 @@ def predict_emotion(text: str) -> dict:
 
 def transcribe_audio(audio_file) -> dict:
     """Transcribe audio file to text with emotion analysis"""
-
     if voice_transcriber is None:
         raise RuntimeError("Voice processing model not available")
 
@@ -380,7 +377,6 @@ def transcribe_audio(audio_file) -> dict:
 
 def ensure_models_loaded():
     """Ensure models are loaded before processing requests"""
-
     if not models_loaded and not model_loading:
         load_models()
 
@@ -403,7 +399,6 @@ def create_error_response(message: str, status_code: int = 500) -> tuple:
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint"""
-
     return jsonify({
         "message": "SAMO Unified AI API - Voice, Emotion & Summarization",
         "status": "running",
@@ -415,7 +410,6 @@ def root():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-
     return jsonify({
         'status': 'healthy',
         'models_loaded': models_loaded,
@@ -462,7 +456,6 @@ def analyze_emotion():
 @app.route('/analyze/voice-journal', methods=['POST'])
 def analyze_voice_journal():
     """Analyze voice recording with transcription and emotion detection"""
-
     try:
         # Ensure models are loaded
         ensure_models_loaded()

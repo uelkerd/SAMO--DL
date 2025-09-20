@@ -6,8 +6,6 @@ Simple Web Server for Local Development
 A lightweight Flask server that serves static website files with CORS enabled
 for testing against deployed Cloud Run APIs.
 """
-
-import os
 import sys
 import argparse
 from pathlib import Path
@@ -30,14 +28,13 @@ def index():
     """Serve the main index page."""
     if (WEBSITE_DIR / "index.html").exists():
         return send_from_directory(WEBSITE_DIR, "index.html")
-    elif (WEBSITE_DIR / "demo.html").exists():
+    if (WEBSITE_DIR / "demo.html").exists():
         return send_from_directory(WEBSITE_DIR, "demo.html")
-    else:
-        return jsonify({
-            "error": "No index.html or demo.html found",
-            "website_dir": str(WEBSITE_DIR),
-            "available_files": [f.name for f in WEBSITE_DIR.glob("*.html")] if WEBSITE_DIR.exists() else []
-        }), 404
+    return jsonify({
+        "error": "No index.html or demo.html found",
+        "website_dir": str(WEBSITE_DIR),
+        "available_files": [f.name for f in WEBSITE_DIR.glob("*.html")] if WEBSITE_DIR.exists() else []
+    }), 404
 
 @app.route('/<path:filename>')
 def serve_static(filename):
@@ -83,8 +80,8 @@ def main():
     print("=" * 30)
     print(f"📁 Website directory: {WEBSITE_DIR}")
     print(f"🔗 Server URL: http://{args.host}:{args.port}")
-    print(f"✅ CORS enabled for Cloud Run APIs")
-    print(f"🎯 Cloud Run API: https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app")
+    print("✅ CORS enabled for Cloud Run APIs")
+    print("🎯 Cloud Run API: https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app")
     print("")
 
     if not WEBSITE_DIR.exists():

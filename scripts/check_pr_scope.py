@@ -14,7 +14,6 @@ Usage:
 
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_command(cmd: list[str]) -> tuple[int, str, str]:
@@ -184,14 +183,13 @@ def main() -> int:
     if all_passed:
         print("✅ PR Scope Check PASSED")
         return 0
-    else:
-        print("❌ PR Scope Check FAILED")
-        print("\n💡 Remember the rules:")
-        print("   • Max 50 files changed")
-        print("   • Max 1500 lines changed")
-        print("   • ONE purpose per PR")
-        print("   • Single concern (no mixing API + tests + docs)")
-        return 1
+    print("❌ PR Scope Check FAILED")
+    print("\n💡 Remember the rules:")
+    print("   • Max 50 files changed")
+    print("   • Max 1500 lines changed")
+    print("   • ONE purpose per PR")
+    print("   • Single concern (no mixing API + tests + docs)")
+    return 1
 
 
 if __name__ == "__main__":

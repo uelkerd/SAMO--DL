@@ -22,7 +22,7 @@ class PrismaClient:
     """A simple wrapper class for Prisma client operations.
 
     This class allows executing Prisma operations from Python by running Node.js scripts.
-        
+
     """
 
     @staticmethod
