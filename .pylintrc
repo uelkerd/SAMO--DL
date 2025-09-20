@@ -5,8 +5,7 @@ disable =
     C0116,  # missing-function-docstring
     R0903,  # too-few-public-methods
     R0913,  # too-many-arguments
-    W0613,  # unused-argument
-    R0801,  # duplicate-code
+    W0613,  # unused-argument (legitimate in interface implementations)
     C0103,  # invalid-name
 
 [FORMAT]
