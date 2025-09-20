@@ -108,7 +108,11 @@ def train_emotion_model(args):
         import sys
 
         script_path = Path(__file__).parent.parent.parent / "scripts" / "training" / "minimal_working_training.py"
-        if script_path.exists():
+        # Resolve to absolute path and validate it's within the project directory
+        script_path = script_path.resolve()
+        project_root = Path(__file__).parent.parent.parent.resolve()
+
+        if script_path.exists() and script_path.is_file() and script_path.is_relative_to(project_root):
             cmd = [sys.executable, str(script_path)]
             if args.gpu:
                 cmd.append("--gpu")
