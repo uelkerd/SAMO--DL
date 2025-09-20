@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Automated syntax error fixer for SAMO codebase.
 Fixes the most common syntax patterns found in DeepSource analysis.
 """
@@ -72,7 +71,6 @@ def fix_file(filepath):
 
         # Apply fixes
         content = fix_missing_parentheses(content)
-        # content = fix_unterminated_strings(content)  # This one needs more care, skip for now
 
         if content != original_content:
             with open(filepath, "w", encoding="utf-8") as f:

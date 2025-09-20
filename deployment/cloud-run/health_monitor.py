@@ -91,8 +91,6 @@ class HealthMonitor:
     def check_model_health() -> Dict[str, Any]:
         """Check if ML models are loaded and responding"""
         try:
-            # Import models (this will fail if models aren't loaded)
-            pass
 
             # Test model loading
             start_time = time.time()

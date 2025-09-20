@@ -244,7 +244,6 @@ class TestAnomalyDetection(unittest.TestCase):
 
     def test_anomaly_detection_performance(self):
         """Test that anomaly detection doesn't significantly impact performance."""
-        import time
 
         client_ip = "192.168.1.1"
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"

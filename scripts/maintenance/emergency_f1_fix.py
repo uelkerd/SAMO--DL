@@ -20,9 +20,9 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
 import torch.nn.functional as F
 from sklearn.metrics import f1_score
-from torch.utils.data import DataLoader, TensorDataset
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 # Add src to path
