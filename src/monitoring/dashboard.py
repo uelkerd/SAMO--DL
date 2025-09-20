@@ -14,7 +14,7 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Deque, DefaultDict
 from dataclasses import dataclass, asdict
 from collections import defaultdict, deque
 
@@ -74,8 +74,8 @@ class MonitoringDashboard:
         self.start_time = time.time()
 
         # Metrics storage
-        self.system_metrics_history = deque(maxlen=history_size)
-        self.model_metrics = defaultdict(lambda: ModelMetrics(
+        self.system_metrics_history: Deque[SystemMetrics] = deque(maxlen=history_size)
+        self.model_metrics: DefaultDict[str, ModelMetrics] = defaultdict(lambda: ModelMetrics(
             model_name="",
             total_requests=0,
             successful_requests=0,
@@ -95,16 +95,16 @@ class MonitoringDashboard:
         )
 
         # Request tracking
-        self.request_times = deque(maxlen=history_size)
-        self.error_log = deque(maxlen=history_size)
+        self.request_times: Deque[float] = deque(maxlen=history_size)
+        self.error_log: Deque[Dict[str, Any]] = deque(maxlen=history_size)
         self.total_errors = 0  # Track total errors for accurate error rate
 
         # Performance tracking
-        self.response_times = deque(maxlen=history_size)
+        self.response_times: Deque[float] = deque(maxlen=history_size)
 
         logger.info("Monitoring dashboard initialized")
 
-    def update_system_metrics(self) -> SystemMetrics:
+    def update_system_metrics(self) -> Optional[SystemMetrics]:
         """Update and store current system metrics."""
         try:
             # CPU and memory
@@ -284,7 +284,7 @@ class MonitoringDashboard:
 
     def _generate_alerts(self) -> List[Dict[str, Any]]:
         """Generate alerts based on current metrics."""
-        alerts = []
+        alerts: List[Dict[str, Any]] = []
 
         if not self.system_metrics_history:
             return alerts

@@ -16,7 +16,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
@@ -57,7 +57,7 @@ def get_git_stats(base: str = "HEAD~1", head: str = "HEAD") -> Tuple[int, int, L
     return num_files, lines_changed, files
 
 
-def check_commit_message_quality(base: str = None, head: str = None) -> bool:
+def check_commit_message_quality(base: Optional[str] = None, head: Optional[str] = None) -> bool:
     """Check if commit messages follow single-purpose rules for all commits in range."""
     # Determine commit range
     if base and head:

@@ -118,7 +118,7 @@ class AudioPreprocessor:
     @staticmethod
     def preprocess_audio(
         audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
-    ) -> Dict[str, Any]:
+    ) -> Tuple[str, Dict[str, Any]]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
@@ -263,23 +263,25 @@ class WhisperTranscriber:
 
             processing_time = time.time() - start_time
             word_count = len(result["text"].split())
+            duration_float = float(audio_metadata["duration"])
             speaking_rate = (
-                (word_count / audio_metadata["duration"]) * 60
-                if audio_metadata["duration"] > 0
+                (word_count / duration_float) * 60
+                if duration_float > 0
                 else 0
             )
 
             audio_quality = self._assess_audio_quality(result, audio_metadata)
 
-            confidence = self._calculate_confidence(result.get("segments", []))
+            segments = result.get("segments", []) or []
+            confidence = self._calculate_confidence(segments)
 
             transcription_result = TranscriptionResult(
                 text=result["text"].strip(),
                 language=result["language"],
                 confidence=confidence,
-                duration=audio_metadata["duration"],
+                duration=duration_float,
                 processing_time=processing_time,
-                segments=result.get("segments", []),
+                segments=segments,
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,

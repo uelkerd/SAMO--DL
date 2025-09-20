@@ -8,7 +8,7 @@ Comprehensive input sanitization and validation for API security.
 import re
 import html
 import logging
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Set, Union, Tuple
 from dataclasses import dataclass
 import unicodedata
 
@@ -19,8 +19,8 @@ class SanitizationConfig:
     """Input sanitization configuration."""
     max_text_length: int = 10000
     max_batch_size: int = 100
-    allowed_html_tags: set = None
-    blocked_patterns: set = None
+    allowed_html_tags: Optional[Set[str]] = None
+    blocked_patterns: Optional[Set[str]] = None
     enable_xss_protection: bool = True
     enable_sql_injection_protection: bool = True
     enable_path_traversal_protection: bool = True
@@ -115,11 +115,12 @@ class InputSanitizer:
 
         # Check for blocked patterns
         if self.config.enable_xss_protection or self.config.enable_sql_injection_protection:
-            for pattern in self.config.blocked_patterns:
-                if re.search(pattern, text, re.IGNORECASE):
-                    warnings.append(f"Blocked pattern detected: {pattern}")
-                    # Replace with safe alternative
-                    text = re.sub(pattern, '[BLOCKED]', text, flags=re.IGNORECASE)
+            if self.config.blocked_patterns is not None:
+                for pattern in self.config.blocked_patterns:
+                    if re.search(pattern, text, re.IGNORECASE):
+                        warnings.append(f"Blocked pattern detected: {pattern}")
+                        # Replace with safe alternative
+                        text = re.sub(pattern, '[BLOCKED]', text, flags=re.IGNORECASE)
 
         # HTML escaping for XSS protection
         if self.config.enable_xss_protection:
@@ -197,7 +198,7 @@ class InputSanitizer:
             try:
                 threshold = float(data['confidence_threshold'])
                 if 0.0 <= threshold <= 1.0:
-                    sanitized_data['confidence_threshold'] = threshold
+                    sanitized_data['confidence_threshold'] = str(threshold)  # Convert to string for consistency
                 else:
                     warnings.append("confidence_threshold must be between 0.0 and 1.0")
             except (ValueError, TypeError):
@@ -205,7 +206,7 @@ class InputSanitizer:
 
         return sanitized_data, warnings
 
-    def validate_batch_request(self, data: Dict) -> Tuple[Dict, List[str]]:
+    def validate_batch_request(self, data: Dict) -> Tuple[Dict[str, Any], List[str]]:
         """
         Validate and sanitize batch emotion detection request.
 
@@ -215,8 +216,8 @@ class InputSanitizer:
         Returns:
             Tuple of (sanitized_data, warnings)
         """
-        warnings = []
-        sanitized_data = {}
+        warnings: List[str] = []
+        sanitized_data: Dict[str, Any] = {}
 
         # Validate texts field
         if 'texts' not in data:
@@ -249,7 +250,7 @@ class InputSanitizer:
             try:
                 threshold = float(data['confidence_threshold'])
                 if 0.0 <= threshold <= 1.0:
-                    sanitized_data['confidence_threshold'] = threshold
+                    sanitized_data['confidence_threshold'] = str(threshold)  # Convert to string for consistency
                 else:
                     warnings.append("confidence_threshold must be between 0.0 and 1.0")
             except (ValueError, TypeError):
@@ -351,6 +352,6 @@ class InputSanitizer:
                 "enable_unicode_normalization": self.config.enable_unicode_normalization,
                 "enable_content_type_validation": self.config.enable_content_type_validation,
             },
-            "blocked_patterns_count": len(self.config.blocked_patterns),
-            "allowed_html_tags_count": len(self.config.allowed_html_tags)
+            "blocked_patterns_count": len(self.config.blocked_patterns) if self.config.blocked_patterns else 0,
+            "allowed_html_tags_count": len(self.config.allowed_html_tags) if self.config.allowed_html_tags else 0
         }

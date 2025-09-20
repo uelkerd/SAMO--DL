@@ -109,6 +109,7 @@ class TfidfEmbedder(BaseEmbedder):
         logger.info(
             "Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
         )
+        assert self.model is not None, "Model should be initialized"
         self.model.fit(texts)
         logger.info(
             "Vocabulary size: {len(self.model.vocabulary_)}",

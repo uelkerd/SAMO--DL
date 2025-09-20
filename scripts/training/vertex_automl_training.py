@@ -19,6 +19,7 @@
 # Configure logging
 #!/usr/bin/env python3
 from datetime import datetime
+from typing import Optional
 from google.cloud import aiplatform
 from google.cloud import storage
 import json
@@ -83,7 +84,7 @@ class SAMOVertexAutoMLTraining:
         logger.info("Using target column: {target_column}")
         return target_column
 
-    def create_dataset(self, metadata: dict) -> str:
+    def create_dataset(self, metadata: dict) -> Optional[str]:
         """Create Vertex AI dataset"""
         dataset_display_name = "samo-emotion-dataset-{int(time.time())}"
 
@@ -98,7 +99,7 @@ class SAMOVertexAutoMLTraining:
         logger.info("Created dataset: {self.dataset_id}")
         return self.dataset_id
 
-    def train_model(self, dataset_id: str, metadata: dict) -> str:
+    def train_model(self, dataset_id: str, metadata: dict) -> Optional[str]:
         """Train AutoML model"""
         model_display_name = "samo-emotion-model-{int(time.time())}"
 
@@ -127,7 +128,7 @@ class SAMOVertexAutoMLTraining:
         logger.info("Started training: {self.model_id}")
         return self.model_id
 
-    def monitor_training(self, model_id: str) -> dict:
+    def monitor_training(self, model_id: str) -> Optional[dict]:
         """Monitor training progress"""
         logger.info("Monitoring training progress...")
 
@@ -170,7 +171,7 @@ class SAMOVertexAutoMLTraining:
         logger.info("Deployed model to endpoint: {endpoint.name}")
         return endpoint.name
 
-    def run_training_pipeline(self) -> dict:
+    def run_training_pipeline(self) -> Optional[dict]:
         """Run complete training pipeline"""
         logger.info("🚀 Starting SAMO Vertex AI AutoML Training Pipeline...")
 
@@ -180,9 +181,15 @@ class SAMOVertexAutoMLTraining:
 
             logger.info("📁 Creating Vertex AI dataset...")
             dataset_id = self.create_dataset(metadata)
+            if dataset_id is None:
+                logger.error("Failed to create dataset!")
+                return None
 
             logger.info("🤖 Starting AutoML training...")
             model_id = self.train_model(dataset_id, metadata)
+            if model_id is None:
+                logger.error("Failed to start training!")
+                return None
 
             logger.info("📈 Monitoring training progress...")
             training_result = self.monitor_training(model_id)

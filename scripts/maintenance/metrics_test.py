@@ -144,7 +144,7 @@ all_probs_full = np.concatenate(all_probs_full, axis=0)
 all_true = np.concatenate(all_true, axis=0)
 
 # Slice predictions to kept labels
-all_probs = all_probs_full[:, kept_model_indices]  # shape (N, D)
+all_probs = all_probs_full[:, kept_model_indices]  # type: ignore  # shape (N, D)
 
 
 def evaluate(th):

@@ -15,6 +15,7 @@ from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
 from .preprocessing import JournalEntryPreprocessor
 from .embeddings import (
+    BaseEmbedder,
     TfidfEmbedder,
     Word2VecEmbedder,
     FastTextEmbedder,
@@ -54,7 +55,7 @@ class DataPipeline:
         self.feature_engineer = feature_engineer or FeatureEngineer()
 
         if embedding_method == "tfid":
-            embedder = TfidfEmbedder(max_features=1000)
+            embedder: BaseEmbedder = TfidfEmbedder(max_features=1000)
         elif embedding_method == "word2vec":
             embedder = Word2VecEmbedder(vector_size=100)
         elif embedding_method == "fasttext":

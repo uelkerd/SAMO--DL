@@ -53,7 +53,7 @@ class ModelValidator:
             'tokenizers': '>=0.12.0'
         }
 
-    def validate_model_structure(self, model: nn.Module) -> Tuple[bool, Dict]:
+    def validate_model_structure(self, model: nn.Module) -> Tuple[bool, Dict[str, Any]]:
         """Validate model structure.
 
         Args:
@@ -62,7 +62,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'model_type': type(model).__name__,
             'parameter_count': 0,
             'layers': [],
@@ -104,7 +104,7 @@ class ModelValidator:
             validation_info['issues'].append(f"Validation error: {e}")
             return False, validation_info
 
-    def validate_model_config(self, config: Dict[str, Any]) -> Tuple[bool, Dict]:
+    def validate_model_config(self, config: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         """Validate model configuration.
 
         Args:
@@ -113,7 +113,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'config_keys': list(config.keys()),
             'missing_keys': [],
             'invalid_values': [],
@@ -151,7 +151,7 @@ class ModelValidator:
             validation_info['issues'].append(f"Config validation error: {e}")
             return False, validation_info
 
-    def validate_model_file(self, model_path: str) -> Tuple[bool, Dict]:
+    def validate_model_file(self, model_path: str) -> Tuple[bool, Dict[str, Any]]:
         """Validate model file.
 
         Args:
@@ -160,7 +160,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'file_path': model_path,
             'file_size_mb': 0,
             'file_exists': False,
@@ -218,7 +218,7 @@ class ModelValidator:
             validation_info['issues'].append(f"File validation error: {e}")
             return False, validation_info
 
-    def validate_version_compatibility(self, model_config: Dict[str, Any]) -> Tuple[bool, Dict]:
+    def validate_version_compatibility(self, model_config: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         """Validate version compatibility.
 
         Args:
@@ -227,7 +227,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'current_versions': {},
             'required_versions': self.version_compatibility,
             'compatibility_issues': [],
@@ -267,7 +267,7 @@ class ModelValidator:
             validation_info['issues'].append(f"Version validation error: {e}")
             return False, validation_info
 
-    def validate_model_performance(self, model: nn.Module, test_input: torch.Tensor) -> Tuple[bool, Dict]:
+    def validate_model_performance(self, model: nn.Module, test_input: torch.Tensor) -> Tuple[bool, Dict[str, Any]]:
         """Validate model performance with test input.
 
         Args:
@@ -277,7 +277,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'forward_pass_time': 0,
             'memory_usage_mb': 0,
             'output_shape': None,
@@ -326,7 +326,7 @@ class ModelValidator:
                                 model_path: str,
                                 model_class: type,
                                 model_config: Dict[str, Any],
-                                test_input: Optional[torch.Tensor] = None) -> Tuple[bool, Dict]:
+                                test_input: Optional[torch.Tensor] = None) -> Tuple[bool, Dict[str, Any]]:
         """Perform comprehensive model validation.
 
         Args:
@@ -338,7 +338,7 @@ class ModelValidator:
         Returns:
             Tuple of (is_valid, comprehensive_validation_info)
         """
-        comprehensive_info = {
+        comprehensive_info: Dict[str, Any] = {
             'file_validation': {},
             'config_validation': {},
             'version_validation': {},
@@ -374,7 +374,7 @@ class ModelValidator:
 
                     # Filter model_config to only include valid constructor parameters
                     import inspect
-                    constructor_params = inspect.signature(model_class.__init__).parameters
+                    constructor_params = inspect.signature(model_class).parameters
                     valid_params = {k: v for k, v in model_config.items() if k in constructor_params}
                     model = model_class(**valid_params)
 

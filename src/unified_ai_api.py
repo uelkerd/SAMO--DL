@@ -326,30 +326,30 @@ websocket_manager = WebSocketConnectionManager()
 # Authentication models
 class UserLogin(BaseModel):
     """User login request model."""
-    username: str = Field(..., description="Username", example="user@example.com")
+    username: str = Field(description="Username", example="user@example.com")
     password: str = Field(
         ..., description="Password", min_length=6, example="password123"
     )
 
 class UserRegister(BaseModel):
     """User registration request model."""
-    username: str = Field(..., description="Username", example="user@example.com")
-    email: str = Field(..., description="Email address", example="user@example.com")
+    username: str = Field(description="Username", example="user@example.com")
+    email: str = Field(description="Email address", example="user@example.com")
     password: str = Field(
         ..., description="Password", min_length=6, example="password123"
     )
-    full_name: str = Field(..., description="Full name", example="John Doe")
+    full_name: str = Field(description="Full name", example="John Doe")
 
 class UserProfile(BaseModel):
     """User profile response model."""
-    user_id: str = Field(..., description="User ID")
-    username: str = Field(..., description="Username")
-    email: str = Field(..., description="Email address")
-    full_name: str = Field(..., description="Full name")
+    user_id: str = Field(description="User ID")
+    username: str = Field(description="Username")
+    email: str = Field(description="Email address")
+    full_name: str = Field(description="Full name")
     permissions: List[str] = Field(
         default_factory=list, description="User permissions"
     )
-    created_at: str = Field(..., description="Account creation date")
+    created_at: str = Field(description="Account creation date")
 
 # Authentication dependency
 async def get_current_user(
@@ -760,7 +760,7 @@ class JournalEntryRequest(BaseModel):
             "about it."
         ),
     )
-    generate_summary: bool = Field(True, description="Whether to generate a summary")
+    generate_summary: bool = Field(default=True, description="Whether to generate a summary")
     emotion_threshold: float = Field(
         0.1, description="Threshold for emotion detection", ge=0, le=1
     )
@@ -823,26 +823,25 @@ class VoiceTranscription(BaseModel):
     """Voice transcription results."""
 
     text: str = Field(
-        ...,
         description="Transcribed text",
         example=(
             "Today I received a promotion at work and I'm really excited "
             "about it."
         ),
     )
-    language: str = Field(..., description="Detected language", example="en")
+    language: str = Field(description="Detected language", example="en")
     confidence: float = Field(
-        ..., description="Transcription confidence", ge=0, le=1, example=0.95
+        description="Transcription confidence", ge=0, le=1, example=0.95
     )
     duration: float = Field(
-        ..., description="Audio duration in seconds", ge=0, example=15.4
+        description="Audio duration in seconds", ge=0, example=15.4
     )
-    word_count: int = Field(..., description="Number of words", ge=0, example=12)
+    word_count: int = Field(description="Number of words", ge=0, example=12)
     speaking_rate: float = Field(
-        ..., description="Words per minute", ge=0, example=120.5
+        description="Words per minute", ge=0, example=120.5
     )
     audio_quality: str = Field(
-        ..., description="Audio quality assessment", example="excellent"
+        description="Audio quality assessment", example="excellent"
     )
 
 
@@ -855,7 +854,7 @@ class CompleteJournalAnalysis(BaseModel):
     emotion_analysis: EmotionAnalysis = Field(
         ..., description="Emotion detection results"
     )
-    summary: TextSummary = Field(..., description="Text summarization results")
+    summary: TextSummary = Field(description="Text summarization results")
     processing_time_ms: float = Field(
         ..., description="Total processing time in milliseconds", ge=0, example=450.2
     )
@@ -1017,7 +1016,7 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
 
 class RefreshTokenRequest(BaseModel):
     """Refresh token request model."""
-    refresh_token: str = Field(..., description="Refresh token")
+    refresh_token: str = Field(description="Refresh token")
 
 @app.post(
     "/auth/refresh",
@@ -2017,7 +2016,7 @@ async def detailed_health_check(
     issues = []
 
     # Check models
-    model_checks = {}
+    model_checks: Dict[str, Any] = {}
 
     if emotion_detector is None:
         health_status = "degraded"

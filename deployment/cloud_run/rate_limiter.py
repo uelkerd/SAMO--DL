@@ -4,13 +4,14 @@
 import time
 import threading
 from collections import defaultdict, deque
+from typing import Dict
 from flask import request, jsonify
 from functools import wraps
 
 class RateLimiter:
     def __init__(self, requests_per_minute: int = 100):
         self.requests_per_minute = requests_per_minute
-        self.requests = defaultdict(lambda: deque(maxlen=requests_per_minute))
+        self.requests: Dict[str, deque] = defaultdict(lambda: deque(maxlen=requests_per_minute))
         self.lock = threading.Lock()
 
     def is_allowed(self, client_id: str) -> bool:

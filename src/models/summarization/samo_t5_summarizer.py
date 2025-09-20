@@ -44,10 +44,13 @@ class SAMOT5Summarizer:
         self.config = self._load_config(config_path)
         log_level = self.config.get("samo_optimizations", {}).get("log_level", "INFO")
         self._configure_logging(log_level)
-        self.model = None
-        self.tokenizer = None
         self.device = self._get_device(self.config)
+        self.model = None  # type: ignore
+        self.tokenizer = None  # type: ignore
         self._load_model()
+        # After _load_model succeeds, these are guaranteed to be set
+        assert self.model is not None
+        assert self.tokenizer is not None
 
     @staticmethod
     def _load_config(config_path: Optional[str]) -> Dict[str, Any]:
@@ -111,7 +114,7 @@ class SAMOT5Summarizer:
                     if (key in default_config and
                             isinstance(default_config[key], dict) and
                             isinstance(value, dict)):
-                        default_config[key].update(value)
+                        default_config[key].update(value)  # type: ignore
                     else:
                         default_config[key] = value
             except Exception as e:
@@ -158,8 +161,8 @@ class SAMOT5Summarizer:
 
             # Load model
             self.model = T5ForConditionalGeneration.from_pretrained(model_name)
-            self.model.to(self.device)
-            self.model.eval()
+            self.model.to(self.device)  # type: ignore
+            self.model.eval()  # type: ignore
 
             logger.info("T5 model loaded successfully on %s", self.device)
 
@@ -328,7 +331,7 @@ class SAMOT5Summarizer:
             )
 
             # Tokenize
-            inputs = self.tokenizer(
+            inputs = self.tokenizer(  # type: ignore
                 input_text,
                 return_tensors="pt",
                 max_length=512,
@@ -338,7 +341,7 @@ class SAMOT5Summarizer:
 
             # Generate summary
             with torch.inference_mode():
-                outputs = self.model.generate(
+                outputs = self.model.generate(  # type: ignore
                     inputs.input_ids,
                     max_length=self.config["generation"]["max_length"],
                     min_length=self.config["generation"]["min_length"],
@@ -353,7 +356,7 @@ class SAMOT5Summarizer:
                 )
 
             # Decode output
-            summary = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            summary = self.tokenizer.decode(outputs[0], skip_special_tokens=True)  # type: ignore
 
             # Clean up any potential prefixes or artifacts
             summary = summary.strip()
@@ -401,7 +404,7 @@ class SAMOT5Summarizer:
         valid_texts = []
         valid_indices = []
         # Preallocate results list to preserve input order
-        results = [None] * len(texts)
+        results: List[Optional[Dict[str, Any]]] = [None] * len(texts)
 
         for i, text in enumerate(texts):
             is_valid, error_msg = self._validate_input(text)
@@ -410,7 +413,7 @@ class SAMOT5Summarizer:
                 valid_indices.append(i)
             else:
                 # Assign error result at original index
-                results[i] = {
+                results[i] = {  # type: ignore
                     "summary": "",
                     "error": error_msg,
                     "success": False,
@@ -418,7 +421,7 @@ class SAMOT5Summarizer:
                 }
 
         if not valid_texts:
-            return results
+            return results  # type: ignore
 
         # Process in batches for efficiency
         batch_size = self.config["performance"]["batch_size"]
@@ -455,7 +458,7 @@ class SAMOT5Summarizer:
                     processed_texts.append(input_text)
 
                 # Tokenize entire batch at once
-                inputs = self.tokenizer(
+                inputs = self.tokenizer(  # type: ignore
                     processed_texts,
                     return_tensors="pt",
                     max_length=512,
@@ -465,7 +468,7 @@ class SAMOT5Summarizer:
 
                 # Generate summaries for entire batch
                 with torch.no_grad():
-                    outputs = self.model.generate(
+                    outputs = self.model.generate(  # type: ignore
                         inputs.input_ids,
                         attention_mask=inputs.attention_mask,
                         max_length=self.config["generation"]["max_length"],
@@ -481,7 +484,7 @@ class SAMOT5Summarizer:
                     )
 
                 # Decode all outputs at once
-                summaries = self.tokenizer.batch_decode(
+                summaries = self.tokenizer.batch_decode(  # type: ignore
                     outputs, skip_special_tokens=True
                 )
 
@@ -500,7 +503,7 @@ class SAMOT5Summarizer:
 
                     # Insert result at correct index
                     result_index = batch_indices[i]
-                    results[result_index] = {
+                    results[result_index] = {  # type: ignore
                         "summary": summary,
                         "original_length": original_length,
                         "summary_length": summary_length,
@@ -515,7 +518,7 @@ class SAMOT5Summarizer:
                 logger.error("Batch processing failed: %s", e)
                 # Add error results for this batch
                 for i, idx in enumerate(batch_indices):
-                    results[idx] = {
+                    results[idx] = {  # type: ignore
                         "summary": "",
                         "error": str(e),
                         "success": False,
@@ -525,14 +528,14 @@ class SAMOT5Summarizer:
         # Fill in any missing results with errors
         for i in range(len(texts)):
             if results[i] is None:
-                results[i] = {
+                results[i] = {  # type: ignore
                     "summary": "",
                     "error": "Processing failed",
                     "success": False,
                     "processing_time": 0.0
                 }
 
-        return results
+        return results  # type: ignore
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the loaded model."""

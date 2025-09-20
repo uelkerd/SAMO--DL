@@ -162,8 +162,8 @@ def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
             content = f.read()
 
         original_content = content
-        changes_made = []
-        imports_to_add = set()
+        changes_made: list[str] = []
+        imports_to_add: set[str] = set()
 
         # Apply all pattern fixes
         content = _fix_generic_patterns(content, imports_to_add, changes_made)

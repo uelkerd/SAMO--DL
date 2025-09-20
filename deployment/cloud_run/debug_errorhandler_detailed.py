@@ -70,6 +70,7 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 
 # Let's check if there's a version issue
 try:
+    import flask
     import flask_restx
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
     print(f"Flask version: {flask.__version__}")

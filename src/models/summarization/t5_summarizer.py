@@ -121,7 +121,7 @@ class T5SummarizationModel(nn.Module):
     """T5/BART Summarization Model for emotional journal analysis."""
 
     def __init__(
-        self, config: SummarizationConfig = None, model_name: Optional[str] = None
+        self, config: Optional[SummarizationConfig] = None, model_name: Optional[str] = None
     ) -> None:
         """Initialize T5/BART summarization model.
 
@@ -170,7 +170,7 @@ class T5SummarizationModel(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         labels: Optional[torch.Tensor] = None,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> Dict[str, Optional[torch.Tensor]]:
         """Forward pass for training."""
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
 

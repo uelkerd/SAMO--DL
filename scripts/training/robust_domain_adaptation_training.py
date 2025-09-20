@@ -14,6 +14,7 @@ import warnings
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+import torch.nn as nn
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -163,7 +164,7 @@ def analyze_writing_style(texts: List[str], domain_name: str) -> Optional[Dict[s
     
     import numpy as np
     
-    avg_length = np.mean([len(text.split()) for text in valid_texts])
+    avg_length = float(np.mean([len(text.split()) for text in valid_texts]))
     personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
     reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
                            for text in valid_texts]) / len(valid_texts)
@@ -239,7 +240,7 @@ class FocalLoss:
         else:
             return focal_loss
 
-class DomainAdaptedEmotionClassifier:
+class DomainAdaptedEmotionClassifier(nn.Module):
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):

@@ -62,7 +62,7 @@ print("\n=== Final state ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Check for endpoint name conflicts
-endpoints = {}
+endpoints: dict[str, str] = {}
 for rule in app.url_map.iter_rules():
     if rule.endpoint in endpoints:
         print(f"⚠️  CONFLICT: Endpoint '{rule.endpoint}' appears multiple times:")

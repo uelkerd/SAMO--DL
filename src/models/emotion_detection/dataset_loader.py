@@ -198,6 +198,7 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             self.download_dataset()
 
+        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
         stats = {}
 
         # Basic statistics
@@ -205,7 +206,7 @@ class GoEmotionsDataLoader:
         stats["num_emotions"] = len(GOEMOTIONS_EMOTIONS)
 
         # Emotion distribution
-        emotion_counts = Counter()
+        emotion_counts: Counter[int] = Counter()
         for example in self.dataset["train"]:
             labels = example["labels"]
             for label in labels:
@@ -233,6 +234,8 @@ class GoEmotionsDataLoader:
         """
         if self.dataset is None:
             self.download_dataset()
+
+        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
 
         # Count emotion occurrences
         emotion_counts = np.zeros(len(GOEMOTIONS_EMOTIONS))
@@ -263,6 +266,8 @@ class GoEmotionsDataLoader:
         """
         if self.dataset is None:
             self.download_dataset()
+
+        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
 
         # Split the training data
         train_val_test = self.dataset["train"].train_test_split(

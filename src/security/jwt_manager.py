@@ -57,7 +57,7 @@ class JWTManager:
         self.secret_key = secret_key
         self.algorithm = algorithm
         # Changed to dict: {token: exp_datetime}
-        self.blacklisted_tokens: dict = {}
+        self.blacklisted_tokens: Dict[str, Optional[datetime]] = {}
 
     def create_access_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new access token."""

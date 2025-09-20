@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 
@@ -132,7 +132,7 @@ class IntegrityChecker:
 
                 for pattern in self.blocked_patterns:
                     if pattern in content:
-                        findings.append(f"Found blocked pattern: {pattern}")
+                        findings.append(f"Found blocked pattern: {pattern.decode('utf-8', errors='replace')}")
 
         except Exception as e:
             logger.error(f"Failed to scan file {file_path}: {e}")
@@ -207,7 +207,7 @@ class IntegrityChecker:
         Returns:
             Tuple of (is_valid, validation_results)
         """
-        results = {
+        results: Dict[str, Any] = {
             'file_path': file_path,
             'size_valid': False,
             'extension_valid': False,

@@ -17,8 +17,8 @@ class DependencyChecker:
     def __init__(self, requirements_path: str = "requirements.txt"):
         self.requirements_path = Path(requirements_path)
         self.project_root = Path(__file__).parent.parent.parent
-        self.unused_deps = []
-        self.missing_deps = []
+        self.unused_deps: list[str] = []
+        self.missing_deps: list[str] = []
         
     def check_dependencies(self) -> bool:
         """Check if all dependencies are used in the codebase."""
@@ -58,7 +58,7 @@ class DependencyChecker:
     
     def _find_used_dependencies(self) -> Set[str]:
         """Find all dependencies used in the codebase."""
-        used_deps = set()
+        used_deps: Set[str] = set()
         
         # Common Python file extensions
         python_extensions = {'.py', '.pyx', '.pyi'}

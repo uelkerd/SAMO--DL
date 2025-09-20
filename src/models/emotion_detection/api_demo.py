@@ -65,10 +65,10 @@ tokenizer = None
 class EmotionRequest(BaseModel):
     """Request model for emotion analysis."""
 
-    text: str = Field(..., description="Text to analyze", min_length=1, max_length=2000)
-    user_id: Optional[str] = Field(None, description="User ID for tracking")
-    threshold: float = Field(0.5, description="Confidence threshold", ge=0.0, le=1.0)
-    top_k: Optional[int] = Field(5, description="Number of top emotions to return", ge=1, le=28)
+    text: str = Field(description="Text to analyze", min_length=1, max_length=2000)
+    user_id: Optional[str] = Field(default=None, description="User ID for tracking")
+    threshold: float = Field(default=0.5, description="Confidence threshold", ge=0.0, le=1.0)
+    top_k: Optional[int] = Field(default=5, description="Number of top emotions to return", ge=1, le=28)
 
     class Config:
         schema_extra = {
@@ -91,21 +91,21 @@ class EmotionRequest(BaseModel):
 class EmotionResponse(BaseModel):
     """Response model for emotion analysis."""
 
-    primary_emotion: str = Field(..., description="Emotion with highest confidence", example="joy")
+    primary_emotion: str = Field(description="Emotion with highest confidence", example="joy")
     confidence: float = Field(
-        ..., description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
+        description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
     )
     predicted_emotions: List[str] = Field(
-        ..., description="Emotions above threshold", example=["joy", "gratitude", "optimism"]
+        description="Emotions above threshold", example=["joy", "gratitude", "optimism"]
     )
     emotion_scores: List[float] = Field(
-        ..., description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
+        description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
     )
     all_probabilities: List[float] = Field(
-        ..., description="Probabilities for all emotions", example=[0.85, 0.72, 0.64, 0.0, 0.0]
+        description="Probabilities for all emotions", example=[0.85, 0.72, 0.64, 0.0, 0.0]
     )
     processing_time_ms: float = Field(
-        ..., description="Processing time in milliseconds", example=42.5
+        description="Processing time in milliseconds", example=42.5
     )
 
 

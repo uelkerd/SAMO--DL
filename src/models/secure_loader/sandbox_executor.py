@@ -254,7 +254,7 @@ class SandboxExecutor:
             Dictionary with resource usage information
         """
         try:
-            import psutil
+            import psutil  # type: ignore
 
             process = psutil.Process()
             memory_info = process.memory_info()

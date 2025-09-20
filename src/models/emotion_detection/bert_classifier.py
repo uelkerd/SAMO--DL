@@ -185,7 +185,7 @@ class BERTEmotionClassifier(nn.Module):
         Args:
             temperature: Temperature value for scaling
         """
-        self.temperature.data.fill_(temperature)
+        self.temperature.data.fill_(temperature)  # type: ignore
         logger.info(f"Set temperature to {temperature}")
 
     def predict_emotions(
@@ -447,12 +447,12 @@ def evaluate_emotion_classifier(
             all_targets.append(targets.cpu())
 
     # Concatenate all batches
-    all_predictions = torch.cat(all_predictions, dim=0)
-    all_targets = torch.cat(all_targets, dim=0)
+    all_predictions_tensor = torch.cat(all_predictions, dim=0)
+    all_targets_tensor = torch.cat(all_targets, dim=0)
 
     # Convert to numpy for sklearn metrics
-    predictions_np = all_predictions.numpy()
-    targets_np = all_targets.numpy()
+    predictions_np: np.ndarray = all_predictions_tensor.cpu().numpy()
+    targets_np: np.ndarray = all_targets_tensor.cpu().numpy()
 
     # Calculate metrics
     precision, recall, f1, _ = precision_recall_fscore_support(

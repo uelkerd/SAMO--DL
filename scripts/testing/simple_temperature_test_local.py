@@ -5,6 +5,10 @@ Simple Temperature Test Local Script
 Tests temperature scaling calibration locally.
 """
 
+import sys
+import logging
+import torch
+from pathlib import Path
 from sklearn.metrics import f1_score
 
 

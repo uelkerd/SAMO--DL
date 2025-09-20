@@ -60,8 +60,8 @@ class SecureModelLoader:
         self.model_validator = ModelValidator()
 
         # Model cache
-        self.model_cache = {}
-        self.cache_metadata = {}
+        self.model_cache: Dict[str, nn.Module] = {}
+        self.cache_metadata: Dict[str, Dict[str, Any]] = {}
 
         # Audit log
         self.audit_logger = self._setup_audit_logger()
@@ -223,7 +223,7 @@ class SecureModelLoader:
             Tuple of (loaded_model, loading_info)
         """
         start_time = time.time()
-        loading_info = {
+        loading_info: Dict[str, Any] = {
             'model_path': model_path,
             'model_class': model_class.__name__,
             'loading_time': 0,
@@ -344,7 +344,7 @@ class SecureModelLoader:
         Returns:
             Tuple of (is_valid, validation_info)
         """
-        validation_info = {
+        validation_info: Dict[str, Any] = {
             'model_path': model_path,
             'integrity_check': {},
             'validation': {},
@@ -403,7 +403,7 @@ class SecureModelLoader:
         if not self.enable_caching:
             return {'enabled': False}
 
-        cache_size = 0
+        cache_size = 0.0
         if os.path.exists(self.cache_dir):
             cache_size = sum(
                 os.path.getsize(os.path.join(self.cache_dir, f))

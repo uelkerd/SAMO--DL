@@ -27,6 +27,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass
+import torch
+import torch.nn as nn
+import torch.optim
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -162,7 +165,7 @@ class EnvironmentManager:
                 if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
                     def broadcast_to(array, shape):
                         return np.broadcast_arrays(array, np.empty(shape))[0]
-                    np.lib.stride_tricks.broadcast_to = broadcast_to
+                    np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                     logger.info("  ✅ Numpy compatibility fix applied proactively")
             except Exception as e:
                 logger.warning(f"⚠️ Could not apply numpy fix proactively: {e}")
@@ -213,7 +216,7 @@ class EnvironmentManager:
                         # Add broadcast_to to numpy if missing
                         def broadcast_to(array, shape):
                             return np.broadcast_arrays(array, np.empty(shape))[0]
-                        np.lib.stride_tricks.broadcast_to = broadcast_to
+                        np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                         logger.info("  ✅ Numpy compatibility fix applied")
                     
                     # Try imports again
@@ -235,7 +238,7 @@ class EnvironmentManager:
                     if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
                         def broadcast_to(array, shape):
                             return np.broadcast_arrays(array, np.empty(shape))[0]
-                        np.lib.stride_tricks.broadcast_to = broadcast_to
+                        np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                         logger.info("✅ Numpy compatibility fix applied")
                         
                         # Try verification again
@@ -435,9 +438,9 @@ class ModelManager:
     
     def __init__(self, config: TrainingConfig):
         self.config = config
-        self.model = None
+        self.model: Optional['DomainAdaptedEmotionClassifier'] = None
         self.tokenizer = None
-        self.device = None
+        self.device: Optional[torch.device] = None
         
     def setup_device(self) -> bool:
         """Setup device (GPU/CPU) with optimization."""
@@ -478,7 +481,10 @@ class ModelManager:
                 num_labels=num_labels,
                 dropout=self.config.dropout
             )
-            
+
+            # Ensure model was created successfully
+            assert self.model is not None
+
             # Move to device
             self.model = self.model.to(self.device)
             logger.info(f"✅ Model moved to {self.device}")
@@ -517,10 +523,11 @@ class FocalLoss:
         else:
             return focal_loss
 
-class DomainAdaptedEmotionClassifier:
+class DomainAdaptedEmotionClassifier(nn.Module):
     """BERT-based emotion classifier with domain adaptation capabilities."""
     
     def __init__(self, model_name="bert-base-uncased", num_labels=None, dropout=0.3):
+        super().__init__()
         # Validate num_labels
         if num_labels is None:
             logger.warning("⚠️ num_labels not provided, using default value of 12")
@@ -578,16 +585,19 @@ class TrainingManager:
         self.config = config
         self.model_manager = model_manager
         self.data_manager = data_manager
-        self.optimizer = None
+        self.optimizer: Optional[torch.optim.AdamW] = None
         self.scheduler = None
-        self.criterion = None
+        self.criterion: Optional['FocalLoss'] = None
         self.best_f1 = 0.0
         self.patience_counter = 0
         
     def setup_training(self) -> bool:
         """Setup training components."""
         logger.info("🎯 Setting up training components...")
-        
+
+        # Ensure model is initialized
+        assert self.model_manager.model is not None, "Model must be initialized before setup_training"
+
         try:
             import torch
             from torch.optim import AdamW

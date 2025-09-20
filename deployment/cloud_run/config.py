@@ -50,7 +50,7 @@ class CloudRunConfig:
 class EnvironmentConfig:
     """Environment-specific configuration management"""
 
-    def __init__(self, environment: str = None):
+    def __init__(self, environment: Optional[str] = None):
         self.environment = environment or os.getenv('ENVIRONMENT', 'development')
         self.config = self._load_environment_config()
 

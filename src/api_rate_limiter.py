@@ -28,8 +28,8 @@ class RateLimitConfig:
     max_concurrent_requests: int = 5
     enable_ip_whitelist: bool = False
     enable_ip_blacklist: bool = False
-    whitelisted_ips: set = None
-    blacklisted_ips: set = None
+    whitelisted_ips: Optional[Set[str]] = None
+    blacklisted_ips: Optional[Set[str]] = None
     # Abuse detection thresholds
     rapid_fire_threshold: int = 10  # Max requests per second
     sustained_rate_threshold: int = 200  # Max requests per minute
@@ -174,6 +174,10 @@ class TokenBucketRateLimiter:
         if config.blacklisted_ips is None:
             config.blacklisted_ips = set()
 
+        # Type assertions for mypy
+        assert config.whitelisted_ips is not None
+        assert config.blacklisted_ips is not None
+
     def _get_client_key(self, client_ip: str, user_agent: str = "") -> str:
         """Generate a unique client key for rate limiting."""
         fingerprint = f"{client_ip}:{user_agent}"
@@ -188,6 +192,7 @@ class TokenBucketRateLimiter:
             ipaddress.ip_address(client_ip)
             if (
                 self.config.enable_ip_blacklist
+                and self.config.blacklisted_ips is not None
                 and client_ip in self.config.blacklisted_ips
             ):
                 logger.warning(
@@ -196,6 +201,7 @@ class TokenBucketRateLimiter:
                 return False
             if (
                 self.config.enable_ip_whitelist
+                and self.config.whitelisted_ips is not None
                 and client_ip not in self.config.whitelisted_ips
             ):
                 logger.warning(

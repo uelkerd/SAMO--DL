@@ -251,4 +251,4 @@ def validate_text_input(input_text: str, min_length: int = 1, max_length: int = 
         if char in input_text:
             return {"is_valid": False, "error": "Text contains invalid characters"}
 
-    return {"is_valid": True, "error": None}
+    return {"is_valid": True, "error": ""}
