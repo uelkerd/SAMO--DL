@@ -143,7 +143,7 @@ def check_branch_name_quality() -> bool:
 
     # Check naming pattern: type/short-description
     import re
-    pattern = r'^(feat|fix|chore|refactor|docs|test)/[a-z-]+(-[a-z-]+)*$'
+    pattern = r'^(feat|fix|chore|refactor|docs|test)/[a-z]+(?:-[a-z]+)*$'
     if not re.match(pattern, branch_name):
         print("❌ Branch name must follow pattern: type/short-description")
         print(f"   Current: {branch_name}")
