@@ -7,7 +7,7 @@
 window.SAMO_CONFIG = {
     // API Configuration
     API: {
-        BASE_URL: 'https://samo-unified-api-optimized-71517823771.us-central1.run.app',
+        BASE_URL: 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app',
         ENDPOINTS: {
             EMOTION: '/analyze/emotion',
             SUMMARIZE: '/analyze/summarize',

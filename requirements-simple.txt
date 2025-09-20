@@ -1,0 +1,5 @@
+# Simple Web Server Dependencies
+# Minimal requirements for serving static website files
+
+Flask==3.0.3
+Flask-CORS==4.0.0

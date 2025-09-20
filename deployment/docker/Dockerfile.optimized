@@ -30,13 +30,23 @@ COPY deployment/docker/requirements-api-optimized.txt ./requirements.txt
 # Install Python dependencies with CPU-only PyTorch
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the unified SAMO API with voice processing and all dependencies
-COPY src/ ./src/
-COPY scripts/ ./scripts/
+# Create models directory and set environment early
+RUN mkdir -p /app/models
+ENV HF_HOME=/app/models \
+    TRANSFORMERS_CACHE=/app/models
 
-# Pre-download the SAMO models and Whisper during build to avoid OOM during startup
-RUN mkdir -p /app/models && \
-    python scripts/pre_download_models.py
+# Copy ONLY the model download script first (separate from main source code)
+# This allows model downloading to be cached independently from code changes
+COPY scripts/pre_download_models.py ./scripts/
+
+# Pre-download models in a separate layer for optimal caching
+# This layer will only invalidate if pre_download_models.py changes
+RUN python scripts/pre_download_models.py
+
+# Copy the rest of the scripts and source code
+# Changes to main source code won't invalidate the model download cache
+COPY scripts/ ./scripts/
+COPY src/ ./src/
 
 # Create non-root user for security (Cloud Run best practice)
 RUN useradd -m -u 1000 appuser && \
