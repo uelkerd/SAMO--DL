@@ -71,8 +71,8 @@ dev = [
 ]
 
 [project.scripts]
-samo-train = "src.training.cli:main"
-samo-api = "src.unified_ai_api:main"
+samo-train = "training.cli:main"
+samo-api = "unified_ai_api:main"
 
 [project.urls]
 "Homepage" = "https://github.com/samo-ai/samo-dl"
