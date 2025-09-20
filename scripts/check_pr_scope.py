@@ -12,6 +12,7 @@ Usage:
     python scripts/check_pr_scope.py [--branch <branch>] [--strict]
 """
 
+import os
 import subprocess
 import sys
 from typing import List, Tuple
@@ -23,28 +24,30 @@ def run_command(cmd: List[str]) -> Tuple[str, str, int]:
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
 
-def get_git_stats(branch: str = "HEAD") -> Tuple[int, int, List[str]]:
-    """Get git statistics for the current branch."""
+def get_git_stats(base: str = "HEAD~1", head: str = "HEAD") -> Tuple[int, int, List[str]]:
+    """Get git statistics for a commit range."""
+    # Use git range operator base...head for both name-only and stats
+    range_spec = f"{base}...{head}"
+
     # Get number of files changed
-    stdout, stderr, code = run_command(["git", "diff", "--name-only", f"{branch}~1"])
+    stdout, stderr, code = run_command(["git", "diff", "--name-only", range_spec])
     if code != 0:
-        print(f"❌ Git error: {stderr}")
+        print(f"❌ Git diff error: {stderr}")
         return 0, 0, []
 
     files = stdout.split('\n') if stdout else []
     num_files = len([f for f in files if f.strip()])
 
-    # Get lines changed
-    stdout, stderr, code = run_command(["git", "diff", "--stat", f"{branch}~1"])
+    # Get lines changed using shortstat
+    stdout, stderr, code = run_command(["git", "diff", "--shortstat", range_spec])
     lines_changed = 0
     if code == 0 and stdout:
-        # Parse last line of git diff --stat
-        lines = stdout.strip().split('\n')
-        if lines:
-            last_line = lines[-1]
-            # Extract number from format like "3 files changed, 150 insertions(+), 50 deletions(-)"
-            parts = last_line.split(',')
+        # Parse shortstat format like "1 file changed, 10 insertions(+), 2 deletions(-)"
+        shortstat = stdout.strip()
+        if shortstat:
+            parts = shortstat.split(',')
             for part in parts:
+                part = part.strip()
                 if 'insertions' in part or 'deletions' in part:
                     nums = ''.join(c for c in part if c.isdigit())
                     if nums:
@@ -53,35 +56,77 @@ def get_git_stats(branch: str = "HEAD") -> Tuple[int, int, List[str]]:
     return num_files, lines_changed, files
 
 
-def check_commit_message_quality() -> bool:
-    """Check if commit messages follow single-purpose rules."""
-    stdout, stderr, code = run_command(["git", "log", "--oneline", "-1"])
+def check_commit_message_quality(base: str = None, head: str = None) -> bool:
+    """Check if commit messages follow single-purpose rules for all commits in range."""
+    # Determine commit range
+    if base and head:
+        commit_range = f"{base}..{head}"
+    else:
+        # Try to determine range from environment or git context
+        # Check for common CI environment variables
+        if os.environ.get('GITHUB_BASE_REF') and os.environ.get('GITHUB_HEAD_REF'):
+            base_ref = os.environ['GITHUB_BASE_REF']
+            head_ref = os.environ['GITHUB_HEAD_REF']
+            commit_range = f"origin/{base_ref}..origin/{head_ref}"
+        else:
+            # Fallback to HEAD^..HEAD for single commit
+            commit_range = "HEAD^..HEAD"
+
+    print(f"🔍 Checking commit messages in range: {commit_range}")
+
+    # Get all non-merge commit SHAs in the range
+    stdout, stderr, code = run_command(["git", "rev-list", "--no-merges", commit_range])
     if code != 0:
-        print(f"❌ Git log error: {stderr}")
+        print(f"❌ Git rev-list error: {stderr}")
         return False
 
-    commit_msg = stdout.strip()
-    if not commit_msg:
-        print("❌ No commit message found")
-        return False
+    commit_shas = [sha.strip() for sha in stdout.split('\n') if sha.strip()]
 
-    # Check for single-purpose keywords
-    single_purpose_keywords = ['feat:', 'fix:', 'chore:', 'refactor:', 'docs:', 'test:']
-    has_single_purpose = any(commit_msg.startswith(keyword) for keyword in single_purpose_keywords)
+    if not commit_shas:
+        print("ℹ️  No non-merge commits found in range")
+        return True
 
-    if not has_single_purpose:
-        print("❌ Commit message must start with feat:, fix:, chore:, refactor:, docs:, or test:")
-        print(f"   Current: {commit_msg}")
-        return False
+    print(f"📝 Found {len(commit_shas)} commit(s) to check")
 
-    # Check for mixing concerns (contains 'and', 'also', 'plus')
-    mixing_indicators = [' and ', ' also ', ' plus ', ' & ', ' in addition ']
-    if any(indicator in commit_msg.lower() for indicator in mixing_indicators):
-        print("❌ Commit message indicates multiple concerns (contains 'and', 'also', etc.)")
-        print(f"   Current: {commit_msg}")
-        return False
+    all_passed = True
 
-    return True
+    for sha in commit_shas:
+        # Get the oneline commit message
+        stdout, stderr, code = run_command(["git", "log", "-1", "--format=%s", sha])
+        if code != 0:
+            print(f"❌ Failed to get commit message for {sha}: {stderr}")
+            all_passed = False
+            continue
+
+        commit_msg = stdout.strip()
+        if not commit_msg:
+            print(f"❌ Empty commit message for {sha}")
+            all_passed = False
+            continue
+
+        print(f"🔎 Checking commit {sha[:8]}: {commit_msg}")
+
+        # Check for single-purpose keywords
+        single_purpose_keywords = ['feat:', 'fix:', 'chore:', 'refactor:', 'docs:', 'test:']
+        has_single_purpose = any(commit_msg.startswith(keyword) for keyword in single_purpose_keywords)
+
+        if not has_single_purpose:
+            print(f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:")
+            print(f"   Message: {commit_msg}")
+            all_passed = False
+            continue
+
+        # Check for mixing concerns (contains 'and', 'also', 'plus')
+        mixing_indicators = [' and ', ' also ', ' plus ', ' & ', ' in addition ']
+        if any(indicator in commit_msg.lower() for indicator in mixing_indicators):
+            print(f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)")
+            print(f"   Message: {commit_msg}")
+            all_passed = False
+            continue
+
+        print(f"✅ Commit {sha[:8]} passed quality checks")
+
+    return all_passed
 
 
 def check_branch_name_quality() -> bool:
@@ -113,6 +158,8 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="Check PR scope compliance")
     parser.add_argument("--branch", default="HEAD", help="Branch to check (default: HEAD)")
+    parser.add_argument("--base", help="Base branch/commit for range comparison (e.g., main, origin/main)")
+    parser.add_argument("--head", help="Head branch/commit for range comparison (default: current branch)")
     parser.add_argument("--strict", action="store_true", help="Strict mode - fail on any warning")
     args = parser.parse_args()
 
@@ -128,12 +175,15 @@ def main():
 
     # Check commit message
     print("\n📝 Checking commit message...")
-    if not check_commit_message_quality():
+    if not check_commit_message_quality(args.base, args.head):
         all_passed = False
 
     # Check file and line limits
     print("\n📊 Checking size limits...")
-    num_files, lines_changed, files = get_git_stats(args.branch)
+    # Determine base for git stats
+    base_for_stats = args.base if args.base else f"{args.branch}~1"
+    head_for_stats = args.head if args.head else args.branch
+    num_files, lines_changed, files = get_git_stats(base_for_stats, head_for_stats)
 
     print(f"   Files changed: {num_files}")
     print(f"   Lines changed: {lines_changed}")
