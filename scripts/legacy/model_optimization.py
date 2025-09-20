@@ -1,37 +1,12 @@
-            # Check if target speedup is achieved with ONNX
-            # Prepare ONNX inputs
-        # Benchmark ONNX model
-        # Benchmark original PyTorch model
-        # Benchmark quantized PyTorch model
-        # Calculate statistics
-        # Check if outputs are close
-        # Create dummy input
-        # Generate random input texts
-        # Log results
-        # Move model back to CPU
-        # Move outputs to CPU for comparison
-        # Save benchmark results
-        # Test on CPU
-        # Test on GPU
-        # Tokenize
-        import onnx
-        import onnxruntime as ort
-    # Apply dynamic quantization to linear layers
-    # Apply optimizations
-    # Apply quantization
-    # Benchmark for different batch sizes
-    # Calculate size reduction
-    # Check if CUDA is available
-    # Check if ONNX Runtime is available
-    # Check if all requirements are met
-    # Check if model exists
-    # Check if target size is achieved
-    # Collect all metrics
-    # Convert to ONNX
-    # Create dummy input for ONNX export
-    # Create model
-    # Create output directory
-    # Create tokenizer
+#!/usr/bin/env python3
+"""
+Model Optimization Script
+
+Optimizes models for deployment using ONNX, quantization, and other techniques.
+"""
+
+import onnx
+import onnxruntime as ort
     # Define dynamic axes for variable batch size and sequence length
     # Define input and output names
     # Define output paths

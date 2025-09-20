@@ -1,37 +1,13 @@
-            # Create custom job
-            # Create hyperparameter tuning job
-            # Create validation job
-            # Create validation job
-            # Hyperparameter tuning configuration
-            # Import Vertex AI
-            # Initialize Vertex AI
-            # Install Vertex AI SDK
-            # Model monitoring configuration
-            # Pipeline configuration
-            # Training job configuration
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import storage
-            import subprocess
-        # Step 1: Environment setup
-        # Step 2: Create validation job
-        # Step 3: Create custom training job
-        # Step 4: Create hyperparameter tuning
-        # Step 5: Create monitoring
-        # Step 6: Create automated pipeline
-    # Create Vertex AI setup
-    # Get project ID from environment or user input
-    # Setup complete infrastructure
-    # Summary
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from typing import Dict, Any, Optional
+"""
+Vertex AI Setup and Training Script
+
+Sets up Vertex AI environment and runs training jobs.
+"""
+
+from google.cloud import aiplatform
+from google.cloud import storage
+import subprocess
 import logging
 import os
 import sys

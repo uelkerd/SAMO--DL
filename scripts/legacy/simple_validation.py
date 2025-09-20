@@ -1,18 +1,15 @@
-        # Test with dummy data
-        from torch import nn
-        import sklearn
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-    # Check if gcloud is available
-    # Check if we have the deployment guide
-    # Summary
-    import subprocess
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-import logging
+"""
+Simple Validation Script
+
+Validates model components and deployment readiness.
+"""
+
+from torch import nn
+import sklearn
+import torch
+import torch.nn.functional as F
+import transformers
 import numpy as np
 import sys
 
@@ -135,7 +132,7 @@ def validate_gcp_readiness():
         logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
         gcp_ready = False
 
-if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
+    if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
         logger.info("   ✅ GCP Deployment Guide: Available")
         guide_ready = True
     else:

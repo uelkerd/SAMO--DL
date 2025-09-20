@@ -1,10 +1,11 @@
-        # Create a simple custom training job
-        # Get project ID
-        # Import Vertex AI
-        # Initialize Vertex AI
-        from google.cloud import aiplatform
-# Configure logging
 #!/usr/bin/env python3
+"""
+Simple Vertex AI Validation Script
+
+Validates Vertex AI setup and configuration.
+"""
+
+from google.cloud import aiplatform
 from pathlib import Path
 import logging
 import os

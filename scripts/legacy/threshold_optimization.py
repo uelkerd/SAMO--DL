@@ -1,16 +1,11 @@
-        # Collect validation logits and labels
-        # Concatenate all batches
-        # Load checkpoint
-        # Load dataset
-        # Load trained model
-        # Optimize thresholds
-        # Save optimized thresholds
-        # Try different thresholds
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Threshold Optimization Script
+
+Optimizes classification thresholds for better performance.
+"""
+
+import traceback
 from pathlib import Path
 from sklearn.metrics import f1_score
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader

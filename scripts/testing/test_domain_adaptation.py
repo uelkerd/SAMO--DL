@@ -1,30 +1,11 @@
-            # Apply threshold and get predicted emotions
-            # Predict
-            # Sort by confidence
-            # Tokenize
-        # Emotional complexity
-        # Exact match
-        # Mixed emotions
-        # Negative emotions
-        # Neutral/complex emotions
-        # Partial match (at least one emotion correct)
-        # Positive emotions
-        # Save detailed results
-    # Analyze results
-    # Calculate metrics
-    # Emotion mapping
-    # Extract texts for prediction
-    # Generate recommendations
-    # Get predictions
-    # GoEmotions emotion labels (28 emotions including neutral)
-    # Import and initialize model
-    # Initialize tokenizer
-    # Load model
-    # Performance analysis
-    # Save samples for testing
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-# Set up logging
 #!/usr/bin/env python3
+"""
+Domain Adaptation Test Script
+
+Tests model performance on different domains and datasets.
+"""
+
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 from pathlib import Path
 from transformers import AutoTokenizer
 import argparse

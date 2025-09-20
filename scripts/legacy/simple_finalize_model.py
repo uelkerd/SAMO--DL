@@ -1,15 +1,11 @@
-    # Check if checkpoint exists
-    # Copy checkpoint to final location
-    # Create final model
-    # Create model metadata
-    # Create output directory
-    # Save metadata
-    # Verify requirements
-    import shutil
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
+"""
+Simple Model Finalization Script
+
+Finalizes and packages trained models for deployment.
+"""
+
+import shutil
 from pathlib import Path
 import json
 import logging

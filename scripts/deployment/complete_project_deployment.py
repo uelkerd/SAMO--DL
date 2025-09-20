@@ -125,7 +125,7 @@ def create_final_documentation():
         "files_created": [
             "deployment/model/ (trained model)",
             "deployment/inference.py (inference script)",
-            "deployment/api_server.py (REST API)",
+            "deployment/local/api_server.py (REST API)",
             "deployment/test_examples.py (testing script)",
             "deployment/deploy.sh (deployment script)",
             "docs/reports/PROJECT_COMPLETION_SUMMARY.md (project summary)"
@@ -301,7 +301,7 @@ def main():
     print("\n📁 DEPLOYMENT PACKAGE READY:")
     print("  - deployment/model/ (trained model)")
     print("  - deployment/inference.py (inference script)")
-    print("  - deployment/api_server.py (REST API)")
+    print("  - deployment/local/api_server.py (REST API)")
     print("  - deployment/test_examples.py (test script)")
     print("  - deployment/deploy.sh (deployment script)")
     print("  - deployment/DEPLOYMENT_INSTRUCTIONS.md (instructions)")

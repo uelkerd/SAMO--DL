@@ -1,43 +1,13 @@
-            # Check per-class distribution
-            # Count positive labels
-        # Analyze first few examples
-        # Calculate statistics
-        # Check CUDA
-        # Check for critical issues
-        # Check for issues
-        # Check for issues
-        # Check if we have the expected keys
-        # Check statistics
-        # Compare with manual BCE
-        # Create loader without dev_mode parameter
-        # Create model
-        # Ensure some positive labels
-        # Get training data
-        # Load data
-        # Log class distribution
-        # Prepare datasets
-        # Scenario 1: Mixed labels
-        # Test different scenarios
-        # Test forward pass
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        import pandas as pd
-        import torch
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-    # Run all validations
-    # Run validations
-    # Summary
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-import logging
-import numpy as np
+"""
+Local Validation Debug Script
+
+Debugs and validates local model training and inference components.
+"""
+
+from src.models.emotion_detection.bert_classifier import WeightedBCELoss
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 import sys
 
 

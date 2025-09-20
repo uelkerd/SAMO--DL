@@ -1,17 +1,12 @@
-        # Add src to path
-        # Create model
-        # Test with dummy data
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from torch import nn
-        import sklearn
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-    # Summary
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
+"""Minimal validation script for emotion detection model."""
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from torch import nn
+import sklearn
+import torch
+import torch.nn.functional as F
+import transformers
 import logging
 import numpy as np
 import sys
@@ -180,7 +175,7 @@ def main():
     if passed >= 3:
         logger.info("✅ Ready for GCP deployment!")
         logger.info("🚀 Core components are working correctly.")
-logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
+        logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
         return True
     else:
         logger.info("⚠️ Some validations failed.")

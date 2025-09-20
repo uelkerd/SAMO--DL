@@ -1,33 +1,16 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # BCE loss
-        # Create data loaders
-        # Create focal loss
-        # Create model
-        # Create tokenized datasets
-        # Extract raw data
-        # Extract texts and labels from raw datasets
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        from src.models.emotion_detection.bert_classifier import EmotionDataset
-        from transformers import AutoTokenizer
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Focal Loss Training Script
+
+Training script using focal loss for emotion detection.
+"""
+
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from transformers import AutoTokenizer
+import traceback
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from the current 13.2% to target >50%.
 from torch import nn
 import logging
 import os

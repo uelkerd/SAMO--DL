@@ -1,39 +1,12 @@
-                    # The labels field contains a list of integer indices
-                    # The labels field contains a list of integer indices
-            # Backward pass
-            # Check for 0.0000 loss
-            # Create dummy inputs
-            # Create dummy inputs (in real implementation, use proper tokenization)
-            # Create dummy tensors for validation
-            # Forward pass
-            # Forward pass
-            # Get labels - FIXED: labels are lists, not dict keys
-            # Get labels from batch - FIXED: labels are lists, not dict keys
-            # Log every 50 batches
-        # Apply alpha weighting
-        # Apply sigmoid to get probabilities
-        # Calculate BCE loss
-        # Calculate focal loss
-        # Create optimized components
-        # Epoch summary
-        # Train model
-        # Training loop (simplified for validation)
-        # Validate before training
-        # Validation
-    # Create focal loss
-    # Create model with class weights
-    # Create simple data loaders (we'll implement proper batching later)
-    # Create zero tensor
-    # Load data to get class weights
-    # Load dataset
-    # Set positive labels to 1
-    # Use different learning rates for different layers
-    from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-    from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Fixed Training Script with Optimized Configuration
+
+Training script with optimized configuration and fixed implementation.
+"""
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 from pathlib import Path
 from typing import Dict, Any, Tuple
 import logging

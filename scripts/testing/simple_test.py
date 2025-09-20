@@ -1,10 +1,12 @@
-        # Create loader
-        # Get first example
-        # Try different ways to access
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        import traceback
-# Add src to path
 #!/usr/bin/env python3
+"""
+Simple Test Script
+
+Basic test for model components and data loading.
+"""
+
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+import traceback
 from pathlib import Path
 import logging
 import sys

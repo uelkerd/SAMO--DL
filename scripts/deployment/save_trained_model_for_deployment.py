@@ -204,7 +204,7 @@ if __name__ == "__main__":
         print("📁 Files created:")
         print("  - deployment/model/ (model files)")
         print("  - deployment/inference.py (inference script)")
-        print("  - deployment/api_server.py (API server)")
+        print("  - deployment/local/api_server.py (API server)")
         print("  - deployment/test_examples.py (test script)")
         print("  - deployment/deploy.sh (deployment script)")
         print("\n🚀 Next steps:")

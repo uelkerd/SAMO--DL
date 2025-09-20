@@ -1,24 +1,11 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Validation phase
-        # BCE loss
-        # Create data loaders
-        # Create focal loss
-        # Create model
-        # Focal loss components
-        # Load dataset
-        # Setup optimizer
-        # Training loop
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Simple Working Training Script
+
+Simple working training script for emotion detection.
+"""
+
+import traceback
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier

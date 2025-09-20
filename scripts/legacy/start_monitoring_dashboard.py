@@ -1,14 +1,11 @@
-        # Import monitoring components
-        # Initialize monitor
-        # Keep main thread alive
-        # Start monitoring in background thread
-        from scripts.model_monitoring import ModelHealthMonitor
-    # Check if config file exists
-    # Start monitoring system
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
+"""
+Monitoring Dashboard Startup Script
+
+Starts the model monitoring dashboard and health monitoring system.
+"""
+
+from scripts.model_monitoring import ModelHealthMonitor
 from pathlib import Path
 import argparse
 import logging

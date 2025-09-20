@@ -93,7 +93,7 @@ ls -la local_deployment/model/
 
 #### Step 3: Configuration
 
-The API server uses default configuration. For customization, modify `local_deployment/api_server.py`:
+The API server uses default configuration. For customization, modify `deployment/local/api_server.py`:
 
 ```python
 # Rate limiting (requests per minute)
@@ -531,10 +531,10 @@ tar -xzf model_backup_20231201.tar.gz -C local_deployment/
 
 ```bash
 # Backup configuration
-cp local_deployment/api_server.py local_deployment/api_server.py.backup
+cp deployment/local/api_server.py deployment/local/api_server.py.backup
 
 # Restore configuration
-cp local_deployment/api_server.py.backup local_deployment/api_server.py
+cp deployment/local/api_server.py.backup deployment/local/api_server.py
 ```
 
 ## Scaling

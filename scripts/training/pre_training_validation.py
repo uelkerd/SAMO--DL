@@ -1,48 +1,17 @@
-                # Test write permissions
-            # Backward pass
-            # Check CUDA availability
-            # Check available disk space
-            # Check class weights
-            # Check data shapes and types
-            # Check dataset structure
-            # Check for all-zero or all-one labels
-            # Check gradients
-            # Check output directories
-            # Create model
-            # Create trainer
-            # Forward pass
-            # Load data in dev mode
-            # Move to device if available
-            # Optimizer step
-            # Prepare data
-            # Test forward pass
-            # Test forward pass with dummy data
-            # Test learning rate
-            # Test loss function
-            # Test one training step
-            # Test optimizer
-            # Test scheduler
-            # Validate first batch
-            # Validate labels
-            # Validate outputs
-            from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-            from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-            from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-            from torch.optim import AdamW
-            import pandas as pd
-            import shutil
-            import torch
-            import transformers
-        # Critical issues
-        # Final recommendation
-        # Summary
-        # Warnings
-    # Exit with appropriate code
-    # Generate report
-    # Run all validations
-# Add src to path
-# Configure logging
-# Import torch early for validation
+#!/usr/bin/env python3
+"""
+Pre-training Validation Script
+
+Validates environment and components before training.
+"""
+
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+from torch.optim import AdamW
+import pandas as pd
+import shutil
+import torch
 #!/usr/bin/env python3
 from pathlib import Path
 import logging

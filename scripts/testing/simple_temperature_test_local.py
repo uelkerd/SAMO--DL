@@ -1,32 +1,11 @@
-                # Apply threshold
-        # Calculate macro F1
-        # Calculate metrics
-        # Calculate micro F1
-        # Concatenate results
-        # Convert to numpy for sklearn
-        # If it's a tuple, assume first element is the state dict
-        # If it's just the state dict directly
-        # Run evaluation
-        # Set temperature
-        # Show some predictions
-        from sklearn.metrics import f1_score
-    # Create dataset
-    # Create emotion labels (simplified for testing)
-    # Create simple test data
-    # Handle different checkpoint formats
-    # Initialize model
-    # Load checkpoint
-    # Load sample data
-    # Set device
-    # Test different temperatures
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from pathlib import Path
-from torch.utils.data import DataLoader
-import json
-import logging
-import sys
-import torch
+"""
+Simple Temperature Test Local Script
+
+Tests temperature scaling calibration locally.
+"""
+
+from sklearn.metrics import f1_score
 
 
 

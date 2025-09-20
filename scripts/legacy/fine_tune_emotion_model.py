@@ -1,21 +1,3 @@
-                # Backward pass
-                # Forward pass
-                # Log progress every 100 batches
-                # Save model
-            # Log progress
-            # Save best model
-            # Training phase
-            # Update learning rate
-            # Validation phase
-        # Create data loaders
-        # Create model
-        # Load dataset
-        # Setup loss and optimizer
-        # Training loop
-        import traceback
-    # Setup device
-# Add project root to path
-# Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader

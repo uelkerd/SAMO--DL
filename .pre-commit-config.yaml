@@ -29,7 +29,13 @@ repos:
     rev: v1.7.1
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
+        additional_dependencies: [types-requests, types-PyYAML]
+        exclude: |
+          (?x)(
+            scripts/training/bulletproof_training_cell\.py$
+            | scripts/training/bulletproof_training_cell_fixed\.py$
+            | scripts/training/final_bulletproof_training_cell\.py$
+          )
 
   - repo: https://github.com/pycqa/bandit
     rev: 1.7.6

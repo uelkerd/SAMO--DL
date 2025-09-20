@@ -1,14 +1,11 @@
-        # Configuration 1: Standard training with full dataset
-        # Evaluate model
-        # Initialize model with class weights
-        # Prepare data with dev_mode=False for full dataset
-        # Report results
-        # Save the model
-        # Train model
-        import traceback
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
+"""
+Quick F1 Test Script
+
+Quick test to evaluate F1 scores and model performance.
+"""
+
+import traceback
 from pathlib import Path
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 import logging
