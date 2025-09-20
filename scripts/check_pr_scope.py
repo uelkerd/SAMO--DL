@@ -14,13 +14,12 @@ Usage:
 
 import subprocess
 import sys
-from pathlib import Path
 from typing import List, Tuple
 
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
     """Run command and return (stdout, stderr, returncode)."""
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
 
@@ -188,14 +187,13 @@ def main():
     if all_passed:
         print("✅ PR Scope Check PASSED")
         return 0
-    else:
-        print("❌ PR Scope Check FAILED")
-        print("\n💡 Remember the rules:")
-        print("   • Max 50 files changed")
-        print("   • Max 1500 lines changed")
-        print("   • ONE purpose per PR")
-        print("   • Single concern (no mixing API + tests + docs)")
-        return 1
+    print("❌ PR Scope Check FAILED")
+    print("\n💡 Remember the rules:")
+    print("   • Max 50 files changed")
+    print("   • Max 1500 lines changed")
+    print("   • ONE purpose per PR")
+    print("   • Single concern (no mixing API + tests + docs)")
+    return 1
 
 
 if __name__ == "__main__":
