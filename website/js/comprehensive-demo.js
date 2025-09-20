@@ -103,12 +103,9 @@ class SAMOAPIClient {
                 // For FormData, don't set Content-Type header - let browser set it with boundary
                 config.body = data;
             } else {
-                // For deployed API, use query parameters instead of JSON body
-                const queryString = this.buildQueryString(data);
-                if (queryString) {
-                    endpoint += `?${queryString}`;
-                }
-                // No JSON body; skip Content-Type to avoid misleading intermediaries
+                // Send JSON data in request body (proper REST API format)
+                config.headers['Content-Type'] = 'application/json';
+                config.body = JSON.stringify(data);
             }
         } else if (method === 'GET') {
             // Optional: set Accept if needed

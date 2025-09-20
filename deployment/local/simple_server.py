@@ -7,6 +7,7 @@ A lightweight Flask server that serves static website files with CORS enabled
 for testing against deployed Cloud Run APIs.
 """
 import sys
+import os
 import argparse
 from pathlib import Path
 from flask import Flask, send_from_directory, jsonify
@@ -20,8 +21,30 @@ WEBSITE_DIR = PROJECT_ROOT / "website"
 
 app = Flask(__name__)
 
-# Enable CORS for all domains and all routes
-CORS(app, origins="*", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+# Configure CORS based on environment
+is_production = os.getenv("ENV", "").lower() == "prod"
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "")
+
+if is_production:
+    # Production: Use environment variable or default to localhost regex
+    if allowed_origins:
+        origins = [origin.strip() for origin in allowed_origins.split(",")]
+    else:
+        # Default production origins - only allow specific localhost ports
+        origins = ["http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:3000", "http://127.0.0.1:5000"]
+
+    CORS(app,
+         origins=origins,
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization"],
+         supports_credentials=True)
+else:
+    # Development: Allow localhost with regex pattern
+    CORS(app,
+         origins=["http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:3000", "http://127.0.0.1:5000"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization"],
+         supports_credentials=True)
 
 @app.route('/')
 def index():

@@ -438,7 +438,8 @@ def get_admin_api_key() -> str | None:
     per-request read may introduce race conditions if the environment variable
     changes mid-request; callers should treat the value as ephemeral per call.
     """
-    return os.environ.get("ADMIN_API_KEY", "")
+    admin_key = os.environ.get("ADMIN_API_KEY", "").strip()
+    return admin_key if admin_key else None
 
 def require_admin_api_key(f):
     """Decorator to require admin API key via X-Admin-API-Key header.
@@ -450,7 +451,7 @@ def require_admin_api_key(f):
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
-        if not expected_key or api_key != expected_key:
+        if expected_key is None or api_key != expected_key:
             logger.warning(f"Unauthorized admin access attempt from {request.remote_addr}")
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)

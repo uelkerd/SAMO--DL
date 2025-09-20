@@ -375,8 +375,7 @@ def get_metrics():
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
-                'success_rate': (f"{(metrics['successful_requests'] / "
-                                f"max(metrics['total_requests'], 1)) * 100:.2f}%"),
+                'success_rate': f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
                 'average_response_time_ms': round(metrics['average_response_time'] 
                                                  * 1000, 2),
                 'requests_per_minute': (metrics['total_requests'] / 

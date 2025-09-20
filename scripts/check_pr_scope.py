@@ -141,13 +141,11 @@ def main() -> int:
 
     if num_files > 50:
         print(f"❌ Too many files changed! Max 50 allowed, got {num_files}")
-        if args.strict:
-            all_passed = False
+        all_passed = False
 
     if lines_changed > 1500:
         print(f"❌ Too many lines changed! Max 1500 allowed, got {lines_changed}")
-        if args.strict:
-            all_passed = False
+        all_passed = False
 
     # List changed files
     if files:
