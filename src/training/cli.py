@@ -105,7 +105,6 @@ def train_emotion_model(args):
         logger.warning("Emotion training pipeline not available, using fallback")
         # Fallback to a simple training script
         import subprocess
-        import sys
 
         script_path = Path(__file__).parent.parent.parent / "scripts" / "training" / "minimal_working_training.py"
         # Resolve to absolute path and validate it's within the project directory
