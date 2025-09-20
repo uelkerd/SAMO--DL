@@ -143,8 +143,8 @@ class T5SummarizationModel(nn.Module):
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing {self.model_name} summarization model...
-                ", extra={"format_args": True}
+            f"Initializing {self.model_name} summarization model...",
+            extra={"format_args": True}
         )
 
         if "bart" in self.model_name.lower():

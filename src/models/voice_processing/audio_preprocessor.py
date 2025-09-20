@@ -44,21 +44,20 @@ class AudioPreprocessor:
         audio_path = Path(audio_path)
 
         if not audio_path.exists():
-            return False, "Audio file not found: {audio_path}"
+            return False, f"Audio file not found: {audio_path}"
 
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
-            return False, "Unsupported audio format: {audio_path.suffix}"
+            return False, f"Unsupported audio format: {audio_path.suffix}"
 
         try:
             audio = AudioSegment.from_file(str(audio_path))
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.
-                    MAX_DURATION}s"
+                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
 
             if duration < 0.1:  # Too short
-                return False, "Audio too short: {duration:.1f}s"
+                return False, f"Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
 
@@ -84,7 +83,7 @@ class AudioPreprocessor:
         if not is_valid:
             raise ValueError(error_msg)
 
-        logger.info("Preprocessing audio: {audio_path}", extra={"format_args": True})
+        logger.info(f"Preprocessing audio: {audio_path}", extra={"format_args": True})
 
         audio = AudioSegment.from_file(str(audio_path))
 
@@ -103,8 +102,8 @@ class AudioPreprocessor:
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
-                "Resampled to {AudioPreprocessor.
-                    TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+                f"Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz",
+                extra={"format_args": True}
             )
 
         audio = audio.normalize()
@@ -125,7 +124,7 @@ class AudioPreprocessor:
             "processed_file_size": Path(output_path).stat().st_size,
         }
 
-        logger.info("Audio preprocessed: {output_path}", extra={"format_args": True})
+        logger.info(f"Audio preprocessed: {output_path}", extra={"format_args": True})
         return str(output_path), processed_metadata
 
 
