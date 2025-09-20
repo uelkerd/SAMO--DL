@@ -214,17 +214,43 @@ class SAMOAPIClient {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
-                return this.getMockSummaryResponse(text);
+
+                // Inform user about fallback to mock data
+                if (typeof addToProgressConsole === 'function') {
+                    addToProgressConsole('⚠️ API unavailable, using mock summarization for demo', 'warning');
+                }
+
+                const mockResponse = this.getMockSummaryResponse(text);
+                mockResponse.fallback_reason = error.message;
+                return mockResponse;
             }
             throw error;
         }
     }
 
     getMockSummaryResponse(text) {
-        // Mock summarization response for demo purposes
+        // Improved mock summarization response for demo purposes
         const words = text.split(' ');
-        const summaryLength = Math.max(10, Math.floor(words.length * 0.3));
-        const summary = words.slice(0, summaryLength).join(' ') + '...';
+        const summaryLength = Math.max(15, Math.floor(words.length * 0.4));
+
+        // Create a more intelligent summary by taking key sentences
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+        let summary;
+
+        if (sentences.length >= 2) {
+            // Take first and last sentences for a basic summary
+            summary = sentences[0].trim() + '. ' + sentences[sentences.length - 1].trim() + '.';
+        } else {
+            // Fallback to word truncation
+            summary = words.slice(0, summaryLength).join(' ') + '...';
+        }
+
+        // Ensure summary is not too long
+        if (summary.length > text.length * 0.6) {
+            summary = words.slice(0, Math.floor(words.length * 0.4)).join(' ') + '...';
+        }
+
+        console.log('🤖 Generated mock summary:', summary);
 
         return {
             summary: summary,
@@ -257,7 +283,15 @@ class SAMOAPIClient {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
-                return this.getMockEmotionResponse(text);
+
+                // Inform user about fallback to mock data
+                if (typeof addToProgressConsole === 'function') {
+                    addToProgressConsole('⚠️ API unavailable, using mock emotion detection for demo', 'warning');
+                }
+
+                const mockResponse = this.getMockEmotionResponse(text);
+                mockResponse.fallback_reason = error.message;
+                return mockResponse;
             }
             throw error;
         }
@@ -486,19 +520,90 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         console.log('🤖 Generating AI text with OpenAI API...');
 
-        // Using sample text for demo purposes
-        console.log('✨ Using sample text for demo purposes');
-        showInlineSuccess('✨ Generated AI-powered sample text!', 'textInput');
+        // Update user with loading feedback
+        if (textInput) {
+            textInput.value = '🤖 Generating unique AI text with OpenAI...';
+        }
+
+        // Make actual OpenAI API call
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: window.SAMO_CONFIG?.OPENAI?.MODEL || 'gpt-4o-mini',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an AI that creates realistic, emotional journal entries. Write a personal, introspective journal entry that expresses genuine human emotions and experiences. The entry should be 150-300 words, feel authentic, and contain a mix of emotions suitable for emotion detection analysis.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Write a journal entry that continues this thought: "${randomPrompt}"`
+                    }
+                ],
+                max_tokens: window.SAMO_CONFIG?.OPENAI?.MAX_TOKENS || 400,
+                temperature: window.SAMO_CONFIG?.OPENAI?.TEMPERATURE || 0.7
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const generatedText = data.choices[0]?.message?.content;
+
+        if (!generatedText) {
+            throw new Error('No text generated from OpenAI API');
+        }
+
+        console.log('✅ OpenAI API generated unique text successfully');
+
+        if (textInput) {
+            textInput.value = generatedText.trim();
+            textInput.style.borderColor = '#10b981';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
+            setTimeout(() => {
+                textInput.style.borderColor = '';
+                textInput.style.boxShadow = '';
+            }, 2000);
+        }
+
+        showInlineSuccess('✅ Unique AI text generated with OpenAI!', 'textInput');
+        return; // Exit here - don't fall back to sample texts
 
         const sampleTexts = [
-            "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began.\n\nAs I made my coffee, I couldn't shake the feeling that today would be different. There was an energy in the air that I couldn't quite put my finger on – a mix of anticipation and nervous excitement that made my heart beat a little faster. I decided to take a different route to work, something I rarely do, and I'm so glad I did.\n\nWalking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. The way the light filtered through the leaves created dancing patterns on the ground, and the sound of children's laughter from the nearby playground filled me with an unexpected sense of joy and hope. It reminded me of simpler times, when the smallest things could bring the greatest happiness.\n\nThat's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed. Life has a way of surprising us when we least expect it, doesn't it?",
+            "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began. Walking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. That's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed.",
 
-            "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We sat on my worn-out couch, the kind that sags just a little too much in the middle, the kind that has held countless conversations that linger in the air like the scent of old coffee.\n\nAs we talked, I found myself unraveling in ways I hadn't anticipated. I shared my fears about the future – the weight of expectations hanging over me like a thick fog, numbing my enthusiasm. I didn't realize just how heavy it had become until the words slipped out, almost unbidden. It felt like releasing a tightly wound spring.\n\nThe conversation drifted into territories I rarely explore with anyone, including myself. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. There's something both terrifying and liberating about being truly seen by another person.\n\nNow, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter. The vulnerability hangover is real, but so is the connection that was forged in those honest moments. I'm grateful for people who can hold space for all of our messy, complicated feelings."
+            "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. Now, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter.",
+
+            "I've been struggling with a decision that's been weighing heavily on my mind for weeks. The rational part of me knows what I should do, but my heart keeps pulling me in a different direction. It's that familiar tug-of-war between what feels safe and what feels authentic. Sometimes I wonder if we're meant to feel this conflicted about the paths we choose, or if clarity is something that comes only in hindsight. Tonight, I'm choosing to sit with the uncertainty rather than rush toward an answer.",
+
+            "There's something magical about rainy afternoons that makes me incredibly nostalgic. The sound of droplets against my window takes me back to childhood days when the world felt both infinite and completely contained within the walls of our small house. I remember how my grandmother used to say that rain was just the sky's way of crying happy tears. Looking back, I think she might have been onto something profound about finding beauty in moments of release.",
+
+            "I had one of those moments today where everything felt perfectly aligned. It wasn't anything dramatic – just a simple conversation with a stranger at the coffee shop who smiled genuinely and asked how my day was going. But something about that brief connection reminded me that kindness is still everywhere if we're paying attention. It's amazing how a single moment of human warmth can shift your entire perspective on the day.",
+
+            "I've been thinking a lot about the concept of home lately. Not just the physical space where I live, but that feeling of belonging that seems to come and go like the tide. Sometimes I feel most at home in unexpected places – a quiet corner of a library, a park bench under my favorite tree, or even in the middle of a crowded room filled with laughter. Maybe home isn't a place at all, but a feeling we carry within us.",
+
+            "Tonight I'm sitting on my balcony watching the city lights twinkle below, and I'm overwhelmed by how many stories are unfolding simultaneously around me. Behind each lit window is someone living their own complex narrative of hopes, fears, dreams, and disappointments. It's both humbling and comforting to remember that we're all just trying to figure it out as we go along. Sometimes feeling small in the grand scheme of things is exactly what we need.",
+
+            "I picked up a book today that I loved in college and was surprised by how differently it resonated with me now. The same words that once felt revolutionary now feel like old friends offering gentle wisdom. It made me realize how much I've changed without even noticing. Growth isn't always dramatic or obvious – sometimes it's just the quiet accumulation of experiences that slowly shift how we see the world.",
+
+            "There's something bittersweet about cleaning out old belongings and finding forgotten treasures from different phases of my life. Each item tells a story about who I used to be, the dreams I once had, and the paths I chose not to take. It's like archaeological evidence of my own becoming. I'm learning to feel grateful for all the versions of myself that led me here, even the ones that felt lost at the time.",
+
+            "I had a moment of pure joy today while listening to my favorite song on repeat. It's one of those tracks that never gets old, that seems to capture something essential about being alive. Music has this incredible ability to transport us instantly to emotional spaces we might struggle to access otherwise. Sometimes I think musicians are just emotional translators, helping us understand feelings we didn't even know we had.",
+
+            "The anxiety I've been carrying lately feels like a heavy backpack I forgot I was wearing. It's only when I consciously set it down that I realize how much energy it was taking just to carry it around. I'm learning that acknowledging difficult emotions doesn't make them stronger – it actually gives them permission to move through me instead of getting stuck. Today I'm practicing the art of gentle self-compassion.",
+
+            "I spent the morning in my garden, hands deep in the soil, and felt more grounded than I have in weeks. There's something deeply satisfying about nurturing something from seed to bloom. It reminds me that growth takes time, that patience is its own form of faith, and that some of the most beautiful things happen slowly, underground, before we can see any evidence of progress. Maybe I need to remember this about my own life too."
         ];
 
         const randomIndex = Math.floor(Math.random() * sampleTexts.length);
         const generatedText = sampleTexts[randomIndex];
-        console.log('✅ AI text generated successfully');
+        console.log('✅ Sample text selected successfully (option', randomIndex + 1, 'of', sampleTexts.length + ')');
 
         if (textInput) {
             textInput.value = generatedText;
@@ -510,24 +615,27 @@ async function generateSampleText() {
             }, 2000);
         }
 
-        showInlineSuccess('✅ AI text generated successfully!', 'textInput');
+        showInlineSuccess(`✅ Sample text generated! (${randomIndex + 1} of ${sampleTexts.length} AI-crafted options)`, 'textInput');
 
     } catch (error) {
         console.error('❌ Error generating AI text:', error);
+        console.log('🔄 Falling back to curated sample texts...');
 
-        // Sample text is now handled in the main flow, so just show error
-
-        showInlineError(`❌ Failed to generate AI text: ${error.message}`, 'textInput');
+        // Fall back to curated sample texts if OpenAI API fails
+        const randomIndex = Math.floor(Math.random() * sampleTexts.length);
+        const generatedText = sampleTexts[randomIndex];
 
         if (textInput) {
-            textInput.value = '';
-            textInput.style.borderColor = '#ef4444';
-            textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
+            textInput.value = generatedText;
+            textInput.style.borderColor = '#f59e0b';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
             setTimeout(() => {
                 textInput.style.borderColor = '';
                 textInput.style.boxShadow = '';
-            }, 3000);
+            }, 2000);
         }
+
+        showInlineError(`⚠️ OpenAI API unavailable, using sample text (${randomIndex + 1} of ${sampleTexts.length})`, 'textInput');
     }
 }
 
@@ -773,37 +881,75 @@ async function testWithRealAPI() {
 
 async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
+    console.log('📝 Input text length:', text.length);
+    console.log('📝 Input text preview:', text.substring(0, 100) + '...');
     addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
         // Create API client instance for proper timeout and error handling
         const apiClient = new SAMOAPIClient();
+        console.log('📝 API Base URL:', apiClient.baseURL);
+        console.log('📝 Summarization endpoint:', apiClient.endpoints.SUMMARIZE);
+        console.log('📝 Full API URL:', `${apiClient.baseURL}${apiClient.endpoints.SUMMARIZE}`);
+
         const data = await apiClient.makeRequest(apiClient.endpoints.SUMMARIZE, { text: text }, 'POST');
 
         addToProgressConsole('✅ Summarization API response received', 'success');
-        console.log('✅ Summarization API response:', data);
+        console.log('✅ Summarization API response (full):', JSON.stringify(data, null, 2));
 
-        // Extract summary from response
+        // Extract summary from response - be more thorough in extraction
         addToProgressConsole('🔍 Processing summarization results...', 'processing');
-        let summaryText = data.summary || data.text || data.summarized_text || data.result || data.output;
 
-        if (summaryText) {
+        // Log all possible fields to debug response structure
+        console.log('📝 Response fields available:', Object.keys(data));
+
+        let summaryText = data.summary || data.text || data.summarized_text || data.result || data.output || data.generated_text;
+
+        // Check if the response is nested
+        if (!summaryText && data.data) {
+            summaryText = data.data.summary || data.data.text || data.data.summarized_text || data.data.result || data.data.output;
+        }
+
+        // Log the extracted summary
+        console.log('📝 Extracted summary text:', summaryText);
+
+        if (summaryText && summaryText.trim()) {
             updateElement('summaryText', summaryText);
             updateElement('originalLength', text.length);
             updateElement('summaryLength', summaryText.length);
             addToProgressConsole(`Summary generated successfully (${summaryText.length} characters)`, 'success');
+            console.log('✅ Summary successfully displayed');
         } else {
             console.warn('⚠️ No valid summary found in response');
+            console.warn('⚠️ Full response structure:', JSON.stringify(data, null, 2));
             addToProgressConsole('No valid summary found in API response', 'warning');
-            updateElement('summaryText', 'Summary not available');
+            updateElement('summaryText', 'Summary not available - API response did not contain summary text');
         }
 
         return summaryText;
 
     } catch (error) {
         console.error('❌ Error in callSummarizationAPI:', error);
-        addToProgressConsole(`Summarization failed: ${error.message}`, 'error');
-        updateElement('summaryText', 'Failed to generate summary');
+        console.error('❌ Error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+
+        // More specific error messages
+        let errorMessage = 'Failed to generate summary';
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error: Could not connect to summarization API';
+        } else if (error.message.includes('timeout')) {
+            errorMessage = 'Request timeout: Summarization API took too long to respond';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Server error: Summarization API encountered an internal error';
+        } else if (error.message.includes('404')) {
+            errorMessage = 'API endpoint not found: Please check API configuration';
+        }
+
+        addToProgressConsole(`Summarization failed: ${errorMessage}`, 'error');
+        updateElement('summaryText', errorMessage);
         return null;
     }
 }

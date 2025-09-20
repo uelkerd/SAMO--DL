@@ -572,12 +572,11 @@
     <!-- Layout Manager Script -->
     <script src="js/layout-manager.js"></script>
 
-
-    <!-- Demo Initialization Script -->
-    <script src="js/demo-initialization.js"></script>
-
-    <!-- Main comprehensive demo script -->
+    <!-- Main comprehensive demo script - MUST load before demo-initialization -->
     <script src="js/comprehensive-demo.js"></script>
+
+    <!-- Demo Initialization Script - loads AFTER functions are defined -->
+    <script src="js/demo-initialization.js"></script>
 
     <!-- Voice Recording Module -->
     <script src="js/voice-recorder.js"></script>

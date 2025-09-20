@@ -14,8 +14,9 @@ from pathlib import Path
 from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 
-# Get the project root directory (three levels up from this script)
-PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
+# Get the project root directory (two levels up from this script)
+# Script is at deployment/local/simple_server.py, so we go up 2 levels to get to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WEBSITE_DIR = PROJECT_ROOT / "website"
 
 

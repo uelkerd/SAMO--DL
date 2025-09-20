@@ -52,19 +52,20 @@ window.SAMO_CONFIG = {
 
     // Feature flags
     FEATURES: {
-        ENABLE_OPENAI: false, // Disabled by default - requires server-side proxy
+        ENABLE_OPENAI: true, // Enabled - direct OpenAI API calls
         ENABLE_MOCK_DATA: false, // Always use real APIs
         ENABLE_ANALYTICS: false
     }
 };
 
-// Environment-specific overrides - USE LOCAL PROXY FOR DEVELOPMENT
+// Environment-specific overrides - USE DEPLOYED API FOR DEVELOPMENT
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // Use local unified API server (the real API with all features)
-    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8002';
+    // Use deployed Cloud Run API (the real API with all features)
+    // Keep the same deployed URL since local API server on port 8002 is not running
+    window.SAMO_CONFIG.API.BASE_URL = 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app';
     window.SAMO_CONFIG.API.ENDPOINTS = {
         EMOTION: '/analyze/emotion',
         SUMMARIZE: '/analyze/summarize',
@@ -76,7 +77,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         OPENAI_PROXY: '/proxy/openai'
     };
 
-    console.log('🔧 Running in localhost development mode - using local unified API server (port 8002)');
+    console.log('🔧 Running in localhost development mode - using deployed Cloud Run API');
 }
 
 // Deep merge utility function
