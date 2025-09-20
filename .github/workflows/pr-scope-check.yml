@@ -1,5 +1,9 @@
 name: PR Scope Check
 
+permissions:
+  contents: read
+  pull-requests: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
