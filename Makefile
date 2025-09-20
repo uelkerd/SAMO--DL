@@ -6,25 +6,23 @@ help: ## Show this help message
 	@echo "============================="
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-format: ## Format code with black and isort
-	black src/ tests/ scripts/
-	isort src/ tests/ scripts/
+format: ## Format code with ruff
+	ruff format src/ tests/ scripts/
 
-lint: ## Run basic linting (flake8, pylint)
-	flake8 src/ tests/ scripts/
-	pylint src/ tests/ scripts/ || true
+lint: ## Run linting with ruff and pylint
+	ruff check src/ tests/ scripts/
+	pylint src/ tests/ scripts/
 
 test: ## Run tests with coverage
 	pytest tests/ --cov=src --cov-report=term-missing
 
 quality-check: ## Run all quality checks
 	@echo "Running code quality checks..."
-	black --check src/ tests/ scripts/
-	isort --check-only src/ tests/ scripts/
-	flake8 src/ tests/ scripts/
-	pylint src/ tests/ scripts/ || true
+	ruff format --check src/ tests/ scripts/
+	ruff check src/ tests/ scripts/
+	pylint src/ tests/ scripts/
 	bandit -r src/ -s B101,B601
-	safety check --json --output safety-report.json || true
+	safety check --json --output safety-report.json
 
 check-scope: ## Check PR scope compliance
 	python scripts/check_pr_scope.py --strict

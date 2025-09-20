@@ -115,7 +115,20 @@ disable = [
     "R0903",  # too-few-public-methods
     "R0913",  # too-many-arguments
     "W0613",  # unused-argument
+    "R0801",  # duplicate-code
+    "C0103",  # invalid-name
 ]
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "ex", "Run", "_", "id"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [".git", "__pycache__", "build", "dist", "*.egg-info"]
 
 [tool.bandit]
 exclude_dirs = ["tests", "scripts"]

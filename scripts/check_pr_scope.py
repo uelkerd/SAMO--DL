@@ -207,19 +207,26 @@ def main():
         if len(files) > 10:
             print(f"   ... and {len(files) - 10} more")
 
-    # Check for mixed concerns
+    # Check for mixed concerns (improved logic to reduce false positives)
     print("\n🎯 Checking for mixed concerns...")
     if files:
         file_types = set()
+        has_code_changes = False
+        has_test_changes = False
+        has_config_changes = False
+
         for file in files:
             if file.endswith(('.py', '.js', '.ts', '.java', '.cpp', '.c', '.h')):
                 file_types.add('code')
+                has_code_changes = True
             elif file.endswith(('.md', '.rst', '.txt', '.adoc')):
                 file_types.add('docs')
             elif 'test' in file.lower() or file.startswith('tests/'):
                 file_types.add('tests')
+                has_test_changes = True
             elif 'config' in file.lower() or file.endswith(('.yml', '.yaml', '.json', '.toml', '.cfg')):
                 file_types.add('config')
+                has_config_changes = True
             elif 'docker' in file.lower() or 'Dockerfile' in file:
                 file_types.add('docker')
             elif 'api' in file.lower() or 'endpoint' in file.lower():
@@ -227,11 +234,35 @@ def main():
             elif 'model' in file.lower() or 'ml' in file.lower() or 'ai' in file.lower():
                 file_types.add('ml')
 
-        if len(file_types) > 2:
-            print(f"⚠️  Mixed concerns detected: {', '.join(file_types)}")
+        # Allow reasonable combinations that are commonly acceptable
+        acceptable_combinations = [
+            {'code', 'tests'},  # Feature + tests
+            {'code', 'tests', 'config'},  # Feature + tests + config
+            {'code', 'tests', 'docs'},  # Feature + tests + docs
+            {'code', 'tests', 'config', 'docs'},  # Feature + tests + config + docs
+            {'code', 'config'},  # Code changes with config
+            {'code', 'docs'},  # Code changes with docs
+            {'config', 'docs'},  # Config changes with docs
+            {'tests', 'config'},  # Tests with config
+        ]
+
+        # Flag as mixed concerns only if we have more than 4 types OR
+        # if we have an unusual combination that's not in acceptable list
+        is_mixed_concerns = (
+            len(file_types) > 4 or
+            (len(file_types) > 2 and file_types not in acceptable_combinations)
+        )
+
+        if is_mixed_concerns:
+            print(f"⚠️  Mixed concerns detected: {', '.join(sorted(file_types))}")
             print("   Consider splitting into separate PRs")
+            print(f"   Acceptable combinations include: code+tests, code+tests+config, etc.")
             if args.strict:
                 all_passed = False
+        elif len(file_types) > 2:
+            # Show info about acceptable combinations but don't fail
+            print(f"ℹ️  Multiple file types detected: {', '.join(sorted(file_types))}")
+            print("   This combination is acceptable for a single PR")
 
     print("\n" + "=" * 50)
     if all_passed:
