@@ -6,7 +6,7 @@
 // Debug: Check if everything is loaded correctly
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Main demo loaded');
-    console.log('processText available:', typeof processText === 'function');
+    console.log('processText available:', typeof window.processText === 'function');
     console.log('textInput element found:', !!document.getElementById('textInput'));
     console.log('processBtn element found:', !!document.getElementById('processBtn'));
 
@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Use enhanced state management processing
             if (typeof processTextWithStateManagement === 'function') {
                 processTextWithStateManagement();
-            } else if (typeof processText === 'function') {
+            } else if (typeof window.processText === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.showProcessingState) {
                     window.LayoutManager.showProcessingState();
                 }
-                processText(true);  // Skip state check since showProcessingState() handles it
+                window.processText(true);  // Skip state check since showProcessingState() handles it
             } else {
                 console.error('❌ processText function not available');
             }
@@ -39,12 +39,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Generate button found, adding click listener');
         generateBtn.addEventListener('click', function() {
             console.log('🔘 Generate button clicked!');
-            console.log('🔍 generateSampleText type:', typeof generateSampleText);
-            console.log('🔍 generateSampleText function:', generateSampleText);
+            console.log('🔍 generateSampleText type:', typeof window.generateSampleText);
+            console.log('🔍 generateSampleText function:', window.generateSampleText);
 
-            if (typeof generateSampleText === 'function') {
+            if (typeof window.generateSampleText === 'function') {
                 console.log('✅ Calling generateSampleText...');
-                generateSampleText();
+                window.generateSampleText();
             } else {
                 console.error('❌ generateSampleText function not available');
                 console.log('🔍 Available functions:', Object.keys(window).filter(key => key.includes('generate')));
@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ API Key button found, adding click listener');
         apiKeyBtn.addEventListener('click', function() {
             console.log('🔘 API Key button clicked!');
-            if (typeof manageApiKey === 'function') {
-                manageApiKey();
+            if (typeof window.manageApiKey === 'function') {
+                window.manageApiKey();
             } else {
                 console.error('❌ manageApiKey function not available');
             }
@@ -84,12 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Use enhanced state management clearing
             if (typeof clearAllWithStateManagement === 'function') {
                 clearAllWithStateManagement();
-            } else if (typeof clearAll === 'function') {
+            } else if (typeof window.clearAll === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.resetToInitialState) {
                     window.LayoutManager.resetToInitialState();
                 }
-                clearAll();
+                window.clearAll();
             } else {
                 console.error('❌ clearAll function not available');
             }
