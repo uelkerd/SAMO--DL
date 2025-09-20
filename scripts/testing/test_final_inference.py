@@ -9,6 +9,7 @@ import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
+
 def test_final_inference():
     """Test inference with public RoBERTa tokenizer"""
 
@@ -16,8 +17,8 @@ def test_final_inference():
     print("=" * 50)
 
     # Check if model files exist
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     print(f"📁 Checking model directory: {model_dir}")
 
@@ -34,20 +35,22 @@ def test_final_inference():
         print(f"\n❌ Missing required files: {missing_files}")
         return False
 
-    print(f"\n✅ All model files found!")
+    print("\n✅ All model files found!")
 
     try:
         # Load the model config to understand the architecture
-        with open(model_dir / 'config.json', 'r') as f:
+        with open(model_dir / "config.json") as f:
             config = json.load(f)
 
         print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
         print(f"📊 Number of labels: {len(config.get('id2label', {}))}")
 
         # Load emotion mapping from model config to ensure alignment
-        id2label = config.get('id2label', {})
+        id2label = config.get("id2label", {})
         if not id2label:
-            raise ValueError("Model config missing 'id2label' mapping. Cannot determine emotion classes.")
+            raise ValueError(
+                "Model config missing 'id2label' mapping. Cannot determine emotion classes."
+            )
 
         # Create emotion mapping ordered by integer label indices
         emotion_mapping = []
@@ -72,11 +75,11 @@ def test_final_inference():
         print(f"🔧 Loading fine-tuned model from: {model_dir}")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
-        print(f"✅ Model loaded successfully!")
+        print("✅ Model loaded successfully!")
         print(f"🎯 Device: {device}")
 
         # Test texts
@@ -90,21 +93,18 @@ def test_final_inference():
             "I'm feeling sad and lonely today.",
             "I'm excited about the new opportunities.",
             "I feel calm and peaceful right now.",
-            "I'm hopeful that things will get better."
+            "I'm hopeful that things will get better.",
         ]
 
-        print(f"\n📊 Testing predictions:")
+        print("\n📊 Testing predictions:")
         print("-" * 50)
 
         for i, text in enumerate(test_texts, 1):
             try:
                 # Tokenize input
-                inputs = tokenizer(
-                    text,
-                    truncation=True,
-                    padding=True,
-                    return_tensors='pt'
-                ).to(device)
+                inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(
+                    device
+                )
 
                 # Get predictions
                 with torch.no_grad():
@@ -126,7 +126,7 @@ def test_final_inference():
 
                 print(f"{i:2d}. Text: {text}")
                 print(f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
-                print(f"    Top 3 predictions:")
+                print("    Top 3 predictions:")
                 for emotion, conf in top3_predictions:
                     print(f"      - {emotion}: {conf:.3f}")
                 print()
@@ -142,8 +142,10 @@ def test_final_inference():
     except Exception as e:
         print(f"❌ Error during inference: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_simple_prediction():
     """Simple test with just one prediction"""
@@ -152,27 +154,37 @@ def test_simple_prediction():
     print("=" * 50)
 
     try:
-        model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
+        model_dir = Path(__file__).parent.parent / "deployment" / "model"
 
         # Use public RoBERTa tokenizer
         tokenizer = AutoTokenizer.from_pretrained("roberta-base")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
         # Emotion mapping
         emotion_mapping = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
         ]
 
         # Test one text
         text = "I'm feeling really happy today!"
         print(f"📝 Testing: {text}")
 
-        inputs = tokenizer(text, truncation=True, padding=True, return_tensors='pt').to(device)
+        inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(device)
 
         with torch.no_grad():
             outputs = model(**inputs)
@@ -187,18 +199,19 @@ def test_simple_prediction():
 
         # Show top 3
         top3_indices = torch.topk(probabilities[0], 3).indices
-        print(f"\n🏆 Top 3 predictions:")
+        print("\n🏆 Top 3 predictions:")
         for i, idx in enumerate(top3_indices):
             emotion = emotion_mapping[idx.item()]
             conf = probabilities[0][idx].item()
-            print(f"   {i+1}. {emotion}: {conf:.3f}")
+            print(f"   {i + 1}. {emotion}: {conf:.3f}")
 
-        print(f"\n🎉 Simple prediction test completed!")
+        print("\n🎉 Simple prediction test completed!")
         return True
 
     except Exception as e:
         print(f"❌ Error: {e}")
         return False
+
 
 if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - FINAL TEST")
@@ -213,9 +226,9 @@ if __name__ == "__main__":
         test_simple_prediction()
 
     if success:
-        print(f"\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
-        print(f"📋 Next steps:")
-        print(f"   - Deploy with: cd deployment && ./deploy.sh")
-        print(f"   - API will be available at: http://localhost:5000")
+        print("\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
+        print("📋 Next steps:")
+        print("   - Deploy with: cd deployment && ./deploy.sh")
+        print("   - API will be available at: http://localhost:5000")
     else:
-        print(f"\n❌ Tests failed. Check the error messages above.")
+        print("\n❌ Tests failed. Check the error messages above.")

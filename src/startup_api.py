@@ -1,11 +1,11 @@
-"""
-Bulletproof startup API with pre-loaded models for Cloud Run.
+"""Bulletproof startup API with pre-loaded models for Cloud Run.
 
 SECURITY NOTE: This application binds to 0.0.0.0 only in production environments
 (Cloud Run, Docker containers) where it's required for proper operation. In development,
 it defaults to 127.0.0.1 to prevent external access. This is a deliberate design choice
 for containerized deployments and is not a security vulnerability.
 """
+
 import asyncio
 import logging
 import os
@@ -70,9 +70,7 @@ def get_cors_origins():
     origins_env = os.environ.get("CORS_ORIGINS", "")
     if origins_env:
         # Split CSV and strip whitespace
-        origins = [
-            origin.strip() for origin in origins_env.split(",") if origin.strip()
-        ]
+        origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
         logger.info("CORS origins from legacy environment variable: %s", origins)
         return origins
 
@@ -85,9 +83,7 @@ def get_cors_origins():
         "http://127.0.0.1:8080",
         "http://127.0.0.1:8082",
     ]
-    logger.warning(
-        "No CORS environment variables configured, using development defaults"
-    )
+    logger.warning("No CORS environment variables configured, using development defaults")
     return dev_origins
 
 
@@ -140,9 +136,9 @@ class ModelManager:
     def is_ready(self) -> bool:
         """Check if all models are loaded and ready."""
         return (
-            self.models_loaded and
-            self.emotion_model is not None and
-            self.summarization_model is not None
+            self.models_loaded
+            and self.emotion_model is not None
+            and self.summarization_model is not None
         )
 
     def get_emotion_model(self):
@@ -257,9 +253,7 @@ def run_text_summarization(text: str) -> dict:
             num_beams=4,
             early_stopping=True,
         )
-        summary = summarization_model["tokenizer"].decode(
-            outputs[0], skip_special_tokens=True
-        )
+        summary = summarization_model["tokenizer"].decode(outputs[0], skip_special_tokens=True)
 
     return {"original_text": text, "summary": summary}
 
@@ -278,7 +272,7 @@ def load_emotion_model():
             raise FileNotFoundError(f"Cache directory {cache_dir} not found")
 
         # Load from cache only - no network downloads
-        # CRITICAL: local_files_only=True prevents network downloads 
+        # CRITICAL: local_files_only=True prevents network downloads
         # during Cloud Run startup
         # This is essential because:
         # 1. Cloud Run has strict startup timeouts (10 minutes max)
@@ -364,9 +358,7 @@ def load_whisper_model():
             raise FileNotFoundError(f"Whisper model not found at {expected_path}")
 
         # Load from cache only
-        model_manager.set_whisper_model(
-            whisper.load_model(model_name, download_root=download_root)
-        )
+        model_manager.set_whisper_model(whisper.load_model(model_name, download_root=download_root))
         logger.info("✅ Whisper model loaded successfully")
         return True
 
@@ -386,10 +378,14 @@ async def startup_load_models():
         memory_before = None
         try:
             import psutil  # type: ignore
+
             psutil_available = True
             memory_before = psutil.virtual_memory()
-            logger.info("Memory before loading: %.2fGB used / %.2fGB total",
-                        memory_before.used / (1024**3), memory_before.total / (1024**3))
+            logger.info(
+                "Memory before loading: %.2fGB used / %.2fGB total",
+                memory_before.used / (1024**3),
+                memory_before.total / (1024**3),
+            )
         except ImportError:
             logger.info("psutil not available - cannot monitor memory usage")
 
@@ -406,17 +402,21 @@ async def startup_load_models():
         except Exception as e:
             logger.warning("⚠️ Whisper model failed to load (non-critical): %s", e)
             logger.info(
-                "Continuing without Whisper - core emotion/summarization models "
-                "loaded successfully"
+                "Continuing without Whisper - core emotion/summarization models loaded successfully"
             )
 
         # Log memory usage after loading
         if psutil_available and memory_before is not None:
             memory_after = psutil.virtual_memory()  # type: ignore
-            logger.info("Memory after loading: %.2fGB used / %.2fGB total",
-                        memory_after.used / (1024**3), memory_after.total / (1024**3))
-            logger.info("Memory increase: %.2fGB",
-                        (memory_after.used - memory_before.used) / (1024**3))
+            logger.info(
+                "Memory after loading: %.2fGB used / %.2fGB total",
+                memory_after.used / (1024**3),
+                memory_after.total / (1024**3),
+            )
+            logger.info(
+                "Memory increase: %.2fGB",
+                (memory_after.used - memory_before.used) / (1024**3),
+            )
 
         model_manager.set_models_loaded(True)
         logger.info("🎉 CORE MODELS LOADED SUCCESSFULLY - CLOUD RUN DEPLOYMENT READY!")
@@ -452,13 +452,10 @@ async def ready():
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    f"Models not loaded due to startup error: "
-                    f"{model_manager.get_startup_error()}"
+                    f"Models not loaded due to startup error: {model_manager.get_startup_error()}"
                 ),
             )
-        raise HTTPException(
-            status_code=503, detail="Models still loading, please wait..."
-        )
+        raise HTTPException(status_code=503, detail="Models still loading, please wait...")
 
     return {
         "status": "ready",
@@ -489,8 +486,7 @@ async def analyze_emotion(text: str = Body(..., embed=True)):
 async def summarize_text(text: str = Body(..., embed=True)):
     """Summarize text using pre-loaded T5 model."""
     # Verify model is loaded
-    if (not model_manager.models_loaded or
-        model_manager.get_summarization_model() is None):
+    if not model_manager.models_loaded or model_manager.get_summarization_model() is None:
         raise HTTPException(
             status_code=503,
             detail="Summarization model not loaded. Check /ready endpoint.",
@@ -512,9 +508,7 @@ async def proxy_openai(request: OpenAIRequest):
         # Get API key from environment
         api_key = os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
-            raise HTTPException(
-                status_code=500, detail="OpenAI API key not configured on server"
-            )
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured on server")
 
         # Prepare OpenAI request
         openai_url = "https://api.openai.com/v1/chat/completions"
@@ -548,22 +542,13 @@ async def proxy_openai(request: OpenAIRequest):
             )
 
             if response.is_error:
-                logger.error(
-                    "OpenAI API error: %s - %s",
-                    response.status_code,
-                    response.text
-                )
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail="OpenAI API error"
-                )
+                logger.error("OpenAI API error: %s - %s", response.status_code, response.text)
+                raise HTTPException(status_code=response.status_code, detail="OpenAI API error")
 
             data = response.json()
 
         if not data.get("choices") or not data["choices"][0].get("message"):
-            raise HTTPException(
-                status_code=500, detail="Invalid response format from OpenAI API"
-            )
+            raise HTTPException(status_code=500, detail="Invalid response format from OpenAI API")
 
         return OpenAIResponse(
             text=data["choices"][0]["message"]["content"].strip(),

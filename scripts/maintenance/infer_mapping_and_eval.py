@@ -53,7 +53,7 @@ def predict_probs(texts):
 
 P_chunks = []
 for i in tqdm(range(0, len(ds), BATCH)):
-    P_chunks.append(predict_probs(ds[i:i + BATCH]["text"]))
+    P_chunks.append(predict_probs(ds[i : i + BATCH]["text"]))
 P = np.concatenate(P_chunks, axis=0)  # (N, num_labels)
 
 
@@ -115,7 +115,6 @@ print(f"- Accuracy (subset): {ab:.4f}")
 
 # Optional: write corrected config.json with inferred labels in model-index order
 if os.getenv("WRITE_CONFIG", "0") == "1":
-    from transformers import AutoConfig
     cfg = mdl.config
     id2label = {int(mi): ds_names[dj] for mi, dj in mapping}
     for i in range(M):

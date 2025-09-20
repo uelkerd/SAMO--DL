@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 UNIFIED SAMO API SERVER WITH VOICE PROCESSING
+"""🚀 UNIFIED SAMO API SERVER WITH VOICE PROCESSING
 ==============================================
 Complete API server with emotion detection, summarization, and voice processing.
 Combines all SAMO models for comprehensive AI analysis.
@@ -14,17 +13,20 @@ import time
 import uuid
 import threading
 from pathlib import Path
-from typing import Optional, Union
 
 import torch
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, T5Tokenizer, T5ForConditionalGeneration
+from transformers import (
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
+    T5Tokenizer,
+    T5ForConditionalGeneration,
+)
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all domains
 
 # Configure Flask for file uploads (16MB max)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 # Global variables for model state (thread-safe with locks)
 emotion_model = None
@@ -47,17 +49,50 @@ model_lock = threading.Lock()
 
 # GoEmotions emotion mapping for SAMO DeBERTa model
 GOEMOTIONS_EMOTIONS = [
-    "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-    "confusion", "curiosity", "desire", "disappointment", "disapproval",
-    "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
-    "joy", "love", "nervousness", "optimism", "pride", "realization",
-    "relief", "remorse", "sadness", "surprise", "neutral"
+    "admiration",
+    "amusement",
+    "anger",
+    "annoyance",
+    "approval",
+    "caring",
+    "confusion",
+    "curiosity",
+    "desire",
+    "disappointment",
+    "disapproval",
+    "disgust",
+    "embarrassment",
+    "excitement",
+    "fear",
+    "gratitude",
+    "grief",
+    "joy",
+    "love",
+    "nervousness",
+    "optimism",
+    "pride",
+    "realization",
+    "relief",
+    "remorse",
+    "sadness",
+    "surprise",
+    "neutral",
 ]
 
 # Fallback mapping (if needed)
 EMOTION_MAPPING = [
-    'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-    'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+    "anxious",
+    "calm",
+    "content",
+    "excited",
+    "frustrated",
+    "grateful",
+    "happy",
+    "hopeful",
+    "overwhelmed",
+    "proud",
+    "sad",
+    "tired",
 ]
 
 # Constants
@@ -66,7 +101,15 @@ MAX_INPUT_LENGTH = 512
 
 def load_models():
     """Load all AI models: emotion detection, voice processing, and summarization"""
-    global model_loading, models_loaded, emotion_model, emotion_tokenizer, emotion_mapping, voice_transcriber, summarizer_model, summarizer_tokenizer
+    global \
+        model_loading, \
+        models_loaded, \
+        emotion_model, \
+        emotion_tokenizer, \
+        emotion_mapping, \
+        voice_transcriber, \
+        summarizer_model, \
+        summarizer_tokenizer
 
     with model_lock:
         if model_loading or models_loaded:
@@ -82,29 +125,26 @@ def load_models():
 
         # Fallback to local development path if production path doesn't exist
         if not model_path.exists():
-            logger.info("📁 Production model path not found, "
-                       "checking for local models...")
+            logger.info("📁 Production model path not found, checking for local models...")
             # For development, we'll use a basic emotion classifier
             # This can be replaced with actual trained models
 
         logger.info("📥 Loading emotion model...")
         try:
             # Try to load production model first
-            emotion_model = AutoModelForSequenceClassification.from_pretrained(
-                str(model_path))
+            emotion_model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
             emotion_tokenizer = AutoTokenizer.from_pretrained(str(model_path))
             logger.info("✅ Production model loaded successfully")
         except:
             logger.warning("⚠️ Production model not found, loading REAL SAMO model")
             samo_model_id = "duelker/samo-goemotions-deberta-v3-large"
             logger.info(f"🚀 Loading REAL SAMO emotion model: {samo_model_id}")
-            emotion_model = AutoModelForSequenceClassification.from_pretrained(
-                samo_model_id)
+            emotion_model = AutoModelForSequenceClassification.from_pretrained(samo_model_id)
             emotion_tokenizer = AutoTokenizer.from_pretrained(samo_model_id)
             logger.info("✅ REAL SAMO emotion model loaded successfully")
 
         # Set device (CPU for compatibility)
-        device = torch.device('cpu')
+        device = torch.device("cpu")
         emotion_model.to(device)
         emotion_model.eval()
 
@@ -115,7 +155,9 @@ def load_models():
                 # SAMO model uses GoEmotions labels - map from LABEL_X to actual emotions
                 emotion_mapping = GOEMOTIONS_EMOTIONS
                 logger.info("✅ Using REAL SAMO GoEmotions mapping: 28 emotions")
-                logger.info(f"🎯 Sample emotions: {GOEMOTIONS_EMOTIONS[:5]}...{GOEMOTIONS_EMOTIONS[-3:]}")
+                logger.info(
+                    f"🎯 Sample emotions: {GOEMOTIONS_EMOTIONS[:5]}...{GOEMOTIONS_EMOTIONS[-3:]}"
+                )
             else:
                 emotion_mapping = EMOTION_MAPPING
                 logger.info("⚠️ Using fallback emotion mapping")
@@ -162,35 +204,34 @@ def load_models():
     finally:
         with model_lock:
             # Only set models_loaded = True when both model and tokenizer are present
-            models_loaded = (emotion_model is not None and emotion_tokenizer is not None)
+            models_loaded = emotion_model is not None and emotion_tokenizer is not None
             model_loading = False
 
 
 def summarize_text(text: str) -> dict:
     """Generate real AI summary using T5 model"""
-
     if summarizer_model is None or summarizer_tokenizer is None:
         # Enhanced fallback with better extraction
-        sentences = text.split('.')
+        sentences = text.split(".")
         if len(sentences) <= 3:
             return {
-                'summary': text,
-                'original_length': len(text),
-                'summary_length': len(text),
-                'compression_ratio': 1.0,
-                'model': 'extractive_fallback'
+                "summary": text,
+                "original_length": len(text),
+                "summary_length": len(text),
+                "compression_ratio": 1.0,
+                "model": "extractive_fallback",
             }
 
         # Take first 2 and last 1 sentence for better context
         important_sentences = sentences[:2] + sentences[-1:]
-        summary = '. '.join(sent.strip() for sent in important_sentences if sent.strip()) + '.'
+        summary = ". ".join(sent.strip() for sent in important_sentences if sent.strip()) + "."
 
         return {
-            'summary': summary,
-            'original_length': len(text),
-            'summary_length': len(summary),
-            'compression_ratio': round(len(summary) / len(text), 2),
-            'model': 'extractive_fallback'
+            "summary": summary,
+            "original_length": len(text),
+            "summary_length": len(summary),
+            "compression_ratio": round(len(summary) / len(text), 2),
+            "model": "extractive_fallback",
         }
 
     try:
@@ -199,10 +240,7 @@ def summarize_text(text: str) -> dict:
 
         # Tokenize
         inputs = summarizer_tokenizer.encode(
-            input_text,
-            return_tensors="pt",
-            max_length=512,
-            truncation=True
+            input_text, return_tensors="pt", max_length=512, truncation=True
         )
 
         # Generate summary
@@ -213,18 +251,18 @@ def summarize_text(text: str) -> dict:
                 min_length=30,
                 length_penalty=2.0,
                 num_beams=4,
-                early_stopping=True
+                early_stopping=True,
             )
 
         # Decode summary
         summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
         return {
-            'summary': summary,
-            'original_length': len(text),
-            'summary_length': len(summary),
-            'compression_ratio': round(len(summary) / len(text), 2),
-            'model': 'T5-small'
+            "summary": summary,
+            "original_length": len(text),
+            "summary_length": len(summary),
+            "compression_ratio": round(len(summary) / len(text), 2),
+            "model": "T5-small",
         }
 
     except Exception as e:
@@ -232,16 +270,16 @@ def summarize_text(text: str) -> dict:
         # Fallback to extractive
         words = text.split()
         summary_length = max(20, len(words) // 4)
-        summary = ' '.join(words[:summary_length])
+        summary = " ".join(words[:summary_length])
         if len(words) > summary_length:
             summary += "..."
 
         return {
-            'summary': summary,
-            'original_length': len(text),
-            'summary_length': len(summary),
-            'compression_ratio': round(len(summary) / len(text), 2),
-            'model': 'extractive_fallback'
+            "summary": summary,
+            "original_length": len(text),
+            "summary_length": len(summary),
+            "compression_ratio": round(len(summary) / len(text), 2),
+            "model": "extractive_fallback",
         }
 
 
@@ -254,9 +292,7 @@ def predict_emotion(text: str) -> dict:
     if not isinstance(text, str):
         raise ValueError("Input text must be a string.")
     if len(text) > MAX_INPUT_LENGTH:
-        raise ValueError(
-            f"Input text too long (>{MAX_INPUT_LENGTH} characters)."
-        )
+        raise ValueError(f"Input text too long (>{MAX_INPUT_LENGTH} characters).")
 
     # Tokenize
     inputs = emotion_tokenizer(
@@ -264,7 +300,7 @@ def predict_emotion(text: str) -> dict:
         return_tensors="pt",
         truncation=True,
         max_length=MAX_INPUT_LENGTH,
-        padding=True
+        padding=True,
     )
 
     # Predict
@@ -272,8 +308,9 @@ def predict_emotion(text: str) -> dict:
         outputs = emotion_model(**inputs)
 
         # Check if this is a multi-label classification model
-        is_multi_label = (getattr(emotion_model.config, "problem_type", "") == 
-                          "multi_label_classification")
+        is_multi_label = (
+            getattr(emotion_model.config, "problem_type", "") == "multi_label_classification"
+        )
 
         if is_multi_label:
             # Use sigmoid for multi-label classification
@@ -309,10 +346,9 @@ def predict_emotion(text: str) -> dict:
 
     # Create top emotions array (sorted by confidence)
     top_emotions = sorted(
-        [{"emotion": label, "confidence": score} 
-         for label, score in emotions_dict.items()],
+        [{"emotion": label, "confidence": score} for label, score in emotions_dict.items()],
         key=lambda x: x["confidence"],
-        reverse=True
+        reverse=True,
     )[:5]
 
     return {
@@ -321,7 +357,7 @@ def predict_emotion(text: str) -> dict:
         "text": text,
         "emotions": emotions_dict,  # Add full emotions for demo
         "predicted_emotion": emotion,  # Add for demo compatibility
-        "top_emotions": top_emotions  # Add for demo compatibility
+        "top_emotions": top_emotions,  # Add for demo compatibility
     }
 
 
@@ -331,7 +367,7 @@ def transcribe_audio(audio_file) -> dict:
         raise RuntimeError("Voice processing model not available")
 
     # Save uploaded file temporarily
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
         audio_file.save(temp_file.name)
         temp_path = temp_file.name
 
@@ -339,15 +375,15 @@ def transcribe_audio(audio_file) -> dict:
         # Transcribe audio
         result = voice_transcriber.transcribe(temp_path)
 
-        if not result or 'text' not in result:
+        if not result or "text" not in result:
             raise RuntimeError("Transcription failed - no text returned")
 
-        transcribed_text = result.get('text', '')
+        transcribed_text = result.get("text", "")
         # Whisper doesn't provide a calibrated confidence; keep a placeholder
         confidence = 0.9
         # Approximate duration from segments if available
-        segs = result.get('segments') or []
-        duration = float(segs[-1]['end']) if segs else 0.0
+        segs = result.get("segments") or []
+        duration = float(segs[-1]["end"]) if segs else 0.0
 
         # Analyze emotions in transcribed text
         emotion_analysis = predict_emotion(transcribed_text)
@@ -357,14 +393,14 @@ def transcribe_audio(audio_file) -> dict:
             "transcription": {
                 "text": transcribed_text,
                 "confidence": confidence,
-                "duration": duration
+                "duration": duration,
             },
             "emotion_analysis": emotion_analysis,
             "processing_info": {
                 "timestamp": time.time(),
                 "request_id": str(uuid.uuid4()),
-                "models_used": ["SAMO Whisper", "SAMO Emotion Detection"]
-            }
+                "models_used": ["SAMO Whisper", "SAMO Emotion Detection"],
+            },
         }
 
     finally:
@@ -388,40 +424,42 @@ def create_error_response(message: str, status_code: int = 500) -> tuple:
     """Create standardized error response with request ID for debugging"""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
-    return jsonify({
-        'error': message,
-        'request_id': request_id
-    }), status_code
+    return jsonify({"error": message, "request_id": request_id}), status_code
+
 
 # API Routes
 
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 def root():
     """Root endpoint"""
-    return jsonify({
-        "message": "SAMO Unified AI API - Voice, Emotion & Summarization",
-        "status": "running",
-        "models_loaded": models_loaded,
-        "timestamp": time.time()
-    })
+    return jsonify(
+        {
+            "message": "SAMO Unified AI API - Voice, Emotion & Summarization",
+            "status": "running",
+            "models_loaded": models_loaded,
+            "timestamp": time.time(),
+        }
+    )
 
 
-@app.route('/health', methods=['GET'])
+@app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'models_loaded': models_loaded,
-        'model_loading': model_loading,
-        'voice_available': voice_transcriber is not None,
-        'emotion_available': emotion_model is not None,
-        'summarization_available': summarizer_model is not None,
-        'timestamp': time.time()
-    })
+    return jsonify(
+        {
+            "status": "healthy",
+            "models_loaded": models_loaded,
+            "model_loading": model_loading,
+            "voice_available": voice_transcriber is not None,
+            "emotion_available": emotion_model is not None,
+            "summarization_available": summarizer_model is not None,
+            "timestamp": time.time(),
+        }
+    )
 
 
-@app.route('/analyze/emotion', methods=['POST'])
+@app.route("/analyze/emotion", methods=["POST"])
 def analyze_emotion():
     """Analyze emotion in text"""
     try:
@@ -429,31 +467,28 @@ def analyze_emotion():
         ensure_models_loaded()
 
         # Get text from query params (to match frontend expectations)
-        text = request.args.get('text', '').strip()
+        text = request.args.get("text", "").strip()
         if not text:
             # Fallback to JSON body
             data = request.get_json(silent=True) or {}
-            text = data.get('text', '').strip()
+            text = data.get("text", "").strip()
 
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({"error": "No text provided"}), 400
 
         # Make prediction
         result = predict_emotion(text)
 
         # Enhance response with additional metadata
-        result.update({
-            'request_id': str(uuid.uuid4()),
-            'timestamp': time.time()
-        })
+        result.update({"request_id": str(uuid.uuid4()), "timestamp": time.time()})
 
         return jsonify(result)
 
     except Exception:
-        return create_error_response('Emotion analysis failed. Please try again later.')
+        return create_error_response("Emotion analysis failed. Please try again later.")
 
 
-@app.route('/analyze/voice-journal', methods=['POST'])
+@app.route("/analyze/voice-journal", methods=["POST"])
 def analyze_voice_journal():
     """Analyze voice recording with transcription and emotion detection"""
     try:
@@ -461,26 +496,30 @@ def analyze_voice_journal():
         ensure_models_loaded()
 
         # Check for audio file in the request
-        if 'audio_file' not in request.files:
+        if "audio_file" not in request.files:
             return jsonify({"error": "No audio file provided"}), 400
 
-        audio_file = request.files['audio_file']
-        if audio_file.filename == '':
+        audio_file = request.files["audio_file"]
+        if audio_file.filename == "":
             return jsonify({"error": "No audio file selected"}), 400
 
         # Validate MIME type
-        allowed_types = ['audio/webm', 'audio/wav', 'audio/mp4', 'audio/mpeg']
+        allowed_types = ["audio/webm", "audio/wav", "audio/mp4", "audio/mpeg"]
         if audio_file.content_type not in allowed_types:
-            return jsonify({
-                "error": (
-                    f"Unsupported audio format: {audio_file.content_type}. "
-                    f"Supported: {', '.join(allowed_types)}"
-                )
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "error": (
+                            f"Unsupported audio format: {audio_file.content_type}. "
+                            f"Supported: {', '.join(allowed_types)}"
+                        )
+                    }
+                ),
+                400,
+            )
 
         logger.info(
-            f"🎙️ Processing voice journal: {audio_file.filename} "
-            f"({audio_file.content_type})"
+            f"🎙️ Processing voice journal: {audio_file.filename} ({audio_file.content_type})"
         )
 
         # Transcribe and analyze
@@ -493,7 +532,7 @@ def analyze_voice_journal():
         return jsonify(create_enhanced_mock_response(audio_file.filename))
 
     except Exception:
-        return create_error_response('Voice processing failed. Please try again later.')
+        return create_error_response("Voice processing failed. Please try again later.")
 
 
 def create_enhanced_mock_response(filename: str) -> dict:
@@ -501,16 +540,11 @@ def create_enhanced_mock_response(filename: str) -> dict:
     import random
 
     sample_texts = [
-        ("Today has been a wonderful day filled with excitement "
-         "and new opportunities."),
-        ("I'm feeling quite optimistic about the future "
-         "and all the possibilities ahead."),
-        ("The voice processing feature is working amazingly well "
-         "for transcription."),
-        ("I'm grateful for all the progress we've made "
-         "on this project so far."),
-        ("This technology is truly impressive "
-         "and will help many people.")
+        ("Today has been a wonderful day filled with excitement and new opportunities."),
+        ("I'm feeling quite optimistic about the future and all the possibilities ahead."),
+        ("The voice processing feature is working amazingly well for transcription."),
+        ("I'm grateful for all the progress we've made on this project so far."),
+        ("This technology is truly impressive and will help many people."),
     ]
 
     transcribed_text = random.choice(sample_texts)
@@ -523,20 +557,20 @@ def create_enhanced_mock_response(filename: str) -> dict:
             emotion_result = {
                 "emotion": "optimism",
                 "confidence": 0.85,
-                "text": transcribed_text
+                "text": transcribed_text,
             }
     except:
         emotion_result = {
             "emotion": "neutral",
             "confidence": 0.75,
-            "text": transcribed_text
+            "text": transcribed_text,
         }
 
     return {
         "transcription": {
             "text": transcribed_text,
             "confidence": random.uniform(0.85, 0.95),
-            "duration": random.uniform(3.0, 8.0)
+            "duration": random.uniform(3.0, 8.0),
         },
         "emotion_analysis": emotion_result,
         "processing_info": {
@@ -544,42 +578,41 @@ def create_enhanced_mock_response(filename: str) -> dict:
             "timestamp": time.time(),
             "request_id": str(uuid.uuid4()),
             "models_used": ["Enhanced Mock Whisper", "Real Emotion Analysis"],
-            "note": "Voice transcription simulated - emotion analysis is real"
-        }
+            "note": "Voice transcription simulated - emotion analysis is real",
+        },
     }
 
 
-@app.route('/analyze/summarize', methods=['POST'])
+@app.route("/analyze/summarize", methods=["POST"])
 def analyze_summarize():
     """Summarize text (placeholder for future implementation)"""
     try:
         # Get text from query params
-        text = request.args.get('text', '').strip()
+        text = request.args.get("text", "").strip()
         if not text:
             data = request.get_json(silent=True) or {}
-            text = data.get('text', '').strip()
+            text = data.get("text", "").strip()
 
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({"error": "No text provided"}), 400
 
         # Use REAL T5 AI summarization
         summary_result = summarize_text(text)
 
         result = {
-            'summary': summary_result['summary'],
-            'original_length': summary_result['original_length'],
-            'summary_length': summary_result['summary_length'],
-            'compression_ratio': summary_result['compression_ratio'],
-            'model_used': summary_result['model'],
-            'request_id': str(uuid.uuid4()),
-            'timestamp': time.time()
+            "summary": summary_result["summary"],
+            "original_length": summary_result["original_length"],
+            "summary_length": summary_result["summary_length"],
+            "compression_ratio": summary_result["compression_ratio"],
+            "model_used": summary_result["model"],
+            "request_id": str(uuid.uuid4()),
+            "timestamp": time.time(),
         }
 
         return jsonify(result)
 
     except Exception:
-        return create_error_response('Text summarization failed. '
-                                   'Please try again later.')
+        return create_error_response("Text summarization failed. Please try again later.")
 
 
 # Initialize models on startup
@@ -590,10 +623,11 @@ def initialize_models():
     except Exception:
         logger.exception("Failed to initialize models on startup")
 
+
 # Initialize models when module is imported
 initialize_models()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SAMO Unified AI API Server")
     parser.add_argument(
         "--port",
@@ -601,16 +635,8 @@ if __name__ == '__main__':
         default=int(os.getenv("PORT", "8002")),
         help="Port to run the server on (default: 8002)",
     )
-    parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        help="Host to bind to (default: 127.0.0.1)"
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Run in debug mode"
-    )
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
 
     logger.info("🚀 STARTING SAMO UNIFIED AI API SERVER")

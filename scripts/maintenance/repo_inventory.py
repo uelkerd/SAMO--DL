@@ -5,6 +5,7 @@
 - Scans for references to candidate paths
 - Configurable via configs/repo_inventory.json and CLI flags
 """
+
 import os
 import json
 import argparse
@@ -80,11 +81,7 @@ def list_all_files() -> List[Path]:
                 continue
             # Include regular files and symlinks-to-files; skip vanished/dirs
             try:
-                if p.is_file() or (
-                    p.is_symlink()
-                    and p.exists()
-                    and p.resolve().is_file()
-                ):
+                if p.is_file() or (p.is_symlink() and p.exists() and p.resolve().is_file()):
                     files.append(p)
             except OSError:
                 continue

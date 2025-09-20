@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Vertex AI Custom Container Prediction Server
+"""Vertex AI Custom Container Prediction Server
 ===========================================
 
 This script runs a Flask server for the emotion detection model on Vertex AI.
@@ -13,6 +12,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+
 class EmotionDetectionModel:
     def __init__(self):
         """Initialize the model."""
@@ -24,11 +24,11 @@ class EmotionDetectionModel:
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
 
             # Set device once and move model
-            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
             self.model = self.model.to(self.device)
             self.model.eval()  # Set to evaluation mode
 
-            if self.device == 'cuda':
+            if self.device == "cuda":
                 print("✅ Model moved to GPU")
             else:
                 print("⚠️ CUDA not available, using CPU")
@@ -38,38 +38,65 @@ class EmotionDetectionModel:
             print("✅ Model loaded successfully")
 
         except Exception as e:
-            print(f"❌ Failed to load model: {str(e)}")
+            print(f"❌ Failed to load model: {e!s}")
             raise
 
     def _load_emotion_labels(self):
         """Load emotion labels from model config."""
         try:
             # Try to get labels from model config
-            if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+            if hasattr(self.model.config, "id2label") and self.model.config.id2label:
                 # Convert id2label dict to ordered list
                 max_id = max(self.model.config.id2label.keys())
-                labels = [self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)]
+                labels = [
+                    self.model.config.id2label.get(i, f"unknown_{i}") for i in range(max_id + 1)
+                ]
                 return labels
-            if hasattr(self.model.config, 'label2id') and self.model.config.label2id:
+            if hasattr(self.model.config, "label2id") and self.model.config.label2id:
                 # Convert label2id dict to ordered list
-                labels = sorted(self.model.config.label2id.keys(), key=lambda x: self.model.config.label2id[x])
+                labels = sorted(
+                    self.model.config.label2id.keys(),
+                    key=lambda x: self.model.config.label2id[x],
+                )
                 return labels
             # Fallback to hardcoded list if config doesn't have labels
             print("⚠️ No emotion labels found in model config, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
-                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
-                    'sad', 'tired']
+            return [
+                "anxious",
+                "calm",
+                "content",
+                "excited",
+                "frustrated",
+                "grateful",
+                "happy",
+                "hopeful",
+                "overwhelmed",
+                "proud",
+                "sad",
+                "tired",
+            ]
         except Exception as e:
             print(f"⚠️ Error loading emotion labels: {e}, using fallback")
-            return ['anxious', 'calm', 'content', 'excited', 'frustrated', 
-                    'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 
-                    'sad', 'tired']
+            return [
+                "anxious",
+                "calm",
+                "content",
+                "excited",
+                "frustrated",
+                "grateful",
+                "happy",
+                "hopeful",
+                "overwhelmed",
+                "proud",
+                "sad",
+                "tired",
+            ]
 
     def _get_emotion_label(self, label_id):
         """Get emotion label for a given label ID."""
         try:
             # Try to get from model config first
-            if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+            if hasattr(self.model.config, "id2label") and self.model.config.id2label:
                 # Handle both int and str keys
                 if label_id in self.model.config.id2label:
                     return self.model.config.id2label[label_id]
@@ -77,7 +104,7 @@ class EmotionDetectionModel:
                     return self.model.config.id2label[str(label_id)]
 
             # Fallback to emotions list if available
-            if hasattr(self, 'emotions') and 0 <= label_id < len(self.emotions):
+            if hasattr(self, "emotions") and 0 <= label_id < len(self.emotions):
                 return self.emotions[label_id]
 
             # Final fallback
@@ -89,7 +116,9 @@ class EmotionDetectionModel:
         """Make a prediction."""
         try:
             # Tokenize input
-            inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=512)
+            inputs = self.tokenizer(
+                text, return_tensors="pt", truncation=True, padding=True, max_length=512
+            )
 
             # Move inputs to the same device as the model
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
@@ -109,52 +138,57 @@ class EmotionDetectionModel:
 
             # Create response
             response = {
-                'text': text,
-                'predicted_emotion': predicted_emotion,
-                'confidence': float(confidence),
-                'probabilities': {
+                "text": text,
+                "predicted_emotion": predicted_emotion,
+                "confidence": float(confidence),
+                "probabilities": {
                     self._get_emotion_label(i): float(prob) for i, prob in enumerate(all_probs)
                 },
-                'model_version': '2.0',
-                'model_type': 'comprehensive_emotion_detection',
-                'performance': {
-                    'basic_accuracy': '100.00%',
-                    'real_world_accuracy': '93.75%',
-                    'average_confidence': '83.9%'
-                }
+                "model_version": "2.0",
+                "model_type": "comprehensive_emotion_detection",
+                "performance": {
+                    "basic_accuracy": "100.00%",
+                    "real_world_accuracy": "93.75%",
+                    "average_confidence": "83.9%",
+                },
             }
 
             return response
 
         except Exception as e:
-            print(f"Prediction error: {str(e)}")
+            print(f"Prediction error: {e!s}")
             raise
+
 
 # Initialize model
 print("🔧 Loading emotion detection model...")
 model = EmotionDetectionModel()
 
-@app.route('/health', methods=['GET'])
+
+@app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint."""
-    return jsonify({
-        'status': 'healthy',
-        'model_version': '2.0',
-        'model_type': 'comprehensive_emotion_detection'
-    })
+    return jsonify(
+        {
+            "status": "healthy",
+            "model_version": "2.0",
+            "model_type": "comprehensive_emotion_detection",
+        }
+    )
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     """Prediction endpoint."""
     try:
         data = request.get_json()
 
-        if not data or 'text' not in data:
-            return jsonify({'error': 'No text provided'}), 400
+        if not data or "text" not in data:
+            return jsonify({"error": "No text provided"}), 400
 
-        text = data['text']
+        text = data["text"]
         if not text.strip():
-            return jsonify({'error': 'Empty text provided'}), 400
+            return jsonify({"error": "Empty text provided"}), 400
 
         # Make prediction
         result = model.predict(text)
@@ -163,32 +197,37 @@ def predict():
 
     except Exception:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.exception("Prediction endpoint error")
-        return jsonify({'error': 'Prediction failed'}), 500
+        return jsonify({"error": "Prediction failed"}), 500
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def home():
     """Home endpoint."""
-    return jsonify({
-        'message': 'Comprehensive Emotion Detection API',
-        'version': '2.0',
-        'endpoints': {
-            'GET /': 'This documentation',
-            'GET /health': 'Health check',
-            'POST /predict': 'Single prediction (send {"text": "your text"})'
-        },
-        'model_info': {
-            'emotions': model.emotions,
-            'performance': {
-                'basic_accuracy': '100.00%',
-                'real_world_accuracy': '93.75%',
-                'average_confidence': '83.9%'
-            }
+    return jsonify(
+        {
+            "message": "Comprehensive Emotion Detection API",
+            "version": "2.0",
+            "endpoints": {
+                "GET /": "This documentation",
+                "GET /health": "Health check",
+                "POST /predict": 'Single prediction (send {"text": "your text"})',
+            },
+            "model_info": {
+                "emotions": model.emotions,
+                "performance": {
+                    "basic_accuracy": "100.00%",
+                    "real_world_accuracy": "93.75%",
+                    "average_confidence": "83.9%",
+                },
+            },
         }
-    })
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("🌐 Starting Vertex AI prediction server...")
     print("📋 Available endpoints:")
     print("   GET  / - API documentation")
@@ -212,10 +251,22 @@ if __name__ == '__main__':
     except ImportError:
         # Fallback for container environments where host_binding module is not available
         print("⚠️ Host binding module not available, using fallback configuration")
-        host = '0.0.0.0'
-        port = int(os.environ.get('AIP_HTTP_PORT', '8080'))
-        security_summary = (f"Fallback mode: host={host}, port={port} "
-                           f"(AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')})")
+
+        # Use environment-based host detection with security annotations
+        host = os.environ.get("HOST", "127.0.0.1")  # Default to localhost for security
+
+        # Google Cloud Run/Vertex AI requires binding to all interfaces
+        if os.environ.get("AIP_HTTP_PORT") or os.environ.get("K_SERVICE"):
+            host = "0.0.0.0"  # nosec B104 - required for Google Cloud containerized environments
+            print("🔒 Cloud container environment detected: binding to all interfaces")
+            print("🛡️  Ensure proper network security and firewall rules are in place")
+
+        port = int(os.environ.get("AIP_HTTP_PORT", os.environ.get("PORT", "8080")))
+        security_summary = (
+            f"Fallback mode: host={host}, port={port} "
+            f"(AIP_HTTP_PORT={os.environ.get('AIP_HTTP_PORT', 'not set')}, "
+            f"K_SERVICE={os.environ.get('K_SERVICE', 'not set')})"
+        )
         print(f"Security Summary: {security_summary}")
 
     print(f"🚀 Server starting on http://{host}:{port}")

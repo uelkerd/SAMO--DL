@@ -35,7 +35,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
         f.write("""[pytest]
 addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=50 -v --tb=short
 """)

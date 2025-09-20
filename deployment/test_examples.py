@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
-🧪 TEST EMOTION DETECTION MODEL
+"""🧪 TEST EMOTION DETECTION MODEL
 ===============================
 Test the trained model with various examples.
 """
 
 from inference import EmotionDetector
+
 
 def test_model():
     """Test the emotion detection model"""
@@ -27,25 +27,22 @@ def test_model():
         "I'm excited about the new opportunities ahead.",
         "I'm grateful for all the support I've received.",
         "I'm proud of what I've accomplished so far.",
-
         # Negative emotions
         "I'm so frustrated with this project. Nothing is working.",
         "I feel anxious about the upcoming presentation.",
         "I'm feeling sad and lonely today.",
         "I'm feeling overwhelmed with all these tasks.",
-
         # Neutral emotions
         "I feel calm and peaceful right now.",
         "I'm content with how things are going.",
         "I'm hopeful that things will get better.",
-        "I'm tired and need some rest."
+        "I'm tired and need some rest.",
     ]
 
     print("\n📊 Testing Results:")
     print("=" * 50)
 
-    correct_predictions = 0
-    total_predictions = len(test_cases)
+    len(test_cases)
 
     for i, text in enumerate(test_cases, 1):
         result = detector.predict(text)
@@ -55,7 +52,10 @@ def test_model():
         print()
 
     print("🎉 Testing completed!")
-    print(f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}")
+    print(
+        f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}"
+    )
+
 
 if __name__ == "__main__":
     test_model()

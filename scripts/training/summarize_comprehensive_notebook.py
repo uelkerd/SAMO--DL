@@ -9,11 +9,12 @@ and all its features.
 
 import json
 
+
 def summarize_comprehensive_notebook():
     """Summarize the comprehensive notebook."""
 
     # Read the notebook
-    with open('notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     print("🚀 COMPREHENSIVE ULTIMATE TRAINING NOTEBOOK SUMMARY")
@@ -21,10 +22,10 @@ def summarize_comprehensive_notebook():
     print()
 
     # Count cells by type
-    markdown_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'markdown']
-    code_cells = [cell for cell in notebook['cells'] if cell['cell_type'] == 'code']
+    markdown_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "markdown"]
+    code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
 
-    print(f"📊 NOTEBOOK STATISTICS:")
+    print("📊 NOTEBOOK STATISTICS:")
     print(f"   Total cells: {len(notebook['cells'])}")
     print(f"   Markdown cells: {len(markdown_cells)}")
     print(f"   Code cells: {len(code_cells)}")
@@ -48,7 +49,7 @@ def summarize_comprehensive_notebook():
         "✅ Model saving with verification",
         "✅ Complete training pipeline",
         "✅ Evaluation and metrics",
-        "✅ Unseen data testing"
+        "✅ Unseen data testing",
     ]
 
     for feature in features:
@@ -76,7 +77,7 @@ def summarize_comprehensive_notebook():
         "Training Execution",
         "Evaluation and Validation",
         "Advanced Validation and Bias Analysis",
-        "Model Saving with Verification"
+        "Model Saving with Verification",
     ]
 
     for i, title in enumerate(cell_titles, 1):
@@ -93,7 +94,7 @@ def summarize_comprehensive_notebook():
         "🔍 Advanced validation and bias analysis",
         "💾 Proper model saving with configuration verification",
         "🚀 Ready for production deployment",
-        "📋 Complete training pipeline from start to finish"
+        "📋 Complete training pipeline from start to finish",
     ]
 
     for advantage in advantages:
@@ -101,10 +102,11 @@ def summarize_comprehensive_notebook():
 
     print()
     print("📁 FILE LOCATION:")
-    print(f"   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
+    print("   notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
     print()
     print("🚀 READY TO USE!")
     print("   Download, upload to Colab, set GPU runtime, and run!")
+
 
 if __name__ == "__main__":
     summarize_comprehensive_notebook()

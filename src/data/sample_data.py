@@ -1,12 +1,12 @@
-        # Add hour/minute/second for more realistic timestamps
-        # Create the entry
-        # Generate a random date within the range
-        # Randomly select user_id
-    # Convert datetime objects to strings for JSON serialization
-    # Convert string dates back to datetime
-    # Ensure output directory exists
-    # Generate 100 entries from 5 users over the past 60 days
-    # Save to data/raw directory
+# Add hour/minute/second for more realistic timestamps
+# Create the entry
+# Generate a random date within the range
+# Randomly select user_id
+# Convert datetime objects to strings for JSON serialization
+# Convert string dates back to datetime
+# Ensure output directory exists
+# Generate 100 entries from 5 users over the past 60 days
+# Save to data/raw directory
 # Additional sentences to add variety
 # Emotion categories for entries
 # Sample topics to generate journal entries about
@@ -18,8 +18,6 @@ from typing import Any, Dict, List, Optional
 import json
 import pandas as pd
 import random
-
-
 
 
 TOPICS = [
@@ -59,14 +57,11 @@ EMOTIONS = [
 
 ENTRY_TEMPLATES = [
     "Today I felt {emotion} about {topic}. {additional_sentence}",
-    "I spent time on {topic} today. {additional_sentence} Overall I'm "
-    "feeling {emotion}.",
+    "I spent time on {topic} today. {additional_sentence} Overall I'm feeling {emotion}.",
     "I've been thinking a lot about {topic} lately. {additional_sentence} "
     "It makes me feel {emotion}.",
-    "My {topic} journey continues. {additional_sentence} I'm {emotion} "
-    "about my progress.",
-    "{topic} has been on my mind. {additional_sentence} I'm feeling "
-    "{emotion} about it.",
+    "My {topic} journey continues. {additional_sentence} I'm {emotion} about my progress.",
+    "{topic} has been on my mind. {additional_sentence} I'm feeling {emotion} about it.",
     "I had an experience with {topic} today that left me feeling {emotion}. {additional_sentence}",
     "I'm {emotion} about my {topic} situation. {additional_sentence}",
     "When it comes to {topic}, I'm feeling {emotion}. {additional_sentence}",
@@ -86,12 +81,10 @@ REFLECTION_TEMPLATES = [
 DETAIL_TEMPLATES = [
     "The main reason for this is the pressure from the upcoming project deadline.",
     "It all started after that conversation with my manager earlier this week.",
-    "I've been trying to balance this with all of my other responsibilities, and 
-        it's tough.",
+    "I've been trying to balance this with all of my other responsibilities, and it's tough.",
     "The small details of the situation are what seem to be causing the most stress.",
     "I'm trying to focus on the positive aspects, but it's proving to be difficult.",
-    "The situation with {topic} has been evolving for a few weeks now, and 
-        it's coming to a head.",
+    "The situation with {topic} has been evolving for a few weeks now, and it's coming to a head.",
 ]
 
 
@@ -147,8 +140,7 @@ def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     base_sentence = random.choice(ADDITIONAL_SENTENCES)
-    content = template.format(topic=topic, emotion=emotion,
-        additional_sentence=base_sentence)
+    content = template.format(topic=topic, emotion=emotion, additional_sentence=base_sentence)
 
     # Add more complexity with a chance of a second or third sentence
     if random.random() > 0.4:  # 60% chance of adding more detail
@@ -157,8 +149,8 @@ def generate_content(topic: str, emotion: str) -> str:
         content += f" {random.choice(REFLECTION_TEMPLATES)}"
     return content
 
-def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str,
-    Any]:
+
+def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)

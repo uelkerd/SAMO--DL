@@ -7,11 +7,11 @@ This script deploys the comprehensive emotion detection model locally
 for testing before cloud deployment.
 """
 
-import os
 import json
 import sys
 from datetime import datetime
 from pathlib import Path
+
 
 def deploy_locally():
     """Deploy the model locally for testing."""
@@ -23,7 +23,7 @@ def deploy_locally():
     # Check if model exists - try both possible locations
     model_paths = [
         Path("deployment/model"),  # Primary location
-        Path("deployment/models/default")  # Fallback location
+        Path("deployment/models/default"),  # Fallback location
     ]
 
     model_path = None
@@ -44,11 +44,13 @@ def deploy_locally():
     local_deployment_dir = Path("local_deployment")
     if local_deployment_dir.exists():
         import shutil
+
         shutil.rmtree(local_deployment_dir)
     local_deployment_dir.mkdir()
 
     # Copy model files
     import shutil
+
     shutil.copytree(model_path, local_deployment_dir / "model")
     print("✅ Model files copied")
 
@@ -271,19 +273,19 @@ if __name__ == '__main__':
 '''
 
     api_server_path = local_deployment_dir / "api_server.py"
-    with api_server_path.open('w', encoding='utf-8') as f:
+    with api_server_path.open("w", encoding="utf-8") as f:
         f.write(api_server_script)
     print("✅ API server script created")
 
     # Create requirements.txt
-    requirements = '''flask>=2.0.0
+    requirements = """flask>=2.0.0
 torch>=2.0.0
 transformers>=4.30.0
 numpy>=1.21.0
-'''
+"""
 
     requirements_path = local_deployment_dir / "requirements.txt"
-    with requirements_path.open('w', encoding='utf-8') as f:
+    with requirements_path.open("w", encoding="utf-8") as f:
         f.write(requirements)
     print("✅ Requirements file created")
 
@@ -380,12 +382,12 @@ if __name__ == "__main__":
 '''
 
     test_script_path = local_deployment_dir / "test_api.py"
-    with test_script_path.open('w', encoding='utf-8') as f:
+    with test_script_path.open("w", encoding="utf-8") as f:
         f.write(test_script)
     print("✅ Test script created")
 
     # Create start script
-    start_script = '''#!/bin/bash
+    start_script = """#!/bin/bash
 # Start local deployment
 
 set -euo pipefail
@@ -420,7 +422,7 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 exec python3 -u "$SCRIPT_DIR/api_server.py"
-'''
+"""
 
     start_script_path = local_deployment_dir / "start.sh"
     start_script_path.write_text(start_script)
@@ -429,28 +431,28 @@ exec python3 -u "$SCRIPT_DIR/api_server.py"
 
     # Create deployment summary
     deployment_summary = {
-        'status': 'ready',
-        'timestamp': datetime.now().isoformat(),
-        'model_path': str(model_path),
-        'deployment_dir': str(local_deployment_dir),
-        'endpoints': {
-            'health': 'GET http://localhost:5000/health',
-            'predict': 'POST http://localhost:5000/predict',
-            'predict_batch': 'POST http://localhost:5000/predict_batch',
-            'docs': 'GET http://localhost:5000/'
+        "status": "ready",
+        "timestamp": datetime.now().isoformat(),
+        "model_path": str(model_path),
+        "deployment_dir": str(local_deployment_dir),
+        "endpoints": {
+            "health": "GET http://localhost:5000/health",
+            "predict": "POST http://localhost:5000/predict",
+            "predict_batch": "POST http://localhost:5000/predict_batch",
+            "docs": "GET http://localhost:5000/",
         },
-        'usage': {
-            'start_server': './start.sh',
-            'test_api': 'python test_api.py',
-            'manual_test': 'curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d \'{"text": "I am happy"}\''
-        }
+        "usage": {
+            "start_server": "./start.sh",
+            "test_api": "python test_api.py",
+            "manual_test": 'curl -X POST http://localhost:5000/predict -H "Content-Type: application/json" -d \'{"text": "I am happy"}\'',
+        },
     }
 
     deployment_info_path = local_deployment_dir / "deployment_info.json"
     deployment_info_path.write_text(json.dumps(deployment_summary, indent=2))
     print("✅ Deployment info created")
 
-    print(f"\n✅ LOCAL DEPLOYMENT READY!")
+    print("\n✅ LOCAL DEPLOYMENT READY!")
     print("=" * 50)
     print(f"📁 Deployment directory: {local_deployment_dir}")
     print()
@@ -469,11 +471,12 @@ exec python3 -u "$SCRIPT_DIR/api_server.py"
     print("   POST http://localhost:5000/predict_batch - Batch prediction")
     print()
     print("📝 Example usage:")
-    print('   curl -X POST http://localhost:5000/predict \\')
+    print("   curl -X POST http://localhost:5000/predict \\")
     print('        -H "Content-Type: application/json" \\')
     print('        -d \'{"text": "I am feeling happy today!"}\'')
 
     return True
+
 
 if __name__ == "__main__":
     success = deploy_locally()

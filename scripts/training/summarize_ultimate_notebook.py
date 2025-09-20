@@ -8,6 +8,7 @@ This script provides a comprehensive summary of what the ultimate notebook conta
 
 import json
 
+
 def summarize_notebook():
     """Summarize the ultimate notebook contents."""
 
@@ -16,7 +17,7 @@ def summarize_notebook():
     print()
 
     # Read the notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     print("📋 NOTEBOOK OVERVIEW:")
@@ -36,27 +37,27 @@ def summarize_notebook():
 
     print("🔍 CELL BREAKDOWN:")
     cell_count = 0
-    for cell in notebook['cells']:
+    for cell in notebook["cells"]:
         cell_count += 1
-        if cell['cell_type'] == 'markdown':
+        if cell["cell_type"] == "markdown":
             # Extract the first line of markdown
-            first_line = cell['source'][0].strip() if cell['source'] else ""
-            if first_line.startswith('#'):
+            first_line = cell["source"][0].strip() if cell["source"] else ""
+            if first_line.startswith("#"):
                 print(f"   {cell_count:2d}. 📝 {first_line}")
-        elif cell['cell_type'] == 'code':
+        elif cell["cell_type"] == "code":
             # Look for key functions/classes
-            code_text = ''.join(cell['source'])
-            if 'FocalLoss' in code_text:
+            code_text = "".join(cell["source"])
+            if "FocalLoss" in code_text:
                 print(f"   {cell_count:2d}. 🎯 Focal Loss Implementation")
-            elif 'WeightedLossTrainer' in code_text:
+            elif "WeightedLossTrainer" in code_text:
                 print(f"   {cell_count:2d}. ⚖️ Weighted Loss Trainer")
-            elif 'augment_text' in code_text:
+            elif "augment_text" in code_text:
                 print(f"   {cell_count:2d}. 📊 Data Augmentation")
-            elif 'compute_metrics' in code_text:
+            elif "compute_metrics" in code_text:
                 print(f"   {cell_count:2d}. 📈 Compute Metrics")
-            elif 'trainer.train()' in code_text:
+            elif "trainer.train()" in code_text:
                 print(f"   {cell_count:2d}. 🚀 Training Execution")
-            elif 'model.save_pretrained' in code_text:
+            elif "model.save_pretrained" in code_text:
                 print(f"   {cell_count:2d}. 💾 Model Saving with Verification")
 
     print()
@@ -91,6 +92,7 @@ def summarize_notebook():
     print("   Addresses ALL known issues and limitations")
     print("   Designed for reliable, consistent performance")
     print("   Ready for production deployment")
+
 
 if __name__ == "__main__":
     summarize_notebook()

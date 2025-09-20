@@ -37,7 +37,7 @@ logging.info(f"sys.path: {sys.path}")
 logging.info(f"Project root added to path: {project_root}")
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 

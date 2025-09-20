@@ -23,11 +23,7 @@ def norm(s: str) -> str:
 
 # 1) Load model + tokenizer (private repos require token)
 tok = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True, token=TOKEN)
-mdl = (
-    AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN)
-    .to(DEVICE)
-    .eval()
-)
+mdl = AutoModelForSequenceClassification.from_pretrained(MODEL_ID, token=TOKEN).to(DEVICE).eval()
 cfg = mdl.config
 num_labels = int(getattr(cfg, "num_labels", len(getattr(cfg, "id2label", {})) or 28))
 
@@ -83,20 +79,15 @@ kept_model_indices = []
 if mapped_count >= 5:
     kept_ds_indices = [i for i in range(len(ds_names)) if i in ds_to_model]
     kept_model_indices = [ds_to_model[i] for i in kept_ds_indices]
+elif num_labels == len(ds_names):
+    print("Low mapping coverage; identity mapping (assumes same order).")
+    kept_ds_indices = list(range(num_labels))
+    kept_model_indices = list(range(num_labels))
 else:
-    if num_labels == len(ds_names):
-        print(
-            "Low mapping coverage; identity mapping (assumes same order)."
-        )
-        kept_ds_indices = list(range(num_labels))
-        kept_model_indices = list(range(num_labels))
-    else:
-        m = min(num_labels, len(ds_names))
-        print(
-            f"Low mapping coverage; min-dim identity mapping ({m} labels)."
-        )
-        kept_ds_indices = list(range(m))
-        kept_model_indices = list(range(m))
+    m = min(num_labels, len(ds_names))
+    print(f"Low mapping coverage; min-dim identity mapping ({m} labels).")
+    kept_ds_indices = list(range(m))
+    kept_model_indices = list(range(m))
 
 D = len(kept_ds_indices)
 kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}
@@ -136,7 +127,7 @@ def predict_probs(batch_texts):
 
 all_probs_full, all_true = [], []
 for i in tqdm(range(0, len(val), BATCH)):
-    batch = val[i:i + BATCH]
+    batch = val[i : i + BATCH]
     batch_probs = predict_probs(batch["text"])  # predictions for this batch
     all_probs_full.append(batch_probs)
     all_true.append(np.stack(batch["y"]))

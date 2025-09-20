@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Enhanced API Testing Script
+"""Enhanced API Testing Script
 ===========================
 
 Comprehensive testing for the enhanced emotion detection API with monitoring,
@@ -26,8 +25,9 @@ TEST_TEXTS = [
     "I feel overwhelmed by all the work",
     "I am hopeful for the future",
     "I feel content with my life",
-    "I am tired after a long day"
+    "I am tired after a long day",
 ]
+
 
 def test_health_check():
     """Test the enhanced health check endpoint."""
@@ -36,20 +36,23 @@ def test_health_check():
         response = requests.get(f"{BASE_URL}/health")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Health check passed")
+            print("✅ Health check passed")
             print(f"   Status: {data['status']}")
             print(f"   Model Version: {data['model_version']}")
             print(f"   Uptime: {data['uptime_seconds']:.1f} seconds")
             print(f"   Total Requests: {data['metrics']['total_requests']}")
-            print(f"   Success Rate: {data['metrics']['successful_requests']}/{data['metrics']['total_requests']}")
+            print(
+                f"   Success Rate: {data['metrics']['successful_requests']}/{data['metrics']['total_requests']}"
+            )
             print(f"   Avg Response Time: {data['metrics']['average_response_time_ms']}ms")
             return True
         else:
             print(f"❌ Health check failed: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Health check error: {str(e)}")
+        print(f"❌ Health check error: {e!s}")
         return False
+
 
 def test_metrics_endpoint():
     """Test the new metrics endpoint."""
@@ -58,17 +61,20 @@ def test_metrics_endpoint():
         response = requests.get(f"{BASE_URL}/metrics")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Metrics endpoint working")
+            print("✅ Metrics endpoint working")
             print(f"   Success Rate: {data['server_metrics']['success_rate']}")
             print(f"   Requests/Minute: {data['server_metrics']['requests_per_minute']:.2f}")
-            print(f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s")
+            print(
+                f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s"
+            )
             return True
         else:
             print(f"❌ Metrics endpoint failed: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Metrics endpoint error: {str(e)}")
+        print(f"❌ Metrics endpoint error: {e!s}")
         return False
+
 
 def test_single_predictions():
     """Test single predictions with timing."""
@@ -81,44 +87,50 @@ def test_single_predictions():
             response = requests.post(
                 f"{BASE_URL}/predict",
                 json={"text": text},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
             end_time = time.time()
 
             if response.status_code == 200:
                 data = response.json()
                 # Handle both API schemas: primary_emotion/primary_confidence or predicted_emotion/confidence
-                emotion = data.get('primary_emotion') or data.get('predicted_emotion')
-                confidence = data.get('primary_confidence') or data.get('confidence', 0)
-                prediction_time = data.get('prediction_time_ms', 0)
+                emotion = data.get("primary_emotion") or data.get("predicted_emotion")
+                confidence = data.get("primary_confidence") or data.get("confidence", 0)
+                prediction_time = data.get("prediction_time_ms", 0)
                 total_time = (end_time - start_time) * 1000
 
                 # Log text length and hash instead of raw content to avoid PII exposure
                 import hashlib
+
                 text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
-                print(f"✅ Test {i}: text_len={len(text)}, text_hash={text_hash} → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)")
-                results.append({
-                    'text': text,
-                    'emotion': emotion,
-                    'confidence': confidence,
-                    'prediction_time_ms': prediction_time,
-                    'total_time_ms': total_time
-                })
+                print(
+                    f"✅ Test {i}: text_len={len(text)}, text_hash={text_hash} → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)"
+                )
+                results.append(
+                    {
+                        "text": text,
+                        "emotion": emotion,
+                        "confidence": confidence,
+                        "prediction_time_ms": prediction_time,
+                        "total_time_ms": total_time,
+                    }
+                )
             else:
                 print(f"❌ Test {i} failed: {response.status_code}")
                 return False
 
         except Exception as e:
-            print(f"❌ Test {i} error: {str(e)}")
+            print(f"❌ Test {i} error: {e!s}")
             return False
 
     # Calculate average performance
-    avg_confidence = sum(r['confidence'] for r in results) / len(results)
-    avg_prediction_time = sum(r['prediction_time_ms'] for r in results) / len(results)
+    avg_confidence = sum(r["confidence"] for r in results) / len(results)
+    avg_prediction_time = sum(r["prediction_time_ms"] for r in results) / len(results)
     print(f"   📊 Average confidence: {avg_confidence:.3f}")
     print(f"   📊 Average prediction time: {avg_prediction_time:.1f}ms")
 
     return True
+
 
 def test_batch_predictions():
     """Test batch predictions."""
@@ -128,14 +140,14 @@ def test_batch_predictions():
         response = requests.post(
             f"{BASE_URL}/predict_batch",
             json={"texts": TEST_TEXTS[:5]},
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         end_time = time.time()
 
         if response.status_code == 200:
             data = response.json()
-            predictions = data['predictions']
-            batch_time = data.get('batch_processing_time_ms', 0)
+            predictions = data["predictions"]
+            batch_time = data.get("batch_processing_time_ms", 0)
             total_time = (end_time - start_time) * 1000
 
             print(f"✅ Batch prediction successful: {len(predictions)} predictions")
@@ -147,45 +159,61 @@ def test_batch_predictions():
                 def normalize_prediction(pred_item):
                     """Normalize prediction item to extract emotion, confidence, and text."""
                     # Check for direct keys first
-                    if 'predicted_emotion' in pred_item and 'confidence' in pred_item and 'text' in pred_item:
+                    if (
+                        "predicted_emotion" in pred_item
+                        and "confidence" in pred_item
+                        and "text" in pred_item
+                    ):
                         return {
-                            'emotion': pred_item.get('predicted_emotion'),
-                            'confidence': pred_item.get('confidence', 0),
-                            'text': pred_item.get('text', '')
+                            "emotion": pred_item.get("predicted_emotion"),
+                            "confidence": pred_item.get("confidence", 0),
+                            "text": pred_item.get("text", ""),
                         }
 
                     # Check for primary_emotion/primary_confidence keys
-                    if 'primary_emotion' in pred_item and 'primary_confidence' in pred_item and 'text' in pred_item:
+                    if (
+                        "primary_emotion" in pred_item
+                        and "primary_confidence" in pred_item
+                        and "text" in pred_item
+                    ):
                         return {
-                            'emotion': pred_item.get('primary_emotion'),
-                            'confidence': pred_item.get('primary_confidence', 0),
-                            'text': pred_item.get('text', '')
+                            "emotion": pred_item.get("primary_emotion"),
+                            "confidence": pred_item.get("primary_confidence", 0),
+                            "text": pred_item.get("text", ""),
                         }
 
                     # Try to extract from nested structures
-                    nested_data = pred_item.get('data') or pred_item.get('result') or pred_item.get('prediction')
+                    nested_data = (
+                        pred_item.get("data")
+                        or pred_item.get("result")
+                        or pred_item.get("prediction")
+                    )
                     if nested_data:
                         if isinstance(nested_data, list) and len(nested_data) > 0:
                             nested_data = nested_data[0]
                         if isinstance(nested_data, dict):
                             return {
-                                'emotion': nested_data.get('predicted_emotion') or nested_data.get('primary_emotion'),
-                                'confidence': nested_data.get('confidence') or nested_data.get('primary_confidence', 0),
-                                'text': nested_data.get('text', pred_item.get('text', ''))
+                                "emotion": nested_data.get("predicted_emotion")
+                                or nested_data.get("primary_emotion"),
+                                "confidence": nested_data.get("confidence")
+                                or nested_data.get("primary_confidence", 0),
+                                "text": nested_data.get("text", pred_item.get("text", "")),
                             }
 
                     # Fallback to safe defaults
                     return {
-                        'emotion': pred_item.get('primary_emotion') or pred_item.get('predicted_emotion', 'unknown'),
-                        'confidence': pred_item.get('primary_confidence') or pred_item.get('confidence', 0),
-                        'text': pred_item.get('text', '')
+                        "emotion": pred_item.get("primary_emotion")
+                        or pred_item.get("predicted_emotion", "unknown"),
+                        "confidence": pred_item.get("primary_confidence")
+                        or pred_item.get("confidence", 0),
+                        "text": pred_item.get("text", ""),
                     }
 
                 # Normalize the prediction
                 normalized = normalize_prediction(pred)
-                emotion = normalized['emotion']
-                confidence = normalized['confidence']
-                text = normalized['text']
+                emotion = normalized["emotion"]
+                confidence = normalized["confidence"]
+                text = normalized["text"]
 
                 # Truncate text for display
                 display_text = text[:30] + "..." if len(text) > 30 else text
@@ -197,8 +225,9 @@ def test_batch_predictions():
             return False
 
     except Exception as e:
-        print(f"❌ Batch prediction error: {str(e)}")
+        print(f"❌ Batch prediction error: {e!s}")
         return False
+
 
 def test_rate_limiting():
     """Test rate limiting functionality."""
@@ -209,7 +238,7 @@ def test_rate_limiting():
             response = requests.post(
                 f"{BASE_URL}/predict",
                 json={"text": "Test rate limiting"},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
             return response.status_code
         except:
@@ -236,8 +265,9 @@ def test_rate_limiting():
         print(f"   ✅ Rate limiting is working (blocked {rate_limited} requests)")
         return True
     else:
-        print(f"   ⚠️ No rate limiting detected (may need more requests)")
+        print("   ⚠️ No rate limiting detected (may need more requests)")
         return True
+
 
 def test_error_handling():
     """Test error handling."""
@@ -246,9 +276,7 @@ def test_error_handling():
     # Test missing text
     try:
         response = requests.post(
-            f"{BASE_URL}/predict",
-            json={},
-            headers={"Content-Type": "application/json"}
+            f"{BASE_URL}/predict", json={}, headers={"Content-Type": "application/json"}
         )
         if response.status_code == 400:
             print("✅ Missing text error handled correctly")
@@ -256,7 +284,7 @@ def test_error_handling():
             print(f"❌ Missing text error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Missing text test error: {str(e)}")
+        print(f"❌ Missing text test error: {e!s}")
         return False
 
     # Test empty text
@@ -264,7 +292,7 @@ def test_error_handling():
         response = requests.post(
             f"{BASE_URL}/predict",
             json={"text": ""},
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code == 400:
             print("✅ Empty text error handled correctly")
@@ -272,7 +300,7 @@ def test_error_handling():
             print(f"❌ Empty text error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Empty text test error: {str(e)}")
+        print(f"❌ Empty text test error: {e!s}")
         return False
 
     # Test invalid JSON
@@ -280,7 +308,7 @@ def test_error_handling():
         response = requests.post(
             f"{BASE_URL}/predict",
             data="invalid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code == 400:
             print("✅ Invalid JSON error handled correctly")
@@ -288,10 +316,11 @@ def test_error_handling():
             print(f"❌ Invalid JSON error not handled: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ Invalid JSON test error: {str(e)}")
+        print(f"❌ Invalid JSON test error: {e!s}")
         return False
 
     return True
+
 
 def test_performance():
     """Test performance under load."""
@@ -303,15 +332,15 @@ def test_performance():
             response = requests.post(
                 f"{BASE_URL}/predict",
                 json={"text": "Performance test"},
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
             end_time = time.time()
             return {
-                'status_code': response.status_code,
-                'response_time': (end_time - start_time) * 1000
+                "status_code": response.status_code,
+                "response_time": (end_time - start_time) * 1000,
             }
         except Exception as e:
-            return {'status_code': 0, 'response_time': 0, 'error': str(e)}
+            return {"status_code": 0, "response_time": 0, "error": str(e)}
 
     # Test with concurrent requests
     print("   Testing with 20 concurrent requests...")
@@ -323,13 +352,13 @@ def test_performance():
 
     end_time = time.time()
 
-    successful = [r for r in results if r['status_code'] == 200]
-    failed = [r for r in results if r['status_code'] != 200]
+    successful = [r for r in results if r["status_code"] == 200]
+    failed = [r for r in results if r["status_code"] != 200]
 
     if successful:
-        avg_response_time = sum(r['response_time'] for r in successful) / len(successful)
-        min_response_time = min(r['response_time'] for r in successful)
-        max_response_time = max(r['response_time'] for r in successful)
+        avg_response_time = sum(r["response_time"] for r in successful) / len(successful)
+        min_response_time = min(r["response_time"] for r in successful)
+        max_response_time = max(r["response_time"] for r in successful)
 
         print(f"   ✅ Performance test completed in {end_time - start_time:.2f}s")
         print(f"   📊 Successful requests: {len(successful)}/{len(results)}")
@@ -345,6 +374,7 @@ def test_performance():
     else:
         print("   ❌ No successful requests in performance test")
         return False
+
 
 def main():
     """Run all tests."""
@@ -362,7 +392,7 @@ def main():
         ("Batch Predictions", test_batch_predictions),
         ("Rate Limiting", test_rate_limiting),
         ("Error Handling", test_error_handling),
-        ("Performance", test_performance)
+        ("Performance", test_performance),
     ]
 
     passed = 0
@@ -375,10 +405,10 @@ def main():
             else:
                 print(f"❌ {test_name} failed")
         except Exception as e:
-            print(f"❌ {test_name} error: {str(e)}")
+            print(f"❌ {test_name} error: {e!s}")
 
     print("\n" + "=" * 50)
-    print(f"🎉 ENHANCED API TESTING COMPLETED!")
+    print("🎉 ENHANCED API TESTING COMPLETED!")
     print(f"📊 Results: {passed}/{total} tests passed")
 
     if passed == total:
@@ -394,6 +424,7 @@ def main():
     else:
         print(f"❌ {total - passed} tests failed. Please check the implementation.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

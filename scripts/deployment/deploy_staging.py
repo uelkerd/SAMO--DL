@@ -34,12 +34,14 @@ print(f"   SERVICE_NAME: {SERVICE_NAME}")
 print(f"   IMAGE_NAME: {IMAGE_NAME}")
 print(f"   PORT: {PORT}")
 
+
 def print_banner():
     """Print deployment banner"""
     print("🚀" * 50)
     print("🎯 SAMO-DL STAGING DEPLOYMENT")
     print("📅", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("🚀" * 50)
+
 
 def check_prerequisites():
     """Check deployment prerequisites"""
@@ -48,7 +50,7 @@ def check_prerequisites():
 
     # Check gcloud CLI
     try:
-        result = subprocess.run(['gcloud', '--version'], capture_output=True, text=True, check=True)
+        result = subprocess.run(["gcloud", "--version"], capture_output=True, text=True, check=True)
         if result.returncode == 0:
             print("✅ gcloud CLI installed")
         else:
@@ -60,9 +62,13 @@ def check_prerequisites():
 
     # Check authentication
     try:
-        result = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE'],
-                              capture_output=True, text=True, check=True)
-        if 'ACTIVE' in result.stdout:
+        result = subprocess.run(
+            ["gcloud", "auth", "list", "--filter=status:ACTIVE"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        if "ACTIVE" in result.stdout:
             print("✅ gcloud authenticated")
         else:
             print("❌ gcloud not authenticated")
@@ -73,8 +79,9 @@ def check_prerequisites():
 
     # Check project
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
-                              capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["gcloud", "config", "get-value", "project"], capture_output=True, text=True, check=True
+        )
         if PROJECT_ID in result.stdout:
             print(f"✅ Project set to {PROJECT_ID}")
         else:
@@ -86,6 +93,7 @@ def check_prerequisites():
 
     return True
 
+
 def build_docker_image():
     """Build Docker image for staging"""
     print("\n🐳 BUILDING DOCKER IMAGE")
@@ -94,11 +102,15 @@ def build_docker_image():
     try:
         # Build the image
         cmd = [
-            'docker', 'build',
-            '-f', 'Dockerfile.optimized',
-            '-t', f'{IMAGE_NAME}:latest',
-            '-t', f'{IMAGE_NAME}:{int(time.time())}',
-            '.'
+            "docker",
+            "build",
+            "-f",
+            "Dockerfile.optimized",
+            "-t",
+            f"{IMAGE_NAME}:latest",
+            "-t",
+            f"{IMAGE_NAME}:{int(time.time())}",
+            ".",
         ]
 
         print(f"Running: {' '.join(cmd)}")
@@ -114,6 +126,7 @@ def build_docker_image():
         print(f"❌ Docker build error: {e}")
         return False
 
+
 def push_docker_image():
     """Push Docker image to Artifact Registry"""
     print("\n📤 PUSHING DOCKER IMAGE")
@@ -122,11 +135,11 @@ def push_docker_image():
     try:
         # Configure Docker authentication - derive registry host from region
         registry_host = f"{REGION}-docker.pkg.dev"
-        auth_cmd = ['gcloud', 'auth', 'configure-docker', registry_host, '--quiet']
+        auth_cmd = ["gcloud", "auth", "configure-docker", registry_host, "--quiet"]
         subprocess.run(auth_cmd, check=True)
 
         # Push the image
-        push_cmd = ['docker', 'push', f'{IMAGE_NAME}:latest']
+        push_cmd = ["docker", "push", f"{IMAGE_NAME}:latest"]
         print(f"Running: {' '.join(push_cmd)}")
         result = subprocess.run(push_cmd, capture_output=True, text=True, check=True)
 
@@ -140,6 +153,7 @@ def push_docker_image():
         print(f"❌ Docker push error: {e}")
         return False
 
+
 def deploy_to_cloud_run():
     """Deploy to Cloud Run staging"""
     print("\n🚀 DEPLOYING TO CLOUD RUN STAGING")
@@ -148,19 +162,33 @@ def deploy_to_cloud_run():
     try:
         # Deploy command
         deploy_cmd = [
-            'gcloud', 'run', 'deploy', SERVICE_NAME,
-            '--image', f'{IMAGE_NAME}:latest',
-            '--region', REGION,
-            '--platform', 'managed',
-            '--allow-unauthenticated',
-            '--port', str(PORT),
-            '--memory', '2Gi',
-            '--cpu', '2',
-            '--max-instances', '5',
-            '--min-instances', '0',
-            '--timeout', '300',
-            '--concurrency', '40',
-            '--set-env-vars', 'ENVIRONMENT=staging,DEBUG=true,LOG_LEVEL=debug'
+            "gcloud",
+            "run",
+            "deploy",
+            SERVICE_NAME,
+            "--image",
+            f"{IMAGE_NAME}:latest",
+            "--region",
+            REGION,
+            "--platform",
+            "managed",
+            "--allow-unauthenticated",
+            "--port",
+            str(PORT),
+            "--memory",
+            "2Gi",
+            "--cpu",
+            "2",
+            "--max-instances",
+            "5",
+            "--min-instances",
+            "0",
+            "--timeout",
+            "300",
+            "--concurrency",
+            "40",
+            "--set-env-vars",
+            "ENVIRONMENT=staging,DEBUG=true,LOG_LEVEL=debug",
         ]
 
         print(f"Running: {' '.join(deploy_cmd)}")
@@ -176,14 +204,22 @@ def deploy_to_cloud_run():
         print(f"❌ Cloud Run deployment error: {e}")
         return False
 
+
 def get_service_url():
     """Get the deployed service URL"""
     try:
         cmd = [
-            'gcloud', 'run', 'services', 'describe', SERVICE_NAME,
-            '--region', REGION,
-            '--project', PROJECT_ID,
-            '--format', 'value(status.url)'
+            "gcloud",
+            "run",
+            "services",
+            "describe",
+            SERVICE_NAME,
+            "--region",
+            REGION,
+            "--project",
+            PROJECT_ID,
+            "--format",
+            "value(status.url)",
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         if result.returncode == 0:
@@ -192,6 +228,7 @@ def get_service_url():
     except Exception as e:
         print(f"❌ Error getting service URL: {e}")
         return None
+
 
 def run_integration_tests(service_url):
     """Run comprehensive integration tests"""
@@ -207,32 +244,33 @@ def run_integration_tests(service_url):
     # Test cases
     test_cases = [
         {
-            'name': 'Health Check',
-            'url': f'{service_url}/health',
-            'method': 'GET',
-            'expected_status': 200
+            "name": "Health Check",
+            "url": f"{service_url}/health",
+            "method": "GET",
+            "expected_status": 200,
         },
         {
-            'name': 'Root Endpoint',
-            'url': f'{service_url}/',
-            'method': 'GET',
-            'expected_status': 200
+            "name": "Root Endpoint",
+            "url": f"{service_url}/",
+            "method": "GET",
+            "expected_status": 200,
         },
         {
-            'name': 'Emotion Analysis',
-            'url': f'{service_url}/analyze/emotion',
-            'method': 'POST',
-            'expected_status': 200,
-            'data': {'text': 'I am feeling happy today!'}
+            "name": "Emotion Analysis",
+            "url": f"{service_url}/analyze/emotion",
+            "method": "POST",
+            "expected_status": 200,
+            "data": {"text": "I am feeling happy today!"},
         },
         {
-            'name': 'Text Summarization',
-            'url': f'{service_url}/analyze/summarize',
-            'method': 'POST',
-            'expected_status': 200,
-            'data': {'text': ('This is a long text that should be summarized '
-                              'properly by the API.')}
-        }
+            "name": "Text Summarization",
+            "url": f"{service_url}/analyze/summarize",
+            "method": "POST",
+            "expected_status": 200,
+            "data": {
+                "text": ("This is a long text that should be summarized properly by the API.")
+            },
+        },
     ]
 
     passed_tests = 0
@@ -241,23 +279,23 @@ def run_integration_tests(service_url):
     for test in test_cases:
         print(f"\n🔍 Testing: {test['name']}")
         try:
-            if test['method'] == 'GET':
-                response = requests.get(test['url'], timeout=30)
+            if test["method"] == "GET":
+                response = requests.get(test["url"], timeout=30)
             else:
-                response = requests.post(
-                    test['url'],
-                    json=test.get('data', {}),
-                    timeout=30
-                )
+                response = requests.post(test["url"], json=test.get("data", {}), timeout=30)
 
-            if response.status_code == test['expected_status']:
+            if response.status_code == test["expected_status"]:
                 print(f"✅ {test['name']} - Status: {response.status_code}")
                 passed_tests += 1
             else:
-                print(f"❌ {test['name']} - Expected: {test['expected_status']}, Got: {response.status_code}")
+                print(
+                    f"❌ {test['name']} - Expected: {test['expected_status']}, Got: {response.status_code}"
+                )
                 # Log response length instead of content to avoid PII exposure
-                print(f"   Response length: {len(response.text)} chars, "
-                      f"status: {response.status_code}")
+                print(
+                    f"   Response length: {len(response.text)} chars, "
+                    f"status: {response.status_code}"
+                )
 
         except requests.exceptions.RequestException as e:
             print(f"❌ {test['name']} - Request failed: {e}")
@@ -266,6 +304,7 @@ def run_integration_tests(service_url):
 
     print(f"\n📊 TEST RESULTS: {passed_tests}/{total_tests} tests passed")
     return passed_tests == total_tests
+
 
 def main():
     """Main deployment function"""
@@ -315,6 +354,7 @@ def main():
     print(f"   URL: {service_url}")
     print(f"   Region: {REGION}")
     print(f"   Project: {PROJECT_ID}")
+
 
 if __name__ == "__main__":
     main()

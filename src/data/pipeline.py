@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Data Pipeline for SAMO Deep Learning.
+"""Data Pipeline for SAMO Deep Learning.
 
 This module provides data processing pipelines for text and audio data,
 including preprocessing, feature extraction, and dataset management.
@@ -9,7 +8,7 @@ including preprocessing, feature extraction, and dataset management.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
@@ -46,7 +45,7 @@ class DataPipeline:
             preprocessor: Journal entry preprocessor
             validator: Data validator
             feature_engineer: Feature engineer
-            embedding_method: Method for generating embeddings 
+            embedding_method: Method for generating embeddings
                 ('tfid', 'word2vec', or 'fasttext')
 
         """
@@ -61,9 +60,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(
-                "Unknown embedding method '%s'. Defaulting to TF-IDF.", embedding_method
-            )
+            logger.warning("Unknown embedding method '%s'. Defaulting to TF-IDF.", embedding_method)
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
@@ -82,7 +79,7 @@ class DataPipeline:
         """Run the complete data processing pipeline.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to 
+            data_source: Source of journal entries (DataFrame or path to
                 file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             output_dir: Directory to save output files
@@ -106,9 +103,7 @@ class DataPipeline:
             extra={"format_args": True},
         )
 
-        validation_passed, validated_df = self.validator.validate_journal_entries(
-            raw_df
-        )
+        validation_passed, validated_df = self.validator.validate_journal_entries(raw_df)
 
         if not validation_passed:
             logger.warning(
@@ -134,9 +129,7 @@ class DataPipeline:
         embeddings_df = self.embedding_pipeline.generate_embeddings(
             featured_df, text_column="processed_text", id_column="id"
         )
-        logger.info(
-            "Generated {len(embeddings_df)} embeddings using {self.embedding_method}"
-        )
+        logger.info("Generated {len(embeddings_df)} embeddings using {self.embedding_method}")
 
         if output_dir:
             self._save_results(
@@ -171,7 +164,7 @@ class DataPipeline:
         """Load data from specified source.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to 
+            data_source: Source of journal entries (DataFrame or path to
                 file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             user_id: Filter entries by user_id
@@ -189,7 +182,7 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            user_info = " for user {user_id}" if user_id else ""
+            " for user {user_id}" if user_id else ""
             limit_info = " (limit: {limit})" if limit else ""
             logger.info("Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
@@ -202,14 +195,10 @@ class DataPipeline:
             return load_entries_from_json(data_source)
 
         if source_type == "csv" and isinstance(data_source, str):
-            logger.info(
-                "Loading data from CSV file: {data_source}", extra={"format_args": True}
-            )
+            logger.info("Loading data from CSV file: {data_source}", extra={"format_args": True})
             return load_entries_from_csv(data_source)
 
-        logger.error(
-            "Invalid data source type: {source_type}", extra={"format_args": True}
-        )
+        logger.error("Invalid data source type: {source_type}", extra={"format_args": True})
         return pd.DataFrame()
 
     def _save_results(
@@ -236,19 +225,15 @@ class DataPipeline:
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
             Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),
             index=False,
         )
-        logger.info(
-            "Saved featured data to {output_dir}/journal_features_{timestamp}.csv"
-        )
+        logger.info("Saved featured data to {output_dir}/journal_features_{timestamp}.csv")
 
-        embeddings_path = Path(
-            output_dir, "journal_embeddings_{timestamp}.csv"
-        ).as_posix()
+        embeddings_path = Path(output_dir, "journal_embeddings_{timestamp}.csv").as_posix()
         self.embedding_pipeline.save_embeddings_to_csv(embeddings_df, embeddings_path)
 
         if topics_df is not None:
@@ -256,14 +241,10 @@ class DataPipeline:
                 Path(output_dir, "journal_topics_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info(
-                "Saved topic data to {output_dir}/journal_topics_{timestamp}.csv"
-            )
+            logger.info("Saved topic data to {output_dir}/journal_topics_{timestamp}.csv")
 
         if save_intermediates:
-            raw_df.to_csv(
-                Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False
-            )
+            raw_df.to_csv(Path(output_dir, "journal_raw_{timestamp}.csv").as_posix(), index=False)
             logger.info(
                 "Saved raw data to {output_dir}/journal_raw_{timestamp}.csv",
                 extra={"format_args": True},
@@ -273,6 +254,4 @@ class DataPipeline:
                 Path(output_dir, "journal_processed_{timestamp}.csv").as_posix(),
                 index=False,
             )
-            logger.info(
-                "Saved processed data to {output_dir}/journal_processed_{timestamp}.csv"
-            )
+            logger.info("Saved processed data to {output_dir}/journal_processed_{timestamp}.csv")

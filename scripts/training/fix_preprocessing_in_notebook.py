@@ -9,21 +9,22 @@ The issue is that the tokenized dataset needs proper tensor conversion.
 
 import json
 
+
 def fix_preprocessing():
     """Fix the preprocessing function in the ultimate notebook."""
 
     # Read the existing notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'r') as f:
+    with open("notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     # Find and replace the preprocessing cell
-    for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'def preprocess_function' in ''.join(cell['source']):
+    for i, cell in enumerate(notebook["cells"]):
+        if cell["cell_type"] == "code" and "def preprocess_function" in "".join(cell["source"]):
             # Replace with fixed preprocessing
-            cell['source'] = [
+            cell["source"] = [
                 "# Data preprocessing function\n",
                 "def preprocess_function(examples):\n",
-                "    \"\"\"Preprocess the data with proper tokenization.\"\"\"\n",
+                '    """Preprocess the data with proper tokenization."""\n',
                 "    # Tokenize the texts\n",
                 "    tokenized = tokenizer(\n",
                 "        examples['text'],\n",
@@ -64,7 +65,7 @@ def fix_preprocessing():
                 "print(f'Input IDs shape: {len(sample[\"input_ids\"])}')\n",
                 "print(f'Attention mask shape: {len(sample[\"attention_mask\"])}')\n",
                 "print(f'Label: {sample[\"labels\"]}')\n",
-                "print('✅ Data structure verified!')"
+                "print('✅ Data structure verified!')",
             ]
             break
 
@@ -72,9 +73,7 @@ def fix_preprocessing():
     data_collator_cell = {
         "cell_type": "markdown",
         "metadata": {},
-        "source": [
-            "## 🔧 DATA COLLATOR"
-        ]
+        "source": ["## 🔧 DATA COLLATOR"],
     }
 
     data_collator_code = {
@@ -92,23 +91,23 @@ def fix_preprocessing():
             "    return_tensors='pt'\n",
             ")\n",
             "\n",
-            "print('✅ Data collator configured')"
-        ]
+            "print('✅ Data collator configured')",
+        ],
     }
 
     # Find the training arguments cell and add the data collator after it
-    for i, cell in enumerate(notebook['cells']):
-        if cell['cell_type'] == 'code' and 'TrainingArguments(' in ''.join(cell['source']):
+    for i, cell in enumerate(notebook["cells"]):
+        if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(cell["source"]):
             # Insert data collator after training arguments
-            notebook['cells'].insert(i + 2, data_collator_cell)
-            notebook['cells'].insert(i + 3, data_collator_code)
+            notebook["cells"].insert(i + 2, data_collator_cell)
+            notebook["cells"].insert(i + 3, data_collator_code)
             break
 
     # Update the trainer initialization to include the data collator
-    for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'WeightedLossTrainer(' in ''.join(cell['source']):
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code" and "WeightedLossTrainer(" in "".join(cell["source"]):
             # Update the trainer initialization
-            cell['source'] = [
+            cell["source"] = [
                 "# Initialize trainer with focal loss and class weighting\n",
                 "trainer = WeightedLossTrainer(\n",
                 "    model=model,\n",
@@ -123,20 +122,21 @@ def fix_preprocessing():
                 "    class_weights=class_weights_tensor\n",
                 ")\n",
                 "\n",
-                "print('✅ Trainer initialized with focal loss and class weighting')"
+                "print('✅ Trainer initialized with focal loss and class weighting')",
             ]
             break
 
     # Save the updated notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Fixed preprocessing in ultimate notebook!')
-    print('📋 Changes made:')
-    print('   ✅ Updated preprocessing function with proper tokenization')
-    print('   ✅ Added data collator for proper batching')
-    print('   ✅ Added data structure verification')
-    print('   ✅ Updated trainer initialization with data collator')
+    print("✅ Fixed preprocessing in ultimate notebook!")
+    print("📋 Changes made:")
+    print("   ✅ Updated preprocessing function with proper tokenization")
+    print("   ✅ Added data collator for proper batching")
+    print("   ✅ Added data structure verification")
+    print("   ✅ Updated trainer initialization with data collator")
+
 
 if __name__ == "__main__":
     fix_preprocessing()

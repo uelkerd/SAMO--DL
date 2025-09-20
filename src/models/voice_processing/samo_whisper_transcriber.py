@@ -1,5 +1,4 @@
-"""
-SAMO-Optimized Whisper Voice Transcription Model (Refactored)
+"""SAMO-Optimized Whisper Voice Transcription Model (Refactored)
 
 This module provides a specialized Whisper transcription model optimized for
 journal entries and voice processing in the SAMO-DL system.
@@ -38,7 +37,7 @@ class SAMOWhisperTranscriber:
     def __init__(
         self,
         config: Optional[SAMOWhisperConfig] = None,
-        model_size: Optional[str] = None
+        model_size: Optional[str] = None,
     ) -> None:
         """Initialize SAMO Whisper transcriber."""
         self.config = config or SAMOWhisperConfig()
@@ -71,9 +70,7 @@ class SAMOWhisperTranscriber:
         logger.info("Starting transcription: %s", audio_path)
 
         # Preprocess audio
-        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
-            audio_path
-        )
+        processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
 
         try:
             # Prepare transcription options
@@ -90,37 +87,29 @@ class SAMOWhisperTranscriber:
             result = model.transcribe(processed_audio_path, **transcribe_options)
 
             processing_time = time.time() - start_time
-            word_count = len(result['text'].split())
+            word_count = len(result["text"].split())
             speaking_rate = self.result_processor.calculate_speaking_rate(
-                word_count, audio_metadata['duration']
+                word_count, audio_metadata["duration"]
             )
 
             # Calculate confidence from segments
-            confidence = self.result_processor.calculate_confidence(
-                result.get('segments', [])
-            )
+            confidence = self.result_processor.calculate_confidence(result.get("segments", []))
 
             # Calculate no_speech_probability from segments
-            no_speech_probability = (
-                self.result_processor.calculate_no_speech_probability(
-                    result.get('segments', [])
-                )
+            no_speech_probability = self.result_processor.calculate_no_speech_probability(
+                result.get("segments", [])
             )
 
             # Assess audio quality
-            audio_quality = self.preprocessor.assess_audio_quality(
-                result, audio_metadata
-            )
+            audio_quality = self.preprocessor.assess_audio_quality(result, audio_metadata)
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip() if isinstance(
-                    result.get('text'), str
-                ) else '',
-                language=result.get('language', 'unknown'),
+                text=(result["text"].strip() if isinstance(result.get("text"), str) else ""),
+                language=result.get("language", "unknown"),
                 confidence=confidence,
-                duration=audio_metadata['duration'],
+                duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.get('segments', []),
+                segments=result.get("segments", []),
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
@@ -129,12 +118,10 @@ class SAMOWhisperTranscriber:
 
             logger.info(
                 "✅ Transcription complete: %d words, %.2f confidence",
-                word_count, confidence
+                word_count,
+                confidence,
             )
-            logger.info(
-                "Processing time: %.2fs, Quality: %s",
-                processing_time, audio_quality
-            )
+            logger.info("Processing time: %.2fs, Quality: %s", processing_time, audio_quality)
 
             return transcription_result
 
@@ -157,10 +144,7 @@ class SAMOWhisperTranscriber:
         errors = []
 
         for i, audio_path in enumerate(audio_paths, 1):
-            logger.info(
-                "Processing file %d/%d: %s",
-                i, len(audio_paths), Path(audio_path).name
-            )
+            logger.info("Processing file %d/%d: %s", i, len(audio_paths), Path(audio_path).name)
 
             try:
                 result = self.transcribe(audio_path, language, initial_prompt)
@@ -177,15 +161,15 @@ class SAMOWhisperTranscriber:
 
         total_duration = sum(r.duration for r in results)
         total_processing_time = sum(r.processing_time for r in results)
-        successful_transcriptions = sum(
-            1 for r in results if not r.text.startswith("[ERROR:")
-        )
+        successful_transcriptions = sum(1 for r in results if not r.text.startswith("[ERROR:"))
 
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results),
-            total_duration, total_processing_time
+            successful_transcriptions,
+            len(results),
+            total_duration,
+            total_processing_time,
         )
 
         if errors:
@@ -201,11 +185,8 @@ class SAMOWhisperTranscriber:
 
 
 def create_samo_whisper_transcriber(
-    config_path: Optional[str] = None,
-    model_size: Optional[str] = None
+    config_path: Optional[str] = None, model_size: Optional[str] = None
 ) -> SAMOWhisperTranscriber:
     """Create a SAMO Whisper transcriber with specified configuration."""
     config = SAMOWhisperConfig(config_path) if config_path else None
     return SAMOWhisperTranscriber(config, model_size)
-
-

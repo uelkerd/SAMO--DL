@@ -17,6 +17,7 @@ This is the bulletproof version that should achieve reliable 75-85% F1 scores.
 
 import json
 
+
 def create_ultimate_notebook():
     """Create the ultimate bulletproof training notebook."""
 
@@ -36,8 +37,8 @@ def create_ultimate_notebook():
                     "✅ Data augmentation (sophisticated techniques)\n",
                     "✅ Advanced validation (proper testing)\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with consistent performance"
-                ]
+                    "**Target**: Reliable 75-85% F1 score with consistent performance",
+                ],
             },
             {
                 "cell_type": "code",
@@ -46,8 +47,8 @@ def create_ultimate_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub"
-                ]
+                    "!pip install transformers datasets torch scikit-learn numpy pandas huggingface_hub",
+                ],
             },
             {
                 "cell_type": "code",
@@ -67,15 +68,13 @@ def create_ultimate_notebook():
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print('✅ Packages imported successfully')"
-                ]
+                    "print('✅ Packages imported successfully')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
-                ]
+                "source": ["## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"],
             },
             {
                 "cell_type": "code",
@@ -113,16 +112,10 @@ def create_ultimate_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
-                ]
+                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')",
+                ],
             },
-            {
-                "cell_type": "markdown",
-                "metadata": {},
-                "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
-                ]
-            },
+            {"cell_type": "markdown", "metadata": {}, "source": ["## 🎯 DEFINING EMOTION CLASSES"]},
             {
                 "cell_type": "code",
                 "execution_count": None,
@@ -132,15 +125,13 @@ def create_ultimate_notebook():
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
-                ]
+                    "print(f'📊 Number of emotions: {len(emotions)}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"
-                ]
+                "source": ["## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"],
             },
             {
                 "cell_type": "code",
@@ -326,7 +317,7 @@ def create_ultimate_notebook():
                     "\n",
                     "# Data augmentation function\n",
                     "def augment_text(text, emotion):\n",
-                    "    \"\"\"Create augmented versions of the text.\"\"\"\n",
+                    '    """Create augmented versions of the text."""\n',
                     "    augmented = []\n",
                     "    \n",
                     "    # Synonym replacement\n",
@@ -374,36 +365,29 @@ def create_ultimate_notebook():
                     "\n",
                     "# Create dataset\n",
                     "dataset = Dataset.from_list(enhanced_data)\n",
-                    "print(f'✅ Dataset created with {len(dataset)} samples')"
-                ]
-            }
+                    "print(f'✅ Dataset created with {len(dataset)} samples')",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook
     output_path = "notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Created ultimate bulletproof notebook: {output_path}")
@@ -415,6 +399,7 @@ def create_ultimate_notebook():
     print("   ✅ Advanced validation (to be added)")
 
     return output_path
+
 
 if __name__ == "__main__":
     create_ultimate_notebook()

@@ -1,15 +1,15 @@
-                    # Find top-1 prediction
-        # Apply fallback manually to see what happens
-        # Apply threshold
-        # Calculate F1 scores manually
-        # Check which samples need fallback
-        # Micro F1
-    # Get validation data (small batch for debugging)
-    # Initialize trainer
-    # Load model
-    # Run model inference
-    # Take just one batch for detailed analysis
-    # Test different thresholds
+# Find top-1 prediction
+# Apply fallback manually to see what happens
+# Apply threshold
+# Calculate F1 scores manually
+# Check which samples need fallback
+# Micro F1
+# Get validation data (small batch for debugging)
+# Initialize trainer
+# Load model
+# Run model inference
+# Take just one batch for detailed analysis
+# Test different thresholds
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
@@ -19,8 +19,6 @@ import logging
 import numpy as np
 import sys
 import torch
-
-
 
 
 """

@@ -1,17 +1,17 @@
-            # Check if all probabilities are high
-            # Forward pass
-            # Sample analysis
-        # Check gradients
-        # Create fake logits and labels
-        # Create simple test case
-        # Create trainer
-        # Get a few samples from validation set
-        # Get one batch for detailed analysis
-        # Load trained model
-        # Prepare data
-        # Set some emotions as positive
-        # Test BCE loss
-        # Test with class weights
+# Check if all probabilities are high
+# Forward pass
+# Sample analysis
+# Check gradients
+# Create fake logits and labels
+# Create simple test case
+# Create trainer
+# Get a few samples from validation set
+# Get one batch for detailed analysis
+# Load trained model
+# Prepare data
+# Set some emotions as positive
+# Test BCE loss
+# Test with class weights
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -20,8 +20,6 @@ from pathlib import Path
 import logging
 import sys
 import torch
-
-
 
 
 """Diagnose Model Issue - Why is the model predicting all emotions?

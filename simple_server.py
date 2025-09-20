@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
-Simple Web Server for Local Development
+"""Simple Web Server for Local Development
 ======================================
 
 A lightweight Flask server that serves static website files with CORS enabled
 for testing against deployed Cloud Run APIs.
 """
+
 import sys
 import argparse
 from pathlib import Path
@@ -22,49 +22,63 @@ app = Flask(__name__)
 # Enable CORS for all domains and all routes
 CORS(app, origins="*", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
-@app.route('/')
+
+@app.route("/")
 def index():
     """Serve the main index page."""
     if (WEBSITE_DIR / "index.html").exists():
         return send_from_directory(WEBSITE_DIR, "index.html")
     if (WEBSITE_DIR / "demo.html").exists():
         return send_from_directory(WEBSITE_DIR, "demo.html")
-    return jsonify({
-        "error": "No index.html or demo.html found",
-        "website_dir": str(WEBSITE_DIR),
-        "available_files": [f.name for f in WEBSITE_DIR.glob("*.html")] if WEBSITE_DIR.exists() else []
-    }), 404
+    return jsonify(
+        {
+            "error": "No index.html or demo.html found",
+            "website_dir": str(WEBSITE_DIR),
+            "available_files": [f.name for f in WEBSITE_DIR.glob("*.html")]
+            if WEBSITE_DIR.exists()
+            else [],
+        }
+    ), 404
 
-@app.route('/<path:filename>')
+
+@app.route("/<path:filename>")
 def serve_static(filename):
     """Serve static files from the website directory."""
     try:
         return send_from_directory(WEBSITE_DIR, filename)
     except FileNotFoundError:
-        return jsonify({
-            "error": f"File '{filename}' not found",
-            "website_dir": str(WEBSITE_DIR)
-        }), 404
+        return jsonify(
+            {"error": f"File '{filename}' not found", "website_dir": str(WEBSITE_DIR)}
+        ), 404
 
-@app.route('/health')
+
+@app.route("/health")
 def health():
     """Health check endpoint."""
-    return jsonify({
-        "status": "healthy",
-        "server": "simple_server.py",
-        "website_dir": str(WEBSITE_DIR),
-        "website_exists": WEBSITE_DIR.exists(),
-        "available_html_files": [f.name for f in WEBSITE_DIR.glob("*.html")] if WEBSITE_DIR.exists() else []
-    })
+    return jsonify(
+        {
+            "status": "healthy",
+            "server": "simple_server.py",
+            "website_dir": str(WEBSITE_DIR),
+            "website_exists": WEBSITE_DIR.exists(),
+            "available_html_files": [f.name for f in WEBSITE_DIR.glob("*.html")]
+            if WEBSITE_DIR.exists()
+            else [],
+        }
+    )
+
 
 @app.errorhandler(404)
 def not_found(error):
     """Custom 404 handler."""
-    return jsonify({
-        "error": "File not found",
-        "message": "The requested file was not found in the website directory",
-        "website_dir": str(WEBSITE_DIR)
-    }), 404
+    return jsonify(
+        {
+            "error": "File not found",
+            "message": "The requested file was not found in the website directory",
+            "website_dir": str(WEBSITE_DIR),
+        }
+    ), 404
+
 
 def main():
     """Main entry point."""
@@ -92,14 +106,11 @@ def main():
     print("")
 
     try:
-        app.run(
-            host=args.host,
-            port=args.port,
-            debug=args.debug
-        )
+        app.run(host=args.host, port=args.port, debug=args.debug)
     except KeyboardInterrupt:
         print("\n👋 Server stopped")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

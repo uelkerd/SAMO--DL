@@ -38,7 +38,7 @@ class GoEmotionsDataset(Dataset):
         texts: List[str],
         labels: List[List[int]],
         tokenizer: AutoTokenizer,
-        max_length: int = 512
+        max_length: int = 512,
     ):
         """Initialize the dataset.
 
@@ -64,26 +64,25 @@ class GoEmotionsDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         # Convert label to tensor
         label_tensor = torch.tensor(label, dtype=torch.float)
 
         return {
-            'input_ids': encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0),
-            'labels': label_tensor
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            "labels": label_tensor,
         }
 
 
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased",
-        max_length: int = 512) -> None:
+    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
@@ -109,7 +108,7 @@ class GoEmotionsPreprocessor:
             return ""
 
         # Remove excessive whitespace while preserving structure
-        text = re.sub(r'\s+', ' ', text.strip())
+        text = re.sub(r"\s+", " ", text.strip())
 
         # The dataset is already split by HuggingFace
         # Tokenize with BERT tokenizer
@@ -251,8 +250,7 @@ class GoEmotionsDataLoader:
         class_weights[emotion_counts == 0] = 1.0
 
         logger.info(
-            f"Computed class weights: min={class_weights.min():.3f}, "
-            f"max={class_weights.max():.3f}"
+            f"Computed class weights: min={class_weights.min():.3f}, max={class_weights.max():.3f}"
         )
         return class_weights
 
@@ -338,5 +336,4 @@ def create_goemotions_loader(
 if __name__ == "__main__":
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-    logger.
-        info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")
+    logger.info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")

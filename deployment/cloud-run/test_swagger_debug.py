@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to debug Swagger docs 500 error
-"""
+"""Test script to debug Swagger docs 500 error"""
 
 import os
 from flask import Flask, jsonify
@@ -13,28 +11,31 @@ app = Flask(__name__)
 # Initialize Flask-RESTX API
 api = Api(
     app,
-    version='1.0.0',
-    title='Test API',
-    description='Minimal test to isolate routing issues',
-    doc='/docs'
+    version="1.0.0",
+    title="Test API",
+    description="Minimal test to isolate routing issues",
+    doc="/docs",
 )
 
 # Create namespace
-main_ns = Namespace('/api', description='Main operations')
+main_ns = Namespace("/api", description="Main operations")
 api.add_namespace(main_ns)
 
+
 # Test endpoint in namespace
-@main_ns.route('/health')
+@main_ns.route("/health")
 class Health(Resource):
     def get(self):
-        return {'status': 'healthy'}
+        return {"status": "healthy"}
+
 
 # Override the root route with a different endpoint name
-@app.route('/')
+@app.route("/")
 def api_root():  # Different function name to avoid conflict
-    return jsonify({'message': 'Root endpoint'})
+    return jsonify({"message": "Root endpoint"})
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("=== Routes ===")
     for rule in app.url_map.iter_rules():
         print(f"{rule.rule} -> {rule.endpoint}")
@@ -47,10 +48,14 @@ if __name__ == '__main__':
 
     # Use secure host binding for test server
     try:
-        from src.security.host_binding import get_secure_host_binding, validate_host_binding
-        host, port = get_secure_host_binding(int(os.environ.get('PORT', 5001)))
+        from src.security.host_binding import (
+            get_secure_host_binding,
+            validate_host_binding,
+        )
+
+        host, port = get_secure_host_binding(int(os.environ.get("PORT", 5001)))
         validate_host_binding(host, port)
         app.run(host=host, port=port, debug=False)
     except ImportError:
         # Fallback for test environment
-        app.run(host='127.0.0.1', port=int(os.environ.get('PORT', 5001)), debug=False)
+        app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5001)), debug=False)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Pre-download models for Docker build optimization with parallel downloads and retries."""
+
 import concurrent.futures
 import logging
 import os
@@ -7,7 +8,7 @@ import time
 from typing import Callable, Optional, Tuple
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -16,7 +17,7 @@ def retry_with_backoff(
     max_retries: int = 3,
     base_delay: float = 2.0,
     max_delay: float = 60.0,
-    backoff_factor: float = 2.0
+    backoff_factor: float = 2.0,
 ) -> Tuple[bool, Optional[Exception]]:
     """Retry a function with exponential backoff."""
     for attempt in range(max_retries):
@@ -27,7 +28,7 @@ def retry_with_backoff(
             if attempt == max_retries - 1:
                 return False, e
 
-            delay = min(base_delay * (backoff_factor ** attempt), max_delay)
+            delay = min(base_delay * (backoff_factor**attempt), max_delay)
             logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay:.1f}s...")
             time.sleep(delay)
 
@@ -40,17 +41,17 @@ def download_samo_emotion_model(model_dir: str) -> None:
 
     def _download_primary():
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
         model_name = "duelker/samo-goemotions-deberta-v3-large"
         logger.info(f"Downloading primary model: {model_name}")
 
         _tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=model_dir)
-        _model = AutoModelForSequenceClassification.from_pretrained(
-            model_name, cache_dir=model_dir
-        )
+        _model = AutoModelForSequenceClassification.from_pretrained(model_name, cache_dir=model_dir)
         logger.info("✅ Primary SAMO model downloaded successfully")
 
     def _download_fallback():
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
         fallback_model = "j-hartmann/emotion-english-distilroberta-base"
         logger.info(f"Downloading fallback model: {fallback_model}")
 
@@ -77,6 +78,7 @@ def download_t5_model(model_dir: str) -> None:
 
     def _download():
         from transformers import T5Tokenizer, T5ForConditionalGeneration
+
         t5_model = "t5-small"
         logger.info(f"Downloading T5 model: {t5_model}")
 
@@ -97,6 +99,7 @@ def download_whisper_model(model_dir: str) -> None:
     def _download():
         try:
             import whisper
+
             whisper_model = "base"
             logger.info(f"Downloading Whisper model: {whisper_model}")
             whisper.load_model(whisper_model, download_root=model_dir)
@@ -138,10 +141,7 @@ def main():
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         # Submit all download tasks
-        future_to_model = {
-            executor.submit(func): name
-            for name, func in download_functions
-        }
+        future_to_model = {executor.submit(func): name for name, func in download_functions}
 
         # Wait for completion and collect results
         for future in concurrent.futures.as_completed(future_to_model):

@@ -1,9 +1,9 @@
-"""
-Database connection utilities for the SAMO-DL application.
+"""Database connection utilities for the SAMO-DL application.
 
 This module provides database connection management, session handling,
 and configuration for PostgreSQL with pgvector support.
 """
+
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
@@ -12,8 +12,6 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 from urllib.parse import quote_plus
 from src.common.env import is_truthy
-
-
 
 
 # Respect DATABASE_URL if provided explicitly (preferred)
@@ -34,9 +32,7 @@ elif DB_USER and DB_PASSWORD and DB_NAME:
     safe_host = DB_HOST
     safe_port = DB_PORT
     safe_db = quote_plus(DB_NAME)
-    DATABASE_URL = (
-        f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
-    )
+    DATABASE_URL = f"postgresql://{safe_user}:{safe_password}@{safe_host}:{safe_port}/{safe_db}"
 else:
     # Fall back to SQLite only when explicitly allowed or in CI/TEST
     allow_sqlite = (
@@ -51,9 +47,7 @@ else:
             "SQLite via ALLOW_SQLITE_FALLBACK=1 in dev/test."
         )
     default_sqlite_path = (
-        Path(os.environ.get("SQLITE_PATH", "./samo_local.db"))
-        .expanduser()
-        .resolve()
+        Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
     )
     # Ensure directory for SQLite exists before engine creation
     sqlite_dir = default_sqlite_path.parent

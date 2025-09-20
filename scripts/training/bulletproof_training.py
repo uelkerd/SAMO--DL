@@ -3,11 +3,12 @@
 Bulletproof training script for REQ-DL-012 that handles notebook state corruption.
 This script can be run in a fresh kernel and will validate everything step by step.
 """
+
 import sys
 import json
 import pickle
 import torch
-import torch.nn as nn
+from torch import nn
 import pandas as pd
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
@@ -18,8 +19,9 @@ from transformers import AutoModel, AutoTokenizer
 import logging
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 def validate_environment():
     """Validate the environment and clear any corrupted state."""
@@ -33,14 +35,16 @@ def validate_environment():
     # Check CUDA
     if torch.cuda.is_available():
         logger.info(f"✅ CUDA available: {torch.cuda.get_device_name()}")
-        logger.info(f"✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        logger.info(
+            f"✅ CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+        )
     else:
         logger.warning("⚠️ CUDA not available, using CPU")
 
     # Test basic operations
     try:
         test_tensor = torch.randn(2, 3)
-        test_tensor.to('cuda' if torch.cuda.is_available() else 'cpu')
+        test_tensor.to("cuda" if torch.cuda.is_available() else "cpu")
         logger.info("✅ Basic tensor operations work")
     except Exception as e:
         logger.error(f"❌ Basic tensor operations failed: {e}")
@@ -48,23 +52,24 @@ def validate_environment():
 
     return True
 
+
 def create_unified_label_encoder():
     """Create a unified label encoder for both datasets."""
     logger.info("🔧 Creating unified label encoder...")
 
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open("data/journal_test_dataset.json") as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
 
     # Extract labels
     go_labels = set()
-    for example in go_emotions['train']:
-        if example['labels']:
-            go_labels.update(example['labels'])
+    for example in go_emotions["train"]:
+        if example["labels"]:
+            go_labels.update(example["labels"])
 
-    journal_labels = set(journal_df['emotion'].unique())
+    journal_labels = set(journal_df["emotion"].unique())
 
     # Find common labels
     common_labels = sorted(list(go_labels.intersection(journal_labels)))
@@ -79,23 +84,28 @@ def create_unified_label_encoder():
     label_encoder.fit(common_labels)
 
     # Save encoder
-    with open('unified_label_encoder.pkl', 'wb') as f:
+    with open("unified_label_encoder.pkl", "wb") as f:
         pickle.dump(label_encoder, f)
 
     # Save mappings
     label_to_id = {label: idx for idx, label in enumerate(label_encoder.classes_)}
     id_to_label = {idx: label for label, idx in label_to_id.items()}
 
-    with open('label_mappings.json', 'w') as f:
-        json.dump({
-            'label_to_id': label_to_id,
-            'id_to_label': id_to_label,
-            'num_labels': len(label_encoder.classes_),
-            'classes': label_encoder.classes_.tolist()
-        }, f, indent=2)
+    with open("label_mappings.json", "w") as f:
+        json.dump(
+            {
+                "label_to_id": label_to_id,
+                "id_to_label": id_to_label,
+                "num_labels": len(label_encoder.classes_),
+                "classes": label_encoder.classes_.tolist(),
+            },
+            f,
+            indent=2,
+        )
 
     logger.info(f"✅ Label encoder created with {len(label_encoder.classes_)} classes")
     return label_encoder, label_to_id, id_to_label
+
 
 def prepare_filtered_data(label_encoder, label_to_id):
     """Prepare filtered data using only common labels."""
@@ -103,7 +113,7 @@ def prepare_filtered_data(label_encoder, label_to_id):
 
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open("data/journal_test_dataset.json") as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
 
@@ -112,11 +122,11 @@ def prepare_filtered_data(label_encoder, label_to_id):
     # Filter GoEmotions data
     go_texts = []
     go_labels = []
-    for example in go_emotions['train']:
-        if example['labels']:
-            for label in example['labels']:
+    for example in go_emotions["train"]:
+        if example["labels"]:
+            for label in example["labels"]:
                 if label in valid_labels:
-                    go_texts.append(example['text'])
+                    go_texts.append(example["text"])
                     go_labels.append(label_to_id[label])
                     break
 
@@ -124,9 +134,9 @@ def prepare_filtered_data(label_encoder, label_to_id):
     journal_texts = []
     journal_labels = []
     for _, row in journal_df.iterrows():
-        if row['emotion'] in valid_labels:
-            journal_texts.append(row['content'])
-            journal_labels.append(label_to_id[row['emotion']])
+        if row["emotion"] in valid_labels:
+            journal_texts.append(row["content"])
+            journal_labels.append(label_to_id[row["emotion"]])
 
     logger.info(f"📊 Filtered GoEmotions: {len(go_texts)} samples")
     logger.info(f"📊 Filtered Journal: {len(journal_texts)} samples")
@@ -149,18 +159,20 @@ def prepare_filtered_data(label_encoder, label_to_id):
     logger.info(f"📊 Expected range: {expected_range}")
 
     if go_label_range[0] < expected_range[0] or go_label_range[1] > expected_range[1]:
-        logger.error(f"❌ GoEmotions labels out of range!")
+        logger.error("❌ GoEmotions labels out of range!")
         return None, None, None, None
 
     if journal_label_range[0] < expected_range[0] or journal_label_range[1] > expected_range[1]:
-        logger.error(f"❌ Journal labels out of range!")
+        logger.error("❌ Journal labels out of range!")
         return None, None, None, None
 
     logger.info("✅ All labels within expected range")
     return go_texts, go_labels, journal_texts, journal_labels
 
+
 class SimpleEmotionDataset(Dataset):
     """Simple dataset class with validation."""
+
     def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
         self.labels = labels
@@ -169,7 +181,9 @@ class SimpleEmotionDataset(Dataset):
 
         # Validate data
         if len(texts) != len(labels):
-            raise ValueError(f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}")
+            raise ValueError(
+                f"Texts and labels have different lengths: {len(texts)} vs {len(labels)}"
+            )
 
         # Validate labels
         for i, label in enumerate(labels):
@@ -193,19 +207,21 @@ class SimpleEmotionDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            "input_ids": encoding["input_ids"].flatten(),
+            "attention_mask": encoding["attention_mask"].flatten(),
+            "labels": torch.tensor(label, dtype=torch.long),
         }
+
 
 class SimpleEmotionClassifier(nn.Module):
     """Simple emotion classifier with validation."""
+
     def __init__(self, model_name="bert-base-uncased", num_labels=None):
         super().__init__()
 
@@ -237,6 +253,7 @@ class SimpleEmotionClassifier(nn.Module):
 
         return logits
 
+
 def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_labels):
     """Simple training function with comprehensive validation."""
     logger.info("🚀 Starting simple training...")
@@ -255,11 +272,15 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
     journal_dataset = SimpleEmotionDataset(journal_texts, journal_labels, tokenizer)
 
     # Split journal data
-    journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
-        journal_texts, journal_labels, test_size=0.3, random_state=42, stratify=journal_labels
+    journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = (
+        train_test_split(
+            journal_texts, journal_labels, test_size=0.3, random_state=42, stratify=journal_labels
+        )
     )
 
-    journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
+    journal_train_dataset = SimpleEmotionDataset(
+        journal_train_texts, journal_train_labels, tokenizer
+    )
     journal_val_dataset = SimpleEmotionDataset(journal_val_texts, journal_val_labels, tokenizer)
 
     # Create dataloaders
@@ -267,7 +288,9 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
     journal_train_loader = DataLoader(journal_train_dataset, batch_size=8, shuffle=True)
     journal_val_loader = DataLoader(journal_val_dataset, batch_size=8, shuffle=False)
 
-    logger.info(f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal")
+    logger.info(
+        f"✅ Training samples: {len(go_dataset)} GoEmotions + {len(journal_train_dataset)} Journal"
+    )
     logger.info(f"✅ Validation samples: {len(journal_val_dataset)} Journal")
 
     # Training setup
@@ -291,14 +314,18 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
         for i, batch in enumerate(go_loader):
             try:
                 # Validate batch
-                if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
+                if (
+                    "input_ids" not in batch
+                    or "attention_mask" not in batch
+                    or "labels" not in batch
+                ):
                     logger.warning(f"⚠️ Invalid batch structure at batch {i}")
                     continue
 
                 # Move to device with validation
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
 
                 # Validate labels
                 if torch.any(labels >= num_labels) or torch.any(labels < 0):
@@ -326,9 +353,9 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
         logger.info("  📝 Training on journal data...")
         for i, batch in enumerate(journal_train_loader):
             try:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
 
                 if torch.any(labels >= num_labels) or torch.any(labels < 0):
                     continue
@@ -343,7 +370,9 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
                 num_batches += 1
 
                 if i % 10 == 0:
-                    logger.info(f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}")
+                    logger.info(
+                        f"    Batch {i}/{len(journal_train_loader)}, Loss: {loss.item():.4f}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ Error in journal batch {i}: {e}")
@@ -358,9 +387,9 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
         with torch.no_grad():
             for batch in journal_val_loader:
                 try:
-                    input_ids = batch['input_ids'].to(device)
-                    attention_mask = batch['attention_mask'].to(device)
-                    labels = batch['labels'].to(device)
+                    input_ids = batch["input_ids"].to(device)
+                    attention_mask = batch["attention_mask"].to(device)
+                    labels = batch["labels"].to(device)
 
                     outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                     preds = torch.argmax(outputs, dim=1)
@@ -374,7 +403,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
 
         # Calculate metrics
         if all_preds and all_labels:
-            f1_macro = f1_score(all_labels, all_preds, average='macro')
+            f1_macro = f1_score(all_labels, all_preds, average="macro")
             accuracy = accuracy_score(all_labels, all_preds)
 
             avg_loss = total_loss / num_batches if num_batches > 0 else 0
@@ -387,7 +416,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
             # Save best model
             if f1_macro > best_f1:
                 best_f1 = f1_macro
-                torch.save(model.state_dict(), 'best_simple_model.pth')
+                torch.save(model.state_dict(), "best_simple_model.pth")
                 logger.info(f"    💾 New best model saved! F1: {best_f1:.4f}")
 
         # Clear GPU cache
@@ -396,6 +425,7 @@ def train_model_simple(go_texts, go_labels, journal_texts, journal_labels, num_l
 
     logger.info(f"🏆 Training completed! Best F1 Score: {best_f1:.4f}")
     return best_f1
+
 
 def main():
     """Main function with comprehensive error handling."""
@@ -411,7 +441,9 @@ def main():
         label_encoder, label_to_id, id_to_label = create_unified_label_encoder()
 
         # Step 3: Prepare filtered data
-        go_texts, go_labels, journal_texts, journal_labels = prepare_filtered_data(label_encoder, label_to_id)
+        go_texts, go_labels, journal_texts, journal_labels = prepare_filtered_data(
+            label_encoder, label_to_id
+        )
 
         if go_texts is None:
             logger.error("❌ Data preparation failed")
@@ -423,14 +455,14 @@ def main():
 
         # Step 5: Save results
         results = {
-            'best_f1': best_f1,
-            'num_labels': num_labels,
-            'target_achieved': best_f1 >= 0.7,
-            'go_samples': len(go_texts),
-            'journal_samples': len(journal_texts)
+            "best_f1": best_f1,
+            "num_labels": num_labels,
+            "target_achieved": best_f1 >= 0.7,
+            "go_samples": len(go_texts),
+            "journal_samples": len(journal_texts),
         }
 
-        with open('simple_training_results.json', 'w') as f:
+        with open("simple_training_results.json", "w") as f:
             json.dump(results, f, indent=2)
 
         logger.info("✅ Training completed successfully!")
@@ -442,6 +474,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ Training failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = main()

@@ -10,13 +10,14 @@ import yaml
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import unittest
 from unittest.mock import patch
 import logging
 
 # Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
 
 class Phase3CloudRunOptimizationTest(unittest.TestCase):
     """Comprehensive test suite for Phase 3 Cloud Run optimization"""
@@ -33,7 +34,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.cloud_run_dir = Path("../../deployment/cloud-run").resolve()
 
         # Ensure the cloud-run directory exists
-        self.assertTrue(self.cloud_run_dir.exists(), f"Cloud Run directory not found: {self.cloud_run_dir}")
+        self.assertTrue(
+            self.cloud_run_dir.exists(), f"Cloud Run directory not found: {self.cloud_run_dir}"
+        )
 
         # Set up logging for tests
         logging.basicConfig(level=logging.INFO)
@@ -43,33 +46,33 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
 
         # Test configuration
         self.test_config = {
-            'environment': 'test',
-            'memory_limit_mb': 1024,
-            'cpu_limit': 1,
-            'max_instances': 5,
-            'min_instances': 1,
-            'concurrency': 40,
-            'timeout_seconds': 180,
-            'health_check_interval': 30,
-            'graceful_shutdown_timeout': 15
+            "environment": "test",
+            "memory_limit_mb": 1024,
+            "cpu_limit": 1,
+            "max_instances": 5,
+            "min_instances": 1,
+            "concurrency": 40,
+            "timeout_seconds": 180,
+            "health_check_interval": 30,
+            "graceful_shutdown_timeout": 15,
         }
 
     def test_01_cloudbuild_yaml_structure(self):
         """Test Cloud Build YAML structure and validation"""
         print("🔍 Testing Cloud Build YAML structure...")
 
-        cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
+        cloudbuild_path = self.cloud_run_dir / "cloudbuild.yaml"
         self.assertTrue(cloudbuild_path.exists(), "cloudbuild.yaml should exist")
 
-        with open(cloudbuild_path, 'r') as f:
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
 
         # Validate required fields
-        required_fields = ['steps', 'images', 'timeout']
+        required_fields = ["steps", "images", "timeout"]
         self._assert_all_fields_present(config, required_fields)
 
         # Validate steps structure
-        steps = config['steps']
+        steps = config["steps"]
         self.assertIsInstance(steps, list, "Steps should be a list")
         self.assertGreater(len(steps), 0, "Should have at least one step")
 
@@ -77,9 +80,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self._assert_all_steps_valid(steps)
 
         # Validate timeout format
-        timeout = config['timeout']
+        timeout = config["timeout"]
         self.assertIsInstance(timeout, str, "Timeout should be a string")
-        self.assertTrue(timeout.endswith('s'), "Timeout should end with 's'")
+        self.assertTrue(timeout.endswith("s"), "Timeout should end with 's'")
 
         print("✅ Cloud Build YAML structure validation passed")
 
@@ -93,7 +96,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         """Helper method to validate all steps"""
         invalid_steps = []
         for i, step in enumerate(steps):
-            if 'name' not in step or 'args' not in step:
+            if "name" not in step or "args" not in step:
                 invalid_steps.append(f"Step {i}")
 
         if invalid_steps:
@@ -108,7 +111,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         try:
             from health_monitor import HealthMonitor, HealthMetrics
         except ImportError as e:
-            if 'psutil' in str(e):
+            if "psutil" in str(e):
                 self.skipTest("psutil not available in test environment")
             raise
 
@@ -140,13 +143,20 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
 
     def _test_required_metrics(self, metrics):
         """Helper method to test required metrics"""
-        required_metrics = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent', 'uptime_seconds']
+        required_metrics = [
+            "memory_usage_mb",
+            "cpu_usage_percent",
+            "memory_percent",
+            "uptime_seconds",
+        ]
         missing_metrics = [metric for metric in required_metrics if metric not in metrics]
         if missing_metrics:
             self.fail(f"Missing metrics: {', '.join(missing_metrics)}")
 
         # Check all metrics are numeric
-        non_numeric_metrics = [metric for metric in required_metrics if not isinstance(metrics[metric], (int, float))]
+        non_numeric_metrics = [
+            metric for metric in required_metrics if not isinstance(metrics[metric], (int, float))
+        ]
         if non_numeric_metrics:
             self.fail(f"Non-numeric metrics: {', '.join(non_numeric_metrics)}")
 
@@ -171,9 +181,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         from config import EnvironmentConfig
 
         # Test production configuration
-        with patch.dict(os.environ, {'ENVIRONMENT': 'production'}):
+        with patch.dict(os.environ, {"ENVIRONMENT": "production"}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'production', "Should load production environment")
+            self.assertEqual(config.environment, "production", "Should load production environment")
 
             # Test configuration validation
             config.validate_config()  # Should not raise exception for valid config
@@ -186,21 +196,23 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.assertLessEqual(cloud_config.cpu_limit, 8, "CPU should be <= 8")
 
         # Test staging configuration
-        with patch.dict(os.environ, {'ENVIRONMENT': 'staging'}):
+        with patch.dict(os.environ, {"ENVIRONMENT": "staging"}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'staging', "Should load staging environment")
+            self.assertEqual(config.environment, "staging", "Should load staging environment")
             config.validate_config()  # Should not raise exception for valid config
 
         # Test development configuration
-        with patch.dict(os.environ, {'ENVIRONMENT': 'development'}):
+        with patch.dict(os.environ, {"ENVIRONMENT": "development"}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'development', "Should load development environment")
+            self.assertEqual(
+                config.environment, "development", "Should load development environment"
+            )
             config.validate_config()  # Should not raise exception for valid config
 
         # Test edge case: invalid environment
-        with patch.dict(os.environ, {'ENVIRONMENT': 'invalid'}):
+        with patch.dict(os.environ, {"ENVIRONMENT": "invalid"}):
             config = EnvironmentConfig()
-            self.assertEqual(config.environment, 'invalid', "Should load invalid environment")
+            self.assertEqual(config.environment, "invalid", "Should load invalid environment")
             # Should still be valid as it falls back to development defaults
 
         print("✅ Environment configuration validation tests passed")
@@ -209,10 +221,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         """Test Dockerfile optimization and security features"""
         print("🔍 Testing Dockerfile optimization...")
 
-        dockerfile_path = self.cloud_run_dir / 'Dockerfile.secure'
+        dockerfile_path = self.cloud_run_dir / "Dockerfile.secure"
         self.assertTrue(dockerfile_path.exists(), "Dockerfile.secure should exist")
 
-        with open(dockerfile_path, 'r') as f:
+        with open(dockerfile_path) as f:
             content = f.read()
 
         # Test security features
@@ -229,12 +241,12 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
     def _test_security_features(self, content):
         """Helper method to test security features"""
         security_features = [
-            'FROM --platform=linux/amd64',  # Platform targeting
-            'USER appuser',  # Non-root user
-            'HEALTHCHECK',  # Health check
-            '--no-cache-dir',  # No cache for security
-            'PYTHONHASHSEED=random',  # Random hash seed
-            'PIP_DISABLE_PIP_VERSION_CHECK=1'  # Disable pip version check
+            "FROM --platform=linux/amd64",  # Platform targeting
+            "USER appuser",  # Non-root user
+            "HEALTHCHECK",  # Health check
+            "--no-cache-dir",  # No cache for security
+            "PYTHONHASHSEED=random",  # Random hash seed
+            "PIP_DISABLE_PIP_VERSION_CHECK=1",  # Disable pip version check
         ]
 
         missing_features = [feature for feature in security_features if feature not in content]
@@ -244,11 +256,11 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
     def _test_cloud_run_features(self, content):
         """Helper method to test Cloud Run features"""
         cloud_run_features = [
-            'EXPOSE 8080',  # Cloud Run port
-            '--bind :$PORT',  # Dynamic port binding
-            '--workers 1',  # Single worker for Cloud Run
-            '--timeout 0',  # Cloud Run handles timeouts
-            '--keep-alive 5'  # Keep-alive optimization
+            "EXPOSE 8080",  # Cloud Run port
+            "--bind :$PORT",  # Dynamic port binding
+            "--workers 1",  # Single worker for Cloud Run
+            "--timeout 0",  # Cloud Run handles timeouts
+            "--keep-alive 5",  # Keep-alive optimization
         ]
 
         missing_features = [feature for feature in cloud_run_features if feature not in content]
@@ -258,10 +270,10 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
     def _test_optimization_features(self, content):
         """Helper method to test optimization features"""
         optimization_features = [
-            '--max-requests 1000',  # Request recycling
-            '--max-requests-jitter 100',  # Jitter for load distribution
-            '--access-logfile -',  # Structured logging
-            '--error-logfile -'  # Error logging
+            "--max-requests 1000",  # Request recycling
+            "--max-requests-jitter 100",  # Jitter for load distribution
+            "--access-logfile -",  # Structured logging
+            "--error-logfile -",  # Error logging
         ]
 
         missing_features = [feature for feature in optimization_features if feature not in content]
@@ -272,19 +284,19 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         """Test requirements.txt security and version pinning"""
         print("🔍 Testing requirements security...")
 
-        requirements_path = self.cloud_run_dir / 'requirements_secure.txt'
+        requirements_path = self.cloud_run_dir / "requirements_secure.txt"
         self.assertTrue(requirements_path.exists(), "requirements_secure.txt should exist")
 
-        with open(requirements_path, 'r') as f:
+        with open(requirements_path) as f:
             content = f.read()
 
         # Test required dependencies (updated to match actual requirements format)
         required_deps = [
-            'flask==',  # Web framework (exact version pinning)
-            'gunicorn==',  # WSGI server
-            'psutil==',  # System monitoring
-            'requests==',  # HTTP client
-            'prometheus-client=='  # Metrics
+            "flask==",  # Web framework (exact version pinning)
+            "gunicorn==",  # WSGI server
+            "psutil==",  # System monitoring
+            "requests==",  # HTTP client
+            "prometheus-client==",  # Metrics
         ]
 
         missing_deps = [dep for dep in required_deps if dep not in content]
@@ -292,12 +304,17 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Missing required dependencies: {', '.join(missing_deps)}")
 
         # Test version pinning (dependencies should have == for exact versions)
-        lines = content.split('\n')
+        lines = content.split("\n")
         unpinned_deps = []
         for line in lines:
             line = line.strip()
-            if (line and not line.startswith('#') and
-                '==' not in line and '>=' not in line and '<=' not in line):
+            if (
+                line
+                and not line.startswith("#")
+                and "==" not in line
+                and ">=" not in line
+                and "<=" not in line
+            ):
                 unpinned_deps.append(line)
 
         if unpinned_deps:
@@ -309,8 +326,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         """Test auto-scaling configuration and validation"""
         print("🔍 Testing auto-scaling configuration...")
 
-        cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        cloudbuild_path = self.cloud_run_dir / "cloudbuild.yaml"
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
 
         # Find Cloud Run deployment step
@@ -318,26 +335,19 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self.assertIsNotNone(deploy_step, "Should have Cloud Run deployment step")
 
         # Get args from the step
-        args = deploy_step.get('args', [])
+        args = deploy_step.get("args", [])
         self.assertIsInstance(args, list, "Args should be a list")
         self.assertGreater(len(args), 0, "Should have deployment arguments")
 
         # Test auto-scaling parameters (Cloud Build format: --param=value)
-        scaling_params = [
-            '--max-instances=10',
-            '--min-instances=1',
-            '--concurrency=80'
-        ]
+        scaling_params = ["--max-instances=10", "--min-instances=1", "--concurrency=80"]
 
         missing_params = [param for param in scaling_params if param not in args]
         if missing_params:
             self.fail(f"Missing auto-scaling parameters: {', '.join(missing_params)}")
 
         # Test resource allocation (Cloud Build format: --param=value)
-        resource_params = [
-            '--memory=2Gi',
-            '--cpu=2'
-        ]
+        resource_params = ["--memory=2Gi", "--cpu=2"]
 
         missing_resource_params = [param for param in resource_params if param not in args]
         if missing_resource_params:
@@ -347,8 +357,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
 
     def _find_deploy_step(self, config):
         """Helper method to find deployment step"""
-        for step in config['steps']:
-            if 'gcr.io/google.com/cloudsdktool/cloud-sdk' in step.get('name', ''):
+        for step in config["steps"]:
+            if "gcr.io/google.com/cloudsdktool/cloud-sdk" in step.get("name", ""):
                 return step
         return None
 
@@ -357,32 +367,36 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("🔍 Testing health check integration...")
 
         # Test health check endpoint configuration
-        cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        cloudbuild_path = self.cloud_run_dir / "cloudbuild.yaml"
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
 
         # Check for health check environment variables
         deploy_step = self._find_deploy_step(config)
         self.assertIsNotNone(deploy_step, "Should have deployment step")
 
-        args = deploy_step['args']
+        args = deploy_step["args"]
 
         # Test health check environment variables (updated to match actual format)
         health_vars = [
-            'HEALTH_CHECK_INTERVAL=30',
-            'GRACEFUL_SHUTDOWN_TIMEOUT=30',
-            'ENABLE_HEALTH_CHECKS=true'
+            "HEALTH_CHECK_INTERVAL=30",
+            "GRACEFUL_SHUTDOWN_TIMEOUT=30",
+            "ENABLE_HEALTH_CHECKS=true",
         ]
 
         # Check if the environment variables are set in any --set-env-vars argument
         env_vars_found = 0
         for arg in args:
-            if arg.startswith('--set-env-vars='):
+            if arg.startswith("--set-env-vars="):
                 for var in health_vars:
                     if var in arg:
                         env_vars_found += 1
 
-        self.assertGreaterEqual(env_vars_found, 2, f"Should have at least 2 health check environment variables, found {env_vars_found}")
+        self.assertGreaterEqual(
+            env_vars_found,
+            2,
+            f"Should have at least 2 health check environment variables, found {env_vars_found}",
+        )
 
         print("✅ Health check integration tests passed")
 
@@ -394,36 +408,48 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         from config import EnvironmentConfig
 
         # Test invalid memory limits
-        with patch.dict(os.environ, {
-            'ENVIRONMENT': 'production',
-            'MEMORY_LIMIT_MB': '100'  # Too low
-        }):
+        with patch.dict(
+            os.environ,
+            {
+                "ENVIRONMENT": "production",
+                "MEMORY_LIMIT_MB": "100",  # Too low
+            },
+        ):
             config = EnvironmentConfig()
             # Should still be valid as it uses defaults
 
         # Test invalid CPU limits
-        with patch.dict(os.environ, {
-            'ENVIRONMENT': 'production',
-            'CPU_LIMIT': '10'  # Too high
-        }):
+        with patch.dict(
+            os.environ,
+            {
+                "ENVIRONMENT": "production",
+                "CPU_LIMIT": "10",  # Too high
+            },
+        ):
             config = EnvironmentConfig()
             # Should still be valid as it uses defaults
 
         # Test invalid timeout
-        with patch.dict(os.environ, {
-            'ENVIRONMENT': 'production',
-            'TIMEOUT_SECONDS': '1000'  # Too high
-        }):
+        with patch.dict(
+            os.environ,
+            {
+                "ENVIRONMENT": "production",
+                "TIMEOUT_SECONDS": "1000",  # Too high
+            },
+        ):
             config = EnvironmentConfig()
             # Should still be valid as it uses defaults
 
         # Test empty environment variables
-        with patch.dict(os.environ, {
-            'ENVIRONMENT': 'production',
-            'MEMORY_LIMIT_MB': '',
-            'CPU_LIMIT': '',
-            'MAX_INSTANCES': ''
-        }):
+        with patch.dict(
+            os.environ,
+            {
+                "ENVIRONMENT": "production",
+                "MEMORY_LIMIT_MB": "",
+                "CPU_LIMIT": "",
+                "MAX_INSTANCES": "",
+            },
+        ):
             config = EnvironmentConfig()
             config.validate_config()  # Should not raise exception for valid config
 
@@ -437,7 +463,7 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         try:
             from health_monitor import HealthMonitor
         except ImportError as e:
-            if 'psutil' in str(e):
+            if "psutil" in str(e):
                 self.skipTest("psutil not available in test environment")
             raise
 
@@ -447,8 +473,13 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         metrics = monitor.get_comprehensive_health()
 
         required_metrics = [
-            'status', 'timestamp', 'uptime_seconds',
-            'system', 'models', 'api', 'requests'
+            "status",
+            "timestamp",
+            "uptime_seconds",
+            "system",
+            "models",
+            "api",
+            "requests",
         ]
 
         missing_metrics = [metric for metric in required_metrics if metric not in metrics]
@@ -456,22 +487,28 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.fail(f"Missing performance metrics: {', '.join(missing_metrics)}")
 
         # Test system metrics structure
-        system_metrics = metrics['system']
-        system_required = ['memory_usage_mb', 'cpu_usage_percent', 'memory_percent']
+        system_metrics = metrics["system"]
+        system_required = ["memory_usage_mb", "cpu_usage_percent", "memory_percent"]
 
-        missing_system_metrics = [metric for metric in system_required if metric not in system_metrics]
+        missing_system_metrics = [
+            metric for metric in system_required if metric not in system_metrics
+        ]
         if missing_system_metrics:
             self.fail(f"Missing system metrics: {', '.join(missing_system_metrics)}")
 
         # Check all system metrics are numeric
-        non_numeric_system_metrics = [metric for metric in system_required if not isinstance(system_metrics[metric], (int, float))]
+        non_numeric_system_metrics = [
+            metric
+            for metric in system_required
+            if not isinstance(system_metrics[metric], (int, float))
+        ]
         if non_numeric_system_metrics:
             self.fail(f"Non-numeric system metrics: {', '.join(non_numeric_system_metrics)}")
 
         # Test request metrics
-        request_metrics = metrics['requests']
-        self.assertIn('active', request_metrics, "Should track active requests")
-        self.assertIn('total_processed', request_metrics, "Should track total processed requests")
+        request_metrics = metrics["requests"]
+        self.assertIn("active", request_metrics, "Should track active requests")
+        self.assertIn("total_processed", request_metrics, "Should track total processed requests")
 
         print("✅ Performance metrics tests passed")
 
@@ -480,18 +517,18 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         print("🔍 Testing YAML parsing and validation...")
 
         # Test Cloud Build YAML parsing
-        cloudbuild_path = self.cloud_run_dir / 'cloudbuild.yaml'
-        with open(cloudbuild_path, 'r') as f:
+        cloudbuild_path = self.cloud_run_dir / "cloudbuild.yaml"
+        with open(cloudbuild_path) as f:
             config = yaml.safe_load(f)
 
         # Validate YAML structure using enhanced approach
-        self._validate_yaml_structure(config, 'cloudbuild.yaml')
+        self._validate_yaml_structure(config, "cloudbuild.yaml")
 
         # Test configuration serialization
         sys.path.insert(0, str(self.cloud_run_dir))
         from config import EnvironmentConfig
 
-        config_obj = EnvironmentConfig('production')
+        config_obj = EnvironmentConfig("production")
         config_dict = config_obj.to_dict()
 
         # Convert to YAML and back to test serialization
@@ -508,24 +545,25 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         self.assertIsInstance(config, dict, f"{filename} should be a dictionary")
 
         # Validate required top-level keys
-        if filename == 'cloudbuild.yaml':
-            required_keys = ['steps', 'images']
+        if filename == "cloudbuild.yaml":
+            required_keys = ["steps", "images"]
             missing_keys = [key for key in required_keys if key not in config]
             if missing_keys:
                 self.fail(f"{filename} missing required keys: {', '.join(missing_keys)}")
 
         # Validate nested structures
-        if 'steps' in config:
-            self.assertIsInstance(config['steps'], list, "Steps should be a list")
+        if "steps" in config:
+            self.assertIsInstance(config["steps"], list, "Steps should be a list")
             invalid_steps = []
-            for i, step in enumerate(config['steps']):
+            for i, step in enumerate(config["steps"]):
                 if not isinstance(step, dict):
                     invalid_steps.append(f"Step {i} should be a dictionary")
-                elif 'name' not in step or 'args' not in step:
+                elif "name" not in step or "args" not in step:
                     invalid_steps.append(f"Step {i} missing required fields")
 
             if invalid_steps:
                 self.fail(f"Invalid steps: {', '.join(invalid_steps)}")
+
 
 def run_phase3_tests():
     """Run all Phase 3 Cloud Run optimization tests"""
@@ -541,33 +579,32 @@ def run_phase3_tests():
 
     # Generate test report
     test_report = {
-        'phase': 'Phase 3 - Cloud Run Optimization',
-        'total_tests': result.testsRun,
-        'failures': len(result.failures),
-        'errors': len(result.errors),
-        'success_rate': ((result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun) * 100,
-        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-        'test_details': []
+        "phase": "Phase 3 - Cloud Run Optimization",
+        "total_tests": result.testsRun,
+        "failures": len(result.failures),
+        "errors": len(result.errors),
+        "success_rate": (
+            (result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun
+        )
+        * 100,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "test_details": [],
     }
 
     # Add test details
     for test, traceback in result.failures:
-        test_report['test_details'].append({
-            'test': test._testMethodName,
-            'status': 'FAILED',
-            'error': traceback
-        })
+        test_report["test_details"].append(
+            {"test": test._testMethodName, "status": "FAILED", "error": traceback}
+        )
 
     for test, traceback in result.errors:
-        test_report['test_details'].append({
-            'test': test._testMethodName,
-            'status': 'ERROR',
-            'error': traceback
-        })
+        test_report["test_details"].append(
+            {"test": test._testMethodName, "status": "ERROR", "error": traceback}
+        )
 
     # Save test report
-    report_path = Path(__file__).parent / 'phase3_test_report.json'
-    with open(report_path, 'w') as f:
+    report_path = Path(__file__).parent / "phase3_test_report.json"
+    with open(report_path, "w") as f:
         json.dump(test_report, f, indent=2)
 
     print("\n" + "=" * 60)
@@ -584,6 +621,7 @@ def run_phase3_tests():
     print("❌ Some Phase 3 tests failed!")
     return False
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     success = run_phase3_tests()
     sys.exit(0 if success else 1)

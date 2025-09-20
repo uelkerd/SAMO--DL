@@ -3,6 +3,7 @@
 Model validation script for Docker builds.
 Tests that all required models are accessible and load correctly.
 """
+
 import os
 
 
@@ -15,10 +16,11 @@ def main():
     # Test transformers cache
     try:
         from transformers import AutoTokenizer
+
         _ = AutoTokenizer.from_pretrained(
             "j-hartmann/emotion-english-distilroberta-base",
             cache_dir="/app/models",
-            local_files_only=True
+            local_files_only=True,
         )
         print("✅ Emotion model tokenizer loads successfully")
     except (ImportError, OSError, RuntimeError) as e:
@@ -28,11 +30,8 @@ def main():
 
     try:
         from transformers import T5Tokenizer
-        _ = T5Tokenizer.from_pretrained(
-            "t5-small",
-            cache_dir="/app/models",
-            local_files_only=True
-        )
+
+        _ = T5Tokenizer.from_pretrained("t5-small", cache_dir="/app/models", local_files_only=True)
         print("✅ T5 tokenizer loads successfully")
     except (ImportError, OSError, RuntimeError) as e:
         print(f"⚠️ T5 tokenizer not available: {e}")
@@ -53,6 +52,7 @@ def main():
     else:
         print("⚠️ Some models not available - will be downloaded at runtime")
         print("✅ Build can continue - models will be lazy-loaded")
+
 
 if __name__ == "__main__":
     main()

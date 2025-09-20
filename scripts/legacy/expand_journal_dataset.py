@@ -5,18 +5,21 @@ Expand the journal dataset to improve model performance.
 
 import json
 import random
-from typing import List, Dict
+from typing import Dict
+
 
 def load_current_dataset():
     """Load the current journal dataset."""
-    with open('data/journal_test_dataset.json', 'r') as f:
+    with open("data/journal_test_dataset.json") as f:
         return json.load(f)
 
-def save_expanded_dataset(data, filename='data/expanded_journal_dataset.json'):
+
+def save_expanded_dataset(data, filename="data/expanded_journal_dataset.json"):
     """Save the expanded dataset."""
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(data, f, indent=2)
     print(f"✅ Expanded dataset saved to {filename}")
+
 
 def create_balanced_dataset(target_size=1000):
     """Create a balanced expanded dataset."""
@@ -28,10 +31,10 @@ def create_balanced_dataset(target_size=1000):
     # Analyze current distribution
     emotion_counts = {}
     for entry in current_data:
-        emotion = entry['emotion']
+        emotion = entry["emotion"]
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
-    print(f"📊 Current emotion distribution:")
+    print("📊 Current emotion distribution:")
     for emotion, count in sorted(emotion_counts.items()):
         print(f"  {emotion}: {count} samples")
 
@@ -42,9 +45,9 @@ def create_balanced_dataset(target_size=1000):
     # Create expanded dataset
     expanded_data = []
 
-    for emotion in emotion_counts.keys():
+    for emotion in emotion_counts:
         # Get existing samples for this emotion
-        existing_samples = [entry for entry in current_data if entry['emotion'] == emotion]
+        existing_samples = [entry for entry in current_data if entry["emotion"] == emotion]
         current_count = len(existing_samples)
 
         print(f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...")
@@ -65,19 +68,20 @@ def create_balanced_dataset(target_size=1000):
                 variation = create_variation(base_sample, emotion)
                 expanded_data.append(variation)
 
-    print(f"\n✅ Expanded dataset created:")
+    print("\n✅ Expanded dataset created:")
     print(f"  Original samples: {len(current_data)}")
     print(f"  Expanded samples: {len(expanded_data)}")
     print(f"  Target size: {target_size}")
 
     return expanded_data
 
+
 def create_variation(base_sample: Dict, emotion: str) -> Dict:
     """Create a variation of a base sample."""
 
     # Templates for different emotions
     emotion_templates = {
-        'happy': [
+        "happy": [
             "I'm feeling really happy today!",
             "I'm so happy about this!",
             "This makes me incredibly happy!",
@@ -87,9 +91,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm feeling happy and content!",
             "I'm really happy about this outcome!",
             "This makes me feel so happy!",
-            "I'm feeling happy and grateful!"
+            "I'm feeling happy and grateful!",
         ],
-        'sad': [
+        "sad": [
             "I'm feeling really sad today.",
             "This makes me so sad.",
             "I'm feeling down and sad.",
@@ -99,9 +103,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really sad about what happened.",
             "This makes me feel so sad.",
             "I'm feeling sad and disappointed.",
-            "I'm really sad about this outcome."
+            "I'm really sad about this outcome.",
         ],
-        'frustrated': [
+        "frustrated": [
             "I'm so frustrated with this!",
             "This is really frustrating me.",
             "I'm feeling frustrated and annoyed.",
@@ -111,9 +115,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really frustrated with how this is going.",
             "This makes me so frustrated.",
             "I'm feeling frustrated and upset.",
-            "I'm really frustrated about this outcome."
+            "I'm really frustrated about this outcome.",
         ],
-        'anxious': [
+        "anxious": [
             "I'm feeling really anxious about this.",
             "This is making me anxious.",
             "I'm feeling anxious and worried.",
@@ -123,9 +127,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really anxious about this situation.",
             "This makes me feel so anxious.",
             "I'm feeling anxious and stressed.",
-            "I'm really anxious about the outcome."
+            "I'm really anxious about the outcome.",
         ],
-        'excited': [
+        "excited": [
             "I'm so excited about this!",
             "This makes me really excited!",
             "I'm feeling excited and enthusiastic!",
@@ -135,9 +139,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really excited about this opportunity!",
             "This makes me feel so excited!",
             "I'm feeling excited and thrilled!",
-            "I'm really excited about this outcome!"
+            "I'm really excited about this outcome!",
         ],
-        'calm': [
+        "calm": [
             "I'm feeling really calm right now.",
             "This brings me a sense of calm.",
             "I'm feeling calm and peaceful.",
@@ -147,9 +151,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really calm about what's happening.",
             "This gives me a calm feeling.",
             "I'm feeling calm and content.",
-            "I'm really calm about this outcome."
+            "I'm really calm about this outcome.",
         ],
-        'content': [
+        "content": [
             "I'm feeling really content with this.",
             "This makes me feel content.",
             "I'm feeling content and satisfied.",
@@ -159,9 +163,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really content with this situation.",
             "This makes me feel so content.",
             "I'm feeling content and peaceful.",
-            "I'm really content with this outcome."
+            "I'm really content with this outcome.",
         ],
-        'grateful': [
+        "grateful": [
             "I'm feeling really grateful for this.",
             "This makes me so grateful.",
             "I'm feeling grateful and thankful.",
@@ -171,9 +175,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really grateful for this situation.",
             "This makes me feel so grateful.",
             "I'm feeling grateful and appreciative.",
-            "I'm really grateful for this outcome."
+            "I'm really grateful for this outcome.",
         ],
-        'hopeful': [
+        "hopeful": [
             "I'm feeling really hopeful about this.",
             "This gives me hope.",
             "I'm feeling hopeful and optimistic.",
@@ -183,9 +187,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really hopeful about this situation.",
             "This makes me feel so hopeful.",
             "I'm feeling hopeful and confident.",
-            "I'm really hopeful about this outcome."
+            "I'm really hopeful about this outcome.",
         ],
-        'overwhelmed': [
+        "overwhelmed": [
             "I'm feeling really overwhelmed by this.",
             "This is overwhelming me.",
             "I'm feeling overwhelmed and stressed.",
@@ -195,9 +199,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really overwhelmed by what's happening.",
             "This makes me feel so overwhelmed.",
             "I'm feeling overwhelmed and exhausted.",
-            "I'm really overwhelmed by this outcome."
+            "I'm really overwhelmed by this outcome.",
         ],
-        'proud': [
+        "proud": [
             "I'm feeling really proud of this.",
             "This makes me so proud.",
             "I'm feeling proud and accomplished.",
@@ -207,9 +211,9 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really proud of this achievement.",
             "This makes me feel so proud.",
             "I'm feeling proud and confident.",
-            "I'm really proud of this outcome."
+            "I'm really proud of this outcome.",
         ],
-        'tired': [
+        "tired": [
             "I'm feeling really tired today.",
             "This is making me tired.",
             "I'm feeling tired and exhausted.",
@@ -219,8 +223,8 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
             "I'm really tired of this situation.",
             "This makes me feel so tired.",
             "I'm feeling tired and drained.",
-            "I'm really tired of dealing with this."
-        ]
+            "I'm really tired of dealing with this.",
+        ],
     }
 
     # Get templates for this emotion
@@ -231,18 +235,19 @@ def create_variation(base_sample: Dict, emotion: str) -> Dict:
 
     # Add some variety to the content
     variations = [
-        f"{template} {random.choice(['It\'s been a long day.', 'Things are going well.', 'I need to process this.', 'This is important to me.'])}",
-        f"{template} {random.choice(['I hope this continues.', 'I wonder what\'s next.', 'This feels right.', 'I\'m processing this.'])}",
-        f"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', 'I\'m learning from this.'])}"
+        f"{template} {random.choice(["It's been a long day.", 'Things are going well.', 'I need to process this.', 'This is important to me.'])}",
+        f"{template} {random.choice(['I hope this continues.', "I wonder what's next.", 'This feels right.', "I'm processing this."])}",
+        f"{template} {random.choice(['I should reflect on this.', 'This is meaningful.', 'I appreciate this moment.', "I'm learning from this."])}",
     ]
 
     content = random.choice(variations)
 
     return {
-        'content': content,
-        'emotion': emotion,
-        'id': f"expanded_{emotion}_{random.randint(1000, 9999)}"
+        "content": content,
+        "emotion": emotion,
+        "id": f"expanded_{emotion}_{random.randint(1000, 9999)}",
     }
+
 
 def analyze_expanded_dataset(data):
     """Analyze the expanded dataset."""
@@ -251,7 +256,7 @@ def analyze_expanded_dataset(data):
 
     emotion_counts = {}
     for entry in data:
-        emotion = entry['emotion']
+        emotion = entry["emotion"]
         emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
 
     print("Emotion distribution:")
@@ -260,6 +265,7 @@ def analyze_expanded_dataset(data):
 
     print(f"\nTotal samples: {len(data)}")
     print(f"Unique emotions: {len(emotion_counts)}")
+
 
 def main():
     """Main function to expand the dataset."""
@@ -280,6 +286,7 @@ def main():
     print("  1. Review expanded dataset")
     print("  2. Retrain model with larger dataset")
     print("  3. Expect 75-85% F1 score!")
+
 
 if __name__ == "__main__":
     main()

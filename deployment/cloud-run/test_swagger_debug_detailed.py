@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""
-Detailed test to capture Swagger docs 500 error
-"""
+"""Detailed test to capture Swagger docs 500 error"""
 
 import os
 import requests
 import traceback
 
 # Set required environment variables
-os.environ['ADMIN_API_KEY'] = 'test-key-123'
-os.environ['MAX_INPUT_LENGTH'] = '512'
-os.environ['RATE_LIMIT_PER_MINUTE'] = '100'
-os.environ['MODEL_PATH'] = '/app/model'
-os.environ['PORT'] = '8084'
+os.environ["ADMIN_API_KEY"] = "test-key-123"
+os.environ["MAX_INPUT_LENGTH"] = "512"
+os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
+os.environ["MODEL_PATH"] = "/app/model"
+os.environ["PORT"] = "8084"
 
 try:
     from secure_api_server import app
@@ -27,13 +25,17 @@ try:
         try:
             # Use secure host binding for test server
             try:
-                from src.security.host_binding import get_secure_host_binding, validate_host_binding
+                from src.security.host_binding import (
+                    get_secure_host_binding,
+                    validate_host_binding,
+                )
+
                 host, port = get_secure_host_binding(8084)
                 validate_host_binding(host, port)
                 app.run(host=host, port=port, debug=False)
             except ImportError:
                 # Fallback for test environment
-                app.run(host='127.0.0.1', port=8084, debug=False)
+                app.run(host="127.0.0.1", port=8084, debug=False)
         except Exception as e:
             print(f"❌ Server error: {e}")
             traceback.print_exc()

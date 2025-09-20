@@ -14,6 +14,7 @@ import shutil
 import json
 from datetime import datetime
 
+
 def reorganize_model_directory():
     """Reorganize the model directory with versioning."""
 
@@ -32,7 +33,7 @@ def reorganize_model_directory():
         print(f"✅ Created models directory: {models_dir}")
 
     # 1. Save current model as model_1 (fallback)
-    print(f"\n💾 SAVING CURRENT MODEL AS FALLBACK")
+    print("\n💾 SAVING CURRENT MODEL AS FALLBACK")
     print("-" * 40)
 
     if os.path.exists(current_model_path):
@@ -54,21 +55,21 @@ def reorganize_model_directory():
                 "average_confidence": "0.298",
                 "architecture": "DistilRoBERTa",
                 "num_labels": 12,
-                "problem_type": "single_label_classification"
+                "problem_type": "single_label_classification",
             },
             "training_details": {
                 "dataset_size": "60 samples (48 train, 12 validation)",
                 "training_epochs": 3,
                 "final_f1_score": "0.8889",
-                "final_accuracy": "0.9167"
+                "final_accuracy": "0.9167",
             },
             "status": "fallback_model",
-            "notes": "Successfully resolved configuration persistence issue. Ready for deployment."
+            "notes": "Successfully resolved configuration persistence issue. Ready for deployment.",
         }
 
         # Save metadata
         metadata_path = os.path.join(model_1_path, "model_metadata.json")
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, "w") as f:
             json.dump(model_1_metadata, f, indent=2)
         print(f"✅ Created model metadata: {metadata_path}")
 
@@ -77,7 +78,7 @@ def reorganize_model_directory():
         return
 
     # 2. Create default model directory structure
-    print(f"\n📂 CREATING DEFAULT MODEL STRUCTURE")
+    print("\n📂 CREATING DEFAULT MODEL STRUCTURE")
     print("-" * 40)
 
     if os.path.exists(default_model_path):
@@ -97,7 +98,7 @@ def reorganize_model_directory():
             "average_confidence": "pending",
             "architecture": "DistilRoBERTa",
             "num_labels": 12,
-            "problem_type": "single_label_classification"
+            "problem_type": "single_label_classification",
         },
         "training_details": {
             "dataset_size": "240+ samples with augmentation",
@@ -107,21 +108,21 @@ def reorganize_model_directory():
                 "Class weighting",
                 "Advanced data augmentation",
                 "Comprehensive validation",
-                "Configuration persistence"
-            ]
+                "Configuration persistence",
+            ],
         },
         "status": "pending_training",
-        "notes": "Will be trained using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
+        "notes": "Will be trained using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
     }
 
     # Save default metadata
     default_metadata_path = os.path.join(default_model_path, "model_metadata.json")
-    with open(default_metadata_path, 'w') as f:
+    with open(default_metadata_path, "w") as f:
         json.dump(default_metadata, f, indent=2)
     print(f"✅ Created default model metadata: {default_metadata_path}")
 
     # 3. Create models index file
-    print(f"\n📋 CREATING MODELS INDEX")
+    print("\n📋 CREATING MODELS INDEX")
     print("-" * 40)
 
     models_index = {
@@ -133,26 +134,26 @@ def reorganize_model_directory():
                 "path": "model_1_fallback",
                 "version": "1.0",
                 "status": "ready",
-                "description": "Working model with configuration persistence fix"
+                "description": "Working model with configuration persistence fix",
             },
             "default": {
                 "path": "default",
                 "version": "2.0",
                 "status": "pending",
-                "description": "Comprehensive model with all advanced features"
-            }
+                "description": "Comprehensive model with all advanced features",
+            },
         },
         "last_updated": datetime.now().isoformat(),
-        "notes": "Use default model for production, model_1_fallback as backup"
+        "notes": "Use default model for production, model_1_fallback as backup",
     }
 
     index_path = os.path.join(models_dir, "models_index.json")
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         json.dump(models_index, f, indent=2)
     print(f"✅ Created models index: {index_path}")
 
     # 4. Create README for models directory
-    print(f"\n📖 CREATING MODELS README")
+    print("\n📖 CREATING MODELS README")
     print("-" * 40)
 
     readme_content = """# Model Versions
@@ -224,12 +225,12 @@ Each model directory contains:
 """
 
     readme_path = os.path.join(models_dir, "README.md")
-    with open(readme_path, 'w') as f:
+    with open(readme_path, "w") as f:
         f.write(readme_content)
     print(f"✅ Created models README: {readme_path}")
 
     # 5. Create symlink for easy access
-    print(f"\n🔗 CREATING SYMLINKS")
+    print("\n🔗 CREATING SYMLINKS")
     print("-" * 40)
 
     # Create symlink from deployment/model to default model
@@ -256,17 +257,17 @@ Each model directory contains:
         print(f"   You can manually link {symlink_path} to {target_path}")
 
     # 6. Summary
-    print(f"\n📋 REORGANIZATION SUMMARY")
+    print("\n📋 REORGANIZATION SUMMARY")
     print("=" * 50)
 
     print("✅ Model directory reorganized successfully!")
     print()
     print("📁 New Structure:")
     print(f"   {models_dir}/")
-    print(f"   ├── model_1_fallback/     # Your working model (91.67% accuracy)")
-    print(f"   ├── default/              # Ready for comprehensive model")
-    print(f"   ├── models_index.json     # Model registry")
-    print(f"   └── README.md             # Documentation")
+    print("   ├── model_1_fallback/     # Your working model (91.67% accuracy)")
+    print("   ├── default/              # Ready for comprehensive model")
+    print("   ├── models_index.json     # Model registry")
+    print("   └── README.md             # Documentation")
     print()
     print("🎯 Next Steps:")
     print("   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
@@ -278,6 +279,7 @@ Each model directory contains:
     print("   - Model 1 is preserved as fallback")
     print("   - Original model backed up to deployment/model_backup/")
     print("   - Clear versioning and documentation")
+
 
 if __name__ == "__main__":
     reorganize_model_directory()

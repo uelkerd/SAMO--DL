@@ -18,18 +18,21 @@ import shlex
 import time
 import requests
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List
+
 
 # Configuration
 def get_project_id():
     """Get current GCP project ID dynamically"""
     try:
-        result = subprocess.run(['gcloud', 'config', 'get-value', 'project'],
-                              capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["gcloud", "config", "get-value", "project"], capture_output=True, text=True, check=True
+        )
         return result.stdout.strip()
     except subprocess.CalledProcessError:
         # Fallback to environment variable or default
-        return os.environ.get('GOOGLE_CLOUD_PROJECT', 'the-tendril-466607-n8')
+        return os.environ.get("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
+
 
 PROJECT_ID = get_project_id()
 REGION = "us-central1"
@@ -45,6 +48,7 @@ if not ADMIN_API_KEY:
     raise ValueError("ADMIN_API_KEY environment variable must be set for security")
 RATE_LIMIT_PER_MINUTE = 100
 MAX_INPUT_LENGTH = 512
+
 
 class SecurityDeploymentFix:
     def __init__(self):
@@ -90,7 +94,7 @@ class SecurityDeploymentFix:
             self.secure_dockerfile,
             self.secure_api,
             self.deployment_dir / "security_headers.py",
-            self.deployment_dir / "rate_limiter.py"
+            self.deployment_dir / "rate_limiter.py",
         ]
 
         missing_files = []
@@ -135,7 +139,7 @@ prometheus-client==0.20.0
 cryptography>=41.0.0,<42.0.0
 """
 
-        with open(self.secure_requirements, 'w') as f:
+        with open(self.secure_requirements, "w") as f:
             f.write(secure_requirements)
 
         self.log("✅ Secure requirements.txt created")
@@ -149,44 +153,65 @@ cryptography>=41.0.0,<42.0.0
 
         # Create a temporary cloudbuild.yaml file
         cloudbuild_path = self.deployment_dir / "cloudbuild.yaml"
-        cloudbuild_content = f'''steps:
+        cloudbuild_content = f"""steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '{ARTIFACT_REGISTRY}/{SERVICE_NAME}', '-f', 'Dockerfile.secure', '.']
 images:
   - '{ARTIFACT_REGISTRY}/{SERVICE_NAME}'
-'''
+"""
 
-        with open(cloudbuild_path, 'w') as f:
+        with open(cloudbuild_path, "w") as f:
             f.write(cloudbuild_content)
 
         # Build container
         self.log("Building secure container...")
-        build_result = self.run_command([
-            'gcloud', 'builds', 'submit',
-            str(self.deployment_dir),
-            '--config', str(cloudbuild_path)
-        ])
+        build_result = self.run_command(
+            [
+                "gcloud",
+                "builds",
+                "submit",
+                str(self.deployment_dir),
+                "--config",
+                str(cloudbuild_path),
+            ]
+        )
 
         if build_result.returncode != 0:
             raise RuntimeError("Container build failed")
 
         # Deploy to Cloud Run
         self.log("Deploying to Cloud Run...")
-        deploy_result = self.run_command([
-            'gcloud', 'run', 'deploy', SERVICE_NAME,
-            '--image', f'{ARTIFACT_REGISTRY}/{SERVICE_NAME}',
-            '--region', REGION,
-            '--platform', 'managed',
-            '--allow-unauthenticated',
-            '--port', str(PORT),
-            '--memory', '2Gi',
-            '--cpu', '2',
-            '--max-instances', '10',
-            '--min-instances', '0',
-            '--concurrency', '80',
-            '--timeout', '300',
-            '--set-env-vars', f'ADMIN_API_KEY={ADMIN_API_KEY},MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},RATE_LIMIT_PER_MINUTE={RATE_LIMIT_PER_MINUTE},MODEL_PATH={MODEL_PATH}'
-        ])
+        deploy_result = self.run_command(
+            [
+                "gcloud",
+                "run",
+                "deploy",
+                SERVICE_NAME,
+                "--image",
+                f"{ARTIFACT_REGISTRY}/{SERVICE_NAME}",
+                "--region",
+                REGION,
+                "--platform",
+                "managed",
+                "--allow-unauthenticated",
+                "--port",
+                str(PORT),
+                "--memory",
+                "2Gi",
+                "--cpu",
+                "2",
+                "--max-instances",
+                "10",
+                "--min-instances",
+                "0",
+                "--concurrency",
+                "80",
+                "--timeout",
+                "300",
+                "--set-env-vars",
+                f"ADMIN_API_KEY={ADMIN_API_KEY},MAX_INPUT_LENGTH={MAX_INPUT_LENGTH},RATE_LIMIT_PER_MINUTE={RATE_LIMIT_PER_MINUTE},MODEL_PATH={MODEL_PATH}",
+            ]
+        )
 
         if deploy_result.returncode != 0:
             raise RuntimeError("Cloud Run deployment failed")
@@ -199,11 +224,19 @@ images:
 
         # Get service URL
         try:
-            result = self.run_command([
-                'gcloud', 'run', 'services', 'describe', SERVICE_NAME,
-                '--region', REGION,
-                '--format', 'value(status.url)'
-            ])
+            result = self.run_command(
+                [
+                    "gcloud",
+                    "run",
+                    "services",
+                    "describe",
+                    SERVICE_NAME,
+                    "--region",
+                    REGION,
+                    "--format",
+                    "value(status.url)",
+                ]
+            )
             service_url = result.stdout.strip()
         except Exception as e:
             self.log(f"Failed to get service URL: {e}", "ERROR")
@@ -232,11 +265,11 @@ images:
             headers = response.headers
 
             security_headers = [
-                'Content-Security-Policy',
-                'X-Content-Type-Options',
-                'X-Frame-Options',
-                'X-XSS-Protection',
-                'Strict-Transport-Security'
+                "Content-Security-Policy",
+                "X-Content-Type-Options",
+                "X-Frame-Options",
+                "X-XSS-Protection",
+                "Strict-Transport-Security",
             ]
 
             missing_headers = []
@@ -269,9 +302,7 @@ images:
             responses = []
             for i in range(105):  # Exceed rate limit
                 response = requests.post(
-                    f"{service_url}/predict",
-                    json={"text": f"Test text {i}"},
-                    timeout=30
+                    f"{service_url}/predict", json={"text": f"Test text {i}"}, timeout=30
                 )
                 responses.append(response.status_code)
 
@@ -321,6 +352,7 @@ images:
         except Exception as e:
             self.log(f"❌ Security deployment fix failed: {e}", "ERROR")
             return False
+
 
 if __name__ == "__main__":
     fixer = SecurityDeploymentFix()

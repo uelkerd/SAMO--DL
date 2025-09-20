@@ -2,6 +2,7 @@
 """
 Unit tests for API rate limiter functionality.
 """
+
 from fastapi import FastAPI
 
 from src.api_rate_limiter import (
@@ -59,7 +60,7 @@ class TestTokenBucketRateLimiter:
             requests_per_minute=1,
             burst_size=1,
             enable_user_agent_analysis=False,  # Disable abuse detection for testing
-            enable_request_pattern_analysis=False
+            enable_request_pattern_analysis=False,
         )
         rate_limiter = TokenBucketRateLimiter(config)
 
@@ -84,4 +85,4 @@ class TestAddRateLimiting:
         add_rate_limiting(app)
 
         # Verify middleware was added (basic check)
-        assert hasattr(app, 'user_middleware')
+        assert hasattr(app, "user_middleware")

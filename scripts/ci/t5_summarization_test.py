@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 from .validation_utils import validate_hasattrs, ensure
 
+
 def test_t5_model_loading():
     """Test T5 model initialization."""
     try:
@@ -72,11 +73,7 @@ def test_t5_summarization():
         """
 
         # Perform summarization
-        summary = model.generate_summary(
-            text=test_text.strip(),
-            max_length=50,
-            min_length=10
-        )
+        summary = model.generate_summary(text=test_text.strip(), max_length=50, min_length=10)
 
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
 

@@ -18,23 +18,22 @@ import sys
 import time
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 # Use shared truthy parsing
 try:
     from src.common.env import is_truthy
 except Exception:  # Fallback to local helper if import path not available
+
     def is_truthy(value: str | None) -> bool:
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
+
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('ci_pipeline.log')
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("ci_pipeline.log")],
 )
 logger = logging.getLogger(__name__)
 
@@ -61,9 +60,7 @@ class CIPipelineRunner:
             tuple: (test_results dict, total_tests, passed_tests)
         """
         test_results = {
-            name: result
-            for name, result in self.results.items()
-            if isinstance(result, bool)
+            name: result for name, result in self.results.items() if isinstance(result, bool)
         }
         total_tests = len(test_results)
         # Booleans can be summed directly (True=1, False=0)
@@ -85,6 +82,7 @@ class CIPipelineRunner:
         # Check for GPU
         try:
             import torch
+
             env_info["gpu_available"] = torch.cuda.is_available()
             if env_info["gpu_available"]:
                 env_info["gpu_count"] = torch.cuda.device_count()
@@ -107,8 +105,14 @@ class CIPipelineRunner:
         logger.info("📦 Validating dependencies...")
 
         required_packages = [
-            "torch", "transformers", "fastapi", "pydantic",
-            "datasets", "tokenizers", "numpy", "pandas"
+            "torch",
+            "transformers",
+            "fastapi",
+            "pydantic",
+            "datasets",
+            "tokenizers",
+            "numpy",
+            "pandas",
         ]
 
         missing_packages = []
@@ -138,9 +142,10 @@ class CIPipelineRunner:
             # Run the script
             result = subprocess.run(
                 [python_executable, script_path],
+                check=False,
                 capture_output=True,
                 text=True,
-                timeout=300  # 5 minute timeout
+                timeout=300,  # 5 minute timeout
             )
 
             if result.returncode == 0:
@@ -165,9 +170,10 @@ class CIPipelineRunner:
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/unit/", "-v"],
+                check=False,
                 capture_output=True,
                 text=True,
-                timeout=1200  # 20 minute timeout (increased from 10)
+                timeout=1200,  # 20 minute timeout (increased from 10)
             )
 
             if result.returncode == 0:
@@ -194,9 +200,10 @@ class CIPipelineRunner:
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/e2e/", "-v"],
+                check=False,
                 capture_output=True,
                 text=True,
-                timeout=900  # 15 minute timeout
+                timeout=900,  # 15 minute timeout
             )
 
             if result.returncode == 0:
@@ -230,6 +237,7 @@ class CIPipelineRunner:
             # Add src to path for imports
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
             # Test BERT on GPU
@@ -241,6 +249,7 @@ class CIPipelineRunner:
 
             # Test forward pass
             import torch
+
             dummy_input = torch.randint(0, 1000, (2, 512)).to(device)
             with torch.no_grad():
                 output = model(dummy_input, torch.ones_like(dummy_input))
@@ -267,6 +276,7 @@ class CIPipelineRunner:
             # Add src to path
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
             try:
@@ -288,11 +298,15 @@ class CIPipelineRunner:
             logger.info(f"✅ Inference time: {inference_time:.2f}s")
 
             # Check if times are reasonable
-            if loading_time < 10.0 and inference_time < 5.0:  # Increased threshold for CPU environments
+            if (
+                loading_time < 10.0 and inference_time < 5.0
+            ):  # Increased threshold for CPU environments
                 logger.info("✅ Performance benchmarks passed")
                 return True
             else:
-                logger.error(f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s")
+                logger.error(
+                    f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s"
+                )
                 return False
 
         except Exception as e:
@@ -348,7 +362,7 @@ class CIPipelineRunner:
 
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
-{'=' * 60}
+{"=" * 60}
 
 📊 SUMMARY:
 - Total Tests: {total_tests}
@@ -375,8 +389,7 @@ class CIPipelineRunner:
         if passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
-            failed_test_names = [name for name, result in test_results.items()
-                               if not result]
+            failed_test_names = [name for name, result in test_results.items() if not result]
             report += f"⚠️ Failed tests: {', '.join(failed_test_names)}\n"
             report += "🔧 Please fix the failed tests before deployment.\n"
 

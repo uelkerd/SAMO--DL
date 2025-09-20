@@ -14,7 +14,10 @@ import torch
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, evaluate_emotion_classifier
+from src.models.emotion_detection.bert_classifier import (
+    create_bert_emotion_classifier,
+    evaluate_emotion_classifier,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -74,7 +77,7 @@ def simple_temperature_test():
                 tokenizer=tokenizer,
                 texts=test_texts,
                 labels=test_labels,
-                device=device
+                device=device,
             )
 
             logger.info(f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}")

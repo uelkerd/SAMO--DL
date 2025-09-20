@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
-Text Preprocessing Module for SAMO Deep Learning.
+"""Text Preprocessing Module for SAMO Deep Learning.
 
 This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.
 """
+
 import string
 from typing import Optional
 
@@ -132,8 +132,7 @@ class TextPreprocessor:
         )
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: (np.mean([len(word) for word in x.split()]) 
-                      if len(x.split()) > 0 else 0)
+            lambda x: (np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0)
         )
 
         return df

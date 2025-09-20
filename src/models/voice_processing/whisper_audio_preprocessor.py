@@ -1,5 +1,4 @@
-"""
-SAMO Whisper Audio Preprocessing Module
+"""SAMO Whisper Audio Preprocessing Module
 
 This module handles audio preprocessing for optimal Whisper performance,
 including format validation, resampling, normalization, and quality assessment.
@@ -22,9 +21,14 @@ logger = logging.getLogger(__name__)
 class AudioPreprocessor:
     """Audio preprocessing for optimal Whisper performance."""
 
-    SUPPORTED_FORMATS: ClassVar[Set[str]] = (
-        {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
-    )
+    SUPPORTED_FORMATS: ClassVar[Set[str]] = {
+        ".mp3",
+        ".wav",
+        ".m4a",
+        ".aac",
+        ".ogg",
+        ".flac",
+    }
     TARGET_SAMPLE_RATE: ClassVar[int] = 16000  # Whisper expects 16kHz
     MAX_DURATION: ClassVar[int] = 300  # 5 minutes maximum
 
@@ -45,8 +49,7 @@ class AudioPreprocessor:
 
             if duration > AudioPreprocessor.MAX_DURATION:
                 return False, (
-                    f"Audio too long: {duration:.1f}s > "
-                    f"{AudioPreprocessor.MAX_DURATION}s"
+                    f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
                 )
 
             if duration < 0.1:  # Too short
@@ -62,7 +65,7 @@ class AudioPreprocessor:
     def preprocess_audio(
         audio_path: Union[str, Path],
         output_path: Optional[Union[str, Path]] = None,
-        normalize: bool = True
+        normalize: bool = True,
     ) -> Tuple[str, Dict[str, Any]]:
         """Preprocess audio for optimal Whisper performance."""
         audio_path = Path(audio_path)
@@ -105,7 +108,7 @@ class AudioPreprocessor:
 
         # Create output path if not provided
         if output_path is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
+            temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
             output_path = temp_file.name
             temp_file.close()
 

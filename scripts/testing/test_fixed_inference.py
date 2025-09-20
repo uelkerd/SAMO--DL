@@ -9,6 +9,7 @@ import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
 
+
 def test_fixed_inference():
     """Test inference with missing tokenizer and generic labels"""
 
@@ -16,8 +17,8 @@ def test_fixed_inference():
     print("=" * 50)
 
     # Check if model files exist
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     print(f"📁 Checking model directory: {model_dir}")
 
@@ -34,11 +35,11 @@ def test_fixed_inference():
         print(f"\n❌ Missing required files: {missing_files}")
         return False
 
-    print(f"\n✅ All model files found!")
+    print("\n✅ All model files found!")
 
     try:
         # Load the model config to understand the architecture
-        with open(model_dir / 'config.json', 'r') as f:
+        with open(model_dir / "config.json") as f:
             config = json.load(f)
 
         print(f"🔧 Model type: {config.get('model_type', 'unknown')}")
@@ -47,8 +48,18 @@ def test_fixed_inference():
         # Define the emotion mapping based on your training
         # This should match the order from your training
         emotion_mapping = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
         ]
 
         print(f"🎯 Emotion mapping: {emotion_mapping}")
@@ -63,11 +74,11 @@ def test_fixed_inference():
         print(f"🔧 Loading fine-tuned model from: {model_dir}")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
 
-        print(f"✅ Model loaded successfully!")
+        print("✅ Model loaded successfully!")
         print(f"🎯 Device: {device}")
 
         # Test texts
@@ -81,21 +92,18 @@ def test_fixed_inference():
             "I'm feeling sad and lonely today.",
             "I'm excited about the new opportunities.",
             "I feel calm and peaceful right now.",
-            "I'm hopeful that things will get better."
+            "I'm hopeful that things will get better.",
         ]
 
-        print(f"\n📊 Testing predictions:")
+        print("\n📊 Testing predictions:")
         print("-" * 50)
 
         for i, text in enumerate(test_texts, 1):
             try:
                 # Tokenize input
-                inputs = tokenizer(
-                    text,
-                    truncation=True,
-                    padding=True,
-                    return_tensors='pt'
-                ).to(device)
+                inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(
+                    device
+                )
 
                 # Get predictions
                 with torch.no_grad():
@@ -117,7 +125,7 @@ def test_fixed_inference():
 
                 print(f"{i:2d}. Text: {text}")
                 print(f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
-                print(f"    Top 3 predictions:")
+                print("    Top 3 predictions:")
                 for emotion, conf in top3_predictions:
                     print(f"      - {emotion}: {conf:.3f}")
                 print()
@@ -133,8 +141,10 @@ def test_fixed_inference():
     except Exception as e:
         print(f"❌ Error during inference: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 EMOTION DETECTION - FIXED TEST")
@@ -143,9 +153,9 @@ if __name__ == "__main__":
     success = test_fixed_inference()
 
     if success:
-        print(f"\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
-        print(f"📋 Next steps:")
-        print(f"   - Deploy with: cd deployment && ./deploy.sh")
-        print(f"   - API will be available at: http://localhost:5000")
+        print("\n🎉 SUCCESS! Your 99.54% F1 score model is working!")
+        print("📋 Next steps:")
+        print("   - Deploy with: cd deployment && ./deploy.sh")
+        print("   - API will be available at: http://localhost:5000")
     else:
-        print(f"\n❌ Test failed. Check the error messages above.")
+        print("\n❌ Test failed. Check the error messages above.")

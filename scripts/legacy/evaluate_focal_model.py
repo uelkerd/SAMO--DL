@@ -67,24 +67,169 @@ def create_test_data():
     test_data = [
         {
             "text": "I am extremely happy today!",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # joy
+            "labels": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],  # joy
         },
         {
             "text": "This makes me so angry!",
-            "labels": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # anger
+            "labels": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],  # anger
         },
         {
             "text": "I feel sad and disappointed.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]  # disappointment, sadness
+            "labels": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+            ],  # disappointment, sadness
         },
         {
             "text": "This is amazing and exciting!",
-            "labels": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # admiration, excitement
+            "labels": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ],  # admiration, excitement
         },
         {
             "text": "I'm neutral about this.",
-            "labels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # neutral
-        }
+            "labels": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+            ],  # neutral
+        },
     ]
 
     logger.info(f"✅ Created {len(test_data)} test examples")
@@ -108,11 +253,7 @@ def evaluate_model(model, test_data, threshold=0.5):
 
         # Tokenize
         inputs = model.tokenizer(
-            text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-            padding=True
+            text, return_tensors="pt", truncation=True, max_length=512, padding=True
         )
 
         # Move to device
@@ -141,10 +282,10 @@ def evaluate_model(model, test_data, threshold=0.5):
     all_pred = np.array(all_predictions)
     all_probs = np.array(all_probabilities)
 
-    f1_macro = f1_score(all_true, all_pred, average='macro', zero_division=0)
-    f1_micro = f1_score(all_true, all_pred, average='micro', zero_division=0)
-    precision = precision_score(all_true, all_pred, average='macro', zero_division=0)
-    recall = recall_score(all_true, all_pred, average='macro', zero_division=0)
+    f1_macro = f1_score(all_true, all_pred, average="macro", zero_division=0)
+    f1_micro = f1_score(all_true, all_pred, average="micro", zero_division=0)
+    precision = precision_score(all_true, all_pred, average="macro", zero_division=0)
+    recall = recall_score(all_true, all_pred, average="macro", zero_division=0)
 
     logger.info(f"📊 Results with threshold {threshold}:")
     logger.info(f"   F1 Macro: {f1_macro:.4f}")
@@ -153,13 +294,13 @@ def evaluate_model(model, test_data, threshold=0.5):
     logger.info(f"   Recall: {recall:.4f}")
 
     return {
-        'f1_macro': f1_macro,
-        'f1_micro': f1_micro,
-        'precision': precision,
-        'recall': recall,
-        'probabilities': all_probs,
-        'predictions': all_pred,
-        'true_labels': all_true
+        "f1_macro": f1_macro,
+        "f1_micro": f1_micro,
+        "precision": precision,
+        "recall": recall,
+        "probabilities": all_probs,
+        "predictions": all_pred,
+        "true_labels": all_true,
     }
 
 
@@ -180,11 +321,7 @@ def optimize_threshold(model, test_data):
 
         # Tokenize
         inputs = model.tokenizer(
-            text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-            padding=True
+            text, return_tensors="pt", truncation=True, max_length=512, padding=True
         )
 
         # Move to device
@@ -210,18 +347,18 @@ def optimize_threshold(model, test_data):
 
     for threshold in thresholds:
         predictions = (all_probs > threshold).astype(float)
-        f1 = f1_score(all_true, predictions, average='macro', zero_division=0)
-        results.append({'threshold': threshold, 'f1': f1})
+        f1 = f1_score(all_true, predictions, average="macro", zero_division=0)
+        results.append({"threshold": threshold, "f1": f1})
 
         if f1 > best_f1:
             best_f1 = f1
             best_threshold = threshold
 
     # Show top 5 thresholds
-    results.sort(key=lambda x: x['f1'], reverse=True)
+    results.sort(key=lambda x: x["f1"], reverse=True)
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
-        logger.info(f"   {i+1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}")
+        logger.info(f"   {i + 1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}")
 
     logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
 
@@ -266,28 +403,32 @@ def main():
         logger.info("=" * 50)
         logger.info("📋 Comparison:")
         logger.info(f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}")
-        logger.info(f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}")
-        logger.info(f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}")
+        logger.info(
+            f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}"
+        )
+        logger.info(
+            f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}"
+        )
 
         # Save results
         results = {
-            'default_threshold': {
-                'threshold': 0.5,
-                'f1_macro': default_results['f1_macro'],
-                'f1_micro': default_results['f1_micro'],
-                'precision': default_results['precision'],
-                'recall': default_results['recall']
+            "default_threshold": {
+                "threshold": 0.5,
+                "f1_macro": default_results["f1_macro"],
+                "f1_micro": default_results["f1_micro"],
+                "precision": default_results["precision"],
+                "recall": default_results["recall"],
             },
-            'optimized_threshold': {
-                'threshold': best_threshold,
-                'f1_macro': optimized_results['f1_macro'],
-                'f1_micro': optimized_results['f1_micro'],
-                'precision': optimized_results['precision'],
-                'recall': optimized_results['recall']
-            }
+            "optimized_threshold": {
+                "threshold": best_threshold,
+                "f1_macro": optimized_results["f1_macro"],
+                "f1_micro": optimized_results["f1_micro"],
+                "precision": optimized_results["precision"],
+                "recall": optimized_results["recall"],
+            },
         }
 
-        with open('evaluation_results.json', 'w') as f:
+        with open("evaluation_results.json", "w") as f:
             json.dump(results, f, indent=2)
 
         logger.info("💾 Results saved to evaluation_results.json")

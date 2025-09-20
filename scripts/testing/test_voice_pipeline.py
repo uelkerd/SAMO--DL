@@ -5,6 +5,7 @@ Test Voice Pipeline for SAMO
 This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
+
 from pathlib import Path
 import logging
 import numpy as np
@@ -36,10 +37,14 @@ def test_whisper_transcription():
 
     try:
         import whisper  # Local import to handle optional dependency
+
         model = whisper.load_model("base")
         logger.info("✅ Whisper model loaded successfully")
         logger.info("   • Model: %s", getattr(model, "name", "base"))
-        logger.info("   • Parameters: %s", getattr(getattr(model, "dims", object()), "n_text_state", "unknown"))
+        logger.info(
+            "   • Parameters: %s",
+            getattr(getattr(model, "dims", object()), "n_text_state", "unknown"),
+        )
 
         logger.info("   • Transcription test: Simulated audio processing")
         logger.info("   • Expected output: Text transcription")
@@ -96,6 +101,7 @@ def test_voice_emotion_features():
 
     try:
         import librosa  # Local import to handle optional dependency
+
         sample_rate = 16000
         duration = 3
         samples = int(sample_rate * duration)

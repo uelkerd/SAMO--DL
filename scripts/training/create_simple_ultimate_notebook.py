@@ -9,6 +9,7 @@ avoids the datasets library issues by using a more direct approach.
 
 import json
 
+
 def create_simple_notebook():
     """Create a simplified ultimate notebook."""
 
@@ -29,8 +30,8 @@ def create_simple_notebook():
                     "✅ Advanced validation (proper testing)\n",
                     "✅ Simple, direct approach (no datasets library issues)\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with consistent performance"
-                ]
+                    "**Target**: Reliable 75-85% F1 score with consistent performance",
+                ],
             },
             {
                 "cell_type": "code",
@@ -39,8 +40,8 @@ def create_simple_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas huggingface_hub"
-                ]
+                    "!pip install transformers torch scikit-learn numpy pandas huggingface_hub",
+                ],
             },
             {
                 "cell_type": "code",
@@ -61,15 +62,13 @@ def create_simple_notebook():
                     "\n",
                     "print('✅ All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
-                    "print(f'CUDA available: {torch.cuda.is_available()}')"
-                ]
+                    "print(f'CUDA available: {torch.cuda.is_available()}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
-                ]
+                "source": ["## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"],
             },
             {
                 "cell_type": "code",
@@ -107,16 +106,10 @@ def create_simple_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
-                ]
+                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')",
+                ],
             },
-            {
-                "cell_type": "markdown",
-                "metadata": {},
-                "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
-                ]
-            },
+            {"cell_type": "markdown", "metadata": {}, "source": ["## 🎯 DEFINING EMOTION CLASSES"]},
             {
                 "cell_type": "code",
                 "execution_count": None,
@@ -126,15 +119,13 @@ def create_simple_notebook():
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
-                ]
+                    "print(f'📊 Number of emotions: {len(emotions)}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
-                "source": [
-                    "## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"
-                ]
+                "source": ["## 📊 CREATING ENHANCED DATASET WITH AUGMENTATION"],
             },
             {
                 "cell_type": "code",
@@ -320,7 +311,7 @@ def create_simple_notebook():
                     "\n",
                     "# Data augmentation function\n",
                     "def augment_text(text, emotion):\n",
-                    "    \"\"\"Create augmented versions of the text.\"\"\"\n",
+                    '    """Create augmented versions of the text."""\n',
                     "    augmented = []\n",
                     "    \n",
                     "    # Synonym replacement\n",
@@ -370,36 +361,29 @@ def create_simple_notebook():
                     "texts = [item['text'] for item in enhanced_data]\n",
                     "labels = [item['label'] for item in enhanced_data]\n",
                     "\n",
-                    "print(f'✅ Dataset prepared with {len(texts)} samples')"
-                ]
-            }
+                    "print(f'✅ Dataset prepared with {len(texts)} samples')",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook
     output_path = "notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Created simple ultimate notebook: {output_path}")
@@ -412,6 +396,7 @@ def create_simple_notebook():
     print("   ✅ Advanced validation (to be added)")
 
     return output_path
+
 
 if __name__ == "__main__":
     create_simple_notebook()

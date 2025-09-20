@@ -35,7 +35,7 @@ sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
 from src.models.emotion_detection.bert_classifier import (
     create_bert_emotion_classifier,
-    )
+)
 from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -240,26 +240,25 @@ def train_final_model(
         val_predictions = torch.cat(val_predictions, dim=0)
         val_labels = torch.cat(val_labels, dim=0)
 
-        f1 = f1_score(val_labels, val_predictions, average='micro', zero_division=0)
+        f1 = f1_score(val_labels, val_predictions, average="micro", zero_division=0)
 
         logger.info(f"Epoch {epoch + 1}: Loss = {total_loss:.4f}, F1 = {f1:.4f}")
 
         # Save best model
         if f1 > best_f1:
             best_f1 = f1
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'epoch': epoch,
-                'f1_score': f1,
-            }, output_model)
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "epoch": epoch,
+                    "f1_score": f1,
+                },
+                output_model,
+            )
             logger.info(f"New best model saved with F1 = {f1:.4f}")
 
-    return {
-        'best_f1': best_f1,
-        'final_model_path': output_model,
-        'epochs_trained': epochs
-    }
+    return {"best_f1": best_f1, "final_model_path": output_model, "epochs_trained": epochs}
 
 
 def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleModel:
@@ -280,7 +279,7 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
 
     if Path(model_path).exists():
         checkpoint = torch.load(model_path, map_location=device)
-        model.load_state_dict(checkpoint['model_state_dict'])
+        model.load_state_dict(checkpoint["model_state_dict"])
         logger.info(f"Loaded model from {model_path}")
 
     model.to(device)
@@ -313,7 +312,7 @@ def evaluate_ensemble(
         for batch in test_data:
             outputs = ensemble(
                 input_ids=batch["input_ids"].to(device),
-                attention_mask=batch["attention_mask"].to(device)
+                attention_mask=batch["attention_mask"].to(device),
             )
             batch_predictions = (torch.sigmoid(outputs) > OPTIMAL_THRESHOLD).float()
 
@@ -325,18 +324,13 @@ def evaluate_ensemble(
     labels = torch.cat(labels, dim=0)
 
     # Calculate metrics
-    micro_f1 = f1_score(labels, predictions, average='micro', zero_division=0)
-    macro_f1 = f1_score(labels, predictions, average='macro', zero_division=0)
+    micro_f1 = f1_score(labels, predictions, average="micro", zero_division=0)
+    macro_f1 = f1_score(labels, predictions, average="macro", zero_division=0)
     precision, recall, _, _ = precision_recall_fscore_support(
-        labels, predictions, average='micro', zero_division=0
+        labels, predictions, average="micro", zero_division=0
     )
 
-    return {
-        'micro_f1': micro_f1,
-        'macro_f1': macro_f1,
-        'precision': precision,
-        'recall': recall
-    }
+    return {"micro_f1": micro_f1, "macro_f1": macro_f1, "precision": precision, "recall": recall}
 
 
 def save_ensemble_model(
@@ -355,14 +349,17 @@ def save_ensemble_model(
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
     # Save model
-    torch.save({
-        'ensemble_state_dict': ensemble.state_dict(),
-        'metrics': metrics,
-        'temperature': ensemble.temperature,
-        'threshold': ensemble.threshold,
-    }, output_path)
+    torch.save(
+        {
+            "ensemble_state_dict": ensemble.state_dict(),
+            "metrics": metrics,
+            "temperature": ensemble.temperature,
+            "threshold": ensemble.threshold,
+        },
+        output_path,
+    )
 
-    logger.info(f"Model saved successfully!")
+    logger.info("Model saved successfully!")
     logger.info(f"Final metrics: {metrics}")
 
 
@@ -373,20 +370,10 @@ def main():
         "--output_model",
         type=str,
         default=DEFAULT_OUTPUT_MODEL,
-        help="Path to save the final model"
+        help="Path to save the final model",
     )
-    parser.add_argument(
-        "--epochs",
-        type=int,
-        default=5,
-        help="Number of training epochs"
-    )
-    parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=16,
-        help="Training batch size"
-    )
+    parser.add_argument("--epochs", type=int, default=5, help="Number of training epochs")
+    parser.add_argument("--batch_size", type=int, default=16, help="Training batch size")
 
     args = parser.parse_args()
 
@@ -394,15 +381,13 @@ def main():
 
     # Train final model
     training_results = train_final_model(
-        output_model=args.output_model,
-        epochs=args.epochs,
-        batch_size=args.batch_size
+        output_model=args.output_model, epochs=args.epochs, batch_size=args.batch_size
     )
 
     logger.info(f"Training completed! Best F1: {training_results['best_f1']:.4f}")
 
     # Check if target F1 score is achieved
-    if training_results['best_f1'] >= TARGET_F1_SCORE:
+    if training_results["best_f1"] >= TARGET_F1_SCORE:
         logger.info(f"🎉 Target F1 score of {TARGET_F1_SCORE} achieved!")
 
         # Create and evaluate ensemble
@@ -416,11 +401,13 @@ def main():
         metrics = evaluate_ensemble(ensemble, test_data, tokenizer, device)
 
         # Save ensemble model
-        ensemble_path = args.output_model.replace('.pt', '_ensemble.pt')
+        ensemble_path = args.output_model.replace(".pt", "_ensemble.pt")
         save_ensemble_model(ensemble, metrics, ensemble_path)
 
     else:
-        logger.warning(f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}")
+        logger.warning(
+            f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}"
+        )
 
 
 if __name__ == "__main__":

@@ -1,24 +1,24 @@
-        # Benchmark original model
-        # Benchmark quantized model
-        # Calculate speedup
-        # Check if input model exists
-        # Create model
-        # Create output directory if it doesn't exist
-        # Define quantization configuration
-        # Load checkpoint
-        # Load state dict
-        # Measure original model size
-        # Measure quantized model size
-        # Prepare model for quantization
-        # Quantize
-        # Quantize model
-        # Save compression metrics
-        # Save quantized model
-        # Set model to evaluation mode
-        # Set optimal temperature and threshold
-    # Benchmark
-    # Create dummy input (batch_size=1, seq_len=128)
-    # Warm up
+# Benchmark original model
+# Benchmark quantized model
+# Calculate speedup
+# Check if input model exists
+# Create model
+# Create output directory if it doesn't exist
+# Define quantization configuration
+# Load checkpoint
+# Load state dict
+# Measure original model size
+# Measure quantized model size
+# Prepare model for quantization
+# Quantize
+# Quantize model
+# Save compression metrics
+# Save quantized model
+# Set model to evaluation mode
+# Set optimal temperature and threshold
+# Benchmark
+# Create dummy input (batch_size=1, seq_len=128)
+# Warm up
 # Add src to path
 # Configure logging
 # Constants
@@ -31,8 +31,6 @@ import sys
 import time
 import torch
 import torch.quantization
-
-
 
 
 """

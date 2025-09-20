@@ -1,5 +1,4 @@
-"""
-SAMO Whisper Model Management Module
+"""SAMO Whisper Model Management Module
 
 This module handles Whisper model loading, caching, and management
 with robust error handling and cache corruption detection.
@@ -8,7 +7,7 @@ with robust error handling and cache corruption detection.
 import logging
 import os
 import shutil
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import whisper
 
 from .whisper_audio_preprocessor import AudioPreprocessor
@@ -27,38 +26,30 @@ class WhisperModelManager:
 
     def load_model(self) -> None:
         """Load Whisper model with cache corruption handling."""
-        logger.info(
-            "Initializing SAMO Whisper %s model...",
-            self.config.model_size
-        )
+        logger.info("Initializing SAMO Whisper %s model...", self.config.model_size)
         logger.info("Device: %s", self.device)
 
         try:
             # Use cache directory from environment or create a local one
-            cache_dir = os.environ.get(
-                'HF_HOME', os.path.expanduser('~/.cache/whisper')
-            )
+            cache_dir = os.environ.get("HF_HOME", os.path.expanduser("~/.cache/whisper"))
             os.makedirs(cache_dir, exist_ok=True)
 
             def is_model_corrupted(cache_dir, model_size):
                 """Check for expected model files and their integrity."""
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
-                return not (
-                    os.path.isfile(model_file) and os.path.getsize(model_file) > 0
-                )
+                return not (os.path.isfile(model_file) and os.path.getsize(model_file) > 0)
 
             try:
                 if is_model_corrupted(cache_dir, self.config.model_size):
                     logger.warning(
                         "Detected corrupted or missing model files in cache. "
-                        "Clearing cache directory: %s", cache_dir
+                        "Clearing cache directory: %s",
+                        cache_dir,
                     )
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size,
-                    device=self.device,
-                    download_root=cache_dir
+                    self.config.model_size, device=self.device, download_root=cache_dir
                 )
             except Exception:
                 logger.error(
@@ -68,14 +59,9 @@ class WhisperModelManager:
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size,
-                    device=self.device,
-                    download_root=cache_dir
+                    self.config.model_size, device=self.device, download_root=cache_dir
                 )
-            logger.info(
-                "✅ SAMO Whisper %s model loaded successfully",
-                self.config.model_size
-            )
+            logger.info("✅ SAMO Whisper %s model loaded successfully", self.config.model_size)
 
         except Exception as e:
             logger.error("❌ Failed to load Whisper model: %s", e)

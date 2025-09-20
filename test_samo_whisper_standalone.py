@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Standalone test for SAMO Whisper Transcription Model
+"""Standalone test for SAMO Whisper Transcription Model
 
 This script tests the Whisper transcription model independently
 to ensure it works correctly before integration.
@@ -22,6 +21,7 @@ from models.voice_processing.samo_whisper_transcriber import create_samo_whisper
 
 logger = logging.getLogger(__name__)
 
+
 def test_audio_files():
     """Test available audio files."""
     # Note: These are hardcoded for standalone testing
@@ -30,7 +30,7 @@ def test_audio_files():
         "american_sample.wav",
         "french_sample.wav",
         "interview_audio.wav",
-        "test_audio.wav"
+        "test_audio.wav",
     ]
 
     available_audio = []
@@ -53,7 +53,7 @@ def test_single_transcription(transcriber, audio_file, file_num, expected_langua
         result = transcriber.transcribe(audio_file)
 
         print("   ✅ Transcription successful!")
-        text_preview = result.text[:100] + ('...' if len(result.text) > 100 else '')
+        text_preview = result.text[:100] + ("..." if len(result.text) > 100 else "")
         print(f"   Text: {text_preview}")
         print(f"   Language: {result.language}")
         print(f"   Confidence: {result.confidence:.3f}")
@@ -98,7 +98,6 @@ def test_silence_detection(transcriber):
     """Test silence detection with silent audio."""
     print("\n6. Testing silence detection...")
 
-
     # Generate 2 seconds of silence at 16kHz
     silent_wav_path = "silent_test.wav"
     sr = 16000
@@ -115,9 +114,10 @@ def test_silence_detection(transcriber):
         print(f"   No speech probability: {result.no_speech_probability:.3f}")
         print(f"   Audio quality: {result.audio_quality}")
 
-
         # Assert high no speech probability for silence
-        assert result.no_speech_probability > 0.5, f"No speech probability should be high for silence, got {result.no_speech_probability:.3f}"
+        assert result.no_speech_probability > 0.5, (
+            f"No speech probability should be high for silence, got {result.no_speech_probability:.3f}"
+        )
         print("   ✅ Silence detection test passed")
 
     except Exception as e:
@@ -161,13 +161,17 @@ def test_multilingual_language_detection(transcriber):
 
                 print(f"   Detected language: {detected_language}")
                 print(f"   Confidence: {confidence:.3f}")
-                print(f"   Text preview: {result.text[:100]}{'...' if len(result.text) > 100 else ''}")
+                print(
+                    f"   Text preview: {result.text[:100]}{'...' if len(result.text) > 100 else ''}"
+                )
 
                 if detected_language == expected_language:
                     print(f"   ✅ Language detection correct: {detected_language}")
                     successful_detections += 1
                 else:
-                    print(f"   ❌ Language detection incorrect: expected {expected_language}, got {detected_language}")
+                    print(
+                        f"   ❌ Language detection incorrect: expected {expected_language}, got {detected_language}"
+                    )
 
             except Exception as e:
                 print(f"   ❌ Transcription failed: {e}")
@@ -176,7 +180,9 @@ def test_multilingual_language_detection(transcriber):
 
     if total_tests > 0:
         accuracy = (successful_detections / total_tests) * 100
-        print(f"\n   Language detection accuracy: {successful_detections}/{total_tests} ({accuracy:.1f}%)")
+        print(
+            f"\n   Language detection accuracy: {successful_detections}/{total_tests} ({accuracy:.1f}%)"
+        )
 
         if accuracy >= 90:
             print("   ✅ Language detection accuracy meets target (≥90%)")
@@ -251,6 +257,7 @@ def test_samo_whisper_transcriber():
         logger.exception("Test failed")
         print(f"\n❌ Test failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = test_samo_whisper_transcriber()

@@ -1,15 +1,15 @@
-        # Get predictions
-        # Process labels
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Create model
-    # Create tokenizer
-    # Load checkpoint
-    # Load model
-    # Load validation data
-    # Process validation data
-    # Set optimal temperature
+# Get predictions
+# Process labels
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Create model
+# Create tokenizer
+# Load checkpoint
+# Load model
+# Load validation data
+# Process validation data
+# Set optimal temperature
 # Add src to path
 # Configure logging
 # Constants
@@ -23,8 +23,6 @@ import logging
 import os
 import sys
 import torch
-
-
 
 
 """

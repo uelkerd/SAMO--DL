@@ -20,27 +20,28 @@ from transformers import (
     AutoModelForSequenceClassification,
     TrainingArguments,
     Trainer,
-    EarlyStoppingCallback
+    EarlyStoppingCallback,
 )
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import f1_score, accuracy_score
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 print("🚀 FINAL EXPANDED DATASET TRAINING")
 print("=" * 50)
 
 # Load expanded dataset
 print("📊 Loading expanded dataset...")
-with open('data/expanded_journal_dataset.json', 'r') as f:
+with open("data/expanded_journal_dataset.json") as f:
     expanded_data = json.load(f)
 
 print(f"✅ Loaded {len(expanded_data)} expanded samples")
 
 # Prepare data
-texts = [item['content'] for item in expanded_data]
-emotions = [item['emotion'] for item in expanded_data]
+texts = [item["content"] for item in expanded_data]
+emotions = [item["emotion"] for item in expanded_data]
 
 # Encode labels
 label_encoder = LabelEncoder()
@@ -57,6 +58,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 print(f"📈 Training samples: {len(X_train)}")
 print(f"🧪 Test samples: {len(X_test)}")
+
 
 # Create dataset class
 class EmotionDataset(Dataset):
@@ -76,25 +78,24 @@ class EmotionDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            "input_ids": encoding["input_ids"].flatten(),
+            "attention_mask": encoding["attention_mask"].flatten(),
+            "labels": torch.tensor(label, dtype=torch.long),
         }
+
 
 # Initialize tokenizer and model
 print("🔧 Initializing model...")
 model_name = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(
-    model_name,
-    num_labels=num_labels,
-    problem_type="single_label_classification"
+    model_name, num_labels=num_labels, problem_type="single_label_classification"
 )
 
 # Create datasets
@@ -124,18 +125,17 @@ training_args = TrainingArguments(
     report_to=None,  # Disable wandb
 )
 
+
 # Custom compute_metrics function
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
 
-    f1 = f1_score(labels, predictions, average='weighted')
+    f1 = f1_score(labels, predictions, average="weighted")
     accuracy = accuracy_score(labels, predictions)
 
-    return {
-        'f1': f1,
-        'accuracy': accuracy
-    }
+    return {"f1": f1, "accuracy": accuracy}
+
 
 # Initialize trainer
 trainer = Trainer(
@@ -144,7 +144,7 @@ trainer = Trainer(
     train_dataset=train_dataset,
     eval_dataset=test_dataset,
     compute_metrics=compute_metrics,
-    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
+    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
 )
 
 # Train the model
@@ -154,9 +154,9 @@ trainer.train()
 # Evaluate on test set
 print("🧪 Evaluating model...")
 results = trainer.evaluate()
-print(f"📊 Final Results:")
-print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.1f}%)")
-print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.1f}%)")
+print("📊 Final Results:")
+print(f"   F1 Score: {results['eval_f1']:.4f} ({results['eval_f1'] * 100:.1f}%)")
+print(f"   Accuracy: {results['eval_accuracy']:.4f} ({results['eval_accuracy'] * 100:.1f}%)")
 
 # Save the model
 print("💾 Saving model...")
@@ -177,11 +177,23 @@ test_samples = [
     "I feel calm and peaceful right now.",
     "I'm hopeful that things will get better.",
     "I'm tired and need some rest.",
-    "I'm content with how things are going."
+    "I'm content with how things are going.",
 ]
 
-expected_emotions = ['happy', 'frustrated', 'anxious', 'grateful', 'overwhelmed',
-                    'proud', 'sad', 'excited', 'calm', 'hopeful', 'tired', 'content']
+expected_emotions = [
+    "happy",
+    "frustrated",
+    "anxious",
+    "grateful",
+    "overwhelmed",
+    "proud",
+    "sad",
+    "excited",
+    "calm",
+    "hopeful",
+    "tired",
+    "content",
+]
 
 print("📊 Testing Results:")
 print("=" * 80)
@@ -189,7 +201,7 @@ print("=" * 80)
 correct_predictions = 0
 for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     # Tokenize
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True, max_length=128)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
 
     # Predict
     with torch.no_grad():
@@ -213,25 +225,25 @@ for i, (text, expected) in enumerate(zip(test_samples, expected_emotions), 1):
     print(f"   Predicted: {predicted_emotion} (confidence: {confidence:.3f})")
     print(f"   Expected: {expected}")
     print(f"   {'✅ CORRECT' if is_correct else '❌ WRONG'}")
-    print(f"   Top 3 predictions:")
+    print("   Top 3 predictions:")
     for emotion, prob in zip(top_3_emotions, top_3_probs):
         print(f"     - {emotion}: {prob:.3f}")
     print()
 
 test_accuracy = correct_predictions / len(test_samples)
-final_f1 = results['eval_f1']
+final_f1 = results["eval_f1"]
 
-print(f"\n📈 FINAL RESULTS:")
+print("\n📈 FINAL RESULTS:")
 print(f"   Test Accuracy: {test_accuracy:.2%} ({correct_predictions}/{len(test_samples)})")
-print(f"   F1 Score: {final_f1:.4f} ({final_f1*100:.1f}%)")
+print(f"   F1 Score: {final_f1:.4f} ({final_f1 * 100:.1f}%)")
 print(f"   Target Achieved: {'✅ YES!' if final_f1 >= 0.75 else '❌ Not yet'}")
 
 if final_f1 >= 0.75:
-    print(f"\n🎉 SUCCESS! Model achieved {final_f1*100:.1f}% F1 score!")
-    print(f"🚀 Ready for production deployment!")
+    print(f"\n🎉 SUCCESS! Model achieved {final_f1 * 100:.1f}% F1 score!")
+    print("🚀 Ready for production deployment!")
 else:
-    print(f"\n📈 Good progress! Current F1: {final_f1*100:.1f}%")
-    print(f"💡 Consider: more data, hyperparameter tuning, or different model architecture")
+    print(f"\n📈 Good progress! Current F1: {final_f1 * 100:.1f}%")
+    print("💡 Consider: more data, hyperparameter tuning, or different model architecture")
 
-print(f"\n💾 Model saved to: ./best_emotion_model_final")
-print(f"📊 Training completed successfully!")
+print("\n💾 Model saved to: ./best_emotion_model_final")
+print("📊 Training completed successfully!")

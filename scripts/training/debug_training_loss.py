@@ -37,7 +37,7 @@ def debug_data_loading():
             model_name="bert-base-uncased",
             batch_size=4,  # Small batch for debugging
             num_epochs=1,
-            dev_mode=True
+            dev_mode=True,
         )
 
         datasets = trainer.prepare_data(dev_mode=True)
@@ -73,14 +73,18 @@ def debug_data_loading():
 
             # Check for extreme values
             if labels.max() > 1.0 or labels.min() < 0.0:
-                logger.warning(f"⚠️ Labels outside [0,1] range: min={labels.min().item()}, max={labels.max().item()}")
+                logger.warning(
+                    f"⚠️ Labels outside [0,1] range: min={labels.min().item()}, max={labels.max().item()}"
+                )
 
             # Check label distribution per class
             for class_idx in range(labels.shape[1]):
                 class_labels = labels[:, class_idx]
                 positive_count = (class_labels > 0).sum().item()
                 total_count = class_labels.numel()
-                logger.info(f"   Class {class_idx}: {positive_count}/{total_count} positive ({positive_count/total_count:.2%})")
+                logger.info(
+                    f"   Class {class_idx}: {positive_count}/{total_count} positive ({positive_count / total_count:.2%})"
+                )
 
         return True
 
@@ -95,10 +99,7 @@ def debug_model_outputs(datasets):
 
     try:
         trainer = EmotionDetectionTrainer(
-            model_name="bert-base-uncased",
-            batch_size=4,
-            num_epochs=1,
-            dev_mode=True
+            model_name="bert-base-uncased", batch_size=4, num_epochs=1, dev_mode=True
         )
 
         # Initialize trainer and model
@@ -131,7 +132,9 @@ def debug_model_outputs(datasets):
 
         # Check for extreme values
         if predictions.max() > 0.999 or predictions.min() < 0.001:
-            logger.warning(f"⚠️ Predictions near extremes: min={predictions.min().item():.4f}, max={predictions.max().item():.4f}")
+            logger.warning(
+                f"⚠️ Predictions near extremes: min={predictions.min().item():.4f}, max={predictions.max().item():.4f}"
+            )
 
         # Examine first batch
         logger.info("📋 First batch details:")
@@ -161,8 +164,8 @@ def debug_loss_calculation(logits, predictions, labels):
         epsilon = 1e-7
         predictions_clipped = torch.clamp(predictions, epsilon, 1 - epsilon)
         manual_loss = -torch.mean(
-            labels * torch.log(predictions_clipped) +
-            (1 - labels) * torch.log(1 - predictions_clipped)
+            labels * torch.log(predictions_clipped)
+            + (1 - labels) * torch.log(1 - predictions_clipped)
         )
         logger.info(f"📊 Manual BCE Loss: {manual_loss.item():.6f}")
 
@@ -186,8 +189,7 @@ def debug_loss_calculation(logits, predictions, labels):
         # 6. Test with small epsilon
         predictions_eps = torch.clamp(predictions, 1e-10, 1 - 1e-10)
         loss_eps = -torch.mean(
-            labels * torch.log(predictions_eps) +
-            (1 - labels) * torch.log(1 - predictions_eps)
+            labels * torch.log(predictions_eps) + (1 - labels) * torch.log(1 - predictions_eps)
         )
         logger.info(f"📊 Loss with epsilon: {loss_eps.item():.6f}")
 
@@ -222,10 +224,14 @@ def debug_class_weights():
 
         # Calculate weights
         total_samples = len(train_data)
-        class_weights = total_samples / (num_classes * class_counts + 1)  # Add 1 to avoid division by zero
+        class_weights = total_samples / (
+            num_classes * class_counts + 1
+        )  # Add 1 to avoid division by zero
 
         logger.info(f"📊 First 10 class weights: {class_weights[:10].tolist()}")
-        logger.info(f"📊 Weight range: {class_weights.min().item():.2f} - {class_weights.max().item():.2f}")
+        logger.info(
+            f"📊 Weight range: {class_weights.min().item():.2f} - {class_weights.max().item():.2f}"
+        )
 
         return True
 
@@ -248,10 +254,7 @@ def main():
 
     # Debug model outputs
     trainer = EmotionDetectionTrainer(
-        model_name="bert-base-uncased",
-        batch_size=4,
-        num_epochs=1,
-        dev_mode=True
+        model_name="bert-base-uncased", batch_size=4, num_epochs=1, dev_mode=True
     )
     datasets = trainer.prepare_data(dev_mode=True)
 

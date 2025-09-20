@@ -13,13 +13,14 @@ import sys
 import subprocess
 import warnings
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
+
 
 def run_command(command, description):
     """Run a command and return success status."""
     print(f"🔧 {description}...")
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, check=False, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
             print(f"✅ {description} successful")
             return True, result.stdout
@@ -29,6 +30,7 @@ def run_command(command, description):
     except Exception as e:
         print(f"❌ {description} failed: {e}")
         return False, str(e)
+
 
 def check_python_version():
     """Check Python version compatibility."""
@@ -43,16 +45,18 @@ def check_python_version():
         print("❌ Python version may be incompatible (recommend 3.8+)")
         return False
 
+
 def check_gpu_availability():
     """Check GPU availability and CUDA compatibility."""
     print("🖥️ Checking GPU availability...")
 
     try:
         import torch
+
         print(f"PyTorch version: {torch.__version__}")
 
         if torch.cuda.is_available():
-            print(f"✅ CUDA available")
+            print("✅ CUDA available")
             print(f"GPU: {torch.cuda.get_device_name(0)}")
             print(f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
             print(f"CUDA version: {torch.version.cuda}")
@@ -64,12 +68,14 @@ def check_gpu_availability():
         print("❌ PyTorch not installed")
         return False
 
+
 def check_pytorch_installation():
     """Check PyTorch installation and compatibility."""
     print("🔍 Checking PyTorch installation...")
 
     try:
         import torch
+
         print(f"PyTorch: {torch.__version__}")
 
         # Test basic operations
@@ -90,16 +96,19 @@ def check_pytorch_installation():
         print(f"❌ PyTorch test failed: {e}")
         return False
 
+
 def check_transformers_installation():
     """Check Transformers installation and compatibility."""
     print("🤗 Checking Transformers installation...")
 
     try:
         import transformers
+
         print(f"Transformers: {transformers.__version__}")
 
         # Test basic imports
         from transformers import AutoModel, AutoTokenizer
+
         print("✅ Transformers imports successful")
 
         # Test model loading
@@ -112,6 +121,7 @@ def check_transformers_installation():
         print(f"❌ Transformers test failed: {e}")
         return False
 
+
 def check_triton_compatibility():
     """Check Triton compatibility (common source of errors)."""
     print("🔧 Checking Triton compatibility...")
@@ -120,7 +130,7 @@ def check_triton_compatibility():
         import torch
 
         # Check if Triton is available
-        if hasattr(torch, 'sparse') and hasattr(torch.sparse, '_triton_ops_meta'):
+        if hasattr(torch, "sparse") and hasattr(torch.sparse, "_triton_ops_meta"):
             print("✅ Triton ops available")
             return True
         else:
@@ -129,6 +139,7 @@ def check_triton_compatibility():
             # Try to import triton directly
             try:
                 import triton
+
                 print(f"Triton version: {triton.__version__}")
                 return True
             except ImportError:
@@ -138,14 +149,14 @@ def check_triton_compatibility():
         print(f"❌ Triton check failed: {e}")
         return False
 
+
 def fix_pytorch_installation():
     """Fix PyTorch installation issues."""
     print("🔧 Fixing PyTorch installation...")
 
     # Uninstall existing PyTorch
     success, _ = run_command(
-        "pip uninstall torch torchvision torchaudio -y",
-        "Uninstalling existing PyTorch"
+        "pip uninstall torch torchvision torchaudio -y", "Uninstalling existing PyTorch"
     )
 
     if not success:
@@ -154,7 +165,7 @@ def fix_pytorch_installation():
     # Install compatible PyTorch
     success, _ = run_command(
         "pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118",
-        "Installing compatible PyTorch"
+        "Installing compatible PyTorch",
     )
 
     if success:
@@ -164,23 +175,20 @@ def fix_pytorch_installation():
         print("❌ PyTorch installation failed")
         return False
 
+
 def fix_transformers_installation():
     """Fix Transformers installation issues."""
     print("🔧 Fixing Transformers installation...")
 
     # Uninstall existing Transformers
-    success, _ = run_command(
-        "pip uninstall transformers -y",
-        "Uninstalling existing Transformers"
-    )
+    success, _ = run_command("pip uninstall transformers -y", "Uninstalling existing Transformers")
 
     if not success:
         print("⚠️ Failed to uninstall Transformers")
 
     # Install compatible Transformers
     success, _ = run_command(
-        "pip install transformers==4.30.0",
-        "Installing compatible Transformers"
+        "pip install transformers==4.30.0", "Installing compatible Transformers"
     )
 
     if success:
@@ -189,6 +197,7 @@ def fix_transformers_installation():
     else:
         print("❌ Transformers installation failed")
         return False
+
 
 def test_model_initialization():
     """Test model initialization to catch common errors."""
@@ -222,8 +231,10 @@ def test_model_initialization():
     except Exception as e:
         print(f"❌ Model initialization failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def check_dataset_loading():
     """Check dataset loading capabilities."""
@@ -238,7 +249,8 @@ def check_dataset_loading():
 
         # Test journal dataset
         import json
-        with open('data/journal_test_dataset.json', 'r') as f:
+
+        with open("data/journal_test_dataset.json") as f:
             journal_data = json.load(f)
         print(f"✅ Journal dataset loaded: {len(journal_data)} samples")
 
@@ -246,6 +258,7 @@ def check_dataset_loading():
     except Exception as e:
         print(f"❌ Dataset loading failed: {e}")
         return False
+
 
 def generate_compatibility_report():
     """Generate a comprehensive compatibility report."""
@@ -258,12 +271,12 @@ def generate_compatibility_report():
         "transformers_working": check_transformers_installation(),
         "triton_compatible": check_triton_compatibility(),
         "model_initialization": test_model_initialization(),
-        "dataset_loading": check_dataset_loading()
+        "dataset_loading": check_dataset_loading(),
     }
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("COMPATIBILITY REPORT")
-    print("="*50)
+    print("=" * 50)
 
     for test, result in report.items():
         status = "✅ PASS" if result else "❌ FAIL"
@@ -283,14 +296,16 @@ def generate_compatibility_report():
 
     return report
 
+
 def main():
     """Main debugging function."""
     print("🚀 SAMO Deep Learning - Colab Compatibility Debug")
-    print("="*50)
+    print("=" * 50)
 
     # Check if we're in Colab
     try:
         import google.colab
+
         print("✅ Running in Google Colab")
     except ImportError:
         print("⚠️ Not running in Google Colab")
@@ -302,13 +317,13 @@ def main():
     if not report["pytorch_working"]:
         print("\n🔧 Would you like to fix PyTorch installation? (y/n)")
         response = input().lower()
-        if response == 'y':
+        if response == "y":
             fix_pytorch_installation()
 
     if not report["transformers_working"]:
         print("\n🔧 Would you like to fix Transformers installation? (y/n)")
         response = input().lower()
-        if response == 'y':
+        if response == "y":
             fix_transformers_installation()
 
     print("\n🎯 Debug complete!")
@@ -316,6 +331,7 @@ def main():
     print("  1. Restart Colab runtime")
     print("  2. Use the fixed notebook: domain_adaptation_gpu_training_fixed.ipynb")
     print("  3. Check the Colab GPU development guide")
+
 
 if __name__ == "__main__":
     main()

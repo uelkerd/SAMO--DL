@@ -19,12 +19,7 @@ import sys
 def run_command(cmd: list[str]) -> tuple[int, str, str]:
     """Run a command and return (returncode, stdout, stderr)."""
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         return result.returncode, result.stdout, result.stderr
     except Exception as e:
         return 1, "", str(e)
@@ -41,7 +36,7 @@ def get_git_stats(branch: str = "HEAD") -> tuple[int, int, list[str]]:
             print(f"❌ Error getting git stats: {stderr}")
             return 0, 0, []
 
-        files = [f for f in stdout.strip().split('\n') if f.strip()]
+        files = [f for f in stdout.strip().split("\n") if f.strip()]
         num_files = len(files)
 
         # Get lines changed
@@ -53,19 +48,19 @@ def get_git_stats(branch: str = "HEAD") -> tuple[int, int, list[str]]:
             return num_files, 0, files
 
         # Parse the last line of git diff --stat
-        lines = stdout.strip().split('\n')
-        if lines and 'changed' in lines[-1]:
+        lines = stdout.strip().split("\n")
+        if lines and "changed" in lines[-1]:
             # Extract numbers from "X insertions(+), Y deletions(-)"
             stat_line = lines[-1]
             insertions = 0
             deletions = 0
 
-            if 'insertions' in stat_line:
-                insertions_part = stat_line.split('insertions')[0].strip().split()[-1]
+            if "insertions" in stat_line:
+                insertions_part = stat_line.split("insertions")[0].strip().split()[-1]
                 insertions = int(insertions_part) if insertions_part.isdigit() else 0
 
-            if 'deletions' in stat_line:
-                deletions_part = stat_line.split('deletions')[0].strip().split()[-1]
+            if "deletions" in stat_line:
+                deletions_part = stat_line.split("deletions")[0].strip().split()[-1]
                 deletions = int(deletions_part) if deletions_part.isdigit() else 0
 
             lines_changed = insertions + deletions
@@ -91,14 +86,15 @@ def check_branch_name_quality() -> bool:
 
         # Check for good branch naming patterns
         good_patterns = [
-            r'^feat/dl-',      # feat/dl-feature-name
-            r'^fix/dl-',       # fix/dl-issue-name
-            r'^refactor/dl-',  # refactor/dl-component-name
-            r'^main$',         # main branch
-            r'^develop$',      # develop branch
+            r"^feat/dl-",  # feat/dl-feature-name
+            r"^fix/dl-",  # fix/dl-issue-name
+            r"^refactor/dl-",  # refactor/dl-component-name
+            r"^main$",  # main branch
+            r"^develop$",  # develop branch
         ]
 
         import re
+
         for pattern in good_patterns:
             if re.match(pattern, branch_name):
                 print(f"✅ Branch name '{branch_name}' follows convention")
@@ -159,16 +155,16 @@ def main() -> int:
     print("\n🎯 Checking single purpose...")
     file_types = set()
     for file in files:
-        if file.endswith('.py'):
-            file_types.add('python')
-        elif file.endswith('.md'):
-            file_types.add('documentation')
-        elif file.endswith('.yml') or file.endswith('.yaml'):
-            file_types.add('configuration')
-        elif file.endswith('.json'):
-            file_types.add('data')
-        elif file.startswith('tests/'):
-            file_types.add('tests')
+        if file.endswith(".py"):
+            file_types.add("python")
+        elif file.endswith(".md"):
+            file_types.add("documentation")
+        elif file.endswith(".yml") or file.endswith(".yaml"):
+            file_types.add("configuration")
+        elif file.endswith(".json"):
+            file_types.add("data")
+        elif file.startswith("tests/"):
+            file_types.add("tests")
 
     if len(file_types) > 3:
         print(f"⚠️  Multiple file types detected: {', '.join(file_types)}")

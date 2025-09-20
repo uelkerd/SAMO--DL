@@ -1,8 +1,8 @@
-        # Create trainer
-        # Load trained model
-        # Prepare data and model
-        # Success criteria
-        # Test different thresholds with fixed evaluation
+# Create trainer
+# Load trained model
+# Prepare data and model
+# Success criteria
+# Test different thresholds with fixed evaluation
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -12,8 +12,6 @@ from pathlib import Path
 import logging
 import sys
 import torch
-
-
 
 
 """Test Fixed Evaluation Function.

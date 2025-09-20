@@ -9,9 +9,10 @@ refill, history, and block status to help diagnose rate-limit behavior.
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+
+from src.api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
 
 
 def debug_rate_limiter():
@@ -22,9 +23,7 @@ def debug_rate_limiter():
     # Create config with minimal settings (same as test)
     config = RateLimitConfig(requests_per_minute=1, burst_size=1)
     print(
-        "Config: requests_per_minute="
-        f"{config.requests_per_minute}, "
-        f"burst_size={config.burst_size}"
+        f"Config: requests_per_minute={config.requests_per_minute}, burst_size={config.burst_size}"
     )
 
     rate_limiter = TokenBucketRateLimiter(config)
@@ -49,10 +48,7 @@ def debug_rate_limiter():
     print(f"Buckets after second request: {rate_limiter.buckets}")
 
     # Check what's in the bucket for this client
-    client_key = (
-        meta1.get("client_key")
-        or rate_limiter._get_client_key(client_ip, user_agent)
-    )
+    client_key = meta1.get("client_key") or rate_limiter._get_client_key(client_ip, user_agent)
     print(f"\n🔑 Client key: {client_key}")
     print(f"Bucket value for client: {rate_limiter.buckets[client_key]}")
     print(f"Last refill time for client: {rate_limiter.last_refill[client_key]}")

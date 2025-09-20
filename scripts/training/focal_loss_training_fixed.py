@@ -1,25 +1,25 @@
-            # Backward pass
-            # Forward pass
-            # Log progress every 100 batches
-        # Apply alpha weighting
-        # Apply reduction
-        # Apply sigmoid to get probabilities
-        # Calculate binary cross entropy
-        # Calculate focal loss components
-        # Combine all components
-        # Log progress
-        # Save best model
-        # Training phase
-        # Validation phase
-    # Create data loaders
-    # Create focal loss
-    # Create model
-    # Load dataset using existing loader
-    # Run training
-    # Save final model
-    # Setup device
-    # Setup optimizer
-    # Training loop
+# Backward pass
+# Forward pass
+# Log progress every 100 batches
+# Apply alpha weighting
+# Apply reduction
+# Apply sigmoid to get probabilities
+# Calculate binary cross entropy
+# Calculate focal loss components
+# Combine all components
+# Log progress
+# Save best model
+# Training phase
+# Validation phase
+# Create data loaders
+# Create focal loss
+# Create model
+# Load dataset using existing loader
+# Run training
+# Save final model
+# Setup device
+# Setup optimizer
+# Training loop
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -32,8 +32,6 @@ import logging
 import sys
 import torch
 import torch.nn.functional as F
-
-
 
 
 """
@@ -182,9 +180,7 @@ def train_with_focal_loss(
             num_batches += 1
 
             if (batch_idx + 1) % 100 == 0:
-                logger.info(
-                    "   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}"
-                )
+                logger.info("   Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}")
 
         avg_train_loss = train_loss / num_batches
 

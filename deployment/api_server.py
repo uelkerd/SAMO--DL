@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 EMOTION DETECTION API SERVER
+"""🚀 EMOTION DETECTION API SERVER
 ===============================
 REST API server for emotion detection with comprehensive security headers.
 """
@@ -24,9 +23,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Initialize security headers middleware
-security_middleware = setup_security_middleware(
-    app, os.environ.get("FLASK_ENV", "development")
-)
+security_middleware = setup_security_middleware(app, os.environ.get("FLASK_ENV", "development"))
 
 # Initialize emotion detector
 try:
@@ -101,9 +98,10 @@ def predict_batch():
 
     except Exception as e:
         logger.error(f"Batch prediction error: {e}", exc_info=True)
-        return jsonify(
-            {"error": "An internal error occurred during batch prediction."}
-        ), 500
+        return (
+            jsonify({"error": "An internal error occurred during batch prediction."}),
+            500,
+        )
 
 
 @app.route("/emotions", methods=["GET"])
@@ -143,7 +141,7 @@ if __name__ == "__main__":
     from src.security.host_binding import (
         get_secure_host_binding,
         validate_host_binding,
-        get_binding_security_summary
+        get_binding_security_summary,
     )
 
     host, port = get_secure_host_binding(default_port=port)

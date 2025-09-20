@@ -12,8 +12,7 @@ try:
     from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 except ImportError as e:
     raise RuntimeError(
-        f"Failed to import BERTEmotionClassifier: {e}. "
-        "Make sure all dependencies are installed."
+        f"Failed to import BERTEmotionClassifier: {e}. Make sure all dependencies are installed."
     )
 
 
@@ -99,7 +98,7 @@ class TestBertEmotionClassifier:
             mock_tokenizer_instance = MagicMock()
             mock_tokenizer_instance.return_value = {
                 "input_ids": torch.tensor([[1, 2, 3, 0]]),  # [batch, seq_len]
-                "attention_mask": torch.tensor([[1, 1, 1, 0]])  # [batch, seq_len]
+                "attention_mask": torch.tensor([[1, 1, 1, 0]]),  # [batch, seq_len]
             }
             mock_tokenizer.return_value = mock_tokenizer_instance
 

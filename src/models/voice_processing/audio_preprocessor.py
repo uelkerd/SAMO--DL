@@ -7,7 +7,6 @@ import logging
 import tempfile
 
 
-
 """Audio Preprocessing for SAMO Voice Processing.
 
 This module provides audio format handling and preprocessing functionality
@@ -54,7 +53,10 @@ class AudioPreprocessor:
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return (
+                    False,
+                    f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
+                )
 
             if duration < 0.1:  # Too short
                 return False, f"Audio too short: {duration:.1f}s"
@@ -103,7 +105,7 @@ class AudioPreprocessor:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
                 f"Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz",
-                extra={"format_args": True}
+                extra={"format_args": True},
             )
 
         audio = audio.normalize()

@@ -27,7 +27,6 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
 
-    pass
 
 
 # Junction table for many-to-many relationship between journal entries and tags
@@ -131,8 +130,7 @@ class Embedding(Base):
     journal_entry = relationship("JournalEntry", back_populates="embeddings")
 
     def __repr__(self) -> str:
-        return f"<Embedding(id='{self.id}', journal_entry_id='{self.journal_entry_id}',
-            model_name='{self.model_name}')>"
+        return f"<Embedding(id='{self.id}', journal_entry_id='{self.journal_entry_id}', model_name='{self.model_name}')>"
 
 
 class Prediction(Base):
@@ -159,8 +157,7 @@ class Prediction(Base):
     journal_entry = relationship("JournalEntry", back_populates="predictions")
 
     def __repr__(self) -> str:
-        return f"<Prediction(id='{self.id}', prediction_type='{self.prediction_type}',
-            confidence_score={self.confidence_score})>"
+        return f"<Prediction(id='{self.id}', prediction_type='{self.prediction_type}', confidence_score={self.confidence_score})>"
 
 
 class VoiceTranscription(Base):
@@ -187,8 +184,7 @@ class VoiceTranscription(Base):
     journal_entry = relationship("JournalEntry", back_populates="voice_transcriptions")
 
     def __repr__(self) -> str:
-        return f"<VoiceTranscription(id='{self.id}',
-            transcription_text='{self.transcription_text[:50]}...')>"
+        return f"<VoiceTranscription(id='{self.id}', transcription_text='{self.transcription_text[:50]}...')>"
 
 
 class Tag(Base):
