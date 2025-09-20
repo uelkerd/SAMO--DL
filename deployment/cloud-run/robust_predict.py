@@ -91,7 +91,10 @@ def load_model():
     finally:
         # Update flags under lock to prevent race conditions
         with model_lock:
-            if 'emotion_mapping' in locals() and emotion_mapping is not None:
+            # Verify that both model and tokenizer are present and non-None
+            if ('model' in locals() and model is not None and
+                'tokenizer' in locals() and tokenizer is not None and
+                'emotion_mapping' in locals() and emotion_mapping is not None):
                 model_loaded = True
             model_loading = False
 
