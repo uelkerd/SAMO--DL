@@ -224,8 +224,7 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.
-                warning("Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
             return df
 
         try:

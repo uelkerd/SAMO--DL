@@ -40,9 +40,7 @@ class TranscriptionAPI:
     """
 
     def __init__(
-        self, model_size: str = (
-            "base", language: Optional[str] = None, device: Optional[str] = None
-        )
+        self, model_size: str = "base", language: Optional[str] = None, device: Optional[str] = None
     ) -> None:
         """Initialize TranscriptionAPI with whisper model.
 

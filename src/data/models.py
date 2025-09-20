@@ -68,8 +68,7 @@ class User(Base):
     journal_entries = relationship(
         "JournalEntry", back_populates="user", cascade="all, delete-orphan"
     )
-    predictions = relationship("Prediction", back_populates="user", cascade="all,
-        delete-orphan")
+    predictions = relationship("Prediction", back_populates="user", cascade="all, delete-orphan")
     voice_transcriptions = relationship(
         "VoiceTranscription", back_populates="user", cascade="all, delete-orphan"
     )

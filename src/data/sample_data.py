@@ -67,8 +67,7 @@ ENTRY_TEMPLATES = [
     "about my progress.",
     "{topic} has been on my mind. {additional_sentence} I'm feeling "
     "{emotion} about it.",
-    "I had an experience with {topic} today that left me feeling {emotion}.
-        {additional_sentence}",
+    "I had an experience with {topic} today that left me feeling {emotion}. {additional_sentence}",
     "I'm {emotion} about my {topic} situation. {additional_sentence}",
     "When it comes to {topic}, I'm feeling {emotion}. {additional_sentence}",
     "My thoughts on {topic} today: {additional_sentence} I feel {emotion}.",

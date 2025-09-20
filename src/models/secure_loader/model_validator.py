@@ -96,8 +96,7 @@ class ModelValidator:
             required_methods = ['forward', 'eval', 'train']
             for method in required_methods:
                 if not hasattr(model, method):
-                    validation_info['issues'].
-                        append(f"Missing required method: {method}")
+                    validation_info['issues'].append(f"Missing required method: {method}")
 
             is_valid = len(validation_info['issues']) == 0
             return is_valid, validation_info

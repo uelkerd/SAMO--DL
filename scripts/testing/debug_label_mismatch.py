@@ -61,9 +61,7 @@ def debug_label_mismatch():
 
         logger.info(f"📊 GoEmotions unique labels: {len(go_labels)}")
         logger.info(f"📊 GoEmotions labels: {sorted(list(go_labels))}")
-        logger.info(f"📊 GoEmotions label counts: "
-                   f"{dict(sorted(go_label_counts.items(), "
-                   f"key=lambda x: x[1], reverse=True)[:10])}")
+        logger.info(f"📊 GoEmotions label counts: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}")
 
         # Step 3: Analyze journal labels
         logger.info("🔍 Analyzing journal labels...")

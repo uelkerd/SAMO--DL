@@ -68,18 +68,16 @@ async def lifespan(app: FastAPI):
             device=None,  # Auto-detect device
         )
 
-        time.time() - start_time
+        load_time = time.time() - start_time
         logger.info(
-            "✅ Whisper model loaded successfully in {load_time:.
-                2f}s", extra={"format_args": True}
+            f"✅ Whisper model loaded successfully in {load_time:.2f}s", extra={"format_args": True}
         )
         logger.info(
-            "Model info: {whisper_transcriber.get_model_info()}",
-                extra={"format_args": True}
+            f"Model info: {whisper_transcriber.get_model_info()}", extra={"format_args": True}
         )
 
     except Exception:
-        logger.error("❌ Failed to load Whisper model: {exc}",
+        logger.error(f"❌ Failed to load Whisper model: {exc}",
             extra={"format_args": True})
         logger.info("⚠️  Running in development mode without Whisper model")
         whisper_transcriber = None  # Continue without model for development

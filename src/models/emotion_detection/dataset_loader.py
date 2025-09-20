@@ -92,8 +92,7 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(f"Initialized preprocessor with {model_name},
-            max_length={max_length}")
+        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.

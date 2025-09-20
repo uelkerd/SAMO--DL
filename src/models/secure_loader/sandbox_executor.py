@@ -91,8 +91,7 @@ class SandboxExecutor:
             resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024 * 1024,
                 1024 * 1024 * 1024))  # 1GB
 
-            logger.debug(f"Resource limits set: memory={self.max_memory_mb}MB,
-                cpu={self.max_cpu_time}s")
+            logger.debug(f"Resource limits set: memory={self.max_memory_mb}MB, cpu={self.max_cpu_time}s")
 
         except Exception as e:
             logger.error(f"Failed to set resource limits: {e}")

@@ -314,8 +314,7 @@ class MonitoringDashboard:
         if current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
             alerts.append({
                 "level": "critical",
-                "message": f"Low disk space: {100 - current_metrics.disk_percent:.
-                    1f}% free",
+                "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
                 "timestamp": current_metrics.timestamp
             })
 

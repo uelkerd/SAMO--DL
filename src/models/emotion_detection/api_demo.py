@@ -74,8 +74,7 @@ class EmotionRequest(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "text": "I'm feeling really excited about my new job and 
-                    grateful for the opportunity.",
+                "text": "I'm feeling really excited about my new job and grateful for the opportunity.",
                 "user_id": "user123",
                 "threshold": 0.5,
                 "top_k": 5,

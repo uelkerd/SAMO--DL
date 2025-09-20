@@ -253,8 +253,7 @@ class SecureModelLoader:
 
             # 1. Integrity check
             logger.info(f"Performing integrity check for {model_path}")
-            integrity_valid,
-                integrity_info = self.integrity_checker.comprehensive_validation(
+            integrity_valid, integrity_info = self.integrity_checker.comprehensive_validation(
                 model_path, expected_checksum
             )
             loading_info['integrity_check'] = integrity_info

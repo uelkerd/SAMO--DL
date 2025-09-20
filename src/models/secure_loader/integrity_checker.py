@@ -50,8 +50,7 @@ class IntegrityChecker:
         Returns:
             Dictionary mapping file paths to expected checksums
         """
-        if not self.trusted_checksums_file or 
-            not os.path.exists(self.trusted_checksums_file):
+        if not self.trusted_checksums_file or not os.path.exists(self.trusted_checksums_file):
             logger.warning("No trusted checksums file found, using empty trust store")
             return {}
 
