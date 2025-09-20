@@ -1,4 +1,4 @@
-    # Create a simple sine wave for testing
+# Create a simple sine wave for testing
 # Custom markers for test categorization
 # Skip GPU tests if CUDA not available
 from fastapi.testclient import TestClient
@@ -10,7 +10,6 @@ import os
 import pytest
 import tempfile
 import torch
-
 
 
 """
@@ -103,11 +102,11 @@ def cpu_device():
 def api_client():
     """Provide FastAPI test client."""
     client = TestClient(app)
-    
+
     # Reset rate limiter state before each test
-    if hasattr(app.state, 'rate_limiter'):
+    if hasattr(app.state, "rate_limiter"):
         app.state.rate_limiter.reset_state()
-    
+
     return client
 
 

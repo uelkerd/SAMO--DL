@@ -39,6 +39,7 @@ def simple_vertex_training():
         config_dir.mkdir(parents=True, exist_ok=True)
 
         import json
+
         with open(config_dir / "training_config.json", "w") as f:
             json.dump(config, f, indent=2)
 

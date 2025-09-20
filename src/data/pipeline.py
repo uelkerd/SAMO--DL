@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Data Pipeline for SAMO Deep Learning.
+"""Data Pipeline for SAMO Deep Learning.
 
 This module provides data processing pipelines for text and audio data,
 including preprocessing, feature extraction, and dataset management.
@@ -9,7 +8,7 @@ including preprocessing, feature extraction, and dataset management.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 import pandas as pd
 from .feature_engineering import FeatureEngineer
 from .validation import DataValidator
@@ -18,7 +17,7 @@ from .embeddings import (
     TfidfEmbedder,
     Word2VecEmbedder,
     FastTextEmbedder,
-    EmbeddingPipeline
+    EmbeddingPipeline,
 )
 from .loaders import load_entries_from_db, load_entries_from_json, load_entries_from_csv
 
@@ -46,7 +45,8 @@ class DataPipeline:
             preprocessor: Journal entry preprocessor
             validator: Data validator
             feature_engineer: Feature engineer
-            embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
+            embedding_method: Method for generating embeddings
+                ('tfid', 'word2vec', or 'fasttext')
 
         """
         self.preprocessor = preprocessor or JournalEntryPreprocessor()
@@ -60,7 +60,7 @@ class DataPipeline:
         elif embedding_method == "fasttext":
             embedder = FastTextEmbedder(vector_size=100)
         else:
-            logger.warning(f"Unknown embedding method '{embedding_method}'. Defaulting to TF-IDF.")
+            logger.warning("Unknown embedding method '%s'. Defaulting to TF-IDF.", embedding_method)
             embedder = TfidfEmbedder(max_features=1000)
 
         self.embedding_pipeline = EmbeddingPipeline(embedder)
@@ -79,7 +79,8 @@ class DataPipeline:
         """Run the complete data processing pipeline.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
+            data_source: Source of journal entries (DataFrame or path to
+                file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             output_dir: Directory to save output files
             user_id: Filter entries by user_id
@@ -163,7 +164,8 @@ class DataPipeline:
         """Load data from specified source.
 
         Args:
-            data_source: Source of journal entries (DataFrame or path to file/DB identifier)
+            data_source: Source of journal entries (DataFrame or path to
+                file/DB identifier)
             source_type: Type of data source ('db', 'json', 'csv', or 'dataframe')
             user_id: Filter entries by user_id
             limit: Maximum number of entries to process
@@ -180,7 +182,6 @@ class DataPipeline:
             return data_source
 
         if source_type == "db":
-            user_info = " for user {user_id}" if user_id else ""
             limit_info = " (limit: {limit})" if limit else ""
             logger.info("Loading data from database{user_info}{limit_info}")
             return load_entries_from_db(limit=limit, user_id=user_id)
@@ -223,7 +224,7 @@ class DataPipeline:
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         featured_df.to_csv(
             Path(output_dir, "journal_features_{timestamp}.csv").as_posix(),

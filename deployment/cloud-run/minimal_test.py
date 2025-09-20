@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate the API setup issue
-"""
+"""Minimal test to isolate the API setup issue"""
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+
+os.environ["ADMIN_API_KEY"] = "test123"
 
 print("🔍 Starting minimal API setup test...")
 
 try:
     print("1. Importing modules...")
     from flask import Flask
-    from flask_restx import Api, Resource, fields, Namespace
+    from flask_restx import Api, fields, Namespace
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Imports failed: {e}")
@@ -27,12 +27,7 @@ except Exception as e:
 
 try:
     print("3. Creating API object...")
-    api = Api(
-        app,
-        version='1.0.0',
-        title='Test API',
-        description='Test API'
-    )
+    api = Api(app, version="1.0.0", title="Test API", description="Test API")
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
@@ -40,7 +35,7 @@ except Exception as e:
 
 try:
     print("4. Creating namespace...")
-    test_ns = Namespace('test', description='Test namespace')
+    test_ns = Namespace("test", description="Test namespace")
     api.add_namespace(test_ns)
     print("✅ Namespace added")
 except Exception as e:
@@ -49,9 +44,7 @@ except Exception as e:
 
 try:
     print("5. Creating model...")
-    test_model = api.model('Test', {
-        'message': fields.String(description='Test message')
-    })
+    test_model = api.model("Test", {"message": fields.String(description="Test message")})
     print("✅ Model created")
 except Exception as e:
     print(f"❌ Model creation failed: {e}")
@@ -59,9 +52,11 @@ except Exception as e:
 
 try:
     print("6. Testing errorhandler...")
+
     @api.errorhandler(429)
     def test_handler(error):
         return {"error": "test"}, 429
+
     print("✅ Error handler created")
 except Exception as e:
     print(f"❌ Error handler creation failed: {e}")
@@ -69,4 +64,4 @@ except Exception as e:
     print(f"API errorhandler type: {type(api.errorhandler)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

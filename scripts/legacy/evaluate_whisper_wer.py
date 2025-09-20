@@ -70,11 +70,7 @@ def download_librispeech_sample(
             sf.write(audio_path, audio["array"], audio["sampling_rate"])
 
             # Store result
-            samples.append({
-                "audio_path": str(audio_path),
-                "reference_text": text,
-                "sample_id": i
-            })
+            samples.append({"audio_path": str(audio_path), "reference_text": text, "sample_id": i})
 
         logger.info(f"Downloaded {len(samples)} samples to {output_dir}")
         return samples
@@ -117,39 +113,43 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
             wer_score = jiwer.wer(reference, hypothesis)
 
             # Store result
-            results.append({
-                "sample_id": sample["sample_id"],
-                "reference": reference_text,
-                "hypothesis": transcription_result.text,
-                "wer": wer_score,
-                "processing_time": processing_time,
-                "language": transcription_result.language
-            })
+            results.append(
+                {
+                    "sample_id": sample["sample_id"],
+                    "reference": reference_text,
+                    "hypothesis": transcription_result.text,
+                    "wer": wer_score,
+                    "processing_time": processing_time,
+                    "language": transcription_result.language,
+                }
+            )
 
         except Exception as e:
             logger.warning(f"Failed to transcribe {audio_path}: {e}")
-            results.append({
-                "sample_id": sample["sample_id"],
-                "reference": reference_text,
-                "hypothesis": "",
-                "wer": 1.0,
-                "processing_time": 0.0,
-                "language": "unknown",
-                "error": str(e)
-            })
+            results.append(
+                {
+                    "sample_id": sample["sample_id"],
+                    "reference": reference_text,
+                    "hypothesis": "",
+                    "wer": 1.0,
+                    "processing_time": 0.0,
+                    "language": "unknown",
+                    "error": str(e),
+                }
+            )
 
     # Calculate metrics
     if results:
         avg_wer = sum(r["wer"] for r in results) / len(results)
         avg_time = total_time / len(results)
-        
+
         return {
             "model_size": model_size,
             "num_samples": len(results),
             "average_wer": avg_wer,
             "average_processing_time": avg_time,
             "total_processing_time": total_time,
-            "detailed_results": results
+            "detailed_results": results,
         }
     else:
         return {
@@ -158,34 +158,25 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
             "average_wer": 1.0,
             "average_processing_time": 0.0,
             "total_processing_time": 0.0,
-            "detailed_results": []
+            "detailed_results": [],
         }
 
 
 def main():
     """Main evaluation function."""
     parser = argparse.ArgumentParser(description="Evaluate Whisper WER on LibriSpeech")
+    parser.add_argument("--output-dir", type=str, help="Directory to save results and audio files")
     parser.add_argument(
-        "--output-dir", 
-        type=str, 
-        help="Directory to save results and audio files"
+        "--max-samples", type=int, default=50, help="Maximum number of samples to evaluate"
     )
     parser.add_argument(
-        "--max-samples", 
-        type=int, 
-        default=50, 
-        help="Maximum number of samples to evaluate"
+        "--model-size",
+        type=str,
+        default="base",
+        help="Whisper model size (tiny, base, small, medium, large)",
     )
     parser.add_argument(
-        "--model-size", 
-        type=str, 
-        default="base", 
-        help="Whisper model size (tiny, base, small, medium, large)"
-    )
-    parser.add_argument(
-        "--save-results", 
-        action="store_true", 
-        help="Save detailed results to JSON file"
+        "--save-results", action="store_true", help="Save detailed results to JSON file"
     )
 
     args = parser.parse_args()
@@ -198,10 +189,7 @@ def main():
         output_dir = None
 
     # Download or load LibriSpeech samples
-    samples = download_librispeech_sample(
-        output_dir=args.output_dir, 
-        max_samples=args.max_samples
-    )
+    samples = download_librispeech_sample(output_dir=args.output_dir, max_samples=args.max_samples)
 
     if not samples:
         logger.error("No samples available for evaluation")

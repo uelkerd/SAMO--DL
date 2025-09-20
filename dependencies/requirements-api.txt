@@ -42,3 +42,7 @@ transformers==4.55.0
 # Torch runtime (CPU by default; align with repo constraints)
 torch==2.8.0
 
+# Additional model dependencies
+sentencepiece>=0.1.99
+openai-whisper>=20231117
+

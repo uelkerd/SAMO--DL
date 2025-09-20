@@ -43,18 +43,18 @@ import redis
 
 class APIKeyManager:
     """Manages API key authentication and authorization."""
-    
+
     def __init__(self, redis_client: redis.Redis):
         self.redis = redis_client
         self.key_prefix = "api_key:"
         self.rotation_interval = 86400  # 24 hours
-    
+
     def generate_api_key(self, user_id: str, permissions: List[str]) -> str:
         """Generate a new API key for a user."""
         # Generate secure random key
         api_key = secrets.token_urlsafe(32)
         key_hash = hashlib.sha256(api_key.encode()).hexdigest()
-        
+
         # Store key metadata
         key_data = {
             "user_id": user_id,
@@ -63,34 +63,34 @@ class APIKeyManager:
             "last_used": None,
             "is_active": True
         }
-        
+
         # Store in Redis with expiration
         self.redis.setex(
             f"{self.key_prefix}{key_hash}",
             self.rotation_interval,
             str(key_data)
         )
-        
+
         return api_key
-    
+
     def validate_api_key(self, api_key: str) -> Optional[Dict]:
         """Validate API key and return user data."""
         if not api_key:
             return None
-        
+
         key_hash = hashlib.sha256(api_key.encode()).hexdigest()
         key_data = self.redis.get(f"{self.key_prefix}{key_hash}")
-        
+
         if not key_data:
             return None
-        
+
         # Parse key data
         user_data = eval(key_data.decode())
-        
+
         # Check if key is active
         if not user_data.get("is_active", False):
             return None
-        
+
         # Update last used timestamp
         user_data["last_used"] = datetime.now().isoformat()
         self.redis.setex(
@@ -98,26 +98,26 @@ class APIKeyManager:
             self.rotation_interval,
             str(user_data)
         )
-        
+
         return user_data
-    
+
     def revoke_api_key(self, api_key: str) -> bool:
         """Revoke an API key."""
         key_hash = hashlib.sha256(api_key.encode()).hexdigest()
         return bool(self.redis.delete(f"{self.key_prefix}{key_hash}"))
-    
+
     def list_user_keys(self, user_id: str) -> List[Dict]:
         """List all API keys for a user."""
         keys = []
         pattern = f"{self.key_prefix}*"
-        
+
         for key in self.redis.scan_iter(match=pattern):
             key_data = self.redis.get(key)
             if key_data:
                 user_data = eval(key_data.decode())
                 if user_data["user_id"] == user_id:
                     keys.append(user_data)
-        
+
         return keys
 ```
 
@@ -134,12 +134,12 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class JWTManager:
     """Manages JWT token authentication."""
-    
+
     def __init__(self, secret_key: str, algorithm: str = "HS256"):
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.token_expiry = 3600  # 1 hour
-    
+
     def create_token(self, user_id: str, permissions: List[str]) -> str:
         """Create a JWT token for a user."""
         payload = {
@@ -148,9 +148,9 @@ class JWTManager:
             "iat": datetime.utcnow(),
             "exp": datetime.utcnow() + timedelta(seconds=self.token_expiry)
         }
-        
+
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-    
+
     def validate_token(self, token: str) -> Optional[Dict]:
         """Validate JWT token and return payload."""
         try:
@@ -160,7 +160,7 @@ class JWTManager:
             return None
         except jwt.InvalidTokenError:
             return None
-    
+
     def refresh_token(self, token: str) -> Optional[str]:
         """Refresh an existing JWT token."""
         payload = self.validate_token(token)
@@ -193,7 +193,7 @@ class Role(Enum):
 
 class RBACManager:
     """Manages role-based access control."""
-    
+
     def __init__(self):
         self.role_permissions = {
             Role.USER: {
@@ -213,15 +213,15 @@ class RBACManager:
                 Permission.ADMIN
             }
         }
-    
+
     def has_permission(self, user_permissions: List[str], required_permission: Permission) -> bool:
         """Check if user has required permission."""
         return required_permission.value in user_permissions
-    
+
     def get_role_permissions(self, role: Role) -> Set[Permission]:
         """Get permissions for a role."""
         return self.role_permissions.get(role, set())
-    
+
     def require_permission(self, permission: Permission):
         """Decorator to require specific permission."""
         def decorator(func):
@@ -229,10 +229,10 @@ class RBACManager:
             def wrapper(*args, **kwargs):
                 # Extract user permissions from request context
                 user_permissions = kwargs.get('user_permissions', [])
-                
+
                 if not self.has_permission(user_permissions, permission):
                     raise PermissionError(f"Permission {permission.value} required")
-                
+
                 return func(*args, **kwargs)
             return wrapper
         return decorator
@@ -253,25 +253,25 @@ import html
 
 class SecurePredictionRequest(BaseModel):
     """Secure prediction request with validation."""
-    
+
     text: str = Field(..., min_length=1, max_length=10000)
     threshold: float = Field(default=0.5, ge=0.0, le=1.0)
-    
+
     @validator('text')
     def validate_text(cls, v):
         """Validate and sanitize text input."""
         if not v or not v.strip():
             raise ValueError("Text cannot be empty")
-        
+
         # Remove HTML tags
         v = re.sub(r'<[^>]+>', '', v)
-        
+
         # Escape HTML entities
         v = html.escape(v)
-        
+
         # Remove control characters
         v = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', v)
-        
+
         # Check for suspicious patterns
         suspicious_patterns = [
             r'script\s*:',  # JavaScript injection
@@ -280,65 +280,65 @@ class SecurePredictionRequest(BaseModel):
             r'vbscript\s*:',  # VBScript injection
             r'on\w+\s*=',  # Event handlers
         ]
-        
+
         for pattern in suspicious_patterns:
             if re.search(pattern, v, re.IGNORECASE):
                 raise ValueError("Suspicious content detected")
-        
+
         return v.strip()
-    
+
     @validator('threshold')
     def validate_threshold(cls, v):
         """Validate threshold value."""
         if not isinstance(v, (int, float)):
             raise ValueError("Threshold must be a number")
-        
+
         if v < 0 or v > 1:
             raise ValueError("Threshold must be between 0 and 1")
-        
+
         return float(v)
 
 class InputSanitizer:
     """Sanitizes various types of input."""
-    
+
     @staticmethod
     def sanitize_text(text: str) -> str:
         """Sanitize text input."""
         if not text:
             return ""
-        
+
         # Remove HTML tags
         text = re.sub(r'<[^>]+>', '', text)
-        
+
         # Escape HTML entities
         text = html.escape(text)
-        
+
         # Remove control characters
         text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', text)
-        
+
         return text.strip()
-    
+
     @staticmethod
     def sanitize_filename(filename: str) -> str:
         """Sanitize filename."""
         # Remove path traversal attempts
         filename = filename.replace('..', '').replace('/', '').replace('\\', '')
-        
+
         # Remove dangerous characters
         filename = re.sub(r'[<>:"|?*]', '', filename)
-        
+
         # Limit length
         if len(filename) > 255:
             filename = filename[:255]
-        
+
         return filename
-    
+
     @staticmethod
     def validate_email(email: str) -> bool:
         """Validate email format."""
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.match(pattern, email))
-    
+
     @staticmethod
     def validate_url(url: str) -> bool:
         """Validate URL format."""
@@ -356,10 +356,10 @@ import re
 
 class SecureDatabaseManager:
     """Database manager with SQL injection prevention."""
-    
+
     def __init__(self, db_path: str):
         self.db_path = db_path
-    
+
     def execute_query(self, query: str, params: Tuple[Any, ...] = ()) -> List[Dict]:
         """Execute a query with parameterized statements."""
         try:
@@ -367,7 +367,7 @@ class SecureDatabaseManager:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute(query, params)
-                
+
                 if query.strip().upper().startswith('SELECT'):
                     return [dict(row) for row in cursor.fetchall()]
                 else:
@@ -375,7 +375,7 @@ class SecureDatabaseManager:
                     return []
         except sqlite3.Error as e:
             raise Exception(f"Database error: {e}")
-    
+
     def insert_prediction(self, text: str, emotion: str, confidence: float) -> int:
         """Insert prediction with parameterized query."""
         query = """
@@ -384,12 +384,12 @@ class SecureDatabaseManager:
         """
         self.execute_query(query, (text, emotion, confidence))
         return self.execute_query("SELECT last_insert_rowid()")[0]['last_insert_rowid()']
-    
+
     def get_predictions_by_emotion(self, emotion: str) -> List[Dict]:
         """Get predictions by emotion with parameterized query."""
         query = "SELECT * FROM predictions WHERE emotion = ? ORDER BY timestamp DESC"
         return self.execute_query(query, (emotion,))
-    
+
     def search_predictions(self, search_term: str) -> List[Dict]:
         """Search predictions with parameterized query."""
         query = "SELECT * FROM predictions WHERE text LIKE ? ORDER BY timestamp DESC"
@@ -413,15 +413,15 @@ from typing import Optional
 
 class DataEncryption:
     """Handles data encryption and decryption."""
-    
+
     def __init__(self, secret_key: Optional[str] = None):
         if secret_key:
             self.key = self._derive_key(secret_key)
         else:
             self.key = Fernet.generate_key()
-        
+
         self.cipher = Fernet(self.key)
-    
+
     def _derive_key(self, password: str) -> bytes:
         """Derive encryption key from password."""
         salt = b'samo_brain_salt'  # In production, use random salt
@@ -433,12 +433,12 @@ class DataEncryption:
         )
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key
-    
+
     def encrypt_data(self, data: str) -> str:
         """Encrypt sensitive data."""
         encrypted_data = self.cipher.encrypt(data.encode())
         return base64.urlsafe_b64encode(encrypted_data).decode()
-    
+
     def decrypt_data(self, encrypted_data: str) -> str:
         """Decrypt sensitive data."""
         try:
@@ -447,45 +447,45 @@ class DataEncryption:
             return decrypted_data.decode()
         except Exception as e:
             raise ValueError(f"Failed to decrypt data: {e}")
-    
+
     def encrypt_file(self, file_path: str, encrypted_path: str):
         """Encrypt a file."""
         with open(file_path, 'rb') as f:
             data = f.read()
-        
+
         encrypted_data = self.cipher.encrypt(data)
-        
+
         with open(encrypted_path, 'wb') as f:
             f.write(encrypted_data)
-    
+
     def decrypt_file(self, encrypted_path: str, decrypted_path: str):
         """Decrypt a file."""
         with open(encrypted_path, 'rb') as f:
             encrypted_data = f.read()
-        
+
         decrypted_data = self.cipher.decrypt(encrypted_data)
-        
+
         with open(decrypted_path, 'wb') as f:
             f.write(decrypted_data)
 
 class SecureStorage:
     """Secure storage for sensitive data."""
-    
+
     def __init__(self, encryption: DataEncryption):
         self.encryption = encryption
-    
+
     def store_sensitive_data(self, key: str, value: str):
         """Store sensitive data encrypted."""
         encrypted_value = self.encryption.encrypt_data(value)
         # Store in secure storage (e.g., encrypted database)
         return encrypted_value
-    
+
     def retrieve_sensitive_data(self, key: str) -> str:
         """Retrieve and decrypt sensitive data."""
         # Retrieve from secure storage
         encrypted_value = self._get_from_storage(key)
         return self.encryption.decrypt_data(encrypted_value)
-    
+
     def _get_from_storage(self, key: str) -> str:
         """Get data from storage (implement based on storage type)."""
         # Implementation depends on storage backend
@@ -502,65 +502,65 @@ from typing import Dict, Any, List
 
 class DataMasking:
     """Handles data masking and anonymization."""
-    
+
     @staticmethod
     def mask_email(email: str) -> str:
         """Mask email address."""
         if '@' not in email:
             return email
-        
+
         username, domain = email.split('@')
         masked_username = username[0] + '*' * (len(username) - 2) + username[-1]
         return f"{masked_username}@{domain}"
-    
+
     @staticmethod
     def mask_phone(phone: str) -> str:
         """Mask phone number."""
         if len(phone) < 4:
             return phone
-        
+
         return '*' * (len(phone) - 4) + phone[-4:]
-    
+
     @staticmethod
     def hash_sensitive_data(data: str) -> str:
         """Hash sensitive data for anonymization."""
         return hashlib.sha256(data.encode()).hexdigest()
-    
+
     @staticmethod
     def anonymize_text(text: str, preserve_length: bool = True) -> str:
         """Anonymize text while preserving structure."""
         # Replace words with placeholders
         words = text.split()
         anonymized_words = []
-        
+
         for word in words:
             if len(word) > 3:
                 anonymized_word = word[0] + '*' * (len(word) - 2) + word[-1]
             else:
                 anonymized_word = '*' * len(word)
-            
+
             anonymized_words.append(anonymized_word)
-        
+
         return ' '.join(anonymized_words)
-    
+
     @staticmethod
     def mask_predictions(predictions: List[Dict]) -> List[Dict]:
         """Mask sensitive data in predictions."""
         masked_predictions = []
-        
+
         for pred in predictions:
             masked_pred = pred.copy()
-            
+
             # Mask text content
             if 'text' in masked_pred:
                 masked_pred['text'] = DataMasking.anonymize_text(masked_pred['text'])
-            
+
             # Hash user identifiers
             if 'user_id' in masked_pred:
                 masked_pred['user_id'] = DataMasking.hash_sensitive_data(masked_pred['user_id'])
-            
+
             masked_predictions.append(masked_pred)
-        
+
         return masked_predictions
 ```
 
@@ -580,13 +580,13 @@ import requests
 
 class SecurityEvent:
     """Represents a security event."""
-    
+
     def __init__(self, event_type: str, severity: str, details: Dict[str, Any]):
         self.event_type = event_type
         self.severity = severity
         self.details = details
         self.timestamp = datetime.now().isoformat()
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -598,7 +598,7 @@ class SecurityEvent:
 
 class SecurityMonitor:
     """Monitors and logs security events."""
-    
+
     def __init__(self, log_file: str = "logs/security.log"):
         self.log_file = log_file
         self.setup_logging()
@@ -614,7 +614,7 @@ class SecurityMonitor:
             r'<object',
             r'<embed'
         ]
-    
+
     def setup_logging(self):
         """Setup security logging."""
         logging.basicConfig(
@@ -622,20 +622,20 @@ class SecurityMonitor:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
-    
+
     def log_security_event(self, event: SecurityEvent):
         """Log a security event."""
         log_entry = json.dumps(event.to_dict())
         logging.warning(f"SECURITY_EVENT: {log_entry}")
-        
+
         # Send alert for high severity events
         if event.severity in ['high', 'critical']:
             self.send_alert(event)
-    
+
     def detect_suspicious_activity(self, request_data: Dict[str, Any]) -> List[SecurityEvent]:
         """Detect suspicious activity in request data."""
         events = []
-        
+
         # Check for suspicious patterns in text
         if 'text' in request_data:
             text = request_data['text']
@@ -649,7 +649,7 @@ class SecurityMonitor:
                             "input": text[:100] + "..." if len(text) > 100 else text
                         }
                     ))
-        
+
         # Check for unusual request patterns
         if 'threshold' in request_data:
             threshold = request_data['threshold']
@@ -659,9 +659,9 @@ class SecurityMonitor:
                     severity="low",
                     details={"parameter": "threshold", "value": threshold}
                 ))
-        
+
         return events
-    
+
     def monitor_rate_limiting(self, client_id: str, request_count: int, limit: int):
         """Monitor rate limiting events."""
         if request_count > limit * 0.8:  # 80% of limit
@@ -675,7 +675,7 @@ class SecurityMonitor:
                 }
             )
             self.log_security_event(event)
-    
+
     def detect_brute_force(self, client_id: str, failed_attempts: int):
         """Detect brute force attempts."""
         if failed_attempts > 5:
@@ -688,7 +688,7 @@ class SecurityMonitor:
                 }
             )
             self.log_security_event(event)
-    
+
     def send_alert(self, event: SecurityEvent):
         """Send security alert."""
         # Implementation depends on alerting system
@@ -699,7 +699,7 @@ class SecurityMonitor:
             "details": event.details,
             "timestamp": event.timestamp
         }
-        
+
         # Example: Send to webhook
         try:
             requests.post(
@@ -709,7 +709,7 @@ class SecurityMonitor:
             )
         except Exception as e:
             logging.error(f"Failed to send security alert: {e}")
-    
+
     def generate_security_report(self, start_time: datetime, end_time: datetime) -> Dict[str, Any]:
         """Generate security report for time period."""
         # Implementation to analyze security logs
@@ -728,70 +728,70 @@ import ipaddress
 
 class IntrusionDetectionSystem:
     """Basic intrusion detection system."""
-    
+
     def __init__(self):
         self.failed_attempts = defaultdict(int)
         self.suspicious_ips = set()
         self.blocked_ips = set()
         self.request_patterns = defaultdict(list)
         self.alert_threshold = 10
-    
+
     def analyze_request(self, client_ip: str, request_data: Dict[str, Any]) -> bool:
         """Analyze request for suspicious activity."""
         # Check if IP is blocked
         if client_ip in self.blocked_ips:
             return False
-        
+
         # Track request patterns
         self.request_patterns[client_ip].append({
             "timestamp": time.time(),
             "data": request_data
         })
-        
+
         # Clean old patterns (keep last 100 requests)
         if len(self.request_patterns[client_ip]) > 100:
             self.request_patterns[client_ip] = self.request_patterns[client_ip][-100:]
-        
+
         # Check for suspicious patterns
         if self._is_suspicious_pattern(client_ip, request_data):
             self.failed_attempts[client_ip] += 1
-            
+
             if self.failed_attempts[client_ip] >= self.alert_threshold:
                 self.suspicious_ips.add(client_ip)
                 self._block_ip(client_ip)
                 return False
-        
+
         return True
-    
+
     def _is_suspicious_pattern(self, client_ip: str, request_data: Dict[str, Any]) -> bool:
         """Check for suspicious request patterns."""
         patterns = self.request_patterns[client_ip]
-        
+
         if len(patterns) < 5:
             return False
-        
+
         # Check for rapid requests
         recent_requests = [p for p in patterns if time.time() - p["timestamp"] < 60]
         if len(recent_requests) > 50:  # More than 50 requests per minute
             return True
-        
+
         # Check for repeated failed requests
         # Implementation depends on your failure detection logic
-        
+
         return False
-    
+
     def _block_ip(self, client_ip: str):
         """Block an IP address."""
         self.blocked_ips.add(client_ip)
         # Log blocking event
         print(f"IP {client_ip} has been blocked due to suspicious activity")
-    
+
     def unblock_ip(self, client_ip: str):
         """Unblock an IP address."""
         self.blocked_ips.discard(client_ip)
         self.suspicious_ips.discard(client_ip)
         self.failed_attempts[client_ip] = 0
-    
+
     def get_security_status(self) -> Dict[str, Any]:
         """Get current security status."""
         return {
@@ -859,10 +859,10 @@ from starlette.responses import Response
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses."""
-    
+
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        
+
         # Security headers
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -871,15 +871,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=()"
-        
+
         return response
 
 def setup_security_middleware(app: FastAPI):
     """Setup security middleware."""
-    
+
     # Add security headers
     app.add_middleware(SecurityHeadersMiddleware)
-    
+
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -930,7 +930,7 @@ import logging
 
 class SecurityIncident:
     """Represents a security incident."""
-    
+
     def __init__(self, incident_type: str, severity: str, description: str):
         self.incident_type = incident_type
         self.severity = severity
@@ -938,7 +938,7 @@ class SecurityIncident:
         self.timestamp = datetime.now()
         self.status = "open"
         self.actions_taken = []
-    
+
     def add_action(self, action: str):
         """Add action taken for this incident."""
         self.actions_taken.append({
@@ -948,24 +948,24 @@ class SecurityIncident:
 
 class IncidentResponseManager:
     """Manages security incident response."""
-    
+
     def __init__(self):
         self.active_incidents = []
         self.incident_history = []
-    
+
     def report_incident(self, incident: SecurityIncident):
         """Report a new security incident."""
         self.active_incidents.append(incident)
-        
+
         # Log incident
         logging.critical(f"SECURITY_INCIDENT: {incident.incident_type} - {incident.description}")
-        
+
         # Take immediate actions based on severity
         if incident.severity == "critical":
             self._handle_critical_incident(incident)
         elif incident.severity == "high":
             self._handle_high_incident(incident)
-    
+
     def _handle_critical_incident(self, incident: SecurityIncident):
         """Handle critical security incident."""
         # Immediate actions for critical incidents
@@ -975,11 +975,11 @@ class IncidentResponseManager:
             "Preserve evidence",
             "Activate incident response team"
         ]
-        
+
         for action in actions:
             incident.add_action(action)
             self._execute_action(action)
-    
+
     def _handle_high_incident(self, incident: SecurityIncident):
         """Handle high severity security incident."""
         actions = [
@@ -987,27 +987,27 @@ class IncidentResponseManager:
             "Investigate root cause",
             "Implement temporary mitigations"
         ]
-        
+
         for action in actions:
             incident.add_action(action)
             self._execute_action(action)
-    
+
     def _execute_action(self, action: str):
         """Execute security action."""
         # Implementation depends on specific actions
         logging.info(f"Executing security action: {action}")
-    
+
     def resolve_incident(self, incident_id: int, resolution: str):
         """Resolve a security incident."""
         if incident_id < len(self.active_incidents):
             incident = self.active_incidents[incident_id]
             incident.status = "resolved"
             incident.add_action(f"Incident resolved: {resolution}")
-            
+
             # Move to history
             self.incident_history.append(incident)
             self.active_incidents.pop(incident_id)
-    
+
     def get_incident_report(self) -> Dict[str, Any]:
         """Generate incident report."""
         return {
@@ -1029,4 +1029,4 @@ class IncidentResponseManager:
 
 ---
 
-**Security is everyone's responsibility!** Follow the [Quick Security Checklist](#-quick-security-checklist-5-minutes) and maintain vigilance! 🔒🛡️ 
+**Security is everyone's responsibility!** Follow the [Quick Security Checklist](#-quick-security-checklist-5-minutes) and maintain vigilance! 🔒🛡️

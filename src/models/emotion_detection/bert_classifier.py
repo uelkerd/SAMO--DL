@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-BERT-based Emotion Classifier for SAMO Deep Learning.
+"""BERT-based Emotion Classifier for SAMO Deep Learning.
 
 This module provides a BERT-based multi-label emotion classification model
 trained on the GoEmotions dataset for journal entry analysis.
@@ -12,10 +11,10 @@ from typing import Optional, Union, List, Dict, Tuple
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
+from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import Dataset, DataLoader
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
@@ -206,7 +205,8 @@ class BERTEmotionClassifier(nn.Module):
             attention_mask: Pre-tokenized attention mask (for testing)
 
         Returns:
-            Dictionary with predictions, probabilities, and emotion names, or list of predictions for testing
+            Dictionary with predictions, probabilities, and
+                emotion names, or list of predictions for testing
         """
         # Handle direct input_ids/attention_mask for testing
         if input_ids is not None and attention_mask is not None:
@@ -307,9 +307,7 @@ class WeightedBCELoss(nn.Module):
         probabilities = torch.sigmoid(logits)
 
         # Compute BCE loss
-        bce_loss = F.binary_cross_entropy(
-            probabilities, targets.float(), reduction="none"
-        )
+        bce_loss = F.binary_cross_entropy(probabilities, targets.float(), reduction="none")
 
         # Apply class weights if provided
         if self.class_weights is not None:

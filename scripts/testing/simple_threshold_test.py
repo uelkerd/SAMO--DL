@@ -1,21 +1,20 @@
-    # Apply fallback logic
-    # Apply threshold to get predictions
-    # Check for samples with no predictions
-    # Count probabilities above threshold
-    # Create probabilities with similar distribution to what we observed
-    # Create synthetic probability data that matches what we saw in debug output
-    # Test threshold application
-    # mean=0.4681, min=0.1150, max=0.9119
+# Apply fallback logic
+# Apply threshold to get predictions
+# Check for samples with no predictions
+# Count probabilities above threshold
+# Create probabilities with similar distribution to what we observed
+# Create synthetic probability data that matches what we saw in debug output
+# Test threshold application
+# mean=0.4681, min=0.1150, max=0.9119
 #!/usr/bin/env python3
 import logging
 import torch
 
 
-
-
 """
 Simple test to isolate the threshold application bug.
 """
+
 
 def test_threshold_application():
     """Test threshold application with synthetic data."""
@@ -44,7 +43,9 @@ def test_threshold_application():
     logging.info("📊 Threshold analysis:")
     logging.info("  - Total positions: {total_positions}")
     logging.info("  - Positions >= {threshold}: {num_above_threshold}")
-    logging.info("  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%")
+    logging.info(
+        "  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%"
+    )
 
     predictions = (probabilities >= threshold).float()
 

@@ -11,23 +11,25 @@ import yaml
 import subprocess
 from pathlib import Path
 
+
 def test_yaml_syntax():
     """Test that the CircleCI config YAML is valid."""
     print("🔍 Testing CircleCI YAML syntax...")
-    
+
     config_path = Path(".circleci/config.yml")
     if not config_path.exists():
         print("❌ CircleCI config file not found")
         return False
-    
+
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             yaml.safe_load(f)
         print("✅ CircleCI YAML syntax is valid")
         return True
     except yaml.YAMLError as e:
         print(f"❌ YAML syntax error: {e}")
         return False
+
 
 def test_conda_environment_setup():
     """Test that conda environment setup configuration is valid (FAST VERSION)."""
@@ -39,10 +41,11 @@ def test_conda_environment_setup():
         if os.path.exists(conda_path):
             conda_cmd = [conda_path]
         else:
-            conda_cmd = ['conda']  # fallback to PATH
-        
-        result = subprocess.run(conda_cmd + ['--version'],
-                                capture_output=True, text=True, timeout=10)
+            conda_cmd = ["conda"]  # fallback to PATH
+
+        result = subprocess.run(
+            conda_cmd + ["--version"], check=False, capture_output=True, text=True, timeout=10
+        )
         if result.returncode != 0:
             print("❌ Conda not available")
             return False
@@ -54,43 +57,45 @@ def test_conda_environment_setup():
             return False
 
         # Validate environment.yml structure
-        with open(env_path, 'r') as f:
+        with open(env_path) as f:
             env_yaml = yaml.safe_load(f)
-        
+
         # Check required fields
-        if 'name' not in env_yaml:
+        if "name" not in env_yaml:
             print("❌ environment.yml missing 'name' field")
             return False
-        
-        if 'dependencies' not in env_yaml:
+
+        if "dependencies" not in env_yaml:
             print("❌ environment.yml missing 'dependencies' field")
             return False
-        
-        dependencies = env_yaml.get('dependencies', [])
+
+        dependencies = env_yaml.get("dependencies", [])
         if not dependencies:
             print("❌ environment.yml has no dependencies")
             return False
-        
+
         # Check for key packages
         import re
+
         found_packages = []
         for dep in dependencies:
             if isinstance(dep, str):
-                package_name = re.split(r'[=<>~,]+', dep)[0].strip()
-                if package_name != 'python':
+                package_name = re.split(r"[=<>~,]+", dep)[0].strip()
+                if package_name != "python":
                     found_packages.append(package_name)
-        
+
         if not found_packages:
             print("❌ No valid packages found in environment.yml")
             return False
-        
+
         print(f"✅ Found {len(found_packages)} packages in environment.yml")
-        print(f"✅ Conda environment setup validation passed (fast mode)")
+        print("✅ Conda environment setup validation passed (fast mode)")
         return True
-        
+
     except Exception as e:
         print(f"❌ Conda environment test failed: {e}")
         return False
+
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied using YAML parsing."""
@@ -100,7 +105,7 @@ def test_critical_fixes():
 
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
@@ -181,24 +186,20 @@ def test_critical_fixes():
 
     return all_fixes_present
 
+
 def test_pipeline_structure():
     """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
     print("🔍 Testing pipeline structure...")
 
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
         return False
 
-    required_components = [
-        "executors",
-        "commands", 
-        "jobs",
-        "workflows"
-    ]
+    required_components = ["executors", "commands", "jobs", "workflows"]
 
     all_components_present = True
     if not isinstance(config, dict):
@@ -214,6 +215,7 @@ def test_pipeline_structure():
 
     return all_components_present
 
+
 def test_pipeline_structure_edge_cases():
     """Test pipeline structure with missing sections and malformed YAML (edge cases)."""
     print("🔍 Testing pipeline structure edge cases...")
@@ -225,12 +227,7 @@ def test_pipeline_structure_edge_cases():
         "jobs": {},
         # "workflows" missing
     }
-    required_components = [
-        "executors",
-        "commands", 
-        "jobs",
-        "workflows"
-    ]
+    required_components = ["executors", "commands", "jobs", "workflows"]
     missing_count = 0
     for component in required_components:
         if component not in incomplete_config:
@@ -241,60 +238,65 @@ def test_pipeline_structure_edge_cases():
     malformed_configs = [None, [], "not_a_dict"]
     for idx, malformed in enumerate(malformed_configs):
         if not isinstance(malformed, dict):
-            print(f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid")
+            print(
+                f"✅ Malformed config case {idx + 1}: {malformed!r} correctly identified as invalid"
+            )
         else:
-            print(f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid")
+            print(
+                f"❌ Malformed config case {idx + 1}: {malformed!r} incorrectly identified as valid"
+            )
 
     return True
+
 
 def test_job_dependencies():
     """Test that job dependencies are properly configured with order verification."""
     print("🔍 Testing job dependencies...")
-    
+
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
         return False
-    
-    workflows = config.get('workflows', {})
+
+    workflows = config.get("workflows", {})
     if not workflows:
         print("❌ No workflows found")
         return False
-    
+
     main_workflow = None
     for workflow_name, workflow_config in workflows.items():
-        if workflow_name == 'samo-ci-cd':
+        if workflow_name == "samo-ci-cd":
             main_workflow = workflow_config
             break
-    
+
     if not main_workflow:
         print("❌ Main workflow 'samo-ci-cd' not found")
         return False
-    
-    jobs = main_workflow.get('jobs', [])
+
+    jobs = main_workflow.get("jobs", [])
     if not jobs:
         print("❌ No jobs in main workflow")
         return False
-    
+
     print(f"✅ Found {len(jobs)} jobs in main workflow")
-    
+
     # Verify job dependency order and relationships
     job_names = []
     job_dependencies = {}
-    
+
     for job in jobs:
         if isinstance(job, dict):
             # Job with configuration
             job_name = list(job.keys())[0]
             job_config = job[job_name]
             job_names.append(job_name)
-            
+
             # Check for dependencies
-            if 'requires' in job_config:
-                job_dependencies[job_name] = job_config['requires']
+            if "requires" in job_config:
+                job_dependencies[job_name] = job_config["requires"]
                 print(f"✅ Job '{job_name}' has dependencies: {job_config['requires']}")
             else:
                 job_dependencies[job_name] = []
@@ -304,7 +306,7 @@ def test_job_dependencies():
             job_names.append(job)
             job_dependencies[job] = []
             print(f"✅ Job '{job}' has no dependencies (runs first)")
-    
+
     # Verify dependency relationships are valid
     all_deps_valid = True
     for job_name, deps in job_dependencies.items():
@@ -312,10 +314,10 @@ def test_job_dependencies():
             if dep not in job_names:
                 print(f"❌ Job '{job_name}' depends on '{dep}' which doesn't exist")
                 all_deps_valid = False
-    
+
     if all_deps_valid:
         print("✅ All job dependencies reference valid jobs")
-    
+
     # Check for circular dependencies (basic check)
     has_circular = False
     for job_name, deps in job_dependencies.items():
@@ -323,47 +325,45 @@ def test_job_dependencies():
             if job_name in job_dependencies.get(dep, []):
                 print(f"❌ Circular dependency detected: {job_name} ↔ {dep}")
                 has_circular = True
-    
+
     if not has_circular:
         print("✅ No circular dependencies detected")
-    
+
     return all_deps_valid and not has_circular
+
 
 def test_environment_variables():
     """Test that environment variables are properly configured."""
     print("🔍 Testing environment variables...")
-    
+
     config_path = Path(".circleci/config.yml")
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
         return False
-    
+
     # Check for hardcoded conda paths that should be abstracted
     content = ""
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             content = f.read()
     except Exception as e:
         print(f"❌ Failed to read config content: {e}")
         return False
-    
-    hardcoded_paths = [
-        "$HOME/miniconda/bin/conda",
-        "~/miniconda/bin/conda"
-    ]
-    
+
+    hardcoded_paths = ["$HOME/miniconda/bin/conda", "~/miniconda/bin/conda"]
+
     found_hardcoded = False
     for path in hardcoded_paths:
         if path in content:
             print(f"⚠️ Found hardcoded conda path: {path}")
             found_hardcoded = True
-    
+
     if not found_hardcoded:
         print("✅ No hardcoded conda paths found")
-    
+
     # Check for environment variable usage
     env_vars = ["$CIRCLE_WORKING_DIRECTORY", "$HOME", "$PATH"]
     found_env_vars = 0
@@ -371,17 +371,18 @@ def test_environment_variables():
         if var in content:
             found_env_vars += 1
             print(f"✅ Found environment variable usage: {var}")
-    
+
     if found_env_vars > 0:
         print(f"✅ Found {found_env_vars} environment variables in use")
-    
+
     return True
+
 
 def main():
     """Run all PR #5 CI/CD integration tests."""
     print("🔍 Running PR #5 CI/CD Integration Tests...")
     print("=" * 60)
-    
+
     tests = [
         ("YAML Syntax", test_yaml_syntax),
         ("Conda Environment Setup", test_conda_environment_setup),
@@ -391,10 +392,10 @@ def main():
         ("Job Dependencies", test_job_dependencies),
         ("Environment Variables", test_environment_variables),
     ]
-    
+
     passed = 0
     total = len(tests)
-    
+
     for test_name, test_func in tests:
         print(f"\n📋 {test_name}")
         print("-" * 40)
@@ -406,24 +407,25 @@ def main():
                 print(f"❌ {test_name} FAILED")
         except Exception as e:
             print(f"❌ {test_name} ERROR: {e}")
-    
+
     print("\n" + "=" * 60)
     print("📊 PR #5 CI/CD Integration Test Summary")
     print("=" * 60)
     print(f"Total Tests: {total}")
     print(f"Passed: {passed}")
     print(f"Failed: {total - passed}")
-    print(f"Success Rate: {(passed/total)*100:.1f}%")
-    
+    print(f"Success Rate: {(passed / total) * 100:.1f}%")
+
     if passed == total:
         print("\n✅ PR #5 CI/CD pipeline is ready for testing!")
         print("Ready for CircleCI validation")
     else:
         print(f"\n❌ PR #5 needs {total - passed} fixes before testing")
         print("Please address the failing tests above")
-    
+
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

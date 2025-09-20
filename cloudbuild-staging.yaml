@@ -1,0 +1,79 @@
+# Cloud Build configuration for SAMO-DL Staging Deployment
+steps:
+  # Build the optimized Docker image for staging
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.optimized'
+      - '--platform'
+      - 'linux/amd64'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:${BUILD_ID}'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:latest'
+      - '.'
+    timeout: '1200s'  # 20 minutes for model downloads
+
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:${BUILD_ID}'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:latest'
+
+  # Deploy to Cloud Run with staging-optimized settings
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'samo-dl-api-staging'
+      - '--image=us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:${BUILD_ID}'
+      - '--platform=managed'
+      - '--region=us-central1'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--timeout=300'  # 5 minutes timeout for staging
+      - '--cpu=2'
+      - '--memory=2Gi'  # Staging-appropriate memory
+      - '--max-instances=5'  # Lower max instances for staging
+      - '--min-instances=0'
+      - '--concurrency=40'
+      - '--cpu-boost'  # Faster cold starts
+      - '--set-env-vars=ENVIRONMENT=staging,DEBUG=true,LOG_LEVEL=debug,PYTHONUNBUFFERED=1'
+
+  # Run integration tests against the deployed staging service
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the service URL
+        SERVICE_URL=$$(gcloud run services describe samo-dl-api-staging --region=us-central1 --format='value(status.url)')
+        echo "Testing service at: $$SERVICE_URL"
+
+        # Wait for service to be ready
+        sleep 30
+
+        # Run integration tests
+        export API_BASE_URL=$$SERVICE_URL
+        python scripts/testing/integration_test_suite.py
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'  # Use high-CPU machine for faster builds
+  diskSizeGb: 100  # Larger disk for model downloads
+  logging: CLOUD_LOGGING_ONLY
+
+# Build timeout
+timeout: '1800s'  # 30 minutes total
+
+# Available images
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:${BUILD_ID}'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/samo-dl/samo-dl-api-staging:latest'

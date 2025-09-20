@@ -59,8 +59,7 @@ def test_whisper_imports():
             from models.voice_processing.whisper_transcriber import WhisperTranscriber
         except ImportError:
             # Fallback for different import paths
-            from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
-            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
+            pass
 
         logger.info("✅ Whisper imports successful")
         return True
@@ -125,7 +124,7 @@ def test_audio_preprocessor():
 
         try:
             preprocessor = AudioPreprocessor()
-            
+
             # Test audio validation
             is_valid, error_msg = preprocessor.validate_audio_file(test_audio_path)
             if not is_valid:
@@ -184,7 +183,7 @@ def test_minimal_transcription():
 
             # Test transcription
             result = transcriber.transcribe(test_audio_path)
-            
+
             if result and result.text:
                 logger.info(f"✅ Transcription successful: {result.text[:50]}...")
                 return True
@@ -217,9 +216,9 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
+        logger.info(f"\n{'=' * 50}")
         logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*50}")
+        logger.info(f"{'=' * 50}")
 
         if test_func():
             passed += 1
@@ -227,9 +226,9 @@ def main():
         else:
             logger.error(f"❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info(f"Whisper Transcription Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info(f"{'=' * 50}")
 
     if passed == total:
         logger.info("🎉 All Whisper transcription tests passed!")

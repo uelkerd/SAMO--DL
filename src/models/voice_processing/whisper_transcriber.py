@@ -105,7 +105,7 @@ class AudioPreprocessor:
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                return False, f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
 
             if duration < 0.1:  # Too short
                 return False, "Audio too short: {duration:.1f}s"
@@ -153,7 +153,7 @@ class AudioPreprocessor:
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
-                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+                f"Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
             )
 
         audio = audio.normalize()
@@ -200,9 +200,10 @@ class WhisperTranscriber:
             self.device = torch.device(self.config.device)
 
         logger.info(
-            "Initializing Whisper {self.config.model_size} model...", extra={"format_args": True}
+            f"Initializing Whisper {self.config.model_size} model...",
+            extra={"format_args": True}
         )
-        logger.info("Device: {self.device}", extra={"format_args": True})
+        logger.info(f"Device: {self.device}", extra={"format_args": True})
 
         try:
             self.model = whisper.load_model(self.config.model_size, device=self.device)
@@ -235,7 +236,7 @@ class WhisperTranscriber:
         """
         start_time = time.time()
 
-        logger.info("Starting transcription: {audio_path}", extra={"format_args": True})
+        logger.info(f"Starting transcription: {audio_path}", extra={"format_args": True})
 
         processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(audio_path)
 
@@ -257,7 +258,8 @@ class WhisperTranscriber:
                 "no_speech_threshold": self.config.no_speech_threshold,
             }
 
-            transcribe_options = {k: v for k, v in transcribe_options.items() if v is not None}
+            transcribe_options = {k: v for k,
+                v in transcribe_options.items() if v is not None}
 
             result = self.model.transcribe(processed_audio_path, **transcribe_options)
 
@@ -287,11 +289,11 @@ class WhisperTranscriber:
             )
 
             logger.info(
-                "✅ Transcription complete: {word_count} words, {confidence:.2f} confidence",
+                f"✅ Transcription complete: {word_count} words, {confidence:.2f} confidence",
                 extra={"format_args": True},
             )
             logger.info(
-                "Processing time: {processing_time:.2f}s, Quality: {audio_quality}",
+                f"Processing time: {processing_time:.2f}s, Quality: {audio_quality}",
                 extra={"format_args": True},
             )
 
@@ -380,7 +382,8 @@ class WhisperTranscriber:
             avg_logprob = segment.get("avg_logprob", -1.0)
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
-            segment_confidence = min(1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)))
+            segment_confidence = min(1.0, max(0.0,
+                np.exp(avg_logprob) * (1 - no_speech_prob)))
             confidences.append(segment_confidence)
 
         return float(np.mean(confidences)) if confidences else 0.5
@@ -451,10 +454,12 @@ def create_whisper_transcriber(
     Returns:
         Configured WhisperTranscriber instance
     """
-    config = TranscriptionConfig(model_size=model_size, language=language, device=device)
+    config = TranscriptionConfig(model_size=model_size, language=language,
+        device=device)
 
     transcriber = WhisperTranscriber(config)
-    logger.info("Created Whisper transcriber: {model_size}", extra={"format_args": True})
+    logger.info("Created Whisper transcriber: {model_size}",
+        extra={"format_args": True})
 
     return transcriber
 

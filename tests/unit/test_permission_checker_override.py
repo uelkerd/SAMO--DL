@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Test permission override path guarded by PYTEST_CURRENT_TEST."""
+
 from fastapi.testclient import TestClient
 
 from src.unified_ai_api import app
@@ -14,7 +15,9 @@ def test_permission_override_header_active_under_pytest(monkeypatch):
     # login to get token
     login_data = {"username": "testuser@example.com", "password": "testpassword123"}
     login_resp = client.post("/auth/login", json=login_data)
-    assert login_resp.status_code == 200, f"Login failed: {login_resp.status_code} {login_resp.text}"
+    assert login_resp.status_code == 200, (
+        f"Login failed: {login_resp.status_code} {login_resp.text}"
+    )
     access = login_resp.json().get("access_token")
     assert access and isinstance(access, str), "Missing access_token in login response"
 

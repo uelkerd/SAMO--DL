@@ -1,14 +1,14 @@
-        # Calculate predictions per sample (overprediction metric)
-        # Evaluate with current temperature
-        # This is approximated from the debug output
-        # Track best result
-        # Update model temperature
-    # Display all results
-    # Initialize trainer
-    # Load trained model
-    # Provide recommendations
-    # Save results for CircleCI
-    # Test different temperatures
+# Calculate predictions per sample (overprediction metric)
+# Evaluate with current temperature
+# This is approximated from the debug output
+# Track best result
+# Update model temperature
+# Display all results
+# Initialize trainer
+# Load trained model
+# Provide recommendations
+# Save results for CircleCI
+# Test different temperatures
 # Add src to path
 # Set up logging
 #!/usr/bin/env python3
@@ -18,8 +18,6 @@ from pathlib import Path
 import json
 import logging
 import sys
-
-
 
 
 """

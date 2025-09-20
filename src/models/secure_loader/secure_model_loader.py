@@ -284,12 +284,14 @@ class SecureModelLoader:
                 loading_info['sandbox_execution'] = sandbox_info
             else:
                 # Load without sandbox (less secure but faster)
-                model_data = torch.load(model_path, map_location='cpu', weights_only=True)
+                model_data = torch.load(model_path, map_location='cpu',
+                    weights_only=True)
 
                 # Filter kwargs to only include valid constructor parameters
                 import inspect
                 constructor_params = inspect.signature(model_class.__init__).parameters
-                valid_params = {k: v for k, v in kwargs.items() if k in constructor_params}
+                valid_params = {k: v for k,
+                    v in kwargs.items() if k in constructor_params}
                 model = model_class(**valid_params)
 
                 if 'state_dict' in model_data:

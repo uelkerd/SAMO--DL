@@ -1,0 +1,15 @@
+# Bandit security linter configuration for SAMO-DL project
+# This file configures bandit to ignore false positives and focus on real security issues
+
+[bandit]
+# Keep B104 enabled; use inline `# nosec B104` on intentional 0.0.0.0 bindings.
+# This ensures we catch real security issues while allowing intentional production bindings.
+
+# B104: Binding to all interfaces - Use inline # nosec B104 only where 0.0.0.0 is strictly required
+# (e.g., Cloud Run entrypoint) with proper justification in code comments.
+
+# Include specific files and directories
+include = src/, scripts/, deployment/
+
+# Exclude test files and build artifacts
+exclude = tests/, build/, __pycache__/, .git/, .pytest_cache/

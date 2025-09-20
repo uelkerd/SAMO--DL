@@ -1,15 +1,14 @@
-    # Load checkpoint
+# Load checkpoint
 #!/usr/bin/env python3
 from pathlib import Path
 import logging
 import torch
 
 
-
-
 """
 Debug Model State Dict Structure
 """
+
 
 def debug_state_dict():
     checkpoint_path = Path("test_checkpoints/best_model.pt")

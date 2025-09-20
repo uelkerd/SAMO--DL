@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import sys
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -11,8 +10,8 @@ except Exception:  # pragma: no cover
 
 
 def main() -> int:
-    model_id = os.environ.get("EMOTION_MODEL_ID", "0xmnrv/samo")
-    token = os.environ.get("HF_TOKEN")
+    model_id = os.environ.get("EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
+    token = os.environ.get("HF_TOKEN", "")
 
     if token and login is not None:
         try:

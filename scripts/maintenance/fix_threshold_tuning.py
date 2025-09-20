@@ -1,8 +1,8 @@
-        # Create trainer and load dataset
-        # Initialize the model with class weights
-        # Load trained model
-        # Prepare dataset
-        # Test much lower thresholds
+# Create trainer and load dataset
+# Initialize the model with class weights
+# Load trained model
+# Prepare dataset
+# Test much lower thresholds
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -12,8 +12,6 @@ from pathlib import Path
 import logging
 import sys
 import torch
-
-
 
 
 """Fix Threshold Tuning for Better F1 Scores.

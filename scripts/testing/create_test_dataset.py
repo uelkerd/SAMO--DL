@@ -1,24 +1,22 @@
-        # Add original entry
-        # Add variations
-    # Count emotions
-    # Create more samples by duplicating and slightly modifying
-    # Create test data
-    # Sample texts with emotion labels
-    # Save to file
-    # Show sample
-    # Shuffle the data
+# Add original entry
+# Add variations
+# Count emotions
+# Create more samples by duplicating and slightly modifying
+# Create test data
+# Sample texts with emotion labels
+# Save to file
+# Show sample
+# Shuffle the data
 #!/usr/bin/env python3
 import json
 import logging
 import random
 
 
-
-
-
 """
 Create a test dataset with emotion labels for Vertex AI
 """
+
 
 def create_test_dataset():
     """Create a test dataset with emotion labels"""
@@ -131,7 +129,7 @@ def main():
 
     logging.info("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
-        logging.info(f"  {i+1}. Text: '{entry['text'][:50]}...'")
+        logging.info(f"  {i + 1}. Text: '{entry['text'][:50]}...'")
         logging.info(f"     Emotions: {entry['emotions']}")
 
     emotion_counts = {}

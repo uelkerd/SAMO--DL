@@ -1,17 +1,17 @@
-                # Try to load the checkpoint
-        # Create new model
-        # Get predictions
-        # Load existing model
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Convert to numpy arrays
-    # Create simple labels (one emotion per text)
-    # Create test data
-    # Create tokenizer
-    # Find valid checkpoint
-    # Process test data
-    # Set optimal temperature
+# Try to load the checkpoint
+# Create new model
+# Get predictions
+# Load existing model
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Convert to numpy arrays
+# Create simple labels (one emotion per text)
+# Create test data
+# Create tokenizer
+# Find valid checkpoint
+# Process test data
+# Set optimal temperature
 # Configure logging
 # Constants
 #!/usr/bin/env python3
@@ -22,7 +22,6 @@ import logging
 import numpy as np
 import sys
 import torch
-
 
 
 """

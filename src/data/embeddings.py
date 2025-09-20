@@ -1,6 +1,6 @@
-            # Average vectors or use zero vector if no tokens found
-            # Get vectors for tokens that are in vocabulary
-        # Create DataFrame with IDs and embeddings
+# Average vectors or use zero vector if no tokens found
+# Get vectors for tokens that are in vocabulary
+# Create DataFrame with IDs and embeddings
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 from gensim.models import FastText, Word2Vec
@@ -10,8 +10,6 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import List, Optional
-
-
 
 
 logging.basicConfig(

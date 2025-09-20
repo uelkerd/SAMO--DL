@@ -34,9 +34,7 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass of focal loss."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
-        )
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
@@ -116,7 +114,7 @@ def full_focal_training():
     model.train()
     for epoch in range(3):
         logger.info(f"📚 Epoch {epoch + 1}/3")
-        
+
         for batch_idx, batch in enumerate(train_dataloader):
             input_ids, attention_mask, batch_labels = batch
             input_ids = input_ids.to(device)

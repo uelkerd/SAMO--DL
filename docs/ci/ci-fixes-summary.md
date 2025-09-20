@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Date:** August 5, 2025  
-**Status:** CRITICAL FIX APPLIED - CI Pipeline Broken  
-**Root Cause:** Conda command not found in PATH during CircleCI execution  
-**Impact:** All conda-dependent jobs failing (unit-tests, lint-and-format, etc.)  
-**Resolution:** Updated CircleCI config to use full conda path  
+**Date:** August 5, 2025
+**Status:** CRITICAL FIX APPLIED - CI Pipeline Broken
+**Root Cause:** Conda command not found in PATH during CircleCI execution
+**Impact:** All conda-dependent jobs failing (unit-tests, lint-and-format, etc.)
+**Resolution:** Updated CircleCI config to use full conda path
 
 ## What We Just Did
 

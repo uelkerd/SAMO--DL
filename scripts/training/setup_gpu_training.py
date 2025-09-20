@@ -1,13 +1,13 @@
-    # Create resume script
-    # Determine optimal batch size
-    # Disable tokenizers parallelism warning
-    # Enable CUDA optimizations
-    # GPU Info
-    # Load checkpoint
-    # Optimization recommendations
-    # Save configuration
-    # Setup environment
-    # Speed estimates
+# Create resume script
+# Determine optimal batch size
+# Disable tokenizers parallelism warning
+# Enable CUDA optimizations
+# GPU Info
+# Load checkpoint
+# Optimization recommendations
+# Save configuration
+# Setup environment
+# Speed estimates
 # Auto-generated GPU resume script
 # Auto-generated based on your GPU: {torch.cuda.get_device_name()}
 # Environment setup
@@ -25,10 +25,6 @@ import argparse
 import logging
 import os
 import torch
-
-
-
-
 
 
 """GPU Training Setup Script for SAMO Deep Learning.

@@ -65,9 +65,7 @@ class SecurityHeadersMiddleware:
         # Load CSP from YAML config if available
         self.csp_policy = None
         try:
-            config_path = os.path.join(
-                os.path.dirname(__file__), "../configs/security.yaml"
-            )
+            config_path = os.path.join(os.path.dirname(__file__), "../configs/security.yaml")
             with open(config_path) as f:
                 security_config = yaml.safe_load(f)
                 self.csp_policy = (
@@ -76,7 +74,7 @@ class SecurityHeadersMiddleware:
                     .get("Content-Security-Policy")
                 )
         except Exception as e:
-            logger.warning(f"Could not load CSP from config: {e}")
+            logger.warning("Could not load CSP from config: %s", e)
 
         # Register middleware
         app.before_request(self._before_request)
@@ -112,9 +110,8 @@ class SecurityHeadersMiddleware:
 
                 # Return 403 Forbidden response
                 from flask import make_response
-                response = make_response(
-                    "Access Forbidden - High-risk user agent detected", 403
-                )
+
+                response = make_response("Access Forbidden - High-risk user agent detected", 403)
                 response.headers["Content-Type"] = "text/plain"
                 return response
 
@@ -136,11 +133,11 @@ class SecurityHeadersMiddleware:
         self._log_response_security(response)
 
         # Log blocking information if request was blocked
-        if hasattr(g, 'security_patterns'):
+        if hasattr(g, "security_patterns"):
             logger.warning("Request blocked: %s", g.security_patterns)
-            if hasattr(g, 'block_reason'):
+            if hasattr(g, "block_reason"):
                 logger.warning("Block reason: %s", g.block_reason)
-            if hasattr(g, 'ua_analysis'):
+            if hasattr(g, "ua_analysis"):
                 logger.warning("User agent analysis: %s", g.ua_analysis)
 
         return response
@@ -216,7 +213,8 @@ class SecurityHeadersMiddleware:
             "block-all-mixed-content"  # Block mixed content
         )
 
-    def _build_permissions_policy(self) -> str:
+    @staticmethod
+    def _build_permissions_policy() -> str:
         """Build Permissions Policy."""
         policies = [
             "accelerometer=()",
@@ -279,11 +277,12 @@ class SecurityHeadersMiddleware:
         suspicious_patterns = self._detect_suspicious_patterns()
         if suspicious_patterns:
             security_info["suspicious_patterns"] = suspicious_patterns
-            logger.warning(f"Security warning: {suspicious_patterns}")
+            logger.warning("Security warning: %s", suspicious_patterns)
 
-        logger.info(f"Security audit: {security_info}")
+        logger.info("Security audit: %s", security_info)
 
-    def _analyze_user_agent_enhanced(self, user_agent: str) -> dict:
+    @staticmethod
+    def _analyze_user_agent_enhanced(user_agent: str) -> dict:
         """Enhanced user agent analysis with scoring and detailed categorization."""
         if not user_agent:
             return {
@@ -374,28 +373,28 @@ class SecurityHeadersMiddleware:
             if bot in ua_lower:
                 score -= 2
                 patterns.append(f"legitimate_bot:{bot}")
-                logger.debug(f"Legitimate bot detected: {bot}")
+                logger.debug("Legitimate bot detected: %s", bot)
 
         # Check high-risk patterns
         for pattern in high_risk_patterns:
             if pattern in ua_lower:
                 score += 3
                 patterns.append(f"high_risk:{pattern}")
-                logger.debug(f"High-risk UA pattern detected: {pattern}")
+                logger.debug("High-risk UA pattern detected: %s", pattern)
 
         # Check medium-risk patterns
         for pattern in medium_risk_patterns:
             if pattern in ua_lower:
                 score += 2
                 patterns.append(f"medium_risk:{pattern}")
-                logger.debug(f"Medium-risk UA pattern detected: {pattern}")
+                logger.debug("Medium-risk UA pattern detected: %s", pattern)
 
         # Check low-risk patterns
         for pattern in low_risk_patterns:
             if pattern in ua_lower:
                 score += 1
                 patterns.append(f"low_risk:{pattern}")
-                logger.debug(f"Low-risk UA pattern detected: {pattern}")
+                logger.debug("Low-risk UA pattern detected: %s", pattern)
 
         # Bonus for suspicious combinations
         bot_patterns = ["bot", "crawler", "spider"]
@@ -486,14 +485,15 @@ class SecurityHeadersMiddleware:
                 patterns.append(ua_msg)
 
                 # Log detailed analysis
-                logger.warning(f"User agent analysis: {ua_analysis}")
+                logger.warning("User agent analysis: %s", ua_analysis)
 
                 # Note: High-risk user agents are now blocked in _before_request
                 # This is just for logging and pattern detection
 
         return patterns
 
-    def _log_response_security(self, response: Response):
+    @staticmethod
+    def _log_response_security(response: Response):
         """Log security-relevant response information."""
         security_info = {
             "timestamp": time.time(),
@@ -506,9 +506,7 @@ class SecurityHeadersMiddleware:
                 "csp": response.headers.get("Content-Security-Policy", ""),
                 "hsts": response.headers.get("Strict-Transport-Security", ""),
                 "x_frame_options": response.headers.get("X-Frame-Options", ""),
-                "x_content_type_options": response.headers.get(
-                    "X-Content-Type-Options", ""
-                ),
+                "x_content_type_options": response.headers.get("X-Content-Type-Options", ""),
                 "x_xss_protection": response.headers.get("X-XSS-Protection", ""),
                 "referrer_policy": response.headers.get("Referrer-Policy", ""),
                 "permissions_policy": response.headers.get("Permissions-Policy", ""),
@@ -524,9 +522,7 @@ class SecurityHeadersMiddleware:
                 "enable_csp": self.config.enable_content_security_policy,
                 "enable_hsts": self.config.enable_strict_transport_security,
                 "enable_x_frame_options": self.config.enable_x_frame_options,
-                "enable_x_content_type_options": (
-                    self.config.enable_x_content_type_options
-                ),
+                "enable_x_content_type_options": (self.config.enable_x_content_type_options),
                 "enable_x_xss_protection": self.config.enable_x_xss_protection,
                 "enable_referrer_policy": self.config.enable_referrer_policy,
                 "enable_permissions_policy": self.config.enable_permissions_policy,
@@ -543,9 +539,7 @@ class SecurityHeadersMiddleware:
                 "enable_request_id": self.config.enable_request_id,
                 "enable_correlation_id": self.config.enable_correlation_id,
                 "enable_enhanced_ua_analysis": self.config.enable_enhanced_ua_analysis,
-                "ua_suspicious_score_threshold": (
-                    self.config.ua_suspicious_score_threshold
-                ),
+                "ua_suspicious_score_threshold": (self.config.ua_suspicious_score_threshold),
                 "ua_blocking_enabled": self.config.ua_blocking_enabled,
             },
             "csp_nonce": self._csp_nonce,

@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
-"""
-🔒 Shared Security Setup
+"""🔒 Shared Security Setup
 ========================
 Common security configuration and middleware setup for deployment scripts.
 """
 
 import os
-from typing import Optional
 from security_headers import SecurityHeadersMiddleware, SecurityHeadersConfig
 
 
 def create_security_config(environment: str = "development") -> SecurityHeadersConfig:
-    """
-    Create security configuration based on environment.
+    """Create security configuration based on environment.
 
     Args:
         environment: Environment name ('development', 'testing', 'production')
@@ -38,15 +35,12 @@ def create_security_config(environment: str = "development") -> SecurityHeadersC
         enable_correlation_id=True,
         enable_enhanced_ua_analysis=True,
         ua_suspicious_score_threshold=4,
-        ua_blocking_enabled=is_production  # Block suspicious UAs in production only
+        ua_blocking_enabled=is_production,  # Block suspicious UAs in production only
     )
 
 
-def setup_security_middleware(
-    app, environment: str = "development"
-) -> SecurityHeadersMiddleware:
-    """
-    Set up security headers middleware for a Flask app.
+def setup_security_middleware(app, environment: str = "development") -> SecurityHeadersMiddleware:
+    """Set up security headers middleware for a Flask app.
 
     Args:
         app: Flask application instance
@@ -60,26 +54,24 @@ def setup_security_middleware(
 
     # Log security setup
     import logging
+
     logger = logging.getLogger(__name__)
-    logger.info(
-        "✅ Security headers middleware initialized for %s environment", environment
-    )
+    logger.info("✅ Security headers middleware initialized for %s environment", environment)
 
     return middleware
 
 
 def get_environment() -> str:
-    """
-    Determine current environment from environment variables.
+    """Determine current environment from environment variables.
 
     Returns:
         Environment name ('development', 'testing', 'production')
     """
-    env = os.environ.get('FLASK_ENV', 'development').lower()
+    env = os.environ.get("FLASK_ENV", "development").lower()
 
     # Map common environment names
-    if env in ['prod', 'production', 'live']:
-        return 'production'
-    if env in ['test', 'testing', 'staging']:
-        return 'testing'
-    return 'development'
+    if env in ["prod", "production", "live"]:
+        return "production"
+    if env in ["test", "testing", "staging"]:
+        return "testing"
+    return "development"

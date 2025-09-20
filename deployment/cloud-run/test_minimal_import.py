@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""
-Minimal test to isolate the API issue
-"""
+"""Minimal test to isolate the API issue"""
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+
+os.environ["ADMIN_API_KEY"] = "test123"
 
 print("🔍 Starting minimal import test...")
 
@@ -12,6 +11,7 @@ try:
     print("1. Importing Flask and Flask-RESTX...")
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Basic imports successful")
 except Exception as e:
     print(f"❌ Basic imports failed: {e}")
@@ -27,7 +27,7 @@ except Exception as e:
 
 try:
     print("3. Creating API object...")
-    api = Api(app, version='1.0.0', title='Test')
+    api = Api(app, version="1.0.0", title="Test")
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
@@ -52,4 +52,4 @@ except Exception as e:
     print(f"Error type: {type(e)}")
     exit(1)
 
-print("🎉 All tests passed!") 
+print("🎉 All tests passed!")

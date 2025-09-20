@@ -1,34 +1,34 @@
-            # Get the actual words
-            # Get top word indices for this topic
-        # Add topic scores as features
-        # Apply SVD to reduce dimensions and extract topics
-        # Apply sentiment analyzer to get scores
-        # Assign dominant topic to each document
-        # Average word length
-        # Character count
-        # Convert topics to DataFrame for easier inspection
-        # Create TF-IDF vectorizer
-        # Create sentiment category based on compound score
-        # Ensure NLTK resources are downloaded
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Extract basic text features
-        # Extract basic time components
-        # Extract sentiment components into separate columns
-        # Extract sentiment features
-        # Extract time features
-        # Extract topic features if requested
-        # Get feature names (words)
-        # Get top words for each topic
-        # Lexical diversity (unique words / total words)
-        # Sentence count
-        # Time of day features
-        # Transform texts to TF-IDF matrix
-        # Try to ensure timestamp column is datetime type
-        # Unique word count
-        # Word count
-        # Words per sentence
+# Get the actual words
+# Get top word indices for this topic
+# Add topic scores as features
+# Apply SVD to reduce dimensions and extract topics
+# Apply sentiment analyzer to get scores
+# Assign dominant topic to each document
+# Average word length
+# Character count
+# Convert topics to DataFrame for easier inspection
+# Create TF-IDF vectorizer
+# Create sentiment category based on compound score
+# Ensure NLTK resources are downloaded
+# Ensure text column is string type
+# Ensure text column is string type
+# Ensure text column is string type
+# Extract basic text features
+# Extract basic time components
+# Extract sentiment components into separate columns
+# Extract sentiment features
+# Extract time features
+# Extract topic features if requested
+# Get feature names (words)
+# Get top words for each topic
+# Lexical diversity (unique words / total words)
+# Sentence count
+# Time of day features
+# Transform texts to TF-IDF matrix
+# Try to ensure timestamp column is datetime type
+# Unique word count
+# Word count
+# Words per sentence
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
 from nltk.sentiment import SentimentIntensityAnalyzer
@@ -39,8 +39,6 @@ import nltk
 import numpy as np
 import pandas as pd
 import re
-
-
 
 
 logging.basicConfig(
@@ -86,24 +84,24 @@ class FeatureEngineer:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: (np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0)
         )
 
         df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
 
         df["words_per_sentence"] = df.apply(
-            lambda row: row["word_count"] / row["sentence_count"]
-            if row["sentence_count"] > 0
-            else 0,
+            lambda row: (
+                row["word_count"] / row["sentence_count"] if row["sentence_count"] > 0 else 0
+            ),
             axis=1,
         )
 
         df["unique_word_count"] = df[text_column].apply(lambda x: len(set(x.split())))
 
         df["lexical_diversity"] = df.apply(
-            lambda row: row["unique_word_count"] / row["word_count"]
-            if row["word_count"] > 0
-            else 0,
+            lambda row: (
+                row["unique_word_count"] / row["word_count"] if row["word_count"] > 0 else 0
+            ),
             axis=1,
         )
 
@@ -142,9 +140,9 @@ class FeatureEngineer:
         df["sentiment_compound"] = sentiments.apply(lambda x: x["compound"])
 
         df["sentiment_category"] = df["sentiment_compound"].apply(
-            lambda score: "positive"
-            if score > 0.05
-            else ("negative" if score < -0.05 else "neutral")
+            lambda score: (
+                "positive" if score > 0.05 else ("negative" if score < -0.05 else "neutral")
+            )
         )
 
         return df

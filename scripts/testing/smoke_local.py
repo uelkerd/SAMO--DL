@@ -29,6 +29,7 @@ import asyncio  # ensure available for ws async path
 # WebSocket client: prefer websocket-client if available; fallback to websockets (async)
 try:
     import websocket  # type: ignore
+
     WEBSOCKET_BACKEND = "websocket-client"
 except Exception:
     websocket = None  # type: ignore
@@ -140,11 +141,7 @@ def phase_auth_login_refresh_logout(
             json={"username": "tester@example.com", "password": "secret123"},
             timeout=10,
         )
-        data = (
-            r.json()
-            if r.headers.get("content-type", "").startswith("application/json")
-            else {}
-        )
+        data = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
         access_token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         p("/auth/login", r.status_code, "token" if access_token else r.text[:60])
@@ -174,9 +171,7 @@ def phase_auth_login_refresh_logout(
                 )
                 new = (
                     r.json()
-                    if r.headers.get("content-type", "").startswith(
-                        "application/json"
-                    )
+                    if r.headers.get("content-type", "").startswith("application/json")
                     else {}
                 )
                 access_token = new.get("access_token", access_token)
@@ -364,10 +359,7 @@ def phase_websocket(
 ) -> None:
     """Attempt a minimal WS exchange if HTTPS → WSS; otherwise print skipped."""
     if base_url.startswith("https://"):
-        ws_url = (
-            url("/ws/realtime").replace("https://", "wss://")
-            + f"?token={elevated}"
-        )
+        ws_url = url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
     else:
         ws_url = None
     if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
@@ -388,6 +380,7 @@ def phase_websocket(
         except Exception as exc:
             p("WS /ws/realtime", None, f"error: {exc}")
     elif ws_url and WEBSOCKET_BACKEND == "websockets" and websockets is not None:
+
         async def ws_run():
             """Minimal WS flow using websockets client for smoke tests."""
             try:

@@ -6,13 +6,13 @@ from string import Template
 
 
 def _read(path: str) -> str:
-    with open(path, 'r') as f:
+    with open(path) as f:
         return f.read()
 
 
 def _write(path: str, content: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         f.write(content)
 
 
@@ -23,10 +23,10 @@ def update_deployment_config(repo_id: str, model_info: Dict[str, Any], templates
     cfg = {
         "model_name": repo_id,
         "model_type": "custom_trained",
-        "emotion_labels": model_info['emotion_labels'],
-        "num_labels": model_info['num_labels'],
-        "id2label": model_info['id2label'],
-        "label2id": model_info['label2id'],
+        "emotion_labels": model_info["emotion_labels"],
+        "num_labels": model_info["num_labels"],
+        "id2label": model_info["id2label"],
+        "label2id": model_info["label2id"],
         "deployment_ready": True,
         "deployment_options": {
             "serverless_api": {

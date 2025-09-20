@@ -8,9 +8,10 @@ This fixes the duplicate data issue that caused model collapse.
 
 import json
 
+
 def create_fixed_bulletproof_notebook():
     """Create the fixed bulletproof notebook content"""
-    
+
     notebook_content = {
         "cells": [
             {
@@ -27,8 +28,8 @@ def create_fixed_bulletproof_notebook():
                     "- Original 150 high-quality journal samples\n",
                     "- CMU-MOSEI samples for diversity\n",
                     "- **UNIQUE** fallback dataset (144 samples, no duplicates)\n",
-                    "- Optimized hyperparameters for 75-85% F1"
-                ]
+                    "- Optimized hyperparameters for 75-85% F1",
+                ],
             },
             {
                 "cell_type": "code",
@@ -37,37 +38,37 @@ def create_fixed_bulletproof_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas"
-                ]
+                    "!pip install transformers torch scikit-learn numpy pandas",
+                ],
             },
             {
                 "cell_type": "code",
-                    "execution_count": None,
-                    "metadata": {},
-                    "outputs": [],
-                    "source": [
-                        "# Import libraries\n",
-                        "import json\n",
-                        "import pandas as pd\n",
-                        "import numpy as np\n",
-                        "import torch\n",
-                        "from torch.utils.data import Dataset, DataLoader\n",
-                        "from transformers import (\n",
-                        "    AutoTokenizer,\n",
-                        "    AutoModelForSequenceClassification,\n",
-                        "    TrainingArguments,\n",
-                        "    Trainer,\n",
-                        "    EarlyStoppingCallback\n",
-                        ")\n",
-                        "from sklearn.model_selection import train_test_split\n",
-                        "from sklearn.preprocessing import LabelEncoder\n",
-                        "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
-                        "import warnings\n",
-                        "warnings.filterwarnings('ignore')\n",
-                        "\n",
-                        "print('🚀 FIXED BULLETPROOF TRAINING - UNIQUE DATASET')\n",
-                        "print('=' * 60)"
-                    ]
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "# Import libraries\n",
+                    "import json\n",
+                    "import pandas as pd\n",
+                    "import numpy as np\n",
+                    "import torch\n",
+                    "from torch.utils.data import Dataset, DataLoader\n",
+                    "from transformers import (\n",
+                    "    AutoTokenizer,\n",
+                    "    AutoModelForSequenceClassification,\n",
+                    "    TrainingArguments,\n",
+                    "    Trainer,\n",
+                    "    EarlyStoppingCallback\n",
+                    ")\n",
+                    "from sklearn.model_selection import train_test_split\n",
+                    "from sklearn.preprocessing import LabelEncoder\n",
+                    "from sklearn.metrics import f1_score, accuracy_score, classification_report\n",
+                    "import warnings\n",
+                    "warnings.filterwarnings('ignore')\n",
+                    "\n",
+                    "print('🚀 FIXED BULLETPROOF TRAINING - UNIQUE DATASET')\n",
+                    "print('=' * 60)",
+                ],
             },
             {
                 "cell_type": "code",
@@ -108,8 +109,8 @@ def create_fixed_bulletproof_notebook():
                     "\n",
                     "print(f'✅ Data directory found: {data_path}')\n",
                     "print('📂 Listing data files:')\n",
-                    "!ls -la {data_path}/"
-                ]
+                    "!ls -la {data_path}/",
+                ],
             },
             {
                 "cell_type": "code",
@@ -175,8 +176,8 @@ def create_fixed_bulletproof_notebook():
                     "if len(texts) != len(unique_texts):\n",
                     "    print('❌ WARNING: DUPLICATES FOUND! This will cause model collapse!')\n",
                     "else:\n",
-                    "    print('✅ All samples are unique - no model collapse risk!')"
-                ]
+                    "    print('✅ All samples are unique - no model collapse risk!')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -212,8 +213,8 @@ def create_fixed_bulletproof_notebook():
                     "\n",
                     "print('\\n📊 Emotion Distribution:')\n",
                     "for emotion, count in sorted(emotion_counts.items()):\n",
-                    "    print(f'  {emotion}: {count} samples')"
-                ]
+                    "    print(f'  {emotion}: {count} samples')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -248,8 +249,8 @@ def create_fixed_bulletproof_notebook():
                     "            'input_ids': encoding['input_ids'].flatten(),\n",
                     "            'attention_mask': encoding['attention_mask'].flatten(),\n",
                     "            'labels': torch.tensor(label, dtype=torch.long)\n",
-                    "        }"
-                ]
+                    "        }",
+                ],
             },
             {
                 "cell_type": "code",
@@ -274,8 +275,8 @@ def create_fixed_bulletproof_notebook():
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print('✅ Datasets created successfully')"
-                ]
+                    "print('✅ Datasets created successfully')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -291,8 +292,8 @@ def create_fixed_bulletproof_notebook():
                     "    f1 = f1_score(labels, predictions, average='weighted')\n",
                     "    accuracy = accuracy_score(labels, predictions)\n",
                     "    \n",
-                    "    return {'f1': f1, 'accuracy': accuracy}"
-                ]
+                    "    return {'f1': f1, 'accuracy': accuracy}",
+                ],
             },
             {
                 "cell_type": "code",
@@ -344,8 +345,8 @@ def create_fixed_bulletproof_notebook():
                     "print(f'🧪 Evaluating on {len(test_labels)} samples')\n",
                     "\n",
                     "# Start training\n",
-                    "trainer.train()"
-                ]
+                    "trainer.train()",
+                ],
             },
             {
                 "cell_type": "code",
@@ -357,13 +358,13 @@ def create_fixed_bulletproof_notebook():
                     "print('📊 Evaluating final model...')\n",
                     "results = trainer.evaluate()\n",
                     "\n",
-                    "print(f'🏆 Final F1 Score: {results[\"eval_f1\"]:.4f} ({results[\"eval_f1\"]*100:.2f}%)')\n",
-                    "print(f'🎯 Target achieved: {\"✅ YES!\" if results[\"eval_f1\"] >= 0.75 else \"❌ Not yet\"}')\n",
+                    'print(f\'🏆 Final F1 Score: {results["eval_f1"]:.4f} ({results["eval_f1"]*100:.2f}%)\')\n',
+                    'print(f\'🎯 Target achieved: {"✅ YES!" if results["eval_f1"] >= 0.75 else "❌ Not yet"}\')\n',
                     "\n",
                     "# Save model\n",
                     "trainer.save_model('./emotion_model_fixed_bulletproof_final')\n",
-                    "print('💾 Model saved to ./emotion_model_fixed_bulletproof_final')"
-                ]
+                    "print('💾 Model saved to ./emotion_model_fixed_bulletproof_final')",
+                ],
             },
             {
                 "cell_type": "code",
@@ -375,11 +376,11 @@ def create_fixed_bulletproof_notebook():
                     "print('🧪 Testing on sample texts...')\n",
                     "\n",
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"I'm so frustrated with this project.\",\n",
-                    "    \"I feel anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm feeling overwhelmed with tasks.\"\n",
+                    '    "I\'m feeling really happy today!",\n',
+                    '    "I\'m so frustrated with this project.",\n',
+                    '    "I feel anxious about the presentation.",\n',
+                    '    "I\'m grateful for all the support.",\n',
+                    '    "I\'m feeling overwhelmed with tasks."\n',
                     "]\n",
                     "\n",
                     "model.eval()\n",
@@ -400,8 +401,8 @@ def create_fixed_bulletproof_notebook():
                     "        predicted_emotion = label_encoder.inverse_transform([predicted_class])[0]\n",
                     "        \n",
                     "        print(f'{i}. Text: {text}')\n",
-                    "        print(f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')"
-                ]
+                    "        print(f'   Predicted: {predicted_emotion} (confidence: {confidence:.3f})\\n')",
+                ],
             },
             {
                 "cell_type": "markdown",
@@ -424,37 +425,32 @@ def create_fixed_bulletproof_notebook():
                     "**Next Steps:**\n",
                     "1. Review the F1 score achieved\n",
                     "2. If below 75%, consider adding more real data\n",
-                    "3. Fine-tune hyperparameters if needed"
-                ]
-            }
+                    "3. Fine-tune hyperparameters if needed",
+                ],
+            },
         ],
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            },
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
             "language_info": {
-                "codemirror_mode": {
-                    "name": "ipython",
-                    "version": 3
-                },
+                "codemirror_mode": {"name": "ipython", "version": 3},
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
-    
-    with open('notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb', 'w') as f:
+
+    with open("notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook_content, f, indent=2)
-    
-    print("✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb")
+
+    print(
+        "✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb"
+    )
     print("📋 Instructions:")
     print("  1. Download the notebook file")
     print("  2. Upload to Google Colab")
@@ -467,5 +463,6 @@ def create_fixed_bulletproof_notebook():
     print("  - Optimized hyperparameters")
     print("  - Robust error handling")
 
+
 if __name__ == "__main__":
-    create_fixed_bulletproof_notebook() 
+    create_fixed_bulletproof_notebook()

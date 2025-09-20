@@ -45,9 +45,9 @@ def debug_dataset_structure():
             logger.info(f"📊 First item type: {type(first_item)}")
             logger.info(f"📊 First item: {first_item}")
 
-            if hasattr(first_item, 'keys'):
+            if hasattr(first_item, "keys"):
                 logger.info(f"📊 First item keys: {list(first_item.keys())}")
-            elif hasattr(first_item, '__dict__'):
+            elif hasattr(first_item, "__dict__"):
                 logger.info(f"📊 First item attributes: {list(first_item.__dict__.keys())}")
 
         # Check train data structure
@@ -61,10 +61,10 @@ def debug_dataset_structure():
             logger.info(f"📊 First train item: {first_train_item}")
 
         # Check if it's a HuggingFace dataset
-        if hasattr(test_data, 'features'):
+        if hasattr(test_data, "features"):
             logger.info(f"📊 Dataset features: {test_data.features}")
-        
-        if hasattr(test_data, 'column_names'):
+
+        if hasattr(test_data, "column_names"):
             logger.info(f"📊 Dataset columns: {test_data.column_names}")
 
         return True
@@ -72,6 +72,7 @@ def debug_dataset_structure():
     except Exception as e:
         logger.error(f"❌ Debug failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

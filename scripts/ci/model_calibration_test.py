@@ -40,7 +40,9 @@ class SimpleBERTClassifier(torch.nn.Module):
         self.temperature = torch.nn.Parameter(torch.ones(1))
 
     def forward(self, input_ids, attention_mask, token_type_ids=None):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+        outputs = self.bert(
+            input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids
+        )
         pooled_output = outputs.pooler_output
         logits = self.classifier(pooled_output)
         return logits
@@ -88,10 +90,10 @@ def create_test_data():
 
     # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-    
+
     # Basic validation
     assert len(test_texts) == len(emotions), "Texts and emotions must have same length"
-    
+
     return test_texts, emotions, emotion_to_idx, tokenizer
 
 
@@ -102,7 +104,7 @@ def test_model_calibration():
 
         # Create test data
         test_texts, emotions, emotion_to_idx, tokenizer = create_test_data()
-        
+
         # Create model
         model = SimpleBERTClassifier("bert-base-uncased", num_emotions=28)
         model.eval()
@@ -113,17 +115,13 @@ def test_model_calibration():
         with torch.no_grad():
             # Tokenize
             inputs = tokenizer(
-                test_texts[0],
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=512
+                test_texts[0], return_tensors="pt", padding=True, truncation=True, max_length=512
             )
-            
+
             # Get predictions (only pass required arguments)
             outputs = model(inputs["input_ids"], inputs["attention_mask"])
             probabilities = torch.sigmoid(outputs)
-            
+
             logger.info(f"✅ Model inference successful, output shape: {outputs.shape}")
 
         # Test temperature setting
@@ -141,9 +139,9 @@ def test_model_calibration():
             labels = torch.zeros(1, 28)  # Match the single prediction shape
             if emotions[0] in emotion_to_idx:
                 labels[0, emotion_to_idx[emotions[0]]] = 1.0
-            
+
             # Calculate F1 score
-            f1 = f1_score(labels.flatten(), predictions.flatten(), average='micro')
+            f1 = f1_score(labels.flatten(), predictions.flatten(), average="micro")
             logger.info(f"✅ Metrics calculation successful, F1: {f1:.3f}")
 
         logger.info("✅ Model calibration test passed")

@@ -1,5 +1,29 @@
+# Cloud Build configuration with optimized timeout and machine type for model downloading
+timeout: 1800s  # 30 minutes - enough time for large model downloads
+
+options:
+  # Use high-performance machine for faster builds and model downloads
+  machineType: 'E2_HIGHCPU_32'
+  # Larger disk for model storage during build
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _IMAGE_NAME: 'samo-emotion-api-secure'
+  _DOCKERFILE: 'deployment/docker/Dockerfile.optimized'
+  _REGION: 'us-central1'
+  _PROJECT_ID: 'the-tendril-466607-n8'
+
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure', '-f', 'deployment/cloud-run/Dockerfile.secure', '.']
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/samo-dl/${_IMAGE_NAME}'
+      - '-f'
+      - '${_DOCKERFILE}'
+      - '.'
+    timeout: 1800s  # 30 minutes for this step specifically
+
 images:
-  - 'us-central1-docker.pkg.dev/the-tendril-466607-n8/samo-dl/samo-emotion-api-secure'
+  - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/samo-dl/${_IMAGE_NAME}'

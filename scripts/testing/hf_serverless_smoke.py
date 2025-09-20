@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import requests
 
-HF_REPO = os.getenv("HF_REPO", "0xmnrv/samo")
+HF_REPO = os.getenv("HF_REPO", "duelker/samo-goemotions-deberta-v3-large")
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
 
 API_URL = f"https://api-inference.huggingface.co/models/{HF_REPO}"
@@ -66,7 +66,7 @@ def main() -> int:
         r = _post_with_retries(payload)
         dt = (time.time() - t0) * 1000
         print("—" * 40)
-        print(f"Input: {repr(text)}")
+        print(f"Input: {text!r}")
         print(f"Status: {r.status_code} ({dt:.1f} ms)")
         try:
             obj = r.json()

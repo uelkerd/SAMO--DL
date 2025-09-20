@@ -12,13 +12,14 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     # dotenv not installed, skip loading
     pass
 
 # Parse DATABASE_URL or fall back to individual env vars
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 if DATABASE_URL:
     parsed = urlparse(DATABASE_URL)
     DB_USER = parsed.username
@@ -28,11 +29,11 @@ if DATABASE_URL:
     DB_NAME = parsed.path.lstrip("/")
 else:
     # Fall back to individual environment variables
-    DB_USER = os.environ.get("DB_USER")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    DB_USER = os.environ.get("DB_USER", "")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PORT = os.environ.get("DB_PORT", "5432")
-    DB_NAME = os.environ.get("DB_NAME")
+    DB_NAME = os.environ.get("DB_NAME", "")
 
 # Validate required environment variables
 if not DB_USER:
@@ -59,10 +60,7 @@ def check_pgvector():
             # Create a cursor
             with conn.cursor() as cur:
                 # Check if vector extension is available
-                cur.execute(
-                    "SELECT extname FROM pg_extension "
-                    "WHERE extname = 'vector';"
-                )
+                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'vector';")
                 extension_installed = cur.fetchone() is not None
 
         if extension_installed:
@@ -77,9 +75,7 @@ def check_pgvector():
                 "# e.g., 14/15/16"
             )
             logging.info("   - On macOS with Homebrew: brew install pgvector")
-            logging.info(
-                "   - From source: https://github.com/pgvector/pgvector#installation"
-            )
+            logging.info("   - From source: https://github.com/pgvector/pgvector#installation")
             logging.info("\n2. Enable the extension in your database:")
             logging.info("   - psql -U postgres")
             logging.info("   - \\c %s", DB_NAME)

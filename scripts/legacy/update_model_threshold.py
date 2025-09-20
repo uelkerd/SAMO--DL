@@ -1,10 +1,10 @@
-        # Create model
-        # Load checkpoint
-        # Load state dict
-        # Save model
-        # Set temperature
-        # Update threshold
-    # Find an existing model file
+# Create model
+# Load checkpoint
+# Load state dict
+# Save model
+# Set temperature
+# Update threshold
+# Find an existing model file
 # Add src to path
 # Configure logging
 # Constants
@@ -16,8 +16,6 @@ import logging
 import os
 import sys
 import torch
-
-
 
 
 """

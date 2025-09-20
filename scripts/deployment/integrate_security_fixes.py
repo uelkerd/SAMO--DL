@@ -17,7 +17,8 @@ import shlex
 import time
 import requests
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List
+
 
 class IntegratedSecurityOptimization:
     def __init__(self):
@@ -31,11 +32,15 @@ class IntegratedSecurityOptimization:
     def get_project_id():
         """Get current GCP project ID dynamically"""
         try:
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
-                                  capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["gcloud", "config", "get-value", "project"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
             return result.stdout.strip()
         except subprocess.CalledProcessError:
-            return os.environ.get('GOOGLE_CLOUD_PROJECT', 'the-tendril-466607-n8')
+            return os.environ.get("GOOGLE_CLOUD_PROJECT", "the-tendril-466607-n8")
 
     @staticmethod
     def log(message: str, level: str = "INFO"):
@@ -100,7 +105,7 @@ fastapi==0.104.1
 """
 
         requirements_file = self.deployment_dir / "requirements_secure.txt"
-        with open(requirements_file, 'w') as f:
+        with open(requirements_file, "w") as f:
             f.write(secure_requirements)
 
         self.log("✅ Requirements updated with security fixes")
@@ -117,7 +122,7 @@ steps:
     timeout: '1800s'
     env:
       - 'PROJECT_ID={self.project_id}'
-  
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'gcloud'
@@ -150,7 +155,7 @@ substitutions:
 """
 
         cloudbuild_file = self.deployment_dir / "cloudbuild.yaml"
-        with open(cloudbuild_file, 'w') as f:
+        with open(cloudbuild_file, "w") as f:
             f.write(enhanced_cloudbuild)
 
         self.log("✅ Cloud Build configuration enhanced with security")
@@ -161,10 +166,14 @@ substitutions:
 
         # Build and deploy using Cloud Build
         build_command = [
-            'gcloud', 'builds', 'submit',
-            '--config', str(self.deployment_dir / 'cloudbuild.yaml'),
-            '--substitutions', f'_ADMIN_API_KEY=samo-admin-key-2024-secure-{int(time.time())}',
-            str(self.deployment_dir)
+            "gcloud",
+            "builds",
+            "submit",
+            "--config",
+            str(self.deployment_dir / "cloudbuild.yaml"),
+            "--substitutions",
+            f"_ADMIN_API_KEY=samo-admin-key-2024-secure-{int(time.time())}",
+            str(self.deployment_dir),
         ]
 
         self.run_command(build_command)
@@ -175,10 +184,19 @@ substitutions:
         self.log("Testing integrated deployment...")
 
         # Get service URL
-        result = self.run_command([
-            'gcloud', 'run', 'services', 'describe', self.service_name,
-            '--region', self.region, '--format', 'value(status.url)'
-        ])
+        result = self.run_command(
+            [
+                "gcloud",
+                "run",
+                "services",
+                "describe",
+                self.service_name,
+                "--region",
+                self.region,
+                "--format",
+                "value(status.url)",
+            ]
+        )
         service_url = result.stdout.strip()
 
         if not service_url:
@@ -196,10 +214,10 @@ substitutions:
         # Test security headers
         headers_response = requests.get(f"{service_url}/health", timeout=10)
         security_headers = [
-            'Content-Security-Policy',
-            'X-Content-Type-Options',
-            'X-Frame-Options',
-            'X-XSS-Protection'
+            "Content-Security-Policy",
+            "X-Content-Type-Options",
+            "X-Frame-Options",
+            "X-XSS-Protection",
         ]
 
         missing_headers = []
@@ -220,7 +238,7 @@ substitutions:
                     f"{service_url}/predict",
                     json={"text": "test"},
                     headers={"Content-Type": "application/json"},
-                    timeout=5
+                    timeout=5,
                 )
                 responses.append(response.status_code)
             except requests.exceptions.RequestException:
@@ -236,12 +254,12 @@ substitutions:
             f"{service_url}/predict",
             json={"text": "I am feeling happy today!"},
             headers={"Content-Type": "application/json"},
-            timeout=10
+            timeout=10,
         )
 
         if prediction_response.status_code == 200:
             result = prediction_response.json()
-            if 'emotion' in result and 'confidence' in result:
+            if "emotion" in result and "confidence" in result:
                 self.log(f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})")
             else:
                 self.log("⚠️ Prediction response format unexpected")
@@ -285,12 +303,15 @@ substitutions:
             self.log("✅ Graceful shutdown enabled")
             self.log("")
             self.log("🔗 Service URL: Check Cloud Run console or run:")
-            self.log(f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'")
+            self.log(
+                f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'"
+            )
 
         except Exception as e:
-            self.log(f"❌ Integration failed: {str(e)}", "ERROR")
+            self.log(f"❌ Integration failed: {e!s}", "ERROR")
             raise
+
 
 if __name__ == "__main__":
     integrator = IntegratedSecurityOptimization()
-    integrator.run() 
+    integrator.run()

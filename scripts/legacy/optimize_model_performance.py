@@ -1,40 +1,40 @@
-                # Prune 20% of weights with lowest magnitude
-            # Benchmark
-            # Get predictions
-            # Measure inference time
-            # Tokenize
-            # Tokenize batch
-            # Warmup
-        # 1. Batch processing
-        # 1. Pruning - Remove less important weights
-        # 2. Input preprocessing optimization
-        # 2. Quantization - Reduce precision
-        # 3. Knowledge distillation (if teacher model available)
-        # 3. Memory optimization
-        # Apply optimizations
-        # Benchmark metrics
-        # Benchmark performance
-        # Cache tokenizer vocabulary
-        # Calculate statistics
-        # Convert to ONNX
-        # Create dummy input
-        # Enable gradient checkpointing for memory efficiency
-        # For now, skip this step
-        # Initialize model
-        # Initialize optimizer
-        # Load checkpoint
-        # Load model
-        # Load state dict
-        # Load tokenizer
-        # ONNX export
-        # Overall assessment
-        # Prune attention heads and layers
-        # Quantize the model
-        # Save optimized model
-        # Success criteria check
-        # This would require a larger teacher model
-        # Use mixed precision if available
-    # Check if model exists
+# Prune 20% of weights with lowest magnitude
+# Benchmark
+# Get predictions
+# Measure inference time
+# Tokenize
+# Tokenize batch
+# Warmup
+# 1. Batch processing
+# 1. Pruning - Remove less important weights
+# 2. Input preprocessing optimization
+# 2. Quantization - Reduce precision
+# 3. Knowledge distillation (if teacher model available)
+# 3. Memory optimization
+# Apply optimizations
+# Benchmark metrics
+# Benchmark performance
+# Cache tokenizer vocabulary
+# Calculate statistics
+# Convert to ONNX
+# Create dummy input
+# Enable gradient checkpointing for memory efficiency
+# For now, skip this step
+# Initialize model
+# Initialize optimizer
+# Load checkpoint
+# Load model
+# Load state dict
+# Load tokenizer
+# ONNX export
+# Overall assessment
+# Prune attention heads and layers
+# Quantize the model
+# Save optimized model
+# Success criteria check
+# This would require a larger teacher model
+# Use mixed precision if available
+# Check if model exists
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -48,9 +48,6 @@ import numpy as np
 import sys
 import time
 import torch
-
-
-
 
 
 """SAMO Model Performance Optimization Script.

@@ -1,0 +1,61 @@
+# Gitleaks configuration for SAMO-DL project
+# This file configures gitleaks to ignore false positives for ML tokenizer imports
+
+[allowlist]
+# ML tokenizer imports - these are false positives for "generic-api-key"
+# The word "tokenizer" in ML context refers to model components, not API keys
+description = "ML tokenizer imports that are false positives for generic-api-key detection"
+
+[[allowlist.rules]]
+description = "T5Tokenizer and T5ForConditionalGeneration imports"
+regex = '''from transformers import T5Tokenizer, T5ForConditionalGeneration'''
+
+[[allowlist.rules]]
+description = "AutoTokenizer and AutoModelForSequenceClassification imports"
+regex = '''from transformers import AutoTokenizer, AutoModelForSequenceClassification'''
+
+[[allowlist.rules]]
+description = "T5Tokenizer standalone import"
+regex = '''from transformers import T5Tokenizer'''
+
+[[allowlist.rules]]
+description = "AutoTokenizer standalone import"
+regex = '''from transformers import AutoTokenizer'''
+
+[[allowlist.rules]]
+description = "T5ForConditionalGeneration standalone import"
+regex = '''from transformers import T5ForConditionalGeneration'''
+
+[[allowlist.rules]]
+description = "AutoModelForSequenceClassification standalone import"
+regex = '''from transformers import AutoModelForSequenceClassification'''
+
+# Additional ML-related patterns that might trigger false positives
+[[allowlist.rules]]
+description = "Model loading with tokenizer references"
+regex = '''tokenizer.*=.*from_pretrained'''
+
+[[allowlist.rules]]
+description = "Tokenizer initialization patterns"
+regex = '''AutoTokenizer\.from_pretrained'''
+
+[[allowlist.rules]]
+description = "T5 tokenizer initialization patterns"
+regex = '''T5Tokenizer\.from_pretrained'''
+
+[[allowlist.rules]]
+description = "Model loading patterns with tokenizer"
+regex = '''\.from_pretrained.*tokenizer'''
+
+[[allowlist.rules]]
+description = "Tokenizer variable assignments"
+regex = '''tokenizer\s*=\s*.*from_pretrained'''
+
+# File-specific allowlist for known false positive files
+[[allowlist.rules]]
+description = "scripts/pre_download_models.py - ML model download script"
+regex = '''scripts/pre_download_models\.py'''
+
+[[allowlist.rules]]
+description = "src/startup_api.py - ML model loading in API"
+regex = '''src/startup_api\.py'''

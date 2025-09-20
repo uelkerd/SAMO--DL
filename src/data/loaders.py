@@ -6,10 +6,6 @@ import json
 import pandas as pd
 
 
-
-
-
-
 def load_entries_from_db(
     limit: Optional[int] = None, user_id: Optional[int] = None
 ) -> pd.DataFrame:

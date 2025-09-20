@@ -1,13 +1,13 @@
-        # Calculate compression ratio
-        # Create a simple model for testing
-        # Create dummy input
-        # Create simple model
-        # Get compressed model size and performance
-        # Get original model size and performance
-        # Simple forward pass for testing
-        # Test quantization
-        # Test saving compressed model
-        # Validate compression
+# Calculate compression ratio
+# Create a simple model for testing
+# Create dummy input
+# Create simple model
+# Get compressed model size and performance
+# Get original model size and performance
+# Simple forward pass for testing
+# Test quantization
+# Test saving compressed model
+# Validate compression
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
@@ -17,8 +17,6 @@ import logging
 import sys
 import tempfile
 import torch
-
-
 
 
 """
@@ -110,9 +108,7 @@ def test_model_compression():
         logger.info("Original inference time: {original_time:.2f} ms")
 
         logger.info("Testing quantization...")
-        quantized_model = torch.quantization.quantize_dynamic(
-            model, {nn.Linear}, dtype=torch.qint8
-        )
+        quantized_model = torch.quantization.quantize_dynamic(model, {nn.Linear}, dtype=torch.qint8)
 
         compressed_size = get_model_size(quantized_model)
         benchmark_inference(quantized_model, dummy_input)

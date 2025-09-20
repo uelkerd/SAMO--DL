@@ -34,7 +34,7 @@ This guide covers deployment of the SAMO Emotion Detection API for both local de
    # Create virtual environment
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
    ```
@@ -356,10 +356,10 @@ CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api_server:app"]
    ```bash
    # Build image
    docker build -t samo-emotion-api .
-   
+
    # Tag for Azure
    docker tag samo-emotion-api your-registry.azurecr.io/samo-emotion-api:latest
-   
+
    # Push to Azure Container Registry
    docker push your-registry.azurecr.io/samo-emotion-api:latest
    ```
@@ -491,7 +491,7 @@ LOG_LEVEL=INFO
 2. **ONNX Export**
    ```python
    import torch.onnx
-   
+
    # Export model to ONNX
    torch.onnx.export(model, dummy_input, "model.onnx")
    ```
@@ -507,9 +507,9 @@ LOG_LEVEL=INFO
 2. **Enable Caching**
    ```python
    from flask_caching import Cache
-   
+
    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-   
+
    @cache.memoize(timeout=300)
    def cached_predict(text):
        return model.predict(text)
@@ -548,7 +548,7 @@ cp local_deployment/api_server.py.backup local_deployment/api_server.py
        server 127.0.0.1:8001;
        server 127.0.0.1:8002;
    }
-   
+
    server {
        listen 80;
        location / {
@@ -571,7 +571,7 @@ cp local_deployment/api_server.py.backup local_deployment/api_server.py
    ```bash
    # For Docker
    docker run -p 8000:8000 --memory=4g --cpus=2 samo-emotion-api
-   
+
    # For Kubernetes
    resources:
      requests:
@@ -615,10 +615,10 @@ cp local_deployment/api_server.py.backup local_deployment/api_server.py
    ```bash
    # Backup current model
    cp -r local_deployment/model local_deployment/model_backup_$(date +%Y%m%d)
-   
+
    # Deploy new model
    cp -r new_model/* local_deployment/model/
-   
+
    # Restart server
    pkill -f api_server
    python api_server.py &
@@ -628,10 +628,10 @@ cp local_deployment/api_server.py.backup local_deployment/api_server.py
    ```bash
    # Pull latest code
    git pull origin main
-   
+
    # Update dependencies
    pip install -r requirements.txt
-   
+
    # Restart server
    pkill -f api_server
    python api_server.py &

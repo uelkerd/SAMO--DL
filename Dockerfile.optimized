@@ -1,0 +1,65 @@
+# Optimized Dockerfile for Cloud Run with pre-downloaded models
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl=7.88.1-10+deb12u6 \
+    git=1:2.39.2-1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Set environment variables for model caching
+ENV HF_HOME=/app/models
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Copy requirements and install dependencies
+COPY dependencies/requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+# Create models directory
+RUN mkdir -p /app/models
+
+# Copy the pre-download script
+COPY scripts/pre_download_models.py .
+
+# Pre-download models during build (this will take time but ensures fast startup)
+RUN python pre_download_models.py
+
+# Copy model validation script (will be run at startup, not during build)
+COPY scripts/validate_models.py .
+RUN chmod +x validate_models.py
+
+# Copy source code
+COPY src/ ./src/
+COPY *.py ./
+
+# Create non-root user for security
+RUN groupadd -r samo && useradd -r -g samo -d /app -s /bin/bash samo
+
+# Set proper ownership and permissions
+RUN chown -R samo:samo /app && \
+    chmod -R 755 /app && \
+    chmod +x /app/validate_models.py
+
+# Switch to non-root user
+USER samo
+
+# Set home directory for the user
+ENV HOME=/app
+
+# Expose port (using higher port for non-root user)
+EXPOSE 8080
+
+# Set production environment variables for secure containerized deployment
+ENV PRODUCTION=true
+ENV DOCKER_CONTAINER=true
+ENV BIND_ALL_INTERFACES=true
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Run the optimized API
+CMD ["python", "src/startup_api.py"]
