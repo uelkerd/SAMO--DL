@@ -484,6 +484,33 @@ function showInlineMessage(message, targetElementId, type = 'error') {
 async function generateSampleText() {
     console.log('✨ Generating AI-powered sample journal text...');
 
+    // Define sample texts for fallback
+    const sampleTexts = [
+        "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began. Walking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. That's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed.",
+
+        "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. Now, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter.",
+
+        "I've been struggling with a decision that's been weighing heavily on my mind for weeks. The rational part of me knows what I should do, but my heart keeps pulling me in a different direction. It's that familiar tug-of-war between what feels safe and what feels authentic. Sometimes I wonder if we're meant to feel this conflicted about the paths we choose, or if clarity is something that comes only in hindsight. Tonight, I'm choosing to sit with the uncertainty rather than rush toward an answer.",
+
+        "There's something magical about rainy afternoons that makes me incredibly nostalgic. The sound of droplets against my window takes me back to childhood days when the world felt both infinite and completely contained within the walls of our small house. I remember how my grandmother used to say that rain was just the sky's way of crying happy tears. Looking back, I think she might have been onto something profound about finding beauty in moments of release.",
+
+        "I had one of those moments today where everything felt perfectly aligned. It wasn't anything dramatic – just a simple conversation with a stranger at the coffee shop who smiled genuinely and asked how my day was going. But something about that brief connection reminded me that kindness is still everywhere if we're paying attention. It's amazing how a single moment of human warmth can shift your entire perspective on the day.",
+
+        "I've been thinking a lot about the concept of home lately. Not just the physical space where I live, but that feeling of belonging that seems to come and go like the tide. Sometimes I feel most at home in unexpected places – a quiet corner of a library, a park bench under my favorite tree, or even in the middle of a crowded room filled with laughter. Maybe home isn't a place at all, but a feeling we carry within us.",
+
+        "Tonight I'm sitting on my balcony watching the city lights twinkle below, and I'm overwhelmed by how many stories are unfolding simultaneously around me. Behind each lit window is someone living their own complex narrative of hopes, fears, dreams, and disappointments. It's both humbling and comforting to remember that we're all just trying to figure it out as we go along. Sometimes feeling small in the grand scheme of things is exactly what we need.",
+
+        "I picked up a book today that I loved in college and was surprised by how differently it resonated with me now. The same words that once felt revolutionary now feel like old friends offering gentle wisdom. It made me realize how much I've changed without even noticing. Growth isn't always dramatic or obvious – sometimes it's just the quiet accumulation of experiences that slowly shift how we see the world.",
+
+        "There's something bittersweet about cleaning out old belongings and finding forgotten treasures from different phases of my life. Each item tells a story about who I used to be, the dreams I once had, and the paths I chose not to take. It's like archaeological evidence of my own becoming. I'm learning to feel grateful for all the versions of myself that led me here, even the ones that felt lost at the time.",
+
+        "I had a moment of pure joy today while listening to my favorite song on repeat. It's one of those tracks that never gets old, that seems to capture something essential about being alive. Music has this incredible ability to transport us instantly to emotional spaces we might struggle to access otherwise. Sometimes I think musicians are just emotional translators, helping us understand feelings we didn't even know we had.",
+
+        "The anxiety I've been carrying lately feels like a heavy backpack I forgot I was wearing. It's only when I consciously set it down that I realize how much energy it was taking just to carry it around. I'm learning that acknowledging difficult emotions doesn't make them stronger – it actually gives them permission to move through me instead of getting stuck. Today I'm practicing the art of gentle self-compassion.",
+
+        "I spent the morning in my garden, hands deep in the soil, and felt more grounded than I have in weeks. There's something deeply satisfying about nurturing something from seed to bloom. It reminds me that growth takes time, that patience is its own form of faith, and that some of the most beautiful things happen slowly, underground, before we can see any evidence of progress. Maybe I need to remember this about my own life too."
+    ];
+
     const textInput = document.getElementById('textInput');
     if (textInput) {
         textInput.value = '🤖 Generating AI text...';
@@ -575,58 +602,16 @@ async function generateSampleText() {
         showInlineSuccess('✅ Unique AI text generated with OpenAI!', 'textInput');
         return; // Exit here - don't fall back to sample texts
 
-        const sampleTexts = [
-            "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began. Walking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. That's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed.",
-
-            "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. Now, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter.",
-
-            "I've been struggling with a decision that's been weighing heavily on my mind for weeks. The rational part of me knows what I should do, but my heart keeps pulling me in a different direction. It's that familiar tug-of-war between what feels safe and what feels authentic. Sometimes I wonder if we're meant to feel this conflicted about the paths we choose, or if clarity is something that comes only in hindsight. Tonight, I'm choosing to sit with the uncertainty rather than rush toward an answer.",
-
-            "There's something magical about rainy afternoons that makes me incredibly nostalgic. The sound of droplets against my window takes me back to childhood days when the world felt both infinite and completely contained within the walls of our small house. I remember how my grandmother used to say that rain was just the sky's way of crying happy tears. Looking back, I think she might have been onto something profound about finding beauty in moments of release.",
-
-            "I had one of those moments today where everything felt perfectly aligned. It wasn't anything dramatic – just a simple conversation with a stranger at the coffee shop who smiled genuinely and asked how my day was going. But something about that brief connection reminded me that kindness is still everywhere if we're paying attention. It's amazing how a single moment of human warmth can shift your entire perspective on the day.",
-
-            "I've been thinking a lot about the concept of home lately. Not just the physical space where I live, but that feeling of belonging that seems to come and go like the tide. Sometimes I feel most at home in unexpected places – a quiet corner of a library, a park bench under my favorite tree, or even in the middle of a crowded room filled with laughter. Maybe home isn't a place at all, but a feeling we carry within us.",
-
-            "Tonight I'm sitting on my balcony watching the city lights twinkle below, and I'm overwhelmed by how many stories are unfolding simultaneously around me. Behind each lit window is someone living their own complex narrative of hopes, fears, dreams, and disappointments. It's both humbling and comforting to remember that we're all just trying to figure it out as we go along. Sometimes feeling small in the grand scheme of things is exactly what we need.",
-
-            "I picked up a book today that I loved in college and was surprised by how differently it resonated with me now. The same words that once felt revolutionary now feel like old friends offering gentle wisdom. It made me realize how much I've changed without even noticing. Growth isn't always dramatic or obvious – sometimes it's just the quiet accumulation of experiences that slowly shift how we see the world.",
-
-            "There's something bittersweet about cleaning out old belongings and finding forgotten treasures from different phases of my life. Each item tells a story about who I used to be, the dreams I once had, and the paths I chose not to take. It's like archaeological evidence of my own becoming. I'm learning to feel grateful for all the versions of myself that led me here, even the ones that felt lost at the time.",
-
-            "I had a moment of pure joy today while listening to my favorite song on repeat. It's one of those tracks that never gets old, that seems to capture something essential about being alive. Music has this incredible ability to transport us instantly to emotional spaces we might struggle to access otherwise. Sometimes I think musicians are just emotional translators, helping us understand feelings we didn't even know we had.",
-
-            "The anxiety I've been carrying lately feels like a heavy backpack I forgot I was wearing. It's only when I consciously set it down that I realize how much energy it was taking just to carry it around. I'm learning that acknowledging difficult emotions doesn't make them stronger – it actually gives them permission to move through me instead of getting stuck. Today I'm practicing the art of gentle self-compassion.",
-
-            "I spent the morning in my garden, hands deep in the soil, and felt more grounded than I have in weeks. There's something deeply satisfying about nurturing something from seed to bloom. It reminds me that growth takes time, that patience is its own form of faith, and that some of the most beautiful things happen slowly, underground, before we can see any evidence of progress. Maybe I need to remember this about my own life too."
-        ];
-
-        const randomIndex = Math.floor(Math.random() * sampleTexts.length);
-        const generatedText = sampleTexts[randomIndex];
-        console.log('✅ Sample text selected successfully (option', randomIndex + 1, 'of', sampleTexts.length + ')');
-
-        if (textInput) {
-            textInput.value = generatedText;
-            textInput.style.borderColor = '#10b981';
-            textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
-            setTimeout(() => {
-                textInput.style.borderColor = '';
-                textInput.style.boxShadow = '';
-            }, 2000);
-        }
-
-        showInlineSuccess(`✅ Sample text generated! (${randomIndex + 1} of ${sampleTexts.length} AI-crafted options)`, 'textInput');
-
     } catch (error) {
         console.error('❌ Error generating AI text:', error);
         console.log('🔄 Falling back to curated sample texts...');
 
         // Fall back to curated sample texts if OpenAI API fails
         const randomIndex = Math.floor(Math.random() * sampleTexts.length);
-        const generatedText = sampleTexts[randomIndex];
+        const fallbackText = sampleTexts[randomIndex];
 
         if (textInput) {
-            textInput.value = generatedText;
+            textInput.value = fallbackText;
             textInput.style.borderColor = '#f59e0b';
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
             setTimeout(() => {
@@ -1314,3 +1299,5 @@ window.clearProgressConsole = clearProgressConsole;
 window.createEmotionChart = createEmotionChart;
 window.resetToInputScreen = resetToInputScreen;
 window.clearAllResultContent = clearAllResultContent;
+window.manageApiKey = manageApiKey;
+window.clearAll = clearAllResultContent; // Alias for clearAll function
