@@ -254,7 +254,7 @@ def main():
         dev_mode=True
     )
     datasets = trainer.prepare_data(dev_mode=True)
-    
+
     logits, predictions, labels = debug_model_outputs(datasets)
     if logits is None:
         return False

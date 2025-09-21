@@ -9,7 +9,7 @@ from pathlib import Path
 
 def create_corrected_notebook():
     """Create a corrected notebook with proper specialized model usage"""
-    
+
     notebook_content = '''{
  "cells": [
   {
@@ -619,27 +619,27 @@ def create_corrected_notebook():
  "nbformat": 4,
  "nbformat_minor": 4
 }'''
-    
+
     # Save the notebook
     notebook_path = Path(__file__).parent.parent / 'notebooks' / 'CORRECTED_SPECIALIZED_TRAINING.ipynb'
     with open(notebook_path, 'w') as f:
         f.write(notebook_content)
-    
+
     print(f"✅ Created corrected specialized notebook: {notebook_path}")
-    print(f"📋 Key improvements:")
-    print(f"   1. Verifies access to j-hartmann/emotion-english-distilroberta-base")
-    print(f"   2. Confirms model architecture (should be DistilRoBERTa with 6 layers)")
-    print(f"   3. Includes comprehensive reliability testing")
-    print(f"   4. Saves training info for verification")
-    print(f"   5. Tests for bias and accuracy before deployment")
-    print(f"\n🚀 Instructions:")
-    print(f"   1. Download the notebook file")
-    print(f"   2. Upload to Google Colab")
-    print(f"   3. Set Runtime → GPU")
-    print(f"   4. Run all cells")
-    print(f"   5. Verify the model is actually using the specialized architecture")
-    print(f"   6. Only deploy if reliability tests pass")
+    print("📋 Key improvements:")
+    print("   1. Verifies access to j-hartmann/emotion-english-distilroberta-base")
+    print("   2. Confirms model architecture (should be DistilRoBERTa with 6 layers)")
+    print("   3. Includes comprehensive reliability testing")
+    print("   4. Saves training info for verification")
+    print("   5. Tests for bias and accuracy before deployment")
+    print("\n🚀 Instructions:")
+    print("   1. Download the notebook file")
+    print("   2. Upload to Google Colab")
+    print("   3. Set Runtime → GPU")
+    print("   4. Run all cells")
+    print("   5. Verify the model is actually using the specialized architecture")
+    print("   6. Only deploy if reliability tests pass")
 
 if __name__ == "__main__":
     create_corrected_notebook()
-    print("✅ Corrected specialized notebook created successfully!") 
+    print("✅ Corrected specialized notebook created successfully!")

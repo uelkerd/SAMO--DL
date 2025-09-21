@@ -6,11 +6,9 @@ Debug script for restarting training with various configurations.
 """
 
 from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-import traceback
 from pathlib import Path
 import logging
 import sys
-import traceback
 
 
 
@@ -61,7 +59,7 @@ def main():
         logger.info("✅ Training completed!")
         logger.info("📊 Final results: {results}")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return False

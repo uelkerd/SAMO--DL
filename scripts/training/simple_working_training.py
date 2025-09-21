@@ -185,7 +185,7 @@ def train_simple_model():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training failed: {e}")
         traceback.print_exc()
         return False

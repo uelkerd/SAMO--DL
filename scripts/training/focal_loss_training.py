@@ -200,7 +200,7 @@ def train_with_focal_loss():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training failed: {e}")
         traceback.print_exc()
         return False

@@ -329,7 +329,7 @@ def main():
             logger.error("❌ Training failed: {training_results.get('reason', 'unknown')}")
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training error: {e}")
         return False
 

@@ -11,7 +11,6 @@ from pathlib import Path
 import logging
 import sys
 import torch
-import torch.nn as nn
 import traceback
 
 
@@ -108,7 +107,7 @@ def main():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training error: {e}")
         traceback.print_exc()
         return False

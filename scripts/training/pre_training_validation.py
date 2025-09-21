@@ -9,13 +9,11 @@ from src.models.emotion_detection.bert_classifier import create_bert_emotion_cla
 from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 from torch.optim import AdamW
-import pandas as pd
 import shutil
 import torch
 #!/usr/bin/env python3
 from pathlib import Path
 import logging
-import numpy as np
 import sys
 import torch
 
@@ -152,7 +150,7 @@ class PreTrainingValidator:
             self.validation_results["data_loading"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Data loading validation failed: {e}")
             self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
@@ -224,7 +222,7 @@ class PreTrainingValidator:
             self.validation_results["model_architecture"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Model architecture validation failed: {e}")
             self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
@@ -310,7 +308,7 @@ class PreTrainingValidator:
             self.validation_results["training_components"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Training components validation failed: {e}")
             self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
@@ -351,7 +349,7 @@ class PreTrainingValidator:
             self.validation_results["file_system"] = True
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ File system validation failed: {e}")
             self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
@@ -382,7 +380,7 @@ class PreTrainingValidator:
                     logger.error("❌ {name} validation FAILED")
                 else:
                     logger.info("✅ {name} validation PASSED")
-            except Exception as e:
+            except Exception:
                 logger.error("❌ {name} validation ERROR: {e}")
                 self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False
