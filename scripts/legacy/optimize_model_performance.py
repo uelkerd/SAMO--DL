@@ -232,7 +232,8 @@ class ModelOptimizer:
                 best_batch_size = batch_size
 
         logger.info(
-            "  Optimal batch size: {best_batch_size} (throughput: {best_throughput:.1f} samples/sec)",
+            "  Optimal batch size: {best_batch_size} (throughput: "
+            "{best_throughput:.1f} samples/sec)",
         )
         return best_batch_size
 
@@ -418,7 +419,8 @@ def main():
             logger.info("📁 ONNX model saved to: {onnx_path}")
             return 0
         logger.warning(
-            "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations needed.",
+            "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations "
+            "needed.",
         )
         return 1
 

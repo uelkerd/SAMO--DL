@@ -53,7 +53,8 @@ def check_model_configuration(model_path):
             # Check if labels are emotion names or generic
             if all(label.startswith("LABEL_") for label in emotion_labels):
                 print(
-                    "❌ WARNING: Model uses generic LABEL_X format instead of emotion names",
+                    "❌ WARNING: Model uses generic LABEL_X format instead of "
+                    "emotion names",
                 )
                 return False
             print("✅ Model uses proper emotion labels")
@@ -200,7 +201,8 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
         )
 
         print(
-            f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, confidence: {confidence:.3f})",
+            f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, "
+            f"confidence: {confidence:.3f})",
         )
 
     # Calculate metrics

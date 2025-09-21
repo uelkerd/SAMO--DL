@@ -86,7 +86,8 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
             return False
 
         logger.info(
-            "Updating prediction threshold from {model.prediction_threshold} to {threshold}",
+            "Updating prediction threshold from {model.prediction_threshold} to "
+            "{threshold}",
         )
         model.prediction_threshold = threshold
 

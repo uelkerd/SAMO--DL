@@ -88,8 +88,12 @@ class VertexAISetup:
         try:
             job_config = {
                 "display_name": "samo-emotion-detection-training",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
-                "model_serving_container_image_uri": "gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
+                "container_uri": (
+                    "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest"
+                ),
+                "model_serving_container_image_uri": (
+                    "gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest"
+                ),
                 "args": [
                     "--model_name=bert-base-uncased",
                     "--batch_size=16",
@@ -153,7 +157,9 @@ class VertexAISetup:
         try:
             tuning_config = {
                 "display_name": "samo-emotion-detection-tuning",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
+                "container_uri": (
+                    "gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest"
+                ),
                 "args": [
                     "--model_name=bert-base-uncased",
                     "--batch_size=16",
@@ -292,7 +298,9 @@ class VertexAISetup:
         try:
             validation_config = {
                 "display_name": "samo-validation-job",
-                "container_uri": "gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
+                "container_uri": (
+                    "gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest"
+                ),
                 "args": [
                     "--validation_mode=true",
                     "--check_data_distribution=true",

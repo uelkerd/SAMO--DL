@@ -62,7 +62,9 @@ def reorganize_model_directory():
                 "final_accuracy": "0.9167",
             },
             "status": "fallback_model",
-            "notes": "Successfully resolved configuration persistence issue. Ready for deployment.",
+            "notes": (
+                "Successfully resolved configuration persistence issue. Ready for deployment."
+            ),
         }
 
         # Save metadata
@@ -267,7 +269,8 @@ Each model directory contains:
     print()
     print("🎯 Next Steps:")
     print(
-        "   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
+        "   1. Train the comprehensive model using "
+        "COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
     )
     print("   2. Save the trained model to deployment/models/default/")
     print("   3. Update the default model metadata")

@@ -345,11 +345,13 @@ def benchmark_models(
 
             if results["onnx"]["batch_{batch_size}"]["speedup"] >= TARGET_SPEEDUP:
                 logger.info(
-                    "✅ Target speedup achieved: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x >= {TARGET_SPEEDUP}x",
+                    "✅ Target speedup achieved: "
+                    "{results['onnx']['batch_{batch_size}']['speedup']:.2f}x >= {TARGET_SPEEDUP}x",
                 )
             else:
                 logger.warning(
-                    "⚠️ Target speedup not achieved: {results['onnx']['batch_{batch_size}']['speedup']:.2f}x < {TARGET_SPEEDUP}x",
+                    "⚠️ Target speedup not achieved: "
+                    "{results['onnx']['batch_{batch_size}']['speedup']:.2f}x < {TARGET_SPEEDUP}x",
                 )
 
     return results
