@@ -705,17 +705,20 @@ class MegaComprehensiveModelTester:
             print(
                 f"   High confidence (≥0.8): "
                 f"{confidence_stats['high_confidence']}/{confidence_stats['total']} "
-                f"({confidence_stats['high_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"({confidence_stats['high_confidence'] / confidence_stats['total'] * "
+                f"100:.1f}%)",
             )
             print(
                 f"   Medium confidence (0.5-0.8): "
                 f"{confidence_stats['medium_confidence']}/{confidence_stats['total']} "
-                f"({confidence_stats['medium_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"({confidence_stats['medium_confidence'] / confidence_stats['total'] * "
+                f"100:.1f}%)",
             )
             print(
                 f"   Low confidence (<0.5): "
                 f"{confidence_stats['low_confidence']}/{confidence_stats['total']} "
-                f"({confidence_stats['low_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"({confidence_stats['low_confidence'] / confidence_stats['total'] * "
+                f"100:.1f}%)",
             )
 
     def generate_comprehensive_report(self):
