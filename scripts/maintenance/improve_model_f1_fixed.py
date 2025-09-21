@@ -159,7 +159,8 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     metrics = trainer.evaluate(datasets["test"])
 
     logger.info(
-        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}",
+        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, "
+        "Macro F1: {metrics['macro_f1']:.4f}",
     )
 
     return model, metrics
@@ -215,7 +216,8 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         metrics = trainer.evaluate(datasets["test"])
 
         logger.info(
-            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}",
+            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, "
+            "Macro F1: {metrics['macro_f1']:.4f}",
         )
 
         output_path = Path(DEFAULT_OUTPUT_MODEL)

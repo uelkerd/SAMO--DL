@@ -299,7 +299,8 @@ def emergency_f1_fix():
         # Get class weights
         class_weights = datasets["class_weights"]
         logger.info(
-            f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}",
+            f"📊 Class weights computed: min={class_weights.min():.3f}, "
+            f"max={class_weights.max():.3f}",
         )
 
         # Create model
@@ -376,10 +377,12 @@ def emergency_f1_fix():
         logger.info("📊 FINAL RESULTS:")
         logger.info("=" * 60)
         logger.info(
-            f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1'] * 100:.2f}%)",
+            f"Micro F1 Score:     {test_results['micro_f1']:.4f} "
+            f"({test_results['micro_f1'] * 100:.2f}%)",
         )
         logger.info(
-            f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1'] * 100:.2f}%)",
+            f"Macro F1 Score:     {test_results['macro_f1']:.4f} "
+            f"({test_results['macro_f1'] * 100:.2f}%)",
         )
         logger.info(f"Best Threshold:     {best_threshold:.2f}")
         logger.info(f"Training Time:      {time.time() - start_time:.1f}s")

@@ -223,7 +223,9 @@ class CodeQualityAutoFixer:
                             {
                                 "type": "FLK-E501",
                                 "line": i + 1,
-                                "description": "Broke long import line into multiple lines",
+                                "description": (
+                                    "Broke long import line into multiple lines"
+                                ),
                             },
                         )
 
@@ -253,7 +255,8 @@ class CodeQualityAutoFixer:
                                     "type": "FLK-E501",
                                     "line": i + 1,
                                     "description": (
-                                        "Broke long function definition into multiple lines"
+                                        "Broke long function definition into "
+                                        "multiple lines"
                                     ),
                                 },
                             )
@@ -431,7 +434,9 @@ class CodeQualityAutoFixer:
 
         for result in results["results"]:
             if result.get("modified", False):
-                report += f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
+                report += (
+                    f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
+                )
                 for fix in result["fixes"]:
                     report += f"   - {fix['type']}: {fix['description']}\n"
             elif "error" in result:

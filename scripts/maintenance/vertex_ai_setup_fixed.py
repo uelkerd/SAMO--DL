@@ -72,7 +72,9 @@ class VertexAISetupFixed:
             job = aiplatform.CustomTrainingJob(
                 display_name="samo-emotion-detection-training",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
-                model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
+                model_serving_container_image_uri=(
+                    "gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest"
+                ),
                 machine_type="n1-standard-4",
                 accelerator_type="NVIDIA_TESLA_T4",
                 accelerator_count=1,

@@ -307,7 +307,8 @@ def main():
     print(f"   Unique Users: {summary['unique_users']}")
     print(f"   Average Word Count: {summary['avg_word_count']:.1f}")
     print(
-        f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}",
+        f"   Date Range: {summary['date_range']['start'][:10]} to "
+        f"{summary['date_range']['end'][:10]}",
     )
 
     print("\n🎯 Emotion Distribution:")

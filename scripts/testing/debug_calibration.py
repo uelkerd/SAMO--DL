@@ -41,7 +41,8 @@ def debug_calibration_issue():
                 )
                 logger.info("✅ Checkpoint loaded successfully")
                 logger.info(
-                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}",
+                    f"Checkpoint keys: "
+                    f"{list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}",
                 )
             except Exception as e:
                 logger.exception(f"❌ Failed to load checkpoint: {e}")
