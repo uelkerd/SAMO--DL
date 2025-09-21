@@ -16,7 +16,7 @@
 #!/usr/bin/env python3
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 import json
 import logging
 import matplotlib.pyplot as plt
@@ -34,7 +34,7 @@ and provides insights on performance, convergence, and next steps.
 
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
-def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> list[dict]:
+def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> List[Dict]:
     """Load training history from checkpoint directory."""
     history_file = Path(checkpoint_dir) / "training_history.json"
 
@@ -47,7 +47,7 @@ def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> list[
 
     return history
 
-def analyze_training_progress(history: list[dict]) -> dict:
+def analyze_training_progress(history: List[Dict]) -> Dict:
     """Analyze training progress and provide insights."""
     if not history:
         return {"error": "No training history found"}
@@ -163,7 +163,7 @@ def generate_training_report(analysis: dict) -> str:
 
     return "\n".join(report)
 
-def plot_training_curves(history: list[dict], save_path: Optional[str] = None):
+def plot_training_curves(history: List[Dict], save_path: Optional[str] = None):
     """Plot training curves for visualization."""
     if not history:
         logging.info("❌ No training history to plot")

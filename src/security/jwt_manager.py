@@ -69,7 +69,8 @@ class JWTManager:
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
             "iat": datetime.utcnow(),
         }
-        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        return str(token)
 
     def create_refresh_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new refresh token."""
@@ -82,7 +83,8 @@ class JWTManager:
             "iat": datetime.utcnow(),
             "type": "refresh",
         }
-        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        return str(token)
 
     def create_token_pair(self, user_data: Dict[str, Any]) -> TokenResponse:
         """Create both access and refresh tokens and return as a TokenResponse model."""

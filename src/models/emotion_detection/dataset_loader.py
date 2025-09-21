@@ -14,7 +14,7 @@ Key Features:
 import logging
 import re
 from collections import Counter
-from typing import Any, Dict, List, Union
+from typing import Any, Counter as TypingCounter, Dict, List, Union
 
 import numpy as np
 import torch
@@ -27,7 +27,7 @@ from transformers import AutoTokenizer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .labels import GOEMOTIONS_EMOTIONS, EMOTION_ID_TO_LABEL, EMOTION_LABEL_TO_ID
+from .labels import GOEMOTIONS_EMOTIONS
 
 
 class GoEmotionsDataset(Dataset):
@@ -206,7 +206,7 @@ class GoEmotionsDataLoader:
         stats["num_emotions"] = len(GOEMOTIONS_EMOTIONS)
 
         # Emotion distribution
-        emotion_counts: Counter[int] = Counter()
+        emotion_counts: TypingCounter[int] = Counter()
         for example in self.dataset["train"]:
             labels = example["labels"]
             for label in labels:
