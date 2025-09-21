@@ -300,7 +300,7 @@ class ModelValidator:
                     # Enhanced version check that supports PyTorch 2.x
                     if package == "torch":
                         # Allow PyTorch 1.x and 2.x versions
-                        if not (current_version.startswith(("1.", "2."))):
+                        if not current_version.startswith(("1.", "2.")):
                             validation_info["compatibility_issues"].append(
                                 f"PyTorch version {current_version} may not be compatible",
                             )

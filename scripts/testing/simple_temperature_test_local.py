@@ -118,8 +118,6 @@ def simple_temperature_test_local():
 
         logging.info("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
-            pred_np[i]
-            label_np[i]
             logging.info("     Text: {test_texts[i][:50]}...")
             logging.info("     Pred: {pred_emotions}")
             logging.info("     True: {true_emotions}")

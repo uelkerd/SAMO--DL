@@ -33,7 +33,8 @@ print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 # Test endpoint in namespace
 @main_ns.route("/health")
 class Health(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         return {"status": "healthy"}
 
 

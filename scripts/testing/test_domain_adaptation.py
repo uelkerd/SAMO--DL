@@ -305,8 +305,6 @@ def main() -> None:
         print("\n" + "=" * 60)
         print("📊 DOMAIN ADAPTATION ANALYSIS")
         print("=" * 60)
-
-        analysis["domain_analysis"]
         print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
         print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
         print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")

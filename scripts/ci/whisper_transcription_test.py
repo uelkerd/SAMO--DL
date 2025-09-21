@@ -55,10 +55,6 @@ def test_whisper_imports():
         # Test imports with fallback mechanism
         try:
             import importlib.util
-            if importlib.util.find_spec("models.voice_processing.audio_preprocessor"):
-                pass
-            if importlib.util.find_spec("models.voice_processing.whisper_transcriber"):
-                pass
         except ImportError:
             # Fallback for different import paths
             pass
