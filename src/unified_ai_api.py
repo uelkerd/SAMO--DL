@@ -1738,10 +1738,10 @@ async def transcribe_voice(
             # Cleanup temporary file
             Path(temp_file_path).unlink(missing_ok=True)
 
+    except HTTPException:
+        # Preserve FastAPI HTTPException semantics
+        raise
     except Exception as exc:
-        if isinstance(exc, HTTPException):
-            # Preserve FastAPI HTTPException semantics
-            raise
         logger.exception("Voice transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1848,9 +1848,9 @@ async def batch_transcribe_voice(
             "results": results,
         }
 
+    except HTTPException:
+        raise
     except Exception as exc:
-        if isinstance(exc, HTTPException):
-            raise
         logger.exception("Batch transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
