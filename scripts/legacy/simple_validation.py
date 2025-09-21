@@ -5,7 +5,9 @@ Validates model components and deployment readiness.
 """
 
 import logging
+import subprocess
 import sys
+from pathlib import Path
 
 import torch
 import torch.nn.functional as F

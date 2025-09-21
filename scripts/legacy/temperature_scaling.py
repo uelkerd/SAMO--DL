@@ -8,12 +8,14 @@ import logging
 import os
 import sys
 import traceback
+from pathlib import Path
 
 import torch
 from torch import nn
 from transformers import AutoTokenizer
 
 from src.models.emotion_detection.bert_classifier import EmotionDataset
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 from src.models.emotion_detection.training_pipeline import (
     create_bert_emotion_classifier,
 )

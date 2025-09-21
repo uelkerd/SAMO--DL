@@ -20,10 +20,12 @@ from collections import defaultdict
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, TYPE_CHECKING
 
 # Defer FastAPI imports to avoid ModuleNotFoundError when console script imports this module
 # These will be imported inside the main() function when the server actually starts
+if TYPE_CHECKING:
+    from fastapi import Request, WebSocket
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

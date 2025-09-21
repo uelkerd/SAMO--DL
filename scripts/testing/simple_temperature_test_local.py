@@ -4,18 +4,24 @@
 Tests temperature scaling calibration locally.
 """
 
+import json
 import logging
 import sys
 from pathlib import Path
 
 import torch
 from sklearn.metrics import f1_score
+from torch.utils.data import DataLoader
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
+# Import required modules
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset import EmotionDataset
 
 
 def simple_temperature_test_local():

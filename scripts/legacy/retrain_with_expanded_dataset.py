@@ -224,7 +224,7 @@ def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_si
     return model, training_history, best_f1
 
 
-def save_expanded_results(training_history, best_f1, label_encoder, test_data):
+def save_expanded_results(training_history, best_f1, label_encoder, test_data, train_data=None, val_data=None):
     """Save training results."""
     print("💾 Saving results...")
 
@@ -261,6 +261,13 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
     final_f1 = f1_score(all_labels, all_preds, average="macro")
     final_accuracy = accuracy_score(all_labels, all_preds)
 
+    # Calculate expanded samples count
+    expanded_samples = len(X_test)
+    if train_data is not None:
+        expanded_samples += len(list(train_data[0]))
+    if val_data is not None:
+        expanded_samples += len(list(val_data[0]))
+
     # Save results
     results = {
         "best_f1": best_f1,
@@ -270,9 +277,7 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
         "num_labels": len(label_encoder.classes_),
         "all_emotions": list(label_encoder.classes_),
         "training_history": training_history,
-        "expanded_samples": len(X_test)
-        + len(list(train_data[0]))
-        + len(list(val_data[0])),
+        "expanded_samples": expanded_samples,
         "test_samples": len(X_test),
     }
 
@@ -304,7 +309,7 @@ def main():
     )
 
     # Save results
-    save_expanded_results(training_history, best_f1, label_encoder, test_data)
+    save_expanded_results(training_history, best_f1, label_encoder, test_data, train_data, val_data)
 
     print("\n🎉 Retraining completed!")
     print("📋 Next steps:")

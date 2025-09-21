@@ -165,7 +165,7 @@ def predict_emotions(
             predicted_emotions = []
             emotion_scores = {}
 
-            for _idx, prob in enumerate(probabilities):
+            for idx, prob in enumerate(probabilities):
                 emotion = idx_to_emotion[idx]
                 emotion_scores[emotion] = float(prob)
 
