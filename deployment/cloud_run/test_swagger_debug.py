@@ -19,8 +19,8 @@ api = Api(
 )
 
 # Create namespace
-main_ns = Namespace("/api", description="Main operations")
-api.add_namespace(main_ns)
+main_ns = Namespace("api", description="Main operations")
+api.add_namespace(main_ns, path="/api")
 
 
 # Test endpoint in namespace
@@ -48,6 +48,7 @@ if __name__ == "__main__":
     print("- http://localhost:5001/docs (should work)")
     print("- http://localhost:5001/api/health (should work)")
 
+    host = os.environ.get("HOST", "127.0.0.1")
     app.run(
-        host="0.0.0.0", port=int(os.environ.get("PORT", 5001)), debug=False
+        host=host, port=int(os.environ.get("PORT", 5001)), debug=False
     )  # Debug mode disabled for security

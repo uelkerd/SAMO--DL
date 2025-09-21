@@ -49,6 +49,10 @@ if __name__ == "__main__":
     print("- http://localhost:5003/docs (should work)")
     print("- http://localhost:5003/api/health (should work)")
 
+    # Default to loopback interface for security, allow opt-in to bind all interfaces
+    bind_all = os.environ.get("BIND_ALL", "").lower() in ("1", "true")
+    host = "0.0.0.0" if bind_all else "127.0.0.1"
+
     app.run(
-        host="0.0.0.0", port=int(os.environ.get("PORT", 5003)), debug=False
+        host=host, port=int(os.environ.get("PORT", 5003)), debug=False
     )  # Debug mode disabled for security

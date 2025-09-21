@@ -23,8 +23,8 @@ print("\n=== After API creation ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
 
 # Create namespace
-main_ns = Namespace("/api", description="Main operations")
-api.add_namespace(main_ns)
+main_ns = Namespace("api", description="Main operations")
+api.add_namespace(main_ns, path="/api")
 
 print("\n=== After adding namespace ===")
 print("App routes:", [rule.rule for rule in app.url_map.iter_rules()])
