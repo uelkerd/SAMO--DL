@@ -46,28 +46,33 @@ class AudioPreprocessor:
         audio_path = Path(audio_path)
 
         if not audio_path.exists():
-            return False, "Audio file not found: {audio_path}"
+            logger.warning(f"Audio file not found: {audio_path}")
+            return False, "Audio file not found"
 
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
-            return False, "Unsupported audio format: {audio_path.suffix}"
+            logger.warning(f"Unsupported audio format: {audio_path.suffix}")
+            return False, "Unsupported audio format"
 
         try:
             audio = AudioSegment.from_file(str(audio_path))
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
+                logger.warning(f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s for file {audio_path}")
                 return (
                     False,
-                    "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
+                    f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
                 )
 
             if duration < 0.1:  # Too short
-                return False, "Audio too short: {duration:.1f}s"
+                logger.warning(f"Audio too short: {duration:.1f}s for file {audio_path}")
+                return False, f"Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
 
         except Exception as exc:
-            return False, f"Error loading audio file: {exc}"
+            logger.exception(f"Error loading audio file {audio_path}: {exc}")
+            return False, "Error processing audio file"
 
     @staticmethod
     def preprocess_audio(
