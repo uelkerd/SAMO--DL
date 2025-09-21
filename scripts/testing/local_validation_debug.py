@@ -47,7 +47,7 @@ def check_environment():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Environment check failed: {e}")
         return False
 
@@ -78,7 +78,7 @@ def check_data_loading():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Data loading failed: {e}")
         return False
 
@@ -126,7 +126,7 @@ def check_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model creation failed: {e}")
         return False
 
@@ -159,7 +159,7 @@ def check_loss_function():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Loss function check failed: {e}")
         return False
 
@@ -218,7 +218,7 @@ def check_data_distribution():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Data distribution check failed: {e}")
         return False
 
@@ -251,7 +251,7 @@ def main():
             else:
                 logger.error("❌ {name} FAILED")
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ {name} ERROR: {e}")
             results[name] = False
 

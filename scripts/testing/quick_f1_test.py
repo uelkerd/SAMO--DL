@@ -94,7 +94,7 @@ def main():
 
         return metrics["micro_f1"]
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Quick F1 test failed: {e}")
         logger.error(traceback.format_exc())
         return 0.0

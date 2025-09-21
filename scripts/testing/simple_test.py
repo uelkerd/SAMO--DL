@@ -47,17 +47,17 @@ def main():
 
         try:
             logging.info("✅ Labels: {first_example['labels']}")
-        except Exception as e:
+        except Exception:
             logging.info("❌ Cannot access labels: {e}")
 
         try:
             logging.info("✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}")
-        except Exception as e:
+        except Exception:
             logging.info("❌ Cannot get labels attr: {e}")
 
         return True
 
-    except Exception as e:
+    except Exception:
         logging.info("❌ Error: {e}")
         traceback.print_exc()
         return False

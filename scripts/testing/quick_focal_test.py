@@ -58,7 +58,7 @@ def test_focal_loss_math():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Focal Loss Test FAILED: {e}")
         return False
 
@@ -83,7 +83,7 @@ def test_dataset_loading():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Dataset Loading Test FAILED: {e}")
         return False
 
@@ -109,7 +109,7 @@ def test_model_creation():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model Creation Test FAILED: {e}")
         return False
 
@@ -131,7 +131,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 

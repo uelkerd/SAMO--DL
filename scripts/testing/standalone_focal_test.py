@@ -98,7 +98,7 @@ def test_bert_import():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ BERT Model Test FAILED: {e}")
         return False
 
@@ -118,7 +118,7 @@ def test_dataset_download():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Dataset Download Test FAILED: {e}")
         return False
 
@@ -142,7 +142,7 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
