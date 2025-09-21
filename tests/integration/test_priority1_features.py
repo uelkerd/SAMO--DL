@@ -1,4 +1,4 @@
-"""Integration Tests for Priority 1 Features
+"""Integration Tests for Priority 1 Features.
 
 This module tests all the Priority 1 Features implemented:
 1. JWT-based Authentication
@@ -8,6 +8,7 @@ This module tests all the Priority 1 Features implemented:
 5. Comprehensive Monitoring Dashboard
 """
 
+import contextlib
 import os
 import tempfile
 import time
@@ -33,21 +34,18 @@ class to_uploads:
 
     def __enter__(self):
         self._opened = [open(p, "rb") for p in self.paths]
-        files = [
+        return [
             (
                 "audio_files",
                 (f"{self.name_prefix}{i + 1}.wav", fh, "audio/wav"),
             )
             for i, fh in enumerate(self._opened)
         ]
-        return files
 
     def __exit__(self, exc_type, exc, tb):
         for fh in self._opened:
-            try:
+            with contextlib.suppress(Exception):
                 fh.close()
-            except Exception:
-                pass
         self._opened = []
 
 
@@ -220,7 +218,10 @@ class TestEnhancedVoiceTranscription:
                 files = {"audio_file": ("test.txt", audio_file, "text/plain")}
                 data = {"language": "en", "model_size": "base"}
                 response = client.post(
-                    "/transcribe/voice", files=files, data=data, headers=headers
+                    "/transcribe/voice",
+                    files=files,
+                    data=data,
+                    headers=headers,
                 )
 
             assert response.status_code == 500  # Internal server error
@@ -267,12 +268,15 @@ class TestEnhancedVoiceTranscription:
             for i, temp_file_path in enumerate(temp_files):
                 with open(temp_file_path, "rb") as audio_file:
                     files.append(
-                        ("audio_files", (f"test{i}.wav", audio_file, "audio/wav"))
+                        ("audio_files", (f"test{i}.wav", audio_file, "audio/wav")),
                     )
 
             data = {"language": "en"}
             response = client.post(
-                "/transcribe/batch", files=files, data=data, headers=headers
+                "/transcribe/batch",
+                files=files,
+                data=data,
+                headers=headers,
             )
 
             assert response.status_code == 200
@@ -287,7 +291,10 @@ class TestEnhancedVoiceTranscription:
             # Negative cases: missing and incorrect permissions
             missing_headers = {"Authorization": f"Bearer {access_token}"}
             response_missing = client.post(
-                "/transcribe/batch", files=files, data=data, headers=missing_headers
+                "/transcribe/batch",
+                files=files,
+                data=data,
+                headers=missing_headers,
             )
             assert response_missing.status_code == 403
 
@@ -296,7 +303,10 @@ class TestEnhancedVoiceTranscription:
                 "X-User-Permissions": "wrong_permission",
             }
             response_wrong = client.post(
-                "/transcribe/batch", files=files, data=data, headers=wrong_headers
+                "/transcribe/batch",
+                files=files,
+                data=data,
+                headers=wrong_headers,
             )
             assert response_wrong.status_code == 403
 
@@ -344,7 +354,10 @@ class TestEnhancedVoiceTranscription:
             data = {"language": "en"}
             with to_uploads(temp_files, "file") as files:
                 response = client.post(
-                    "/transcribe/batch", files=files, data=data, headers=headers
+                    "/transcribe/batch",
+                    files=files,
+                    data=data,
+                    headers=headers,
                 )
 
             assert response.status_code == 200
@@ -387,7 +400,9 @@ class TestEnhancedVoiceTranscription:
 
             with to_uploads(temp_files, "f") as files:
                 response = client.post(
-                    "/transcribe/batch", files=files, headers=headers
+                    "/transcribe/batch",
+                    files=files,
+                    headers=headers,
                 )
 
             assert response.status_code == 200
@@ -429,7 +444,9 @@ class TestEnhancedVoiceTranscription:
 
             with to_uploads(temp_files, "f") as files:
                 response = client.post(
-                    "/transcribe/batch", files=files, headers=headers
+                    "/transcribe/batch",
+                    files=files,
+                    headers=headers,
                 )
 
             assert response.status_code == 200
@@ -552,7 +569,10 @@ class TestAPIValidation:
         data = {"language": "en", "model_size": "base"}
 
         response = client.post(
-            "/transcribe/voice", files=files, data=data, headers=headers
+            "/transcribe/voice",
+            files=files,
+            data=data,
+            headers=headers,
         )
         assert response.status_code == 400
         assert "too large" in response.json()["detail"].lower()
@@ -590,7 +610,10 @@ class TestAPIValidation:
         data = {"language": "en"}
 
         response = client.post(
-            "/transcribe/batch", files=files, data=data, headers=headers
+            "/transcribe/batch",
+            files=files,
+            data=data,
+            headers=headers,
         )
         # Should return 403 if user doesn't have batch_processing permission
         assert response.status_code == 403
@@ -603,7 +626,10 @@ class TestCompleteWorkflow:
     @patch("src.unified_ai_api.text_summarizer")
     @patch("src.unified_ai_api.emotion_detector")
     def test_complete_voice_journal_analysis(
-        self, mock_emotion_detector, mock_summarizer, mock_transcriber
+        self,
+        mock_emotion_detector,
+        mock_summarizer,
+        mock_transcriber,
     ):
         """Test complete voice journal analysis workflow."""
         # Mock all the AI components
@@ -652,7 +678,10 @@ class TestCompleteWorkflow:
                     "emotion_threshold": 0.1,
                 }
                 response = client.post(
-                    "/analyze/voice-journal", files=files, data=data, headers=headers
+                    "/analyze/voice-journal",
+                    files=files,
+                    data=data,
+                    headers=headers,
                 )
 
             assert response.status_code == 200
@@ -709,7 +738,8 @@ class TestCompleteWorkflow:
 
         # 4. Refresh token
         refresh_response = client.post(
-            "/auth/refresh", json={"refresh_token": refresh_token}
+            "/auth/refresh",
+            json={"refresh_token": refresh_token},
         )
         assert refresh_response.status_code == 200
         new_access_token = refresh_response.json()["access_token"]
@@ -906,7 +936,8 @@ class TestJWTManager:
         assert jwt_manager.secret_key is not None
         assert jwt_manager.algorithm == "HS256"
         assert isinstance(
-            jwt_manager.blacklisted_tokens, dict
+            jwt_manager.blacklisted_tokens,
+            dict,
         )  # Changed to dict for performance
 
     def test_token_creation(self):
@@ -935,7 +966,8 @@ class TestJWTManager:
         assert hasattr(token_pair, "access_token")
         assert hasattr(token_pair, "refresh_token")
         assert getattr(token_pair, "token_type", "bearer") == "bearer"
-        assert isinstance(token_pair.expires_in, int) and token_pair.expires_in > 0
+        assert isinstance(token_pair.expires_in, int)
+        assert token_pair.expires_in > 0
 
     def test_token_verification(self):
         """Test token verification."""
@@ -1031,7 +1063,9 @@ class TestJWTManager:
         }
 
         expired_token = jwt.encode(
-            payload, jwt_manager.secret_key, algorithm=jwt_manager.algorithm
+            payload,
+            jwt_manager.secret_key,
+            algorithm=jwt_manager.algorithm,
         )
 
         # Verify expired token returns None
@@ -1048,7 +1082,7 @@ class TestJWTManager:
 
         # Test with malformed token
         result = jwt_manager.verify_token(
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid"
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid",
         )
         assert result is None
 

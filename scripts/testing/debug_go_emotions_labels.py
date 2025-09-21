@@ -10,7 +10,7 @@ def install_dependencies():
     print("🔧 Installing dependencies...")
     try:
         subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "datasets", "pandas"]
+            [sys.executable, "-m", "pip", "install", "datasets", "pandas"],
         )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
@@ -100,7 +100,7 @@ def debug_go_emotions():
     print("\n🔍 Checking dataset documentation...")
     print("GoEmotions dataset should have emotion names like:")
     print(
-        "['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']"
+        "['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']",
     )
 
     return go_emotions

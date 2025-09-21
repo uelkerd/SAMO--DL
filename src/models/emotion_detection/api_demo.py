@@ -18,7 +18,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 from transformers import AutoTokenizer
 
-from ..api_rate_limiter import add_rate_limiting
+from src.models.api_rate_limiter import add_rate_limiting
+
 from .bert_classifier import create_bert_emotion_classifier
 from .labels import GOEMOTIONS_EMOTIONS
 
@@ -68,10 +69,16 @@ class EmotionRequest(BaseModel):
     text: str = Field(description="Text to analyze", min_length=1, max_length=2000)
     user_id: Optional[str] = Field(default=None, description="User ID for tracking")
     threshold: float = Field(
-        default=0.5, description="Confidence threshold", ge=0.0, le=1.0
+        default=0.5,
+        description="Confidence threshold",
+        ge=0.0,
+        le=1.0,
     )
     top_k: Optional[int] = Field(
-        default=5, description="Number of top emotions to return", ge=1, le=28
+        default=5,
+        description="Number of top emotions to return",
+        ge=1,
+        le=28,
     )
 
     class Config:
@@ -81,11 +88,11 @@ class EmotionRequest(BaseModel):
                 "user_id": "user123",
                 "threshold": 0.5,
                 "top_k": 5,
-            }
+            },
         }
 
     @validator("text")
-    def validate_text(cls, text):
+    def validate_text(self, text):
         """Validate that text is not empty."""
         if not text or not text.strip():
             raise ValueError("Text cannot be empty")
@@ -96,23 +103,30 @@ class EmotionResponse(BaseModel):
     """Response model for emotion analysis."""
 
     primary_emotion: str = Field(
-        description="Emotion with highest confidence", example="joy"
+        description="Emotion with highest confidence",
+        example="joy",
     )
     confidence: float = Field(
-        description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
+        description="Confidence score for primary emotion",
+        ge=0.0,
+        le=1.0,
+        example=0.85,
     )
     predicted_emotions: List[str] = Field(
-        description="Emotions above threshold", example=["joy", "gratitude", "optimism"]
+        description="Emotions above threshold",
+        example=["joy", "gratitude", "optimism"],
     )
     emotion_scores: List[float] = Field(
-        description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
+        description="Scores for predicted emotions",
+        example=[0.85, 0.72, 0.64],
     )
     all_probabilities: List[float] = Field(
         description="Probabilities for all emotions",
         example=[0.85, 0.72, 0.64, 0.0, 0.0],
     )
     processing_time_ms: float = Field(
-        description="Processing time in milliseconds", example=42.5
+        description="Processing time in milliseconds",
+        example=42.5,
     )
 
 
@@ -169,8 +183,8 @@ async def load_model() -> None:
         logger.info("✅ Model loaded successfully!")
 
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"Failed to load model: {e}")
+        logger.exception(traceback.format_exc())
         raise
 
 
@@ -258,14 +272,18 @@ async def analyze_emotion(
     fine-tuned on the GoEmotions dataset.
 
     Args:
+    ----
         request: Emotion analysis request
         x_api_key: Optional API key for authentication
 
     Returns:
+    -------
         Emotion analysis results with confidence scores
 
     Raises:
+    ------
         HTTPException: If the model is not loaded or if processing fails
+
     """
     if model is None or tokenizer is None:
         raise HTTPException(
@@ -339,15 +357,19 @@ async def analyze_emotions_batch(
     This endpoint efficiently processes multiple texts in a single request.
 
     Args:
+    ----
         texts: List of texts to analyze
         threshold: Confidence threshold (0.0-1.0)
         x_api_key: Optional API key for authentication
 
     Returns:
+    -------
         List of emotion analysis results
 
     Raises:
+    ------
         HTTPException: If the model is not loaded or processing fails
+
     """
     if model is None or tokenizer is None:
         raise HTTPException(

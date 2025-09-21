@@ -98,7 +98,10 @@ def calibrate_model():
         for thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
             micro_f1 = f1_score(
-                all_labels, predictions, average="micro", zero_division=0
+                all_labels,
+                predictions,
+                average="micro",
+                zero_division=0,
             )
 
             results.append((temp, thresh, micro_f1))

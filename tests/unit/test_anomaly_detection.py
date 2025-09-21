@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🧪 Anomaly Detection Tests
+"""🧪 Anomaly Detection Tests.
 ==========================
 Tests for refined anomaly detection and user agent analysis.
 """
@@ -12,9 +12,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import time
 import unittest
 
-from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
-
 from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
 
 
 class TestAnomalyDetection(unittest.TestCase):
@@ -59,11 +58,9 @@ class TestAnomalyDetection(unittest.TestCase):
 
         for ua in legitimate_bots:
             analysis = self.middleware._analyze_user_agent_enhanced(ua)
-            self.assertLessEqual(
-                analysis["score"], 2, f"Legitimate bot scored too high: {ua}"
-            )
+            assert analysis["score"] <= 2, f"Legitimate bot scored too high: {ua}"
             # The implementation returns "normal" for legitimate bots with low scores
-            self.assertIn(analysis["category"], ["legitimate_bot", "normal"])
+            assert analysis["category"] in ["legitimate_bot", "normal"]
 
         # Test high-risk user agents
         high_risk_agents = [
@@ -77,43 +74,39 @@ class TestAnomalyDetection(unittest.TestCase):
         for ua in high_risk_agents:
             analysis = self.middleware._analyze_user_agent_enhanced(ua)
             # The implementation scores these as medium-risk (2 points) or higher
-            self.assertGreaterEqual(
-                analysis["score"], 2, f"High-risk UA scored too low: {ua}"
-            )
+            assert analysis["score"] >= 2, f"High-risk UA scored too low: {ua}"
             # The implementation returns "suspicious" or "high_risk" for these agents
-            self.assertIn(
-                analysis["category"], ["suspicious", "high_risk", "malicious"]
-            )
+            assert analysis["category"] in ["suspicious", "high_risk", "malicious"]
             # Risk levels: medium (score 2-3), high (score 4-6), very_high (score >6)
-            self.assertIn(analysis["risk_level"], ["medium", "high", "very_high"])
+            assert analysis["risk_level"] in ["medium", "high", "very_high"]
 
     def test_user_agent_pattern_detection(self):
         """Test user agent pattern detection."""
         # Test high-risk patterns
         ua = "sqlmap/1.0 (https://sqlmap.org)"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
-        self.assertIn("high_risk:sqlmap", analysis["patterns"])
+        assert "high_risk:sqlmap" in analysis["patterns"]
         # The implementation returns "suspicious", "high_risk", or "malicious" for high scores
-        self.assertIn(analysis["category"], ["suspicious", "high_risk", "malicious"])
+        assert analysis["category"] in ["suspicious", "high_risk", "malicious"]
 
         # Test medium-risk patterns
         ua = "Mozilla/5.0 (compatible; Python-requests/2.25.1)"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
-        self.assertIn("medium_risk:python-requests", analysis["patterns"])
+        assert "medium_risk:python-requests" in analysis["patterns"]
 
         # Test suspicious combinations
         ua = "python-requests/2.25.1 (bot)"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
-        self.assertIn("suspicious_combination", analysis["patterns"])
+        assert "suspicious_combination" in analysis["patterns"]
 
         # Test missing/generic user agents
         for ua in ["", "null", "undefined", "unknown"]:
             analysis = self.middleware._analyze_user_agent_enhanced(ua)
             if ua == "":  # Empty string returns early with "empty" category
-                self.assertEqual(analysis["category"], "empty")
-                self.assertEqual(analysis["patterns"], [])
+                assert analysis["category"] == "empty"
+                assert analysis["patterns"] == []
             else:  # Other generic UAs should have the pattern
-                self.assertIn("missing_generic_ua", analysis["patterns"])
+                assert "missing_generic_ua" in analysis["patterns"]
 
     def test_request_pattern_analysis(self):
         """Test request pattern analysis."""
@@ -125,21 +118,21 @@ class TestAnomalyDetection(unittest.TestCase):
         current_time = time.time()
         for i in range(5):
             self.rate_limiter.request_history[client_key].append(
-                current_time - i * 2
+                current_time - i * 2,
             )  # 2s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
-        self.assertLess(score, 5, "Normal pattern should score low")
+        assert score < 5, "Normal pattern should score low"
 
         # Simulate burst pattern
         self.rate_limiter.request_history[client_key].clear()
         for i in range(10):
             self.rate_limiter.request_history[client_key].append(
-                current_time - i * 0.1
+                current_time - i * 0.1,
             )  # 0.1s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
-        self.assertGreaterEqual(score, 2, "Burst pattern should score higher")
+        assert score >= 2, "Burst pattern should score higher"
 
     def test_regular_interval_detection(self):
         """Test detection of regular intervals (automated behavior)."""
@@ -151,11 +144,11 @@ class TestAnomalyDetection(unittest.TestCase):
         current_time = time.time()
         for i in range(10):
             self.rate_limiter.request_history[client_key].append(
-                current_time - i * 1.0
+                current_time - i * 1.0,
             )  # Exactly 1s intervals
 
         score = self.rate_limiter._analyze_request_patterns(client_key, client_ip)
-        self.assertGreaterEqual(score, 3, "Regular intervals should be detected")
+        assert score >= 3, "Regular intervals should be detected"
 
     def test_abuse_detection_integration(self):
         """Test integration of all abuse detection methods."""
@@ -165,20 +158,22 @@ class TestAnomalyDetection(unittest.TestCase):
         # Test with high-risk user agent
         client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
         abuse_detected = self.rate_limiter._detect_abuse(
-            client_key, client_ip, user_agent
+            client_key,
+            client_ip,
+            user_agent,
         )
-        self.assertTrue(
-            abuse_detected, "High-risk user agent should trigger abuse detection"
-        )
+        assert abuse_detected, "High-risk user agent should trigger abuse detection"
 
         # Test with legitimate user agent
         legitimate_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         abuse_detected = self.rate_limiter._detect_abuse(
-            client_key, client_ip, legitimate_ua
+            client_key,
+            client_ip,
+            legitimate_ua,
         )
-        self.assertFalse(
-            abuse_detected, "Legitimate user agent should not trigger abuse detection"
-        )
+        assert (
+            not abuse_detected
+        ), "Legitimate user agent should not trigger abuse detection"
 
     def test_false_positive_reduction(self):
         """Test that legitimate traffic doesn't trigger false positives."""
@@ -192,16 +187,18 @@ class TestAnomalyDetection(unittest.TestCase):
             # Random intervals between 1-5 seconds (normal browsing)
             interval = 1 + (i % 5)
             self.rate_limiter.request_history[client_key].append(
-                current_time - i * interval
+                current_time - i * interval,
             )
 
         # Should not trigger abuse detection
         abuse_detected = self.rate_limiter._detect_abuse(
-            client_key, client_ip, legitimate_ua
+            client_key,
+            client_ip,
+            legitimate_ua,
         )
-        self.assertFalse(
-            abuse_detected, "Normal browsing pattern should not trigger abuse detection"
-        )
+        assert (
+            not abuse_detected
+        ), "Normal browsing pattern should not trigger abuse detection"
 
     def test_configuration_options(self):
         """Test that configuration options work correctly."""
@@ -218,9 +215,11 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Should not detect abuse when disabled
         abuse_detected = rate_limiter_disabled._detect_abuse(
-            client_key, client_ip, malicious_ua
+            client_key,
+            client_ip,
+            malicious_ua,
         )
-        self.assertFalse(abuse_detected, "Abuse detection should be disabled")
+        assert not abuse_detected, "Abuse detection should be disabled"
 
     def test_security_headers_ua_analysis(self):
         """Test user agent analysis in security headers middleware."""
@@ -228,22 +227,22 @@ class TestAnomalyDetection(unittest.TestCase):
         ua = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
         # The implementation returns "normal" for legitimate bots with low scores
-        self.assertIn(analysis["category"], ["legitimate_bot", "normal"])
-        self.assertIn(analysis["risk_level"], ["very_low", "low"])
+        assert analysis["category"] in ["legitimate_bot", "normal"]
+        assert analysis["risk_level"] in ["very_low", "low"]
 
         # Test malicious user agent
         ua = "sqlmap/1.0 (https://sqlmap.org)"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
         # The implementation returns "suspicious", "high_risk", or "malicious" for high scores
-        self.assertIn(analysis["category"], ["suspicious", "high_risk", "malicious"])
+        assert analysis["category"] in ["suspicious", "high_risk", "malicious"]
         # Risk levels: medium (score 2-3), high (score 4-6), very_high (score >6)
-        self.assertIn(analysis["risk_level"], ["medium", "high", "very_high"])
+        assert analysis["risk_level"] in ["medium", "high", "very_high"]
 
         # Test normal browser
         ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         analysis = self.middleware._analyze_user_agent_enhanced(ua)
-        self.assertEqual(analysis["category"], "normal")
-        self.assertEqual(analysis["risk_level"], "low")
+        assert analysis["category"] == "normal"
+        assert analysis["risk_level"] == "low"
 
     def test_ua_blocking_configuration(self):
         """Test user agent blocking configuration."""
@@ -260,8 +259,8 @@ class TestAnomalyDetection(unittest.TestCase):
         analysis = middleware_blocking._analyze_user_agent_enhanced(ua)
 
         # Verify the analysis works correctly (skip Flask request context test)
-        self.assertIn(analysis["category"], ["suspicious", "high_risk", "malicious"])
-        self.assertGreaterEqual(analysis["score"], 3, "High-risk UA should score high")
+        assert analysis["category"] in ["suspicious", "high_risk", "malicious"]
+        assert analysis["score"] >= 3, "High-risk UA should score high"
 
     def test_anomaly_detection_performance(self):
         """Test that anomaly detection doesn't significantly impact performance."""
@@ -279,9 +278,9 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Should complete within reasonable time (less than 1 second for 100 requests)
         processing_time = end_time - start_time
-        self.assertLess(
-            processing_time, 1.0, f"Anomaly detection too slow: {processing_time:.3f}s"
-        )
+        assert (
+            processing_time < 1.0
+        ), f"Anomaly detection too slow: {processing_time:.3f}s"
 
 
 if __name__ == "__main__":

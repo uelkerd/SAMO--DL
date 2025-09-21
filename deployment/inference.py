@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""
-EMOTION DETECTION INFERENCE SCRIPT
+"""EMOTION DETECTION INFERENCE SCRIPT
 =====================================
 Standalone script to run emotion detection on text.
 """
 
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from pathlib import Path
+
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 class EmotionDetector:
     def __init__(self, model_path=None):
@@ -16,7 +17,7 @@ class EmotionDetector:
             # Use the model directory relative to this script
             model_path = Path(__file__).parent / "model"
 
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"🔧 Loading model from: {model_path}")
 
@@ -27,14 +28,29 @@ class EmotionDetector:
         self.model.eval()
 
         # Define emotion mapping based on training order
-        self.emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+        self.emotion_mapping = [
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
+        ]
 
         print(f"✅ Model loaded successfully on {self.device}")
 
     def predict(self, text):
         """Predict emotion for given text"""
         # Tokenize
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = self.tokenizer(
+            text, return_tensors="pt", truncation=True, max_length=512, padding=True
+        )
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         # Predict
@@ -50,7 +66,7 @@ class EmotionDetector:
         return {
             "emotion": emotion,
             "confidence": confidence,
-            "text": text
+            "text": text,
         }
 
     def predict_batch(self, texts):
@@ -60,6 +76,7 @@ class EmotionDetector:
             result = self.predict(text)
             results.append(result)
         return results
+
 
 def main():
     """Main function for command line usage"""
@@ -83,6 +100,7 @@ def main():
     print(f"Text: {result['text']}")
     print(f"Emotion: {result['emotion']}")
     print(f"Confidence: {result['confidence']:.3f}")
+
 
 if __name__ == "__main__":
     main()

@@ -44,11 +44,13 @@ def main():
     os.chdir(project_root)
 
     success1, _ = run_command(
-        "ruff format src/ tests/ scripts/", "Formatting code with ru"
+        "ruff format src/ tests/ scripts/",
+        "Formatting code with ru",
     )
 
     success2, _ = run_command(
-        "ruff check src/ tests/ scripts/ --fix", "Fixing linting issues"
+        "ruff check src/ tests/ scripts/ --fix",
+        "Fixing linting issues",
     )
 
     success3, _ = run_command(

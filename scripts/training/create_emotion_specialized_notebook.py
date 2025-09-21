@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE EMOTION SPECIALIZED NOTEBOOK
+"""🚀 CREATE EMOTION SPECIALIZED NOTEBOOK.
 ======================================
 Create a Colab notebook using specialized emotion analysis models.
 This addresses the poor performance with generic BERT.
@@ -9,7 +9,7 @@ import json
 
 
 def create_emotion_specialized_notebook():
-    """Create the emotion specialized notebook content"""
+    """Create the emotion specialized notebook content."""
     notebook_content = {
         "cells": [
             {
@@ -485,7 +485,7 @@ def create_emotion_specialized_notebook():
         json.dump(notebook_content, f, indent=2)
 
     print(
-        "✅ Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb"
+        "✅ Emotion specialized notebook created: notebooks/EMOTION_SPECIALIZED_TRAINING_COLAB.ipynb",
     )
     print("📋 Instructions:")
     print("  1. Download the notebook file")

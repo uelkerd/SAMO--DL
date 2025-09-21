@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-BERT-based Emotion Classifier for SAMO Deep Learning.
+"""BERT-based Emotion Classifier for SAMO Deep Learning.
 
 This module provides a BERT-based multi-label emotion classification model
 trained on the GoEmotions dataset for journal entry analysis.
@@ -8,14 +7,14 @@ trained on the GoEmotions dataset for journal entry analysis.
 
 import logging
 import warnings
-from typing import Optional, Union, List, Dict, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from torch.utils.data import Dataset, DataLoader
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 from .labels import GOEMOTIONS_EMOTIONS
@@ -51,6 +50,7 @@ class BERTEmotionClassifier(nn.Module):
         """Initialize BERT emotion classifier.
 
         Args:
+        ----
             model_name: Hugging Face model name
             num_emotions: Number of emotion categories (27 + neutral)
             hidden_dropout_prob: Dropout rate for BERT hidden layers
@@ -58,6 +58,7 @@ class BERTEmotionClassifier(nn.Module):
             freeze_bert_layers: Number of BERT layers to freeze initially
             temperature: Temperature scaling parameter for probability calibration
             class_weights: Optional class weights for imbalanced data
+
         """
         super().__init__()
 
@@ -109,7 +110,9 @@ class BERTEmotionClassifier(nn.Module):
         """Freeze the first num_layers of BERT.
 
         Args:
+        ----
             num_layers: Number of BERT layers to freeze
+
         """
         if num_layers <= 0:
             return
@@ -129,7 +132,9 @@ class BERTEmotionClassifier(nn.Module):
         """Unfreeze the first num_layers of BERT.
 
         Args:
+        ----
             num_layers: Number of BERT layers to unfreeze
+
         """
         if num_layers <= 0:
             return
@@ -154,12 +159,15 @@ class BERTEmotionClassifier(nn.Module):
         """Forward pass through the BERT emotion classifier.
 
         Args:
+        ----
             input_ids: Token IDs from tokenizer
             attention_mask: Attention mask for padding
             token_type_ids: Token type IDs (optional)
 
         Returns:
+        -------
             Logits for emotion classification
+
         """
         # Get BERT outputs
         bert_outputs = self.bert(
@@ -175,15 +183,15 @@ class BERTEmotionClassifier(nn.Module):
         logits = self.classifier(pooled_output)
 
         # Apply temperature scaling
-        logits = logits / self.temperature
-
-        return logits
+        return logits / self.temperature
 
     def set_temperature(self, temperature: float) -> None:
         """Set temperature scaling parameter.
 
         Args:
+        ----
             temperature: Temperature value for scaling
+
         """
         self.temperature.data.fill_(temperature)  # type: ignore
         logger.info(f"Set temperature to {temperature}")
@@ -199,6 +207,7 @@ class BERTEmotionClassifier(nn.Module):
         """Predict emotions for given texts.
 
         Args:
+        ----
             texts: Single text or list of texts (ignored if input_ids provided)
             threshold: Prediction threshold for binary classification
             top_k: Return top-k emotions per text
@@ -206,7 +215,9 @@ class BERTEmotionClassifier(nn.Module):
             attention_mask: Pre-tokenized attention mask (for testing)
 
         Returns:
+        -------
             Dictionary with predictions, probabilities, and emotion names, or list of predictions for testing
+
         """
         # Handle direct input_ids/attention_mask for testing
         if input_ids is not None and attention_mask is not None:
@@ -281,13 +292,17 @@ class WeightedBCELoss(nn.Module):
     """Weighted Binary Cross Entropy Loss for multi-label emotion classification."""
 
     def __init__(
-        self, class_weights: Optional[torch.Tensor] = None, reduction: str = "mean"
+        self,
+        class_weights: Optional[torch.Tensor] = None,
+        reduction: str = "mean",
     ) -> None:
         """Initialize weighted BCE loss.
 
         Args:
+        ----
             class_weights: Class weights for balancing loss
             reduction: Loss reduction method
+
         """
         super().__init__()
         self.class_weights = class_weights
@@ -297,18 +312,23 @@ class WeightedBCELoss(nn.Module):
         """Compute weighted BCE loss.
 
         Args:
+        ----
             logits: Model predictions
             targets: Ground truth labels
 
         Returns:
+        -------
             Weighted BCE loss
+
         """
         # Apply sigmoid to get probabilities
         probabilities = torch.sigmoid(logits)
 
         # Compute BCE loss
         bce_loss = F.binary_cross_entropy(
-            probabilities, targets.float(), reduction="none"
+            probabilities,
+            targets.float(),
+            reduction="none",
         )
 
         # Apply class weights if provided
@@ -338,10 +358,12 @@ class EmotionDataset(Dataset):
         """Initialize emotion dataset.
 
         Args:
+        ----
             texts: List of text samples
             labels: List of label lists (multi-label)
             tokenizer: BERT tokenizer
             max_length: Maximum sequence length
+
         """
         self.texts = texts
         self.labels = labels
@@ -356,10 +378,13 @@ class EmotionDataset(Dataset):
         """Get item at index.
 
         Args:
+        ----
             idx: Index of item
 
         Returns:
+        -------
             Dictionary with tokenized inputs and labels
+
         """
         text = self.texts[idx]
         labels = self.labels[idx]
@@ -391,12 +416,15 @@ def create_bert_emotion_classifier(
     """Create BERT emotion classifier with loss function.
 
     Args:
+    ----
         model_name: Hugging Face model name
         class_weights: Class weights for loss function
         freeze_bert_layers: Number of BERT layers to freeze
 
     Returns:
+    -------
         Tuple of (model, loss_function)
+
     """
     model = BERTEmotionClassifier(
         model_name=model_name,
@@ -421,13 +449,16 @@ def evaluate_emotion_classifier(
     """Evaluate emotion classifier performance.
 
     Args:
+    ----
         model: BERT emotion classifier
         dataloader: Data loader for evaluation
         device: Device to run evaluation on
         threshold: Prediction threshold
 
     Returns:
+    -------
         Dictionary with evaluation metrics
+
     """
     model.eval()
     all_predictions = []
@@ -456,7 +487,10 @@ def evaluate_emotion_classifier(
 
     # Calculate metrics
     precision, recall, f1, _ = precision_recall_fscore_support(
-        targets_np, predictions_np, average="micro", zero_division=0
+        targets_np,
+        predictions_np,
+        average="micro",
+        zero_division=0,
     )
 
     # Calculate macro F1 for better class balance assessment

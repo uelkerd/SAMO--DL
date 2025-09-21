@@ -81,7 +81,7 @@ class TestDatabaseFunctions:
             session.close()
         except Exception as exc:
             logger.debug(
-                f"Session creation failed (expected in test environment): {exc}"
+                f"Session creation failed (expected in test environment): {exc}",
             )
 
 

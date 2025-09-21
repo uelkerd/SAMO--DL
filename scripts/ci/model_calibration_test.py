@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI Model Calibration Test
+"""CI Model Calibration Test.
 
 This script tests the BERT emotion classifier calibration for CI/CD pipeline.
 It creates a simple model and tests basic functionality without requiring checkpoints.
@@ -7,7 +7,8 @@ It creates a simple model and tests basic functionality without requiring checkp
 Usage:
     python scripts/ci/model_calibration_test.py
 
-Returns:
+Returns
+-------
     0 if test passes
     1 if test fails
 
@@ -47,8 +48,7 @@ class SimpleBERTClassifier(torch.nn.Module):
             token_type_ids=token_type_ids,
         )
         pooled_output = outputs.pooler_output
-        logits = self.classifier(pooled_output)
-        return logits
+        return self.classifier(pooled_output)
 
 
 def create_test_data():
@@ -139,7 +139,7 @@ def test_model_calibration():
         threshold = 0.5
         predictions = (probabilities > threshold).float()
         logger.info(
-            f"✅ Threshold optimization successful, predictions shape: {predictions.shape}"
+            f"✅ Threshold optimization successful, predictions shape: {predictions.shape}",
         )
 
         # Test metrics calculation
@@ -157,7 +157,7 @@ def test_model_calibration():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model calibration test failed: {e}")
+        logger.exception(f"❌ Model calibration test failed: {e}")
         return False
 
 

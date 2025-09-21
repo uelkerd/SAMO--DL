@@ -49,34 +49,34 @@ print("\n🔧 Creating emotion mapping...")
 
 # GoEmotions to Journal emotion mapping
 emotion_mapping = {
-    'admiration': 'proud',
-    'amusement': 'happy',
-    'anger': 'frustrated',
-    'annoyance': 'frustrated',
-    'approval': 'proud',
-    'caring': 'content',
-    'confusion': 'overwhelmed',
-    'curiosity': 'excited',
-    'desire': 'excited',
-    'disappointment': 'sad',
-    'disapproval': 'frustrated',
-    'disgust': 'frustrated',
-    'embarrassment': 'anxious',
-    'excitement': 'excited',
-    'fear': 'anxious',
-    'gratitude': 'grateful',
-    'grief': 'sad',
-    'joy': 'happy',
-    'love': 'content',
-    'nervousness': 'anxious',
-    'optimism': 'hopeful',
-    'pride': 'proud',
-    'realization': 'content',
-    'relief': 'calm',
-    'remorse': 'sad',
-    'sadness': 'sad',
-    'surprise': 'excited',
-    'neutral': 'calm'
+    "admiration": "proud",
+    "amusement": "happy",
+    "anger": "frustrated",
+    "annoyance": "frustrated",
+    "approval": "proud",
+    "caring": "content",
+    "confusion": "overwhelmed",
+    "curiosity": "excited",
+    "desire": "excited",
+    "disappointment": "sad",
+    "disapproval": "frustrated",
+    "disgust": "frustrated",
+    "embarrassment": "anxious",
+    "excitement": "excited",
+    "fear": "anxious",
+    "gratitude": "grateful",
+    "grief": "sad",
+    "joy": "happy",
+    "love": "content",
+    "nervousness": "anxious",
+    "optimism": "hopeful",
+    "pride": "proud",
+    "realization": "content",
+    "relief": "calm",
+    "remorse": "sad",
+    "sadness": "sad",
+    "surprise": "excited",
+    "neutral": "calm",
 }
 
 print(f"✅ Created mapping with {len(emotion_mapping)} emotions")
@@ -85,30 +85,30 @@ print(f"✅ Created mapping with {len(emotion_mapping)} emotions")
 print("\n📊 Loading and preparing data with mapping...")
 
 go_emotions = load_dataset("go_emotions", "simplified")
-with open('data/journal_test_dataset.json', 'r') as f:
+with open("data/journal_test_dataset.json", "r") as f:
     journal_entries = json.load(f)
 journal_df = pd.DataFrame(journal_entries)
 
 # Get journal emotions
-journal_emotions = set(journal_df['emotion'].unique())
+journal_emotions = set(journal_df["emotion"].unique())
 print(f"📊 Journal emotions: {sorted(list(journal_emotions))}")
 
 # Filter GoEmotions data using mapping
 go_texts = []
 go_labels = []
-for example in go_emotions['train']:
-    if example['labels']:
-        for label in example['labels']:
+for example in go_emotions["train"]:
+    if example["labels"]:
+        for label in example["labels"]:
             if label in emotion_mapping:
                 mapped_emotion = emotion_mapping[label]
                 if mapped_emotion in journal_emotions:
-                    go_texts.append(example['text'])
+                    go_texts.append(example["text"])
                     go_labels.append(mapped_emotion)
                     break
 
 # Prepare journal data
-journal_texts = list(journal_df['content'])
-journal_labels = list(journal_df['emotion'])
+journal_texts = list(journal_df["content"])
+journal_labels = list(journal_df["emotion"])
 
 print(f"📊 Mapped GoEmotions: {len(go_texts)} samples")
 print(f"📊 Journal: {len(journal_texts)} samples")
@@ -165,15 +165,15 @@ class SimpleEmotionDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.long)
+            "input_ids": encoding["input_ids"].flatten(),
+            "attention_mask": encoding["attention_mask"].flatten(),
+            "labels": torch.tensor(label, dtype=torch.long),
         }
 
 # Step 6: Create simple model
@@ -227,7 +227,7 @@ journal_dataset = SimpleEmotionDataset(journal_texts, journal_label_ids, tokeniz
 
 # Split journal data
 journal_train_texts, journal_val_texts, journal_train_labels, journal_val_labels = train_test_split(
-    journal_texts, journal_label_ids, test_size=0.3, random_state=42, stratify=journal_label_ids
+    journal_texts, journal_label_ids, test_size=0.3, random_state=42, stratify=journal_label_ids,
 )
 
 journal_train_dataset = SimpleEmotionDataset(journal_train_texts, journal_train_labels, tokenizer)
@@ -263,14 +263,14 @@ for epoch in range(num_epochs):
     for i, batch in enumerate(go_loader):
         try:
             # Validate batch
-            if 'input_ids' not in batch or 'attention_mask' not in batch or 'labels' not in batch:
+            if "input_ids" not in batch or "attention_mask" not in batch or "labels" not in batch:
                 print(f"⚠️ Invalid batch structure at batch {i}")
                 continue
 
             # Move to device with validation
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
 
             # Validate labels
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
@@ -298,9 +298,9 @@ for epoch in range(num_epochs):
     print("  📝 Training on journal data...")
     for i, batch in enumerate(journal_train_loader):
         try:
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
 
             if torch.any(labels >= num_labels) or torch.any(labels < 0):
                 continue
@@ -330,9 +330,9 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch in journal_val_loader:
             try:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                labels = batch["labels"].to(device)
 
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                 preds = torch.argmax(outputs, dim=1)
@@ -346,7 +346,7 @@ for epoch in range(num_epochs):
 
     # Calculate metrics
     if all_preds and all_labels:
-        f1_macro = f1_score(all_labels, all_preds, average='macro')
+        f1_macro = f1_score(all_labels, all_preds, average="macro")
         accuracy = accuracy_score(all_labels, all_preds)
 
         avg_loss = total_loss / num_batches if num_batches > 0 else 0
@@ -359,7 +359,7 @@ for epoch in range(num_epochs):
         # Save best model
         if f1_macro > best_f1:
             best_f1 = f1_macro
-            torch.save(model.state_dict(), 'best_simple_model.pth')
+            torch.save(model.state_dict(), "best_simple_model.pth")
             print(f"    💾 New best model saved! F1: {best_f1:.4f}")
 
     # Clear GPU cache
@@ -370,15 +370,15 @@ print(f"\n🏆 Training completed! Best F1 Score: {best_f1:.4f}")
 
 # Step 9: Save results
 results = {
-    'best_f1': best_f1,
-    'num_labels': num_labels,
-    'target_achieved': best_f1 >= 0.7,
-    'go_samples': len(go_texts),
-    'journal_samples': len(journal_texts),
-    'emotion_mapping': emotion_mapping
+    "best_f1": best_f1,
+    "num_labels": num_labels,
+    "target_achieved": best_f1 >= 0.7,
+    "go_samples": len(go_texts),
+    "journal_samples": len(journal_texts),
+    "emotion_mapping": emotion_mapping,
 }
 
-with open('simple_training_results.json', 'w') as f:
+with open("simple_training_results.json", "w") as f:
     json.dump(results, f, indent=2)
 
 print("\n✅ Training completed successfully!")
@@ -387,8 +387,8 @@ print(f"🎯 Target Met: {'✅' if best_f1 >= 0.7 else '❌'}")
 
 # Download results
 from google.colab import files
-files.download('best_simple_model.pth')
-files.download('simple_training_results.json')
+files.download("best_simple_model.pth")
+files.download("simple_training_results.json")
 
 print("\n🎉 BULLETPROOF TRAINING COMPLETED!")
 print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")

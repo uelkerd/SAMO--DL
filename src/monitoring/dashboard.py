@@ -1,4 +1,4 @@
-"""Comprehensive Monitoring Dashboard for SAMO Deep Learning API
+"""Comprehensive Monitoring Dashboard for SAMO Deep Learning API.
 
 This module provides real-time monitoring capabilities including:
 - System resource monitoring
@@ -88,7 +88,7 @@ class MonitoringDashboard:
                 last_used=None,
                 is_loaded=False,
                 error_count=0,
-            )
+            ),
         )
         self.api_metrics = APIMetrics(
             total_requests=0,
@@ -137,11 +137,14 @@ class MonitoringDashboard:
             return metrics
 
         except Exception as exc:
-            logger.error(f"Failed to update system metrics: {exc}")
+            logger.exception(f"Failed to update system metrics: {exc}")
             return None
 
     def record_model_request(
-        self, model_name: str, success: bool, response_time_ms: float
+        self,
+        model_name: str,
+        success: bool,
+        response_time_ms: float,
     ):
         """Record a model request for metrics tracking."""
         metrics = self.model_metrics[model_name]
@@ -176,7 +179,7 @@ class MonitoringDashboard:
                 {
                     "timestamp": time.time(),
                     "error": "API request failed",
-                }
+                },
             )
             self.total_errors += 1
 
@@ -195,7 +198,7 @@ class MonitoringDashboard:
         # Calculate average response time
         if self.response_times:
             self.api_metrics.average_response_time_ms = sum(self.response_times) / len(
-                self.response_times
+                self.response_times,
             )
 
         # Calculate error rate
@@ -318,7 +321,7 @@ class MonitoringDashboard:
                     "level": "critical",
                     "message": f"High CPU usage: {current_metrics.cpu_percent:.1f}%",
                     "timestamp": current_metrics.timestamp,
-                }
+                },
             )
 
         if current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD:
@@ -327,7 +330,7 @@ class MonitoringDashboard:
                     "level": "critical",
                     "message": f"High memory usage: {current_metrics.memory_percent:.1f}%",
                     "timestamp": current_metrics.timestamp,
-                }
+                },
             )
 
         if current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
@@ -336,7 +339,7 @@ class MonitoringDashboard:
                     "level": "critical",
                     "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
                     "timestamp": current_metrics.timestamp,
-                }
+                },
             )
 
         # API alerts
@@ -346,7 +349,7 @@ class MonitoringDashboard:
                     "level": "warning",
                     "message": f"High error rate: {self.api_metrics.error_rate:.1%}",
                     "timestamp": time.time(),
-                }
+                },
             )
 
         # Model alerts
@@ -357,7 +360,7 @@ class MonitoringDashboard:
                         "level": "warning",
                         "message": f"High error count for {model_name}: {metrics.error_count} errors",
                         "timestamp": time.time(),
-                    }
+                    },
                 )
 
         return alerts

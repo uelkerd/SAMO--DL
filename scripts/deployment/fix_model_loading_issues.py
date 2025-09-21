@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def check_current_status():
-    """Check current deployment status"""
+    """Check current deployment status."""
     print("🔍 Checking Current Deployment Status")
     print("=" * 50)
 
@@ -40,7 +40,7 @@ def check_current_status():
 
 
 def fix_race_condition():
-    """Fix race condition in model loading"""
+    """Fix race condition in model loading."""
     print("\n🔧 Fixing Race Condition Issues")
     print("=" * 40)
 
@@ -52,7 +52,7 @@ def fix_race_condition():
 
 
 def improve_error_handling():
-    """Improve error handling and logging"""
+    """Improve error handling and logging."""
     print("\n🔧 Improving Error Handling")
     print("=" * 40)
 
@@ -64,7 +64,7 @@ def improve_error_handling():
 
 
 def optimize_model_loading():
-    """Optimize model loading for Cloud Run"""
+    """Optimize model loading for Cloud Run."""
     print("\n🔧 Optimizing Model Loading")
     print("=" * 40)
 
@@ -76,7 +76,7 @@ def optimize_model_loading():
 
 
 def check_cloud_run_config():
-    """Check Cloud Run configuration for better model loading"""
+    """Check Cloud Run configuration for better model loading."""
     print("\n🔧 Updating Cloud Run Configuration")
     print("=" * 40)
 
@@ -109,7 +109,7 @@ def check_cloud_run_config():
 
 
 def create_health_check_script():
-    """Create a health check script for model loading"""
+    """Create a health check script for model loading."""
     print("\n🔧 Creating Health Check Script")
     print("=" * 40)
 
@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
 
 def create_deployment_guide():
-    """Create a deployment guide with troubleshooting steps"""
+    """Create a deployment guide with troubleshooting steps."""
     print("\n🔧 Creating Deployment Guide")
     print("=" * 40)
 
@@ -279,7 +279,7 @@ def create_deployment_guide():
 
 
 def main():
-    """Main function to run all fixes"""
+    """Main function to run all fixes."""
     print("🚀 Cloud Run Model Loading Fix Script")
     print("=" * 50)
 

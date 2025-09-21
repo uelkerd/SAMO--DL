@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Robust Focal Loss Training Script
+"""Robust Focal Loss Training Script.
 
 This script provides a robust implementation of focal loss training
 with comprehensive error handling and validation.
@@ -104,7 +104,9 @@ def robust_focal_training():
             labels_tensor,
         )
         train_dataloader = torch.utils.data.DataLoader(
-            dataset, batch_size=2, shuffle=True
+            dataset,
+            batch_size=2,
+            shuffle=True,
         )
 
         # Setup optimizer and loss
@@ -136,7 +138,7 @@ def robust_focal_training():
         logger.info("✅ Robust focal loss training completed!")
 
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.exception(f"❌ Training failed: {e}")
         raise
 
 

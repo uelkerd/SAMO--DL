@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🧪 Sandbox Executor Security Tests
+"""🧪 Sandbox Executor Security Tests.
 ==================================
 Tests for the refactored sandbox executor with safe builtins.
 """
@@ -9,8 +9,13 @@ import sys
 
 sys.path.append(
     os.path.join(
-        os.path.dirname(__file__), "..", "..", "src", "models", "secure_loader"
-    )
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "src",
+        "models",
+        "secure_loader",
+    ),
 )
 
 import threading
@@ -37,21 +42,21 @@ class TestSandboxExecutor(unittest.TestCase):
         safe_builtins = self.executor._get_safe_builtins()
 
         # Check that safe builtins contains expected functions
-        self.assertIn("__builtins__", safe_builtins)
+        assert "__builtins__" in safe_builtins
         builtins_dict = safe_builtins["__builtins__"]
 
         # Should contain safe functions
-        self.assertIn("len", builtins_dict)
-        self.assertIn("str", builtins_dict)
-        self.assertIn("int", builtins_dict)
-        self.assertIn("list", builtins_dict)
-        self.assertIn("dict", builtins_dict)
+        assert "len" in builtins_dict
+        assert "str" in builtins_dict
+        assert "int" in builtins_dict
+        assert "list" in builtins_dict
+        assert "dict" in builtins_dict
 
         # Should NOT contain dangerous functions
-        self.assertNotIn("eval", builtins_dict)
-        self.assertNotIn("exec", builtins_dict)
-        self.assertNotIn("__import__", builtins_dict)
-        self.assertNotIn("open", builtins_dict)
+        assert "eval" not in builtins_dict
+        assert "exec" not in builtins_dict
+        assert "__import__" not in builtins_dict
+        assert "open" not in builtins_dict
 
     def test_no_global_builtins_modification(self):
         """Test that global __builtins__ is not modified."""
@@ -69,8 +74,8 @@ class TestSandboxExecutor(unittest.TestCase):
         result, meta = executor.execute_safely(safe_function)
 
         # Check that global builtins are unchanged
-        self.assertEqual(builtins.__dict__, original_builtins)
-        self.assertEqual(result, "Hello, World!")
+        assert builtins.__dict__ == original_builtins
+        assert result == "Hello, World!"
 
     def test_sandbox_context_no_global_changes(self):
         """Test that sandbox context doesn't modify global state."""
@@ -80,10 +85,10 @@ class TestSandboxExecutor(unittest.TestCase):
 
         with self.executor.sandbox_context():
             # Sandbox context should not modify global builtins
-            self.assertEqual(builtins.__dict__, original_builtins)
+            assert builtins.__dict__ == original_builtins
 
         # After context, builtins should still be unchanged
-        self.assertEqual(builtins.__dict__, original_builtins)
+        assert builtins.__dict__ == original_builtins
 
     def test_execute_safely_with_string_code(self):
         """Test executing string code safely."""
@@ -91,8 +96,8 @@ class TestSandboxExecutor(unittest.TestCase):
 
         result, meta = self.executor.execute_safely(code)
 
-        self.assertEqual(meta["status"], "exec completed")
-        self.assertIsNone(result)  # exec doesn't return a value
+        assert meta["status"] == "exec completed"
+        assert result is None  # exec doesn't return a value
 
     def test_execute_safely_with_function(self):
         """Test executing function safely."""
@@ -102,8 +107,8 @@ class TestSandboxExecutor(unittest.TestCase):
 
         result, meta = self.executor.execute_safely(test_function)
 
-        self.assertEqual(result, "Function executed safely")
-        self.assertEqual(meta["status"], "success")
+        assert result == "Function executed safely"
+        assert meta["status"] == "success"
 
     def test_sandbox_blocks_dangerous_operations(self):
         """Test that sandbox blocks dangerous operations."""
@@ -112,7 +117,7 @@ class TestSandboxExecutor(unittest.TestCase):
         result, meta = self.executor.execute_safely(dangerous_code)
 
         # Should fail due to import restrictions
-        self.assertIn("error", meta)
+        assert "error" in meta
 
     def test_thread_safety(self):
         """Test that sandbox executor is thread-safe."""
@@ -122,7 +127,7 @@ class TestSandboxExecutor(unittest.TestCase):
         def worker_function():
             try:
                 result, meta = self.executor.execute_safely(
-                    lambda: f"Worker {threading.current_thread().name}"
+                    lambda: f"Worker {threading.current_thread().name}",
                 )
                 results.append(result)
             except Exception as e:
@@ -130,7 +135,7 @@ class TestSandboxExecutor(unittest.TestCase):
 
         # Create multiple threads
         threads = []
-        for i in range(5):
+        for _i in range(5):
             thread = threading.Thread(target=worker_function)
             threads.append(thread)
             thread.start()
@@ -140,8 +145,8 @@ class TestSandboxExecutor(unittest.TestCase):
             thread.join()
 
         # Should have no errors and 5 results
-        self.assertEqual(len(errors), 0)
-        self.assertEqual(len(results), 5)
+        assert len(errors) == 0
+        assert len(results) == 5
 
     def test_resource_limits(self):
         """Test that resource limits are respected."""
@@ -157,11 +162,11 @@ class TestSandboxExecutor(unittest.TestCase):
             result, meta = executor.execute_safely(memory_intensive)
 
             # Should either succeed or fail gracefully
-            self.assertIsNotNone(result or meta.get("error"))
+            assert (result or meta.get("error")) is not None
 
         except Exception as e:
             # Resource limits might not be available on all platforms
-            self.assertIn("resource", str(e).lower() or "limit", str(e).lower())
+            assert "resource" in (str(e).lower() or "limit"), str(e).lower()
 
     def test_timeout_handling(self):
         """Test timeout handling."""
@@ -173,7 +178,7 @@ class TestSandboxExecutor(unittest.TestCase):
         result, meta = self.executor.execute_safely(slow_function)
 
         # Should either timeout or complete within limits
-        self.assertIsNotNone(result or meta.get("error"))
+        assert (result or meta.get("error")) is not None
 
     def test_network_access_blocking(self):
         """Test that network access is blocked when not allowed."""
@@ -188,7 +193,7 @@ class TestSandboxExecutor(unittest.TestCase):
         result, meta = self.executor.execute_safely(network_function)
 
         # Should fail due to network restrictions
-        self.assertIn("error", meta)
+        assert "error" in meta
 
 
 if __name__ == "__main__":

@@ -436,7 +436,7 @@ print("🔥 READY TO ACHIEVE 70% F1 SCORE!")"""
         f.write(cell_code)
 
     print(
-        "✅ Created FINAL bulletproof training cell: final_bulletproof_training_cell.py"
+        "✅ Created FINAL bulletproof training cell: final_bulletproof_training_cell.py",
     )
     print("📋 This version has PROPER INTEGER-TO-EMOTION MAPPING!")
     print("🎯 This will solve the zero samples issue!")

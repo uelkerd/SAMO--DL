@@ -43,7 +43,10 @@ def _post_with_retries(payload: dict) -> requests.Response:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             r = requests.post(
-                API_URL, headers=HEADERS, data=json.dumps(payload), timeout=60
+                API_URL,
+                headers=HEADERS,
+                data=json.dumps(payload),
+                timeout=60,
             )
         except Exception as e:
             last_exc = e

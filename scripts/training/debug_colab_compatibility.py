@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO Deep Learning - Colab Compatibility Debug Script
+"""SAMO Deep Learning - Colab Compatibility Debug Script.
 
 This script helps identify and fix PyTorch/Transformers compatibility issues
 that commonly occur in Google Colab environments.
@@ -20,7 +20,11 @@ def run_command(command, description):
     print(f"🔧 {description}...")
     try:
         result = subprocess.run(
-            command, check=False, shell=True, capture_output=True, text=True
+            command,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
         )
         if result.returncode == 0:
             print(f"✅ {description} successful")
@@ -58,7 +62,7 @@ def check_gpu_availability():
             print("✅ CUDA available")
             print(f"GPU: {torch.cuda.get_device_name(0)}")
             print(
-                f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                f"Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB",
             )
             print(f"CUDA version: {torch.version.cuda}")
             return True
@@ -81,14 +85,14 @@ def check_pytorch_installation():
         # Test basic operations
         x = torch.randn(2, 2)
         y = torch.randn(2, 2)
-        z = torch.mm(x, y)
+        torch.mm(x, y)
         print("✅ Basic PyTorch operations work")
 
         # Test CUDA operations if available
         if torch.cuda.is_available():
             x_cuda = x.cuda()
             y_cuda = y.cuda()
-            z_cuda = torch.mm(x_cuda, y_cuda)
+            torch.mm(x_cuda, y_cuda)
             print("✅ CUDA operations work")
 
         return True
@@ -112,8 +116,8 @@ def check_transformers_installation():
         print("✅ Transformers imports successful")
 
         # Test model loading
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-        model = AutoModel.from_pretrained("bert-base-uncased")
+        AutoTokenizer.from_pretrained("bert-base-uncased")
+        AutoModel.from_pretrained("bert-base-uncased")
         print("✅ Model loading successful")
 
         return True
@@ -219,14 +223,14 @@ def test_model_initialization():
 
         # Test forward pass
         inputs = tokenizer("Hello world", return_tensors="pt")
-        outputs = model(**inputs)
+        model(**inputs)
         print("✅ Forward pass successful")
 
         # Test GPU if available
         if torch.cuda.is_available():
             model = model.cuda()
             inputs = {k: v.cuda() for k, v in inputs.items()}
-            outputs = model(**inputs)
+            model(**inputs)
             print("✅ GPU forward pass successful")
 
         return True

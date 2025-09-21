@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Temperature Scaling Calibration Script
+"""Temperature Scaling Calibration Script.
 
 Calibrates model confidence scores using temperature scaling.
 """
@@ -29,7 +29,8 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,9 @@ def calibrate_temperature(model, val_loader, device):
     all_labels = torch.cat(all_labels, dim=0)
 
     optimizer = torch.optim.LBFGS(
-        [temperature_scaling.temperature], lr=0.01, max_iter=50
+        [temperature_scaling.temperature],
+        lr=0.01,
+        max_iter=50,
     )
 
     def eval():
@@ -86,7 +89,7 @@ def calibrate_temperature(model, val_loader, device):
 
     optimizer.step(eval)
 
-    optimal_temperature = temperature_scaling.temperature.item()
+    temperature_scaling.temperature.item()
     logger.info("✅ Optimal temperature: {optimal_temperature:.3f}")
 
     return temperature_scaling
@@ -113,7 +116,9 @@ def apply_temperature_scaling():
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
         val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=16, shuffle=False
+            val_dataset,
+            batch_size=16,
+            shuffle=False,
         )
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
@@ -156,7 +161,7 @@ def apply_temperature_scaling():
         return True
 
     except Exception:
-        logger.error("❌ Temperature scaling failed: {e}")
+        logger.exception("❌ Temperature scaling failed: {e}")
         traceback.print_exc()
         return False
 

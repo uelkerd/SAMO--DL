@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-T5-based Text Summarization for SAMO Deep Learning.
+"""T5-based Text Summarization for SAMO Deep Learning.
 
 This module provides T5-based text summarization capabilities for
 journal entries and other text content.
@@ -12,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset
 from transformers import (
     AutoModelForSeq2SeqLM,
@@ -30,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 # Suppress tokenizer warnings
 warnings.filterwarnings(
-    "ignore", category=UserWarning, module="transformers.tokenization_utils_base"
+    "ignore",
+    category=UserWarning,
+    module="transformers.tokenization_utils_base",
 )
 
 
@@ -65,11 +66,13 @@ class SummarizationDataset(Dataset):
         """Initialize summarization dataset.
 
         Args:
+        ----
             texts: List of input texts (journal entries)
             summaries: List of target summaries
             tokenizer: Tokenizer for the model
             max_source_length: Maximum input sequence length
             max_target_length: Maximum summary sequence length
+
         """
         self.texts = texts
         self.summaries = summaries
@@ -128,8 +131,10 @@ class T5SummarizationModel(nn.Module):
         """Initialize T5/BART summarization model.
 
         Args:
+        ----
             config: Model configuration
             model_name: Override model name from config
+
         """
         super().__init__()
 
@@ -176,7 +181,9 @@ class T5SummarizationModel(nn.Module):
     ) -> Dict[str, Optional[torch.Tensor]]:
         """Forward pass for training."""
         outputs = self.model(
-            input_ids=input_ids, attention_mask=attention_mask, labels=labels
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=labels,
         )
 
         return {
@@ -200,6 +207,7 @@ class T5SummarizationModel(nn.Module):
         """Generate summary for a single text.
 
         Args:
+        ----
             text: Input text to summarize
             max_length: Override max summary length
             min_length: Override min summary length
@@ -209,7 +217,9 @@ class T5SummarizationModel(nn.Module):
             no_repeat_ngram_size: Override n-gram repetition prevention
 
         Returns:
+        -------
             Generated summary text
+
         """
         # Treat API max/min as new token targets for speed and stability on CPU
         max_length = max_length or self.config.max_target_length
@@ -255,23 +265,31 @@ class T5SummarizationModel(nn.Module):
             )
 
         summary = self.tokenizer.decode(
-            summary_ids[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
+            summary_ids[0],
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=True,
         )
 
         return summary.strip()
 
     def generate_batch_summaries(
-        self, texts: List[str], batch_size: int = 4, **generation_kwargs
+        self,
+        texts: List[str],
+        batch_size: int = 4,
+        **generation_kwargs,
     ) -> List[str]:
         """Generate summaries for a batch of texts.
 
         Args:
+        ----
             texts: List of input texts
             batch_size: Batch size for processing
             **generation_kwargs: Additional generation arguments
 
         Returns:
+        -------
             List of generated summaries
+
         """
         summaries = []
 
@@ -305,26 +323,33 @@ class T5SummarizationModel(nn.Module):
                     input_ids=inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
                     max_new_tokens=generation_kwargs.get(
-                        "max_length", self.config.max_target_length
+                        "max_length",
+                        self.config.max_target_length,
                     ),
                     min_new_tokens=generation_kwargs.get(
-                        "min_length", self.config.min_target_length
+                        "min_length",
+                        self.config.min_target_length,
                     ),
                     num_beams=generation_kwargs.get("num_beams", default_beams),
                     length_penalty=generation_kwargs.get(
-                        "length_penalty", self.config.length_penalty
+                        "length_penalty",
+                        self.config.length_penalty,
                     ),
                     early_stopping=generation_kwargs.get(
-                        "early_stopping", self.config.early_stopping
+                        "early_stopping",
+                        self.config.early_stopping,
                     ),
                     no_repeat_ngram_size=generation_kwargs.get(
-                        "no_repeat_ngram_size", self.config.no_repeat_ngram_size
+                        "no_repeat_ngram_size",
+                        self.config.no_repeat_ngram_size,
                     ),
                     do_sample=False,
                 )
 
             batch_summaries = self.tokenizer.batch_decode(
-                summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
+                summary_ids,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=True,
             )
 
             summaries.extend([s.strip() for s in batch_summaries])
@@ -358,6 +383,7 @@ def create_t5_summarizer(
     """Create T5/BART summarization model with specified configuration.
 
     Args:
+    ----
         model_name: Model name (t5-small, t5-base, facebook/bart-base, etc.)
         max_source_length: Maximum input text length
         max_target_length: Maximum summary length
@@ -365,7 +391,9 @@ def create_t5_summarizer(
         device: Device for model ('cuda', 'cpu', or None for auto)
 
     Returns:
+    -------
         Configured T5SummarizationModel instance
+
     """
     config = SummarizationConfig(
         model_name=model_name,
@@ -403,10 +431,12 @@ def test_summarization_model() -> None:
 
         logger.info("\n--- Journal Entry {i} ---", extra={"format_args": True})
         logger.info(
-            "Original ({len(text)} chars): {text[:100]}...", extra={"format_args": True}
+            "Original ({len(text)} chars): {text[:100]}...",
+            extra={"format_args": True},
         )
         logger.info(
-            "Summary ({len(summary)} chars): {summary}", extra={"format_args": True}
+            "Summary ({len(summary)} chars): {summary}",
+            extra={"format_args": True},
         )
 
     logger.info("\nTesting batch summarization...")

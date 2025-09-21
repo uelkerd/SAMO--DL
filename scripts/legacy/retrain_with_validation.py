@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""RETRAIN WITH VALIDATION SCRIPT
+"""RETRAIN WITH VALIDATION SCRIPT.
 ===============================
 Helps retrain the model with proper validation to ensure reliability
 """
 
+import sys
 from pathlib import Path
 
 
 def create_improved_training_plan():
-    """Create an improved training plan with proper validation"""
+    """Create an improved training plan with proper validation."""
     print("🔄 IMPROVED TRAINING PLAN")
     print("=" * 50)
     print("🎯 Goal: Retrain model to achieve reliable 75-85% F1 score")
@@ -52,7 +53,7 @@ def create_improved_training_plan():
 
 
 def create_improved_notebook():
-    """Create an improved training notebook"""
+    """Create an improved training notebook."""
     notebook_content = """{
  "cells": [
   {
@@ -403,4 +404,4 @@ def create_improved_notebook():
 
 if __name__ == "__main__":
     success = create_improved_training_plan()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

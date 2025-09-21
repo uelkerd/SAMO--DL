@@ -8,7 +8,7 @@
 import datetime
 import logging
 import subprocess
-from datetime import UTC, datetime
+from datetime import UTC
 from pathlib import Path
 
 """Generate code quality report for SAMO Deep Learning project.

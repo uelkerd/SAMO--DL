@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Final Inference Test Script for Emotion Detection Model
-Uses public RoBERTa tokenizer to avoid authentication issues
+Uses public RoBERTa tokenizer to avoid authentication issues.
 """
 
 import json
@@ -11,7 +11,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def test_final_inference():
-    """Test inference with public RoBERTa tokenizer"""
+    """Test inference with public RoBERTa tokenizer."""
     print("🧪 FINAL INFERENCE TEST")
     print("=" * 50)
 
@@ -127,7 +127,7 @@ def test_final_inference():
 
                 print(f"{i:2d}. Text: {text}")
                 print(
-                    f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})"
+                    f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})",
                 )
                 print("    Top 3 predictions:")
                 for emotion, conf in top3_predictions:
@@ -151,7 +151,7 @@ def test_final_inference():
 
 
 def test_simple_prediction():
-    """Simple test with just one prediction"""
+    """Simple test with just one prediction."""
     print("🧪 SIMPLE PREDICTION TEST")
     print("=" * 50)
 
@@ -187,7 +187,7 @@ def test_simple_prediction():
         print(f"📝 Testing: {text}")
 
         inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(
-            device
+            device,
         )
 
         with torch.no_grad():

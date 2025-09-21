@@ -57,7 +57,9 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(
-        DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
     consent_version = Column(String(50))
     consent_given_at = Column(DateTime(timezone=True))
@@ -70,7 +72,9 @@ class User(Base):
         cascade="all, delete-orphan",
     )
     predictions = relationship(
-        "Prediction", back_populates="user", cascade="all, delete-orphan"
+        "Prediction",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
     voice_transcriptions = relationship(
         "VoiceTranscription",
@@ -89,14 +93,18 @@ class JournalEntry(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
     title = Column(String(255))
     content = Column(Text, nullable=False)
     encrypted_content = Column(LargeBinary)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(
-        DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
     sentiment_score = Column(Float)
     mood_category = Column(String(50))
@@ -159,7 +167,9 @@ class Prediction(Base):
         nullable=False,
     )
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
     prediction_type = Column(String(100), nullable=False)
     prediction_value = Column(JSONB, nullable=False)
@@ -189,7 +199,9 @@ class VoiceTranscription(Base):
         nullable=False,
     )
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
     )
     audio_file_path = Column(String(255))
     transcription_text = Column(Text, nullable=False)
@@ -220,7 +232,9 @@ class Tag(Base):
 
     # Relationships
     entries = relationship(
-        "JournalEntry", secondary=journal_entry_tags, back_populates="tags"
+        "JournalEntry",
+        secondary=journal_entry_tags,
+        back_populates="tags",
     )
 
     def __repr__(self) -> str:

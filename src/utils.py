@@ -8,10 +8,12 @@ def count_model_params(model: torch.nn.Module, only_trainable: bool = False) -> 
     """Count the number of parameters in a PyTorch model.
 
     Args:
+    ----
         model: PyTorch model to count parameters for
         only_trainable: If True, only count trainable parameters
 
     Returns:
+    -------
         int: Number of parameters (total or trainable only)
 
     """

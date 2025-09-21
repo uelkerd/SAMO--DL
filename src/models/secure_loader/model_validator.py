@@ -1,5 +1,4 @@
-"""
-Model Validator for Secure Model Loading.
+"""Model Validator for Secure Model Loading.
 
 This module provides model validation capabilities including:
 - Model structure validation
@@ -13,7 +12,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +36,11 @@ class ModelValidator:
         """Initialize model validator.
 
         Args:
+        ----
             allowed_model_types: List of allowed model types
             max_model_size_mb: Maximum model size in MB
             required_config_keys: Required configuration keys
+
         """
         self.allowed_model_types = allowed_model_types or [
             "BERTEmotionClassifier",
@@ -64,10 +65,13 @@ class ModelValidator:
         """Validate model structure.
 
         Args:
+        ----
             model: PyTorch model to validate
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "model_type": type(model).__name__,
@@ -80,7 +84,7 @@ class ModelValidator:
             # Check model type
             if type(model).__name__ not in self.allowed_model_types:
                 validation_info["issues"].append(
-                    f"Model type {type(model).__name__} not allowed"
+                    f"Model type {type(model).__name__} not allowed",
                 )
 
             # Count parameters
@@ -99,7 +103,7 @@ class ModelValidator:
                             "name": name,
                             "type": type(module).__name__,
                             "parameters": sum(p.numel() for p in module.parameters()),
-                        }
+                        },
                     )
 
             # Check for required methods
@@ -107,7 +111,7 @@ class ModelValidator:
             for method in required_methods:
                 if not hasattr(model, method):
                     validation_info["issues"].append(
-                        f"Missing required method: {method}"
+                        f"Missing required method: {method}",
                     )
 
             is_valid = len(validation_info["issues"]) == 0
@@ -118,15 +122,19 @@ class ModelValidator:
             return False, validation_info
 
     def validate_model_config(
-        self, config: Dict[str, Any]
+        self,
+        config: Dict[str, Any],
     ) -> Tuple[bool, Dict[str, Any]]:
         """Validate model configuration.
 
         Args:
+        ----
             config: Model configuration dictionary
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "config_keys": list(config.keys()),
@@ -146,25 +154,25 @@ class ModelValidator:
                 num_emotions = config["num_emotions"]
                 if not isinstance(num_emotions, int) or num_emotions <= 0:
                     validation_info["invalid_values"].append(
-                        f"num_emotions: {num_emotions}"
+                        f"num_emotions: {num_emotions}",
                     )
 
             if "hidden_dropout_prob" in config:
                 dropout = config["hidden_dropout_prob"]
                 if not isinstance(dropout, (int, float)) or dropout < 0 or dropout > 1:
                     validation_info["invalid_values"].append(
-                        f"hidden_dropout_prob: {dropout}"
+                        f"hidden_dropout_prob: {dropout}",
                     )
 
             # Check for issues
             if validation_info["missing_keys"]:
                 validation_info["issues"].append(
-                    f"Missing required keys: {validation_info['missing_keys']}"
+                    f"Missing required keys: {validation_info['missing_keys']}",
                 )
 
             if validation_info["invalid_values"]:
                 validation_info["issues"].append(
-                    f"Invalid values: {validation_info['invalid_values']}"
+                    f"Invalid values: {validation_info['invalid_values']}",
                 )
 
             is_valid = len(validation_info["issues"]) == 0
@@ -178,10 +186,13 @@ class ModelValidator:
         """Validate model file.
 
         Args:
+        ----
             model_path: Path to the model file
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "file_path": model_path,
@@ -207,7 +218,7 @@ class ModelValidator:
 
             if file_size_mb > self.max_model_size_mb:
                 validation_info["issues"].append(
-                    f"Model file too large: {file_size_mb:.2f}MB"
+                    f"Model file too large: {file_size_mb:.2f}MB",
                 )
 
             # Check if file is readable
@@ -220,20 +231,22 @@ class ModelValidator:
             # Try to load the model
             try:
                 model_data = torch.load(
-                    model_path, map_location="cpu", weights_only=True
+                    model_path,
+                    map_location="cpu",
+                    weights_only=True,
                 )
                 validation_info["loadable"] = True
 
                 # Validate model data structure
                 if not isinstance(model_data, dict):
                     validation_info["issues"].append(
-                        "Model file is not a valid state dict"
+                        "Model file is not a valid state dict",
                     )
                 else:
                     # Check for required keys
                     if "state_dict" not in model_data:
                         validation_info["issues"].append(
-                            "Model file missing state_dict"
+                            "Model file missing state_dict",
                         )
 
                     if "config" not in model_data:
@@ -250,15 +263,19 @@ class ModelValidator:
             return False, validation_info
 
     def validate_version_compatibility(
-        self, model_config: Dict[str, Any]
+        self,
+        model_config: Dict[str, Any],
     ) -> Tuple[bool, Dict[str, Any]]:
         """Validate version compatibility.
 
         Args:
+        ----
             model_config: Model configuration
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "current_versions": {},
@@ -278,30 +295,27 @@ class ModelValidator:
             }
 
             # Check version compatibility
-            for package, required_version in self.version_compatibility.items():
+            for package, _required_version in self.version_compatibility.items():
                 if package in validation_info["current_versions"]:
                     current_version = validation_info["current_versions"][package]
                     # Enhanced version check that supports PyTorch 2.x
                     if package == "torch":
                         # Allow PyTorch 1.x and 2.x versions
-                        if not (
-                            current_version.startswith("1.")
-                            or current_version.startswith("2.")
-                        ):
+                        if not (current_version.startswith(("1.", "2."))):
                             validation_info["compatibility_issues"].append(
-                                f"PyTorch version {current_version} may not be compatible"
+                                f"PyTorch version {current_version} may not be compatible",
                             )
                     elif package == "transformers" and not current_version.startswith(
-                        "4."
+                        "4.",
                     ):
                         validation_info["compatibility_issues"].append(
-                            f"Transformers version {current_version} may not be compatible"
+                            f"Transformers version {current_version} may not be compatible",
                         )
 
             # Check for issues
             if validation_info["compatibility_issues"]:
                 validation_info["issues"].extend(
-                    validation_info["compatibility_issues"]
+                    validation_info["compatibility_issues"],
                 )
 
             is_valid = len(validation_info["issues"]) == 0
@@ -312,16 +326,21 @@ class ModelValidator:
             return False, validation_info
 
     def validate_model_performance(
-        self, model: nn.Module, test_input: torch.Tensor
+        self,
+        model: nn.Module,
+        test_input: torch.Tensor,
     ) -> Tuple[bool, Dict[str, Any]]:
         """Validate model performance with test input.
 
         Args:
+        ----
             model: PyTorch model
             test_input: Test input tensor
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "forward_pass_time": 0,
@@ -378,13 +397,16 @@ class ModelValidator:
         """Perform comprehensive model validation.
 
         Args:
+        ----
             model_path: Path to the model file
             model_class: Model class
             model_config: Model configuration
             test_input: Optional test input for performance validation
 
         Returns:
+        -------
             Tuple of (is_valid, comprehensive_validation_info)
+
         """
         comprehensive_info: Dict[str, Any] = {
             "file_validation": {},
@@ -411,7 +433,7 @@ class ModelValidator:
 
             # 3. Version validation
             version_valid, version_info = self.validate_version_compatibility(
-                model_config
+                model_config,
             )
             comprehensive_info["version_validation"] = version_info
             if not version_valid:
@@ -421,7 +443,9 @@ class ModelValidator:
             if file_valid:
                 try:
                     model_data = torch.load(
-                        model_path, map_location="cpu", weights_only=True
+                        model_path,
+                        map_location="cpu",
+                        weights_only=True,
                     )
 
                     # Filter model_config to only include valid constructor parameters
@@ -437,7 +461,7 @@ class ModelValidator:
                         model.load_state_dict(model_data["state_dict"])
 
                     structure_valid, structure_info = self.validate_model_structure(
-                        model
+                        model,
                     )
                     comprehensive_info["structure_validation"] = structure_info
                     if not structure_valid:
@@ -446,7 +470,8 @@ class ModelValidator:
                     # 5. Performance validation (if structure is valid and test input provided)
                     if structure_valid and test_input is not None:
                         perf_valid, perf_info = self.validate_model_performance(
-                            model, test_input
+                            model,
+                            test_input,
                         )
                         comprehensive_info["performance_validation"] = perf_info
                         if not perf_valid:

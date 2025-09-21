@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MEGA COMPREHENSIVE MODEL TEST SUITE
+"""MEGA COMPREHENSIVE MODEL TEST SUITE.
 ===================================
 
 This script conducts the most extensive and holistic testing possible on the default model,
@@ -63,7 +63,7 @@ class MegaComprehensiveModelTester:
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                self.model_path
+                self.model_path,
             )
 
             if torch.cuda.is_available():
@@ -82,7 +82,10 @@ class MegaComprehensiveModelTester:
     def predict_emotion(self, text):
         """Make a prediction with confidence."""
         inputs = self.tokenizer(
-            text, return_tensors="pt", truncation=True, padding=True
+            text,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
         )
         if torch.cuda.is_available():
             inputs = {k: v.to("cuda") for k, v in inputs.items()}
@@ -152,7 +155,7 @@ class MegaComprehensiveModelTester:
 
             status = "✅" if is_correct else "❌"
             print(
-                f'{status} {i:2d}. "{text}" → {predicted} (expected: {expected}) [conf: {confidence:.3f}]'
+                f'{status} {i:2d}. "{text}" → {predicted} (expected: {expected}) [conf: {confidence:.3f}]',
             )
 
         accuracy = correct / len(basic_test_cases) * 100
@@ -166,7 +169,7 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"\n📊 Basic Test Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence"
+            f"\n📊 Basic Test Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
         )
 
     def test_edge_cases(self):
@@ -241,7 +244,7 @@ class MegaComprehensiveModelTester:
                     "predicted": predicted,
                     "confidence": confidence,
                     "correct": is_correct,
-                }
+                },
             )
 
         correct = sum(1 for r in results if r["correct"])
@@ -257,7 +260,7 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Edge Case Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence"
+            f"📊 Edge Case Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
         )
         print(f"   Correct: {correct}/{len(results)}")
 
@@ -323,7 +326,7 @@ class MegaComprehensiveModelTester:
                         "predicted": predicted,
                         "confidence": confidence,
                         "success": True,
-                    }
+                    },
                 )
             except Exception as e:
                 results.append(
@@ -333,7 +336,7 @@ class MegaComprehensiveModelTester:
                         "confidence": 0.0,
                         "success": False,
                         "error": str(e),
-                    }
+                    },
                 )
 
         successful = sum(1 for r in results if r["success"])
@@ -348,7 +351,7 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence"
+            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence",
         )
         print(f"   Successful: {successful}/{len(results)}")
 
@@ -384,7 +387,7 @@ class MegaComprehensiveModelTester:
                         "predicted": predicted,
                         "confidence": confidence,
                         "correct": predicted == emotion,
-                    }
+                    },
                 )
 
         # Analyze bias
@@ -427,7 +430,7 @@ class MegaComprehensiveModelTester:
         print("📊 Bias Analysis Results:")
         print(f"   Overall accuracy: {np.mean(list(emotion_accuracies.values())):.2f}%")
         print(
-            f"   Overall confidence: {np.mean(list(emotion_confidences.values())):.3f}"
+            f"   Overall confidence: {np.mean(list(emotion_confidences.values())):.3f}",
         )
         print(f"   Most accurate: {most_accurate[0]} ({most_accurate[1]:.2f}%)")
         print(f"   Least accurate: {least_accurate[0]} ({least_accurate[1]:.2f}%)")
@@ -489,7 +492,7 @@ class MegaComprehensiveModelTester:
                             "predicted": predicted_emotion,
                             "confidence": confidence,
                             "success": True,
-                        }
+                        },
                     )
                 except Exception as e:
                     robustness_results.append(
@@ -500,12 +503,12 @@ class MegaComprehensiveModelTester:
                             "confidence": 0.0,
                             "success": False,
                             "error": str(e),
-                        }
+                        },
                     )
 
         successful = sum(1 for r in robustness_results if r["success"])
         avg_confidence = np.mean(
-            [r["confidence"] for r in robustness_results if r["success"]]
+            [r["confidence"] for r in robustness_results if r["success"]],
         )
 
         self.test_results["robustness_tests"] = {
@@ -517,7 +520,7 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Robustness Test Results: {successful / len(robustness_results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence"
+            f"📊 Robustness Test Results: {successful / len(robustness_results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence",
         )
         print(f"   Successful: {successful}/{len(robustness_results)}")
 
@@ -600,7 +603,7 @@ class MegaComprehensiveModelTester:
                     "predicted": predicted,
                     "confidence": confidence,
                     "correct": is_correct,
-                }
+                },
             )
 
         accuracy = correct / len(real_world_cases) * 100
@@ -628,16 +631,17 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Real-World Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence"
+            f"📊 Real-World Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
         )
         print(f"   Correct: {correct}/{len(real_world_cases)}")
 
         # Show worst performing emotions
         worst_emotions = sorted(
-            emotion_performance.items(), key=lambda x: x[1]["accuracy"]
+            emotion_performance.items(),
+            key=lambda x: x[1]["accuracy"],
         )[:3]
         print(
-            f"   Worst performing emotions: {', '.join([f'{e[0]} ({e[1]["accuracy"]:.1f}%)' for e in worst_emotions])}"
+            f"   Worst performing emotions: {', '.join([f'{e[0]} ({e[1]["accuracy"]:.1f}%)' for e in worst_emotions])}",
         )
 
     def analyze_confidence_distribution(self):
@@ -655,7 +659,7 @@ class MegaComprehensiveModelTester:
         # From edge cases
         if "edge_cases" in self.test_results:
             all_confidences.extend(
-                [r["confidence"] for r in self.test_results["edge_cases"]["details"]]
+                [r["confidence"] for r in self.test_results["edge_cases"]["details"]],
             )
 
         # From real-world scenarios
@@ -682,16 +686,16 @@ class MegaComprehensiveModelTester:
             print(f"   Median: {confidence_stats['median']:.3f}")
             print(f"   Std Dev: {confidence_stats['std']:.3f}")
             print(
-                f"   Range: {confidence_stats['min']:.3f} - {confidence_stats['max']:.3f}"
+                f"   Range: {confidence_stats['min']:.3f} - {confidence_stats['max']:.3f}",
             )
             print(
-                f"   High confidence (≥0.8): {confidence_stats['high_confidence']}/{confidence_stats['total']} ({confidence_stats['high_confidence'] / confidence_stats['total'] * 100:.1f}%)"
+                f"   High confidence (≥0.8): {confidence_stats['high_confidence']}/{confidence_stats['total']} ({confidence_stats['high_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
             print(
-                f"   Medium confidence (0.5-0.8): {confidence_stats['medium_confidence']}/{confidence_stats['total']} ({confidence_stats['medium_confidence'] / confidence_stats['total'] * 100:.1f}%)"
+                f"   Medium confidence (0.5-0.8): {confidence_stats['medium_confidence']}/{confidence_stats['total']} ({confidence_stats['medium_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
             print(
-                f"   Low confidence (<0.5): {confidence_stats['low_confidence']}/{confidence_stats['total']} ({confidence_stats['low_confidence'] / confidence_stats['total'] * 100:.1f}%)"
+                f"   Low confidence (<0.5): {confidence_stats['low_confidence']}/{confidence_stats['total']} ({confidence_stats['low_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
 
     def generate_comprehensive_report(self):
@@ -704,7 +708,7 @@ class MegaComprehensiveModelTester:
         total_correct = 0
         all_confidences = []
 
-        for test_type, results in self.test_results.items():
+        for _test_type, results in self.test_results.items():
             if "accuracy" in results:
                 total_tests += results.get("total_tests", 0)
                 total_correct += results.get("correct", 0)
@@ -756,7 +760,7 @@ class MegaComprehensiveModelTester:
         print(f"   Model Status: {report['summary']['model_status']}")
         print(f"   Confidence Status: {report['summary']['confidence_status']}")
         print(
-            f"   Deployment Ready: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}"
+            f"   Deployment Ready: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
         )
 
         print(f"\n📁 Detailed report saved to: {report_path}")
@@ -806,7 +810,7 @@ def main():
         print(f"   Confidence: {report['overall_metrics']['overall_confidence']:.3f}")
         print(f"   Status: {report['summary']['model_status']}")
         print(
-            f"   Ready for deployment: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}"
+            f"   Ready for deployment: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
         )
     else:
         print("\n❌ Testing failed!")

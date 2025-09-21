@@ -28,14 +28,16 @@ def auth_override():
         app.dependency_overrides.pop(get_current_user, None)
 
 
-@pytest.fixture
+@pytest.fixture()
 def client() -> TestClient:
     """Pytest TestClient fixture for the unified API app."""
     return TestClient(app)
 
 
 def tiny_tone_wav_bytes(
-    duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440
+    duration_s: float = 0.3,
+    sample_rate: int = 16000,
+    freq_hz: int = 440,
 ) -> bytes:
     """Generate a very small WAV tone (16-bit PCM) for upload tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
@@ -57,7 +59,9 @@ def tiny_tone_wav_bytes(
 
 
 def test_summarize_returns_503_when_model_unavailable(
-    monkeypatch, client: TestClient, tmp_path
+    monkeypatch,
+    client: TestClient,
+    tmp_path,
 ):
     """Force summarizer lazy-load to fail and expect 503."""
     # Ensure global is None
@@ -157,7 +161,8 @@ def test_summarize_returns_200_when_lazy_load_succeeds(monkeypatch, client: Test
 
 
 def test_voice_returns_503_when_transcriber_unavailable(
-    monkeypatch, client: TestClient
+    monkeypatch,
+    client: TestClient,
 ):
     """Force transcriber lazy-load to fail and expect 503."""
     api.voice_transcriber = None

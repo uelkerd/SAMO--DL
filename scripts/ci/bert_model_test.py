@@ -43,7 +43,7 @@ def test_bert_model_loading():
         model.to(device)
 
         logger.info(
-            f"✅ Model initialized with {model.count_parameters():,} parameters"
+            f"✅ Model initialized with {model.count_parameters():,} parameters",
         )
 
         batch_size = 2
@@ -65,7 +65,7 @@ def test_bert_model_loading():
         expected_shape = (batch_size, 28)  # 28 emotions
         if outputs.shape != expected_shape:
             raise ValueError(
-                f"Expected output shape {expected_shape}, got {outputs.shape}"
+                f"Expected output shape {expected_shape}, got {outputs.shape}",
             )
 
         logger.info("✅ Output shape validation passed")
@@ -82,7 +82,7 @@ def test_bert_model_loading():
         return True
 
     except Exception as e:
-        logger.error(f"❌ BERT model test failed: {e}")
+        logger.exception(f"❌ BERT model test failed: {e}")
         return False
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Monitoring Dashboard Startup Script
+"""Monitoring Dashboard Startup Script.
 
 Starts the model monitoring dashboard and health monitoring system.
 """
@@ -41,6 +41,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
     """Start the complete monitoring system.
 
     Args:
+    ----
         config_path: Path to monitoring configuration
         port: Dashboard port
 
@@ -63,7 +64,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         try:
             while True:
                 time.sleep(60)
-                health_status = monitor.get_health_status()
+                monitor.get_health_status()
                 logger.info("💚 System Health: {health_status['overall_status']}")
 
         except KeyboardInterrupt:
@@ -72,7 +73,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             logger.info("✅ Monitoring system stopped gracefully")
 
     except Exception:
-        logger.error("❌ Failed to start monitoring system: {e}")
+        logger.exception("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
 

@@ -119,7 +119,7 @@ def ensure_with_hf_hub(
         )
         return True
     except Exception as e:
-        logger.error("snapshot_download failed: %s", e)
+        logger.exception("snapshot_download failed: %s", e)
         return False
 
 
@@ -133,9 +133,9 @@ def ensure_with_transformers(
         from transformers import (
             AutoModelForSequenceClassification,
             AutoTokenizer,
-        )  # type: ignore
+        )
     except Exception as e:
-        logger.error("transformers not available: %s", e)
+        logger.exception("transformers not available: %s", e)
         return False
 
     logger.info("Using transformers save_pretrained for repo %s", repo_id)
@@ -153,7 +153,7 @@ def ensure_with_transformers(
         model.save_pretrained(str(target_dir))
         return True
     except Exception as e:
-        logger.error("transformers download/save failed: %s", e)
+        logger.exception("transformers download/save failed: %s", e)
         return False
 
 

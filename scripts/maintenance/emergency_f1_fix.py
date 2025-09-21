@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EMERGENCY F1 FIX - SENIOR ENGINEER APPROACH
+"""EMERGENCY F1 FIX - SENIOR ENGINEER APPROACH.
 
 This script implements multiple F1 improvement techniques simultaneously:
 1. Focal Loss for class imbalance
@@ -59,7 +59,7 @@ def create_optimized_model(class_weights):
     """Create model with optimal settings for F1 improvement."""
     logger.info("🤖 Creating optimized BERT model...")
 
-    model = BERTEmotionClassifier(
+    return BERTEmotionClassifier(
         model_name="bert-base-uncased",
         num_emotions=28,
         hidden_dropout_prob=0.1,  # Reduced dropout
@@ -70,8 +70,6 @@ def create_optimized_model(class_weights):
         if class_weights is not None
         else None,
     )
-
-    return model
 
 
 def prepare_training_data(datasets, tokenizer, batch_size=16):
@@ -301,7 +299,7 @@ def emergency_f1_fix():
         # Get class weights
         class_weights = datasets["class_weights"]
         logger.info(
-            f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}"
+            f"📊 Class weights computed: min={class_weights.min():.3f}, max={class_weights.max():.3f}",
         )
 
         # Create model
@@ -312,7 +310,9 @@ def emergency_f1_fix():
 
         # Prepare data
         train_loader, val_loader = prepare_training_data(
-            datasets, tokenizer, batch_size=16
+            datasets,
+            tokenizer,
+            batch_size=16,
         )
 
         # Set device
@@ -320,8 +320,12 @@ def emergency_f1_fix():
         model.to(device)
 
         # Train with focal loss
-        best_val_f1 = train_with_focal_loss(
-            model, train_loader, val_loader, device, epochs=5
+        train_with_focal_loss(
+            model,
+            train_loader,
+            val_loader,
+            device,
+            epochs=5,
         )
 
         # Optimize threshold
@@ -362,17 +366,20 @@ def emergency_f1_fix():
 
         # Evaluate with optimized threshold
         test_results = evaluate_model(
-            model, test_loader, device, threshold=best_threshold
+            model,
+            test_loader,
+            device,
+            threshold=best_threshold,
         )
 
         # Display results
         logger.info("📊 FINAL RESULTS:")
         logger.info("=" * 60)
         logger.info(
-            f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1'] * 100:.2f}%)"
+            f"Micro F1 Score:     {test_results['micro_f1']:.4f} ({test_results['micro_f1'] * 100:.2f}%)",
         )
         logger.info(
-            f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1'] * 100:.2f}%)"
+            f"Macro F1 Score:     {test_results['macro_f1']:.4f} ({test_results['macro_f1'] * 100:.2f}%)",
         )
         logger.info(f"Best Threshold:     {best_threshold:.2f}")
         logger.info(f"Training Time:      {time.time() - start_time:.1f}s")
@@ -395,7 +402,7 @@ def emergency_f1_fix():
         return test_results["micro_f1"]
 
     except Exception as e:
-        logger.error(f"❌ Emergency F1 fix failed: {e}")
+        logger.exception(f"❌ Emergency F1 fix failed: {e}")
         import traceback
 
         traceback.print_exc()

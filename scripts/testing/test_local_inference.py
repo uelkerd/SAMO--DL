@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Local Inference Test Script for Emotion Detection Model
-Tests the downloaded model files directly without API server
+Tests the downloaded model files directly without API server.
 """
 
 import sys
@@ -21,7 +21,7 @@ ensure_path(DEPLOYMENT_DIR)
 
 
 def test_local_inference():
-    """Test the local inference with the downloaded model"""
+    """Test the local inference with the downloaded model."""
     logger.info("🧪 LOCAL INFERENCE TEST")
     logger.info("=" * 50)
 
@@ -78,8 +78,10 @@ def test_local_inference():
         return True
 
     except Exception as e:
-        logger.error(
-            "❌ Local inference test failed for model_dir=%s: %s", model_dir, e
+        logger.exception(
+            "❌ Local inference test failed for model_dir=%s: %s",
+            model_dir,
+            e,
         )
         return False
 

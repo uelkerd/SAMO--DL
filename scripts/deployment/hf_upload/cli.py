@@ -29,11 +29,13 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Upload a custom model to HuggingFace Hub")
     p.add_argument("--model-path", help="Path to trained model (.pth or HF dir)")
     p.add_argument(
-        "--base-model", help="Base model to reconstruct HF weights (if checkpoint)"
+        "--base-model",
+        help="Base model to reconstruct HF weights (if checkpoint)",
     )
     p.add_argument("--repo-id", help="Target repo id (username/model)")
     p.add_argument(
-        "--repo-name", help="Target repo name (defaults to samo-dl-emotion-model)"
+        "--repo-name",
+        help="Target repo name (defaults to samo-dl-emotion-model)",
     )
     p.add_argument(
         "--private",
@@ -42,7 +44,10 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
         help="Force private repository",
     )
     p.add_argument(
-        "--public", dest="private", action="store_false", help="Force public repository"
+        "--public",
+        dest="private",
+        action="store_false",
+        help="Force public repository",
     )
     p.set_defaults(private=None)
     p.add_argument(
@@ -51,13 +56,18 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
         help="Allow upload when critical files are missing",
     )
     p.add_argument(
-        "--temp-dir", default="./temp_model_upload", help="Temporary working directory"
+        "--temp-dir",
+        default="./temp_model_upload",
+        help="Temporary working directory",
     )
     p.add_argument("--no-lfs", action="store_true", help="Skip Git LFS setup")
     p.add_argument("--retries", type=int, default=5, help="Max upload retries")
     p.add_argument("--backoff", type=int, default=2, help="Exponential backoff factor")
     p.add_argument(
-        "--initial-delay", type=int, default=2, help="Initial backoff delay (seconds)"
+        "--initial-delay",
+        type=int,
+        default=2,
+        help="Initial backoff delay (seconds)",
     )
     p.add_argument(
         "-v",
@@ -77,7 +87,7 @@ def main(argv: Optional[list] = None) -> int:
     model_path = args.model_path or discovery.find_best_trained_model()
     if not model_path:
         logging.error(
-            "No model found. Provide --model-path or place model in the expected directory."
+            "No model found. Provide --model-path or place model in the expected directory.",
         )
         return 1
 
@@ -136,7 +146,9 @@ def main(argv: Optional[list] = None) -> int:
             logging.info("Cleaned up temporary files")
         except Exception as e:
             logging.exception(
-                "Failed to remove temporary directory %s: %s", temp_dir, e
+                "Failed to remove temporary directory %s: %s",
+                temp_dir,
+                e,
             )
 
     logging.info("Success! Model uploaded: https://huggingface.co/%s", repo_id_uploaded)

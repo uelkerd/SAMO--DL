@@ -21,7 +21,7 @@ def pre_warm_models():
 
         # Respect offline mode in CI to avoid failing when network is unavailable.
         offline = is_truthy(os.getenv("HF_HUB_OFFLINE")) or is_truthy(
-            os.getenv("TRANSFORMERS_OFFLINE")
+            os.getenv("TRANSFORMERS_OFFLINE"),
         )
         if offline:
             print("Offline mode detected. Skipping pre-warm.")

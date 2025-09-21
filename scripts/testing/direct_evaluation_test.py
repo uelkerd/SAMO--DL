@@ -80,7 +80,7 @@ def test_direct_evaluation():
 
         logger.info("📊 Logits shape: {logits.shape}")
         logger.info(
-            "📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}"
+            "📊 Logits min/max: {logits.min().item():.4f}/{logits.max().item():.4f}",
         )
 
         probabilities = torch.sigmoid(logits)

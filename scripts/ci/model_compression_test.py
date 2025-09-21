@@ -60,8 +60,7 @@ def get_model_size(model):
     buffer_size = 0
     for buffer in model.buffers():
         buffer_size += buffer.nelement() * buffer.element_size()
-    size_mb = (param_size + buffer_size) / 1024 / 1024
-    return size_mb
+    return (param_size + buffer_size) / 1024 / 1024
 
 
 def benchmark_inference(model, input_tensor, num_runs=100):
@@ -128,7 +127,8 @@ def test_model_compression():
         logger.info("Compression ratio: {compression_ratio:.2f}x")
 
         ensure(
-            compressed_size < original_size, "Model should be smaller after compression"
+            compressed_size < original_size,
+            "Model should be smaller after compression",
         )
         ensure(compression_ratio > 1.0, "Compression ratio should be greater than 1")
 
@@ -140,7 +140,7 @@ def test_model_compression():
         return True
 
     except Exception:
-        logger.error("❌ Model compression test failed: {e}")
+        logger.exception("❌ Model compression test failed: {e}")
         return False
 
 

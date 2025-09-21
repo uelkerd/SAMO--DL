@@ -1,6 +1,7 @@
 # metrics_test.py
 # pip install -U transformers datasets scikit-learn torch tqdm huggingface_hub
 
+import contextlib
 import os
 
 import numpy as np
@@ -51,10 +52,8 @@ if not cfg_label2id:
     l2i = getattr(cfg, "label2id", {}) or {}
     tmp = {}
     for k, v in l2i.items():
-        try:
+        with contextlib.suppress(Exception):
             tmp[norm(k)] = int(v)
-        except Exception:
-            pass
     if tmp:
         cfg_label2id = tmp
 
@@ -130,8 +129,7 @@ def predict_probs(batch_texts):
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.inference_mode():
         batch_logits = mdl(**enc).logits
-        probs_array = torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
-    return probs_array
+        return torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
 
 
 all_probs_full, all_true = [], []

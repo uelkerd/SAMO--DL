@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Model Performance Validation Script
+"""Model Performance Validation Script.
 ==================================
 
 This script provides comprehensive validation of the emotion detection model
@@ -53,7 +53,7 @@ def check_model_configuration(model_path):
             # Check if labels are emotion names or generic
             if all(label.startswith("LABEL_") for label in emotion_labels):
                 print(
-                    "❌ WARNING: Model uses generic LABEL_X format instead of emotion names"
+                    "❌ WARNING: Model uses generic LABEL_X format instead of emotion names",
                 )
                 return False
             print("✅ Model uses proper emotion labels")
@@ -162,7 +162,7 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
     print("Testing on unseen examples...")
     print("-" * 50)
 
-    for i, example in enumerate(test_examples):
+    for _i, example in enumerate(test_examples):
         text = example["text"]
         expected = example["expected"]
 
@@ -196,11 +196,11 @@ def evaluate_model_performance(model, tokenizer, test_examples, emotions):
                 "predicted": predicted_emotion,
                 "confidence": confidence,
                 "correct": is_correct,
-            }
+            },
         )
 
         print(
-            f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, confidence: {confidence:.3f})"
+            f"{status} {text[:50]}... → {predicted_emotion} (expected: {expected}, confidence: {confidence:.3f})",
         )
 
     # Calculate metrics
@@ -317,7 +317,10 @@ def main():
 
     # Evaluate performance
     results, accuracy, max_bias = evaluate_model_performance(
-        model, tokenizer, test_examples, emotions
+        model,
+        tokenizer,
+        test_examples,
+        emotions,
     )
 
     # Check for data leakage (if training data is available)
@@ -326,7 +329,7 @@ def main():
         try:
             with open(training_data_path) as f:
                 training_data = json.load(f)
-            data_leakage = check_for_data_leakage(training_data, test_examples)
+            check_for_data_leakage(training_data, test_examples)
         except:
             print("⚠️  Could not check for data leakage (training data not accessible)")
     else:

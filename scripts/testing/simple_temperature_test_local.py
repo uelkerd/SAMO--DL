@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Temperature Test Local Script
+"""Simple Temperature Test Local Script.
 
 Tests temperature scaling calibration locally.
 """
@@ -109,17 +109,17 @@ def simple_temperature_test_local():
         pred_np = all_predictions.numpy()
         label_np = all_labels.numpy()
 
-        micro_f1 = f1_score(label_np, pred_np, average="micro", zero_division=0)
+        f1_score(label_np, pred_np, average="micro", zero_division=0)
 
-        macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
+        f1_score(label_np, pred_np, average="macro", zero_division=0)
 
         logging.info("   Micro F1: {micro_f1:.4f}")
         logging.info("   Macro F1: {macro_f1:.4f}")
 
         logging.info("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
-            pred_emotions = pred_np[i]
-            true_emotions = label_np[i]
+            pred_np[i]
+            label_np[i]
             logging.info("     Text: {test_texts[i][:50]}...")
             logging.info("     Pred: {pred_emotions}")
             logging.info("     True: {true_emotions}")

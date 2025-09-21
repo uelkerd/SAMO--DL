@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""
-Detailed debug script to understand the errorhandler issue
-"""
+"""Detailed debug script to understand the errorhandler issue"""
 
 import os
-os.environ['ADMIN_API_KEY'] = 'test123'
+
+os.environ["ADMIN_API_KEY"] = "test123"
 
 print("🔍 Starting detailed errorhandler debug...")
 
 try:
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -18,7 +18,7 @@ except Exception as e:
 
 try:
     app = Flask(__name__)
-    api = Api(app, version='1.0.0', title='Test')
+    api = Api(app, version="1.0.0", title="Test")
     print("✅ API object created")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
@@ -34,7 +34,9 @@ try:
     errorhandler_method = api.errorhandler
     print(f"✅ errorhandler method found: {type(errorhandler_method)}")
     print(f"errorhandler callable: {callable(errorhandler_method)}")
-    print(f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}")
+    print(
+        f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}"
+    )
 except Exception as e:
     print(f"❌ errorhandler method access failed: {e}")
 
@@ -72,6 +74,7 @@ print(f"Global errorhandler: {globals().get('errorhandler', 'Not found')}")
 try:
     import flask
     import flask_restx
+
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
     print(f"Flask version: {flask.__version__}")
 except Exception as e:

@@ -30,20 +30,21 @@
 # Global model instance (loaded on startup)
 # Initialize FastAPI with lifecycle management
 # Request/Response Models
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
-from contextlib import asynccontextmanager, suppress
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
 import logging
 import os
 import tempfile
 import time
-import uvicorn
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import uvicorn
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,8 +78,9 @@ async def lifespan(app: FastAPI):
         )
 
     except Exception:
-        logger.error(
-            "❌ Failed to load Whisper model: {exc}", extra={"format_args": True}
+        logger.exception(
+            "❌ Failed to load Whisper model: {exc}",
+            extra={"format_args": True},
         )
         logger.info("⚠️  Running in development mode without Whisper model")
         whisper_transcriber = None  # Continue without model for development
@@ -116,11 +118,13 @@ class BatchTranscriptionResponse(BaseModel):
     """Response model for batch transcription."""
 
     transcriptions: List[TranscriptionResponse] = Field(
-        ..., description="List of transcription results"
+        ...,
+        description="List of transcription results",
     )
     total_processing_time: float = Field(..., description="Total batch processing time")
     average_processing_time: float = Field(
-        ..., description="Average per-file processing time"
+        ...,
+        description="Average per-file processing time",
     )
     success_count: int = Field(..., description="Number of successful transcriptions")
     error_count: int = Field(..., description="Number of failed transcriptions")
@@ -193,7 +197,9 @@ async def transcribe_audio(
 
         time.time()
         result = whisper_transcriber.transcribe_audio(
-            temp_file.name, language=language, initial_prompt=initial_prompt
+            temp_file.name,
+            language=language,
+            initial_prompt=initial_prompt,
         )
 
         response = TranscriptionResponse(
@@ -211,7 +217,7 @@ async def transcribe_audio(
 
         logger.info(
             "Transcribed {audio_file.filename}: {result.word_count} words, "
-            "{result.confidence:.2f} confidence, {result.processing_time:.2f}s"
+            "{result.confidence:.2f} confidence, {result.processing_time:.2f}s",
         )
 
         return response
@@ -219,7 +225,7 @@ async def transcribe_audio(
     except HTTPException:
         raise
     except Exception:
-        logger.error("Transcription error: {e}", extra={"format_args": True})
+        logger.exception("Transcription error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
 
     finally:
@@ -247,7 +253,8 @@ async def transcribe_batch(
 
     if len(audio_files) > 10:  # Limit batch size
         raise HTTPException(
-            status_code=400, detail="Batch size too large. Maximum 10 files per batch."
+            status_code=400,
+            detail="Batch size too large. Maximum 10 files per batch.",
         )
 
     temp_files = []
@@ -264,11 +271,12 @@ async def transcribe_batch(
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
                     raise ValueError(
-                        "File {i + 1}: Unsupported format {file_extension}"
+                        "File {i + 1}: Unsupported format {file_extension}",
                     )
 
                 temp_file = tempfile.NamedTemporaryFile(
-                    suffix=file_extension, delete=False
+                    suffix=file_extension,
+                    delete=False,
                 )
                 temp_files.append(temp_file.name)
 
@@ -277,13 +285,15 @@ async def transcribe_batch(
                 temp_file.close()
 
                 is_valid, error_msg = AudioPreprocessor.validate_audio_file(
-                    temp_file.name
+                    temp_file.name,
                 )
                 if not is_valid:
                     raise ValueError("File {i + 1}: {error_msg}")
 
                 result = whisper_transcriber.transcribe_audio(
-                    temp_file.name, language=language, initial_prompt=initial_prompt
+                    temp_file.name,
+                    language=language,
+                    initial_prompt=initial_prompt,
                 )
 
                 transcriptions.append(
@@ -298,7 +308,7 @@ async def transcribe_batch(
                         audio_quality=result.audio_quality,
                         no_speech_probability=result.no_speech_probability,
                         model_info=whisper_transcriber.get_model_info(),
-                    )
+                    ),
                 )
 
                 logger.info(
@@ -307,7 +317,7 @@ async def transcribe_batch(
                 )
 
             except Exception:
-                logger.error(
+                logger.exception(
                     "Failed to process file {i+1} ({audio_file.filename}): {e}",
                     extra={"format_args": True},
                 )
@@ -323,7 +333,7 @@ async def transcribe_batch(
                         audio_quality="error",
                         no_speech_probability=1.0,
                         model_info={},
-                    )
+                    ),
                 )
 
         total_processing_time = (time.time() - start_time) * 1000
@@ -343,7 +353,7 @@ async def transcribe_batch(
 
         logger.info(
             "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
-            "{total_processing_time:.2f}ms total"
+            "{total_processing_time:.2f}ms total",
         )
 
         return response
@@ -351,9 +361,10 @@ async def transcribe_batch(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Batch transcription error: {e}", extra={"format_args": True})
+        logger.exception("Batch transcription error: {e}", extra={"format_args": True})
         raise HTTPException(
-            status_code=500, detail="Batch transcription failed: {e!s}"
+            status_code=500,
+            detail="Batch transcription failed: {e!s}",
         ) from e
 
     finally:
@@ -381,7 +392,7 @@ async def get_model_info() -> Dict[str, Any]:
             "max_file_duration": AudioPreprocessor.MAX_DURATION,
             "supported_languages": "auto-detect + 99 languages",
             "recommended_formats": [".wav", ".mp3", ".m4a"],
-        }
+        },
     )
 
     return info
@@ -434,18 +445,17 @@ async def validate_audio(audio_file: UploadFile = File(...)):
                     "file_size": metadata["file_size"],
                 },
             }
-        else:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "valid": False,
-                    "error": "validation_failed",
-                    "message": error_msg,
-                },
-            )
+        return JSONResponse(
+            status_code=400,
+            content={
+                "valid": False,
+                "error": "validation_failed",
+                "message": error_msg,
+            },
+        )
 
     except Exception:
-        logger.error("Audio validation error occurred")
+        logger.exception("Audio validation error occurred")
         return JSONResponse(
             status_code=500,
             content={

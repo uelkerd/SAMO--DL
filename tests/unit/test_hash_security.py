@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🧪 Hash Security Tests
+"""🧪 Hash Security Tests.
 ======================
 Tests for hash security and collision resistance.
 """
@@ -12,9 +12,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import hashlib
 import unittest
 
-from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
-
 from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
 
 
 class TestHashSecurity(unittest.TestCase):
@@ -52,8 +51,8 @@ class TestHashSecurity(unittest.TestCase):
             self.middleware._before_request()
 
             # Check that request ID is full SHA-256 (64 characters)
-            self.assertIsNotNone(g.request_id)
-            self.assertEqual(len(g.request_id), 64)  # Full SHA-256 hexdigest
+            assert g.request_id is not None
+            assert len(g.request_id) == 64  # Full SHA-256 hexdigest
 
             # Verify it's a valid hex string
             try:
@@ -70,7 +69,7 @@ class TestHashSecurity(unittest.TestCase):
         client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
 
         # Check that client key is full SHA-256 (64 characters)
-        self.assertEqual(len(client_key), 64)  # Full SHA-256 hexdigest
+        assert len(client_key) == 64  # Full SHA-256 hexdigest
 
         # Verify it's a valid hex string
         try:
@@ -95,7 +94,7 @@ class TestHashSecurity(unittest.TestCase):
                 request_ids.add(g.request_id)
 
         # All request IDs should be unique
-        self.assertEqual(len(request_ids), 100)
+        assert len(request_ids) == 100
 
     def test_client_key_collision_resistance(self):
         """Test that different client inputs produce different client keys."""
@@ -116,7 +115,7 @@ class TestHashSecurity(unittest.TestCase):
             client_keys.add(client_key)
 
         # All client keys should be unique
-        self.assertEqual(len(client_keys), 100)
+        assert len(client_keys) == 100
 
     def test_hash_deterministic(self):
         """Test that same inputs always produce same hashes."""
@@ -129,8 +128,8 @@ class TestHashSecurity(unittest.TestCase):
         key3 = self.rate_limiter._get_client_key(client_ip, user_agent)
 
         # All should be identical
-        self.assertEqual(key1, key2)
-        self.assertEqual(key2, key3)
+        assert key1 == key2
+        assert key2 == key3
 
     def test_request_id_deterministic_with_same_inputs(self):
         """Test that request ID is deterministic for same inputs."""
@@ -146,7 +145,7 @@ class TestHashSecurity(unittest.TestCase):
             request_id1 = g.request_id
 
             # Should always be 64 characters
-            self.assertEqual(len(request_id1), 64)
+            assert len(request_id1) == 64
 
     def test_hash_algorithm_verification(self):
         """Test that we're actually using SHA-256."""
@@ -161,7 +160,7 @@ class TestHashSecurity(unittest.TestCase):
         expected_hash = hashlib.sha256(fingerprint.encode()).hexdigest()
 
         # Should match
-        self.assertEqual(client_key, expected_hash)
+        assert client_key == expected_hash
 
     def test_hash_input_format(self):
         """Test that hash input is properly formatted."""
@@ -175,7 +174,7 @@ class TestHashSecurity(unittest.TestCase):
         expected_input = f"{client_ip}:{user_agent}"
         expected_hash = hashlib.sha256(expected_input.encode()).hexdigest()
 
-        self.assertEqual(client_key, expected_hash)
+        assert client_key == expected_hash
 
     def test_empty_user_agent_handling(self):
         """Test that empty user agent is handled correctly."""
@@ -186,7 +185,7 @@ class TestHashSecurity(unittest.TestCase):
         client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
 
         # Should still be valid SHA-256
-        self.assertEqual(len(client_key), 64)
+        assert len(client_key) == 64
         try:
             int(client_key, 16)
         except ValueError:
@@ -201,7 +200,7 @@ class TestHashSecurity(unittest.TestCase):
         client_key = self.rate_limiter._get_client_key(client_ip, user_agent)
 
         # Should be valid SHA-256
-        self.assertEqual(len(client_key), 64)
+        assert len(client_key) == 64
         try:
             int(client_key, 16)
         except ValueError:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 SIMPLE CMU-MOSEI DOWNLOAD
+"""🚀 SIMPLE CMU-MOSEI DOWNLOAD.
 ============================
 
 Alternative approach to get CMU-MOSEI data using Hugging Face datasets.
@@ -12,7 +12,7 @@ import numpy as np
 
 
 def download_cmu_mosei_sample():
-    """Download a sample of CMU-MOSEI data from Hugging Face"""
+    """Download a sample of CMU-MOSEI data from Hugging Face."""
     print("📥 Attempting to download CMU-MOSEI sample...")
 
     # Try to get CMU-MOSEI from Hugging Face datasets
@@ -36,7 +36,7 @@ def download_cmu_mosei_sample():
 
 
 def create_synthetic_cmu_mosei():
-    """Create synthetic CMU-MOSEI-like data for testing"""
+    """Create synthetic CMU-MOSEI-like data for testing."""
     print("🔧 Creating synthetic CMU-MOSEI-like dataset...")
 
     # Generate realistic text samples with sentiment scores
@@ -95,7 +95,7 @@ def create_synthetic_cmu_mosei():
                 "sentiment": sentiment,
                 "video_id": f"video_{i // 10:03d}",
                 "segment_id": f"{i % 10}",
-            }
+            },
         )
 
     print(f"✅ Created {len(synthetic_data)} synthetic samples")
@@ -103,7 +103,7 @@ def create_synthetic_cmu_mosei():
 
 
 def map_sentiment_to_emotions(samples):
-    """Map sentiment scores to our 12 target emotions"""
+    """Map sentiment scores to our 12 target emotions."""
     print("🗺️ Mapping sentiments to emotions...")
 
     emotion_mapping = {
@@ -151,7 +151,7 @@ def map_sentiment_to_emotions(samples):
                 "original_sentiment": sentiment,
                 "video_id": sample["video_id"],
                 "segment_id": sample["segment_id"],
-            }
+            },
         )
 
     print(f"✅ Mapped {len(mapped_samples)} samples to emotions")
@@ -169,7 +169,7 @@ def map_sentiment_to_emotions(samples):
 
 
 def save_dataset(samples, filename):
-    """Save dataset to JSON file"""
+    """Save dataset to JSON file."""
     print(f"💾 Saving dataset to {filename}...")
 
     with open(filename, "w") as f:
@@ -179,7 +179,7 @@ def save_dataset(samples, filename):
 
 
 def main():
-    """Main function"""
+    """Main function."""
     print("🚀 SIMPLE CMU-MOSEI DOWNLOAD")
     print("=" * 40)
 
@@ -203,7 +203,7 @@ def main():
                                 "sentiment": item["sentiment"],
                                 "video_id": item.get("video_id", "unknown"),
                                 "segment_id": item.get("segment_id", "0"),
-                            }
+                            },
                         )
 
     # Map to emotions
@@ -222,9 +222,11 @@ def main():
     print(f"📊 Minimum samples per emotion: {min_samples}")
 
     balanced_samples = []
-    for emotion, samples_list in emotion_samples.items():
+    for _emotion, samples_list in emotion_samples.items():
         selected_samples = np.random.choice(
-            samples_list, size=min_samples, replace=False
+            samples_list,
+            size=min_samples,
+            replace=False,
         )
         balanced_samples.extend(selected_samples)
 

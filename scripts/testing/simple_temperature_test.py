@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Temperature Test Script
+"""Simple Temperature Test Script.
 
 This script tests temperature scaling on the emotion detection model.
 """
@@ -80,7 +80,7 @@ def simple_temperature_test():
             )
 
             logger.info(
-                f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}"
+                f"   Temperature {temp}: F1 = {results.get('f1_score', 'N/A'):.4f}",
             )
 
         except Exception as e:

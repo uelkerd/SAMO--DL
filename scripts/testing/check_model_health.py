@@ -3,12 +3,14 @@
 Check if the model is loading properly in the container.
 """
 
+import sys
+
 import requests
 from test_config import create_api_client, create_test_config
 
 
 def check_model_health(base_url=None):
-    """Check model health status"""
+    """Check model health status."""
     config = create_test_config()
     if base_url:
         config.base_url = base_url.rstrip("/")
@@ -44,10 +46,7 @@ def check_model_health(base_url=None):
         primary_emotion = data.get("primary_emotion", {})
         emotion = primary_emotion.get("emotion", "Unknown")
         confidence = primary_emotion.get("confidence")
-        if confidence is not None:
-            confidence_str = f"{confidence:.3f}"
-        else:
-            confidence_str = "N/A"
+        confidence_str = f"{confidence:.3f}" if confidence is not None else "N/A"
 
         print(f"✅ Prediction: {emotion} (confidence: {confidence_str})")
         return True
@@ -68,4 +67,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     success = check_model_health(args.base_url)
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

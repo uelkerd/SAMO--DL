@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Validate Improved Expanded Training Notebook
-Tests the notebook structure, content, and ensures it's ready for Colab execution
+Tests the notebook structure, content, and ensures it's ready for Colab execution.
 """
 
 import json

@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 import sys
@@ -60,10 +61,8 @@ def _calculate_directory_size(directory: str) -> int:
     for dirpath, _, filenames in os.walk(directory):
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
-            try:
+            with contextlib.suppress(OSError):
                 total_size += os.path.getsize(filepath)
-            except OSError:
-                pass
     return total_size
 
 
@@ -156,7 +155,9 @@ def find_best_trained_model() -> Optional[str]:
                     size = _calculate_directory_size(path)
                     found_models.append((path, size, "huggingface_dir"))
                     logging.info(
-                        "Found complete HF model: %s (%s bytes)", path, f"{size:,}"
+                        "Found complete HF model: %s (%s bytes)",
+                        path,
+                        f"{size:,}",
                     )
                 elif has_config:
                     size = sum(
@@ -182,12 +183,15 @@ def find_best_trained_model() -> Optional[str]:
 
     if not found_models:
         logging.error(
-            "No trained models found. Place your model in: %s", primary_model_dir
+            "No trained models found. Place your model in: %s",
+            primary_model_dir,
         )
         return None
 
     best_model = max(found_models, key=lambda x: x[1])
     logging.info(
-        "Selected best model: %s (%s bytes)", best_model[0], f"{best_model[1]:,}"
+        "Selected best model: %s (%s bytes)",
+        best_model[0],
+        f"{best_model[1]:,}",
     )
     return best_model[0]

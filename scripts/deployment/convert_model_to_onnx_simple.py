@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Simple ONNX Conversion for Current Model
-Handles the actual model architecture we have
+Handles the actual model architecture we have.
 """
 
 import argparse
@@ -13,16 +13,17 @@ import torch
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
 
-from transformers import AutoTokenizer
-
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from transformers import AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def convert_model_to_onnx(
-    model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"
+    model_path=None,
+    onnx_output_path=None,
+    tokenizer_name="bert-base-uncased",
 ):
     """Convert PyTorch model to ONNX format."""
     try:
@@ -83,7 +84,8 @@ def convert_model_to_onnx(
                 return_token_type_ids=True,  # Explicitly request token_type_ids
             )
             token_type_ids = tokenizer_output.get(
-                "token_type_ids", torch.zeros_like(inputs["input_ids"])
+                "token_type_ids",
+                torch.zeros_like(inputs["input_ids"]),
             )
 
         # Export to ONNX
@@ -115,28 +117,28 @@ def convert_model_to_onnx(
         try:
             import onnxruntime as ort
 
-            session = ort.InferenceSession(onnx_output_path)
+            ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX model test successful")
         except ImportError:
-            logger.error(
-                "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
+            logger.exception(
+                "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.",
             )
             return False
         except Exception as e:
-            logger.error(f"❌ ONNX model validation failed: {e}")
+            logger.exception(f"❌ ONNX model validation failed: {e}")
             return False
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ ONNX conversion failed: {e}")
+        logger.exception(f"❌ ONNX conversion failed: {e}")
         return False
 
 
 def main():
     """Main function with command-line argument parsing."""
     parser = argparse.ArgumentParser(
-        description="Convert PyTorch model to ONNX format (simple version)"
+        description="Convert PyTorch model to ONNX format (simple version)",
     )
     parser.add_argument(
         "--model-path",

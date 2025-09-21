@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Conservative Linting Issues Fixer
+"""Conservative Linting Issues Fixer.
 
 This script fixes common linting issues in Python files without being too aggressive.
 It focuses on:
@@ -25,6 +25,7 @@ class ConservativeLintingFixer:
         """Initialize the fixer.
 
         Args:
+        ----
             project_root: Root directory of the project
 
         """
@@ -36,10 +37,12 @@ class ConservativeLintingFixer:
         """Check if an import should be preserved.
 
         Args:
+        ----
             import_name: Name of the import to check
             file_content: Content of the file
 
         Returns:
+        -------
             True if import should be preserved
 
         """
@@ -51,9 +54,11 @@ class ConservativeLintingFixer:
         """Fix F841: Remove unused variables in exception handlers.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
 
         """
@@ -72,9 +77,11 @@ class ConservativeLintingFixer:
         """Fix E402: Move imports to top of file.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
 
         """
@@ -108,9 +115,11 @@ class ConservativeLintingFixer:
         """Fix RUF022: Sort __all__ lists.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
 
         """
@@ -130,9 +139,11 @@ class ConservativeLintingFixer:
         """Fix W291: Remove trailing whitespace.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
 
         """
@@ -144,9 +155,11 @@ class ConservativeLintingFixer:
         """Fix T201: Replace print statements with logging.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
 
         """
@@ -162,9 +175,11 @@ class ConservativeLintingFixer:
         """Fix linting issues in a single file.
 
         Args:
+        ----
             file_path: Path to the file to fix
 
         Returns:
+        -------
             True if file was modified
 
         """
@@ -197,6 +212,7 @@ class ConservativeLintingFixer:
         """Process all Python files in a directory.
 
         Args:
+        ----
             directory: Directory to process
 
         """

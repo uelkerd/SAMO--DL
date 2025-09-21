@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize Ultimate Notebook
+"""Summarize Ultimate Notebook.
 ===========================
 
 This script provides a comprehensive summary of what the ultimate notebook contains.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validation and Training Script
+"""Validation and Training Script.
 
 Validates environment and starts model training.
 """
@@ -46,7 +46,7 @@ def run_pre_training_validation():
         return all_passed, validator.critical_issues, validator.warnings
 
     except Exception:
-        logger.error("❌ Pre-training validation failed: {e}")
+        logger.exception("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
 
@@ -67,12 +67,12 @@ def run_training_with_debugging():
         }
 
         logger.info("📋 Training Configuration:")
-        for key, value in config.items():
+        for _key, _value in config.items():
             logger.info("   {key}: {value}")
 
         start_time = time.time()
         results = train_emotion_detection_model(**config)
-        training_time = time.time() - start_time
+        time.time() - start_time
 
         logger.info("✅ Training completed in {training_time/60:.1f} minutes!")
         logger.info("📊 Final results: {results}")
@@ -80,8 +80,8 @@ def run_training_with_debugging():
         return True, results
 
     except Exception:
-        logger.error("❌ Training failed: {e}")
-        logger.error("Traceback: {traceback.format_exc()}")
+        logger.exception("❌ Training failed: {e}")
+        logger.exception("Traceback: {traceback.format_exc()}")
         return False, None
 
 
@@ -98,16 +98,16 @@ def main():
     if not validation_passed:
         logger.error("\n❌ VALIDATION FAILED - Training blocked!")
         logger.error("Critical issues found:")
-        for i, issue in enumerate(critical_issues, 1):
+        for _i, _issue in enumerate(critical_issues, 1):
             logger.error("   {i}. {issue}")
 
         if warnings:
             logger.warning("\nWarnings (non-blocking):")
-            for i, warning in enumerate(warnings, 1):
+            for _i, _warning in enumerate(warnings, 1):
                 logger.warning("   {i}. {warning}")
 
         logger.error(
-            "\n🔧 Please fix all critical issues before running training again."
+            "\n🔧 Please fix all critical issues before running training again.",
         )
         return False
 
@@ -115,7 +115,7 @@ def main():
 
     if warnings:
         logger.warning("\n⚠️  {len(warnings)} warnings detected:")
-        for i, warning in enumerate(warnings, 1):
+        for _i, _warning in enumerate(warnings, 1):
             logger.warning("   {i}. {warning}")
 
         logger.warning("\nConsider addressing these warnings before proceeding.")
@@ -148,7 +148,7 @@ def main():
         logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
         logger.info("📊 Results summary:")
         if results:
-            for key, value in results.items():
+            for _key, _value in results.items():
                 logger.info("   {key}: {value}")
 
         logger.info("\n📁 Check the following files for details:")

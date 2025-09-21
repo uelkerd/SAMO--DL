@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO-DL Code Quality Enforcer
+"""SAMO-DL Code Quality Enforcer.
 
 This script enforces comprehensive code quality standards and prevents
 ALL recurring DeepSource issues from ever happening again.
@@ -118,7 +118,7 @@ class CodeQualityEnforcer:
                     "line": 0,
                     "message": "Unsafe file path detected",
                     "severity": "error",
-                }
+                },
             ]
 
         issues = []
@@ -136,7 +136,7 @@ class CodeQualityEnforcer:
                         "line": len(lines),
                         "message": "Missing newline at end of file",
                         "severity": "error",
-                    }
+                    },
                 )
 
             # Check each line for issues
@@ -157,14 +157,14 @@ class CodeQualityEnforcer:
             issues.extend(control_flow_issues)
 
         except Exception as e:
-            logger.error("Error checking %s: %s", file_path, e)
+            logger.exception("Error checking %s: %s", file_path, e)
             issues.append(
                 {
                     "rule": "ERROR",
                     "line": 0,
                     "message": f"Error reading file: {e}",
                     "severity": "error",
-                }
+                },
             )
 
         return issues
@@ -182,7 +182,7 @@ class CodeQualityEnforcer:
                     "line": line_num,
                     "message": "Trailing whitespace detected",
                     "severity": "error",
-                }
+                },
             )
 
         # Check for blank line with whitespace
@@ -193,7 +193,7 @@ class CodeQualityEnforcer:
                     "line": line_num,
                     "message": "Blank line contains whitespace",
                     "severity": "error",
-                }
+                },
             )
 
         # Check for line length
@@ -204,7 +204,7 @@ class CodeQualityEnforcer:
                     "line": line_num,
                     "message": f"Line too long ({len(line)} > 88 characters)",
                     "severity": "error",
-                }
+                },
             )
 
         # Check for f-strings without expressions
@@ -217,7 +217,7 @@ class CodeQualityEnforcer:
                     "line": line_num,
                     "message": "f-string used without expressions",
                     "severity": "warning",
-                }
+                },
             )
 
         return issues
@@ -248,7 +248,7 @@ class CodeQualityEnforcer:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         if alias.name not in used_names and not alias.name.startswith(
-                            "_"
+                            "_",
                         ):
                             issues.append(
                                 {
@@ -256,7 +256,7 @@ class CodeQualityEnforcer:
                                     "line": getattr(node, "lineno", 0),
                                     "message": f"Unused import: {alias.name}",
                                     "severity": "warning",
-                                }
+                                },
                             )
                 elif isinstance(node, ast.ImportFrom):
                     pass
@@ -294,7 +294,7 @@ class CodeQualityEnforcer:
                                     f"({complexity})"
                                 ),
                                 "severity": "warning",
-                            }
+                            },
                         )
 
         except SyntaxError:
@@ -309,12 +309,18 @@ class CodeQualityEnforcer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if (
-                isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor))
-                or isinstance(child, ast.ExceptHandler)
-                or isinstance(child, ast.With)
-                or isinstance(child, ast.Assert)
-                or isinstance(child, ast.Return)
+            if isinstance(
+                child,
+                (
+                    ast.If,
+                    ast.While,
+                    ast.For,
+                    ast.AsyncFor,
+                    ast.ExceptHandler,
+                    ast.With,
+                    ast.Assert,
+                    ast.Return,
+                ),
             ):
                 complexity += 1
 
@@ -341,7 +347,7 @@ class CodeQualityEnforcer:
                                 "line": getattr(node, "lineno", 0),
                                 "message": "Unnecessary else/elif after return",
                                 "severity": "error",
-                            }
+                            },
                         )
 
         except SyntaxError:
@@ -397,10 +403,7 @@ class CodeQualityEnforcer:
                     return False
 
             # Ensure it's a Python file
-            if not path_str.endswith(".py"):
-                return False
-
-            return True
+            return path_str.endswith(".py")
 
         except Exception:
             return False
@@ -454,7 +457,7 @@ class CodeQualityEnforcer:
                             "rule": issue["rule"],
                             "message": issue["message"],
                             "severity": issue["severity"],
-                        }
+                        },
                     )
 
             self.files_checked += 1

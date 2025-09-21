@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
-🧪 TEST EMOTION DETECTION MODEL
+"""🧪 TEST EMOTION DETECTION MODEL
 ===============================
 Test the trained model with various examples.
 """
 
 from inference import EmotionDetector
+
 
 def test_model():
     """Test the emotion detection model"""
@@ -27,18 +27,16 @@ def test_model():
         "I'm excited about the new opportunities ahead.",
         "I'm grateful for all the support I've received.",
         "I'm proud of what I've accomplished so far.",
-
         # Negative emotions
         "I'm so frustrated with this project. Nothing is working.",
         "I feel anxious about the upcoming presentation.",
         "I'm feeling sad and lonely today.",
         "I'm feeling overwhelmed with all these tasks.",
-
         # Neutral emotions
         "I feel calm and peaceful right now.",
         "I'm content with how things are going.",
         "I'm hopeful that things will get better.",
-        "I'm tired and need some rest."
+        "I'm tired and need some rest.",
     ]
 
     print("\n📊 Testing Results:")
@@ -51,15 +49,24 @@ def test_model():
         result = detector.predict(text)
 
         print(f"{i:2d}. Text: {text}")
-        print(f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})")
+        print(
+            f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})"
+        )
 
         # Show top 3 predictions
-        sorted_probs = sorted(result['probabilities'].items(), key=lambda x: x[1], reverse=True)
-        print(f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}")
+        sorted_probs = sorted(
+            result["probabilities"].items(), key=lambda x: x[1], reverse=True
+        )
+        print(
+            f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}"
+        )
         print()
 
     print("🎉 Testing completed!")
-    print(f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}")
+    print(
+        f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}"
+    )
+
 
 if __name__ == "__main__":
     test_model()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Model Optimization Script
+"""Model Optimization Script.
 
 Optimizes models for deployment using ONNX, quantization, and other techniques.
 """
@@ -85,11 +85,13 @@ def apply_dynamic_quantization(
     """Apply dynamic quantization to reduce model size.
 
     Args:
+    ----
         model: PyTorch model
         model_path: Path to original model
         output_path: Path to save quantized model
 
     Returns:
+    -------
         Dictionary with optimization metrics
 
     """
@@ -124,11 +126,11 @@ def apply_dynamic_quantization(
 
     if quantized_size <= TARGET_SIZE_MB:
         logger.info(
-            "✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB"
+            "✅ Target size achieved: {quantized_size:.2f} MB <= {TARGET_SIZE_MB} MB",
         )
     else:
         logger.warning(
-            "⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB"
+            "⚠️ Target size not achieved: {quantized_size:.2f} MB > {TARGET_SIZE_MB} MB",
         )
 
     return {
@@ -139,16 +141,20 @@ def apply_dynamic_quantization(
 
 
 def convert_to_onnx(
-    model: torch.nn.Module, output_path: str, opset_version: int = 12
+    model: torch.nn.Module,
+    output_path: str,
+    opset_version: int = 12,
 ) -> str:
     """Convert PyTorch model to ONNX format.
 
     Args:
+    ----
         model: PyTorch model
         output_path: Path to save ONNX model
         opset_version: ONNX opset version
 
     Returns:
+    -------
         Path to saved ONNX model
 
     """
@@ -182,7 +188,8 @@ def convert_to_onnx(
             dummy_inputs["input_ids"],
             dummy_inputs["attention_mask"],
             dummy_inputs.get(
-                "token_type_ids", torch.zeros_like(dummy_inputs["input_ids"])
+                "token_type_ids",
+                torch.zeros_like(dummy_inputs["input_ids"]),
             ),
         ),
         output_path,
@@ -204,7 +211,7 @@ def convert_to_onnx(
         logger.warning("⚠️ ONNX package not installed, skipping verification")
         logger.info("To install: pip install onnx")
     except Exception:
-        logger.error("❌ ONNX model verification failed: {e}")
+        logger.exception("❌ ONNX model verification failed: {e}")
 
     return output_path
 
@@ -219,6 +226,7 @@ def benchmark_models(
     """Benchmark original, quantized, and ONNX models.
 
     Args:
+    ----
         original_model: Original PyTorch model
         quantized_model: Quantized PyTorch model
         onnx_path: Path to ONNX model
@@ -226,6 +234,7 @@ def benchmark_models(
         batch_sizes: List of batch sizes to benchmark
 
     Returns:
+    -------
         Dictionary with benchmark results
 
     """
@@ -248,7 +257,7 @@ def benchmark_models(
         logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
         logger.info("To install: pip install onnxruntime")
     except Exception:
-        logger.error("❌ Error loading ONNX model: {e}")
+        logger.exception("❌ Error loading ONNX model: {e}")
 
     for batch_size in batch_sizes:
         logger.info("Benchmarking with batch_size={batch_size}...")
@@ -350,9 +359,11 @@ def get_model_size_mb(model_path: Union[str, Path]) -> float:
     """Get model file size in MB.
 
     Args:
+    ----
         model_path: Path to model file
 
     Returns:
+    -------
         Model size in MB
 
     """
@@ -364,9 +375,11 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
     """Verify model compatibility with both CPU and GPU.
 
     Args:
+    ----
         model: PyTorch model
 
     Returns:
+    -------
         True if compatible with both CPU and GPU, False otherwise
 
     """
@@ -405,23 +418,27 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
         return False
 
     except Exception:
-        logger.error("❌ Error during GPU compatibility check: {e}")
+        logger.exception("❌ Error during GPU compatibility check: {e}")
         return False
     finally:
         model.to("cpu")
 
 
 def optimize_model(
-    model_path: str, output_dir: str, run_benchmark: bool = False
+    model_path: str,
+    output_dir: str,
+    run_benchmark: bool = False,
 ) -> dict[str, Any]:
     """Apply all optimization techniques to model.
 
     Args:
+    ----
         model_path: Path to input model
         output_dir: Directory to save optimized models
         run_benchmark: Whether to run performance benchmarks
 
     Returns:
+    -------
         Dictionary with optimization results
 
     """
@@ -488,10 +505,10 @@ def optimize_model(
 
     logger.info("\n=== Optimization Summary ===")
     logger.info(
-        "Original model size: {quantization_metrics['original_size_mb']:.2f} MB"
+        "Original model size: {quantization_metrics['original_size_mb']:.2f} MB",
     )
     logger.info(
-        "Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB"
+        "Quantized model size: {quantization_metrics['quantized_size_mb']:.2f} MB",
     )
     logger.info("Size reduction: {quantization_metrics['size_reduction_percent']:.2f}%")
     logger.info("ONNX model path: {onnx_path}")
@@ -503,7 +520,7 @@ def optimize_model(
         and "batch_1" in benchmark_results["onnx"]
     ):
         logger.info(
-            "ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x"
+            "ONNX speedup: {benchmark_results['onnx']['batch_1']['speedup']:.2f}x",
         )
 
     all_requirements_met = (
@@ -523,7 +540,7 @@ def optimize_model(
         logger.info("✅ All optimization requirements met!")
     else:
         logger.warning(
-            "⚠️ Some optimization requirements not met. Check logs for details."
+            "⚠️ Some optimization requirements not met. Check logs for details.",
         )
 
     return results

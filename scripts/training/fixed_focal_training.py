@@ -26,7 +26,8 @@ Usage:
 """
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -57,8 +58,7 @@ class SimpleBERTClassifier(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        logits = self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
-        return logits
+        return self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
 
 def create_proper_training_data():
@@ -265,7 +265,7 @@ def create_proper_training_data():
     test_data = training_data[train_size + val_size :]
 
     logger.info(
-        f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples"
+        f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples",
     )
 
     return train_data, val_data, test_data
@@ -295,7 +295,7 @@ def create_dataloader(data, model, batch_size=8):
                 "input_ids": tokenized["input_ids"],
                 "attention_mask": tokenized["attention_mask"],
                 "labels": torch.tensor(labels, dtype=torch.float32),
-            }
+            },
         )
 
     return dataloader
@@ -345,7 +345,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
         avg_val_loss = val_loss / len(val_data)
 
         logger.info(
-            f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
+            f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}",
         )
 
         # Save best model
@@ -390,17 +390,26 @@ def evaluate_model(model, test_data, device):
 
         # Calculate metrics
         f1 = f1_score(
-            all_labels, binary_predictions, average="weighted", zero_division=0
+            all_labels,
+            binary_predictions,
+            average="weighted",
+            zero_division=0,
         )
         precision = precision_score(
-            all_labels, binary_predictions, average="weighted", zero_division=0
+            all_labels,
+            binary_predictions,
+            average="weighted",
+            zero_division=0,
         )
         recall = recall_score(
-            all_labels, binary_predictions, average="weighted", zero_division=0
+            all_labels,
+            binary_predictions,
+            average="weighted",
+            zero_division=0,
         )
 
         logger.info(
-            f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}"
+            f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}",
         )
 
         if f1 > best_f1:
@@ -412,17 +421,26 @@ def evaluate_model(model, test_data, device):
     # Final evaluation with best threshold
     binary_predictions = (all_predictions > best_threshold).astype(int)
     final_f1 = f1_score(
-        all_labels, binary_predictions, average="weighted", zero_division=0
+        all_labels,
+        binary_predictions,
+        average="weighted",
+        zero_division=0,
     )
     final_precision = precision_score(
-        all_labels, binary_predictions, average="weighted", zero_division=0
+        all_labels,
+        binary_predictions,
+        average="weighted",
+        zero_division=0,
     )
     final_recall = recall_score(
-        all_labels, binary_predictions, average="weighted", zero_division=0
+        all_labels,
+        binary_predictions,
+        average="weighted",
+        zero_division=0,
     )
 
     logger.info(
-        f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}"
+        f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}",
     )
 
     return {
@@ -451,7 +469,7 @@ def main():
     # Create model
     model = SimpleBERTClassifier()
     logger.info(
-        f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters"
+        f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters",
     )
 
     # Create dataloaders
@@ -461,7 +479,11 @@ def main():
 
     # Train model
     trained_model = train_model(
-        model, train_dataloader, val_dataloader, device, epochs=5
+        model,
+        train_dataloader,
+        val_dataloader,
+        device,
+        epochs=5,
     )
 
     # Load best model

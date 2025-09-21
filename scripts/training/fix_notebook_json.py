@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix JSON syntax error in expanded dataset training notebook"""
+"""Fix JSON syntax error in expanded dataset training notebook."""
 
 import re
 
@@ -39,7 +39,7 @@ def fix_notebook_json():
         f.write(content)
 
     print(
-        "✅ Fixed notebook saved as 'notebooks/expanded_dataset_training_fixed.ipynb'"
+        "✅ Fixed notebook saved as 'notebooks/expanded_dataset_training_fixed.ipynb'",
     )
 
     # Test if the JSON is valid

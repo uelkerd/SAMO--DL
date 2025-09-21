@@ -43,7 +43,7 @@ def generate_test_audio():
         return temp_file.name
 
     except Exception as e:
-        logger.error(f"❌ Failed to generate test audio: {e}")
+        logger.exception(f"❌ Failed to generate test audio: {e}")
         return None
 
 
@@ -64,7 +64,7 @@ def test_whisper_imports():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Whisper import test failed: {e}")
+        logger.exception(f"❌ Whisper import test failed: {e}")
         return False
 
 
@@ -99,7 +99,7 @@ def test_whisper_instantiation():
         return True
 
     except Exception as e:
-        logger.error(f"❌ WhisperTranscriber instantiation failed: {e}")
+        logger.exception(f"❌ WhisperTranscriber instantiation failed: {e}")
         return False
 
 
@@ -139,7 +139,7 @@ def test_audio_preprocessor():
                 os.unlink(test_audio_path)
 
     except Exception as e:
-        logger.error(f"❌ AudioPreprocessor test failed: {e}")
+        logger.exception(f"❌ AudioPreprocessor test failed: {e}")
         return False
 
 
@@ -195,7 +195,7 @@ def test_minimal_transcription():
                 os.unlink(test_audio_path)
 
     except Exception as e:
-        logger.error(f"❌ Transcription test failed: {e}")
+        logger.exception(f"❌ Transcription test failed: {e}")
         return False
 
 

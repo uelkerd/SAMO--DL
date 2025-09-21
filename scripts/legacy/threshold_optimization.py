@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Threshold Optimization Script
+"""Threshold Optimization Script.
 
 Optimizes classification thresholds for better performance.
 """
@@ -30,7 +30,8 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ def optimize_thresholds(val_logits, val_labels, num_classes=28):
 
         logger.info("   • Class {i}: threshold={best_threshold:.3f}, F1={best_f1:.3f}")
 
-    avg_f1 = np.mean(best_f1_scores)
+    np.mean(best_f1_scores)
     logger.info("✅ Average F1 score: {avg_f1:.3f}")
 
     return thresholds, best_f1_scores
@@ -81,7 +82,9 @@ def apply_threshold_optimization():
 
         val_dataset = datasets["validation"]  # Fixed key name
         val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=16, shuffle=False
+            val_dataset,
+            batch_size=16,
+            shuffle=False,
         )
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
@@ -140,13 +143,13 @@ def apply_threshold_optimization():
         logger.info("✅ Optimized thresholds saved to: {thresholds_path}")
         logger.info("   • Average F1: {np.mean(f1_scores):.3f}")
         logger.info(
-            "   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}"
+            "   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}",
         )
 
         return True
 
     except Exception:
-        logger.error("❌ Threshold optimization failed: {e}")
+        logger.exception("❌ Threshold optimization failed: {e}")
         traceback.print_exc()
         return False
 

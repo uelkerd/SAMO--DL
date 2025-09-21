@@ -69,7 +69,7 @@ def debug_evaluation_step_by_step():
     logger.info("🔍 Model outputs:")
     logger.info("  📊 Logits shape: {logits.shape}")
     logger.info(
-        "  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}"
+        "  📊 Logits min/max: {logits.min().item():.4f} / {logits.max().item():.4f}",
     )
     logger.info("  📊 Probabilities shape: {probabilities.shape}")
     logger.info(
@@ -107,7 +107,7 @@ def debug_evaluation_step_by_step():
 
         if num_samples_needing_fallback > 0:
             logger.info(
-                "  🔧 Applying fallback to {num_samples_needing_fallback} samples..."
+                "  🔧 Applying fallback to {num_samples_needing_fallback} samples...",
             )
 
             for sample_idx in range(predictions_after_fallback.shape[0]):

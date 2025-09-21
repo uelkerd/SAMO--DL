@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TypeHint Codemod for Python 3.8 Compatibility
+"""TypeHint Codemod for Python 3.8 Compatibility.
 
 This script converts Python 3.9+ type hints to Python 3.8 compatible syntax:
 - list[T] -> List[T]
@@ -26,9 +26,11 @@ try:
         """Convert AST node to source code using astor library.
 
         Args:
+        ----
             node: AST node to convert
 
         Returns:
+        -------
             str: Source code representation of the node
 
         """
@@ -42,9 +44,11 @@ except ImportError:
         Only handles simple cases like ast.Name nodes.
 
         Args:
+        ----
             node: AST node to convert
 
         Returns:
+        -------
             str: Source code representation of the node (basic cases only)
 
         """
@@ -83,7 +87,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                         "node": node,
                         "old": node.annotation,
                         "new": new_annotation,
-                    }
+                    },
                 )
         self.generic_visit(node)
 
@@ -98,7 +102,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                         "node": node,
                         "old": node.annotation,
                         "new": new_annotation,
-                    }
+                    },
                 )
         self.generic_visit(node)
 
@@ -113,7 +117,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                         "node": node,
                         "old": node.returns,
                         "new": new_returns,
-                    }
+                    },
                 )
         self.generic_visit(node)
 
@@ -128,7 +132,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                         "node": node,
                         "old": node.returns,
                         "new": new_returns,
-                    }
+                    },
                 )
         self.generic_visit(node)
 
@@ -143,7 +147,7 @@ class TypeHintVisitor(ast.NodeVisitor):
                         "node": node,
                         "old": base,
                         "new": new_base,
-                    }
+                    },
                 )
         self.generic_visit(node)
 
@@ -266,7 +270,9 @@ def _read_file_content(file_path: Path) -> str:
 
 
 def _parse_ast_safely(
-    content: str, file_path: Path, verbose: bool
+    content: str,
+    file_path: Path,
+    verbose: bool,
 ) -> Optional[ast.AST]:
     """Parse AST safely, returning None on syntax error."""
     try:
@@ -278,7 +284,10 @@ def _parse_ast_safely(
 
 
 def _apply_changes_and_save(
-    file_path: Path, content: str, visitor: TypeHintVisitor, verbose: bool
+    file_path: Path,
+    content: str,
+    visitor: TypeHintVisitor,
+    verbose: bool,
 ) -> None:
     """Apply changes and save the file."""
     # Sort changes by line number (reverse order to avoid offset issues)
@@ -359,7 +368,9 @@ def process_file(
 
 
 def _process_single_file(
-    file_path: Path, dry_run: bool, verbose: bool
+    file_path: Path,
+    dry_run: bool,
+    verbose: bool,
 ) -> Dict[str, Any]:
     """Process a single file and return the result."""
     if verbose:
@@ -387,7 +398,9 @@ def _process_single_file(
 
 
 def _print_summary(
-    results: List[Dict[str, Any]], total_changes: int, dry_run: bool
+    results: List[Dict[str, Any]],
+    total_changes: int,
+    dry_run: bool,
 ) -> None:
     """Print summary of processing results."""
     print("=" * 50)
@@ -464,7 +477,9 @@ def _print_processing_info(directory: Path, dry_run: bool) -> None:
 
 
 def _process_all_files(
-    python_files: List[Path], dry_run: bool, verbose: bool
+    python_files: List[Path],
+    dry_run: bool,
+    verbose: bool,
 ) -> Tuple[List[Dict[str, Any]], int]:
     """Process all Python files and return results and total changes."""
     results = []
@@ -496,7 +511,9 @@ def main():
     print()
 
     results, total_changes = _process_all_files(
-        python_files, args.dry_run, args.verbose
+        python_files,
+        args.dry_run,
+        args.verbose,
     )
 
     # Print summary

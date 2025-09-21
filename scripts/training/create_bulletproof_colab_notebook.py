@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE BULLETPROOF COLAB NOTEBOOK
+"""🚀 CREATE BULLETPROOF COLAB NOTEBOOK.
 ====================================
 
 This script creates a bulletproof Colab notebook that automatically detects
@@ -10,7 +10,7 @@ import json
 
 
 def create_bulletproof_colab_notebook():
-    """Create the bulletproof Colab notebook content"""
+    """Create the bulletproof Colab notebook content."""
     notebook_content = {
         "cells": [
             {
@@ -700,7 +700,7 @@ def create_bulletproof_colab_notebook():
         json.dump(notebook_content, f, indent=2)
 
     print(
-        "✅ Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb"
+        "✅ Bulletproof notebook created: notebooks/BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb",
     )
     print("📋 Instructions:")
     print("  1. Download the notebook file")

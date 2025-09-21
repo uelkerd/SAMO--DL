@@ -37,7 +37,9 @@ def final_temperature_test():
 
     try:
         checkpoint = torch.load(
-            checkpoint_path, map_location=device, weights_only=False
+            checkpoint_path,
+            map_location=device,
+            weights_only=False,
         )
         logging.info(f"✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
 
@@ -152,10 +154,16 @@ def final_temperature_test():
 
         # Calculate metrics
         micro_f1 = f1_score(
-            all_labels, all_predictions, average="micro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="micro",
+            zero_division=0,
         )
         macro_f1 = f1_score(
-            all_labels, all_predictions, average="macro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="macro",
+            zero_division=0,
         )
 
         logging.info(f"  Micro F1: {micro_f1:.4f}")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Validation Script
+"""Simple Validation Script.
 
 Validates model components and deployment readiness.
 """
@@ -39,7 +39,9 @@ def validate_focal_loss():
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
                 bce_loss = F.binary_cross_entropy_with_logits(
-                    inputs, targets, reduction="none"
+                    inputs,
+                    targets,
+                    reduction="none",
                 )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
@@ -48,13 +50,13 @@ def validate_focal_loss():
         targets = torch.randint(0, 2, (4, 28)).float()
 
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
-        loss = focal_loss(inputs, targets)
+        focal_loss(inputs, targets)
 
         logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
     except Exception:
-        logger.error("❌ Focal Loss: FAILED - {e}")
+        logger.exception("❌ Focal Loss: FAILED - {e}")
         return False
 
 
@@ -102,7 +104,7 @@ def validate_python_environment():
         return True
 
     except ImportError as _:
-        logger.error("❌ Python Environment: FAILED - {e}")
+        logger.exception("❌ Python Environment: FAILED - {e}")
         return False
 
 
@@ -164,17 +166,16 @@ def main():
         try:
             results[name] = validation_func()
         except Exception:
-            logger.error("❌ {name} validation failed with exception: {e}")
+            logger.exception("❌ {name} validation failed with exception: {e}")
             results[name] = False
 
     logger.info("\n📊 Validation Results:")
     logger.info("=" * 30)
 
     passed = sum(results.values())
-    total = len(results)
+    len(results)
 
-    for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+    for name, _result in results.items():
         logger.info("   • {name}: {status}")
 
     logger.info("\n🎯 Overall: {passed}/{total} validations passed")

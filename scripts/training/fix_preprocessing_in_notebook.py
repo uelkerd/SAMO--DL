@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Preprocessing in Ultimate Notebook
+"""Fix Preprocessing in Ultimate Notebook.
 =====================================
 
 This script fixes the preprocessing function to resolve the tensor creation error.
@@ -18,7 +18,7 @@ def fix_preprocessing():
     # Find and replace the preprocessing cell
     for i, cell in enumerate(notebook["cells"]):
         if cell["cell_type"] == "code" and "def preprocess_function" in "".join(
-            cell["source"]
+            cell["source"],
         ):
             # Replace with fixed preprocessing
             cell["source"] = [
@@ -100,7 +100,7 @@ def fix_preprocessing():
     # Find the training arguments cell and add the data collator after it
     for i, cell in enumerate(notebook["cells"]):
         if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(
-            cell["source"]
+            cell["source"],
         ):
             # Insert data collator after training arguments
             notebook["cells"].insert(i + 2, data_collator_cell)
@@ -110,7 +110,7 @@ def fix_preprocessing():
     # Update the trainer initialization to include the data collator
     for cell in notebook["cells"]:
         if cell["cell_type"] == "code" and "WeightedLossTrainer(" in "".join(
-            cell["source"]
+            cell["source"],
         ):
             # Update the trainer initialization
             cell["source"] = [

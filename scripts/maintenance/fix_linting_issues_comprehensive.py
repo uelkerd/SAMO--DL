@@ -80,7 +80,8 @@ class ComprehensiveLintingFixer:
         return python_files
 
     def separate_imports_and_code(
-        self, lines: list[str]
+        self,
+        lines: list[str],
     ) -> tuple[list[str], list[str]]:
         """Separate import lines from other code lines."""
         import_lines = []
@@ -88,11 +89,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if (
-                stripped.startswith("import ")
-                or stripped.startswith("from ")
-                or stripped.startswith("#")
-            ):
+            if stripped.startswith(("import ", "from ", "#")):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)
@@ -105,7 +102,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith("import ") or stripped.startswith("from "):
+            if stripped.startswith(("import ", "from ")):
                 filtered_lines.append(line)
             else:
                 filtered_lines.append(line)
@@ -137,11 +134,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if (
-                stripped.startswith("import ")
-                or stripped.startswith("from ")
-                or stripped.startswith("#")
-            ):
+            if stripped.startswith(("import ", "from ", "#")):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)
@@ -153,9 +146,7 @@ class ComprehensiveLintingFixer:
         content = re.sub(r"except Exception as e:", "except Exception as e:", content)
         content = re.sub(r"except Exception as e:", "except Exception as e:", content)
 
-        content = re.sub(r"for (\w+) in (\w+):", r"for _\1 in \2:", content)
-
-        return content
+        return re.sub(r"for (\w+) in (\w+):", r"for _\1 in \2:", content)
 
     def fix_unused_imports(self, content: str) -> str:
         """Safely remove unused imports."""
@@ -164,7 +155,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith("import ") or stripped.startswith("from "):
+            if stripped.startswith(("import ", "from ")):
                 import_name = self.extract_import_name(stripped)
                 if import_name and import_name not in self.necessary_imports:
                     if not self.is_import_used(content, import_name):
@@ -199,7 +190,7 @@ class ComprehensiveLintingFixer:
             import_added = False
             for _i, line in enumerate(lines):
                 if line.strip().startswith("import ") or line.strip().startswith(
-                    "from "
+                    "from ",
                 ):
                     if not import_added:
                         lines.insert(i, "import logging")
@@ -211,9 +202,7 @@ class ComprehensiveLintingFixer:
 
             content = "\n".join(lines)
 
-        content = re.sub(r"print\((.*?)\)", r"logging.info(\1)", content)
-
-        return content
+        return re.sub(r"print\((.*?)\)", r"logging.info(\1)", content)
 
     def fix_all_issues(self, file_path: Path) -> bool:
         """Fix all linting issues in a file."""
@@ -237,7 +226,7 @@ class ComprehensiveLintingFixer:
                 if not self.validate_python_syntax(file_path):
                     shutil.copy2(backup_path, file_path)
                     self.errors.append(
-                        f"Syntax error after fixing {file_path}, restored backup"
+                        f"Syntax error after fixing {file_path}, restored backup",
                     )
                     return False
 

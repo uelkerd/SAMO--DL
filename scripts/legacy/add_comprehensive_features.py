@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add Comprehensive Features
+"""Add Comprehensive Features.
 =========================
 
 This script adds all the advanced features to the comprehensive notebook

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Improve Expanded Training Notebook
-Adds GPU optimizations, better error handling, and performance enhancements
+Adds GPU optimizations, better error handling, and performance enhancements.
 """
 
 import json
@@ -17,7 +17,7 @@ def improve_notebook():
     training_cell_idx = None
     for i, cell in enumerate(notebook["cells"]):
         if cell["cell_type"] == "code" and "train_expanded_model" in str(
-            cell["source"]
+            cell["source"],
         ):
             training_cell_idx = i
             break
@@ -115,7 +115,7 @@ from torch.cuda.amp import autocast, GradScaler"""
         json.dump(notebook, f, indent=2)
 
     print(
-        "✅ Improved notebook saved as 'notebooks/expanded_dataset_training_improved.ipynb'"
+        "✅ Improved notebook saved as 'notebooks/expanded_dataset_training_improved.ipynb'",
     )
     print("📋 Improvements added:")
     print("  - GPU optimizations (cudnn benchmark, memory management)")

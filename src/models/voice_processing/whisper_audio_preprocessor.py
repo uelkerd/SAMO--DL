@@ -1,5 +1,4 @@
-"""
-SAMO Whisper Audio Preprocessing Module
+"""SAMO Whisper Audio Preprocessing Module.
 
 This module handles audio preprocessing for optimal Whisper performance,
 including format validation, resampling, normalization, and quality assessment.
@@ -9,7 +8,8 @@ import logging
 import tempfile
 import warnings
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, Union, ClassVar, Set
+from typing import Any, ClassVar, Dict, Optional, Set, Tuple, Union
+
 from pydub import AudioSegment
 
 # Suppress warnings from audio processing

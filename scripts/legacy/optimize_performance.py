@@ -37,7 +37,8 @@ logging.info(f"Project root added to path: {project_root}")
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,8 @@ logger = logging.getLogger(__name__)
 def check_gpu_setup() -> dict[str, any]:
     """Check GPU availability and CUDA setup.
 
-    Returns:
+    Returns
+    -------
         Dictionary with GPU setup information
 
     """
@@ -86,7 +88,7 @@ def check_gpu_setup() -> dict[str, any]:
                 "Consider using mixed precision training (fp16) to save memory",
             )
             gpu_info["recommendations"].append(
-                "Reduce batch size if encountering OOM errors"
+                "Reduce batch size if encountering OOM errors",
             )
 
         if "T4" in device_name or "V100" in device_name:
@@ -116,12 +118,14 @@ def convert_to_onnx(
     """Convert PyTorch model to ONNX format for inference optimization.
 
     Args:
+    ----
         model_path: Path to the saved PyTorch model
         output_path: Path to save ONNX model (auto-generated if None)
         model_name: Tokenizer model name
         max_length: Maximum sequence length
 
     Returns:
+    -------
         Path to the converted ONNX model
 
     """
@@ -181,6 +185,7 @@ def benchmark_model_performance(
     """Benchmark model performance for PyTorch and ONNX versions.
 
     Args:
+    ----
         model_path: Path to PyTorch model
         onnx_path: Path to ONNX model (optional)
         num_samples: Number of samples for benchmarking
@@ -188,6 +193,7 @@ def benchmark_model_performance(
         model_name: Tokenizer model name
 
     Returns:
+    -------
         Dictionary with benchmark results
 
     """
@@ -213,7 +219,10 @@ def benchmark_model_performance(
     if Path(model_path).exists():
         logger.info("Testing PyTorch model performance...")
         pytorch_latencies = benchmark_pytorch_model(
-            model_path, sample_texts, tokenizer, device
+            model_path,
+            sample_texts,
+            tokenizer,
+            device,
         )
         results["pytorch"] = analyze_latencies(pytorch_latencies, "PyTorch")
 
@@ -327,7 +336,8 @@ def analyze_latencies(latencies: list[float], model_type: str) -> dict[str, floa
 
 
 def assess_performance(
-    results: dict[str, any], target_latency: float
+    results: dict[str, any],
+    target_latency: float,
 ) -> dict[str, str]:
     """Assess whether performance meets targets."""
     assessment = {}
@@ -354,17 +364,23 @@ def assess_performance(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="SAMO Deep Learning Performance Optimization"
+        description="SAMO Deep Learning Performance Optimization",
     )
     parser.add_argument("--check-gpu", action="store_true", help="Check GPU setup")
     parser.add_argument(
-        "--convert-onnx", action="store_true", help="Convert model to ONNX"
+        "--convert-onnx",
+        action="store_true",
+        help="Convert model to ONNX",
     )
     parser.add_argument(
-        "--benchmark", action="store_true", help="Benchmark model performance"
+        "--benchmark",
+        action="store_true",
+        help="Benchmark model performance",
     )
     parser.add_argument(
-        "--model-path", type=str, default="./models/checkpoints/best_model.pt"
+        "--model-path",
+        type=str,
+        default="./models/checkpoints/best_model.pt",
     )
     parser.add_argument("--onnx-path", type=str, default=None)
     parser.add_argument(
@@ -374,7 +390,10 @@ def main() -> None:
         help="Target P95 latency (ms)",
     )
     parser.add_argument(
-        "--num-samples", type=int, default=100, help="Number of benchmark samples"
+        "--num-samples",
+        type=int,
+        default=100,
+        help="Number of benchmark samples",
     )
 
     args = parser.parse_args()
@@ -392,7 +411,7 @@ def main() -> None:
 
         if gpu_info["recommendations"]:
             print("\n💡 Recommendations:")
-            for rec in gpu_info["recommendations"]:
+            for _rec in gpu_info["recommendations"]:
                 print("   • {rec}")
 
     if args.convert_onnx:

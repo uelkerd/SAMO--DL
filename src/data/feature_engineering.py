@@ -57,7 +57,7 @@ class FeatureEngineer:
             nltk.download("vader_lexicon", quiet=True)
             self.sentiment_analyzer = SentimentIntensityAnalyzer()
         except Exception:
-            logger.error(
+            logger.exception(
                 "Failed to initialize sentiment analyzer: {e}",
                 extra={"format_args": True},
             )
@@ -71,10 +71,12 @@ class FeatureEngineer:
         """Extract basic statistical features from text.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
 
         Returns:
+        -------
             DataFrame with basic features added
 
         """
@@ -93,7 +95,7 @@ class FeatureEngineer:
         )
 
         df["sentence_count"] = df[text_column].apply(
-            lambda x: len(re.split(r"[.!?]+", x)) - 1
+            lambda x: len(re.split(r"[.!?]+", x)) - 1,
         )
 
         df["words_per_sentence"] = df.apply(
@@ -122,10 +124,12 @@ class FeatureEngineer:
         """Extract sentiment features from text using NLTK's VADER.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
 
         Returns:
+        -------
             DataFrame with sentiment features added
 
         """
@@ -166,12 +170,14 @@ class FeatureEngineer:
         """Extract topic-related features using TF-IDF and SVD.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             n_topics: Number of topics to extract
             n_top_words: Number of top words to include per topic
 
         Returns:
+        -------
             DataFrame with topic features added
 
         """
@@ -221,10 +227,12 @@ class FeatureEngineer:
         """Extract time-related features from timestamp.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             timestamp_column: Name of column containing timestamps
 
         Returns:
+        -------
             DataFrame with time features added
 
         """
@@ -232,14 +240,14 @@ class FeatureEngineer:
 
         if timestamp_column not in df.columns:
             logger.warning(
-                "Timestamp column '{timestamp_column}' not found in DataFrame"
+                "Timestamp column '{timestamp_column}' not found in DataFrame",
             )
             return df
 
         try:
             df[timestamp_column] = pd.to_datetime(df[timestamp_column])
         except Exception:
-            logger.error(
+            logger.exception(
                 "Failed to convert '{timestamp_column}' to datetime: {e}",
                 extra={"format_args": True},
             )
@@ -273,12 +281,14 @@ class FeatureEngineer:
         """Extract all features from journal entries.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             timestamp_column: Name of column containing timestamps
             extract_topics: Whether to extract topic features
 
         Returns:
+        -------
             DataFrame with all features added
 
         """

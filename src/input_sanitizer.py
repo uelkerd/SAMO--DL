@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🧹 Input Sanitizer
+"""🧹 Input Sanitizer.
 =================
 Comprehensive input sanitization and validation for API security.
 """
@@ -94,15 +94,19 @@ class InputSanitizer:
             }
 
     def sanitize_text(
-        self, text: str, context: str = "general"
+        self,
+        text: str,
+        context: str = "general",
     ) -> Tuple[str, List[str]]:
         """Sanitize text input.
 
         Args:
+        ----
             text: Input text to sanitize
             context: Context for sanitization (e.g., "emotion", "general")
 
         Returns:
+        -------
             Tuple of (sanitized_text, warnings)
 
         """
@@ -114,7 +118,7 @@ class InputSanitizer:
         # Check length
         if len(text) > self.config.max_text_length:
             warnings.append(
-                f"Text truncated from {len(text)} to {self.config.max_text_length} characters"
+                f"Text truncated from {len(text)} to {self.config.max_text_length} characters",
             )
             text = text[: self.config.max_text_length]
 
@@ -126,13 +130,12 @@ class InputSanitizer:
         if (
             self.config.enable_xss_protection
             or self.config.enable_sql_injection_protection
-        ):
-            if self.config.blocked_patterns is not None:
-                for pattern in self.config.blocked_patterns:
-                    if re.search(pattern, text, re.IGNORECASE):
-                        warnings.append(f"Blocked pattern detected: {pattern}")
-                        # Replace with safe alternative
-                        text = re.sub(pattern, "[BLOCKED]", text, flags=re.IGNORECASE)
+        ) and self.config.blocked_patterns is not None:
+            for pattern in self.config.blocked_patterns:
+                if re.search(pattern, text, re.IGNORECASE):
+                    warnings.append(f"Blocked pattern detected: {pattern}")
+                    # Replace with safe alternative
+                    text = re.sub(pattern, "[BLOCKED]", text, flags=re.IGNORECASE)
 
         # HTML escaping for XSS protection
         if self.config.enable_xss_protection:
@@ -150,10 +153,12 @@ class InputSanitizer:
         """Sanitize JSON data recursively.
 
         Args:
+        ----
             data: JSON data to sanitize
             max_depth: Maximum recursion depth
 
         Returns:
+        -------
             Tuple of (sanitized_data, warnings)
 
         """
@@ -183,9 +188,11 @@ class InputSanitizer:
         """Validate and sanitize emotion detection request.
 
         Args:
+        ----
             data: Request data
 
         Returns:
+        -------
             Tuple of (sanitized_data, warnings)
 
         """
@@ -210,7 +217,7 @@ class InputSanitizer:
                 threshold = float(data["confidence_threshold"])
                 if 0.0 <= threshold <= 1.0:
                     sanitized_data["confidence_threshold"] = str(
-                        threshold
+                        threshold,
                     )  # Convert to string for consistency
                 else:
                     warnings.append("confidence_threshold must be between 0.0 and 1.0")
@@ -223,9 +230,11 @@ class InputSanitizer:
         """Validate and sanitize batch emotion detection request.
 
         Args:
+        ----
             data: Request data
 
         Returns:
+        -------
             Tuple of (sanitized_data, warnings)
 
         """
@@ -243,7 +252,7 @@ class InputSanitizer:
         # Check batch size
         if len(texts) > self.config.max_batch_size:
             warnings.append(
-                f"Batch size {len(texts)} exceeds maximum {self.config.max_batch_size}"
+                f"Batch size {len(texts)} exceeds maximum {self.config.max_batch_size}",
             )
             texts = texts[: self.config.max_batch_size]
 
@@ -266,7 +275,7 @@ class InputSanitizer:
                 threshold = float(data["confidence_threshold"])
                 if 0.0 <= threshold <= 1.0:
                     sanitized_data["confidence_threshold"] = str(
-                        threshold
+                        threshold,
                     )  # Convert to string for consistency
                 else:
                     warnings.append("confidence_threshold must be between 0.0 and 1.0")
@@ -279,9 +288,11 @@ class InputSanitizer:
         """Validate content type header.
 
         Args:
+        ----
             content_type: Content type header value
 
         Returns:
+        -------
             True if valid, False otherwise
 
         """
@@ -289,20 +300,20 @@ class InputSanitizer:
             return True
 
         # Check for JSON content type
-        if not content_type or "application/json" not in content_type.lower():
-            return False
-
-        return True
+        return not (not content_type or "application/json" not in content_type.lower())
 
     def sanitize_headers(
-        self, headers: Dict[str, str]
+        self,
+        headers: Dict[str, str],
     ) -> Tuple[Dict[str, str], List[str]]:
         """Sanitize HTTP headers.
 
         Args:
+        ----
             headers: HTTP headers
 
         Returns:
+        -------
             Tuple of (sanitized_headers, warnings)
 
         """
@@ -328,9 +339,11 @@ class InputSanitizer:
         """Detect potential security anomalies in data.
 
         Args:
+        ----
             data: Data to analyze
 
         Returns:
+        -------
             List of detected anomalies
 
         """
@@ -346,7 +359,9 @@ class InputSanitizer:
                     anomalies.append(f"Potential HTML/script content at {path}")
 
                 if re.search(
-                    r"\b(union|select|insert|update|delete)\b", obj, re.IGNORECASE
+                    r"\b(union|select|insert|update|delete)\b",
+                    obj,
+                    re.IGNORECASE,
                 ):
                     anomalies.append(f"Potential SQL injection at {path}")
 

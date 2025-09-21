@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Convert PyTorch Model to ONNX for Deployment
-Quick conversion script to eliminate PyTorch dependencies
+Quick conversion script to eliminate PyTorch dependencies.
 """
 
 import argparse
@@ -13,16 +13,17 @@ import torch
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
 
-from transformers import AutoTokenizer
-
 from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from transformers import AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def convert_model_to_onnx(
-    model_path=None, onnx_output_path=None, tokenizer_name="bert-base-uncased"
+    model_path=None,
+    onnx_output_path=None,
+    tokenizer_name="bert-base-uncased",
 ):
     """Convert PyTorch model to ONNX format."""
     try:
@@ -116,28 +117,28 @@ def convert_model_to_onnx(
         except ImportError:
             logger.warning("⚠️ ONNX not available for validation")
         except Exception as e:
-            logger.error(f"❌ ONNX model validation failed: {e}")
+            logger.exception(f"❌ ONNX model validation failed: {e}")
             return False
 
         # Test ONNX model with ONNX Runtime
         try:
             import onnxruntime as ort
 
-            session = ort.InferenceSession(onnx_output_path)
+            ort.InferenceSession(onnx_output_path)
             logger.info("✅ ONNX Runtime test successful")
         except ImportError:
-            logger.error(
-                "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'."
+            logger.exception(
+                "❌ ONNX Runtime is required for ONNX model validation. Please install it with 'pip install onnxruntime'.",
             )
             return False
         except Exception as e:
-            logger.error(f"❌ ONNX Runtime test failed: {e}")
+            logger.exception(f"❌ ONNX Runtime test failed: {e}")
             return False
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ ONNX conversion failed: {e}")
+        logger.exception(f"❌ ONNX conversion failed: {e}")
         return False
 
 

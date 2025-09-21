@@ -181,14 +181,16 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
             logger.info("Loading model from checkpoint: {checkpoint_path}")
             model, _ = create_bert_emotion_classifier()
             checkpoint = torch.load(
-                checkpoint_path, map_location="cpu", weights_only=False
+                checkpoint_path,
+                map_location="cpu",
+                weights_only=False,
             )
             model.load_state_dict(checkpoint["model_state_dict"])
         else:
             logger.info("Training fresh model with Focal Loss...")
             model, initial_metrics = train_fresh_model(epochs=5, batch_size=32)
             logger.info(
-                "Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}"
+                "Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}",
             )
 
         focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor)
@@ -240,7 +242,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         return True
 
     except Exception:
-        logger.error("❌ Error improving model with Focal Loss: {e}")
+        logger.exception("❌ Error improving model with Focal Loss: {e}")
         return False
 
 
@@ -275,7 +277,7 @@ def improve_with_full_training() -> bool:
         return True
 
     except Exception:
-        logger.error("❌ Error with full training: {e}")
+        logger.exception("❌ Error with full training: {e}")
         return False
 
 
@@ -319,7 +321,7 @@ def create_simple_ensemble(checkpoint_path: Optional[str] = None) -> bool:
         return True
 
     except Exception:
-        logger.error("❌ Error creating ensemble: {e}")
+        logger.exception("❌ Error creating ensemble: {e}")
         return False
 
 

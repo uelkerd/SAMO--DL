@@ -88,7 +88,7 @@ def main():
             return 0
         if best_f1 > 0.10:  # 10% is acceptable for initial training
             logger.info(
-                "✅ GOOD: Model shows promise, could benefit from more training"
+                "✅ GOOD: Model shows promise, could benefit from more training",
             )
             return 0
         logger.warning(
@@ -97,7 +97,7 @@ def main():
         return 1
 
     except Exception:
-        logger.error("❌ Test failed: {e}")
+        logger.exception("❌ Test failed: {e}")
         return 1
 
 

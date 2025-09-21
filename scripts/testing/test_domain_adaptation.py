@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Domain Adaptation Test Script
+"""Domain Adaptation Test Script.
 
 Tests model performance on different domains and datasets.
 """
@@ -171,7 +171,7 @@ def predict_emotions(
 
                 if prob > threshold:
                     predicted_emotions.append(
-                        {"emotion": emotion, "confidence": float(prob)}
+                        {"emotion": emotion, "confidence": float(prob)},
                     )
 
             predicted_emotions.sort(key=lambda x: x["confidence"], reverse=True)
@@ -211,7 +211,7 @@ def analyze_domain_adaptation(
     correct_predictions = 0
     partial_matches = 0
 
-    for i, (sample, pred) in enumerate(zip(test_samples, predictions, strict=False)):
+    for _i, (sample, pred) in enumerate(zip(test_samples, predictions, strict=False)):
         expected = set(sample["expected_emotions"])
         predicted = {e["emotion"] for e in pred["predicted_emotions"]}
 
@@ -244,21 +244,21 @@ def analyze_domain_adaptation(
             "❌ Strong domain shift detected - consider domain adaptation",
         )
         analysis["recommendations"].append(
-            "• Collect journal entry dataset with emotion labels"
+            "• Collect journal entry dataset with emotion labels",
         )
         analysis["recommendations"].append("• Fine-tune model on journal entries")
         analysis["recommendations"].append("• Use data augmentation techniques")
     elif exact_accuracy < 0.6:
         analysis["recommendations"].append("⚠️  Moderate domain adaptation needed")
         analysis["recommendations"].append(
-            "• Consider few-shot learning with journal examples"
+            "• Consider few-shot learning with journal examples",
         )
         analysis["recommendations"].append("• Implement confidence thresholding")
         analysis["recommendations"].append("• Monitor performance on real user data")
     else:
         analysis["recommendations"].append("✅ Good cross-domain performance")
         analysis["recommendations"].append(
-            "• Current model should work well for journal entries"
+            "• Current model should work well for journal entries",
         )
         analysis["recommendations"].append("• Monitor performance and collect feedback")
 
@@ -268,7 +268,9 @@ def analyze_domain_adaptation(
 def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO Domain Adaptation Testing")
     parser.add_argument(
-        "--model-path", type=str, default="./test_checkpoints/best_model.pt"
+        "--model-path",
+        type=str,
+        default="./test_checkpoints/best_model.pt",
     )
     parser.add_argument(
         "--create-journal-samples",
@@ -276,16 +278,21 @@ def main() -> None:
         help="Create journal test samples",
     )
     parser.add_argument(
-        "--test-adaptation", action="store_true", help="Test domain adaptation"
+        "--test-adaptation",
+        action="store_true",
+        help="Test domain adaptation",
     )
     parser.add_argument(
-        "--threshold", type=float, default=0.3, help="Emotion prediction threshold"
+        "--threshold",
+        type=float,
+        default=0.3,
+        help="Emotion prediction threshold",
     )
 
     args = parser.parse_args()
 
     if args.create_journal_samples or not any([args.test_adaptation]):
-        samples = create_journal_test_samples()
+        create_journal_test_samples()
         print("\n✅ Created {len(samples)} journal test samples")
 
     if args.test_adaptation:
@@ -299,17 +306,17 @@ def main() -> None:
         print("📊 DOMAIN ADAPTATION ANALYSIS")
         print("=" * 60)
 
-        metrics = analysis["domain_analysis"]
+        analysis["domain_analysis"]
         print("\nExact Accuracy: {metrics['exact_accuracy']:.2%}")
         print("Partial Accuracy: {metrics['partial_accuracy']:.2%}")
         print("Exact Matches: {metrics['exact_matches']}/{analysis['total_samples']}")
         print(
-            "Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}"
+            "Partial Matches: {metrics['partial_matches']}/{analysis['total_samples']}",
         )
         print("No Matches: {metrics['no_matches']}/{analysis['total_samples']}")
 
         print("\n💡 Recommendations:")
-        for rec in analysis["recommendations"]:
+        for _rec in analysis["recommendations"]:
             print("   {rec}")
 
         results_path = Path("domain_adaptation_results.json")

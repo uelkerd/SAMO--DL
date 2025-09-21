@@ -43,10 +43,12 @@ def download_librispeech_sample(
     """Download LibriSpeech test-clean sample for evaluation.
 
     Args:
+    ----
         output_dir: Directory to save audio files (uses temp dir if None)
         max_samples: Maximum number of samples to download
 
     Returns:
+    -------
         List of dicts with audio path and reference text
 
     """
@@ -79,14 +81,14 @@ def download_librispeech_sample(
                     "audio_path": str(audio_path),
                     "reference_text": text,
                     "sample_id": i,
-                }
+                },
             )
 
         logger.info(f"Downloaded {len(samples)} samples to {output_dir}")
         return samples
 
     except Exception as e:
-        logger.error(f"Failed to download LibriSpeech samples: {e}")
+        logger.exception(f"Failed to download LibriSpeech samples: {e}")
         return []
 
 
@@ -94,11 +96,13 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     """Evaluate WER on LibriSpeech samples.
 
     Args:
+    ----
         api: Transcription API instance
         samples: List of sample dicts with audio_path and reference_text
         model_size: Model size identifier
 
     Returns:
+    -------
         Dict with WER metrics and timing info
 
     """
@@ -132,7 +136,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
                     "wer": wer_score,
                     "processing_time": processing_time,
                     "language": transcription_result.language,
-                }
+                },
             )
 
         except Exception as e:
@@ -146,7 +150,7 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
                     "processing_time": 0.0,
                     "language": "unknown",
                     "error": str(e),
-                }
+                },
             )
 
     # Calculate metrics

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Create the final bulletproof Colab notebook that fixes all remaining issues"""
+"""Create the final bulletproof Colab notebook that fixes all remaining issues."""
 
 import json
 
 
 def create_final_bulletproof_notebook():
-    """Create a Colab notebook that handles all dependency and path issues"""
+    """Create a Colab notebook that handles all dependency and path issues."""
     notebook = {
         "cells": [
             {

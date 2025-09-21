@@ -140,7 +140,9 @@ def generate_content(topic: str, emotion: str) -> str:
     template = random.choice(ENTRY_TEMPLATES)
     base_sentence = random.choice(ADDITIONAL_SENTENCES)
     content = template.format(
-        topic=topic, emotion=emotion, additional_sentence=base_sentence
+        topic=topic,
+        emotion=emotion,
+        additional_sentence=base_sentence,
     )
 
     # Add more complexity with a chance of a second or third sentence
@@ -152,7 +154,9 @@ def generate_content(topic: str, emotion: str) -> str:
 
 
 def generate_entry(
-    user_id: int, created_at: datetime, id_start: int = 1
+    user_id: int,
+    created_at: datetime,
+    id_start: int = 1,
 ) -> Dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
@@ -180,12 +184,14 @@ def generate_entries(
     """Generate a list of synthetic journal entries.
 
     Args:
+    ----
         num_entries: Number of entries to generate
         num_users: Number of unique users to create entries for
         start_date: Start date for entries (defaults to 60 days ago)
         end_date: End date for entries (defaults to today)
 
     Returns:
+    -------
         List of dictionaries containing journal entries
 
     """
@@ -219,6 +225,7 @@ def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> Non
     """Save generated entries to a JSON file.
 
     Args:
+    ----
         entries: List of entry dictionaries
         output_path: Path to save the JSON file
 
@@ -240,9 +247,11 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
     """Load sample entries from JSON file.
 
     Args:
+    ----
         json_path: Path to the JSON file
 
     Returns:
+    -------
         DataFrame containing the entries
 
     """

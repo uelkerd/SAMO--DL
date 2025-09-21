@@ -24,7 +24,8 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def fine_tune_model():
 
         train_dataset = datasets["train"]  # Fixed key name
         val_dataset = datasets["validation"]  # Fixed key name
-        test_dataset = datasets["test"]  # Fixed key name
+        datasets["test"]  # Fixed key name
         class_weights = datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
@@ -68,10 +69,14 @@ def fine_tune_model():
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
 
         train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=16, shuffle=True
+            train_dataset,
+            batch_size=16,
+            shuffle=True,
         )
         val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=16, shuffle=False
+            val_dataset,
+            batch_size=16,
+            shuffle=False,
         )
 
         best_val_loss = float("in")
@@ -169,7 +174,7 @@ def fine_tune_model():
         return True
 
     except Exception:
-        logger.error("❌ Fine-tuning failed: {e}")
+        logger.exception("❌ Fine-tuning failed: {e}")
         traceback.print_exc()
         return False
 

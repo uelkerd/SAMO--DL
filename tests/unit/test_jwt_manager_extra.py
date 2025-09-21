@@ -56,7 +56,8 @@ def test_blacklist_and_cleanup_flow(monkeypatch):
     import jwt
 
     payload = jwt.decode(
-        token, options={"verify_signature": False, "verify_exp": False}
+        token,
+        options={"verify_signature": False, "verify_exp": False},
     )
     exp_ts = payload.get("exp")
 
@@ -88,13 +89,15 @@ def test_refresh_access_token_success_and_failure():
     # Refresh token should yield a new access token
     refresh = mgr.create_refresh_token(user)
     new_access = mgr.refresh_access_token(refresh)
-    assert isinstance(new_access, str) and len(new_access) > 10
+    assert isinstance(new_access, str)
+    assert len(new_access) > 10
 
     # Expired refresh token should fail (re-sign with manager's secret to keep signature valid)
     import jwt
 
     payload = jwt.decode(
-        refresh, options={"verify_signature": False, "verify_exp": False}
+        refresh,
+        options={"verify_signature": False, "verify_exp": False},
     )
     payload["exp"] = int(time.time()) - 10
     expired_refresh = jwt.encode(payload, mgr.secret_key, algorithm=mgr.algorithm)
@@ -113,7 +116,8 @@ def test_permissions_helpers():
     assert mgr.has_permission(token, "alpha") is True
     assert mgr.has_permission(token, "beta") is False
     perms = mgr.get_user_permissions(token)
-    assert "alpha" in perms and "beta" not in perms
+    assert "alpha" in perms
+    assert "beta" not in perms
 
     # Malformed token handling
     assert mgr.get_user_permissions("not.a.jwt") == []

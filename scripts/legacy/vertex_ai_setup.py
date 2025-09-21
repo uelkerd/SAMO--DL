@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vertex AI Setup and Training Script
+"""Vertex AI Setup and Training Script.
 
 Sets up Vertex AI environment and runs training jobs.
 """
@@ -21,7 +21,8 @@ and provide managed ML training, deployment, and monitoring.
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class VertexAISetup:
         """Initialize Vertex AI setup.
 
         Args:
+        ----
             project_id: GCP project ID
             region: GCP region for Vertex AI resources
 
@@ -73,7 +75,7 @@ class VertexAISetup:
             return True
 
         except Exception:
-            logger.error("❌ Vertex AI setup failed: {e}")
+            logger.exception("❌ Vertex AI setup failed: {e}")
             return False
 
     def create_custom_training_job(self) -> Dict[str, Any]:
@@ -137,7 +139,7 @@ class VertexAISetup:
             return {"job": job, "config": job_config}
 
         except Exception:
-            logger.error("❌ Custom training job creation failed: {e}")
+            logger.exception("❌ Custom training job creation failed: {e}")
             return {}
 
     def create_hyperparameter_tuning_job(self) -> Dict[str, Any]:
@@ -208,7 +210,7 @@ class VertexAISetup:
             return {"tuning_job": tuning_job, "config": tuning_config}
 
         except Exception:
-            logger.error("❌ Hyperparameter tuning job creation failed: {e}")
+            logger.exception("❌ Hyperparameter tuning job creation failed: {e}")
             return {}
 
     def create_model_monitoring(self) -> Dict[str, Any]:
@@ -239,7 +241,7 @@ class VertexAISetup:
             return {"config": monitoring_config}
 
         except Exception:
-            logger.error("❌ Model monitoring setup failed: {e}")
+            logger.exception("❌ Model monitoring setup failed: {e}")
             return {}
 
     def create_automated_pipeline(self) -> Dict[str, Any]:
@@ -268,13 +270,13 @@ class VertexAISetup:
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
             logger.info(
-                "   Trigger conditions: data drift, performance degradation, new data"
+                "   Trigger conditions: data drift, performance degradation, new data",
             )
 
             return {"config": pipeline_config}
 
         except Exception:
-            logger.error("❌ Automated pipeline setup failed: {e}")
+            logger.exception("❌ Automated pipeline setup failed: {e}")
             return {}
 
     def run_validation_on_vertex(self) -> bool:
@@ -298,7 +300,7 @@ class VertexAISetup:
                 "replica_count": 1,
             }
 
-            validation_job = aiplatform.CustomTrainingJob(
+            aiplatform.CustomTrainingJob(
                 display_name=validation_config["display_name"],
                 container_uri=validation_config["container_uri"],
                 args=validation_config["args"],
@@ -313,7 +315,7 @@ class VertexAISetup:
             return True
 
         except Exception:
-            logger.error("❌ Validation job creation failed: {e}")
+            logger.exception("❌ Validation job creation failed: {e}")
             return False
 
     def setup_complete_infrastructure(self) -> Dict[str, Any]:
@@ -370,7 +372,7 @@ def main():
     logger.info("📊 VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")
 
-    for component, result in results.items():
+    for _component, result in results.items():
         if result:
             logger.info("✅ {component.title()}: SUCCESS")
         else:
@@ -378,7 +380,7 @@ def main():
 
     logger.info("\n🎯 NEXT STEPS:")
     logger.info(
-        "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai"
+        "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai",
     )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")

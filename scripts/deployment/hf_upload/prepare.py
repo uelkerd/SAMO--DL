@@ -30,7 +30,8 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
                     id2label = config["id2label"]
                     sorted_labels = [id2label[str(i)] for i in range(len(id2label))]
                     logging.info(
-                        "Loaded %d labels from HF config.json", len(sorted_labels)
+                        "Loaded %d labels from HF config.json",
+                        len(sorted_labels),
                     )
                     return sorted_labels
             except Exception as e:
@@ -40,7 +41,9 @@ def load_emotion_labels_from_model(model_path: str) -> List[str]:
         try:
             try:
                 checkpoint = torch.load(
-                    model_path, map_location="cpu", weights_only=False
+                    model_path,
+                    map_location="cpu",
+                    weights_only=False,
                 )
             except TypeError:
                 checkpoint = torch.load(model_path, map_location="cpu")
@@ -160,7 +163,9 @@ def prepare_model_for_upload(
         try:
             try:
                 checkpoint = torch.load(
-                    model_path, map_location="cpu", weights_only=False
+                    model_path,
+                    map_location="cpu",
+                    weights_only=False,
                 )
             except TypeError:
                 checkpoint = torch.load(model_path, map_location="cpu")

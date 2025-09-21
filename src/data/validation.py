@@ -26,10 +26,12 @@ class DataValidator:
         """Check for missing values in DataFrame.
 
         Args:
+        ----
             df: DataFrame to check
             required_columns: List of columns that must not have missing values
 
         Returns:
+        -------
             Dictionary with column names and percentage of missing values
 
         """
@@ -61,10 +63,12 @@ class DataValidator:
         """Check if columns have expected data types.
 
         Args:
+        ----
             df: DataFrame to check
             expected_types: Dictionary mapping column names to expected types
 
         Returns:
+        -------
             Dictionary with column names and whether they match expected types
 
         """
@@ -106,15 +110,19 @@ class DataValidator:
         return type_check_results
 
     def check_text_quality(
-        self, df: pd.DataFrame, text_column: str = "content"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
     ) -> pd.DataFrame:
         """Check text quality metrics.
 
         Args:
+        ----
             df: DataFrame to check
             text_column: Name of column containing text data
 
         Returns:
+        -------
             DataFrame with text quality metrics
 
         """
@@ -143,7 +151,7 @@ class DataValidator:
 
         if empty_count > 0:
             logger.warning(
-                "Found {empty_count} empty entries in '{text_column}' column"
+                "Found {empty_count} empty entries in '{text_column}' column",
             )
 
         if very_short_count > 0:
@@ -162,11 +170,13 @@ class DataValidator:
         """Perform comprehensive validation on journal entries DataFrame.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             required_columns: List of columns that must not have missing values
             expected_types: Dictionary mapping column names to expected types
 
         Returns:
+        -------
             Dictionary with validation results including is_valid, validated_df, missing_values, data_types, and text_quality
 
         """
@@ -226,16 +236,20 @@ class DataValidator:
 
 
 def validate_text_input(
-    input_text: str, min_length: int = 1, max_length: int = 10000
+    input_text: str,
+    min_length: int = 1,
+    max_length: int = 10000,
 ) -> Dict[str, Union[bool, str]]:
     """Validate text input for journal entries.
 
     Args:
+    ----
         input_text: Text to validate
         min_length: Minimum allowed length
         max_length: Maximum allowed length
 
     Returns:
+    -------
         Dictionary with is_valid and error keys
 
     """

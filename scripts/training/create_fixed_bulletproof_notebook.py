@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE FIXED BULLETPROOF NOTEBOOK
+"""🚀 CREATE FIXED BULLETPROOF NOTEBOOK.
 ====================================
 Create a bulletproof Colab notebook that uses the unique fallback dataset.
 This fixes the duplicate data issue that caused model collapse.
@@ -9,7 +9,7 @@ import json
 
 
 def create_fixed_bulletproof_notebook():
-    """Create the fixed bulletproof notebook content"""
+    """Create the fixed bulletproof notebook content."""
     notebook_content = {
         "cells": [
             {
@@ -454,7 +454,7 @@ def create_fixed_bulletproof_notebook():
         json.dump(notebook_content, f, indent=2)
 
     print(
-        "✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb"
+        "✅ Fixed bulletproof notebook created: notebooks/FIXED_BULLETPROOF_COMBINED_TRAINING_COLAB.ipynb",
     )
     print("📋 Instructions:")
     print("  1. Download the notebook file")

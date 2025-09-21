@@ -17,7 +17,9 @@ def _write(path: str, content: str) -> None:
 
 
 def update_deployment_config(
-    repo_id: str, model_info: Dict[str, Any], templates_dir: str
+    repo_id: str,
+    model_info: Dict[str, Any],
+    templates_dir: str,
 ) -> None:
     logging.info("Writing deployment configuration files (config-driven)")
 

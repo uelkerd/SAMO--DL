@@ -16,11 +16,11 @@ def setup_huggingface_auth() -> bool:
     if not hf_token:
         if is_interactive_environment():
             logging.error(
-                "HuggingFace token not found in env (HUGGINGFACE_TOKEN/HF_TOKEN)"
+                "HuggingFace token not found in env (HUGGINGFACE_TOKEN/HF_TOKEN)",
             )
         else:
             logging.error(
-                "Non-interactive environment: set HUGGINGFACE_TOKEN or HF_TOKEN"
+                "Non-interactive environment: set HUGGINGFACE_TOKEN or HF_TOKEN",
             )
         return False
     try:
@@ -35,7 +35,8 @@ def setup_huggingface_auth() -> bool:
 def choose_repository_privacy(cli_private: Optional[bool] = None) -> bool:
     if cli_private is not None:
         logging.info(
-            "Repository privacy from CLI: %s", "private" if cli_private else "public"
+            "Repository privacy from CLI: %s",
+            "private" if cli_private else "public",
         )
         return cli_private
     hf_repo_private = os.environ.get("HF_REPO_PRIVATE")
@@ -61,7 +62,10 @@ def setup_git_lfs() -> bool:
         return False
     try:
         result = subprocess.run(
-            ["git", "lfs", "version"], capture_output=True, text=True, check=True
+            ["git", "lfs", "version"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         if result.returncode != 0:
             logging.warning("Git LFS not available. Install with: git lfs install")
@@ -135,7 +139,8 @@ def upload_to_huggingface(
                 commit_message=commit_message,
             )
             logging.info(
-                "Model uploaded successfully: https://huggingface.co/%s", repo_id
+                "Model uploaded successfully: https://huggingface.co/%s",
+                repo_id,
             )
             return repo_id
         except Exception as e:

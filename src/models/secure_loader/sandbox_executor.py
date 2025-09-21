@@ -1,5 +1,4 @@
-"""
-Sandbox Executor for Secure Model Loading.
+"""Sandbox Executor for Secure Model Loading.
 
 This module provides sandboxed execution capabilities for model loading,
 preventing potential RCE vulnerabilities and malicious code execution.
@@ -58,10 +57,12 @@ class SandboxExecutor:
         """Initialize sandbox executor.
 
         Args:
+        ----
             max_memory_mb: Maximum memory usage in MB
             max_cpu_time: Maximum CPU time in seconds
             max_wall_time: Maximum wall clock time in seconds
             allow_network: Whether to allow network access
+
         """
         self.max_memory_mb = max_memory_mb
         self.max_cpu_time = max_cpu_time
@@ -102,20 +103,22 @@ class SandboxExecutor:
 
             # CPU time limit
             resource.setrlimit(
-                resource.RLIMIT_CPU, (self.max_cpu_time, self.max_cpu_time)
+                resource.RLIMIT_CPU,
+                (self.max_cpu_time, self.max_cpu_time),
             )
 
             # File size limit
             resource.setrlimit(
-                resource.RLIMIT_FSIZE, (1024 * 1024 * 1024, 1024 * 1024 * 1024)
+                resource.RLIMIT_FSIZE,
+                (1024 * 1024 * 1024, 1024 * 1024 * 1024),
             )  # 1GB
 
             logger.debug(
-                f"Resource limits set: memory={self.max_memory_mb}MB, cpu={self.max_cpu_time}s"
+                f"Resource limits set: memory={self.max_memory_mb}MB, cpu={self.max_cpu_time}s",
             )
 
         except Exception as e:
-            logger.error(f"Failed to set resource limits: {e}")
+            logger.exception(f"Failed to set resource limits: {e}")
 
     def _get_safe_builtins(self):
         """Return a safe builtins dictionary for sandboxed execution."""
@@ -193,7 +196,7 @@ class SandboxExecutor:
             signal.alarm(self.max_wall_time)
         else:
             logger.warning(
-                "Timeout not set: signal.alarm not available in non-main thread"
+                "Timeout not set: signal.alarm not available in non-main thread",
             )
 
     @contextmanager
@@ -205,7 +208,8 @@ class SandboxExecutor:
             # Set up signal handlers for timeout (only in main thread)
             if self._is_main_thread():
                 original_signal_handlers[signal.SIGALRM] = signal.signal(
-                    signal.SIGALRM, self._timeout_handler
+                    signal.SIGALRM,
+                    self._timeout_handler,
                 )
                 self._set_timeout_safe()
             else:
@@ -215,7 +219,7 @@ class SandboxExecutor:
                 self._disable_network()
             yield
         except Exception as e:
-            logger.error(f"Sandbox execution error: {e}")
+            logger.exception(f"Sandbox execution error: {e}")
             raise
         finally:
             # Restore signal handlers
@@ -227,8 +231,6 @@ class SandboxExecutor:
         """Disable network access in the sandbox."""
         try:
             import socket
-
-            original_socket = socket.socket
 
             def blocked_socket(*args, **kwargs):
                 raise PermissionError("Network access is not allowed in sandbox")
@@ -257,19 +259,22 @@ class SandboxExecutor:
                     result = func(*args, **kwargs)
                 return result, {"status": "success"}
             except Exception as e:
-                logger.error(f"Sandboxed execution failed: {e}")
+                logger.exception(f"Sandboxed execution failed: {e}")
                 return None, {"error": str(e)}
 
     def load_model_safely(self, model_path: str, model_class: type, **kwargs) -> Any:
         """Load a model safely in the sandbox.
 
         Args:
+        ----
             model_path: Path to the model file
             model_class: Model class to instantiate
             **kwargs: Additional arguments for model loading
 
         Returns:
+        -------
             Loaded model instance
+
         """
 
         def load_model():
@@ -299,10 +304,13 @@ class SandboxExecutor:
         """Validate a model safely in the sandbox.
 
         Args:
+        ----
             model_path: Path to the model file
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
 
         def validate_model():
@@ -331,8 +339,10 @@ class SandboxExecutor:
     def get_resource_usage(self) -> Dict[str, float]:
         """Get current resource usage.
 
-        Returns:
+        Returns
+        -------
             Dictionary with resource usage information
+
         """
         try:
             import psutil  # type: ignore
@@ -361,4 +371,4 @@ class SandboxExecutor:
                 torch.cuda.empty_cache()
 
         except Exception as e:
-            logger.error(f"Cleanup error: {e}")
+            logger.exception(f"Cleanup error: {e}")

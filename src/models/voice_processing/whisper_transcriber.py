@@ -1,18 +1,19 @@
 # Configure logging
 # Suppress warnings from audio processing
-from dataclasses import dataclass
-from pathlib import Path
-from pydub import AudioSegment
-from typing import Any, Optional, Union, Tuple, List, Dict
 import contextlib
 import logging
-import numpy as np
 import os
 import tempfile
 import time
-import torch
 import warnings
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import torch
 import whisper
+from pydub import AudioSegment
 
 """OpenAI Whisper Transcriber for SAMO Deep Learning.
 
@@ -87,10 +88,13 @@ class AudioPreprocessor:
         """Validate audio file format and properties.
 
         Args:
+        ----
             audio_path: Path to audio file
 
         Returns:
+        -------
             Tuple of (is_valid, error_message)
+
         """
         audio_path = Path(audio_path)
 
@@ -120,16 +124,20 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+        audio_path: Union[str, Path],
+        output_path: Optional[Union[str, Path]] = None,
     ) -> Tuple[str, Dict[str, Any]]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
+        ----
             audio_path: Input audio file path
             output_path: Output path (temporary file if None)
 
         Returns:
+        -------
             Tuple of (processed_audio_path, metadata)
+
         """
         audio_path = Path(audio_path)
 
@@ -193,8 +201,10 @@ class WhisperTranscriber:
         """Initialize Whisper transcriber.
 
         Args:
+        ----
             config: Transcription configuration
             model_size: Override model size from config
+
         """
         self.config = config or TranscriptionConfig()
         if model_size:
@@ -219,7 +229,7 @@ class WhisperTranscriber:
             )
 
         except Exception as exc:
-            logger.error(f"❌ Failed to load Whisper model: {exc}")
+            logger.exception(f"❌ Failed to load Whisper model: {exc}")
             raise RuntimeError(f"Whisper model loading failed: {exc}")
 
         self.preprocessor = AudioPreprocessor()
@@ -233,19 +243,22 @@ class WhisperTranscriber:
         """Transcribe audio file to text.
 
         Args:
+        ----
             audio_path: Path to audio file
             language: Language code (auto-detect if None)
             initial_prompt: Context prompt for better accuracy
 
         Returns:
+        -------
             TranscriptionResult with detailed information
+
         """
         start_time = time.time()
 
         logger.info("Starting transcription: {audio_path}", extra={"format_args": True})
 
         processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
-            audio_path
+            audio_path,
         )
 
         try:
@@ -322,29 +335,34 @@ class WhisperTranscriber:
         """Transcribe multiple audio files.
 
         Args:
+        ----
             audio_paths: List of audio file paths
             language: Language code for all files
             initial_prompt: Context prompt for better accuracy
 
         Returns:
+        -------
             List of TranscriptionResult objects
+
         """
         logger.info(f"Starting batch transcription of {len(audio_paths)} files...")
 
         results = []
         for _i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}"
+                f"Processing file {_i}/{len(audio_paths)}: {Path(audio_path).name}",
             )
 
             try:
                 result = self.transcribe(
-                    audio_path, language=language, initial_prompt=initial_prompt
+                    audio_path,
+                    language=language,
+                    initial_prompt=initial_prompt,
                 )
                 results.append(result)
 
             except Exception as e:
-                logger.error(f"Failed to transcribe {audio_path}: {e}")
+                logger.exception(f"Failed to transcribe {audio_path}: {e}")
                 results.append(
                     TranscriptionResult(
                         text="",
@@ -357,7 +375,7 @@ class WhisperTranscriber:
                         word_count=0,
                         speaking_rate=0.0,
                         no_speech_probability=1.0,
-                    )
+                    ),
                 )
 
         total_duration = sum(r.duration for r in results)
@@ -365,7 +383,7 @@ class WhisperTranscriber:
 
         logger.info(f"✅ Batch transcription complete: {len(results)} files")
         logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s"
+            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s",
         )
 
         return results
@@ -374,10 +392,13 @@ class WhisperTranscriber:
         """Calculate overall confidence from segment data.
 
         Args:
+        ----
             segments: List of transcription segments
 
         Returns:
+        -------
             Average confidence score (0.0 to 1.0)
+
         """
         if not segments:
             return 0.0
@@ -388,7 +409,8 @@ class WhisperTranscriber:
             no_speech_prob = segment.get("no_speech_prob", 0.5)
 
             segment_confidence = min(
-                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+                1.0,
+                max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)),
             )
             confidences.append(segment_confidence)
 
@@ -398,11 +420,14 @@ class WhisperTranscriber:
         """Assess audio quality based on transcription results.
 
         Args:
+        ----
             result: Whisper transcription result
             metadata: Audio metadata
 
         Returns:
+        -------
             Quality assessment: excellent, good, fair, poor
+
         """
         compression_ratio = result.get("compression_ratio", 2.0)
         avg_logprob = result.get("avg_logprob", -0.5)
@@ -427,12 +452,11 @@ class WhisperTranscriber:
 
         if quality_score >= 5:
             return "excellent"
-        elif quality_score >= 3:
+        if quality_score >= 3:
             return "good"
-        elif quality_score >= 1:
+        if quality_score >= 1:
             return "fair"
-        else:
-            return "poor"
+        return "poor"
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get model information."""
@@ -455,20 +479,26 @@ def create_whisper_transcriber(
     """Create Whisper transcriber with specified configuration.
 
     Args:
+    ----
         model_size: Whisper model size (tiny, base, small, medium, large)
         language: Language code for transcription
         device: Device for model ('cuda', 'cpu', or None for auto)
 
     Returns:
+    -------
         Configured WhisperTranscriber instance
+
     """
     config = TranscriptionConfig(
-        model_size=model_size, language=language, device=device
+        model_size=model_size,
+        language=language,
+        device=device,
     )
 
     transcriber = WhisperTranscriber(config)
     logger.info(
-        "Created Whisper transcriber: {model_size}", extra={"format_args": True}
+        "Created Whisper transcriber: {model_size}",
+        extra={"format_args": True},
     )
 
     return transcriber

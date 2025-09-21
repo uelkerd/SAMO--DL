@@ -94,7 +94,7 @@ def test_onnx_dependencies():
                 )
                 outputs = session.run(None, {"input_ids": test_input})
                 logger.info(
-                    f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}"
+                    f"✅ ONNX Runtime inference successful, output shape: {outputs[0].shape}",
                 )
 
             finally:
@@ -112,7 +112,7 @@ def test_onnx_dependencies():
         return True
 
     except Exception as e:
-        logger.error(f"❌ ONNX dependencies test failed: {e}")
+        logger.exception(f"❌ ONNX dependencies test failed: {e}")
         return False
 
 

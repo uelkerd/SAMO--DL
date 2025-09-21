@@ -70,7 +70,8 @@ def test_temperature_scaling():
         )
 
         predictions_per_sample = metrics.get("predictions_sum", 0) / metrics.get(
-            "num_samples", 1
+            "num_samples",
+            1,
         )
 
         result = {
@@ -130,7 +131,7 @@ def test_temperature_scaling():
             "🎉 SUCCESS! Temperature scaling improved F1 by {(best_f1 / 0.076 - 1) * 100:.1f}%",
         )
         logger.info(
-            "💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}"
+            "💡 RECOMMENDATION: Use temperature={best_temp} with threshold={threshold}",
         )
     else:
         logger.info("⚠️ Temperature scaling provided modest improvement")

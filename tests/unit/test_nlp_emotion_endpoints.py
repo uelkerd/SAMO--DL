@@ -52,11 +52,11 @@ class TestNlpEmotionEndpoints(unittest.TestCase):
             data=json.dumps(payload),
             headers={"Content-Type": "application/json"},
         )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         data = resp.get_json()
-        self.assertIn("scores", data)
-        self.assertEqual(data["provider"], "hf")
-        self.assertTrue(any(x["label"] == "joy" for x in data["scores"]))
+        assert "scores" in data
+        assert data["provider"] == "hf"
+        assert any(x["label"] == "joy" for x in data["scores"])
 
     @patch("src.inference.text_emotion_service.pipeline", new=_fake_pipeline)
     def test_batch_emotion_endpoint(self):
@@ -67,29 +67,31 @@ class TestNlpEmotionEndpoints(unittest.TestCase):
             data=json.dumps(payload),
             headers={"Content-Type": "application/json"},
         )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         data = resp.get_json()
-        self.assertIn("results", data)
-        self.assertEqual(data["count"], 2)
-        self.assertEqual(data["provider"], "hf")
+        assert "results" in data
+        assert data["count"] == 2
+        assert data["provider"] == "hf"
         first, second = data["results"]
-        self.assertIn("scores", first)
-        self.assertTrue(any(x["label"] == "joy" for x in first["scores"]))
-        self.assertIn("scores", second)
-        self.assertTrue(any(x["label"] == "joy" for x in second["scores"]))
+        assert "scores" in first
+        assert any(x["label"] == "joy" for x in first["scores"])
+        assert "scores" in second
+        assert any(x["label"] == "joy" for x in second["scores"])
 
     def test_invalid_payloads(self):
         """Validate error responses for invalid single and batch payloads."""
         resp = self.client.post(
-            "/nlp/emotion", data="{}", headers={"Content-Type": "application/json"}
+            "/nlp/emotion",
+            data="{}",
+            headers={"Content-Type": "application/json"},
         )
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400
         resp = self.client.post(
             "/nlp/emotion/batch",
             data='{"texts": 123}',
             headers={"Content-Type": "application/json"},
         )
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400
 
 
 if __name__ == "__main__":

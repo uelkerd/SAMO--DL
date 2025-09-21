@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Working Training Script
+"""Working Training Script.
 
 Working training script for emotion detection.
 """
@@ -20,7 +20,8 @@ Working Training Script based on the successful local validation approach.
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,7 @@ def main():
         logger.info("🔧 Step 4: Starting simple training...")
         model.train()
 
-        for epoch in range(3):
+        for _epoch in range(3):
             epoch_loss = 0.0
             num_batches = 10  # Small number for testing
 
@@ -97,7 +98,7 @@ def main():
                 if batch % 5 == 0:
                     logger.info("   Batch {batch}: Loss = {loss.item():.6f}")
 
-            avg_loss = epoch_loss / num_batches
+            epoch_loss / num_batches
             logger.info("✅ Epoch {epoch + 1}: Average Loss = {avg_loss:.6f}")
 
         logger.info("🎉 SUCCESS: Training completed without 0.0000 loss!")
@@ -107,7 +108,7 @@ def main():
         return True
 
     except Exception:
-        logger.error("❌ Training error: {e}")
+        logger.exception("❌ Training error: {e}")
         traceback.print_exc()
         return False
 

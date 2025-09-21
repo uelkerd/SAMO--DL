@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local Validation Debug Script
+"""Local Validation Debug Script.
 
 Debugs and validates local model training and inference components.
 """
@@ -22,7 +22,8 @@ It can be run locally to diagnose problems before deploying to GCP.
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ def check_environment():
         return True
 
     except Exception:
-        logger.error("❌ Environment check failed: {e}")
+        logger.exception("❌ Environment check failed: {e}")
         return False
 
 
@@ -69,16 +70,16 @@ def check_data_loading():
         logger.info("✅ Validation set: {len(datasets['validation'])} examples")
         logger.info("✅ Test set: {len(datasets['test'])} examples")
 
-        stats = datasets["statistics"]
+        datasets["statistics"]
         logger.info("✅ Total examples: {stats.get('total_examples', 'N/A')}")
         logger.info(
-            "✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions"
+            "✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions",
         )
 
         return True
 
     except Exception:
-        logger.error("❌ Data loading failed: {e}")
+        logger.exception("❌ Data loading failed: {e}")
         return False
 
 
@@ -126,7 +127,7 @@ def check_model_creation():
         return True
 
     except Exception:
-        logger.error("❌ Model creation failed: {e}")
+        logger.exception("❌ Model creation failed: {e}")
         return False
 
 
@@ -145,16 +146,18 @@ def check_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(
-            logits, labels, reduction="mean"
+        F.binary_cross_entropy_with_logits(
+            logits,
+            labels,
+            reduction="mean",
         )
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
         logger.info(
-            "✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}"
+            "✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}",
         )
         logger.info(
-            "✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}"
+            "✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}",
         )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
@@ -165,7 +168,7 @@ def check_loss_function():
         return True
 
     except Exception:
-        logger.error("❌ Loss function check failed: {e}")
+        logger.exception("❌ Loss function check failed: {e}")
         return False
 
 
@@ -224,7 +227,7 @@ def check_data_distribution():
         return True
 
     except Exception:
-        logger.error("❌ Data distribution check failed: {e}")
+        logger.exception("❌ Data distribution check failed: {e}")
         return False
 
 
@@ -257,7 +260,7 @@ def main():
                 logger.error("❌ {name} FAILED")
 
         except Exception:
-            logger.error("❌ {name} ERROR: {e}")
+            logger.exception("❌ {name} ERROR: {e}")
             results[name] = False
 
     passed = sum(results.values())

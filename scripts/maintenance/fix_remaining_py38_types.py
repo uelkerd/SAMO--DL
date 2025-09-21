@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Remaining Python 3.8 Compatibility Issues
+"""Fix Remaining Python 3.8 Compatibility Issues.
 
 This script uses regex patterns to fix remaining type hint issues:
 - list[T] -> List[T]
@@ -55,7 +55,9 @@ def _fix_generic_patterns(content: str, imports_to_add: set, changes_made: list)
 
 
 def _fix_optional_patterns(
-    content: str, imports_to_add: set, changes_made: list
+    content: str,
+    imports_to_add: set,
+    changes_made: list,
 ) -> str:
     """Fix optional type patterns (A | None, None | A)."""
     # Fix A | None -> Optional[A] (most common case)
@@ -241,7 +243,8 @@ def _process_single_file(file_path: Path, dry_run: bool) -> Dict[str, Any]:
 
 
 def _process_all_files(
-    python_files: List[Path], dry_run: bool
+    python_files: List[Path],
+    dry_run: bool,
 ) -> Tuple[List[Dict[str, Any]], int]:
     """Process all Python files and return results and total changes."""
     results = []
@@ -258,7 +261,9 @@ def _process_all_files(
 
 
 def _print_summary(
-    results: List[Dict[str, Any]], total_changes: int, dry_run: bool
+    results: List[Dict[str, Any]],
+    total_changes: int,
+    dry_run: bool,
 ) -> None:
     """Print summary of processing results."""
     print("=" * 50)

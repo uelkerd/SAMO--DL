@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""DEEP MODEL ANALYSIS SCRIPT
+"""DEEP MODEL ANALYSIS SCRIPT.
 ===========================
 Analyzes the model's behavior to understand performance discrepancies
 """
 
+import sys
 from pathlib import Path
 
 import torch
@@ -11,7 +12,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def deep_model_analysis():
-    """Deep analysis of the model's behavior"""
+    """Deep analysis of the model's behavior."""
     print("🔍 DEEP MODEL ANALYSIS")
     print("=" * 50)
     print("🎯 Goal: Understand 99.54% F1 vs 58.3% basic accuracy")
@@ -65,7 +66,11 @@ def deep_model_analysis():
 
         # Tokenize
         inputs = tokenizer(
-            text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
         )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -86,7 +91,7 @@ def deep_model_analysis():
         expected_idx = emotion_mapping.index(expected_emotion)
         expected_prob = probabilities[0][expected_idx].item()
         print(
-            f"📊 Expected emotion '{expected_emotion}' probability: {expected_prob:.3f}"
+            f"📊 Expected emotion '{expected_emotion}' probability: {expected_prob:.3f}",
         )
 
     # Analyze model confidence patterns
@@ -113,7 +118,11 @@ def deep_model_analysis():
 
     for word in simple_tests:
         inputs = tokenizer(
-            word, return_tensors="pt", truncation=True, max_length=512, padding=True
+            word,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
         )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -138,7 +147,9 @@ def deep_model_analysis():
 
     print("Prediction frequency by emotion:")
     for emotion, count in sorted(
-        emotion_counts.items(), key=lambda x: x[1], reverse=True
+        emotion_counts.items(),
+        key=lambda x: x[1],
+        reverse=True,
     ):
         print(f"  {emotion}: {count} predictions")
 
@@ -172,7 +183,11 @@ def deep_model_analysis():
     correct_training_like = 0
     for text in training_like_tests:
         inputs = tokenizer(
-            text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
         )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -200,7 +215,7 @@ def deep_model_analysis():
                 status = "❌"
 
             print(
-                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})"
+                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})",
             )
 
     training_like_accuracy = correct_training_like / len(training_like_tests)
@@ -212,13 +227,13 @@ def deep_model_analysis():
 
     if training_like_accuracy > 0.8:
         print(
-            f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})"
+            f"✅ Model performs well on training-like data ({training_like_accuracy:.1%})",
         )
         print("⚠️  Issue: Model may be overfitting to specific training patterns")
         print("💡 Solution: Model needs more diverse training data or regularization")
     else:
         print(
-            f"❌ Model performs poorly even on training-like data ({training_like_accuracy:.1%})"
+            f"❌ Model performs poorly even on training-like data ({training_like_accuracy:.1%})",
         )
         print("⚠️  Issue: Fundamental problem with model training or label mapping")
         print("💡 Solution: Retrain model with better data or check label mapping")
@@ -228,4 +243,4 @@ def deep_model_analysis():
 
 if __name__ == "__main__":
     success = deep_model_analysis()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

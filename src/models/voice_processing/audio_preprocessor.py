@@ -1,11 +1,11 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from pathlib import Path
-from pydub import AudioSegment
-from typing import Optional, Union, Tuple, Dict
 import logging
 import tempfile
+from pathlib import Path
+from typing import Dict, Optional, Tuple, Union
 
+from pydub import AudioSegment
 
 """Audio Preprocessing for SAMO Voice Processing.
 
@@ -35,10 +35,13 @@ class AudioPreprocessor:
         """Validate audio file format and properties.
 
         Args:
+        ----
             audio_path: Path to audio file
 
         Returns:
+        -------
             tuple of (is_valid, error_message)
+
         """
         audio_path = Path(audio_path)
 
@@ -68,16 +71,20 @@ class AudioPreprocessor:
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+        audio_path: Union[str, Path],
+        output_path: Optional[Union[str, Path]] = None,
     ) -> Tuple[str, Dict]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
+        ----
             audio_path: Input audio file path
             output_path: Output path (temporary file if None)
 
         Returns:
+        -------
             tuple of (processed_audio_path, metadata)
+
         """
         audio_path = Path(audio_path)
 
@@ -131,7 +138,8 @@ class AudioPreprocessor:
 
 
 def preprocess_audio(
-    audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+    audio_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
 ) -> Tuple[str, Dict]:
     """Convenience function for audio preprocessing."""
     return AudioPreprocessor.preprocess_audio(audio_path, output_path)

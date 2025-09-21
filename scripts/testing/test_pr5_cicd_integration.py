@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PR #5: CI/CD Pipeline Overhaul - Integration Test
+"""PR #5: CI/CD Pipeline Overhaul - Integration Test.
 
 This script validates that the CircleCI configuration fixes are working correctly.
 """
@@ -44,7 +44,7 @@ def test_conda_environment_setup():
             conda_cmd = ["conda"]  # fallback to PATH
 
         result = subprocess.run(
-            conda_cmd + ["--version"],
+            [*conda_cmd, "--version"],
             check=False,
             capture_output=True,
             text=True,
@@ -133,7 +133,7 @@ def test_critical_fixes():
 
     # 2. Check for 'conda run -n samo-dl-stable' in commands
     found_conda_run = False
-    for cmd_name, cmd_config in commands.items():
+    for _cmd_name, cmd_config in commands.items():
         if isinstance(cmd_config, dict) and "steps" in cmd_config:
             for step in cmd_config["steps"]:
                 if isinstance(step, dict) and "run" in step:
@@ -155,7 +155,7 @@ def test_critical_fixes():
 
     # 3. Check for 'shell: /bin/bash' in commands
     found_shell_bash = False
-    for cmd_name, cmd_config in commands.items():
+    for _cmd_name, cmd_config in commands.items():
         if isinstance(cmd_config, dict) and "steps" in cmd_config:
             for step in cmd_config["steps"]:
                 if isinstance(step, dict) and "run" in step:
@@ -176,7 +176,7 @@ def test_critical_fixes():
     # 4. Check for PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src in executors
     found_pythonpath = False
     executors = config.get("executors", {})
-    for executor_name, executor_config in executors.items():
+    for _executor_name, executor_config in executors.items():
         if isinstance(executor_config, dict):
             env = executor_config.get("environment", {})
             if env.get("PYTHONPATH") == "$CIRCLE_WORKING_DIRECTORY/src":
@@ -184,11 +184,11 @@ def test_critical_fixes():
                 break
     if found_pythonpath:
         print(
-            "✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)"
+            "✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)",
         )
     else:
         print(
-            "❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)"
+            "❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)",
         )
         all_fixes_present = False
 
@@ -251,7 +251,7 @@ def test_pipeline_structure_edge_cases():
         if component not in incomplete_config:
             missing_count += 1
     print(
-        f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)"
+        f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)",
     )
 
     # Test 2: Malformed YAML types
@@ -259,11 +259,11 @@ def test_pipeline_structure_edge_cases():
     for idx, malformed in enumerate(malformed_configs):
         if not isinstance(malformed, dict):
             print(
-                f"✅ Malformed config case {idx + 1}: {malformed!r} correctly identified as invalid"
+                f"✅ Malformed config case {idx + 1}: {malformed!r} correctly identified as invalid",
             )
         else:
             print(
-                f"❌ Malformed config case {idx + 1}: {malformed!r} incorrectly identified as valid"
+                f"❌ Malformed config case {idx + 1}: {malformed!r} incorrectly identified as valid",
             )
 
     return True
@@ -310,7 +310,7 @@ def test_job_dependencies():
     for job in jobs:
         if isinstance(job, dict):
             # Job with configuration
-            job_name = list(job.keys())[0]
+            job_name = next(iter(job.keys()))
             job_config = job[job_name]
             job_names.append(job_name)
 
@@ -359,7 +359,7 @@ def test_environment_variables():
     config_path = Path(".circleci/config.yml")
     try:
         with open(config_path) as f:
-            config = yaml.safe_load(f)
+            yaml.safe_load(f)
     except Exception as e:
         print(f"❌ Failed to load config: {e}")
         return False

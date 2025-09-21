@@ -9,20 +9,21 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import requests
 from test_config import create_api_client, create_test_config
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
 class CloudRunAPITester:
-    def __init__(self, base_url: str = None):
+    def __init__(self, base_url: Optional[str] = None):
         config = create_test_config()
         self.base_url = base_url or config.base_url
         self.client = create_api_client()
@@ -42,7 +43,7 @@ class CloudRunAPITester:
         ]
 
     def test_health_endpoint(self) -> Dict[str, Any]:
-        """Test the health/status endpoint"""
+        """Test the health/status endpoint."""
         logger.info("Testing health endpoint...")
 
         try:
@@ -75,7 +76,7 @@ class CloudRunAPITester:
             }
 
     def _validate_emotion_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate emotion detection response structure"""
+        """Validate emotion detection response structure."""
         if "primary_emotion" not in data:
             return {
                 "success": False,
@@ -96,14 +97,14 @@ class CloudRunAPITester:
             "response_time": 0.0,  # Will be measured in performance test
         }
 
-    def _create_test_payload(self, text: str = None) -> Dict[str, str]:
-        """Create a test payload for emotion detection"""
+    def _create_test_payload(self, text: Optional[str] = None) -> Dict[str, str]:
+        """Create a test payload for emotion detection."""
         if text is None:
             text = "I am feeling really happy and excited today!"
         return {"text": text}
 
     def test_emotion_detection_endpoint(self) -> Dict[str, Any]:
-        """Test the emotion detection endpoint"""
+        """Test the emotion detection endpoint."""
         logger.info("Testing emotion detection endpoint...")
 
         try:
@@ -120,7 +121,7 @@ class CloudRunAPITester:
             }
 
     def test_model_loading(self) -> Dict[str, Any]:
-        """Test if models are properly loaded"""
+        """Test if models are properly loaded."""
         logger.info("Testing model loading...")
 
         # Test multiple emotion detection requests to verify model loading
@@ -136,13 +137,14 @@ class CloudRunAPITester:
                         "text_index": i,
                         "success": True,
                         "emotion_detected": bool(
-                            data.get("primary_emotion", {}).get("emotion")
+                            data.get("primary_emotion", {}).get("emotion"),
                         ),
                         "confidence": data.get("primary_emotion", {}).get(
-                            "confidence", 0
+                            "confidence",
+                            0,
                         ),
                         "response_time": 0.0,  # Will be measured in performance test
-                    }
+                    },
                 )
 
             except Exception as e:
@@ -151,7 +153,7 @@ class CloudRunAPITester:
                         "text_index": i,
                         "success": False,
                         "error": str(e),
-                    }
+                    },
                 )
 
         # Analyze results - models are loaded if all requests succeeded
@@ -167,7 +169,7 @@ class CloudRunAPITester:
         }
 
     def test_invalid_inputs(self) -> Dict[str, Any]:
-        """Test invalid input handling"""
+        """Test invalid input handling."""
         logger.info("Testing invalid inputs...")
 
         invalid_test_cases = [
@@ -197,7 +199,7 @@ class CloudRunAPITester:
                         "success": True,
                         "unexpected": True,
                         "response": data,
-                    }
+                    },
                 )
 
             except requests.exceptions.RequestException as e:
@@ -209,7 +211,7 @@ class CloudRunAPITester:
                         "success": False,
                         "expected": True,
                         "error": str(e),
-                    }
+                    },
                 )
             except Exception as e:
                 results.append(
@@ -218,7 +220,7 @@ class CloudRunAPITester:
                         "input": test_case,
                         "success": False,
                         "error": str(e),
-                    }
+                    },
                 )
 
         # Count expected vs unexpected results
@@ -235,7 +237,7 @@ class CloudRunAPITester:
         }
 
     def test_security_features(self) -> Dict[str, Any]:
-        """Test security features like rate limiting and authentication"""
+        """Test security features like rate limiting and authentication."""
         logger.info("Testing security features...")
 
         # Test rate limiting by making multiple rapid requests
@@ -247,13 +249,13 @@ class CloudRunAPITester:
         for i in range(rate_limit_requests):
             try:
                 payload = {"text": f"Test request {i}"}
-                data = self.client.post("/predict", payload)
+                self.client.post("/predict", payload)
                 rapid_requests.append(
                     {
                         "request": i,
                         "success": True,
                         "status": "success",
-                    }
+                    },
                 )
             except requests.exceptions.RequestException as e:
                 if "429" in str(e):
@@ -263,7 +265,7 @@ class CloudRunAPITester:
                             "success": False,
                             "status": "rate_limited",
                             "error": str(e),
-                        }
+                        },
                     )
                 else:
                     rapid_requests.append(
@@ -272,7 +274,7 @@ class CloudRunAPITester:
                             "success": False,
                             "status": "error",
                             "error": str(e),
-                        }
+                        },
                     )
             except Exception as e:
                 rapid_requests.append(
@@ -281,16 +283,16 @@ class CloudRunAPITester:
                         "success": False,
                         "status": "error",
                         "error": str(e),
-                    }
+                    },
                 )
 
         # Check if any requests were rate limited (429 status)
-        rate_limited = any(r.get("status") == "rate_limited" for r in rapid_requests)
+        any(r.get("status") == "rate_limited" for r in rapid_requests)
 
         # Test security headers
         logger.info("Testing security headers...")
         try:
-            data = self.client.get("/")
+            self.client.get("/")
             # Note: We can't easily check headers with our client abstraction
             # This would need to be done with raw requests if needed
             security_headers = {
@@ -313,7 +315,7 @@ class CloudRunAPITester:
         }
 
     def test_performance(self) -> Dict[str, Any]:
-        """Test API performance metrics"""
+        """Test API performance metrics."""
         logger.info("Testing performance...")
 
         performance_results = []
@@ -322,7 +324,7 @@ class CloudRunAPITester:
             try:
                 payload = {"text": text}
                 start_time = time.time()
-                data = self.client.post("/predict", payload)
+                self.client.post("/predict", payload)
                 end_time = time.time()
 
                 performance_results.append(
@@ -330,7 +332,7 @@ class CloudRunAPITester:
                         "request": i,
                         "response_time": end_time - start_time,
                         "success": True,
-                    }
+                    },
                 )
 
             except Exception as e:
@@ -339,7 +341,7 @@ class CloudRunAPITester:
                         "request": i,
                         "error": str(e),
                         "success": False,
-                    }
+                    },
                 )
 
         # Calculate performance metrics
@@ -372,7 +374,7 @@ class CloudRunAPITester:
         }
 
     def run_comprehensive_test(self) -> Dict[str, Any]:
-        """Run all tests and generate comprehensive report"""
+        """Run all tests and generate comprehensive report."""
         logger.info("Starting comprehensive API testing...")
 
         test_results = {
@@ -398,7 +400,7 @@ class CloudRunAPITester:
 
     @staticmethod
     def generate_summary(tests: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a summary of test results"""
+        """Generate a summary of test results."""
         summary = {
             "overall_success": True,
             "passed_tests": 0,
@@ -413,7 +415,7 @@ class CloudRunAPITester:
                 summary["failed_tests"] += 1
                 if test_name in ["health", "model_loading"]:
                     summary["critical_issues"].append(
-                        f"{test_name}: {result.get('error', 'Unknown error')}"
+                        f"{test_name}: {result.get('error', 'Unknown error')}",
                     )
 
         # Check for critical failures
@@ -424,7 +426,7 @@ class CloudRunAPITester:
 
 
 def main():
-    """Main function to run the API tests"""
+    """Main function to run the API tests."""
     # Allow BASE_URL to be set via command line argument or environment variable
     parser = argparse.ArgumentParser(description="Test SAMO Cloud Run API")
     parser.add_argument("--base-url", help="API base URL")

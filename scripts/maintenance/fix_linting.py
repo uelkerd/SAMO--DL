@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick script to fix common Ruff linting issues"""
+"""Quick script to fix common Ruff linting issues."""
 
 import logging
 import re
@@ -10,6 +10,7 @@ def fix_file(file_path: str) -> None:
     """Fix common linting issues in a file.
 
     Args:
+    ----
         file_path: Path to the file to fix
 
     """

@@ -78,54 +78,55 @@ class TestIntegrityChecker(unittest.TestCase):
     def test_calculate_checksum(self):
         """Test checksum calculation."""
         checksum = self.checker.calculate_checksum(self.test_file)
-        self.assertIsInstance(checksum, str)
-        self.assertEqual(len(checksum), 64)  # SHA-256 hex length
+        assert isinstance(checksum, str)
+        assert len(checksum) == 64  # SHA-256 hex length
 
     def test_validate_file_size(self):
         """Test file size validation."""
         is_valid = self.checker.validate_file_size(self.test_file)
-        self.assertTrue(is_valid)
+        assert is_valid
 
     def test_validate_file_extension(self):
         """Test file extension validation."""
         is_valid = self.checker.validate_file_extension(self.test_file)
-        self.assertTrue(is_valid)
+        assert is_valid
 
     def test_scan_for_malicious_content(self):
         """Test malicious content scanning."""
         is_safe, findings = self.checker.scan_for_malicious_content(self.test_file)
-        self.assertTrue(is_safe)
-        self.assertEqual(len(findings), 0)
+        assert is_safe
+        assert len(findings) == 0
 
     def test_verify_checksum(self):
         """Test checksum verification."""
         checksum = self.checker.calculate_checksum(self.test_file)
         is_valid = self.checker.verify_checksum(self.test_file, checksum)
-        self.assertTrue(is_valid)
+        assert is_valid
 
     def test_validate_model_structure(self):
         """Test model structure validation."""
         is_valid = self.checker.validate_model_structure(self.test_file)
-        self.assertTrue(is_valid)
+        assert is_valid
 
     def test_comprehensive_validation(self):
         """Test comprehensive validation."""
         # Create a test file with known checksum for validation
         test_checksum = self.checker.calculate_checksum(self.test_file)
         is_valid, results = self.checker.comprehensive_validation(
-            self.test_file, expected_checksum=test_checksum
+            self.test_file,
+            expected_checksum=test_checksum,
         )
-        self.assertTrue(is_valid)
-        self.assertIn("file_path", results)
-        self.assertIn("size_valid", results)
-        self.assertIn("extension_valid", results)
+        assert is_valid
+        assert "file_path" in results
+        assert "size_valid" in results
+        assert "extension_valid" in results
 
     def test_comprehensive_validation_no_checksum(self):
         """Test comprehensive validation without checksum (should fail)."""
         is_valid, results = self.checker.comprehensive_validation(self.test_file)
-        self.assertFalse(is_valid)  # Should fail without expected checksum
-        self.assertIn("findings", results)
-        self.assertIn("Checksum verification failed", results["findings"])
+        assert not is_valid  # Should fail without expected checksum
+        assert "findings" in results
+        assert "Checksum verification failed" in results["findings"]
 
 
 class TestSandboxExecutor(unittest.TestCase):
@@ -145,8 +146,8 @@ class TestSandboxExecutor(unittest.TestCase):
             return x + y
 
         result, info = self.executor.execute_safely(test_func, 2, 3)
-        self.assertEqual(result, 5)
-        self.assertEqual(info["status"], "success")  # Fixed: actual return value
+        assert result == 5
+        assert info["status"] == "success"  # Fixed: actual return value
         # Note: duration is not returned by the actual implementation
 
     def test_load_model_safely(self):
@@ -163,10 +164,11 @@ class TestSandboxExecutor(unittest.TestCase):
 
             try:
                 result, info = self.executor.load_model_safely(
-                    f.name, TestModel
+                    f.name,
+                    TestModel,
                 )  # Now returns (model, info)
-                self.assertIsInstance(result, TestModel)
-                self.assertIn("status", info)
+                assert isinstance(result, TestModel)
+                assert "status" in info
                 # Note: load_model_safely now returns both model and info dict
             finally:
                 os.unlink(f.name)
@@ -185,7 +187,7 @@ class TestSandboxExecutor(unittest.TestCase):
 
             try:
                 is_valid, info = self.executor.validate_model_safely(f.name)
-                self.assertTrue(is_valid)
+                assert is_valid
             finally:
                 os.unlink(f.name)
 
@@ -206,15 +208,15 @@ class TestModelValidator(unittest.TestCase):
     def test_validate_model_structure(self):
         """Test model structure validation."""
         is_valid, info = self.validator.validate_model_structure(self.test_model)
-        self.assertTrue(is_valid)
-        self.assertIn("model_type", info)
-        self.assertIn("parameter_count", info)
+        assert is_valid
+        assert "model_type" in info
+        assert "parameter_count" in info
 
     def test_validate_model_config(self):
         """Test model configuration validation."""
         is_valid, info = self.validator.validate_model_config(self.test_config)
-        self.assertTrue(is_valid)
-        self.assertIn("config_keys", info)
+        assert is_valid
+        assert "config_keys" in info
 
     def test_validate_model_file(self):
         """Test model file validation."""
@@ -229,8 +231,8 @@ class TestModelValidator(unittest.TestCase):
 
             try:
                 is_valid, info = self.validator.validate_model_file(f.name)
-                self.assertTrue(is_valid)
-                self.assertIn("file_size_mb", info)
+                assert is_valid
+                assert "file_size_mb" in info
             finally:
                 os.unlink(f.name)
 
@@ -245,18 +247,19 @@ class TestModelValidator(unittest.TestCase):
         is_valid, info = self.validator.validate_version_compatibility(test_config)
         # Note: This may fail with current PyTorch version, but that's expected behavior
         # The test validates that the validation logic works correctly
-        self.assertIn("current_versions", info)
-        self.assertIn("required_versions", info)
+        assert "current_versions" in info
+        assert "required_versions" in info
 
     def test_validate_model_performance(self):
         """Test model performance validation."""
         test_input = torch.randn(1, 768)  # BERT hidden size
         is_valid, info = self.validator.validate_model_performance(
-            self.test_model, test_input
+            self.test_model,
+            test_input,
         )
-        self.assertTrue(is_valid)
-        self.assertIn("forward_pass_time", info)
-        self.assertIn("output_shape", info)
+        assert is_valid
+        assert "forward_pass_time" in info
+        assert "output_shape" in info
 
 
 class TestSecureModelLoader(unittest.TestCase):
@@ -308,11 +311,11 @@ class TestSecureModelLoader(unittest.TestCase):
             **self.test_config,  # Provide model configuration
         )
 
-        self.assertIsInstance(model, BERTEmotionClassifier)
-        self.assertIn("loading_time", info)
-        self.assertIn("cache_used", info)
-        self.assertIn("integrity_check", info)
-        self.assertIn("validation", info)
+        assert isinstance(model, BERTEmotionClassifier)
+        assert "loading_time" in info
+        assert "cache_used" in info
+        assert "integrity_check" in info
+        assert "validation" in info
 
     def test_validate_model(self):
         """Test model validation."""
@@ -323,9 +326,9 @@ class TestSecureModelLoader(unittest.TestCase):
             **self.test_config,  # Provide model configuration
         )
 
-        self.assertTrue(is_valid)
-        self.assertIn("integrity_check", info)
-        self.assertIn("validation", info)
+        assert is_valid
+        assert "integrity_check" in info
+        assert "validation" in info
 
     def test_caching(self):
         """Test model caching."""
@@ -336,7 +339,7 @@ class TestSecureModelLoader(unittest.TestCase):
             expected_checksum=self.model_checksum,  # Provide checksum
             **self.test_config,  # Provide model configuration
         )
-        self.assertFalse(info1["cache_used"])
+        assert not info1["cache_used"]
 
         # Load model second time (should use cache)
         model2, info2 = self.loader.load_model(
@@ -345,14 +348,14 @@ class TestSecureModelLoader(unittest.TestCase):
             expected_checksum=self.model_checksum,  # Provide checksum
             **self.test_config,  # Provide model configuration
         )
-        self.assertTrue(info2["cache_used"])
+        assert info2["cache_used"]
 
     def test_get_cache_info(self):
         """Test cache information retrieval."""
         cache_info = self.loader.get_cache_info()
-        self.assertIn("enabled", cache_info)
-        self.assertIn("cache_dir", cache_info)
-        self.assertIn("cache_size_mb", cache_info)
+        assert "enabled" in cache_info
+        assert "cache_dir" in cache_info
+        assert "cache_size_mb" in cache_info
 
     def test_clear_cache(self):
         """Test cache clearing."""
@@ -369,7 +372,7 @@ class TestSecureModelLoader(unittest.TestCase):
 
         # Check cache is empty
         cache_info = self.loader.get_cache_info()
-        self.assertEqual(cache_info["cached_models"], 0)
+        assert cache_info["cached_models"] == 0
 
     def test_cleanup(self):
         """Test cleanup functionality."""
@@ -433,21 +436,21 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         )
 
         # Verify model loaded successfully
-        self.assertIsInstance(model, BERTEmotionClassifier)
-        self.assertTrue(info["loading_time"] > 0)
+        assert isinstance(model, BERTEmotionClassifier)
+        assert info["loading_time"] > 0
 
         # Verify security checks were performed
-        self.assertIn("integrity_check", info)
-        self.assertIn("validation", info)
-        self.assertIn("sandbox_execution", info)
+        assert "integrity_check" in info
+        assert "validation" in info
+        assert "sandbox_execution" in info
 
         # Verify no issues
-        self.assertEqual(len(info["issues"]), 0)
+        assert len(info["issues"]) == 0
 
         # Test model inference
         with torch.no_grad():
             output = model(test_input)
-        self.assertEqual(output.shape, (1, 5))
+        assert output.shape == (1, 5)
 
     def test_corrupted_model_file_handling(self):
         """Test loading a corrupted or tampered model file."""
@@ -470,7 +473,7 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
             self.fail("Should have raised an exception for corrupted model")
         except Exception as e:
             # Verify that the error is properly handled
-            self.assertIsInstance(e, Exception)
+            assert isinstance(e, Exception)
 
         # Create a tampered model file (valid torch file but with malicious content)
         tampered_model_file = os.path.join(self.temp_dir, "tampered_model.pt")
@@ -498,10 +501,10 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
                 output_size=5,
             )
             # Should detect tampering or suspicious content
-            self.assertGreater(len(info["issues"]), 0)
+            assert len(info["issues"]) > 0
         except Exception as e:
             # Exception is also acceptable for tampered models
-            self.assertIsInstance(e, Exception)
+            assert isinstance(e, Exception)
 
     def test_audit_logging(self):
         """Test audit logging functionality."""
@@ -515,12 +518,12 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
 
         # Check audit log file exists
         audit_log_path = os.path.join(self.temp_dir, "audit.log")
-        self.assertTrue(os.path.exists(audit_log_path))
+        assert os.path.exists(audit_log_path)
 
         # Check audit log contains entries
         with open(audit_log_path) as f:
             log_content = f.read()
-            self.assertIn("AUDIT:", log_content)
+            assert "AUDIT:" in log_content
 
 
 if __name__ == "__main__":

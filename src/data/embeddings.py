@@ -29,9 +29,11 @@ class BaseEmbedder:
         """Fit the embedding model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
@@ -42,9 +44,11 @@ class BaseEmbedder:
         """Transform texts into embeddings.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of embeddings
 
         """
@@ -55,9 +59,11 @@ class BaseEmbedder:
         """Fit the model and transform texts into embeddings.
 
         Args:
+        ----
             texts: List of texts to fit and transform
 
         Returns:
+        -------
             Array of embeddings
 
         """
@@ -77,6 +83,7 @@ class TfidfEmbedder(BaseEmbedder):
         """Initialize TF-IDF embedder.
 
         Args:
+        ----
             max_features: Maximum number of features (vocabulary size)
             min_df: Minimum document frequency for terms
             max_df: Maximum document frequency for terms
@@ -99,9 +106,11 @@ class TfidfEmbedder(BaseEmbedder):
         """Fit the TF-IDF vectorizer on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the vectorizer on
 
         Returns:
+        -------
             Self for chaining
 
         """
@@ -120,9 +129,11 @@ class TfidfEmbedder(BaseEmbedder):
         """Transform texts into TF-IDF embeddings.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of TF-IDF embeddings
 
         """
@@ -148,6 +159,7 @@ class Word2VecEmbedder(BaseEmbedder):
         """Initialize Word2Vec embedder.
 
         Args:
+        ----
             vector_size: Dimensionality of word vectors
             window: Maximum distance between current and predicted word
             min_count: Minimum word count
@@ -169,9 +181,11 @@ class Word2VecEmbedder(BaseEmbedder):
         """Preprocess texts for Word2Vec training.
 
         Args:
+        ----
             texts: List of texts to preprocess
 
         Returns:
+        -------
             List of tokenized texts
 
         """
@@ -181,14 +195,17 @@ class Word2VecEmbedder(BaseEmbedder):
         """Fit Word2Vec model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
         logger.info(
-            "Preprocessing {len(texts)} texts for Word2Vec", extra={"format_args": True}
+            "Preprocessing {len(texts)} texts for Word2Vec",
+            extra={"format_args": True},
         )
         tokenized_texts = self._preprocess_texts(texts)
 
@@ -214,9 +231,11 @@ class Word2VecEmbedder(BaseEmbedder):
         """Transform texts into Word2Vec embeddings by averaging word vectors.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of averaged Word2Vec embeddings
 
         """
@@ -248,14 +267,17 @@ class FastTextEmbedder(Word2VecEmbedder):
         """Fit FastText model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
         logger.info(
-            "Preprocessing {len(texts)} texts for FastText", extra={"format_args": True}
+            "Preprocessing {len(texts)} texts for FastText",
+            extra={"format_args": True},
         )
         tokenized_texts = self._preprocess_texts(texts)
 
@@ -285,6 +307,7 @@ class EmbeddingPipeline:
         """Initialize embedding pipeline.
 
         Args:
+        ----
             embedder: Text embedder to use
 
         """
@@ -299,11 +322,13 @@ class EmbeddingPipeline:
         """Generate embeddings for texts in a DataFrame.
 
         Args:
+        ----
             df: DataFrame containing texts
             text_column: Name of column containing processed texts
             id_column: Name of column containing unique identifiers
 
         Returns:
+        -------
             DataFrame with text IDs and embeddings
 
         """
@@ -314,7 +339,8 @@ class EmbeddingPipeline:
         texts = df[text_column].tolist()
 
         logger.info(
-            "Generating embeddings for {len(texts)} texts", extra={"format_args": True}
+            "Generating embeddings for {len(texts)} texts",
+            extra={"format_args": True},
         )
         embeddings = self.embedder.fit_transform(texts)
 
@@ -331,11 +357,14 @@ class EmbeddingPipeline:
         )
 
     def save_embeddings_to_csv(
-        self, embeddings_df: pd.DataFrame, output_path: str
+        self,
+        embeddings_df: pd.DataFrame,
+        output_path: str,
     ) -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:
+        ----
             embeddings_df: DataFrame containing entry IDs and embeddings
             output_path: Path to save the CSV file
 

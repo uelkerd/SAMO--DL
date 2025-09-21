@@ -5,7 +5,8 @@ Usage:
   BASE_URL="http://127.0.0.1:8000" python scripts/testing/smoke_local.py
   python scripts/testing/smoke_local.py --base-url https://YOUR-SERVICE-url.run.app
 
-Notes:
+Notes
+-----
 - Sets User-Agent: testclient to bypass local rate limiting.
 - Mints a short-lived elevated JWT for endpoints requiring special permissions.
 - Keeps output minimal: endpoint, status, brief detail.

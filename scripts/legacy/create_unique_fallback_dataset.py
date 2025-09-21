@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE UNIQUE FALLBACK DATASET
+"""🚀 CREATE UNIQUE FALLBACK DATASET.
 =================================
 Generate a diverse, unique fallback dataset with NO DUPLICATES.
 Each sample must be completely different from all others.
@@ -10,7 +10,7 @@ import random
 
 
 def create_unique_fallback_dataset():
-    """Create a unique fallback dataset with no duplicates"""
+    """Create a unique fallback dataset with no duplicates."""
     # Define unique templates for each emotion with variations
     emotion_templates = {
         "happy": [
@@ -193,7 +193,7 @@ def create_unique_fallback_dataset():
                     "text": template,
                     "emotion": emotion,
                     "sample_id": f"{emotion}_{i + 1}",
-                }
+                },
             )
 
     # Shuffle the samples for better training

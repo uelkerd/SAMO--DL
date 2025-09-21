@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""
-Debug script to isolate the 'int' object is not callable error
-"""
+"""Debug script to isolate the 'int' object is not callable error"""
 
-import sys
 import os
+import sys
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -14,6 +12,7 @@ print("🔍 Starting API import debug...")
 try:
     print("1. Importing Flask...")
     from flask import Flask
+
     print("✅ Flask imported successfully")
 except Exception as e:
     print(f"❌ Flask import failed: {e}")
@@ -22,6 +21,7 @@ except Exception as e:
 try:
     print("2. Importing Flask-RESTX...")
     from flask_restx import Api, Namespace
+
     print("✅ Flask-RESTX imported successfully")
 except Exception as e:
     print(f"❌ Flask-RESTX import failed: {e}")
@@ -39,9 +39,9 @@ try:
     print("4. Creating API object...")
     api = Api(
         app,
-        version='1.0.0',
-        title='Test API',
-        description='Test API for debugging'
+        version="1.0.0",
+        title="Test API",
+        description="Test API for debugging",
     )
     print(f"✅ API object created successfully: {type(api)}")
     print(f"API object: {api}")
@@ -51,9 +51,11 @@ except Exception as e:
 
 try:
     print("5. Testing API decorator...")
+
     @api.errorhandler(429)
     def test_handler(error):
         return {"error": "test"}, 429
+
     print("✅ API decorator test successful")
 except Exception as e:
     print(f"❌ API decorator test failed: {e}")
@@ -63,7 +65,7 @@ except Exception as e:
 
 try:
     print("6. Testing namespace creation...")
-    test_ns = Namespace('test', description='Test namespace')
+    test_ns = Namespace("test", description="Test namespace")
     api.add_namespace(test_ns)
     print("✅ Namespace test successful")
 except Exception as e:

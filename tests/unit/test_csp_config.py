@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🧪 CSP Configuration Tests
+"""🧪 CSP Configuration Tests.
 ==========================
 Tests for Content Security Policy configuration and loading.
 """
@@ -54,8 +54,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
                 # Check that CSP was loaded from config
                 csp_policy = middleware._build_csp_policy()
-                self.assertIn("script-src 'self' 'nonce-test'", csp_policy)
-                self.assertIn("style-src 'self'", csp_policy)
+                assert "script-src 'self' 'nonce-test'" in csp_policy
+                assert "style-src 'self'" in csp_policy
 
         finally:
             # Clean up
@@ -65,18 +65,19 @@ class TestCSPConfiguration(unittest.TestCase):
         """Test that CSP falls back to secure default when config file is missing."""
         # Mock file not found
         with patch(
-            "builtins.open", side_effect=FileNotFoundError("Config file not found")
+            "builtins.open",
+            side_effect=FileNotFoundError("Config file not found"),
         ):
             middleware = SecurityHeadersMiddleware(self.app, self.config)
 
             # Check that secure default is used
             csp_policy = middleware._build_csp_policy()
-            self.assertIn("default-src 'self'", csp_policy)
-            self.assertIn("script-src 'self'", csp_policy)
-            self.assertIn("style-src 'self'", csp_policy)
-            self.assertIn("object-src 'none'", csp_policy)
-            self.assertIn("base-uri 'self'", csp_policy)
-            self.assertIn("form-action 'self'", csp_policy)
+            assert "default-src 'self'" in csp_policy
+            assert "script-src 'self'" in csp_policy
+            assert "style-src 'self'" in csp_policy
+            assert "object-src 'none'" in csp_policy
+            assert "base-uri 'self'" in csp_policy
+            assert "form-action 'self'" in csp_policy
 
     def test_csp_fallback_on_invalid_yaml(self):
         """Test that CSP falls back to secure default when YAML is invalid."""
@@ -92,8 +93,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
                 # Check that secure default is used
                 csp_policy = middleware._build_csp_policy()
-                self.assertIn("default-src 'self'", csp_policy)
-                self.assertIn("script-src 'self'", csp_policy)
+                assert "default-src 'self'" in csp_policy
+                assert "script-src 'self'" in csp_policy
 
         finally:
             # Clean up
@@ -122,8 +123,8 @@ class TestCSPConfiguration(unittest.TestCase):
 
                 # Check that secure default is used
                 csp_policy = middleware._build_csp_policy()
-                self.assertIn("default-src 'self'", csp_policy)
-                self.assertIn("script-src 'self'", csp_policy)
+                assert "default-src 'self'" in csp_policy
+                assert "script-src 'self'" in csp_policy
 
         finally:
             # Clean up
@@ -135,18 +136,18 @@ class TestCSPConfiguration(unittest.TestCase):
         csp_policy = middleware._build_csp_policy()
 
         # Check that policy is a string
-        self.assertIsInstance(csp_policy, str)
+        assert isinstance(csp_policy, str)
 
         # Check that policy contains required directives
         directives = csp_policy.split("; ")
-        self.assertGreater(len(directives), 5)  # Should have multiple directives
+        assert len(directives) > 5  # Should have multiple directives
 
         # Check for required directives
         directive_names = [d.split(" ")[0] for d in directives]
-        self.assertIn("default-src", directive_names)
-        self.assertIn("script-src", directive_names)
-        self.assertIn("style-src", directive_names)
-        self.assertIn("object-src", directive_names)
+        assert "default-src" in directive_names
+        assert "script-src" in directive_names
+        assert "style-src" in directive_names
+        assert "object-src" in directive_names
 
     def test_csp_policy_security(self):
         """Test that CSP policy contains secure defaults."""
@@ -154,13 +155,13 @@ class TestCSPConfiguration(unittest.TestCase):
         csp_policy = middleware._build_csp_policy()
 
         # Check for secure defaults
-        self.assertIn("object-src 'none'", csp_policy)  # No plugins
-        self.assertIn("base-uri 'self'", csp_policy)  # Restrict base URI
-        self.assertIn("form-action 'self'", csp_policy)  # Restrict form submissions
+        assert "object-src 'none'" in csp_policy  # No plugins
+        assert "base-uri 'self'" in csp_policy  # Restrict base URI
+        assert "form-action 'self'" in csp_policy  # Restrict form submissions
 
         # Should NOT contain unsafe directives
-        self.assertNotIn("'unsafe-inline'", csp_policy)
-        self.assertNotIn("'unsafe-eval'", csp_policy)
+        assert "'unsafe-inline'" not in csp_policy
+        assert "'unsafe-eval'" not in csp_policy
 
     def test_csp_disabled_when_config_disabled(self):
         """Test that CSP is not added when disabled in config."""
@@ -180,7 +181,7 @@ class TestCSPConfiguration(unittest.TestCase):
         middleware._add_security_headers(response)
 
         # Check that CSP header is not set
-        self.assertNotIn("Content-Security-Policy", response.headers)
+        assert "Content-Security-Policy" not in response.headers
 
     def test_csp_header_set_when_enabled(self):
         """Test that CSP header is set when enabled."""
@@ -195,10 +196,10 @@ class TestCSPConfiguration(unittest.TestCase):
         middleware._add_security_headers(response)
 
         # Check that CSP header is set
-        self.assertIn("Content-Security-Policy", response.headers)
+        assert "Content-Security-Policy" in response.headers
         csp_value = response.headers["Content-Security-Policy"]
-        self.assertIsInstance(csp_value, str)
-        self.assertGreater(len(csp_value), 0)
+        assert isinstance(csp_value, str)
+        assert len(csp_value) > 0
 
     def test_enhanced_csp_policy_directives(self):
         """Test that enhanced CSP policy contains all required security directives."""
@@ -224,11 +225,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all directives in a single loop
         for directive, description in required_directives:
-            self.assertIn(
-                directive,
-                csp_policy,
-                f"Missing CSP directive: {description} ({directive})",
-            )
+            assert (
+                directive in csp_policy
+            ), f"Missing CSP directive: {description} ({directive})"
 
     def test_csp_policy_production_ready(self):
         """Test that CSP policy is production-ready with comprehensive security."""
@@ -247,11 +246,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all production security features in a single loop
         for directive, description in production_security:
-            self.assertIn(
-                directive,
-                csp_policy,
-                f"Production security missing: {description} ({directive})",
-            )
+            assert (
+                directive in csp_policy
+            ), f"Production security missing: {description} ({directive})"
 
 
 if __name__ == "__main__":

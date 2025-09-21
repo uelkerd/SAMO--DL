@@ -1,5 +1,4 @@
-"""
-Secure Model Loader for SAMO Deep Learning.
+"""Secure Model Loader for SAMO Deep Learning.
 
 This module provides the main secure model loading interface that integrates
 all security components: integrity checking, sandboxed execution, and validation.
@@ -11,11 +10,11 @@ import time
 from typing import Any, Dict, Optional, Tuple, Type
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .integrity_checker import IntegrityChecker
-from .sandbox_executor import SandboxExecutor
 from .model_validator import ModelValidator
+from .sandbox_executor import SandboxExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -43,12 +42,14 @@ class SecureModelLoader:
         """Initialize secure model loader.
 
         Args:
+        ----
             trusted_checksums_file: Path to trusted checksums file
             enable_sandbox: Whether to enable sandboxed execution
             enable_caching: Whether to enable model caching
             cache_dir: Directory for model cache
             max_cache_size_mb: Maximum cache size in MB
             audit_log_file: Path to audit log file
+
         """
         self.enable_sandbox = enable_sandbox
         self.enable_caching = enable_caching
@@ -75,8 +76,10 @@ class SecureModelLoader:
     def _setup_audit_logger(self) -> logging.Logger:
         """Set up audit logger.
 
-        Returns:
+        Returns
+        -------
             Configured audit logger
+
         """
         audit_logger = logging.getLogger("secure_model_loader.audit")
         audit_logger.setLevel(logging.INFO)
@@ -84,7 +87,7 @@ class SecureModelLoader:
         if self.audit_log_file:
             handler = logging.FileHandler(self.audit_log_file)
             formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             )
             handler.setFormatter(formatter)
             audit_logger.addHandler(handler)
@@ -95,8 +98,10 @@ class SecureModelLoader:
         """Log audit event.
 
         Args:
+        ----
             event_type: Type of audit event
             details: Event details
+
         """
         audit_entry = {
             "timestamp": time.time(),
@@ -111,12 +116,15 @@ class SecureModelLoader:
         """Generate cache key for model.
 
         Args:
+        ----
             model_path: Path to model file
             model_class: Model class
             **kwargs: Model parameters
 
         Returns:
+        -------
             Cache key string
+
         """
         import hashlib
 
@@ -128,10 +136,13 @@ class SecureModelLoader:
         """Check if model is cached.
 
         Args:
+        ----
             cache_key: Cache key
 
         Returns:
+        -------
             True if model is cached
+
         """
         if not self.enable_caching:
             return False
@@ -142,10 +153,13 @@ class SecureModelLoader:
         """Load model from cache.
 
         Args:
+        ----
             cache_key: Cache key
 
         Returns:
+        -------
             Cached model or None
+
         """
         if not self.enable_caching or cache_key not in self.model_cache:
             return None
@@ -158,8 +172,10 @@ class SecureModelLoader:
         """Save model to cache.
 
         Args:
+        ----
             cache_key: Cache key
             model: Model to cache
+
         """
         if not self.enable_caching:
             return
@@ -186,7 +202,8 @@ class SecureModelLoader:
         }
 
         self._log_audit_event(
-            "cache_save", {"cache_key": cache_key, "cache_file": cache_file}
+            "cache_save",
+            {"cache_key": cache_key, "cache_file": cache_file},
         )
 
     def _clear_cache(self):
@@ -195,7 +212,7 @@ class SecureModelLoader:
             return
 
         # Remove cache files
-        for cache_key, metadata in self.cache_metadata.items():
+        for _cache_key, metadata in self.cache_metadata.items():
             if os.path.exists(metadata["file_path"]):
                 os.remove(metadata["file_path"])
 
@@ -216,6 +233,7 @@ class SecureModelLoader:
         """Load model securely.
 
         Args:
+        ----
             model_path: Path to model file
             model_class: Model class to instantiate
             expected_checksum: Expected checksum for integrity verification
@@ -223,7 +241,9 @@ class SecureModelLoader:
             **kwargs: Additional arguments for model class
 
         Returns:
+        -------
             Tuple of (loaded_model, loading_info)
+
         """
         start_time = time.time()
         loading_info: Dict[str, Any] = {
@@ -261,7 +281,8 @@ class SecureModelLoader:
             logger.info(f"Performing integrity check for {model_path}")
             integrity_valid, integrity_info = (
                 self.integrity_checker.comprehensive_validation(
-                    model_path, expected_checksum
+                    model_path,
+                    expected_checksum,
                 )
             )
             loading_info["integrity_check"] = integrity_info
@@ -269,7 +290,7 @@ class SecureModelLoader:
             if not integrity_valid:
                 loading_info["issues"].extend(integrity_info["findings"])
                 raise ValueError(
-                    f"Integrity check failed: {integrity_info['findings']}"
+                    f"Integrity check failed: {integrity_info['findings']}",
                 )
 
             # 2. Model validation
@@ -280,7 +301,10 @@ class SecureModelLoader:
             }
             validation_valid, validation_info = (
                 self.model_validator.comprehensive_validation(
-                    model_path, model_class, model_config, test_input
+                    model_path,
+                    model_class,
+                    model_config,
+                    test_input,
                 )
             )
             loading_info["validation"] = validation_info
@@ -288,20 +312,24 @@ class SecureModelLoader:
             if not validation_valid:
                 loading_info["issues"].extend(validation_info["issues"])
                 raise ValueError(
-                    f"Model validation failed: {validation_info['issues']}"
+                    f"Model validation failed: {validation_info['issues']}",
                 )
 
             # 3. Load model (with or without sandbox)
             logger.info(f"Loading model {model_path}")
             if self.enable_sandbox and self.sandbox_executor:
                 model, sandbox_info = self.sandbox_executor.load_model_safely(
-                    model_path, model_class, **kwargs
+                    model_path,
+                    model_class,
+                    **kwargs,
                 )
                 loading_info["sandbox_execution"] = sandbox_info
             else:
                 # Load without sandbox (less secure but faster)
                 model_data = torch.load(
-                    model_path, map_location="cpu", weights_only=True
+                    model_path,
+                    map_location="cpu",
+                    weights_only=True,
                 )
 
                 # Filter kwargs to only include valid constructor parameters
@@ -336,7 +364,7 @@ class SecureModelLoader:
             )
 
             logger.info(
-                f"Model loaded successfully in {loading_info['loading_time']:.2f}s"
+                f"Model loaded successfully in {loading_info['loading_time']:.2f}s",
             )
             return model, loading_info
 
@@ -353,7 +381,7 @@ class SecureModelLoader:
                 },
             )
 
-            logger.error(f"Failed to load model {model_path}: {e}")
+            logger.exception(f"Failed to load model {model_path}: {e}")
             raise
 
     def validate_model(
@@ -367,13 +395,16 @@ class SecureModelLoader:
         """Validate model without loading it.
 
         Args:
+        ----
             model_path: Path to model file
             model_class: Model class
             test_input: Optional test input
             **kwargs: Model parameters
 
         Returns:
+        -------
             Tuple of (is_valid, validation_info)
+
         """
         validation_info: Dict[str, Any] = {
             "model_path": model_path,
@@ -387,7 +418,8 @@ class SecureModelLoader:
             # Integrity check
             integrity_valid, integrity_info = (
                 self.integrity_checker.comprehensive_validation(
-                    model_path, expected_checksum
+                    model_path,
+                    expected_checksum,
                 )
             )
             validation_info["integrity_check"] = integrity_info
@@ -401,7 +433,10 @@ class SecureModelLoader:
             }
             validation_valid, model_validation_info = (
                 self.model_validator.comprehensive_validation(
-                    model_path, model_class, model_config, test_input
+                    model_path,
+                    model_class,
+                    model_config,
+                    test_input,
                 )
             )
             validation_info["validation"] = model_validation_info
@@ -428,7 +463,8 @@ class SecureModelLoader:
             validation_info["overall_valid"] = False
 
             self._log_audit_event(
-                "model_validation_failed", {"model_path": model_path, "error": str(e)}
+                "model_validation_failed",
+                {"model_path": model_path, "error": str(e)},
             )
 
             return False, validation_info
@@ -436,8 +472,10 @@ class SecureModelLoader:
     def get_cache_info(self) -> Dict[str, Any]:
         """Get cache information.
 
-        Returns:
+        Returns
+        -------
             Cache information dictionary
+
         """
         if not self.enable_caching:
             return {"enabled": False}

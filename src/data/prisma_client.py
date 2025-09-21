@@ -27,12 +27,15 @@ class PrismaClient:
         """Execute a Node.js script that uses Prisma client.
 
         Args:
+        ----
             script (str): The JavaScript code to execute
 
         Returns:
+        -------
             Dict[str, Any]: The result of the operation as a dictionary
 
         Raises:
+        ------
             Exception: If the script execution fails
 
         """
@@ -84,11 +87,13 @@ main();
         """Create a new user.
 
         Args:
+        ----
             email (str): User's email
             password_hash (str): Hashed password
             consent_version (str, optional): Version of consent the user agreed to
 
         Returns:
+        -------
             Dict[str, Any]: Created user data
 
         """
@@ -115,12 +120,14 @@ main();
         """Create a new journal entry.
 
         Args:
+        ----
             user_id (str): ID of the user who owns this entry
             title (str): Entry title
             content (str): Entry content
             is_private (bool): Whether the entry is private
 
         Returns:
+        -------
             Dict[str, Any]: Created journal entry data
 
         """
@@ -146,9 +153,11 @@ main();
         """Get a user by email.
 
         Args:
+        ----
             email (str): Email to lookup
 
         Returns:
+        -------
             Optional[Dict[str, Any]]: User data or None if not found
 
         """
@@ -162,15 +171,19 @@ main();
         return result if result else None
 
     def get_journal_entries_by_user(
-        self, user_id: str, limit: int = 10
+        self,
+        user_id: str,
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
+        ----
             user_id (str): User ID
             limit (int): Maximum number of entries to return
 
         Returns:
+        -------
             List[Dict[str, Any]]: List of journal entries
 
         """

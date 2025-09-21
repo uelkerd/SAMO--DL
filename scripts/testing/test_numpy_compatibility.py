@@ -6,7 +6,8 @@ import sys
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -40,24 +41,24 @@ def test_numpy_compatibility():
             logger.info("✅ Transformers import successful")
         except ImportError as e:
             if "broadcast_to" in str(e):
-                logger.error("❌ Still getting broadcast_to error after fix")
+                logger.exception("❌ Still getting broadcast_to error after fix")
                 return False
-            logger.error(f"❌ Other transformers import error: {e}")
+            logger.exception(f"❌ Other transformers import error: {e}")
             return False
 
         # Test 4: Test basic transformers functionality
         try:
-            tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+            AutoTokenizer.from_pretrained("bert-base-uncased")
             logger.info("✅ Tokenizer loading successful")
         except Exception as e:
-            logger.error(f"❌ Tokenizer loading failed: {e}")
+            logger.exception(f"❌ Tokenizer loading failed: {e}")
             return False
 
         logger.info("🎉 All numpy compatibility tests passed!")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Test failed: {e}")
+        logger.exception(f"❌ Test failed: {e}")
         return False
 
 

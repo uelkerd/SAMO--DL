@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focal Loss Training Script
+"""Focal Loss Training Script.
 
 Training script using focal loss for emotion detection.
 """
@@ -30,7 +30,8 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,10 @@ class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
     def __init__(
-        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+        self,
+        alpha: float = 0.25,
+        gamma: float = 2.0,
+        reduction: str = "mean",
     ):
         super().__init__()
         self.alpha = alpha
@@ -49,7 +53,9 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
 
         pt = torch.exp(-bce_loss)
@@ -81,7 +87,7 @@ def train_with_focal_loss():
         train_raw = datasets["train"]
         val_raw = datasets["validation"]
         test_raw = datasets["test"]
-        class_weights = datasets["class_weights"]
+        datasets["class_weights"]
 
         train_texts = [item["text"] for item in train_raw]
         train_labels = [item["labels"] for item in train_raw]
@@ -95,11 +101,17 @@ def train_with_focal_loss():
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
         train_dataset = EmotionDataset(
-            train_texts, train_labels, tokenizer, max_length=512
+            train_texts,
+            train_labels,
+            tokenizer,
+            max_length=512,
         )
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        test_dataset = EmotionDataset(
-            test_texts, test_labels, tokenizer, max_length=512
+        EmotionDataset(
+            test_texts,
+            test_labels,
+            tokenizer,
+            max_length=512,
         )
 
         logger.info("Dataset loaded successfully:")
@@ -120,10 +132,14 @@ def train_with_focal_loss():
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
         train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=16, shuffle=True
+            train_dataset,
+            batch_size=16,
+            shuffle=True,
         )
         val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=16, shuffle=False
+            val_dataset,
+            batch_size=16,
+            shuffle=False,
         )
 
         best_val_loss = float("in")
@@ -210,13 +226,13 @@ def train_with_focal_loss():
         logger.info("🎉 Focal Loss Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info(
-            "   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt"
+            "   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt",
         )
 
         return True
 
     except Exception:
-        logger.error("❌ Training failed: {e}")
+        logger.exception("❌ Training failed: {e}")
         traceback.print_exc()
         return False
 

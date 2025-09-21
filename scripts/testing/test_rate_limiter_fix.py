@@ -59,7 +59,8 @@ async def test_token_refill_logic():
 
     rate_limiter._refill_bucket(client_key)
     logger.info(
-        "✅ After simulating time passing: tokens=%s", rate_limiter.buckets[client_key]
+        "✅ After simulating time passing: tokens=%s",
+        rate_limiter.buckets[client_key],
     )
 
     allowed_final, _, _ = rate_limiter.allow_request(request.client.host, "")

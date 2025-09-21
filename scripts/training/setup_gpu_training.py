@@ -74,7 +74,7 @@ def check_gpu_availability() -> bool:
         logging.info("   • Use batch_size=32 (you have {memory_total:.1f}GB memory)")
         logging.info("   • Enable mixed precision training (fp16)")
         logging.info(
-            "   • Consider gradient accumulation for larger effective batch sizes"
+            "   • Consider gradient accumulation for larger effective batch sizes",
         )
     elif memory_total >= 8:  # 8-12GB GPU
         logging.info("   • Use batch_size=16-24 (you have {memory_total:.1f}GB memory)")
@@ -190,10 +190,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="SAMO GPU Training Setup")
     parser.add_argument("--check", action="store_true", help="Check GPU availability")
     parser.add_argument(
-        "--create-config", action="store_true", help="Create GPU training config"
+        "--create-config",
+        action="store_true",
+        help="Create GPU training config",
     )
     parser.add_argument(
-        "--resume-training", action="store_true", help="Resume training on GPU"
+        "--resume-training",
+        action="store_true",
+        help="Resume training on GPU",
     )
     parser.add_argument("--checkpoint", type=str, help="Checkpoint path for resuming")
 

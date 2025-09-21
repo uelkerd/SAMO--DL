@@ -55,7 +55,10 @@ class FocalLoss(nn.Module):
     """Focal Loss implementation for multi-label classification."""
 
     def __init__(
-        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+        self,
+        alpha: float = 0.25,
+        gamma: float = 2.0,
+        reduction: str = "mean",
     ):
         super().__init__()
         self.alpha = alpha
@@ -66,10 +69,12 @@ class FocalLoss(nn.Module):
         """Compute focal loss.
 
         Args:
+        ----
             inputs: Model predictions (logits)
             targets: Ground truth labels
 
         Returns:
+        -------
             Focal loss value
 
         """
@@ -103,6 +108,7 @@ def train_with_focal_loss(
     """Train emotion detection model with Focal Loss.
 
     Args:
+    ----
         gamma: Focal loss gamma parameter (focusing parameter)
         alpha: Focal loss alpha parameter (class balancing)
         learning_rate: Learning rate for training
@@ -112,6 +118,7 @@ def train_with_focal_loss(
         output_dir: Directory to save model checkpoints
 
     Returns:
+    -------
         Training results dictionary
 
     """
@@ -139,7 +146,7 @@ def train_with_focal_loss(
         logger.info("   • Test: {len(test_dataset)} examples")
 
     except Exception:
-        logger.error("Failed to load dataset: {e}")
+        logger.exception("Failed to load dataset: {e}")
         raise
 
     logger.info("🤖 Creating BERT model...")
@@ -155,10 +162,14 @@ def train_with_focal_loss(
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
     )
     val_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=batch_size, shuffle=False
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=False,
     )
 
     best_val_loss = float("in")
@@ -271,21 +282,33 @@ def train_with_focal_loss(
 def main():
     """Main function to run focal loss training."""
     parser = argparse.ArgumentParser(
-        description="Train emotion detection with Focal Loss"
+        description="Train emotion detection with Focal Loss",
     )
     parser.add_argument(
-        "--gamma", type=float, default=2.0, help="Focal loss gamma parameter"
+        "--gamma",
+        type=float,
+        default=2.0,
+        help="Focal loss gamma parameter",
     )
     parser.add_argument(
-        "--alpha", type=float, default=0.25, help="Focal loss alpha parameter"
+        "--alpha",
+        type=float,
+        default=0.25,
+        help="Focal loss alpha parameter",
     )
     parser.add_argument("--lr", type=float, default=2e-5, help="Learning rate")
     parser.add_argument(
-        "--epochs", type=int, default=3, help="Number of training epochs"
+        "--epochs",
+        type=int,
+        default=3,
+        help="Number of training epochs",
     )
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size")
     parser.add_argument(
-        "--max_length", type=int, default=512, help="Maximum sequence length"
+        "--max_length",
+        type=int,
+        default=512,
+        help="Maximum sequence length",
     )
     parser.add_argument(
         "--output_dir",

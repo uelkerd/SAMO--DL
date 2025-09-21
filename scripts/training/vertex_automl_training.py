@@ -33,13 +33,14 @@ Trains an AutoML model for emotion detection with F1 score optimization
 """
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
 class SAMOVertexAutoMLTraining:
-    """Handles Vertex AI AutoML training for emotion detection"""
+    """Handles Vertex AI AutoML training for emotion detection."""
 
     def __init__(self, project_id: str, bucket_name: str):
         self.project_id = project_id
@@ -52,7 +53,7 @@ class SAMOVertexAutoMLTraining:
         logger.info("Initialized Vertex AI for project: {project_id}")
 
     def load_metadata(self) -> dict:
-        """Load training metadata"""
+        """Load training metadata."""
         storage_client = storage.Client(project=self.project_id)
         bucket = storage_client.bucket(self.bucket_name)
         blob = bucket.blob("vertex_ai_data/metadata.json")
@@ -62,7 +63,7 @@ class SAMOVertexAutoMLTraining:
         return metadata
 
     def check_csv_structure(self) -> str:
-        """Check the actual CSV structure to find the target column"""
+        """Check the actual CSV structure to find the target column."""
         storage_client = storage.Client(project=self.project_id)
         bucket = storage_client.bucket(self.bucket_name)
         blob = bucket.blob("vertex_ai_data/train_data.csv")
@@ -85,7 +86,7 @@ class SAMOVertexAutoMLTraining:
         return target_column
 
     def create_dataset(self, metadata: dict) -> Optional[str]:
-        """Create Vertex AI dataset"""
+        """Create Vertex AI dataset."""
         dataset_display_name = "samo-emotion-dataset-{int(time.time())}"
 
         dataset = aiplatform.TextDataset.create(
@@ -100,7 +101,7 @@ class SAMOVertexAutoMLTraining:
         return self.dataset_id
 
     def train_model(self, dataset_id: str, metadata: dict) -> Optional[str]:
-        """Train AutoML model"""
+        """Train AutoML model."""
         model_display_name = "samo-emotion-model-{int(time.time())}"
 
         target_column = self.check_csv_structure()
@@ -129,7 +130,7 @@ class SAMOVertexAutoMLTraining:
         return self.model_id
 
     def monitor_training(self, model_id: str) -> Optional[dict]:
-        """Monitor training progress"""
+        """Monitor training progress."""
         logger.info("Monitoring training progress...")
 
         while True:
@@ -155,7 +156,7 @@ class SAMOVertexAutoMLTraining:
         }
 
     def deploy_model(self, model_id: str) -> str:
-        """Deploy model to endpoint"""
+        """Deploy model to endpoint."""
         endpoint_display_name = "samo-emotion-endpoint-{int(time.time())}"
 
         endpoint = aiplatform.Endpoint.create(
@@ -177,7 +178,7 @@ class SAMOVertexAutoMLTraining:
         return endpoint.name
 
     def run_training_pipeline(self) -> Optional[dict]:
-        """Run complete training pipeline"""
+        """Run complete training pipeline."""
         logger.info("🚀 Starting SAMO Vertex AI AutoML Training Pipeline...")
 
         try:
@@ -228,15 +229,15 @@ class SAMOVertexAutoMLTraining:
             return results
 
         except Exception:
-            logger.error("Training pipeline failed: {e}")
+            logger.exception("Training pipeline failed: {e}")
             return None
 
 
 def main():
-    """Main function"""
+    """Main function."""
     if len(sys.argv) != 3:
         logging.info(
-            "Usage: python vertex_automl_training.py <project_id> <bucket_name>"
+            "Usage: python vertex_automl_training.py <project_id> <bucket_name>",
         )
         sys.exit(1)
 

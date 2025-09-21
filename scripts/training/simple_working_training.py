@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Working Training Script
+"""Simple Working Training Script.
 
 Simple working training script for emotion detection.
 """
@@ -31,7 +31,8 @@ project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,10 @@ class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
     def __init__(
-        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+        self,
+        alpha: float = 0.25,
+        gamma: float = 2.0,
+        reduction: str = "mean",
     ):
         super().__init__()
         self.alpha = alpha
@@ -50,7 +54,9 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
 
         pt = torch.exp(-bce_loss)
@@ -81,7 +87,7 @@ def train_simple_model():
 
         train_dataset = datasets["train_dataset"]
         val_dataset = datasets["val_dataset"]
-        test_dataset = datasets["test_dataset"]
+        datasets["test_dataset"]
         datasets["class_weights"]
 
         logger.info("Dataset loaded successfully:")
@@ -102,10 +108,14 @@ def train_simple_model():
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
         train_loader = torch.utils.data.DataLoader(
-            train_dataset, batch_size=16, shuffle=True
+            train_dataset,
+            batch_size=16,
+            shuffle=True,
         )
         val_loader = torch.utils.data.DataLoader(
-            val_dataset, batch_size=16, shuffle=False
+            val_dataset,
+            batch_size=16,
+            shuffle=False,
         )
 
         best_val_loss = float("in")
@@ -196,7 +206,7 @@ def train_simple_model():
         return True
 
     except Exception:
-        logger.error("❌ Training failed: {e}")
+        logger.exception("❌ Training failed: {e}")
         traceback.print_exc()
         return False
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick Focal Loss Test Script
+"""Quick Focal Loss Test Script.
 
 Tests focal loss implementation and performance.
 """
@@ -39,7 +39,9 @@ def test_focal_loss_math():
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
                 bce_loss = F.binary_cross_entropy_with_logits(
-                    inputs, targets, reduction="none"
+                    inputs,
+                    targets,
+                    reduction="none",
                 )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
@@ -51,7 +53,7 @@ def test_focal_loss_math():
         targets = torch.randint(0, 2, (batch_size, num_classes)).float()
 
         focal_loss = SimpleFocalLoss(alpha=0.25, gamma=2.0)
-        loss = focal_loss(inputs, targets)
+        focal_loss(inputs, targets)
 
         logger.info("✅ Focal Loss Test PASSED")
         logger.info("   • Loss value: {loss.item():.4f}")
@@ -61,7 +63,7 @@ def test_focal_loss_math():
         return True
 
     except Exception:
-        logger.error("❌ Focal Loss Test FAILED: {e}")
+        logger.exception("❌ Focal Loss Test FAILED: {e}")
         return False
 
 
@@ -75,20 +77,20 @@ def test_dataset_loading():
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Use correct method name
 
-        train_size = len(datasets["train"])
-        val_size = len(datasets["validation"])
+        len(datasets["train"])
+        len(datasets["validation"])
 
         logger.info("✅ Dataset Loading Test PASSED")
         logger.info("   • Train examples: {train_size}")
         logger.info("   • Validation examples: {val_size}")
         logger.info(
-            "   • Class weights computed: {datasets['class_weights'] is not None}"
+            "   • Class weights computed: {datasets['class_weights'] is not None}",
         )
 
         return True
 
     except Exception:
-        logger.error("❌ Dataset Loading Test FAILED: {e}")
+        logger.exception("❌ Dataset Loading Test FAILED: {e}")
         return False
 
 
@@ -105,8 +107,8 @@ def test_model_creation():
             freeze_bert_layers=4,
         )
 
-        param_count = sum(p.numel() for p in model.parameters())
-        trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        sum(p.numel() for p in model.parameters())
+        sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model Creation Test PASSED")
         logger.info("   • Total parameters: {param_count:,}")
@@ -116,7 +118,7 @@ def test_model_creation():
         return True
 
     except Exception:
-        logger.error("❌ Model Creation Test FAILED: {e}")
+        logger.exception("❌ Model Creation Test FAILED: {e}")
         return False
 
 
@@ -138,7 +140,7 @@ def main():
         try:
             results[test_name] = test_func()
         except Exception:
-            logger.error("❌ {test_name} failed with exception: {e}")
+            logger.exception("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
     logger.info("\n📊 Test Results Summary:")
@@ -147,8 +149,7 @@ def main():
     passed = sum(results.values())
     total = len(results)
 
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+    for test_name, _result in results.items():
         logger.info("   • {test_name}: {status}")
 
     logger.info("\n🎯 Overall: {passed}/{total} tests passed")

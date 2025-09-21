@@ -32,10 +32,10 @@ class TestDataValidatorEnhanced:
                         "2023-01-03",
                         "2023-01-04",
                         "2023-01-05",
-                    ]
+                    ],
                 ),
                 "is_private": [False, True, False, True, False],
-            }
+            },
         )
 
     def test_check_missing_values_basic(self):
@@ -98,7 +98,7 @@ class TestDataValidatorEnhanced:
         empty_df = pd.DataFrame(
             {
                 "content": ["", "   ", "valid text"],
-            }
+            },
         )
 
         result_df = self.validator.check_text_quality(empty_df, "content")

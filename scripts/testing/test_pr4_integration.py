@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integration Tests for PR #4: Documentation & Security Enhancements
+"""Integration Tests for PR #4: Documentation & Security Enhancements.
 
 This script validates that the security configurations and documentation
 implemented in PR #4 are properly integrated and functional.
@@ -206,15 +206,16 @@ class PR4IntegrationTester:
                 with open(self.security_config_path) as secf:
                     security_config = yaml.safe_load(secf)
                 critical_packages = security_config.get(
-                    "critical_packages", ["cryptography", "certifi", "urllib3"]
+                    "critical_packages",
+                    ["cryptography", "certifi", "urllib3"],
                 )
                 if "critical_packages" not in security_config:
                     print(
-                        "⚠️ Warning: 'critical_packages' not found in security.yaml, using default list."
+                        "⚠️ Warning: 'critical_packages' not found in security.yaml, using default list.",
                     )
             except Exception as e:
                 print(
-                    f"⚠️ Warning: Could not read security.yaml for critical_packages: {e!s}. Using default list."
+                    f"⚠️ Warning: Could not read security.yaml for critical_packages: {e!s}. Using default list.",
                 )
                 critical_packages = ["cryptography", "certifi", "urllib3"]
             missing_critical = [

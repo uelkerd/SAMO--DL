@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🔒 API Rate Limiter
+"""🔒 API Rate Limiter.
 ==================
 Token bucket algorithm for API rate limiting.
 Includes security features.
@@ -216,7 +216,7 @@ class TokenBucketRateLimiter:
                 return False
             return True
         except ValueError:
-            logger.error("Invalid IP address: %s", client_ip)
+            logger.exception("Invalid IP address: %s", client_ip)
             return False
 
     def _is_client_blocked(self, client_key: str) -> bool:
@@ -415,7 +415,8 @@ class TokenBucketRateLimiter:
     ) -> Tuple[bool, str, dict]:
         """Check if request should be allowed.
 
-        Returns:
+        Returns
+        -------
             Tuple of (allowed, reason, metadata)
 
         """

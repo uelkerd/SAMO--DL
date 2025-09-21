@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local Deployment Script
+"""Local Deployment Script.
 =======================
 
 This script deploys the comprehensive emotion detection model locally

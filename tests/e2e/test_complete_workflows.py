@@ -20,7 +20,7 @@ MAX_AVERAGE_TIME = 2.0
 MAX_TIMESTAMP_DIFF = 60
 
 
-@pytest.mark.e2e
+@pytest.mark.e2e()
 class TestCompleteWorkflows:
     """End-to-end tests for SAMO AI complete user workflows."""
 
@@ -57,7 +57,7 @@ class TestCompleteWorkflows:
         assert isinstance(emotions, dict)
         assert len(emotions) > 0
 
-        for emotion, confidence in emotions.items():
+        for _emotion, confidence in emotions.items():
             assert 0.0 <= confidence <= 1.0
 
         summary = data["summary"]
@@ -71,7 +71,7 @@ class TestCompleteWorkflows:
             data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000
         )  # Processing time under 2 seconds
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
         """Test complete voice journal analysis workflow."""
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
@@ -96,7 +96,9 @@ class TestCompleteWorkflows:
                     }
 
                     response = api_client.post(
-                        "/analyze/voice-journal", files=files, data=data
+                        "/analyze/voice-journal",
+                        files=files,
+                        data=data,
                     )
 
             # Voice processing may fail in test environment, so we accept both success and failure
@@ -222,7 +224,7 @@ class TestCompleteWorkflows:
         )
         assert response.status_code == HTTP_OK
 
-    @pytest.mark.model
+    @pytest.mark.model()
     def test_model_integration_workflow(self, api_client):
         """Test integration between different AI models."""
         test_text = "I had a great day today!"

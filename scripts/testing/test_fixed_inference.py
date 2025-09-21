@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fixed Inference Test Script for Emotion Detection Model
-Handles missing tokenizer and generic labels
+Handles missing tokenizer and generic labels.
 """
 
 import json
@@ -11,7 +11,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def test_fixed_inference():
-    """Test inference with missing tokenizer and generic labels"""
+    """Test inference with missing tokenizer and generic labels."""
     print("🧪 FIXED INFERENCE TEST")
     print("=" * 50)
 
@@ -127,7 +127,7 @@ def test_fixed_inference():
 
                 print(f"{i:2d}. Text: {text}")
                 print(
-                    f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})"
+                    f"    Predicted: {predicted_emotion} (confidence: {confidence:.3f})",
                 )
                 print("    Top 3 predictions:")
                 for emotion, conf in top3_predictions:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive CI Pipeline Runner for SAMO Deep Learning
+"""Comprehensive CI Pipeline Runner for SAMO Deep Learning.
 
 This script runs the complete CI pipeline end-to-end, including:
 - Environment validation
@@ -58,7 +58,8 @@ class CIPipelineRunner:
     def _get_test_stats(self) -> tuple[dict, int, int]:
         """Calculate statistics on test results.
 
-        Returns:
+        Returns
+        -------
             tuple: (test_results dict, total_tests, passed_tests)
 
         """
@@ -127,7 +128,7 @@ class CIPipelineRunner:
                 logger.info(f"✅ {package} available")
             except ImportError:
                 missing_packages.append(package)
-                logger.error(f"❌ {package} missing")
+                logger.exception(f"❌ {package} missing")
 
         if missing_packages:
             logger.error(f"❌ Missing packages: {missing_packages}")
@@ -161,10 +162,10 @@ class CIPipelineRunner:
             return False, result.stderr
 
         except subprocess.TimeoutExpired:
-            logger.error(f"⏰ {script_path} TIMEOUT")
+            logger.exception(f"⏰ {script_path} TIMEOUT")
             return False, "Script timed out after 5 minutes"
         except Exception as e:
-            logger.error(f"💥 {script_path} ERROR: {e}")
+            logger.exception(f"💥 {script_path} ERROR: {e}")
             return False, str(e)
 
     def run_unit_tests(self) -> bool:
@@ -190,10 +191,10 @@ class CIPipelineRunner:
             return False
 
         except subprocess.TimeoutExpired:
-            logger.error("⏰ Unit tests TIMEOUT")
+            logger.exception("⏰ Unit tests TIMEOUT")
             return False
         except Exception as e:
-            logger.error(f"💥 Unit tests ERROR: {e}")
+            logger.exception(f"💥 Unit tests ERROR: {e}")
             return False
 
     def run_e2e_tests(self) -> bool:
@@ -217,7 +218,7 @@ class CIPipelineRunner:
             return False
 
         except Exception as e:
-            logger.error(f"💥 E2E tests ERROR: {e}")
+            logger.exception(f"💥 E2E tests ERROR: {e}")
             return False
 
     def test_gpu_compatibility(self) -> bool:
@@ -264,7 +265,7 @@ class CIPipelineRunner:
             return True
 
         except Exception as e:
-            logger.error(f"❌ GPU compatibility test failed: {e}")
+            logger.exception(f"❌ GPU compatibility test failed: {e}")
             return False
 
     def run_performance_benchmarks(self) -> bool:
@@ -302,7 +303,7 @@ class CIPipelineRunner:
             start_time = time.time()
             dummy_input = torch.randint(0, 1000, (1, 512))
             with torch.no_grad():
-                output = model(dummy_input, torch.ones_like(dummy_input))
+                model(dummy_input, torch.ones_like(dummy_input))
             inference_time = time.time() - start_time
 
             logger.info(f"✅ Model loading time: {loading_time:.2f}s")
@@ -315,12 +316,12 @@ class CIPipelineRunner:
                 logger.info("✅ Performance benchmarks passed")
                 return True
             logger.error(
-                f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s"
+                f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s",
             )
             return False
 
         except Exception as e:
-            logger.error(f"❌ Performance benchmark failed: {e}")
+            logger.exception(f"❌ Performance benchmark failed: {e}")
             return False
 
     def run_full_pipeline(self) -> Dict[str, bool]:
@@ -441,7 +442,7 @@ def main():
         logger.info("⏹️ CI Pipeline interrupted by user")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"💥 CI Pipeline crashed: {e}")
+        logger.exception(f"💥 CI Pipeline crashed: {e}")
         sys.exit(1)
 
 

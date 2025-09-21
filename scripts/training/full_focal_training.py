@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full Focal Loss Training Script
+"""Full Focal Loss Training Script.
 
 This script provides a complete focal loss training implementation
 for the emotion detection model.

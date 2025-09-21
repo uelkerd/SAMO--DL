@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Model Monitoring Script
+"""Model Monitoring Script.
 
 Monitors model performance, drift, and resource usage.
 """
@@ -100,6 +100,7 @@ class PerformanceTracker:
         """Initialize performance tracker.
 
         Args:
+        ----
             window_size: Size of sliding window for metrics
 
         """
@@ -112,6 +113,7 @@ class PerformanceTracker:
         """Add new metrics to the tracker.
 
         Args:
+        ----
             metrics: Model performance metrics
 
         """
@@ -124,7 +126,8 @@ class PerformanceTracker:
     def get_current_performance(self) -> dict[str, float]:
         """Get current performance metrics.
 
-        Returns:
+        Returns
+        -------
             Dictionary with current performance metrics
 
         """
@@ -144,7 +147,8 @@ class PerformanceTracker:
     def detect_degradation(self) -> Optional[Alert]:
         """Detect performance degradation.
 
-        Returns:
+        Returns
+        -------
             Alert if degradation detected, None otherwise
 
         """
@@ -190,7 +194,8 @@ class PerformanceTracker:
     def get_trend_analysis(self) -> dict[str, Any]:
         """Analyze performance trends.
 
-        Returns:
+        Returns
+        -------
             Dictionary with trend analysis
 
         """
@@ -223,6 +228,7 @@ class DataDriftDetector:
         """Initialize drift detector.
 
         Args:
+        ----
             reference_data: Reference dataset for drift detection
             drift_threshold: Threshold for drift detection
 
@@ -234,7 +240,8 @@ class DataDriftDetector:
     def _compute_reference_stats(self) -> dict[str, dict[str, float]]:
         """Compute reference statistics for features.
 
-        Returns:
+        Returns
+        -------
             Dictionary with feature statistics
 
         """
@@ -255,9 +262,11 @@ class DataDriftDetector:
         """Detect data drift in current data.
 
         Args:
+        ----
             current_data: Current data to check for drift
 
         Returns:
+        -------
             Drift metrics
 
         """
@@ -307,12 +316,14 @@ class DataDriftDetector:
         """Calculate drift score between reference and current distributions.
 
         Args:
+        ----
             ref_mean: Reference mean
             ref_std: Reference standard deviation
             current_mean: Current mean
             current_std: Current standard deviation
 
         Returns:
+        -------
             Drift score
 
         """
@@ -322,9 +333,7 @@ class DataDriftDetector:
         normalized_mean_diff = mean_diff / (ref_std + 1e-8)
         normalized_std_diff = std_diff / (ref_std + 1e-8)
 
-        drift_score = (normalized_mean_diff + normalized_std_diff) / 2
-
-        return drift_score
+        return (normalized_mean_diff + normalized_std_diff) / 2
 
 
 class ModelHealthMonitor:
@@ -334,6 +343,7 @@ class ModelHealthMonitor:
         """Initialize model health monitor.
 
         Args:
+        ----
             config_path: Path to monitoring configuration
 
         """
@@ -354,9 +364,11 @@ class ModelHealthMonitor:
         """Load monitoring configuration.
 
         Args:
+        ----
             config_path: Path to configuration file
 
         Returns:
+        -------
             Configuration dictionary
 
         """
@@ -398,7 +410,7 @@ class ModelHealthMonitor:
             else:
                 logger.warning("Model not found: {model_path}")
         except Exception:
-            logger.error("Error initializing model: {e}")
+            logger.exception("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
         """Start continuous monitoring."""
@@ -449,17 +461,18 @@ class ModelHealthMonitor:
                         self._handle_alert(drift_alert)
 
                 time.sleep(
-                    self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL)
+                    self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL),
                 )
 
             except Exception:
-                logger.error("Error in monitoring loop: {e}")
+                logger.exception("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
     def _collect_metrics(self) -> Optional[ModelMetrics]:
         """Collect current model performance metrics.
 
-        Returns:
+        Returns
+        -------
             Model metrics if collection successful, None otherwise
 
         """
@@ -517,13 +530,14 @@ class ModelHealthMonitor:
             )
 
         except Exception:
-            logger.error("Error collecting metrics: {e}")
+            logger.exception("Error collecting metrics: {e}")
             return None
 
     def _get_memory_usage(self) -> float:
         """Get current memory usage in MB.
 
-        Returns:
+        Returns
+        -------
             Memory usage in MB
 
         """
@@ -536,7 +550,8 @@ class ModelHealthMonitor:
     def _get_gpu_utilization(self) -> Optional[float]:
         """Get GPU utilization percentage.
 
-        Returns:
+        Returns
+        -------
             GPU utilization percentage if available, None otherwise
 
         """
@@ -550,7 +565,8 @@ class ModelHealthMonitor:
     def _check_data_drift(self) -> DriftMetrics:
         """Check for data drift in incoming data.
 
-        Returns:
+        Returns
+        -------
             Drift metrics
 
         """
@@ -567,6 +583,7 @@ class ModelHealthMonitor:
         """Handle monitoring alerts.
 
         Args:
+        ----
             alert: Alert to handle
 
         """
@@ -594,12 +611,13 @@ class ModelHealthMonitor:
             self.alerts.append(retrain_alert)
 
         except Exception:
-            logger.error("Error triggering retraining: {e}")
+            logger.exception("Error triggering retraining: {e}")
 
     def _save_alert(self, alert: Alert) -> None:
         """Save alert to file.
 
         Args:
+        ----
             alert: Alert to save
 
         """
@@ -614,12 +632,13 @@ class ModelHealthMonitor:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
         except Exception:
-            logger.error("Error saving alert: {e}")
+            logger.exception("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:
         """Get current model health status.
 
-        Returns:
+        Returns
+        -------
             Dictionary with health status
 
         """
@@ -645,7 +664,8 @@ class ModelHealthMonitor:
     def get_dashboard_data(self) -> dict[str, Any]:
         """Get data for monitoring dashboard.
 
-        Returns:
+        Returns
+        -------
             Dictionary with dashboard data
 
         """
@@ -666,6 +686,7 @@ def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
     """Create default monitoring configuration.
 
     Args:
+    ----
         output_path: Path to save configuration
 
     """

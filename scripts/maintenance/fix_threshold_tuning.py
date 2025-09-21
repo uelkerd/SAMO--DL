@@ -86,7 +86,7 @@ def main():
         return 1
 
     except Exception:
-        logger.error("❌ Threshold tuning failed: {e}")
+        logger.exception("❌ Threshold tuning failed: {e}")
         return 1
 
 

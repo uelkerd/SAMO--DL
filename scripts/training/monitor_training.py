@@ -43,9 +43,7 @@ def load_training_history(checkpoint_dir: str = "test_checkpoints_dev") -> List[
         return []
 
     with open(history_file) as f:
-        history = json.load(f)
-
-    return history
+        return json.load(f)
 
 
 def analyze_training_progress(history: List[Dict]) -> Dict:
@@ -78,7 +76,7 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
         if loss_improvement > 0.01:
             analysis["convergence_status"] = "excellent"
             analysis["recommendations"].append(
-                "✅ Loss decreasing significantly - continue training"
+                "✅ Loss decreasing significantly - continue training",
             )
         elif loss_improvement > 0.001:
             analysis["convergence_status"] = "good"
@@ -86,12 +84,12 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
         elif loss_improvement > -0.001:
             analysis["convergence_status"] = "plateauing"
             analysis["recommendations"].append(
-                "⚠️ Loss plateauing - consider learning rate adjustment"
+                "⚠️ Loss plateauing - consider learning rate adjustment",
             )
         else:
             analysis["convergence_status"] = "diverging"
             analysis["recommendations"].append(
-                "❌ Loss increasing - check learning rate and data"
+                "❌ Loss increasing - check learning rate and data",
             )
 
     latest_f1 = analysis["f1_progress"][-1]
@@ -101,7 +99,7 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
         analysis["recommendations"].append("📈 Good F1 score - continue training")
     else:
         analysis["recommendations"].append(
-            "📊 F1 score needs improvement - consider data augmentation"
+            "📊 F1 score needs improvement - consider data augmentation",
         )
 
     avg_epoch_time = np.mean(analysis["training_time"])
@@ -109,7 +107,7 @@ def analyze_training_progress(history: List[Dict]) -> Dict:
 
     if avg_epoch_time > 1200:  # 20 minutes
         analysis["recommendations"].append(
-            "⏱️ Training time is high - consider GPU acceleration"
+            "⏱️ Training time is high - consider GPU acceleration",
         )
 
     return analysis
@@ -147,7 +145,7 @@ def generate_training_report(analysis: dict) -> str:
             report.append(f"Latest F1 Score: {latest_f1:.4f}")
 
         report.append(
-            f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes"
+            f"Average Epoch Time: {analysis['avg_epoch_time_minutes']:.1f} minutes",
         )
         report.append("")
 

@@ -8,6 +8,7 @@ in the SAMO Deep Learning pipeline.
 from __future__ import annotations
 
 import asyncio
+import builtins
 import inspect
 import json
 import logging
@@ -16,10 +17,10 @@ import tempfile
 import time
 import traceback
 from collections import defaultdict
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
+from typing import Any, AsyncGenerator
 
 import uvicorn
 from fastapi import (
@@ -278,7 +279,7 @@ class WebSocketConnectionManager:
             if websocket in self.connection_metadata:
                 self.connection_metadata[websocket]["message_count"] += 1
         except Exception as e:
-            logger.error("Failed to send message to WebSocket: %s", e)
+            logger.exception("Failed to send message to WebSocket: %s", e)
             await self.disconnect(websocket)
 
     async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
@@ -290,7 +291,7 @@ class WebSocketConnectionManager:
                 if websocket in self.connection_metadata:
                     self.connection_metadata[websocket]["message_count"] += 1
             except Exception as e:
-                logger.error("Failed to broadcast to WebSocket: %s", e)
+                logger.exception("Failed to broadcast to WebSocket: %s", e)
                 disconnected.add(websocket)
 
         # Cleanup disconnected connections
@@ -434,7 +435,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
                 endpoint_url = os.getenv("EMOTION_MODEL_ENDPOINT_URL")
                 logger.info(
-                    "Attempting to load emotion model from HF Hub: %s", hf_model_id
+                    "Attempting to load emotion model from HF Hub: %s",
+                    hf_model_id,
                 )
                 logger.info(
                     "Sources configured: local_dir=%s, archive=%s, endpoint=%s",
@@ -492,7 +494,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("SAMO AI Pipeline loaded in %.2f seconds", load_time)
 
     except Exception as exc:
-        logger.error("Failed to load SAMO AI Pipeline: %s", exc)
+        logger.exception("Failed to load SAMO AI Pipeline: %s", exc)
         raise
 
     yield
@@ -503,7 +505,7 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         # Cleanup any resources if needed
         logger.info("SAMO AI Pipeline shutdown complete")
     except Exception as exc:
-        logger.error("Error during shutdown: %s", exc)
+        logger.exception("Error during shutdown: %s", exc)
 
 
 # Initialize FastAPI with lifecycle management
@@ -794,7 +796,8 @@ class JournalEntryRequest(BaseModel):
         ),
     )
     generate_summary: bool = Field(
-        default=True, description="Whether to generate a summary"
+        default=True,
+        description="Whether to generate a summary",
     )
     emotion_threshold: float = Field(
         0.1,
@@ -910,7 +913,7 @@ class VoiceTranscription(BaseModel):
 class CompleteJournalAnalysis(BaseModel):
     """Complete journal analysis combining all AI models."""
 
-    transcription: Optional[VoiceTranscription] = Field(
+    transcription: VoiceTranscription | None = Field(
         None,
         description="Voice transcription results",
     )
@@ -1006,7 +1009,7 @@ async def register_user(user_data: UserRegister) -> TokenResponse:
         return token_response
 
     except Exception as exc:
-        logger.error("Registration failed: %s", exc)
+        logger.exception("Registration failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Registration failed",
@@ -1074,11 +1077,11 @@ async def login_user(login_data: UserLogin) -> TokenResponse:
         logger.info("User logged in: %s", login_data.username)
         return token_response
 
-    except HTTPException as http_exc:
+    except HTTPException:
         # Preserve HTTPExceptions without altering trace
-        raise http_exc
+        raise
     except Exception as exc:
-        logger.error("Login failed: %s", exc)
+        logger.exception("Login failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed",
@@ -1126,7 +1129,7 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("Token refresh failed: %s", exc)
+        logger.exception("Token refresh failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Token refresh failed",
@@ -1161,7 +1164,7 @@ async def logout_user(
         return {"message": "Successfully logged out"}
 
     except Exception as exc:
-        logger.error("Logout failed: %s", exc)
+        logger.exception("Logout failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Logout failed",
@@ -1203,7 +1206,7 @@ class ChatResponse(BaseModel):
     """Chat response payload."""
 
     reply: str
-    summary: Optional[str] = None
+    summary: str | None = None
     meta: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -1225,7 +1228,7 @@ async def chat_http(
     """
     reply = f"You said: {message.text.strip()}"
 
-    summary_text: Optional[str] = None
+    summary_text: str | None = None
     if message.summarize:
         if text_summarizer is None:
             _ensure_summarizer_loaded()
@@ -1336,7 +1339,7 @@ async def chat_websocket(websocket: WebSocket, token: str = Query(None)) -> None
 )
 async def analyze_journal_entry(
     request: JournalEntryRequest,
-    x_api_key: Optional[str] = Header(
+    x_api_key: str | None = Header(
         None,
         description="API key for authentication",
     ),
@@ -1432,7 +1435,7 @@ async def analyze_journal_entry(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("❌ Error in journal analysis: %s", exc)
+        logger.exception("❌ Error in journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Analysis failed") from exc
 
 
@@ -1455,7 +1458,7 @@ async def analyze_voice_journal(
         ...,
         description="Audio file to transcribe and analyze",
     ),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None,
         description="Language code for transcription (auto-detect if not provided)",
     ),
@@ -1466,7 +1469,7 @@ async def analyze_voice_journal(
         ge=0,
         le=1,
     ),
-    x_api_key: Optional[str] = Header(
+    x_api_key: str | None = Header(
         None,
         description="API key for authentication",
     ),
@@ -1592,7 +1595,7 @@ async def analyze_voice_journal(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("❌ Error in voice journal analysis: %s", exc)
+        logger.exception("❌ Error in voice journal analysis: %s", exc)
         raise HTTPException(status_code=500, detail="Voice analysis failed") from exc
 
 
@@ -1606,7 +1609,7 @@ async def analyze_voice_journal(
 )
 async def transcribe_voice(
     audio_file: UploadFile = File(..., description="Audio file to transcribe"),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None,
         description="Language code (auto-detect if not provided)",
     ),
@@ -1677,7 +1680,7 @@ async def transcribe_voice(
                             temp_file_path,
                         )
                     except Exception as e_fallback:
-                        logger.error(
+                        logger.exception(
                             "Transcriber failed with both positional and fallback "
                             "calls: %s; %s",
                             repr(e_positional),
@@ -1700,7 +1703,7 @@ async def transcribe_voice(
                                 temp_file_path,
                             )
                         except Exception as e_fallback:
-                            logger.error(
+                            logger.exception(
                                 "Transcriber failed with kwargs, positional, and "
                                 "fallback calls: %s; %s; %s",
                                 repr(e_kwargs),
@@ -1719,7 +1722,7 @@ async def transcribe_voice(
                 audio_quality,
             ) = _normalize_transcription_attrs(transcription_result)
 
-            processing_time = (time.time() - start_time) * 1000
+            (time.time() - start_time) * 1000
 
             return VoiceTranscription(
                 text=text_val,
@@ -1739,7 +1742,7 @@ async def transcribe_voice(
         if isinstance(exc, HTTPException):
             # Preserve FastAPI HTTPException semantics
             raise
-        logger.error("Voice transcription failed: %s", exc)
+        logger.exception("Voice transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Voice transcription failed",
@@ -1758,7 +1761,7 @@ async def batch_transcribe_voice(
         ...,
         description="Multiple audio files to transcribe",
     ),
-    language: Optional[str] = Form(
+    language: str | None = Form(
         None,
         description="Language code for all files",
     ),
@@ -1819,7 +1822,7 @@ async def batch_transcribe_voice(
                             "language": transcription_result.get("language", "unknown"),
                             "confidence": transcription_result.get("confidence", 0.0),
                             "duration": transcription_result.get("duration", 0),
-                        }
+                        },
                     )
 
                 finally:
@@ -1832,7 +1835,7 @@ async def batch_transcribe_voice(
                         "filename": audio_file.filename,
                         "success": False,
                         "error": str(exc),
-                    }
+                    },
                 )
 
         processing_time = (time.time() - start_time) * 1000
@@ -1848,7 +1851,7 @@ async def batch_transcribe_voice(
     except Exception as exc:
         if isinstance(exc, HTTPException):
             raise
-        logger.error("Batch transcription failed: %s", exc)
+        logger.exception("Batch transcription failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Batch transcription failed",
@@ -1922,7 +1925,7 @@ async def summarize_text(
         # Determine emotional tone and key emotions from summary
         emotional_tone, key_emotions = _derive_emotion(summary_text or "")
 
-        processing_time = (time.time() - start_time) * 1000
+        (time.time() - start_time) * 1000
 
         return TextSummary(
             summary=summary_text or "",
@@ -1934,7 +1937,7 @@ async def summarize_text(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("Text summarization failed: %s", exc)
+        logger.exception("Text summarization failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Text summarization failed",
@@ -1983,7 +1986,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                     {
                         "type": "error",
                         "message": "Authentication token required",
-                    }
+                    },
                 )
                 await websocket.close()
                 return
@@ -1995,7 +1998,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 {
                     "type": "error",
                     "message": "Invalid authentication token",
-                }
+                },
             )
             await websocket.close()
             return
@@ -2007,7 +2010,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
             {
                 "type": "error",
                 "message": "Authentication failed",
-            }
+            },
         )
         await websocket.close()
         return
@@ -2025,7 +2028,8 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                 try:
                     # Save received audio data
                     with tempfile.NamedTemporaryFile(
-                        delete=False, suffix=".wav"
+                        delete=False,
+                        suffix=".wav",
                     ) as temp_file:
                         temp_file.write(data)
                         temp_file.flush()  # Ensure data is written to disk
@@ -2042,7 +2046,7 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                                 "text": result.get("text", ""),
                                 "confidence": result.get("confidence", 0.0),
                                 "language": result.get("language", "unknown"),
-                            }
+                            },
                         )
 
                     finally:
@@ -2053,29 +2057,27 @@ async def websocket_realtime_processing(websocket: WebSocket, token: str = Query
                         {
                             "type": "error",
                             "message": str(exc),
-                        }
+                        },
                     )
             else:
                 await websocket.send_json(
                     {
                         "type": "error",
                         "message": "Voice transcription service unavailable",
-                    }
+                    },
                 )
 
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as exc:
-        logger.error("WebSocket error: %s", exc)
-        try:
+        logger.exception("WebSocket error: %s", exc)
+        with suppress(builtins.BaseException):
             await websocket.send_json(
                 {
                     "type": "error",
                     "message": "Internal server error",
-                }
+                },
             )
-        except:
-            pass
 
 
 # Monitoring and Analytics Endpoints
@@ -2134,7 +2136,7 @@ async def get_performance_metrics(
         }
 
     except Exception as exc:
-        logger.error("Failed to get performance metrics: %s", exc)
+        logger.exception("Failed to get performance metrics: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get performance metrics",
@@ -2167,7 +2169,7 @@ async def detailed_health_check(
     else:
         try:
             # Test emotion detection
-            test_result = emotion_detector.predict("I am happy today")
+            emotion_detector.predict("I am happy today")
             model_checks["emotion_detection"] = {
                 "status": "healthy",
                 "test_passed": True,
@@ -2187,8 +2189,8 @@ async def detailed_health_check(
     else:
         try:
             # Test text summarization
-            test_result = text_summarizer.summarize(
-                "This is a test text for summarization."
+            text_summarizer.summarize(
+                "This is a test text for summarization.",
             )
             model_checks["text_summarization"] = {
                 "status": "healthy",
@@ -2283,7 +2285,7 @@ async def get_models_status() -> dict[str, Any]:
             "complete": all([emotion_detector, text_summarizer, voice_transcriber]),
             "partial": any([emotion_detector, text_summarizer, voice_transcriber]),
             "degraded_mode": not all(
-                [emotion_detector, text_summarizer, voice_transcriber]
+                [emotion_detector, text_summarizer, voice_transcriber],
             ),
         },
     }

@@ -28,11 +28,12 @@ class TestDataValidator:
                 "user_id": [1, 2, None, 4],
                 "content": ["text1", "text2", "text3", None],
                 "optional_field": ["a", "b", "c", "d"],
-            }
+            },
         )
 
         result = validator.check_missing_values(
-            df, required_columns=["user_id", "content"]
+            df,
+            required_columns=["user_id", "content"],
         )
 
         assert "user_id" in result
@@ -50,7 +51,7 @@ class TestDataValidator:
                 "user_id": [1, 2, 3, 4],
                 "content": ["text1", "text2", "text3", "text4"],
                 "is_private": [True, False, True, False],
-            }
+            },
         )
 
         expected_types = {
@@ -78,7 +79,7 @@ class TestDataValidator:
                     "   ",
                     "Another test with more words",
                 ],
-            }
+            },
         )
 
         result = validator.check_text_quality(df, text_column="content")
@@ -99,10 +100,10 @@ class TestDataValidator:
                 "content": ["text1", "text2", "text3", "text4"],
                 "title": ["title1", "title2", "title3", "title4"],
                 "created_at": pd.to_datetime(
-                    ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04"]
+                    ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04"],
                 ),
                 "is_private": [True, False, True, False],
-            }
+            },
         )
 
         required_columns = ["user_id", "content"]
@@ -115,7 +116,9 @@ class TestDataValidator:
         }
 
         result = validator.validate_journal_entries(
-            df, required_columns, expected_types
+            df,
+            required_columns,
+            expected_types,
         )
 
         assert "missing_values" in result

@@ -74,8 +74,7 @@ class ExpandedEmotionClassifier(nn.Module):
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        logits = self.classifier(self.dropout(pooled_output))
-        return logits
+        return self.classifier(self.dropout(pooled_output))
 
 
 def prepare_expanded_data(data, test_size=0.2, val_size=0.1):
@@ -219,7 +218,7 @@ def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_si
                 "val_loss": avg_val_loss,
                 "val_f1_macro": f1_macro,
                 "val_accuracy": accuracy,
-            }
+            },
         )
 
     return model, training_history, best_f1
@@ -272,8 +271,8 @@ def save_expanded_results(training_history, best_f1, label_encoder, test_data):
         "all_emotions": list(label_encoder.classes_),
         "training_history": training_history,
         "expanded_samples": len(X_test)
-        + len([x for x in train_data[0]])
-        + len([x for x in val_data[0]]),
+        + len(list(train_data[0]))
+        + len(list(val_data[0])),
         "test_samples": len(X_test),
     }
 
@@ -299,7 +298,9 @@ def main():
 
     # Train model
     model, training_history, best_f1 = train_expanded_model(
-        train_data, val_data, label_encoder
+        train_data,
+        val_data,
+        label_encoder,
     )
 
     # Save results

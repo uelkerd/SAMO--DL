@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Imports in Ultimate Notebook
+"""Fix Imports in Ultimate Notebook.
 ================================
 
 This script adds the missing imports to the ultimate notebook to ensure

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add Advanced Features to Ultimate Notebook
+"""Add Advanced Features to Ultimate Notebook.
 =========================================
 
 This script adds the remaining advanced features to the ultimate notebook:

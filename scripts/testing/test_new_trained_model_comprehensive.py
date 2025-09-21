@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive Test for Newly Trained Model
+"""Comprehensive Test for Newly Trained Model.
 =========================================
 
 This script comprehensively tests the newly trained model to verify:
@@ -47,7 +47,7 @@ def test_new_trained_model():
 
     print(f"Model type: {model.config.model_type}")
     print(
-        f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Not specified'}"
+        f"Architecture: {model.config.architectures[0] if model.config.architectures else 'Not specified'}",
     )
     print(f"Hidden layers: {model.config.num_hidden_layers}")
     print(f"Hidden size: {model.config.hidden_size}")
@@ -102,7 +102,10 @@ def test_new_trained_model():
 
     # Test with a sample input
     test_input = tokenizer(
-        "I feel happy today", return_tensors="pt", truncation=True, padding=True
+        "I feel happy today",
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
     )
 
     with torch.no_grad():
@@ -115,7 +118,7 @@ def test_new_trained_model():
             print("✅ Model architecture is correct!")
         else:
             print(
-                f"❌ Model architecture mismatch! Expected {len(expected_emotions)}, got {logits.shape[1]}"
+                f"❌ Model architecture mismatch! Expected {len(expected_emotions)}, got {logits.shape[1]}",
             )
 
     # 5. Comprehensive inference test
@@ -143,7 +146,10 @@ def test_new_trained_model():
     results = []
     for i, test_case in enumerate(test_cases):
         inputs = tokenizer(
-            test_case, return_tensors="pt", truncation=True, padding=True
+            test_case,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
         )
 
         with torch.no_grad():
@@ -172,10 +178,10 @@ def test_new_trained_model():
 
             status = "✅" if result["correct"] else "❌"
             print(
-                f'{status} {i + 1:2d}. "{test_case[:50]}{"..." if len(test_case) > 50 else ""}"'
+                f'{status} {i + 1:2d}. "{test_case[:50]}{"..." if len(test_case) > 50 else ""}"',
             )
             print(
-                f"    Expected: {expected_emotion:12s} | Predicted: {predicted_emotion:12s} | Confidence: {confidence:.3f}"
+                f"    Expected: {expected_emotion:12s} | Predicted: {predicted_emotion:12s} | Confidence: {confidence:.3f}",
             )
             print()
 
@@ -210,7 +216,7 @@ def test_new_trained_model():
         config_issues.append("id2label is missing")
     elif len(model.config.id2label) != len(expected_emotions):
         config_issues.append(
-            f"id2label has wrong length: {len(model.config.id2label)} vs {len(expected_emotions)}"
+            f"id2label has wrong length: {len(model.config.id2label)} vs {len(expected_emotions)}",
         )
 
     # Check if label2id is properly formatted
@@ -218,7 +224,7 @@ def test_new_trained_model():
         config_issues.append("label2id is missing")
     elif len(model.config.label2id) != len(expected_emotions):
         config_issues.append(
-            f"label2id has wrong length: {len(model.config.label2id)} vs {len(expected_emotions)}"
+            f"label2id has wrong length: {len(model.config.label2id)} vs {len(expected_emotions)}",
         )
 
     if config_issues:
@@ -270,7 +276,7 @@ def test_new_trained_model():
     if config_issues:
         print(f"⚠️ Configuration issues: {len(config_issues)}")
         print(
-            "   Consider using the comprehensive notebook for better configuration persistence"
+            "   Consider using the comprehensive notebook for better configuration persistence",
         )
     else:
         print("✅ Configuration persistence verified")

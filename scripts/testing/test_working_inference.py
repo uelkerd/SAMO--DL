@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Working Inference Test Script for Emotion Detection Model
-Uses public roberta-base tokenizer and maps generic labels to emotions
+Uses public roberta-base tokenizer and maps generic labels to emotions.
 """
 
 import json
@@ -11,7 +11,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def test_working_inference():
-    """Test inference with public roberta-base tokenizer"""
+    """Test inference with public roberta-base tokenizer."""
     print("🧪 WORKING INFERENCE TEST")
     print("=" * 50)
 
@@ -90,7 +90,11 @@ def test_working_inference():
 
             # Tokenize
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512,
+                padding=True,
             )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -115,7 +119,7 @@ def test_working_inference():
 
 
 def test_simple_inference():
-    """Simple inference test as fallback"""
+    """Simple inference test as fallback."""
     print("\n🧪 SIMPLE INFERENCE TEST")
     print("=" * 50)
 

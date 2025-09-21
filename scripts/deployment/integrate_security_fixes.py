@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🔒 INTEGRATED SECURITY & CLOUD RUN OPTIMIZATION
+"""🔒 INTEGRATED SECURITY & CLOUD RUN OPTIMIZATION.
 ===============================================
 Comprehensive script that integrates security fixes with Phase 3 Cloud Run optimization.
 
@@ -30,7 +30,7 @@ class IntegratedSecurityOptimization:
 
     @staticmethod
     def get_project_id():
-        """Get current GCP project ID dynamically"""
+        """Get current GCP project ID dynamically."""
         try:
             result = subprocess.run(
                 ["gcloud", "config", "get-value", "project"],
@@ -44,14 +44,16 @@ class IntegratedSecurityOptimization:
 
     @staticmethod
     def log(message: str, level: str = "INFO"):
-        """Log messages with timestamp"""
+        """Log messages with timestamp."""
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
     def run_command(
-        self, command: List[str], check: bool = True
+        self,
+        command: List[str],
+        check: bool = True,
     ) -> subprocess.CompletedProcess:
-        """Run shell command with error handling"""
+        """Run shell command with error handling."""
         sanitized_command = []
         for arg in command:
             if isinstance(arg, str):
@@ -62,7 +64,10 @@ class IntegratedSecurityOptimization:
         self.log(f"Running: {' '.join(sanitized_command)}")
         try:
             result = subprocess.run(
-                command, capture_output=True, text=True, check=check
+                command,
+                capture_output=True,
+                text=True,
+                check=check,
             )
             if result.stdout:
                 self.log(f"STDOUT: {result.stdout.strip()}")
@@ -74,7 +79,7 @@ class IntegratedSecurityOptimization:
             return e
 
     def update_requirements_with_security(self):
-        """Update requirements with latest secure versions"""
+        """Update requirements with latest secure versions."""
         self.log("Updating requirements with security fixes...")
 
         secure_requirements = """# Integrated Secure & Optimized Requirements for Cloud Run
@@ -115,7 +120,7 @@ fastapi==0.104.1
         self.log("✅ Requirements updated with security fixes")
 
     def enhance_cloudbuild_with_security(self):
-        """Enhance cloudbuild.yaml with security features"""
+        """Enhance cloudbuild.yaml with security features."""
         self.log("Enhancing Cloud Build configuration with security...")
 
         enhanced_cloudbuild = f"""timeout: '3600s'
@@ -165,7 +170,7 @@ substitutions:
         self.log("✅ Cloud Build configuration enhanced with security")
 
     def deploy_integrated_service(self):
-        """Deploy the integrated secure and optimized service"""
+        """Deploy the integrated secure and optimized service."""
         self.log("Deploying integrated secure and optimized service...")
 
         # Build and deploy using Cloud Build
@@ -184,7 +189,7 @@ substitutions:
         self.log("✅ Integrated service deployed successfully")
 
     def test_integrated_deployment(self):
-        """Test both security and optimization features"""
+        """Test both security and optimization features."""
         self.log("Testing integrated deployment...")
 
         # Get service URL
@@ -199,7 +204,7 @@ substitutions:
                 self.region,
                 "--format",
                 "value(status.url)",
-            ]
+            ],
         )
         service_url = result.stdout.strip()
 
@@ -236,7 +241,7 @@ substitutions:
 
         # Test rate limiting
         responses = []
-        for i in range(105):
+        for _i in range(105):
             try:
                 response = requests.post(
                     f"{service_url}/predict",
@@ -265,7 +270,7 @@ substitutions:
             result = prediction_response.json()
             if "emotion" in result and "confidence" in result:
                 self.log(
-                    f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})"
+                    f"✅ Prediction working: {result['emotion']} ({result['confidence']:.2f})",
                 )
             else:
                 self.log("⚠️ Prediction response format unexpected")
@@ -275,7 +280,7 @@ substitutions:
         self.log("✅ Integrated deployment testing completed")
 
     def run(self):
-        """Run the complete integration process"""
+        """Run the complete integration process."""
         self.log("🚀 Starting Integrated Security & Cloud Run Optimization")
         self.log(f"Project ID: {self.project_id}")
         self.log(f"Service Name: {self.service_name}")
@@ -310,7 +315,7 @@ substitutions:
             self.log("")
             self.log("🔗 Service URL: Check Cloud Run console or run:")
             self.log(
-                f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'"
+                f"   gcloud run services describe {self.service_name} --region={self.region} --format='value(status.url)'",
             )
 
         except Exception as e:

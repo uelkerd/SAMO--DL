@@ -13,9 +13,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Test imports
-from pydantic import BaseModel, Field, ValidationError
-
 from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
+from pydantic import BaseModel, Field, ValidationError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +36,7 @@ def test_api_imports():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API import test failed: {e}")
+        logger.exception(f"❌ API import test failed: {e}")
         return False
 
 
@@ -54,13 +53,13 @@ def test_api_models():
         logger.info(f"✅ Test request created: {test_request.text[:30]}...")
 
         config = RateLimitConfig(requests_per_minute=60, burst_size=10)
-        rate_limiter = TokenBucketRateLimiter(config)
+        TokenBucketRateLimiter(config)
         logger.info("✅ Rate limiter created successfully")
 
         return True
 
     except Exception as e:
-        logger.error(f"❌ API model test failed: {e}")
+        logger.exception(f"❌ API model test failed: {e}")
         return False
 
 
@@ -72,7 +71,10 @@ def test_api_validation():
         class TestRequest(BaseModel):
             text: str = Field(..., min_length=1, description="Text cannot be empty")
             threshold: float = Field(
-                0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1"
+                0.2,
+                ge=0.0,
+                le=1.0,
+                description="Threshold between 0 and 1",
             )
 
         try:
@@ -95,7 +97,7 @@ def test_api_validation():
         return True
 
     except Exception as e:
-        logger.error(f"❌ API validation test failed: {e}")
+        logger.exception(f"❌ API validation test failed: {e}")
         return False
 
 

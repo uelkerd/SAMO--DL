@@ -18,7 +18,7 @@ def install_dependencies():
                 "datasets",
                 "pandas",
                 "transformers",
-            ]
+            ],
         )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
@@ -57,16 +57,16 @@ def analyze_label_mapping():
                 go_label_counts[label] = go_label_counts.get(label, 0) + 1
 
     print(f"GoEmotions unique labels: {len(go_label_counts)}")
-    print(f"GoEmotions labels: {sorted(list(go_label_counts.keys()))}")
+    print(f"GoEmotions labels: {sorted(go_label_counts.keys())}")
     print(
-        f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}"
+        f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}",
     )
 
     # Analyze Journal labels
     print("\n📊 Journal Analysis:")
     journal_label_counts = journal_df["emotion"].value_counts().to_dict()
     print(f"Journal unique labels: {len(journal_label_counts)}")
-    print(f"Journal labels: {sorted(list(journal_label_counts.keys()))}")
+    print(f"Journal labels: {sorted(journal_label_counts.keys())}")
     print(f"Journal label counts: {journal_label_counts}")
 
     # Check for any common labels
@@ -76,7 +76,7 @@ def analyze_label_mapping():
 
     print(f"\n🔍 Common labels: {len(common_labels)}")
     if common_labels:
-        print(f"Common labels: {sorted(list(common_labels))}")
+        print(f"Common labels: {sorted(common_labels)}")
     else:
         print("❌ NO COMMON LABELS FOUND!")
         print("This is why we get 0 GoEmotions samples!")
@@ -526,7 +526,7 @@ print("📁 Files downloaded: best_simple_model.pth, simple_training_results.jso
         f.write(cell_code)
 
     print(
-        "✅ Created fixed bulletproof training cell: bulletproof_training_cell_fixed.py"
+        "✅ Created fixed bulletproof training cell: bulletproof_training_cell_fixed.py",
     )
     print("📋 This version has proper emotion mapping!")
 

@@ -62,10 +62,12 @@ def compress_model(input_model: str, output_model: str) -> bool:
     """Compress model using dynamic quantization.
 
     Args:
+    ----
         input_model: Path to input model
         output_model: Path to save compressed model
 
     Returns:
+    -------
         bool: True if successful, False otherwise
 
     """
@@ -154,7 +156,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
         return True
 
     except Exception:
-        logger.error("Error compressing model: {e}")
+        logger.exception("Error compressing model: {e}")
         return False
 
 
@@ -162,9 +164,11 @@ def get_model_size(model: torch.nn.Module) -> float:
     """Get model size in MB.
 
     Args:
+    ----
         model: PyTorch model
 
     Returns:
+    -------
         float: Model size in MB
 
     """
@@ -179,10 +183,12 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
     """Benchmark model inference time.
 
     Args:
+    ----
         model: PyTorch model
         num_runs: Number of inference runs to average
 
     Returns:
+    -------
         float: Average inference time in seconds
 
     """
@@ -206,7 +212,7 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Compress BERT emotion classifier model"
+        description="Compress BERT emotion classifier model",
     )
     parser.add_argument(
         "--input_model",

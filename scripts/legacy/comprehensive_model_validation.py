@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""COMPREHENSIVE MODEL VALIDATION SCRIPT
+"""COMPREHENSIVE MODEL VALIDATION SCRIPT.
 ========================================
 Thoroughly validates the emotion detection model to ensure 100% reliability
 """
 
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -14,7 +15,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def comprehensive_validation():
-    """Comprehensive validation of the emotion detection model"""
+    """Comprehensive validation of the emotion detection model."""
     print("🔬 COMPREHENSIVE MODEL VALIDATION")
     print("=" * 60)
     print("🎯 Goal: Verify 99.54% F1 score reliability")
@@ -123,7 +124,11 @@ def comprehensive_validation():
         try:
             # Tokenize
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512,
+                padding=True,
             )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -144,7 +149,7 @@ def comprehensive_validation():
                 status = "❌"
 
             print(
-                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})"
+                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})",
             )
 
         except Exception as e:
@@ -167,7 +172,11 @@ def comprehensive_validation():
     confidence_scores = []
     for text, _ in test_cases:
         inputs = tokenizer(
-            text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
         )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -207,7 +216,11 @@ def comprehensive_validation():
     for text in edge_cases:
         try:
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=512,
+                padding=True,
             )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -220,7 +233,7 @@ def comprehensive_validation():
             predicted_emotion = emotion_mapping[predicted_class]
             edge_case_success += 1
             print(
-                f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})"
+                f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})",
             )
 
         except Exception as e:
@@ -287,7 +300,7 @@ def comprehensive_validation():
         predictions.append((emotion_mapping[predicted_class], confidence))
 
     # Check if all predictions are the same
-    unique_predictions = set(pred[0] for pred in predictions)
+    unique_predictions = {pred[0] for pred in predictions}
     is_consistent = len(unique_predictions) == 1
 
     if is_consistent:
@@ -332,4 +345,4 @@ def comprehensive_validation():
 
 if __name__ == "__main__":
     success = comprehensive_validation()
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)

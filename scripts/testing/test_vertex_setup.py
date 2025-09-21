@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test Vertex AI Setup Script
+"""Test Vertex AI Setup Script.
 
 This script tests the Vertex AI setup and configuration.
 """
@@ -57,7 +57,7 @@ def test_vertex_setup():
         logger.info("✅ Vertex AI setup test completed!")
 
     except Exception as e:
-        logger.error(f"❌ Setup test failed: {e}")
+        logger.exception(f"❌ Setup test failed: {e}")
         raise
 
 

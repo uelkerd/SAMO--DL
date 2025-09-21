@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test Voice Pipeline for SAMO
+"""Test Voice Pipeline for SAMO.
 
 This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
@@ -22,7 +22,8 @@ from src.models.emotion_detection.training_pipeline import (
 )
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ def test_whisper_transcription():
         logger.warning("⚠️  Whisper not available - skipping transcription test")
         return False
     except Exception as e:
-        logger.error("❌ Whisper transcription test failed: %s", e)
+        logger.exception("❌ Whisper transcription test failed: %s", e)
         return False
 
 
@@ -95,7 +96,7 @@ def test_emotion_detection():
         return True
 
     except Exception as e:
-        logger.error("❌ Emotion detection test failed: %s", e)
+        logger.exception("❌ Emotion detection test failed: %s", e)
         return False
 
 
@@ -114,17 +115,20 @@ def test_voice_emotion_features():
 
         mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
         spectral_centroids = librosa.feature.spectral_centroid(
-            y=audio_data, sr=sample_rate
+            y=audio_data,
+            sr=sample_rate,
         )
         zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
 
         logger.info("✅ Voice emotion features extracted successfully")
         logger.info("   • MFCC features: %s", getattr(mfccs, "shape", None))
         logger.info(
-            "   • Spectral centroids: %s", getattr(spectral_centroids, "shape", None)
+            "   • Spectral centroids: %s",
+            getattr(spectral_centroids, "shape", None),
         )
         logger.info(
-            "   • Zero crossing rate: %s", getattr(zero_crossing_rate, "shape", None)
+            "   • Zero crossing rate: %s",
+            getattr(zero_crossing_rate, "shape", None),
         )
 
         return True
@@ -133,7 +137,7 @@ def test_voice_emotion_features():
         logger.warning("⚠️  Librosa not available - skipping voice features test")
         return False
     except Exception as e:
-        logger.error("❌ Voice emotion features test failed: %s", e)
+        logger.exception("❌ Voice emotion features test failed: %s", e)
         return False
 
 
@@ -164,7 +168,7 @@ def test_complete_pipeline():
                 logger.info("❌ %s: FAILED", test_name)
 
         except Exception as e:
-            logger.error("❌ %s: ERROR - %s", test_name, e)
+            logger.exception("❌ %s: ERROR - %s", test_name, e)
             results.append((test_name, False))
 
     logger.info("\n" + "=" * 50)

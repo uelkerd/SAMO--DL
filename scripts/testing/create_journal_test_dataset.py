@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Journal Entry Test Dataset for Domain Adaptation
+"""Create Journal Entry Test Dataset for Domain Adaptation.
 
 This script generates a realistic test dataset of journal entries for domain adaptation
 testing as required by REQ-DL-012. The dataset will be used to validate that our
@@ -169,7 +169,7 @@ def generate_journal_content(topic: str, emotion: str) -> str:
     """Generate realistic journal entry content."""
     template = random.choice(JOURNAL_TEMPLATES)
     emotion_context = random.choice(
-        EMOTION_CONTEXTS.get(emotion, ["I'm feeling this way."])
+        EMOTION_CONTEXTS.get(emotion, ["I'm feeling this way."]),
     )
     reflection = random.choice(REFLECTIVE_STATEMENTS)
 
@@ -183,7 +183,7 @@ def generate_journal_content(topic: str, emotion: str) -> str:
     # Add more depth with additional sentences
     if random.random() > 0.3:  # 70% chance of adding more detail
         additional_context = random.choice(
-            EMOTION_CONTEXTS.get(emotion, ["I'm processing this."])
+            EMOTION_CONTEXTS.get(emotion, ["I'm processing this."]),
         )
         content += f" {additional_context}"
 
@@ -195,7 +195,9 @@ def generate_journal_content(topic: str, emotion: str) -> str:
 
 
 def generate_journal_entry(
-    entry_id: int, user_id: int, created_at: datetime
+    entry_id: int,
+    user_id: int,
+    created_at: datetime,
 ) -> Dict[str, Any]:
     """Generate a single realistic journal entry."""
     topic = random.choice(JOURNAL_TOPICS)
@@ -223,7 +225,7 @@ def create_journal_test_dataset(
 ) -> List[Dict[str, Any]]:
     """Create a comprehensive journal test dataset."""
     start_date = datetime.now(timezone.utc) - timedelta(days=days_back)
-    end_date = datetime.now(timezone.utc)
+    datetime.now(timezone.utc)
 
     entries = []
     for i in range(num_entries):
@@ -260,7 +262,7 @@ def create_dataset_summary(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Create a summary of the dataset for validation."""
     df = pd.DataFrame(entries)
 
-    summary = {
+    return {
         "total_entries": len(entries),
         "unique_users": df["user_id"].nunique(),
         "emotion_distribution": df["emotion"].value_counts().to_dict(),
@@ -272,8 +274,6 @@ def create_dataset_summary(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
         },
         "sample_entries": entries[:3],  # First 3 entries as examples
     }
-
-    return summary
 
 
 def main():
@@ -307,7 +307,7 @@ def main():
     print(f"   Unique Users: {summary['unique_users']}")
     print(f"   Average Word Count: {summary['avg_word_count']:.1f}")
     print(
-        f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}"
+        f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}",
     )
 
     print("\n🎯 Emotion Distribution:")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Restart Training Debug Script
+"""Restart Training Debug Script.
 
 Debug script for restarting training with various configurations.
 """
@@ -47,20 +47,20 @@ def main():
         }
 
         logger.info("📋 Training Configuration:")
-        for key, value in config.items():
+        for _key, _value in config.items():
             logger.info("   {key}: {value}")
 
         logger.info("\n🔍 Starting training with debugging...")
         logger.info("⚠️  Watch for DEBUG messages to identify the 0.0000 loss issue!")
 
-        results = train_emotion_detection_model(**config)
+        train_emotion_detection_model(**config)
 
         logger.info("✅ Training completed!")
         logger.info("📊 Final results: {results}")
 
     except Exception:
-        logger.error("❌ Training failed: {e}")
-        logger.error("Traceback: {traceback.format_exc()}")
+        logger.exception("❌ Training failed: {e}")
+        logger.exception("Traceback: {traceback.format_exc()}")
         return False
 
     return True

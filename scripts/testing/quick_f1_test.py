@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick F1 Test Script
+"""Quick F1 Test Script.
 
 Quick test to evaluate F1 scores and model performance.
 """
@@ -73,7 +73,7 @@ def main():
             logger.info("⚠️ Need more optimization techniques.")
 
         checkpoint_path = Path(
-            "models/checkpoints/bert_emotion_classifier_quick_test.pt"
+            "models/checkpoints/bert_emotion_classifier_quick_test.pt",
         )
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -93,8 +93,8 @@ def main():
         return metrics["micro_f1"]
 
     except Exception:
-        logger.error("❌ Quick F1 test failed: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception("❌ Quick F1 test failed: {e}")
+        logger.exception(traceback.format_exc())
         return 0.0
 
 

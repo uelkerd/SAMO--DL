@@ -92,7 +92,8 @@ class ModelOptimizer:
         checkpoint = torch.load(self.model_path, map_location=self.device)
 
         self.model = BERTEmotionClassifier(
-            model_name="bert-base-uncased", num_emotions=28
+            model_name="bert-base-uncased",
+            num_emotions=28,
         )
 
         self.model.load_state_dict(checkpoint["model_state_dict"])
@@ -102,7 +103,7 @@ class ModelOptimizer:
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
         logger.info(
-            "Model loaded successfully. Parameters: {self.model.count_parameters():,}"
+            "Model loaded successfully. Parameters: {self.model.count_parameters():,}",
         )
 
     def compress_model(self) -> None:
@@ -136,7 +137,9 @@ class ModelOptimizer:
         logger.info("  Applying dynamic quantization...")
 
         self.model = torch.quantization.quantize_dynamic(
-            self.model, {nn.Linear}, dtype=torch.qint8
+            self.model,
+            {nn.Linear},
+            dtype=torch.qint8,
         )
 
         logger.info("  Dynamic quantization applied")
@@ -270,7 +273,8 @@ class ModelOptimizer:
         return optimizations
 
     def benchmark_performance(
-        self, test_texts: list[str] | None = None
+        self,
+        test_texts: list[str] | None = None,
     ) -> dict[str, float]:
         """Benchmark model performance."""
         logger.info("📊 Benchmarking model performance...")
@@ -312,7 +316,7 @@ class ModelOptimizer:
 
             predictions = (probabilities >= 0.2).float()
             accuracies.append(
-                predictions.sum().item() > 0
+                predictions.sum().item() > 0,
             )  # At least one emotion predicted
 
         avg_latency = np.mean(latencies)
@@ -334,7 +338,7 @@ class ModelOptimizer:
         logger.info("  99th percentile latency: {p99_latency:.2f}ms")
         logger.info("  Accuracy: {accuracy:.2%}")
         logger.info(
-            "  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec"
+            "  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec",
         )
 
         return results
@@ -408,7 +412,7 @@ def main():
 
         if passed_criteria == total_criteria:
             logger.info(
-                "🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets."
+                "🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets.",
             )
             logger.info("📁 Optimized model saved to: {optimized_path}")
             logger.info("📁 ONNX model saved to: {onnx_path}")
@@ -419,7 +423,7 @@ def main():
         return 1
 
     except Exception:
-        logger.error("❌ Optimization failed: {e}")
+        logger.exception("❌ Optimization failed: {e}")
         return 1
 
 

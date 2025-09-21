@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Finalize Emotion Detection Model
+"""Finalize Emotion Detection Model.
 
 This script finalizes the BERT emotion classifier training to achieve >75% F1 score
 by combining multiple optimization techniques:
@@ -12,6 +12,7 @@ Usage:
     python scripts/finalize_emotion_model.py [--output_model PATH] [--epochs INT] [--batch_size INT]
 
 Arguments:
+---------
     --output_model: Path to save the final model (default: models/checkpoints/bert_emotion_classifier_final.pt)
     --epochs: Number of training epochs (default: 5)
     --batch_size: Training batch size (default: 16)
@@ -61,6 +62,7 @@ class FocalLoss(nn.Module):
         """Initialize Focal Loss.
 
         Args:
+        ----
             gamma: Focusing parameter (>= 0). Higher values focus more on hard examples.
             alpha: Optional class weights. If provided, should be a tensor of shape (num_classes,).
 
@@ -73,10 +75,12 @@ class FocalLoss(nn.Module):
         """Forward pass.
 
         Args:
+        ----
             inputs: Model predictions (logits) of shape (batch_size, num_classes)
             targets: Ground truth labels of shape (batch_size, num_classes)
 
         Returns:
+        -------
             Focal loss value
 
         """
@@ -109,6 +113,7 @@ class EnsembleModel(nn.Module):
         """Initialize ensemble model.
 
         Args:
+        ----
             models: List of BERT emotion classifier models
             weights: Optional weights for each model (default: equal weights)
             temperature: Temperature for softmax scaling
@@ -125,9 +130,11 @@ class EnsembleModel(nn.Module):
         """Forward pass through ensemble.
 
         Args:
+        ----
             **kwargs: Input arguments for the models
 
         Returns:
+        -------
             Ensemble predictions
 
         """
@@ -140,14 +147,13 @@ class EnsembleModel(nn.Module):
         weighted_pred = sum(w * p for w, p in zip(self.weights, predictions))
 
         # Apply temperature scaling
-        scaled_pred = weighted_pred / self.temperature
-
-        return scaled_pred
+        return weighted_pred / self.temperature
 
     def set_temperature(self, temperature: float) -> None:
         """Set temperature for ensemble predictions.
 
         Args:
+        ----
             temperature: New temperature value
 
         """
@@ -155,15 +161,18 @@ class EnsembleModel(nn.Module):
 
 
 def create_augmented_dataset(
-    data_loader: GoEmotionsDataLoader, tokenizer: AutoTokenizer
+    data_loader: GoEmotionsDataLoader,
+    tokenizer: AutoTokenizer,
 ) -> dict:
     """Create augmented dataset using back-translation.
 
     Args:
+    ----
         data_loader: Original data loader
         tokenizer: BERT tokenizer
 
     Returns:
+    -------
         Augmented dataset
 
     """
@@ -182,16 +191,18 @@ def train_final_model(
     """Train the final emotion detection model.
 
     Args:
+    ----
         output_model: Path to save the final model
         epochs: Number of training epochs
         batch_size: Training batch size
 
     Returns:
+    -------
         Training metrics
 
     """
     logger.info(
-        f"Training final model for {epochs} epochs with batch size {batch_size}"
+        f"Training final model for {epochs} epochs with batch size {batch_size}",
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -206,7 +217,7 @@ def train_final_model(
     val_data = data_loader.get_validation_data()
 
     # Create augmented dataset
-    augmented_data = create_augmented_dataset(data_loader, tokenizer)
+    create_augmented_dataset(data_loader, tokenizer)
 
     # Initialize focal loss
     focal_loss = FocalLoss(gamma=2.0)
@@ -282,10 +293,12 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
     """Create ensemble model from trained models.
 
     Args:
+    ----
         model_path: Path to the trained model
         device: Device to load models on
 
     Returns:
+    -------
         Ensemble model
 
     """
@@ -315,12 +328,14 @@ def evaluate_ensemble(
     """Evaluate ensemble model performance.
 
     Args:
+    ----
         ensemble: Ensemble model
         test_data: Test dataset
         tokenizer: BERT tokenizer
         device: Device to run evaluation on
 
     Returns:
+    -------
         Evaluation metrics
 
     """
@@ -371,6 +386,7 @@ def save_ensemble_model(
     """Save ensemble model and metrics.
 
     Args:
+    ----
         ensemble: Ensemble model to save
         metrics: Model performance metrics
         output_path: Path to save the model
@@ -451,7 +467,7 @@ def main():
 
     else:
         logger.warning(
-            f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}"
+            f"⚠️ Target F1 score of {TARGET_F1_SCORE} not achieved. Best: {training_results['best_f1']:.4f}",
         )
 
 

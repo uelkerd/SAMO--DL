@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Fixed Specialized Training Notebook
+"""Create Fixed Specialized Training Notebook.
 ==========================================
 
 This script generates a corrected training notebook that properly preserves

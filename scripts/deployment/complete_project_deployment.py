@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🎉 COMPLETE PROJECT DEPLOYMENT
+"""🎉 COMPLETE PROJECT DEPLOYMENT.
 ==============================
 Complete the emotion detection project deployment.
 This script handles everything from model saving to final testing.
@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 def print_banner():
-    """Print project completion banner"""
+    """Print project completion banner."""
     print("🎉" * 50)
     print("🚀 EMOTION DETECTION PROJECT - COMPLETE DEPLOYMENT")
     print("🎯 TARGET: 75-85% F1 Score")
@@ -23,7 +23,7 @@ def print_banner():
 
 
 def check_project_status():
-    """Check the current project status"""
+    """Check the current project status."""
     print("📊 CHECKING PROJECT STATUS")
     print("=" * 40)
 
@@ -51,7 +51,7 @@ def check_project_status():
 
 
 def save_model_for_deployment():
-    """Save the trained model for deployment"""
+    """Save the trained model for deployment."""
     print("\n🚀 SAVING MODEL FOR DEPLOYMENT")
     print("=" * 40)
 
@@ -81,7 +81,7 @@ def save_model_for_deployment():
 
 
 def test_deployment_package():
-    """Test the deployment package"""
+    """Test the deployment package."""
     print("\n🧪 TESTING DEPLOYMENT PACKAGE")
     print("=" * 40)
 
@@ -115,7 +115,7 @@ def test_deployment_package():
 
 
 def create_final_documentation():
-    """Create final project documentation"""
+    """Create final project documentation."""
     print("\n📚 CREATING FINAL DOCUMENTATION")
     print("=" * 40)
 
@@ -164,7 +164,7 @@ def create_final_documentation():
 
 
 def create_deployment_instructions():
-    """Create deployment instructions"""
+    """Create deployment instructions."""
     print("\n📋 CREATING DEPLOYMENT INSTRUCTIONS")
     print("=" * 40)
 
@@ -256,7 +256,7 @@ The project demonstrates the power of:
 
 
 def run_final_tests():
-    """Run final comprehensive tests"""
+    """Run final comprehensive tests."""
     print("\n🧪 RUNNING FINAL TESTS")
     print("=" * 40)
 
@@ -281,7 +281,11 @@ def run_final_tests():
     for test_name, command in tests:
         try:
             result = subprocess.run(
-                command, check=False, shell=True, capture_output=True, text=True
+                command,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
             )
             if result.returncode == 0:
                 print(f"✅ {test_name}: PASSED")
@@ -296,7 +300,7 @@ def run_final_tests():
 
 
 def main():
-    """Main deployment process"""
+    """Main deployment process."""
     print_banner()
 
     # Check project status

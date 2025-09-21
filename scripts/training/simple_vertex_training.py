@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Vertex AI Training Script
+"""Simple Vertex AI Training Script.
 
 This script provides a simple interface for training on Google Cloud Vertex AI.
 """
@@ -46,7 +46,7 @@ def simple_vertex_training():
         logger.info("✅ Simple Vertex AI training setup completed!")
 
     except Exception as e:
-        logger.error(f"❌ Training setup failed: {e}")
+        logger.exception(f"❌ Training setup failed: {e}")
         raise
 
 

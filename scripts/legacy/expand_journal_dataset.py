@@ -51,7 +51,7 @@ def create_balanced_dataset(target_size=1000):
         current_count = len(existing_samples)
 
         print(
-            f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples..."
+            f"\n📝 Expanding '{emotion}' from {current_count} to {target_per_emotion} samples...",
         )
 
         # Add existing samples
@@ -62,7 +62,7 @@ def create_balanced_dataset(target_size=1000):
 
         if needed_samples > 0:
             # Create variations of existing samples
-            for i in range(needed_samples):
+            for _i in range(needed_samples):
                 # Pick a random existing sample to base variation on
                 base_sample = random.choice(existing_samples)
 

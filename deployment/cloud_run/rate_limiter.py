@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Rate Limiter for Flask API"""
 
-import time
 import threading
+import time
 from collections import defaultdict, deque
-from typing import Dict
-from flask import request, jsonify
 from functools import wraps
+from typing import Dict
+
+from flask import jsonify, request
+
 
 class RateLimiter:
     def __init__(self, requests_per_minute: int = 100):
         self.requests_per_minute = requests_per_minute
-        self.requests: Dict[str, deque] = defaultdict(lambda: deque(maxlen=requests_per_minute))
+        self.requests: Dict[str, deque] = defaultdict(
+            lambda: deque(maxlen=requests_per_minute)
+        )
         self.lock = threading.Lock()
 
     def is_allowed(self, client_id: str) -> bool:
@@ -20,8 +24,10 @@ class RateLimiter:
 
         with self.lock:
             # Clean old requests (older than 1 minute)
-            while (self.requests[client_id] and
-                   current_time - self.requests[client_id][0] > 60):
+            while (
+                self.requests[client_id]
+                and current_time - self.requests[client_id][0] > 60
+            ):
                 self.requests[client_id].popleft()
 
             # Check if under limit
@@ -35,12 +41,13 @@ class RateLimiter:
     def get_client_id(request) -> str:
         """Get client identifier"""
         # Try API key first
-        api_key = request.headers.get('X-API-Key')
+        api_key = request.headers.get("X-API-Key")
         if api_key:
             return f"api_key:{api_key}"
 
         # Fall back to IP address
         return f"ip:{request.remote_addr}"
+
 
 def rate_limit(requests_per_minute: int = 100):
     """Rate limiting decorator"""
@@ -52,11 +59,15 @@ def rate_limit(requests_per_minute: int = 100):
             client_id = limiter.get_client_id(request)
 
             if not limiter.is_allowed(client_id):
-                return jsonify({
-                    'error': 'Rate limit exceeded',
-                    'retry_after': 60
-                }), 429
+                return jsonify(
+                    {
+                        "error": "Rate limit exceeded",
+                        "retry_after": 60,
+                    }
+                ), 429
 
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator

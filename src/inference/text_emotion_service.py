@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Union
+from typing import Any
 
 from .constants import EMOTION_MODEL_DIR
 
@@ -14,7 +14,7 @@ DEFAULT_LOCAL_MODEL_DIR = EMOTION_MODEL_DIR
 class EmotionService:
     """Abstract emotion classification service interface."""
 
-    def classify(self, texts: Union[str, list[str]]) -> list[list[dict[str, Any]]]:
+    def classify(self, texts: str | list[str]) -> list[list[dict[str, Any]]]:
         """Classify one or many texts into emotion score distributions."""
         raise NotImplementedError
 
@@ -48,9 +48,9 @@ class HFEmotionService(EmotionService):
                 AutoModelForSequenceClassification,
                 AutoTokenizer,
                 pipeline,
-            )  # type: ignore
+            )
         except Exception as e:  # pragma: no cover
-            logger.error("Failed to import transformers components: %s", e)
+            logger.exception("Failed to import transformers components: %s", e)
             raise
 
         model_dir = os.environ.get(self.model_dir_env)
@@ -102,7 +102,7 @@ class HFEmotionService(EmotionService):
         self._pipeline = pipeline(**kwargs)
         logger.info("HFEmotionService loaded remote model: %s", self.model_name)
 
-    def classify(self, texts: Union[str, list[str]]) -> list[list[dict[str, Any]]]:
+    def classify(self, texts: str | list[str]) -> list[list[dict[str, Any]]]:
         """Return list of per-text distributions [{label, score}, ...]."""
         inputs = [texts] if isinstance(texts, str) else texts
         if self._pipeline is None:

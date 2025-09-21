@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize Comprehensive Notebook
+"""Summarize Comprehensive Notebook.
 ===============================
 
 This script provides a detailed summary of the comprehensive notebook

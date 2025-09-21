@@ -33,7 +33,7 @@ def load_trained_model():
     label_encoder.fit(all_emotions)
 
     print(
-        f"✅ Model loaded with {len(label_encoder.classes_)} emotions: {label_encoder.classes_}"
+        f"✅ Model loaded with {len(label_encoder.classes_)} emotions: {label_encoder.classes_}",
     )
     return model, tokenizer, label_encoder
 
@@ -49,8 +49,7 @@ class SimpleEmotionClassifier(nn.Module):
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        logits = self.classifier(self.dropout(pooled_output))
-        return logits
+        return self.classifier(self.dropout(pooled_output))
 
 
 def predict_emotion(text, model, tokenizer, label_encoder, device="cpu"):
@@ -111,7 +110,10 @@ def test_model():
 
     for i, text in enumerate(test_entries, 1):
         emotion, confidence, all_probs = predict_emotion(
-            text, model, tokenizer, label_encoder
+            text,
+            model,
+            tokenizer,
+            label_encoder,
         )
 
         print(f"\n{i}. Text: {text}")

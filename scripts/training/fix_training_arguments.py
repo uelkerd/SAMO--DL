@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Training Arguments
+"""Fix Training Arguments.
 =====================
 
 This script fixes the training arguments in the simple notebook to remove
@@ -18,7 +18,7 @@ def fix_training_arguments():
     # Find and replace the training arguments cell
     for cell in notebook["cells"]:
         if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(
-            cell["source"]
+            cell["source"],
         ):
             # Replace with fixed training arguments
             cell["source"] = [

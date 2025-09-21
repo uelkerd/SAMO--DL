@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 SAVE TRAINED MODEL FOR DEPLOYMENT
+"""🚀 SAVE TRAINED MODEL FOR DEPLOYMENT.
 ====================================
 Save the trained emotion detection model in deployment-ready format.
 This includes model files, tokenizer, and label encoder.
@@ -13,7 +13,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def save_model_for_deployment():
-    """Save the trained model for deployment"""
+    """Save the trained model for deployment."""
     print("🚀 SAVING TRAINED MODEL FOR DEPLOYMENT")
     print("=" * 50)
 
@@ -38,7 +38,7 @@ def save_model_for_deployment():
         print("📋 Available paths checked:")
         for path in model_paths:
             print(
-                f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}"
+                f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}",
             )
         return False
 
@@ -131,7 +131,7 @@ def save_model_for_deployment():
 
 
 def test_saved_model(model_dir):
-    """Test the saved model"""
+    """Test the saved model."""
     try:
         from inference import EmotionDetector
 
@@ -154,7 +154,7 @@ def test_saved_model(model_dir):
             result = detector.predict(text)
             print(f"Text: {text}")
             print(
-                f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})"
+                f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})",
             )
             print()
 
@@ -165,7 +165,7 @@ def test_saved_model(model_dir):
 
 
 def create_deployment_script():
-    """Create a deployment script"""
+    """Create a deployment script."""
     deployment_script = """#!/bin/bash
 # 🚀 EMOTION DETECTION MODEL DEPLOYMENT
 # =====================================

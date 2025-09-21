@@ -167,7 +167,7 @@ def validate_environment():
 
         return True
     except Exception as _e:
-        logger.error("❌ Environment validation failed: %s", _e)
+        logger.exception("❌ Environment validation failed: %s", _e)
         raise
 
 
@@ -223,7 +223,7 @@ def validate_data_distribution():
         return True
 
     except Exception as _e:
-        logger.error("❌ Data distribution validation failed: %s", _e)
+        logger.exception("❌ Data distribution validation failed: %s", _e)
         raise
 
 
@@ -276,7 +276,7 @@ def validate_model_architecture():
         return True
 
     except Exception as _e:
-        logger.error("❌ Model architecture validation failed: %s", _e)
+        logger.exception("❌ Model architecture validation failed: %s", _e)
         raise
 
 
@@ -330,7 +330,7 @@ def validate_loss_function():
         return True
 
     except Exception as _e:
-        logger.error("❌ Loss function validation failed: %s", _e)
+        logger.exception("❌ Loss function validation failed: %s", _e)
         raise
 
 
@@ -365,7 +365,7 @@ def validate_training_config(args):
         return True
 
     except Exception as _e:
-        logger.error("❌ Training configuration validation failed: %s", _e)
+        logger.exception("❌ Training configuration validation failed: %s", _e)
         raise
 
 
@@ -400,8 +400,8 @@ def run_training(args):
         return results
 
     except Exception as _e:
-        logger.error("❌ Training failed: %s", _e)
-        logger.error("Traceback: %s", traceback.format_exc())
+        logger.exception("❌ Training failed: %s", _e)
+        logger.exception("Traceback: %s", traceback.format_exc())
         return None
 
 
@@ -449,7 +449,7 @@ def _run_validations(validations):
             logger.info("✅ %s PASSED", name)
 
         except Exception as _e:
-            logger.error("❌ %s ERROR: %s", name, _e)
+            logger.exception("❌ %s ERROR: %s", name, _e)
             results[name] = False
 
     return results

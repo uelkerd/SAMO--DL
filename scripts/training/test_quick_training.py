@@ -76,10 +76,10 @@ def test_development_mode():
         logger.info("📊 Training Results Analysis:")
         logger.info("⏱️  Total training time: {training_minutes:.1f} minutes")
         logger.info(
-            "📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}"
+            "📈 Final test Macro F1: {results['final_test_metrics']['macro_f1']:.4f}",
         )
         logger.info(
-            "📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}"
+            "📈 Final test Micro F1: {results['final_test_metrics']['micro_f1']:.4f}",
         )
         logger.info("🏆 Best validation score: {results['best_validation_score']:.4f}")
         logger.info("🔄 Total epochs completed: {results['total_epochs']}")
@@ -110,7 +110,7 @@ def test_development_mode():
         return False
 
     except Exception:
-        logger.error("❌ Training test failed with error: {e}")
+        logger.exception("❌ Training test failed with error: {e}")
         return False
 
 
@@ -169,7 +169,7 @@ def test_threshold_tuning():
         return False
 
     except Exception:
-        logger.error("❌ Threshold tuning test failed: {e}")
+        logger.exception("❌ Threshold tuning test failed: {e}")
         return False
 
 

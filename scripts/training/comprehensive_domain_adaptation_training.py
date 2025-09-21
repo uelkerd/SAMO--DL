@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO Deep Learning - Comprehensive Domain Adaptation Training Script
+"""SAMO Deep Learning - Comprehensive Domain Adaptation Training Script.
 
 SENIOR-LEVEL IMPLEMENTATION for REQ-DL-012: Domain-Adapted Emotion Detection
 that completely avoids dependency hell and provides production-ready code.
@@ -195,7 +195,7 @@ class EnvironmentManager:
 
             if result.returncode != 0:
                 logger.error(
-                    f"❌ Additional dependencies installation failed: {result.stderr}"
+                    f"❌ Additional dependencies installation failed: {result.stderr}",
                 )
                 return False
 
@@ -219,10 +219,10 @@ class EnvironmentManager:
             return True
 
         except subprocess.TimeoutExpired:
-            logger.error("❌ Installation timed out")
+            logger.exception("❌ Installation timed out")
             return False
         except Exception as e:
-            logger.error(f"❌ Installation failed: {e}")
+            logger.exception(f"❌ Installation failed: {e}")
             return False
 
     def verify_installation(self) -> bool:
@@ -242,7 +242,7 @@ class EnvironmentManager:
             if torch.cuda.is_available():
                 logger.info(f"  GPU: {torch.cuda.get_device_name(0)}")
                 logger.info(
-                    f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                    f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB",
                 )
                 torch.backends.cudnn.benchmark = True
                 logger.info("  ✅ GPU optimized for training")
@@ -257,7 +257,7 @@ class EnvironmentManager:
             except ImportError as e:
                 if "broadcast_to" in str(e):
                     logger.warning(
-                        "⚠️ Numpy compatibility issue detected. Applying workaround..."
+                        "⚠️ Numpy compatibility issue detected. Applying workaround...",
                     )
                     # Apply numpy compatibility fix
                     import numpy as np
@@ -273,12 +273,12 @@ class EnvironmentManager:
                     # Try imports again
                     logger.info("  ✅ Transformers imports successful after fix")
                 else:
-                    raise e
+                    raise
 
             return True
 
         except Exception as e:
-            logger.error(f"  ❌ Installation verification failed: {e}")
+            logger.exception(f"  ❌ Installation verification failed: {e}")
 
             # Try to fix numpy compatibility issue
             if "broadcast_to" in str(e):
@@ -298,7 +298,7 @@ class EnvironmentManager:
                         logger.info("✅ Transformers imports successful after fix")
                         return True
                 except Exception as fix_error:
-                    logger.error(f"❌ Could not fix numpy issue: {fix_error}")
+                    logger.exception(f"❌ Could not fix numpy issue: {fix_error}")
 
             return False
 
@@ -331,19 +331,18 @@ class RepositoryManager:
                 logger.error(f"  ❌ {description} failed: {result.stderr}")
                 return False
             except subprocess.TimeoutExpired:
-                logger.error(f"  ❌ {description} timed out")
+                logger.exception(f"  ❌ {description} timed out")
                 return False
             except Exception as e:
-                logger.error(f"  ❌ {description} failed: {e}")
+                logger.exception(f"  ❌ {description} failed: {e}")
                 return False
 
         # Clone repository if not exists
-        if not Path("SAMO--DL").exists():
-            if not run_command_safe(
-                "git clone https://github.com/uelkerd/SAMO--DL.git",
-                "Cloning repository",
-            ):
-                return False
+        if not Path("SAMO--DL").exists() and not run_command_safe(
+            "git clone https://github.com/uelkerd/SAMO--DL.git",
+            "Cloning repository",
+        ):
+            return False
 
         # Change to project directory
         try:
@@ -351,7 +350,7 @@ class RepositoryManager:
             self.project_root = Path.cwd()
             logger.info(f"📁 Working directory: {self.project_root}")
         except Exception as e:
-            logger.error(f"❌ Failed to change directory: {e}")
+            logger.exception(f"❌ Failed to change directory: {e}")
             return False
 
         # Pull latest changes
@@ -409,7 +408,7 @@ class DataManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to load datasets: {e}")
+            logger.exception(f"❌ Failed to load datasets: {e}")
             return False
 
     def prepare_label_encoder(self) -> bool:
@@ -442,7 +441,7 @@ class DataManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to prepare label encoder: {e}")
+            logger.exception(f"❌ Failed to prepare label encoder: {e}")
             return False
 
     def analyze_domain_gap(self) -> bool:
@@ -473,7 +472,7 @@ class DataManager:
                     [
                         "I " in text or "my " in text or "me " in text
                         for text in valid_texts
-                    ]
+                    ],
                 ) / len(valid_texts)
                 reflection_words = sum(
                     [
@@ -481,7 +480,7 @@ class DataManager:
                         or "feel" in text.lower()
                         or "believe" in text.lower()
                         for text in valid_texts
-                    ]
+                    ],
                 ) / len(valid_texts)
 
                 logger.info(f"{domain_name} Style Analysis:")
@@ -503,13 +502,13 @@ class DataManager:
             if go_analysis and journal_analysis:
                 logger.info("🎯 Key Insights:")
                 logger.info(
-                    f"- Journal entries are {journal_analysis['avg_length'] / go_analysis['avg_length']:.1f}x longer"
+                    f"- Journal entries are {journal_analysis['avg_length'] / go_analysis['avg_length']:.1f}x longer",
                 )
                 logger.info(
-                    f"- Journal entries use {journal_analysis['personal_pronouns'] / go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+                    f"- Journal entries use {journal_analysis['personal_pronouns'] / go_analysis['personal_pronouns']:.1f}x more personal pronouns",
                 )
                 logger.info(
-                    f"- Journal entries contain {journal_analysis['reflection_words'] / go_analysis['reflection_words']:.1f}x more reflection words"
+                    f"- Journal entries contain {journal_analysis['reflection_words'] / go_analysis['reflection_words']:.1f}x more reflection words",
                 )
 
                 return True
@@ -517,7 +516,7 @@ class DataManager:
             return False
 
         except Exception as e:
-            logger.error(f"❌ Domain analysis failed: {e}")
+            logger.exception(f"❌ Domain analysis failed: {e}")
             return False
 
 
@@ -540,7 +539,7 @@ class ModelManager:
             if torch.cuda.is_available():
                 logger.info(f"🚀 Using GPU: {torch.cuda.get_device_name(0)}")
                 logger.info(
-                    f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                    f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB",
                 )
                 torch.backends.cudnn.benchmark = True
                 torch.backends.cudnn.deterministic = False
@@ -550,7 +549,7 @@ class ModelManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Device setup failed: {e}")
+            logger.exception(f"❌ Device setup failed: {e}")
             return False
 
     def initialize_model(self, num_labels: int) -> bool:
@@ -584,13 +583,13 @@ class ModelManager:
                 p.numel() for p in self.model.parameters() if p.requires_grad
             )
             logger.info(
-                f"📊 Model parameters: {total_params:,} (trainable: {trainable_params:,})"
+                f"📊 Model parameters: {total_params:,} (trainable: {trainable_params:,})",
             )
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Model initialization failed: {e}")
+            logger.exception(f"❌ Model initialization failed: {e}")
             return False
 
 
@@ -630,7 +629,7 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             raise ValueError(f"num_labels must be positive, got {num_labels}")
 
         logger.info(
-            f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}"
+            f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}",
         )
 
         try:
@@ -652,7 +651,7 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             logger.info(f"✅ Model initialized successfully with {num_labels} labels")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize model: {e}")
+            logger.exception(f"❌ Failed to initialize model: {e}")
             raise
 
     def forward(self, input_ids, attention_mask, domain_labels=None):
@@ -671,7 +670,7 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             return emotion_logits
 
         except Exception as e:
-            logger.error(f"❌ Forward pass failed: {e}")
+            logger.exception(f"❌ Forward pass failed: {e}")
             raise
 
 
@@ -698,9 +697,9 @@ class TrainingManager:
         logger.info("🎯 Setting up training components...")
 
         # Ensure model is initialized
-        assert self.model_manager.model is not None, (
-            "Model must be initialized before setup_training"
-        )
+        assert (
+            self.model_manager.model is not None
+        ), "Model must be initialized before setup_training"
 
         try:
             from torch.optim import AdamW
@@ -735,7 +734,7 @@ class TrainingManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Training setup failed: {e}")
+            logger.exception(f"❌ Training setup failed: {e}")
             return False
 
     def train(self) -> bool:
@@ -749,14 +748,14 @@ class TrainingManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Training failed: {e}")
+            logger.exception(f"❌ Training failed: {e}")
             return False
 
 
 def main():
     """Main execution function with comprehensive error handling."""
     logger.info(
-        "🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training"
+        "🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training",
     )
     logger.info("=" * 80)
 

@@ -48,8 +48,7 @@ def predict_probs(texts):
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.inference_mode():
         logits = mdl(**enc).logits
-        probs = torch.sigmoid(logits).cpu().numpy()
-    return probs
+        return torch.sigmoid(logits).cpu().numpy()
 
 
 P_chunks = []

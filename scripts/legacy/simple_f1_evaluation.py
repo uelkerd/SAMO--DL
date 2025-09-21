@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple F1 Score Evaluation Script
+"""Simple F1 Score Evaluation Script.
 
 This script evaluates the current F1 score of the emotion detection model.
 """
@@ -60,7 +60,7 @@ def evaluate_current_f1():
                         break
                 except Exception as e:
                     logger.warning(
-                        f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}"
+                        f"⚠️ Failed to load checkpoint {checkpoint_path}: {e}",
                     )
                     continue
 
@@ -133,21 +133,36 @@ def evaluate_current_f1():
 
         # Calculate F1 scores
         micro_f1 = f1_score(
-            all_labels, all_predictions, average="micro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="micro",
+            zero_division=0,
         )
         macro_f1 = f1_score(
-            all_labels, all_predictions, average="macro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="macro",
+            zero_division=0,
         )
         weighted_f1 = f1_score(
-            all_labels, all_predictions, average="weighted", zero_division=0
+            all_labels,
+            all_predictions,
+            average="weighted",
+            zero_division=0,
         )
 
         # Calculate precision and recall
         micro_precision = precision_score(
-            all_labels, all_predictions, average="micro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="micro",
+            zero_division=0,
         )
         micro_recall = recall_score(
-            all_labels, all_predictions, average="micro", zero_division=0
+            all_labels,
+            all_predictions,
+            average="micro",
+            zero_division=0,
         )
 
         # Display results
@@ -157,10 +172,10 @@ def evaluate_current_f1():
         logger.info(f"Macro F1 Score:     {macro_f1:.4f} ({macro_f1 * 100:.2f}%)")
         logger.info(f"Weighted F1 Score:  {weighted_f1:.4f} ({weighted_f1 * 100:.2f}%)")
         logger.info(
-            f"Micro Precision:    {micro_precision:.4f} ({micro_precision * 100:.2f}%)"
+            f"Micro Precision:    {micro_precision:.4f} ({micro_precision * 100:.2f}%)",
         )
         logger.info(
-            f"Micro Recall:       {micro_recall:.4f} ({micro_recall * 100:.2f}%)"
+            f"Micro Recall:       {micro_recall:.4f} ({micro_recall * 100:.2f}%)",
         )
         logger.info("=" * 50)
 
@@ -189,7 +204,7 @@ def evaluate_current_f1():
         }
 
     except Exception as e:
-        logger.error(f"❌ Evaluation failed: {e}")
+        logger.exception(f"❌ Evaluation failed: {e}")
         import traceback
 
         traceback.print_exc()

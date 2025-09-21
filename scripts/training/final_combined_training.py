@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI
+"""🚀 FINAL COMBINED TRAINING - JOURNAL + CMU-MOSEI.
 ================================================
 
 This script combines your original journal dataset with CMU-MOSEI data
@@ -36,7 +36,7 @@ print("=" * 60)
 
 
 def load_combined_dataset():
-    """Load and combine journal and CMU-MOSEI datasets"""
+    """Load and combine journal and CMU-MOSEI datasets."""
     print("📊 Loading combined dataset...")
 
     combined_samples = []
@@ -52,7 +52,7 @@ def load_combined_dataset():
                     "text": item["text"],
                     "emotion": item["emotion"],
                     "source": "journal",
-                }
+                },
             )
         print(f"✅ Loaded {len(journal_data)} journal samples")
     except Exception as e:
@@ -69,7 +69,7 @@ def load_combined_dataset():
                     "text": item["text"],
                     "emotion": item["emotion"],
                     "source": "cmu_mosei",
-                }
+                },
             )
         print(f"✅ Loaded {len(cmu_data)} CMU-MOSEI samples")
     except Exception as e:
@@ -83,7 +83,9 @@ def load_combined_dataset():
         # Only use a subset to avoid synthetic data issues
         subset_size = min(200, len(expanded_data))
         selected_samples = np.random.choice(
-            expanded_data, size=subset_size, replace=False
+            expanded_data,
+            size=subset_size,
+            replace=False,
         )
 
         for item in selected_samples:
@@ -92,7 +94,7 @@ def load_combined_dataset():
                     "text": item["text"],
                     "emotion": item["emotion"],
                     "source": "expanded_journal",
-                }
+                },
             )
         print(f"✅ Loaded {subset_size} expanded journal samples")
     except Exception as e:
@@ -114,7 +116,7 @@ def load_combined_dataset():
 
 
 class EmotionDataset(Dataset):
-    """Custom dataset for emotion classification"""
+    """Custom dataset for emotion classification."""
 
     def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
@@ -145,7 +147,7 @@ class EmotionDataset(Dataset):
 
 
 def compute_metrics(eval_pred):
-    """Compute F1 score and accuracy"""
+    """Compute F1 score and accuracy."""
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
 
@@ -159,7 +161,7 @@ def compute_metrics(eval_pred):
 
 
 def main():
-    """Main training function"""
+    """Main training function."""
     print("🎯 Target F1 Score: 75-85%")
     print("🔧 Current Best: 67%")
     print("📈 Expected Improvement: 8-18%")
@@ -253,10 +255,10 @@ def main():
     results = trainer.evaluate()
 
     print(
-        f"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1'] * 100:.2f}%)"
+        f"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1'] * 100:.2f}%)",
     )
     print(
-        f"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}"
+        f"🎯 Target achieved: {'✅ YES!' if results['eval_f1'] >= 0.75 else '❌ Not yet'}",
     )
 
     # Save model
@@ -277,7 +279,10 @@ def main():
     with torch.no_grad():
         for text in test_texts:
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=128
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=128,
             )
             outputs = model(**inputs)
             probs = torch.softmax(outputs.logits, dim=1)
@@ -293,7 +298,7 @@ def main():
     print(f"📈 Final F1 Score: {results['eval_f1'] * 100:.2f}%")
     print("🎯 Target: 75-85%")
     print(
-        f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline"
+        f"📊 Improvement: {((results['eval_f1'] - 0.67) / 0.67 * 100):.1f}% from baseline",
     )
 
 

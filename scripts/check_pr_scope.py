@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PR Scope Checker - Prevents Monster PRs
+"""PR Scope Checker - Prevents Monster PRs.
 
 This script validates that pull requests stay within scope limits:
 - Max 50 files changed
@@ -25,7 +25,8 @@ def run_command(cmd: List[str]) -> Tuple[str, str, int]:
 
 
 def get_git_stats(
-    base: str = "HEAD~1", head: str = "HEAD"
+    base: str = "HEAD~1",
+    head: str = "HEAD",
 ) -> Tuple[int, int, List[str]]:
     """Get git statistics for a commit range."""
     # Use git range operator base...head for both name-only and stats
@@ -59,7 +60,8 @@ def get_git_stats(
 
 
 def check_commit_message_quality(
-    base: Optional[str] = None, head: Optional[str] = None
+    base: Optional[str] = None,
+    head: Optional[str] = None,
 ) -> bool:
     """Check if commit messages follow single-purpose rules for all commits in range."""
     # Determine commit range
@@ -124,7 +126,7 @@ def check_commit_message_quality(
 
         if not has_single_purpose:
             print(
-                f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:"
+                f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:",
             )
             print(f"   Message: {commit_msg}")
             all_passed = False
@@ -134,7 +136,7 @@ def check_commit_message_quality(
         mixing_indicators = [" and ", " also ", " plus ", " & ", " in addition "]
         if any(indicator in commit_msg.lower() for indicator in mixing_indicators):
             print(
-                f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)"
+                f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)",
             )
             print(f"   Message: {commit_msg}")
             all_passed = False
@@ -174,7 +176,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="Check PR scope compliance")
     parser.add_argument(
-        "--branch", default="HEAD", help="Branch to check (default: HEAD)"
+        "--branch",
+        default="HEAD",
+        help="Branch to check (default: HEAD)",
     )
     parser.add_argument(
         "--base",
@@ -185,7 +189,9 @@ def main():
         help="Head branch/commit for range comparison (default: current branch)",
     )
     parser.add_argument(
-        "--strict", action="store_true", help="Strict mode - fail on any warning"
+        "--strict",
+        action="store_true",
+        help="Strict mode - fail on any warning",
     )
     args = parser.parse_args()
 
@@ -237,24 +243,18 @@ def main():
     print("\n🎯 Checking for mixed concerns...")
     if files:
         file_types = set()
-        has_code_changes = False
-        has_test_changes = False
-        has_config_changes = False
 
         for file in files:
             if file.endswith((".py", ".js", ".ts", ".java", ".cpp", ".c", ".h")):
                 file_types.add("code")
-                has_code_changes = True
             elif file.endswith((".md", ".rst", ".txt", ".adoc")):
                 file_types.add("docs")
             elif "test" in file.lower() or file.startswith("tests/"):
                 file_types.add("tests")
-                has_test_changes = True
             elif "config" in file.lower() or file.endswith(
-                (".yml", ".yaml", ".json", ".toml", ".cfg")
+                (".yml", ".yaml", ".json", ".toml", ".cfg"),
             ):
                 file_types.add("config")
-                has_config_changes = True
             elif "docker" in file.lower() or "Dockerfile" in file:
                 file_types.add("docker")
             elif "api" in file.lower() or "endpoint" in file.lower():
@@ -286,7 +286,7 @@ def main():
             print(f"⚠️  Mixed concerns detected: {', '.join(sorted(file_types))}")
             print("   Consider splitting into separate PRs")
             print(
-                "   Acceptable combinations include: code+tests, code+tests+config, etc."
+                "   Acceptable combinations include: code+tests, code+tests+config, etc.",
             )
             if args.strict:
                 all_passed = False

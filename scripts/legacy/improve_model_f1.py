@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Model F1 Score Improvement Script
+"""Model F1 Score Improvement Script.
 
 This script focuses on improving the F1 score of the emotion detection model
 through various optimization techniques.
@@ -87,7 +87,7 @@ def create_balanced_training_data():
     texts = []
     labels = []
 
-    for emotion_idx, (emotion, emotion_texts) in enumerate(emotion_data.items()):
+    for emotion_idx, (_emotion, emotion_texts) in enumerate(emotion_data.items()):
         for text in emotion_texts:
             texts.append(text)
             # Create one-hot encoded label

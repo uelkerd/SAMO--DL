@@ -51,7 +51,8 @@ def debug_rate_limiter():
 
     # Check what's in the bucket for this client
     client_key = meta1.get("client_key") or rate_limiter._get_client_key(
-        client_ip, user_agent
+        client_ip,
+        user_agent,
     )
     print(f"\n🔑 Client key: {client_key}")
     print(f"Bucket value for client: {rate_limiter.buckets[client_key]}")

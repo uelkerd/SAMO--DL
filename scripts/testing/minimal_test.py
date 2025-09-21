@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal Test Script
+"""Minimal Test Script.
 
 This script provides a minimal test setup for the SAMO-DL project.
 """
@@ -46,7 +46,7 @@ def minimal_test():
         logger.info("✅ Minimal test completed successfully!")
 
     except Exception as e:
-        logger.error(f"❌ Minimal test failed: {e}")
+        logger.exception(f"❌ Minimal test failed: {e}")
         raise
 
 

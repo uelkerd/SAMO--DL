@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""
-Debug script to investigate the errorhandler issue
-"""
+"""Debug script to investigate the errorhandler issue"""
 
-import sys
 import os
+import sys
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -14,6 +12,7 @@ print("🔍 Starting errorhandler debug...")
 try:
     from flask import Flask
     from flask_restx import Api
+
     print("✅ Imports successful")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -23,9 +22,9 @@ try:
     app = Flask(__name__)
     api = Api(
         app,
-        version='1.0.0',
-        title='Test API',
-        description='Test API for debugging'
+        version="1.0.0",
+        title="Test API",
+        description="Test API for debugging",
     )
     print("✅ API object created successfully")
 except Exception as e:
@@ -63,6 +62,7 @@ except Exception as e:
 # Let's check if there's a version issue
 try:
     import flask_restx
+
     print(f"\n🔍 Flask-RESTX version: {flask_restx.__version__}")
 except Exception as e:
     print(f"❌ Could not get Flask-RESTX version: {e}")

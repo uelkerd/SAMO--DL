@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reorganize Model Directory
+"""Reorganize Model Directory.
 ==========================
 
 This script reorganizes the deployment model directory to:
@@ -267,7 +267,7 @@ Each model directory contains:
     print()
     print("🎯 Next Steps:")
     print(
-        "   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
+        "   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
     )
     print("   2. Save the trained model to deployment/models/default/")
     print("   3. Update the default model metadata")

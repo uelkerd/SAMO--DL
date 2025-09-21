@@ -7,7 +7,8 @@ import sys
 from pathlib import Path
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ Examples:
             sys.exit(1)
 
     except Exception as e:
-        logger.error(f"Training failed: {e}")
+        logger.exception(f"Training failed: {e}")
         sys.exit(1)
 
 
@@ -135,7 +136,7 @@ def train_emotion_model(args):
                 cmd.append("--gpu")
             subprocess.run(cmd, check=True)
         else:
-            logger.error("No emotion training script found")
+            logger.exception("No emotion training script found")
             sys.exit(1)
 
 

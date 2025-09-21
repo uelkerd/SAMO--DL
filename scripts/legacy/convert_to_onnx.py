@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert Model to ONNX
+"""Convert Model to ONNX.
 
 This script converts the BERT emotion classifier model to ONNX format
 for faster inference and easier deployment.
@@ -8,6 +8,7 @@ Usage:
     python scripts/convert_to_onnx.py [--input_model PATH] [--output_model PATH]
 
 Arguments:
+---------
     --input_model: Path to input model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
 
@@ -41,10 +42,12 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
     """Convert model to ONNX format.
 
     Args:
+    ----
         input_model: Path to input model
         output_model: Path to save ONNX model
 
     Returns:
+    -------
         bool: True if successful, False otherwise
 
     """
@@ -138,7 +141,7 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"ONNX conversion failed: {e}")
+        logger.exception(f"ONNX conversion failed: {e}")
         return False
 
 
@@ -162,7 +165,11 @@ def benchmark_pytorch_inference(model, input_ids, attention_mask, num_runs=50):
 
 
 def benchmark_onnx_inference(
-    model_path, input_ids, attention_mask, token_type_ids, num_runs=50
+    model_path,
+    input_ids,
+    attention_mask,
+    token_type_ids,
+    num_runs=50,
 ):
     """Benchmark ONNX model inference time."""
     import onnxruntime as ort
@@ -193,7 +200,7 @@ def benchmark_onnx_inference(
 def main():
     """Main function."""
     parser = argparse.ArgumentParser(
-        description="Convert BERT emotion classifier to ONNX"
+        description="Convert BERT emotion classifier to ONNX",
     )
     parser.add_argument(
         "--input_model",

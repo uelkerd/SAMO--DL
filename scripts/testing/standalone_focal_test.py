@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Standalone Focal Loss Test
+"""Standalone Focal Loss Test.
 
 Tests focal loss implementation independently.
 """
@@ -24,7 +24,8 @@ Usage:
 """
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ def test_focal_loss():
 
     focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
 
-    loss = focal_loss(inputs, targets)
+    focal_loss(inputs, targets)
 
     logger.info("✅ Focal Loss Test PASSED")
     logger.info("   • Loss value: {loss.item():.4f}")
@@ -86,7 +87,7 @@ def test_bert_import():
 
         with torch.no_grad():
             outputs = bert_model(**inputs)
-            logits = classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
+            classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
         logger.info("✅ BERT Model Test PASSED")
         logger.info("   • Model: {model_name}")
@@ -97,7 +98,7 @@ def test_bert_import():
         return True
 
     except Exception:
-        logger.error("❌ BERT Model Test FAILED: {e}")
+        logger.exception("❌ BERT Model Test FAILED: {e}")
         return False
 
 
@@ -106,7 +107,7 @@ def test_dataset_download():
     logger.info("📊 Testing GoEmotions dataset download...")
 
     try:
-        dataset = load_dataset("go_emotions", "simplified", split="train[:100]")
+        load_dataset("go_emotions", "simplified", split="train[:100]")
 
         logger.info("✅ Dataset Download Test PASSED")
         logger.info("   • Dataset size: {len(dataset)}")
@@ -117,7 +118,7 @@ def test_dataset_download():
         return True
 
     except Exception:
-        logger.error("❌ Dataset Download Test FAILED: {e}")
+        logger.exception("❌ Dataset Download Test FAILED: {e}")
         return False
 
 
@@ -126,7 +127,7 @@ def main():
     logger.info("🎯 Standalone Focal Loss Validation Tests")
     logger.info("=" * 50)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info("Device: {device}")
 
     tests = [
@@ -141,7 +142,7 @@ def main():
         try:
             results[test_name] = test_func()
         except Exception:
-            logger.error("❌ {test_name} failed with exception: {e}")
+            logger.exception("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
     logger.info("\n📊 Test Results Summary:")
@@ -149,8 +150,7 @@ def main():
     passed = sum(results.values())
     total = len(results)
 
-    for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+    for _name, _result in results.items():
         logger.info("   • {name}: {status}")
 
     logger.info("\n🎯 Overall: {passed}/{total} tests passed")

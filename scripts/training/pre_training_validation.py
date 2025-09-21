@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pre-training Validation Script
+"""Pre-training Validation Script.
 
 Validates environment and components before training.
 """
@@ -28,7 +28,8 @@ issues like 0.0000 loss, data problems, model issues, etc.
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class PreTrainingValidator:
             return True
 
         except ImportError as _:
-            logger.error("❌ Missing dependency: {e}")
+            logger.exception("❌ Missing dependency: {e}")
             self.critical_issues.append("Missing dependency: {e}")
             self.validation_results["environment"] = False
             return False
@@ -83,7 +84,7 @@ class PreTrainingValidator:
                     return False
 
             train_dataloader = datasets["train_dataloader"]
-            val_dataloader = datasets["val_dataloader"]
+            datasets["val_dataloader"]
             class_weights = datasets["class_weights"]
 
             logger.info("✅ Train batches: {len(train_dataloader)}")
@@ -98,8 +99,8 @@ class PreTrainingValidator:
                     self.critical_issues.append("Missing batch key: {key}")
                     return False
 
-            input_ids = first_batch["input_ids"]
-            attention_mask = first_batch["attention_mask"]
+            first_batch["input_ids"]
+            first_batch["attention_mask"]
             labels = first_batch["labels"]
 
             logger.info("✅ Input shape: {input_ids.shape}")
@@ -135,7 +136,7 @@ class PreTrainingValidator:
 
                 if class_weights.min() <= 0:
                     logger.error(
-                        "❌ CRITICAL: Class weights contain zero or negative values!"
+                        "❌ CRITICAL: Class weights contain zero or negative values!",
                     )
                     self.critical_issues.append("Invalid class weights")
                     return False
@@ -148,7 +149,7 @@ class PreTrainingValidator:
             return True
 
         except Exception:
-            logger.error("❌ Data loading validation failed: {e}")
+            logger.exception("❌ Data loading validation failed: {e}")
             self.critical_issues.append("Data loading error: {e}")
             self.validation_results["data_loading"] = False
             return False
@@ -220,7 +221,7 @@ class PreTrainingValidator:
             return True
 
         except Exception:
-            logger.error("❌ Model architecture validation failed: {e}")
+            logger.exception("❌ Model architecture validation failed: {e}")
             self.critical_issues.append("Model architecture error: {e}")
             self.validation_results["model_architecture"] = False
             return False
@@ -258,13 +259,13 @@ class PreTrainingValidator:
             if trainer.learning_rate <= 0:
                 logger.error("❌ Invalid learning rate: {trainer.learning_rate}")
                 self.critical_issues.append(
-                    "Invalid learning rate: {trainer.learning_rate}"
+                    "Invalid learning rate: {trainer.learning_rate}",
                 )
                 return False
 
             if trainer.learning_rate > 1e-3:
                 logger.warning(
-                    "⚠️  Learning rate might be too high: {trainer.learning_rate}"
+                    "⚠️  Learning rate might be too high: {trainer.learning_rate}",
                 )
                 self.warnings.append("High learning rate: {trainer.learning_rate}")
 
@@ -310,7 +311,7 @@ class PreTrainingValidator:
             return True
 
         except Exception:
-            logger.error("❌ Training components validation failed: {e}")
+            logger.exception("❌ Training components validation failed: {e}")
             self.critical_issues.append("Training components error: {e}")
             self.validation_results["training_components"] = False
             return False
@@ -334,7 +335,7 @@ class PreTrainingValidator:
                     test_file.unlink()
                     logger.info("✅ Write permission: {dir_path}")
                 except Exception:
-                    logger.error("❌ No write permission: {dir_path}")
+                    logger.exception("❌ No write permission: {dir_path}")
                     self.critical_issues.append("No write permission: {dir_path}")
                     return False
 
@@ -351,7 +352,7 @@ class PreTrainingValidator:
             return True
 
         except Exception:
-            logger.error("❌ File system validation failed: {e}")
+            logger.exception("❌ File system validation failed: {e}")
             self.critical_issues.append("File system error: {e}")
             self.validation_results["file_system"] = False
             return False
@@ -370,7 +371,7 @@ class PreTrainingValidator:
 
         all_passed = True
 
-        for name, validation_func in validations:
+        for _name, validation_func in validations:
             logger.info("\n{'='*60}")
             logger.info("Running: {name} Validation")
             logger.info("{'='*60}")
@@ -382,7 +383,7 @@ class PreTrainingValidator:
                 else:
                     logger.info("✅ {name} validation PASSED")
             except Exception:
-                logger.error("❌ {name} validation ERROR: {e}")
+                logger.exception("❌ {name} validation ERROR: {e}")
                 self.critical_issues.append("{name} validation error: {e}")
                 all_passed = False
 
@@ -394,8 +395,8 @@ class PreTrainingValidator:
         logger.info("📋 PRE-TRAINING VALIDATION REPORT")
         logger.info("{'='*80}")
 
-        total_checks = len(self.validation_results)
-        passed_checks = sum(self.validation_results.values())
+        len(self.validation_results)
+        sum(self.validation_results.values())
 
         logger.info("📊 Validation Summary:")
         logger.info("   Total checks: {total_checks}")
@@ -404,12 +405,12 @@ class PreTrainingValidator:
 
         if self.critical_issues:
             logger.error("\n❌ CRITICAL ISSUES ({len(self.critical_issues)}):")
-            for i, issue in enumerate(self.critical_issues, 1):
+            for _i, _issue in enumerate(self.critical_issues, 1):
                 logger.error("   {i}. {issue}")
 
         if self.warnings:
             logger.warning("\n⚠️  WARNINGS ({len(self.warnings)}):")
-            for i, warning in enumerate(self.warnings, 1):
+            for _i, _warning in enumerate(self.warnings, 1):
                 logger.warning("   {i}. {warning}")
 
         if self.critical_issues:

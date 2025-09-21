@@ -92,7 +92,8 @@ def get_db():
 
     This function should be used as a dependency in FastAPI endpoints.
 
-    Yields:
+    Yields
+    ------
         Session: SQLAlchemy database session
 
     """

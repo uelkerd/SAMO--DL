@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Diagnose F1 Score Issue
+"""Diagnose F1 Score Issue.
 
 This script investigates why F1 scores are 0% despite good training loss.
 It checks label formats, prediction outputs, and evaluation logic.
@@ -20,7 +20,8 @@ from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,7 @@ class SimpleBERTClassifier(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        logits = self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
-        return logits
+        return self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
 
 def load_trained_model(model_path):
@@ -265,7 +265,10 @@ def diagnose_predictions(model, test_data, device):
         f1_macro = f1_score(true_np, pred_np > 0.5, average="macro", zero_division=0)
         f1_micro = f1_score(true_np, pred_np > 0.5, average="micro", zero_division=0)
         precision = precision_score(
-            true_np, pred_np > 0.5, average="macro", zero_division=0
+            true_np,
+            pred_np > 0.5,
+            average="macro",
+            zero_division=0,
         )
         recall = recall_score(true_np, pred_np > 0.5, average="macro", zero_division=0)
 
@@ -278,7 +281,7 @@ def diagnose_predictions(model, test_data, device):
                 "f1_micro": f1_micro,
                 "precision": precision,
                 "recall": recall,
-            }
+            },
         )
 
         logger.info(f"📊 Example {i + 1}:")
@@ -316,14 +319,20 @@ def test_evaluation_logic():
     # All ones predictions
     all_ones_pred = np.ones((num_samples, num_classes))
     all_ones_f1 = f1_score(
-        perfect_true, all_ones_pred, average="macro", zero_division=0
+        perfect_true,
+        all_ones_pred,
+        average="macro",
+        zero_division=0,
     )
     logger.info(f"📊 All ones predictions F1: {all_ones_f1:.4f}")
 
     # All zeros predictions
     all_zeros_pred = np.zeros((num_samples, num_classes))
     all_zeros_f1 = f1_score(
-        perfect_true, all_zeros_pred, average="macro", zero_division=0
+        perfect_true,
+        all_zeros_pred,
+        average="macro",
+        zero_division=0,
     )
     logger.info(f"📊 All zeros predictions F1: {all_zeros_f1:.4f}")
 
@@ -332,7 +341,10 @@ def test_evaluation_logic():
     for threshold in thresholds:
         threshold_pred = (perfect_pred > threshold).astype(int)
         threshold_f1 = f1_score(
-            perfect_true, threshold_pred, average="macro", zero_division=0
+            perfect_true,
+            threshold_pred,
+            average="macro",
+            zero_division=0,
         )
         logger.info(f"📊 Threshold {threshold} F1: {threshold_f1:.4f}")
 
@@ -394,7 +406,7 @@ def main():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Diagnosis failed: {e}")
+        logger.exception(f"❌ Diagnosis failed: {e}")
         return False
 
 

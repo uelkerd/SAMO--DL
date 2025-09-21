@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add WandB Setup
+"""Add WandB Setup.
 ==============
 
 This script adds proper wandb API key setup using Google Colab secrets
@@ -107,7 +107,7 @@ def add_wandb_setup():
     # Also update the training arguments to disable wandb if no API key
     for cell in notebook["cells"]:
         if cell["cell_type"] == "code" and "TrainingArguments(" in "".join(
-            cell["source"]
+            cell["source"],
         ):
             # Update training arguments to handle wandb properly
             cell["source"] = [

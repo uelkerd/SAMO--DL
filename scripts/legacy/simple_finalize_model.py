@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Model Finalization Script
+"""Simple Model Finalization Script.
 
 Finalizes and packages trained models for deployment.
 """
@@ -36,9 +36,11 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     """Create final emotion detection model from existing checkpoint.
 
     Args:
+    ----
         output_model: Path to save final model
 
     Returns:
+    -------
         Dictionary with model info
 
     """
@@ -85,7 +87,8 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
 def verify_model_requirements() -> bool:
     """Verify that all required dependencies are available.
 
-    Returns:
+    Returns
+    -------
         True if all requirements are met
 
     """
@@ -131,7 +134,7 @@ def main():
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
     except Exception:
-        logger.error("❌ Error during model finalization: {e}")
+        logger.exception("❌ Error during model finalization: {e}")
         sys.exit(1)
 
 

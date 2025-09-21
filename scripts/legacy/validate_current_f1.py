@@ -98,5 +98,5 @@ if __name__ == "__main__":
         logger.info("   • Next: {' → '.join(results['next_steps'][:2])}")
 
     except Exception:
-        logger.error("❌ Validation failed: {e}")
+        logger.exception("❌ Validation failed: {e}")
         sys.exit(1)

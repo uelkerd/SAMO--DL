@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 4: Vertex AI Deployment Automation
+"""Phase 4: Vertex AI Deployment Automation.
 ========================================
 
 Enhanced Vertex AI deployment with automated model versioning, rollback capabilities,
@@ -91,7 +91,10 @@ class VertexAIPhase4Automation:
         """Check if gcloud CLI is installed and working."""
         try:
             result = subprocess.run(
-                ["gcloud", "--version"], capture_output=True, text=True, check=True
+                ["gcloud", "--version"],
+                capture_output=True,
+                text=True,
+                check=True,
             )
             return result.returncode == 0
         except FileNotFoundError:
@@ -237,7 +240,7 @@ class VertexAIPhase4Automation:
                 text=True,
                 check=True,
             )
-            user_email = subprocess.run(
+            subprocess.run(
                 ["gcloud", "config", "get-value", "account"],
                 capture_output=True,
                 text=True,
@@ -319,17 +322,20 @@ CMD ["python", "predict.py"]
 
         # Copy model files
         subprocess.run(
-            ["cp", "-r", source_model_path, f"{deployment_dir}/model"], check=True
+            ["cp", "-r", source_model_path, f"{deployment_dir}/model"],
+            check=True,
         )
 
         # Copy requirements
         subprocess.run(
-            ["cp", "deployment/gcp/requirements.txt", f"{deployment_dir}/"], check=True
+            ["cp", "deployment/gcp/requirements.txt", f"{deployment_dir}/"],
+            check=True,
         )
 
         # Copy prediction code
         subprocess.run(
-            ["cp", "deployment/gcp/predict.py", f"{deployment_dir}/"], check=True
+            ["cp", "deployment/gcp/predict.py", f"{deployment_dir}/"],
+            check=True,
         )
 
         # Create version metadata
@@ -370,7 +376,8 @@ CMD ["python", "predict.py"]
         try:
             # Build image
             subprocess.run(
-                ["docker", "build", "-t", image_uri, deployment_dir], check=True
+                ["docker", "build", "-t", image_uri, deployment_dir],
+                check=True,
             )
             print("✅ Docker image built")
 
@@ -381,7 +388,7 @@ CMD ["python", "predict.py"]
             return image_uri
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error building/pushing Docker image: {e}")
+            logger.exception(f"Error building/pushing Docker image: {e}")
             raise
 
     def create_vertex_ai_model(self, image_uri: str, version: str) -> str:
@@ -435,11 +442,10 @@ CMD ["python", "predict.py"]
                 check=True,
             )
 
-            model_id = result.stdout.strip()
-            return model_id
+            return result.stdout.strip()
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error creating Vertex AI model: {e}")
+            logger.exception(f"Error creating Vertex AI model: {e}")
             raise
 
     def deploy_model_to_endpoint(self, model_id: str, version: str) -> str:
@@ -493,7 +499,7 @@ CMD ["python", "predict.py"]
             return endpoint_id
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error deploying model to endpoint: {e}")
+            logger.exception(f"Error deploying model to endpoint: {e}")
             raise
 
     def _get_or_create_endpoint(self) -> str:
@@ -560,7 +566,7 @@ CMD ["python", "predict.py"]
             return result.stdout.strip()
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error getting/creating endpoint: {e}")
+            logger.exception(f"Error getting/creating endpoint: {e}")
             raise
 
     def setup_monitoring_and_alerting(self, endpoint_id: str) -> None:
@@ -624,7 +630,7 @@ CMD ["python", "predict.py"]
         except subprocess.CalledProcessError as e:
             logger.warning(f"Could not create monitoring policy: {e}")
             print(
-                "⚠️  Monitoring policy creation failed (may need additional permissions)"
+                "⚠️  Monitoring policy creation failed (may need additional permissions)",
             )
 
     def setup_cost_monitoring(self) -> None:
@@ -722,7 +728,7 @@ CMD ["python", "predict.py"]
 
         if not target_deployment:
             logger.error(
-                f"Target version {target_version} not found in deployment history"
+                f"Target version {target_version} not found in deployment history",
             )
             return False
 
@@ -756,11 +762,14 @@ CMD ["python", "predict.py"]
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error during rollback: {e}")
+            logger.exception(f"Error during rollback: {e}")
             return False
 
     def setup_ab_testing(
-        self, version_a: str, version_b: str, traffic_split: Dict[str, float]
+        self,
+        version_a: str,
+        version_b: str,
+        traffic_split: Dict[str, float],
     ) -> bool:
         """Setup A/B testing between two versions."""
         logger.info(f"🧪 SETTING UP A/B TESTING: {version_a} vs {version_b}")
@@ -812,7 +821,7 @@ CMD ["python", "predict.py"]
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error setting up A/B testing: {e}")
+            logger.exception(f"Error setting up A/B testing: {e}")
             return False
 
     def get_performance_metrics(self, endpoint_id: str) -> Dict:
@@ -872,7 +881,7 @@ CMD ["python", "predict.py"]
             return metrics
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"Error getting performance metrics: {e}")
+            logger.exception(f"Error getting performance metrics: {e}")
             return {}
 
     def cleanup_old_versions(self, keep_versions: int = 3) -> None:
@@ -961,11 +970,14 @@ CMD ["python", "predict.py"]
             return True
 
         except Exception as e:
-            logger.error(f"Deployment failed: {e}")
+            logger.exception(f"Deployment failed: {e}")
             return False
 
     def _save_deployment_summary(
-        self, version: str, endpoint_id: str, metrics: Dict
+        self,
+        version: str,
+        endpoint_id: str,
+        metrics: Dict,
     ) -> None:
         """Save deployment summary for future reference."""
         summary = {
@@ -1006,7 +1018,7 @@ def main():
         project_id = result.stdout.strip()
     except Exception:
         print(
-            "❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID"
+            "❌ Could not get project ID. Please run: gcloud config set project YOUR_PROJECT_ID",
         )
         sys.exit(1)
 

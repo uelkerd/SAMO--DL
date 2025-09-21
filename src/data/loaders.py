@@ -15,10 +15,12 @@ def load_entries_from_db(
     """Load journal entries from database.
 
     Args:
+    ----
         limit: Maximum number of entries to load
         user_id: Filter entries by user_id
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -55,10 +57,12 @@ def load_entries_from_prisma(
     """Load journal entries using Prisma client.
 
     Args:
+    ----
         limit: Maximum number of entries to load
         user_id: Filter entries by user_id
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -81,9 +85,11 @@ def load_entries_from_json(file_path: str) -> pd.DataFrame:
     """Load journal entries from a JSON file.
 
     Args:
+    ----
         file_path: Path to the JSON file
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -97,9 +103,11 @@ def load_entries_from_csv(file_path: str) -> pd.DataFrame:
     """Load journal entries from a CSV file.
 
     Args:
+    ----
         file_path: Path to the CSV file
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -110,6 +118,7 @@ def save_entries_to_csv(df: pd.DataFrame, output_path: str) -> None:
     """Save journal entries DataFrame to CSV.
 
     Args:
+    ----
         df: DataFrame containing journal entries
         output_path: Path to save the CSV file
 
@@ -121,6 +130,7 @@ def save_entries_to_json(df: pd.DataFrame, output_path: str) -> None:
     """Save journal entries DataFrame to JSON.
 
     Args:
+    ----
         df: DataFrame containing journal entries
         output_path: Path to save the JSON file
 

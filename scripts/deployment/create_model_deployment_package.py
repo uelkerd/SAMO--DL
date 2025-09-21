@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE MODEL DEPLOYMENT PACKAGE
+"""🚀 CREATE MODEL DEPLOYMENT PACKAGE.
 ==================================
 Create a complete deployment package for the trained emotion model.
 This includes model files, inference scripts, and documentation.
@@ -9,7 +9,7 @@ import os
 
 
 def create_model_deployment_package():
-    """Create the deployment package content"""
+    """Create the deployment package content."""
     # Create deployment directory structure
     deployment_files = {
         "README.md": """# 🚀 EMOTION DETECTION MODEL - DEPLOYMENT PACKAGE

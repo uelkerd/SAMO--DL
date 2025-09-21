@@ -31,11 +31,11 @@ def quick_label_fix():
     journal_labels = set(journal_df["emotion"].unique())
 
     # Use only common labels to avoid mismatches
-    common_labels = sorted(list(go_labels.intersection(journal_labels)))
+    common_labels = sorted(go_labels.intersection(journal_labels))
 
     if not common_labels:
         print("⚠️ No common labels found! Using all labels...")
-        common_labels = sorted(list(go_labels.union(journal_labels)))
+        common_labels = sorted(go_labels.union(journal_labels))
 
     print(f"📊 Using {len(common_labels)} labels: {common_labels}")
 

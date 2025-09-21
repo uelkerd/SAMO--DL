@@ -11,7 +11,8 @@ from typing import Any, Iterable
 def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> None:
     """Ensure each metric in fields is within [0, 1].
 
-    Raises:
+    Raises
+    ------
         ValueError: if any metric is missing or out of range.
 
     """
@@ -29,11 +30,14 @@ def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> No
 
 
 def validate_required_keys(
-    obj: dict[str, Any], keys: Iterable[str], label: str = "object"
+    obj: dict[str, Any],
+    keys: Iterable[str],
+    label: str = "object",
 ) -> None:
     """Validate that all keys exist in obj.
 
-    Raises:
+    Raises
+    ------
         KeyError: if a required key is missing.
 
     """
@@ -44,11 +48,14 @@ def validate_required_keys(
 
 
 def validate_hasattrs(
-    instance: Any, attrs: Iterable[str], label: str = "object"
+    instance: Any,
+    attrs: Iterable[str],
+    label: str = "object",
 ) -> None:
     """Validate that instance has all attributes in attrs.
 
-    Raises:
+    Raises
+    ------
         AttributeError: if a required attribute is missing.
 
     """

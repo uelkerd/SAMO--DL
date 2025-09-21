@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Simple Ultimate Notebook
+"""Create Simple Ultimate Notebook.
 ==============================
 
 This script creates a simplified version of the ultimate notebook that

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE FINAL COLAB NOTEBOOK
+"""🚀 CREATE FINAL COLAB NOTEBOOK.
 ==============================
 
 This script creates the final Colab notebook for combined training.
@@ -9,8 +9,8 @@ import json
 
 
 def create_colab_notebook():
-    """Create the final Colab notebook content"""
-    notebook_content = {
+    """Create the final Colab notebook content."""
+    return {
         "cells": [
             {
                 "cell_type": "markdown",
@@ -459,11 +459,9 @@ def create_colab_notebook():
         "nbformat_minor": 4,
     }
 
-    return notebook_content
-
 
 def main():
-    """Create the notebook file"""
+    """Create the notebook file."""
     print("🚀 Creating final Colab notebook...")
 
     notebook_content = create_colab_notebook()

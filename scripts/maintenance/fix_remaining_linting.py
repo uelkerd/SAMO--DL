@@ -111,11 +111,7 @@ class ComprehensiveLintingFixer:
 
         for line in lines:
             stripped = line.strip()
-            if (
-                stripped.startswith("import ")
-                or stripped.startswith("from ")
-                or stripped.startswith("#")
-            ):
+            if stripped.startswith(("import ", "from ", "#")):
                 import_lines.append(line)
             else:
                 non_import_lines.append(line)

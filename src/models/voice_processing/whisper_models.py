@@ -1,5 +1,4 @@
-"""
-SAMO Whisper Model Management Module
+"""SAMO Whisper Model Management Module.
 
 This module handles Whisper model loading, caching, and management
 with robust error handling and cache corruption detection.
@@ -8,7 +7,8 @@ with robust error handling and cache corruption detection.
 import logging
 import os
 import shutil
-from typing import Dict, Any
+from typing import Any, Dict
+
 import whisper
 
 from .whisper_audio_preprocessor import AudioPreprocessor
@@ -33,7 +33,8 @@ class WhisperModelManager:
         try:
             # Use cache directory from environment or create a local one
             cache_dir = os.environ.get(
-                "HF_HOME", os.path.expanduser("~/.cache/whisper")
+                "HF_HOME",
+                os.path.expanduser("~/.cache/whisper"),
             )
             os.makedirs(cache_dir, exist_ok=True)
 
@@ -54,24 +55,29 @@ class WhisperModelManager:
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, device=self.device, download_root=cache_dir
+                    self.config.model_size,
+                    device=self.device,
+                    download_root=cache_dir,
                 )
             except Exception:
-                logger.error(
+                logger.exception(
                     "Model loading failed, possibly due to cache corruption. "
-                    "Clearing cache and retrying..."
+                    "Clearing cache and retrying...",
                 )
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, device=self.device, download_root=cache_dir
+                    self.config.model_size,
+                    device=self.device,
+                    download_root=cache_dir,
                 )
             logger.info(
-                "✅ SAMO Whisper %s model loaded successfully", self.config.model_size
+                "✅ SAMO Whisper %s model loaded successfully",
+                self.config.model_size,
             )
 
         except Exception as e:
-            logger.error("❌ Failed to load Whisper model: %s", e)
+            logger.exception("❌ Failed to load Whisper model: %s", e)
             raise RuntimeError(f"Whisper model loading failed: {e}")
 
     def get_model(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Model Reconfiguration
+"""Fix Model Reconfiguration.
 =========================
 
 This script fixes the model reconfiguration by creating a new model

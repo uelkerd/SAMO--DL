@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CMU-MOSEI DATASET INTEGRATION
+"""🚀 CMU-MOSEI DATASET INTEGRATION.
 ================================
 
 This script downloads and integrates CMU-MOSEI dataset for emotion detection.
@@ -27,7 +27,7 @@ except ImportError as e:
 
 
 def download_cmu_mosei():
-    """Download CMU-MOSEI dataset"""
+    """Download CMU-MOSEI dataset."""
     print("📥 Downloading CMU-MOSEI dataset...")
 
     try:
@@ -65,7 +65,7 @@ def download_cmu_mosei():
 
 
 def extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, test_ids):
-    """Extract text sentences and emotion labels from CMU-MOSEI"""
+    """Extract text sentences and emotion labels from CMU-MOSEI."""
     print("🔍 Extracting text and emotion data...")
 
     dataset_samples = []
@@ -91,7 +91,7 @@ def extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, tes
                                     "sentiment": sentiment,
                                     "video_id": video_id,
                                     "segment_id": segment_id,
-                                }
+                                },
                             )
 
     print(f"✅ Extracted {len(dataset_samples)} samples")
@@ -99,7 +99,7 @@ def extract_text_and_emotions(mosei_words, sentiments, train_ids, valid_ids, tes
 
 
 def map_sentiment_to_emotions(samples):
-    """Map CMU-MOSEI sentiment scores to our 12 target emotions"""
+    """Map CMU-MOSEI sentiment scores to our 12 target emotions."""
     print("🗺️ Mapping sentiments to emotions...")
 
     # CMU-MOSEI sentiment range: [-3, 3]
@@ -150,7 +150,7 @@ def map_sentiment_to_emotions(samples):
                 "original_sentiment": sentiment,
                 "video_id": sample["video_id"],
                 "segment_id": sample["segment_id"],
-            }
+            },
         )
 
     print(f"✅ Mapped {len(mapped_samples)} samples to emotions")
@@ -168,7 +168,7 @@ def map_sentiment_to_emotions(samples):
 
 
 def save_cmu_mosei_dataset(samples):
-    """Save processed CMU-MOSEI dataset"""
+    """Save processed CMU-MOSEI dataset."""
     print("💾 Saving CMU-MOSEI dataset...")
 
     # Save full dataset
@@ -191,10 +191,12 @@ def save_cmu_mosei_dataset(samples):
 
     # Create balanced dataset
     balanced_samples = []
-    for emotion, samples_list in emotion_samples.items():
+    for _emotion, samples_list in emotion_samples.items():
         # Randomly sample min_samples from each emotion
         selected_samples = np.random.choice(
-            samples_list, size=min_samples, replace=False
+            samples_list,
+            size=min_samples,
+            replace=False,
         )
         balanced_samples.extend(selected_samples)
 
@@ -208,7 +210,7 @@ def save_cmu_mosei_dataset(samples):
 
 
 def main():
-    """Main integration process"""
+    """Main integration process."""
     print("🚀 CMU-MOSEI DATASET INTEGRATION")
     print("=" * 50)
 
@@ -223,7 +225,11 @@ def main():
 
     # Step 2: Extract text and emotions
     samples = extract_text_and_emotions(
-        mosei_words, sentiments, train_ids, valid_ids, test_ids
+        mosei_words,
+        sentiments,
+        train_ids,
+        valid_ids,
+        test_ids,
     )
 
     if not samples:

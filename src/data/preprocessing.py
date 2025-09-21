@@ -30,6 +30,7 @@ class TextPreprocessor:
         """Initialize text preprocessor.
 
         Args:
+        ----
             remove_stopwords: Whether to remove stopwords
             remove_punctuation: Whether to remove punctuation
             lowercase: Whether to convert text to lowercase
@@ -59,9 +60,11 @@ class TextPreprocessor:
         """Apply full preprocessing pipeline to text.
 
         Args:
+        ----
             text: Input text to preprocess
 
         Returns:
+        -------
             Preprocessed text
 
         """
@@ -96,11 +99,13 @@ class TextPreprocessor:
         """Preprocess text in a DataFrame column.
 
         Args:
+        ----
             df: DataFrame containing text data
             text_column: Name of column containing raw text
             output_column: Name of column to store processed text
 
         Returns:
+        -------
             DataFrame with processed text column added
 
         """
@@ -116,10 +121,12 @@ class TextPreprocessor:
         """Extract basic text features from preprocessed text.
 
         Args:
+        ----
             df: DataFrame containing processed text
             text_column: Name of column containing processed text
 
         Returns:
+        -------
             DataFrame with text features added
 
         """
@@ -149,6 +156,7 @@ class JournalEntryPreprocessor:
         """Initialize journal entry preprocessor.
 
         Args:
+        ----
             text_preprocessor: Text preprocessor to use
 
         """
@@ -163,11 +171,13 @@ class JournalEntryPreprocessor:
         """Preprocess journal entries DataFrame.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             title_column: Name of column containing entry titles
 
         Returns:
+        -------
             DataFrame with processed entries
 
         """

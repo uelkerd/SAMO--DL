@@ -70,8 +70,7 @@ class SimpleBERTClassifier(torch.nn.Module):
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        logits = self.classifier(pooled_output)
-        return logits
+        return self.classifier(pooled_output)
 
 
 def find_valid_checkpoint():
@@ -156,7 +155,9 @@ def test_calibration():
 
         try:
             checkpoint = torch.load(
-                checkpoint_path, map_location=device, weights_only=False
+                checkpoint_path,
+                map_location=device,
+                weights_only=False,
             )
             if "model_state_dict" in checkpoint:
                 model.load_state_dict(checkpoint["model_state_dict"])

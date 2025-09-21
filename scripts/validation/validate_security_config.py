@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Security Configuration Validator
+"""Security Configuration Validator.
 
 This script validates the security configuration file to ensure all required
 settings are present and valid according to the security schema.
@@ -27,7 +27,7 @@ class SecurityConfigValidator:
         # Check if file exists
         if not self.config_path.exists():
             self.errors.append(
-                f"Security configuration file not found: {self.config_path}"
+                f"Security configuration file not found: {self.config_path}",
             )
             return False
 
@@ -221,7 +221,7 @@ class SecurityConfigValidator:
         container = deploy_config.get("container", {})
         if not container.get("run_as_non_root", False):
             self.errors.append(
-                "Container not configured to run as non-root - security risk"
+                "Container not configured to run as non-root - security risk",
             )
 
         network = deploy_config.get("network", {})
@@ -249,7 +249,7 @@ class SecurityConfigValidator:
             print(f"\n⚠️  Configuration has {len(self.warnings)} warnings but no errors")
         else:
             print(
-                f"\n❌ Configuration has {len(self.errors)} errors that must be fixed"
+                f"\n❌ Configuration has {len(self.errors)} errors that must be fixed",
             )
 
 

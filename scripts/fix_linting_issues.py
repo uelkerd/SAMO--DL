@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🔧 SAMO Linting Issues Fix Script
+"""🔧 SAMO Linting Issues Fix Script.
 ==================================
 Fixes trailing whitespace, stray blank-line whitespace, and simple
 continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8).

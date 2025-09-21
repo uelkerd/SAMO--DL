@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Colab Environment Setup Script for SAMO Deep Learning
+"""Colab Environment Setup Script for SAMO Deep Learning.
 
 This script sets up the environment for Google Colab with GPU support.
 It installs all required dependencies and configures the environment
@@ -13,7 +13,8 @@ import sys
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ def install_dependencies():
             )
             logger.info(f"✅ {package} installed successfully")
         except subprocess.CalledProcessError as e:
-            logger.error(f"❌ Failed to install {package}: {e}")
+            logger.exception(f"❌ Failed to install {package}: {e}")
             return False
 
     return True
@@ -106,10 +107,10 @@ def setup_gpu_environment():
         return True
 
     except ImportError:
-        logger.error("❌ PyTorch not available for GPU setup")
+        logger.exception("❌ PyTorch not available for GPU setup")
         return False
     except Exception as e:
-        logger.error(f"❌ GPU setup failed: {e}")
+        logger.exception(f"❌ GPU setup failed: {e}")
         return False
 
 
@@ -245,10 +246,10 @@ def run_ci_pipeline():
         return False
 
     except subprocess.TimeoutExpired:
-        logger.error("⏰ CI pipeline verification timed out")
+        logger.exception("⏰ CI pipeline verification timed out")
         return False
     except Exception as e:
-        logger.error(f"💥 CI pipeline verification error: {e}")
+        logger.exception(f"💥 CI pipeline verification error: {e}")
         return False
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal Working Training Script
+"""Minimal Working Training Script.
 
 Minimal working training script for emotion detection.
 """
@@ -19,7 +19,8 @@ Uses only working modules to avoid environment issues
 """
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,9 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
@@ -96,7 +99,7 @@ def train_minimal_model():
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
         train_input_ids, train_attention_mask, train_labels = create_synthetic_data(
-            1000
+            1000,
         )
         val_input_ids, val_attention_mask, val_labels = create_synthetic_data(200)
 
@@ -114,7 +117,7 @@ def train_minimal_model():
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
                 batch_attention_mask = train_attention_mask[i : i + batch_size].to(
-                    device
+                    device,
                 )
                 batch_labels = train_labels[i : i + batch_size].to(device)
 
@@ -142,12 +145,13 @@ def train_minimal_model():
                 for i in range(0, len(val_input_ids), batch_size):
                     batch_input_ids = val_input_ids[i : i + batch_size].to(device)
                     batch_attention_mask = val_attention_mask[i : i + batch_size].to(
-                        device
+                        device,
                     )
                     batch_labels = val_labels[i : i + batch_size].to(device)
 
                     outputs = model(
-                        batch_input_ids, attention_mask=batch_attention_mask
+                        batch_input_ids,
+                        attention_mask=batch_attention_mask,
                     )
                     loss = focal_loss(outputs["logits"], batch_labels)
 
@@ -191,13 +195,13 @@ def train_minimal_model():
         logger.info("🎉 Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
         logger.info(
-            "   • Model saved to: ./models/checkpoints/minimal_working_model.pt"
+            "   • Model saved to: ./models/checkpoints/minimal_working_model.pt",
         )
 
         return True
 
     except Exception:
-        logger.error("❌ Training failed: {e}")
+        logger.exception("❌ Training failed: {e}")
         traceback.print_exc()
         return False
 

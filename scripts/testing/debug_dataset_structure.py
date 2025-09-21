@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Debug Dataset Structure Script
+"""Debug Dataset Structure Script.
 
 This script helps understand the structure of the GoEmotions dataset.
 """
@@ -31,7 +31,7 @@ def debug_dataset_structure():
         datasets = data_loader.prepare_datasets()
 
         logger.info("📋 Dataset keys:")
-        for key in datasets.keys():
+        for key in datasets:
             logger.info(f"   - {key}")
 
         # Check test data structure
@@ -48,7 +48,7 @@ def debug_dataset_structure():
                 logger.info(f"📊 First item keys: {list(first_item.keys())}")
             elif hasattr(first_item, "__dict__"):
                 logger.info(
-                    f"📊 First item attributes: {list(first_item.__dict__.keys())}"
+                    f"📊 First item attributes: {list(first_item.__dict__.keys())}",
                 )
 
         # Check train data structure
@@ -71,7 +71,7 @@ def debug_dataset_structure():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Debug failed: {e}")
+        logger.exception(f"❌ Debug failed: {e}")
         import traceback
 
         traceback.print_exc()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO-Optimized Whisper Voice Transcription Model
+"""SAMO-Optimized Whisper Voice Transcription Model.
 
 This module provides a specialized Whisper transcription model optimized for
 journal entries and voice processing in the SAMO-DL system.
@@ -17,17 +16,17 @@ Key Features:
 import logging
 import os
 import shutil
-import time
 import tempfile
+import time
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
-import yaml
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import torch
 import whisper
-import numpy as np
+import yaml
 from pydub import AudioSegment
 
 # Configure logging
@@ -62,28 +61,36 @@ class SAMOWhisperConfig:
 
         # Load transcription parameters from both sections
         self.task = whisper_config.get(
-            "task", transcription_config.get("task", "transcribe")
+            "task",
+            transcription_config.get("task", "transcribe"),
         )
         self.temperature = whisper_config.get(
-            "temperature", transcription_config.get("temperature", 0.0)
+            "temperature",
+            transcription_config.get("temperature", 0.0),
         )
         self.beam_size = whisper_config.get(
-            "beam_size", transcription_config.get("beam_size", None)
+            "beam_size",
+            transcription_config.get("beam_size", None),
         )
         self.best_of = whisper_config.get(
-            "best_of", transcription_config.get("best_of", None)
+            "best_of",
+            transcription_config.get("best_of", None),
         )
         self.patience = whisper_config.get(
-            "patience", transcription_config.get("patience", None)
+            "patience",
+            transcription_config.get("patience", None),
         )
         self.length_penalty = whisper_config.get(
-            "length_penalty", transcription_config.get("length_penalty", None)
+            "length_penalty",
+            transcription_config.get("length_penalty", None),
         )
         self.suppress_tokens = whisper_config.get(
-            "suppress_tokens", transcription_config.get("suppress_tokens", "-1")
+            "suppress_tokens",
+            transcription_config.get("suppress_tokens", "-1"),
         )
         self.initial_prompt = whisper_config.get(
-            "initial_prompt", transcription_config.get("initial_prompt", None)
+            "initial_prompt",
+            transcription_config.get("initial_prompt", None),
         )
         self.condition_on_previous_text = whisper_config.get(
             "condition_on_previous_text",
@@ -95,10 +102,12 @@ class SAMOWhisperConfig:
             transcription_config.get("compression_ratio_threshold", 2.4),
         )
         self.logprob_threshold = whisper_config.get(
-            "logprob_threshold", transcription_config.get("logprob_threshold", -1.0)
+            "logprob_threshold",
+            transcription_config.get("logprob_threshold", -1.0),
         )
         self.no_speech_threshold = whisper_config.get(
-            "no_speech_threshold", transcription_config.get("no_speech_threshold", 0.6)
+            "no_speech_threshold",
+            transcription_config.get("no_speech_threshold", 0.6),
         )
 
     def _load_defaults(self):
@@ -277,7 +286,8 @@ class SAMOWhisperTranscriber:
         try:
             # Use cache directory from environment or create a local one
             cache_dir = os.environ.get(
-                "HF_HOME", os.path.expanduser("~/.cache/whisper")
+                "HF_HOME",
+                os.path.expanduser("~/.cache/whisper"),
             )
             os.makedirs(cache_dir, exist_ok=True)
 
@@ -285,11 +295,14 @@ class SAMOWhisperTranscriber:
                 """Check for expected model files and their basic integrity.
 
                 Args:
+                ----
                     cache_dir (str): Path to the cache directory
                     model_size (str): Size of the model (e.g., 'base', 'small')
 
                 Returns:
+                -------
                     bool: True if model is corrupted or missing, False otherwise
+
                 """
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
                 if not os.path.isfile(model_file):
@@ -317,20 +330,25 @@ class SAMOWhisperTranscriber:
                     shutil.rmtree(cache_dir)
                     os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, device=self.device, download_root=cache_dir
+                    self.config.model_size,
+                    device=self.device,
+                    download_root=cache_dir,
                 )
             except (RuntimeError, OSError):
                 logger.exception(
                     "Model loading failed, possibly due to cache corruption. "
-                    "Clearing cache and retrying..."
+                    "Clearing cache and retrying...",
                 )
                 shutil.rmtree(cache_dir)
                 os.makedirs(cache_dir, exist_ok=True)
                 self.model = whisper.load_model(
-                    self.config.model_size, device=self.device, download_root=cache_dir
+                    self.config.model_size,
+                    device=self.device,
+                    download_root=cache_dir,
                 )
             logger.info(
-                "✅ SAMO Whisper %s model loaded successfully", self.config.model_size
+                "✅ SAMO Whisper %s model loaded successfully",
+                self.config.model_size,
             )
 
         except Exception as e:
@@ -352,7 +370,7 @@ class SAMOWhisperTranscriber:
 
         # Preprocess audio
         processed_audio_path, audio_metadata = self.preprocessor.preprocess_audio(
-            audio_path
+            audio_path,
         )
 
         try:
@@ -395,7 +413,7 @@ class SAMOWhisperTranscriber:
 
             # Calculate no_speech_probability from segments
             no_speech_probability = self._calculate_no_speech_probability(
-                result.get("segments", [])
+                result.get("segments", []),
             )
 
             # Assess audio quality
@@ -422,7 +440,9 @@ class SAMOWhisperTranscriber:
                 confidence,
             )
             logger.info(
-                "Processing time: %.2fs, Quality: %s", processing_time, audio_quality
+                "Processing time: %.2fs, Quality: %s",
+                processing_time,
+                audio_quality,
             )
 
             return transcription_result
@@ -447,7 +467,10 @@ class SAMOWhisperTranscriber:
 
         for i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                "Processing file %d/%d: %s", i, len(audio_paths), Path(audio_path).name
+                "Processing file %d/%d: %s",
+                i,
+                len(audio_paths),
+                Path(audio_path).name,
             )
 
             try:
@@ -461,7 +484,7 @@ class SAMOWhisperTranscriber:
 
                 # Create error result with detailed error information
                 error_result = TranscriptionResult(
-                    text=f"[ERROR: {str(e)}]",
+                    text=f"[ERROR: {e!s}]",
                     language="unknown",
                     confidence=0.0,
                     duration=0.0,
@@ -509,7 +532,8 @@ class SAMOWhisperTranscriber:
 
             # Calculate segment confidence
             segment_confidence = min(
-                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+                1.0,
+                max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)),
             )
             confidences.append(segment_confidence)
 
@@ -581,7 +605,8 @@ class SAMOWhisperTranscriber:
 
 
 def create_samo_whisper_transcriber(
-    config_path: Optional[str] = None, model_size: Optional[str] = None
+    config_path: Optional[str] = None,
+    model_size: Optional[str] = None,
 ) -> SAMOWhisperTranscriber:
     """Create a SAMO Whisper transcriber with specified configuration."""
     config = SAMOWhisperConfig(config_path) if config_path else None

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix Model Architecture Mismatch
+"""Fix Model Architecture Mismatch.
 ===============================
 
 This script fixes the model architecture mismatch by properly reconfiguring

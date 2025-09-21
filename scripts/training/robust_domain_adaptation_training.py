@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO Deep Learning - Robust Domain Adaptation Training Script
+"""SAMO Deep Learning - Robust Domain Adaptation Training Script.
 
 This script provides a robust implementation for REQ-DL-012: Domain-Adapted Emotion Detection
 that avoids dependency hell and provides comprehensive error handling.
@@ -122,7 +122,7 @@ def verify_installation():
         if torch.cuda.is_available():
             print(f"  GPU: {torch.cuda.get_device_name(0)}")
             print(
-                f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB",
             )
             torch.backends.cudnn.benchmark = True
             print("  ✅ GPU optimized for training")
@@ -148,7 +148,11 @@ def setup_repository():
         print(f"🔄 {description}...")
         try:
             result = subprocess.run(
-                command, check=False, shell=True, capture_output=True, text=True
+                command,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
             )
             if result.returncode == 0:
                 print(f"  ✅ {description} completed")
@@ -162,7 +166,8 @@ def setup_repository():
     # Clone repository if not exists
     if not Path("SAMO--DL").exists():
         run_command(
-            "git clone https://github.com/uelkerd/SAMO--DL.git", "Cloning repository"
+            "git clone https://github.com/uelkerd/SAMO--DL.git",
+            "Cloning repository",
         )
 
     # Change to project directory
@@ -174,7 +179,9 @@ def setup_repository():
 
 
 def safe_load_dataset(
-    dataset_name: str, config: Optional[str] = None, split: Optional[str] = None
+    dataset_name: str,
+    config: Optional[str] = None,
+    split: Optional[str] = None,
 ):
     """Safely load dataset with error handling."""
     try:
@@ -204,7 +211,8 @@ def safe_load_json(file_path: str):
 
 
 def analyze_writing_style(
-    texts: List[str], domain_name: str
+    texts: List[str],
+    domain_name: str,
 ) -> Optional[Dict[str, float]]:
     """Analyze writing style characteristics of a domain."""
     if not texts:
@@ -222,7 +230,7 @@ def analyze_writing_style(
 
     avg_length = float(np.mean([len(text.split()) for text in valid_texts]))
     personal_pronouns = sum(
-        ["I " in text or "my " in text or "me " in text for text in valid_texts]
+        ["I " in text or "my " in text or "me " in text for text in valid_texts],
     ) / len(valid_texts)
     reflection_words = sum(
         [
@@ -230,7 +238,7 @@ def analyze_writing_style(
             or "feel" in text.lower()
             or "believe" in text.lower()
             for text in valid_texts
-        ]
+        ],
     ) / len(valid_texts)
 
     print(f"{domain_name} Style Analysis:")
@@ -275,19 +283,20 @@ def perform_domain_analysis():
         if go_analysis and journal_analysis:
             print("\n🎯 Key Insights:")
             print(
-                f"- Journal entries are {journal_analysis['avg_length'] / go_analysis['avg_length']:.1f}x longer"
+                f"- Journal entries are {journal_analysis['avg_length'] / go_analysis['avg_length']:.1f}x longer",
             )
             print(
-                f"- Journal entries use {journal_analysis['personal_pronouns'] / go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+                f"- Journal entries use {journal_analysis['personal_pronouns'] / go_analysis['personal_pronouns']:.1f}x more personal pronouns",
             )
             print(
-                f"- Journal entries contain {journal_analysis['reflection_words'] / go_analysis['reflection_words']:.1f}x more reflection words"
+                f"- Journal entries contain {journal_analysis['reflection_words'] / go_analysis['reflection_words']:.1f}x more reflection words",
             )
 
             return go_emotions, journal_df
     else:
         print("⚠️ Cannot perform domain analysis - missing data")
         return None, None
+    return None
 
 
 class FocalLoss:
@@ -328,7 +337,7 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             raise ValueError(f"num_labels must be positive, got {num_labels}")
 
         print(
-            f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}"
+            f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}",
         )
 
         try:
@@ -383,7 +392,8 @@ def safe_model_initialization(model_name: str, num_labels: int, device: str):
 
         # Initialize model
         model = DomainAdaptedEmotionClassifier(
-            model_name=model_name, num_labels=num_labels
+            model_name=model_name,
+            num_labels=num_labels,
         )
 
         # Move to device
@@ -407,7 +417,7 @@ def main():
     print("=" * 70)
 
     # Step 1: Setup environment
-    is_colab = setup_environment()
+    setup_environment()
 
     # Step 2: Verify installation
     if not verify_installation():
@@ -427,7 +437,7 @@ def main():
     # Step 5: Initialize model (example)
     import torch
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # This would be called when we have the label encoder ready
     # model, tokenizer = safe_model_initialization("bert-base-uncased", num_labels, device)

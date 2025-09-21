@@ -66,7 +66,7 @@ def test_evaluation_logic():
 
         (predictions.sum(dim=1) == 0).sum().item()
         logging.info(
-            "    - Applied fallback to {samples_before - samples_after} samples"
+            "    - Applied fallback to {samples_before - samples_after} samples",
         )
         logging.info("    - Final predictions sum: {predictions.sum().item()}")
         logging.info("    - Final predictions mean: {predictions.mean().item():.4f}")

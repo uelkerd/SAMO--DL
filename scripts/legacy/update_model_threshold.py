@@ -48,9 +48,11 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
     """Update the model's prediction threshold.
 
     Args:
+    ----
         threshold: New threshold value (0.0-1.0)
 
     Returns:
+    -------
         bool: True if successful, False otherwise
 
     """
@@ -102,7 +104,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         return True
 
     except Exception:
-        logger.error("Error updating model threshold: {e}")
+        logger.exception("Error updating model threshold: {e}")
         return False
 
 

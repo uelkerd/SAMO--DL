@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate Focal Loss Trained Model
+"""Evaluate Focal Loss Trained Model.
 
 This script evaluates the trained focal loss model and calculates F1 scores.
 It also implements threshold optimization to improve performance.
@@ -22,7 +22,8 @@ from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,7 @@ class SimpleBERTClassifier(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        logits = self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
-        return logits
+        return self.classifier(outputs.last_hidden_state[:, 0, :])  # Use [CLS] token
 
 
 def load_trained_model(model_path):
@@ -369,7 +369,7 @@ def optimize_threshold(model, test_data):
     logger.info("📊 Top 5 thresholds:")
     for i, result in enumerate(results[:5]):
         logger.info(
-            f"   {i + 1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}"
+            f"   {i + 1}. Threshold {result['threshold']:.2f}: F1 = {result['f1']:.4f}",
         )
 
     logger.info(f"🎯 Best threshold: {best_threshold:.2f} (F1 = {best_f1:.4f})")
@@ -415,13 +415,13 @@ def main():
         logger.info("=" * 50)
         logger.info("📋 Comparison:")
         logger.info(
-            f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}"
+            f"   Default threshold (0.5): F1 = {default_results['f1_macro']:.4f}",
         )
         logger.info(
-            f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}"
+            f"   Optimized threshold ({best_threshold:.2f}): F1 = {optimized_results['f1_macro']:.4f}",
         )
         logger.info(
-            f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}"
+            f"   Improvement: {optimized_results['f1_macro'] - default_results['f1_macro']:.4f}",
         )
 
         # Save results
@@ -450,7 +450,7 @@ def main():
         return True
 
     except Exception as e:
-        logger.error(f"❌ Evaluation failed: {e}")
+        logger.exception(f"❌ Evaluation failed: {e}")
         return False
 
 

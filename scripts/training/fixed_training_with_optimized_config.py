@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fixed Training Script with Optimized Configuration
+"""Fixed Training Script with Optimized Configuration.
 
 Training script with optimized configuration and fixed implementation.
 """
@@ -28,7 +28,8 @@ This script addresses the 0.0000 loss issue with:
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -46,10 +47,12 @@ class FocalLoss(nn.Module):
         """Compute focal loss.
 
         Args:
+        ----
             inputs: Logits from model (batch_size, num_classes)
             targets: Binary labels (batch_size, num_classes)
 
         Returns:
+        -------
             Focal loss value
 
         """
@@ -85,7 +88,7 @@ def create_optimized_model() -> Tuple[nn.Module, nn.Module]:
     class_weights = torch.tensor(datasets["class_weights"], dtype=torch.float32)
 
     logger.info(
-        "   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}"
+        "   Class weights range: {class_weights.min():.4f} - {class_weights.max():.4f}",
     )
 
     model, _ = create_bert_emotion_classifier(
@@ -182,7 +185,10 @@ def convert_labels_to_tensor(label_list: list, num_classes: int = 28) -> torch.T
 
 
 def validate_model(
-    model: nn.Module, loss_fn: nn.Module, val_data: Any, num_samples: int = 100
+    model: nn.Module,
+    loss_fn: nn.Module,
+    val_data: Any,
+    num_samples: int = 100,
 ) -> Dict[str, float]:
     """Validate model and check for 0.0000 loss."""
     logger.info("🔍 Validating model...")
@@ -250,7 +256,9 @@ def train_model(
         num_batches = 0
 
         for i in range(
-            0, min(1000, len(train_data)), 16
+            0,
+            min(1000, len(train_data)),
+            16,
         ):  # Limit to 1000 examples for testing
             batch_data = train_data[i : i + 16]
             batch_size = len(batch_data)
@@ -274,7 +282,7 @@ def train_model(
 
             if loss.item() <= 0:
                 logger.error(
-                    "❌ CRITICAL: Training loss is zero at batch {num_batches}!"
+                    "❌ CRITICAL: Training loss is zero at batch {num_batches}!",
                 )
                 logger.error("   Logits: {logits.mean().item():.6f}")
                 logger.error("   Labels: {labels.mean().item():.6f}")
@@ -287,7 +295,7 @@ def train_model(
             num_batches += 1
 
             if num_batches % 50 == 0:
-                avg_loss = epoch_loss / num_batches
+                epoch_loss / num_batches
                 logger.info("   Batch {num_batches}: Loss = {avg_loss:.6f}")
 
         avg_epoch_loss = epoch_loss / num_batches if num_batches > 0 else float("in")
@@ -351,7 +359,7 @@ def main():
         return False
 
     except Exception:
-        logger.error("❌ Training error: {e}")
+        logger.exception("❌ Training error: {e}")
         return False
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SAMO-DL Auto-Fix Code Quality
+"""SAMO-DL Auto-Fix Code Quality.
 
 This script automatically fixes common code quality issues to prevent
 recurring DeepSource warnings.
@@ -92,7 +92,7 @@ class CodeQualityAutoFixer:
             }
 
         except Exception as e:
-            logger.error("Error fixing %s: %s", file_path, e)
+            logger.exception("Error fixing %s: %s", file_path, e)
             return {
                 "file": str(file_path),
                 "error": str(e),
@@ -115,7 +115,7 @@ class CodeQualityAutoFixer:
                         "type": "FLK-W291",
                         "line": i + 1,
                         "description": "Removed trailing whitespace",
-                    }
+                    },
                 )
 
         if modified:
@@ -135,7 +135,7 @@ class CodeQualityAutoFixer:
                     "type": "FLK-W292",
                     "line": len(content.splitlines()),
                     "description": "Added missing newline at end of file",
-                }
+                },
             )
 
         return content, fixes
@@ -156,7 +156,7 @@ class CodeQualityAutoFixer:
                         "type": "FLK-W293",
                         "line": i + 1,
                         "description": "Removed whitespace from blank line",
-                    }
+                    },
                 )
 
         if modified:
@@ -185,7 +185,7 @@ class CodeQualityAutoFixer:
                         "description": (
                             f"Converted f-string to regular string: {match.group(0)}"
                         ),
-                    }
+                    },
                 )
                 return f'"{string_content}"'
             return match.group(0)
@@ -224,7 +224,7 @@ class CodeQualityAutoFixer:
                                 "type": "FLK-E501",
                                 "line": i + 1,
                                 "description": "Broke long import line into multiple lines",
-                            }
+                            },
                         )
 
                 elif "def " in line and line.count("(") > 0 and line.count(")") == 0:
@@ -255,7 +255,7 @@ class CodeQualityAutoFixer:
                                     "description": (
                                         "Broke long function definition into multiple lines"
                                     ),
-                                }
+                                },
                             )
 
         if modified:
@@ -321,7 +321,7 @@ class CodeQualityAutoFixer:
                         "type": "Import Organization",
                         "line": import_start + 1,
                         "description": "Reorganized imports alphabetically",
-                    }
+                    },
                 )
 
         if modified:
@@ -355,10 +355,7 @@ class CodeQualityAutoFixer:
                     return False
 
             # Ensure it's a Python file
-            if not path_str.endswith(".py"):
-                return False
-
-            return True
+            return path_str.endswith(".py")
 
         except Exception:
             return False

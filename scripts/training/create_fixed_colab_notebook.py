@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""🚀 CREATE FIXED COLAB NOTEBOOK
+"""🚀 CREATE FIXED COLAB NOTEBOOK.
 ==============================
 
 This script creates a fixed Colab notebook that handles the correct data structure.
@@ -9,7 +9,7 @@ import json
 
 
 def create_fixed_colab_notebook():
-    """Create the fixed Colab notebook content"""
+    """Create the fixed Colab notebook content."""
     notebook_content = {
         "cells": [
             {

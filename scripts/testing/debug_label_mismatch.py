@@ -10,7 +10,8 @@ from sklearn.preprocessing import LabelEncoder
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def debug_label_mismatch():
         # Load GoEmotions dataset
         go_emotions = load_dataset("go_emotions", "simplified")
         logger.info(
-            f"✅ GoEmotions loaded: {len(go_emotions['train'])} training examples"
+            f"✅ GoEmotions loaded: {len(go_emotions['train'])} training examples",
         )
 
         # Load journal dataset
@@ -47,9 +48,9 @@ def debug_label_mismatch():
                     go_label_counts[label] = go_label_counts.get(label, 0) + 1
 
         logger.info(f"📊 GoEmotions unique labels: {len(go_labels)}")
-        logger.info(f"📊 GoEmotions labels: {sorted(list(go_labels))}")
+        logger.info(f"📊 GoEmotions labels: {sorted(go_labels)}")
         logger.info(
-            f"📊 GoEmotions label counts: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}"
+            f"📊 GoEmotions label counts: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}",
         )
 
         # Step 3: Analyze journal labels
@@ -58,7 +59,7 @@ def debug_label_mismatch():
         journal_label_counts = journal_df["emotion"].value_counts().to_dict()
 
         logger.info(f"📊 Journal unique labels: {len(journal_labels)}")
-        logger.info(f"📊 Journal labels: {sorted(list(journal_labels))}")
+        logger.info(f"📊 Journal labels: {sorted(journal_labels)}")
         logger.info(f"📊 Journal label counts: {journal_label_counts}")
 
         # Step 4: Check for label mismatches
@@ -69,17 +70,17 @@ def debug_label_mismatch():
         journal_only = journal_labels - go_labels
         common_labels = go_labels.intersection(journal_labels)
 
-        logger.info(f"📊 Labels only in GoEmotions: {sorted(list(go_only))}")
-        logger.info(f"📊 Labels only in Journal: {sorted(list(journal_only))}")
-        logger.info(f"📊 Common labels: {sorted(list(common_labels))}")
+        logger.info(f"📊 Labels only in GoEmotions: {sorted(go_only)}")
+        logger.info(f"📊 Labels only in Journal: {sorted(journal_only)}")
+        logger.info(f"📊 Common labels: {sorted(common_labels)}")
 
         if go_only:
             logger.warning(
-                f"⚠️ {len(go_only)} labels only in GoEmotions - may cause issues"
+                f"⚠️ {len(go_only)} labels only in GoEmotions - may cause issues",
             )
         if journal_only:
             logger.warning(
-                f"⚠️ {len(journal_only)} labels only in Journal - may cause issues"
+                f"⚠️ {len(journal_only)} labels only in Journal - may cause issues",
             )
 
         # Step 5: Create unified label encoder
@@ -87,13 +88,13 @@ def debug_label_mismatch():
 
         # Option 1: Use only common labels (safer)
         if len(common_labels) > 0:
-            all_labels = sorted(list(common_labels))
+            all_labels = sorted(common_labels)
             logger.info(f"📊 Using only common labels: {len(all_labels)} labels")
         else:
             # Option 2: Use all labels (may cause issues)
-            all_labels = sorted(list(go_labels.union(journal_labels)))
+            all_labels = sorted(go_labels.union(journal_labels))
             logger.warning(
-                f"⚠️ No common labels found! Using all labels: {len(all_labels)}"
+                f"⚠️ No common labels found! Using all labels: {len(all_labels)}",
             )
 
         label_encoder = LabelEncoder()
@@ -110,7 +111,7 @@ def debug_label_mismatch():
         go_encoded = []
         go_encoding_errors = []
 
-        for i, example in enumerate(go_emotions["train"][:100]):  # Test first 100
+        for _i, example in enumerate(go_emotions["train"][:100]):  # Test first 100
             if example["labels"]:
                 try:
                     # Take first label for simplicity
@@ -120,7 +121,7 @@ def debug_label_mismatch():
                         go_encoded.append(encoded)
                     else:
                         go_encoding_errors.append(
-                            f"Label '{label}' not in encoder classes"
+                            f"Label '{label}' not in encoder classes",
                         )
                 except Exception as e:
                     go_encoding_errors.append(f"Error encoding label '{label}': {e}")
@@ -129,14 +130,14 @@ def debug_label_mismatch():
         journal_encoded = []
         journal_encoding_errors = []
 
-        for i, emotion in enumerate(journal_df["emotion"][:100]):  # Test first 100
+        for _i, emotion in enumerate(journal_df["emotion"][:100]):  # Test first 100
             try:
                 if emotion in label_encoder.classes_:
                     encoded = label_encoder.transform([emotion])[0]
                     journal_encoded.append(encoded)
                 else:
                     journal_encoding_errors.append(
-                        f"Label '{emotion}' not in encoder classes"
+                        f"Label '{emotion}' not in encoder classes",
                     )
             except Exception as e:
                 journal_encoding_errors.append(f"Error encoding label '{emotion}': {e}")
@@ -145,7 +146,7 @@ def debug_label_mismatch():
         if go_encoded:
             logger.info(f"✅ GoEmotions encoding successful: {len(go_encoded)} samples")
             logger.info(
-                f"📊 GoEmotions label range: {min(go_encoded)} to {max(go_encoded)}"
+                f"📊 GoEmotions label range: {min(go_encoded)} to {max(go_encoded)}",
             )
         if go_encoding_errors:
             logger.error(f"❌ GoEmotions encoding errors: {len(go_encoding_errors)}")
@@ -154,10 +155,10 @@ def debug_label_mismatch():
 
         if journal_encoded:
             logger.info(
-                f"✅ Journal encoding successful: {len(journal_encoded)} samples"
+                f"✅ Journal encoding successful: {len(journal_encoded)} samples",
             )
             logger.info(
-                f"📊 Journal label range: {min(journal_encoded)} to {max(journal_encoded)}"
+                f"📊 Journal label range: {min(journal_encoded)} to {max(journal_encoded)}",
             )
         if journal_encoding_errors:
             logger.error(f"❌ Journal encoding errors: {len(journal_encoding_errors)}")
@@ -191,11 +192,11 @@ def debug_label_mismatch():
 
         if go_out_of_bounds:
             logger.error(
-                f"❌ GoEmotions has {len(go_out_of_bounds)} out-of-bounds labels"
+                f"❌ GoEmotions has {len(go_out_of_bounds)} out-of-bounds labels",
             )
         if journal_out_of_bounds:
             logger.error(
-                f"❌ Journal has {len(journal_out_of_bounds)} out-of-bounds labels"
+                f"❌ Journal has {len(journal_out_of_bounds)} out-of-bounds labels",
             )
 
         # Step 8: Provide recommendations
@@ -249,7 +250,7 @@ def debug_label_mismatch():
         }
 
     except Exception as e:
-        logger.error(f"❌ Debugging failed: {e}")
+        logger.exception(f"❌ Debugging failed: {e}")
         return None
 
 

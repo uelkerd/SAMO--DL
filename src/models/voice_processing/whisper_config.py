@@ -1,5 +1,4 @@
-"""
-SAMO Whisper Configuration Module
+"""SAMO Whisper Configuration Module.
 
 This module handles configuration loading and management for the SAMO Whisper
 transcription system, supporting both YAML file configuration and programmatic defaults.
@@ -7,7 +6,8 @@ transcription system, supporting both YAML file configuration and programmatic d
 
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -37,28 +37,36 @@ class SAMOWhisperConfig:
 
         # Load transcription parameters from both sections
         self.task = whisper_config.get(
-            "task", transcription_config.get("task", "transcribe")
+            "task",
+            transcription_config.get("task", "transcribe"),
         )
         self.temperature = whisper_config.get(
-            "temperature", transcription_config.get("temperature", 0.0)
+            "temperature",
+            transcription_config.get("temperature", 0.0),
         )
         self.beam_size = whisper_config.get(
-            "beam_size", transcription_config.get("beam_size", None)
+            "beam_size",
+            transcription_config.get("beam_size", None),
         )
         self.best_of = whisper_config.get(
-            "best_of", transcription_config.get("best_of", None)
+            "best_of",
+            transcription_config.get("best_of", None),
         )
         self.patience = whisper_config.get(
-            "patience", transcription_config.get("patience", None)
+            "patience",
+            transcription_config.get("patience", None),
         )
         self.length_penalty = whisper_config.get(
-            "length_penalty", transcription_config.get("length_penalty", None)
+            "length_penalty",
+            transcription_config.get("length_penalty", None),
         )
         self.suppress_tokens = whisper_config.get(
-            "suppress_tokens", transcription_config.get("suppress_tokens", "-1")
+            "suppress_tokens",
+            transcription_config.get("suppress_tokens", "-1"),
         )
         self.initial_prompt = whisper_config.get(
-            "initial_prompt", transcription_config.get("initial_prompt", None)
+            "initial_prompt",
+            transcription_config.get("initial_prompt", None),
         )
         self.condition_on_previous_text = whisper_config.get(
             "condition_on_previous_text",
@@ -70,10 +78,12 @@ class SAMOWhisperConfig:
             transcription_config.get("compression_ratio_threshold", 2.4),
         )
         self.logprob_threshold = whisper_config.get(
-            "logprob_threshold", transcription_config.get("logprob_threshold", -1.0)
+            "logprob_threshold",
+            transcription_config.get("logprob_threshold", -1.0),
         )
         self.no_speech_threshold = whisper_config.get(
-            "no_speech_threshold", transcription_config.get("no_speech_threshold", 0.6)
+            "no_speech_threshold",
+            transcription_config.get("no_speech_threshold", 0.6),
         )
 
     def _load_defaults(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Complete Simple Notebook
+"""Complete Simple Notebook.
 ========================
 
 This script adds all the missing training, validation, and model saving

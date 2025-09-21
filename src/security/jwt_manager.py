@@ -111,7 +111,7 @@ class JWTManager:
             logger.warning(f"Invalid token: {e!s}")
             return None
         except Exception as e:
-            logger.error(f"Token verification error: {e!s}")
+            logger.exception(f"Token verification error: {e!s}")
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:

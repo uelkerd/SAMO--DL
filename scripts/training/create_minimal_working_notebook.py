@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Minimal Working Notebook
+"""Create Minimal Working Notebook.
 ==============================
 
 This script creates a minimal working notebook with the most basic

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Ultimate Bulletproof Training Notebook
+"""Create Ultimate Bulletproof Training Notebook.
 =============================================
 
 This script generates the ultimate training notebook that combines ALL gains from

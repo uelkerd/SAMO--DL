@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Vertex AI Validation Script
+"""Simple Vertex AI Validation Script.
 
 Validates Vertex AI setup and configuration.
 """
@@ -18,7 +18,8 @@ without complex infrastructure setup.
 """
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def main():
 
         logger.info("🔍 Creating validation job...")
 
-        job = aiplatform.CustomTrainingJob(
+        aiplatform.CustomTrainingJob(
             display_name="samo-simple-validation",
             container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
             machine_type="n1-standard-4",
@@ -55,7 +56,7 @@ def main():
         logger.info("")
         logger.info("🎯 NEXT STEPS:")
         logger.info(
-            "1. Go to Vertex AI Console: https://console.cloud.google.com/vertex-ai"
+            "1. Go to Vertex AI Console: https://console.cloud.google.com/vertex-ai",
         )
         logger.info("2. Navigate to Training → Custom jobs")
         logger.info("3. Find 'samo-simple-validation' job")
@@ -73,22 +74,22 @@ def main():
         return True
 
     except Exception:
-        logger.error("❌ Vertex AI validation failed: {e}")
-        logger.error("")
-        logger.error("🔧 ALTERNATIVE APPROACH:")
-        logger.error(
-            "Since Vertex AI setup is complex, let's focus on the immediate issue:"
+        logger.exception("❌ Vertex AI validation failed: {e}")
+        logger.exception("")
+        logger.exception("🔧 ALTERNATIVE APPROACH:")
+        logger.exception(
+            "Since Vertex AI setup is complex, let's focus on the immediate issue:",
         )
-        logger.error("")
-        logger.error(
-            "1. Run local validation: python scripts/local_validation_debug.py"
+        logger.exception("")
+        logger.exception(
+            "1. Run local validation: python scripts/local_validation_debug.py",
         )
-        logger.error("2. Check data distribution manually")
-        logger.error("3. Verify model architecture")
-        logger.error("4. Test loss function")
-        logger.error("5. Fix the 0.0000 loss issue locally first")
-        logger.error("")
-        logger.error("Then we can move to Vertex AI for production training.")
+        logger.exception("2. Check data distribution manually")
+        logger.exception("3. Verify model architecture")
+        logger.exception("4. Test loss function")
+        logger.exception("5. Fix the 0.0000 loss issue locally first")
+        logger.exception("")
+        logger.exception("Then we can move to Vertex AI for production training.")
 
         return False
 

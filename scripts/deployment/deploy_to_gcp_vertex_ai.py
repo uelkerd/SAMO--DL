@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy to GCP/Vertex AI
+"""Deploy to GCP/Vertex AI.
 =======================
 
 This script deploys the comprehensive emotion detection model to GCP/Vertex AI
@@ -21,7 +21,10 @@ def check_prerequisites():
     # Check if gcloud is installed
     try:
         result = subprocess.run(
-            ["gcloud", "--version"], check=False, capture_output=True, text=True
+            ["gcloud", "--version"],
+            check=False,
+            capture_output=True,
+            text=True,
         )
         if result.returncode == 0:
             print("✅ gcloud CLI is installed")
@@ -135,7 +138,7 @@ def prepare_model_for_deployment():
             metadata = json.load(f)
         print(f"✅ Model metadata: {metadata.get('version', 'Unknown')}")
         print(
-            f"   Performance: {metadata.get('performance', {}).get('test_accuracy', 'Unknown')}"
+            f"   Performance: {metadata.get('performance', {}).get('test_accuracy', 'Unknown')}",
         )
     else:
         print("⚠️ No model metadata found")
@@ -580,7 +583,7 @@ def main():
     print("\n🎉 DEPLOYMENT SUCCESSFUL!")
     print("=" * 60)
     print(
-        "Your comprehensive emotion detection model is now deployed on GCP/Vertex AI!"
+        "Your comprehensive emotion detection model is now deployed on GCP/Vertex AI!",
     )
     print("You can now make predictions using the Vertex AI endpoint.")
 

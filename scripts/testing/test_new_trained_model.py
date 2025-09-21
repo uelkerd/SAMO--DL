@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TEST NEW TRAINED MODEL
+"""TEST NEW TRAINED MODEL.
 ======================
 Tests the newly trained model from Colab with proper verification
 """
@@ -11,7 +11,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 def test_new_trained_model():
-    """Test the newly trained model from Colab"""
+    """Test the newly trained model from Colab."""
     print("🧪 TESTING NEW TRAINED MODEL")
     print("=" * 50)
 
@@ -94,7 +94,10 @@ def test_new_trained_model():
         for text in test_examples:
             # Tokenize
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=128
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=128,
             )
 
             # Predict
@@ -120,7 +123,7 @@ def test_new_trained_model():
                 status = "❌"
 
             print(
-                f'{status} "{text}" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})'
+                f'{status} "{text}" → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})',
             )
 
         accuracy = correct / len(test_examples)
@@ -138,7 +141,10 @@ def test_new_trained_model():
 
         for text in edge_cases:
             inputs = tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=128
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=128,
             )
             with torch.no_grad():
                 outputs = model(**inputs)

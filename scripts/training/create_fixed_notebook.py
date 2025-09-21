@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CREATE FIXED SPECIALIZED NOTEBOOK
+"""CREATE FIXED SPECIALIZED NOTEBOOK.
 =================================
 Creates a notebook that properly uses j-hartmann/emotion-english-distilroberta-base
 with proper JSON escaping
@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def create_fixed_notebook():
-    """Create a fixed notebook with proper JSON escaping"""
+    """Create a fixed notebook with proper JSON escaping."""
     # Create the notebook structure
     notebook = {
         "cells": [

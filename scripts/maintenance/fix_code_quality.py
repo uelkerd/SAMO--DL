@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Code Quality Fixer Script
+"""Code Quality Fixer Script.
 
 This script automatically fixes common code quality issues
 identified by Ruff linter.
@@ -31,7 +31,7 @@ class CodeQualityFixer:
                 import_found = False
                 for i, line in enumerate(lines):
                     if line.strip().startswith("import ") or line.strip().startswith(
-                        "from "
+                        "from ",
                     ):
                         if "pathlib" in line:
                             import_found = True
@@ -52,13 +52,13 @@ class CodeQualityFixer:
             content,
         )
         content = re.sub(
-            r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content
+            r"os\.remove\(([^)]+)\)",
+            r"Path(\1).unlink(missing_ok=True)",
+            content,
         )
         content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
         content = re.sub(r"os\.path\.isfile\(([^)]+)\)", r"Path(\1).is_file()", content)
-        content = re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)
-
-        return content
+        return re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)
 
     def fix_f_strings(self, content: str) -> str:
         """Fix f-string formatting issues."""
@@ -67,9 +67,7 @@ class CodeQualityFixer:
         content = re.sub(r"f'([^']*)'", r"'\1'", content)
 
         # Fix f-strings with invalid syntax
-        content = re.sub(r'f"([^"]*)\{([^}]*)\}([^"]*)"', r'f"\1{\2}\3"', content)
-
-        return content
+        return re.sub(r'f"([^"]*)\{([^}]*)\}([^"]*)"', r'f"\1{\2}\3"', content)
 
     def fix_import_order(self, content: str) -> str:
         """Fix import order and grouping."""
@@ -87,7 +85,7 @@ class CodeQualityFixer:
         import_lines.sort()
 
         # Reconstruct content
-        return "\n".join(import_lines + [""] + other_lines)
+        return "\n".join([*import_lines, "", *other_lines])
 
     def fix_unused_imports(self, content: str) -> str:
         """Remove unused imports."""
@@ -142,7 +140,7 @@ class CodeQualityFixer:
             return False
 
         except Exception as e:
-            logger.error(f"❌ Error fixing {file_path}: {e}")
+            logger.exception(f"❌ Error fixing {file_path}: {e}")
             return False
 
     def fix_project(self) -> None:

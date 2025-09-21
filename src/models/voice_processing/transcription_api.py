@@ -11,13 +11,15 @@
 # Validate audio before transcription
 # Initialize transcriber
 # Track performance metrics
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import create_whisper_transcriber
-from pathlib import Path
-from typing import Optional, Union, List
-import jiwer
 import logging
 import time
+from pathlib import Path
+from typing import List, Optional, Union
+
+import jiwer
+
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import create_whisper_transcriber
 
 """Transcription API for SAMO Voice Processing.
 
@@ -47,9 +49,11 @@ class TranscriptionAPI:
         """Initialize TranscriptionAPI with whisper model.
 
         Args:
+        ----
             model_size: Whisper model size (tiny, base, small, medium, large)
             language: Default language for transcription (None for auto-detect)
             device: Compute device (cuda, cpu, None for auto-detect)
+
         """
         logger.info(f"Initializing TranscriptionAPI with model_size={model_size}")
 
@@ -61,14 +65,16 @@ class TranscriptionAPI:
         try:
             start_time = time.time()
             self.transcriber = create_whisper_transcriber(
-                model_size=model_size, language=language, device=device
+                model_size=model_size,
+                language=language,
+                device=device,
             )
             startup_time = time.time() - start_time
             logger.info(f"✅ TranscriptionAPI initialized in {startup_time:.2f}s")
             self.ready = True
 
         except Exception as exc:
-            logger.error(f"❌ Failed to initialize TranscriptionAPI: {exc}")
+            logger.exception(f"❌ Failed to initialize TranscriptionAPI: {exc}")
             self.transcriber = None
             self.ready = False
 
@@ -81,16 +87,20 @@ class TranscriptionAPI:
         """Transcribe audio file to text.
 
         Args:
+        ----
             audio_path: Path to audio file
             language: Language code (auto-detect if None)
             initial_prompt: Context prompt for better accuracy
 
         Returns:
+        -------
             Dictionary with transcription results and metadata
 
         Raises:
+        ------
             ValueError: If audio validation fails
             RuntimeError: If transcription fails
+
         """
         if not self.ready or self.transcriber is None:
             raise RuntimeError("TranscriptionAPI not initialized properly")
@@ -105,7 +115,9 @@ class TranscriptionAPI:
                 raise ValueError(f"Audio validation failed: {error_msg}")
 
             result = self.transcriber.transcribe(
-                audio_path=audio_path, language=language, initial_prompt=initial_prompt
+                audio_path=audio_path,
+                language=language,
+                initial_prompt=initial_prompt,
             )
 
             processing_time = time.time() - start_time
@@ -131,7 +143,7 @@ class TranscriptionAPI:
 
         except Exception as exc:
             self.error_count += 1
-            logger.error(f"Transcription failed: {exc}")
+            logger.exception(f"Transcription failed: {exc}")
             raise RuntimeError(f"Transcription failed: {exc}") from exc
 
     def transcribe_batch(
@@ -143,12 +155,15 @@ class TranscriptionAPI:
         """Transcribe multiple audio files.
 
         Args:
+        ----
             audio_paths: List of paths to audio files
             language: Language code (auto-detect if None)
             initial_prompt: Context prompt for better accuracy
 
         Returns:
+        -------
             List of dictionaries with transcription results
+
         """
         if not self.ready or self.transcriber is None:
             raise RuntimeError("TranscriptionAPI not initialized properly")
@@ -177,7 +192,7 @@ class TranscriptionAPI:
                         "word_count": result.word_count,
                         "speaking_rate": result.speaking_rate,
                         "audio_quality": result.audio_quality,
-                    }
+                    },
                 )
 
             batch_processing_time = time.time() - start_time
@@ -187,18 +202,21 @@ class TranscriptionAPI:
 
         except Exception as exc:
             self.error_count += len(audio_paths)
-            logger.error(f"Batch transcription failed: {exc}")
+            logger.exception(f"Batch transcription failed: {exc}")
             raise RuntimeError(f"Batch transcription failed: {exc}") from exc
 
     def evaluate_wer(self, audio_path: Union[str, Path], reference_text: str) -> dict:
         """Calculate Word Error Rate for transcription.
 
         Args:
+        ----
             audio_path: Path to audio file
             reference_text: Reference transcription text
 
         Returns:
+        -------
             Dictionary with WER evaluation metrics
+
         """
         try:
             result = self.transcribe(audio_path)
@@ -221,16 +239,18 @@ class TranscriptionAPI:
             }
 
         except Exception as exc:
-            logger.error(f"WER evaluation failed: {exc}")
+            logger.exception(f"WER evaluation failed: {exc}")
             raise RuntimeError(f"WER evaluation failed: {exc}") from exc
 
     def get_performance_metrics(self) -> dict:
         """Get transcription performance metrics.
 
-        Returns:
+        Returns
+        -------
             Dictionary with performance metrics
+
         """
-        metrics = {
+        return {
             "total_requests": self.total_requests,
             "total_audio_duration": self.total_audio_duration,
             "total_processing_time": self.total_processing_time,
@@ -244,13 +264,13 @@ class TranscriptionAPI:
             "model_info": self.transcriber.get_model_info() if self.transcriber else {},
         }
 
-        return metrics
-
     def get_model_info(self) -> dict:
         """Get information about the transcription model.
 
-        Returns:
+        Returns
+        -------
             Dictionary with model information
+
         """
         if not self.ready or self.transcriber is None:
             return {"status": "not_initialized"}
@@ -266,12 +286,14 @@ def create_transcription_api(
     """Create TranscriptionAPI with specified configuration.
 
     Args:
+    ----
         model_size: Whisper model size (tiny, base, small, medium, large)
         language: Default language (None for auto-detect)
         device: Compute device (cuda, cpu, None for auto-detect)
 
     Returns:
+    -------
         Configured TranscriptionAPI instance
+
     """
-    api = TranscriptionAPI(model_size=model_size, language=language, device=device)
-    return api
+    return TranscriptionAPI(model_size=model_size, language=language, device=device)

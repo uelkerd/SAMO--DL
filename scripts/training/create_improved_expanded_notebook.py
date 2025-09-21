@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Create Improved Expanded Training Notebook
-Generates a new notebook with proper JSON escaping and GPU optimizations
+Generates a new notebook with proper JSON escaping and GPU optimizations.
 """
 
 import json
@@ -753,7 +753,7 @@ def create_improved_notebook():
         json.dump(notebook, f, indent=2)
 
     print(
-        "✅ Improved notebook created: 'notebooks/expanded_dataset_training_improved.ipynb'"
+        "✅ Improved notebook created: 'notebooks/expanded_dataset_training_improved.ipynb'",
     )
     print("📋 Key improvements:")
     print("  - Fixed JSON syntax errors")

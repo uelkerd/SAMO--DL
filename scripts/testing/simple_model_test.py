@@ -95,7 +95,7 @@ def suggest_next_steps():
     print("   - Options:")
     print("     a) Use: python3.11 scripts/test_emotion_model.py")
     print(
-        "     b) Install libraries in current Python: pip3 install torch transformers scikit-learn"
+        "     b) Install libraries in current Python: pip3 install torch transformers scikit-learn",
     )
     print("     c) Create virtual environment")
 

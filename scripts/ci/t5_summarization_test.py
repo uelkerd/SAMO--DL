@@ -50,7 +50,7 @@ def test_t5_model_loading():
         if "SentencePiece" in str(e):
             logger.warning("⚠️ SentencePiece not available, skipping T5 test")
             return True  # Skip gracefully
-        logger.error(f"❌ T5 model loading failed: {e}")
+        logger.exception(f"❌ T5 model loading failed: {e}")
         return False
 
 
@@ -91,10 +91,10 @@ def test_t5_summarization():
     except Exception as e:
         if "SentencePiece" in str(e):
             logger.warning(
-                "⚠️ SentencePiece not available, skipping T5 summarization test"
+                "⚠️ SentencePiece not available, skipping T5 summarization test",
             )
             return True  # Skip gracefully
-        logger.error(f"❌ T5 summarization test failed: {e}")
+        logger.exception(f"❌ T5 summarization test failed: {e}")
         return False
 
 
