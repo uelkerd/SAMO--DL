@@ -94,20 +94,21 @@ class EmotionDetectionTrainer:
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        self.data_loader = None
-        self.model = None
-        self.loss_fn = None
-        self.optimizer = None
-        self.scheduler = None
-        self.tokenizer = None
+        # Initialize objects as Optional with proper type hints
+        self.data_loader: Optional[Any] = None
+        self.model: Optional[Any] = None
+        self.loss_fn: Optional[Any] = None
+        self.optimizer: Optional[Any] = None
+        self.scheduler: Optional[Any] = None
+        self.tokenizer: Optional[Any] = None
 
-        # Dataset attributes
-        self.train_dataset = None
-        self.val_dataset = None
-        self.test_dataset = None
-        self.train_dataloader = None
-        self.val_dataloader = None
-        self.test_dataloader = None
+        # Dataset attributes with proper type hints
+        self.train_dataset: Optional[Any] = None
+        self.val_dataset: Optional[Any] = None
+        self.test_dataset: Optional[Any] = None
+        self.train_dataloader: Optional[Any] = None
+        self.val_dataloader: Optional[Any] = None
+        self.test_dataloader: Optional[Any] = None
 
         self.best_score = 0.0
         self.patience_counter = 0
@@ -252,6 +253,8 @@ class EmotionDetectionTrainer:
             weight_decay=self.weight_decay,
         )
 
+        if self.train_dataloader is None:
+            raise RuntimeError("train_dataloader not initialized. Call prepare_data() first.")
         total_steps = len(self.train_dataloader) * self.num_epochs
 
         self.scheduler = get_linear_schedule_with_warmup(
@@ -302,6 +305,8 @@ class EmotionDetectionTrainer:
 
         # Setup training
         total_loss = 0.0
+        if self.train_dataloader is None:
+            raise RuntimeError("train_dataloader not initialized. Call prepare_data() first.")
         num_batches = len(self.train_dataloader)
         start_time = time.time()
         val_frequency = max(500, num_batches // 5)
@@ -322,7 +327,7 @@ class EmotionDetectionTrainer:
                 epoch,
                 num_batches,
                 total_loss,
-                self.scheduler.get_last_lr()[0],
+                self.scheduler.get_last_lr()[0] if self.scheduler else 0.0,
                 val_frequency,
                 start_time,
             )
@@ -340,7 +345,8 @@ class EmotionDetectionTrainer:
         """
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
-            self.model.unfreeze_bert_layers(layers_to_unfreeze)
+            if self.model is not None:
+                self.model.unfreeze_bert_layers(layers_to_unfreeze)
             logger.info("Epoch %d: Applied progressive unfreezing", epoch)
 
     def _train_single_batch(
@@ -443,7 +449,7 @@ class EmotionDetectionTrainer:
             "epoch": epoch,
             "train_loss": avg_loss,
             "epoch_time": epoch_time,
-            "learning_rate": self.scheduler.get_last_lr()[0],
+            "learning_rate": self.scheduler.get_last_lr()[0] if self.scheduler else 0.0,
         }
 
         logger.info(
@@ -581,7 +587,7 @@ class EmotionDetectionTrainer:
             total_loss: Cumulative loss for current epoch
         """
         avg_loss = total_loss / (batch_idx + 1)
-        current_lr = self.scheduler.get_last_lr()[0]
+        current_lr = self.scheduler.get_last_lr()[0] if self.scheduler else 0.0
         logger.info(
             "Epoch %d, Batch %d/%d, Loss: %.8f, LR: %.2e",
             epoch,

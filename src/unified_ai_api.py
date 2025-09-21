@@ -326,19 +326,15 @@ websocket_manager = WebSocketConnectionManager()
 # Authentication models
 class UserLogin(BaseModel):
     """User login request model."""
-    username: str = Field(description="Username", example="user@example.com")
-    password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
-    )
+    username: str = Field(description="Username")
+    password: str = Field(description="Password", min_length=6)
 
 class UserRegister(BaseModel):
     """User registration request model."""
-    username: str = Field(description="Username", example="user@example.com")
-    email: str = Field(description="Email address", example="user@example.com")
-    password: str = Field(
-        ..., description="Password", min_length=6, example="password123"
-    )
-    full_name: str = Field(description="Full name", example="John Doe")
+    username: str = Field(description="Username")
+    email: str = Field(description="Email address")
+    password: str = Field(description="Password", min_length=6)
+    full_name: str = Field(description="Full name")
 
 class UserProfile(BaseModel):
     """User profile response model."""
@@ -1118,7 +1114,7 @@ async def get_user_profile(
 # Simple Chat Contracts (minimal)
 class ChatMessage(BaseModel):
     """Single chat message from the user."""
-    text: str = Field(..., min_length=1, description="User message text")
+    text: str = Field(min_length=1, description="User message text")
     summarize: bool = Field(False, description="Summarize response using T5")
     model: str = Field("t5-small", description="Summarizer model if summarize=true")
 
