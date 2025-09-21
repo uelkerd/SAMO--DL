@@ -653,7 +653,8 @@ class MegaComprehensiveModelTester:
         )[:3]
         print(
             f"   Worst performing emotions: "
-            f"{', '.join([f'{e[0]} ({e[1]["accuracy"]:.1f}%)' for e in worst_emotions])}",
+            f"{', '.join([f'{e[0]} ({e[1][\"accuracy\"]:.1f}%)' "
+            f"for e in worst_emotions])}",
         )
 
     def analyze_confidence_distribution(self):
