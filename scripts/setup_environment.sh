@@ -24,15 +24,15 @@ parse_env_name() {
         echo "Environment file not found at: $env_file" >&2
         return 1
     fi
-    
+
     local env_name
     env_name=$(grep '^name:' "$env_file" | sed 's/^name:[[:space:]]*//' | tr -d "\"'" | head -n1)
-    
+
     if [ -z "$env_name" ]; then
         echo "No environment name found in: $env_file" >&2
         return 1
     fi
-    
+
     echo "$env_name"
 }
 
@@ -72,7 +72,7 @@ print_error() {
 # Check if conda is available
 check_conda() {
     print_status "Checking conda installation..."
-    
+
     # First try to find conda in PATH
     if command -v conda >/dev/null 2>&1; then
         CONDA_PATH="$(command -v conda)"
@@ -86,7 +86,7 @@ check_conda() {
             "$HOME/miniconda3/bin/conda"
             "$HOME/miniforge3/bin/conda"
         )
-        
+
         CONDA_PATH=""
         for path in "${CONDA_PATHS[@]}"; do
             if [ -f "$path" ]; then
@@ -95,13 +95,13 @@ check_conda() {
             fi
         done
     fi
-    
+
     if [ -z "$CONDA_PATH" ]; then
         print_error "Conda not found. Please install Anaconda or Miniconda first."
         print_status "Download from: https://docs.conda.io/en/latest/miniconda.html"
         exit 1
     fi
-    
+
     print_success "Found conda at: ${CONDA_PATH}"
     export PATH="$(dirname "$CONDA_PATH"):$PATH"
 }
@@ -109,11 +109,11 @@ check_conda() {
 # Initialize conda
 init_conda() {
     print_status "Initializing conda..."
-    
+
     # Source conda initialization
     CONDA_BASE=$(dirname "$(dirname "$CONDA_PATH")")
     source "$CONDA_BASE/etc/profile.d/conda.sh"
-    
+
     if [ $? -eq 0 ]; then
         print_success "Conda initialized successfully"
     else
@@ -125,14 +125,14 @@ init_conda() {
 # Create or update environment
 setup_environment() {
     print_status "Setting up conda environment '$ENV_NAME'..."
-    
+
     # Check if environment exists
     local env_file="$REPO_ROOT/environment.yml"
     if [ ! -f "$env_file" ]; then
         print_error "Environment file not found at: $env_file"
         exit 1
     fi
-    
+
     if conda env list | grep -Eq "^[[:space:]]*\*?[[:space:]]*${ENV_NAME}[[:space:]]"; then
         print_warning "Environment '$ENV_NAME' already exists. Updating..."
         conda env update -f "$env_file"
@@ -140,7 +140,7 @@ setup_environment() {
         print_status "Creating new environment '$ENV_NAME'..."
         conda env create -f "$env_file"
     fi
-    
+
     if [ $? -eq 0 ]; then
         print_success "Environment setup completed"
         echo "📄 Environment file used: environment.yml"
@@ -156,17 +156,17 @@ setup_environment() {
 # Activate environment and install additional dependencies
 activate_and_setup() {
     print_status "Activating environment and installing additional dependencies..."
-    
+
     conda activate "$ENV_NAME"
-    
+
     # Install additional pip packages
     python -m pip install --upgrade pip
-    
+
     # Resolve paths for constraints and requirements files
     local constraints_file="$REPO_ROOT/dependencies/constraints.txt"
     local repo_requirements="$REPO_ROOT/requirements.txt"
     local local_requirements="requirements.txt"
-    
+
     # Check constraints file exists
     if [ ! -f "$constraints_file" ]; then
         print_warning "Constraints file not found at: $constraints_file"
@@ -175,11 +175,11 @@ activate_and_setup() {
     else
         print_status "Using constraints from: $constraints_file"
     fi
-    
+
     # Determine which requirements files to use with fallback logic
     local -a requirements_files=()
     local requirements_source=""
-    
+
     if [ -f "$local_requirements" ]; then
         requirements_files+=("$local_requirements")
         requirements_source="local requirements.txt"
@@ -195,9 +195,9 @@ activate_and_setup() {
         print_warning "Skipping additional package installation"
         return
     fi
-    
+
     print_status "Installing packages from: $requirements_source"
-    
+
     # Build pip install args safely (avoid eval)
     local -a pip_args=(install)
     if [ -n "$constraints_file" ]; then
@@ -209,38 +209,38 @@ activate_and_setup() {
 
     # Execute the installation
     python -m pip "${pip_args[@]}" || print_warning "Failed to install some packages from $requirements_source"
-    
+
     # Install pre-commit hooks
     print_status "Setting up pre-commit hooks..."
     pre-commit install
-    
+
     print_success "Environment activation completed"
 }
 
 # Test the environment
 test_environment() {
     print_status "Testing environment setup..."
-    
+
     # Test Python version
     python_version=$(python --version 2>&1)
     print_status "Python version: ${python_version}"
-    
+
     # Test key imports
     python -c "import torch; print(f'PyTorch version: {torch.__version__}')"
     python -c "import transformers; print(f'Transformers version: {transformers.__version__}')"
     python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
-    
+
     print_success "Environment test completed successfully"
 }
 
 # Setup database connection
 setup_database() {
     print_status "Setting up database connection..."
-    
+
     # Check if .env file exists
     local env_file="$REPO_ROOT/.env"
     local env_template="$REPO_ROOT/.env.template"
-    
+
     if [ ! -f "$env_file" ]; then
         print_warning "No .env file found at: $env_file"
         print_warning "Creating from template..."
@@ -258,7 +258,7 @@ setup_database() {
             print_warning "Please create .env file manually"
         fi
     fi
-    
+
     # Test database connection if .env exists
     if [ -f "$env_file" ]; then
         if ! python "$REPO_ROOT/scripts/database/check_pgvector.py"; then
@@ -272,14 +272,14 @@ main() {
     echo "=========================================="
     echo "SAMO Deep Learning Environment Setup"
     echo "=========================================="
-    
+
     check_conda
     init_conda
     setup_environment
     activate_and_setup
     test_environment
     setup_database
-    
+
     echo ""
     echo "=========================================="
     print_success "Environment setup completed!"
@@ -295,4 +295,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

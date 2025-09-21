@@ -64,7 +64,7 @@ def setup_git_lfs() -> bool:
         # Update .gitattributes if exists
         gitattributes_path = ".gitattributes"
         if os.path.exists(gitattributes_path):
-            with open(gitattributes_path, 'r') as f:
+            with open(gitattributes_path) as f:
                 content = f.read()
             for pattern in lfs_patterns:
                 lfs_line = f"{pattern} filter=lfs diff=lfs merge=lfs -text"

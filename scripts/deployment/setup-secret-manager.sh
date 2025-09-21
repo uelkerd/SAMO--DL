@@ -32,17 +32,17 @@ print_error() {
 # Check for required tools
 check_required_tools() {
     print_status "Checking for required tools..."
-    
+
     if ! command -v gcloud &> /dev/null; then
         print_error "gcloud CLI is not installed. Please install it first."
         exit 1
     fi
-    
+
     if ! command -v openssl &> /dev/null; then
         print_error "openssl is not installed. Please install it first."
         exit 1
     fi
-    
+
     print_success "All required tools are available."
 }
 
@@ -61,11 +61,11 @@ get_project_id() {
 # Enable required APIs
 enable_apis() {
     print_status "Enabling required APIs..."
-    
+
     gcloud services enable secretmanager.googleapis.com --project="$PROJECT_ID"
     gcloud services enable cloudbuild.googleapis.com --project="$PROJECT_ID"
     gcloud services enable run.googleapis.com --project="$PROJECT_ID"
-    
+
     print_success "APIs enabled successfully."
 }
 
@@ -73,13 +73,13 @@ enable_apis() {
 create_secret() {
     local secret_name="admin-api-key"
     local api_key="$1"
-    
+
     print_status "Creating secret in Secret Manager..."
-    
+
     # Check if secret already exists
     if gcloud secrets describe "$secret_name" --project="$PROJECT_ID" &>/dev/null; then
         print_warning "Secret '$secret_name' already exists. Updating version..."
-        
+
         # Add new version to existing secret
         echo -n "$api_key" | gcloud secrets versions add "$secret_name" --data-file=- --project="$PROJECT_ID"
     else
@@ -87,7 +87,7 @@ create_secret() {
         gcloud secrets create "$secret_name" --replication-policy="automatic" --project="$PROJECT_ID"
         echo -n "$api_key" | gcloud secrets versions add "$secret_name" --data-file=- --project="$PROJECT_ID"
     fi
-    
+
     print_success "Secret created/updated successfully."
 }
 
@@ -95,18 +95,18 @@ create_secret() {
 grant_cloud_build_access() {
     local secret_name="admin-api-key"
     local project_number
-    
+
     print_status "Granting Cloud Build access to secret..."
-    
+
     # Get project number
     project_number=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
-    
+
     # Grant access to Cloud Build service account
     gcloud secrets add-iam-policy-binding "$secret_name" \
         --member="serviceAccount:$project_number@cloudbuild.gserviceaccount.com" \
         --role="roles/secretmanager.secretAccessor" \
         --project="$PROJECT_ID"
-    
+
     print_success "Cloud Build access granted."
 }
 
@@ -127,14 +127,14 @@ generate_api_key() {
 # Main function
 main() {
     print_status "Setting up Google Secret Manager for secure API key storage..."
-    
+
     check_required_tools
     get_project_id
     enable_apis
     generate_api_key
     create_secret "$API_KEY"
     grant_cloud_build_access
-    
+
     print_success "Secret Manager setup complete!"
     print_status "You can now use the consolidated cloudbuild.yaml configuration."
     print_status "Secret name: admin-api-key"
