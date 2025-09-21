@@ -272,19 +272,19 @@ init_submodules() {
     print_status "Initializing git submodules..."
     
     # Check if we're in a git repository
-    if [ ! -d ".git" ]; then
+    if [ ! -d "$REPO_ROOT/.git" ]; then
         print_warning "Not in a git repository, skipping submodule initialization"
         return 0
     fi
     
     # Sync and initialize submodules with depth 1 for faster clones
-    if git submodule sync --recursive && git submodule update --init --recursive --depth 1; then
+    if git -C "$REPO_ROOT" submodule sync --recursive && git -C "$REPO_ROOT" submodule update --init --recursive --depth 1; then
         print_success "Git submodules initialized successfully"
-        print_status "Training repository available at: notebooks/goemotions-deberta/"
-        print_status "To update to latest main: git submodule update --remote --recursive notebooks/goemotions-deberta"
+        print_status "Training repository available at: $REPO_ROOT/notebooks/goemotions-deberta/"
+        print_status "To update to latest main: git -C $REPO_ROOT submodule update --remote --recursive notebooks/goemotions-deberta"
     else
         print_warning "Failed to initialize git submodules (this may be expected if not cloned with --recursive)"
-        print_warning "To initialize manually, run: git submodule sync --recursive && git submodule update --init --recursive --depth 1"
+        print_warning "To initialize manually, run: git -C $REPO_ROOT submodule sync --recursive && git -C $REPO_ROOT submodule update --init --recursive --depth 1"
     fi
 }
 
