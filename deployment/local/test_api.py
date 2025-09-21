@@ -6,6 +6,7 @@ Comprehensive testing for the enhanced emotion detection API with monitoring,
 logging, and rate limiting features.
 """
 
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,6 +15,7 @@ import requests
 
 # Configuration
 BASE_URL = "http://localhost:8000"
+DEFAULT_TIMEOUT = float(os.getenv("HTTP_TIMEOUT", "5.0"))
 TEST_TEXTS = [
     "I am feeling happy today!",
     "I feel sad about the news",
@@ -34,7 +36,7 @@ def test_health_check():
     """Test the enhanced health check endpoint."""
     print("1. Testing enhanced health check...")
     try:
-        response = requests.get(f"{BASE_URL}/health")
+        response = requests.get(f"{BASE_URL}/health", timeout=DEFAULT_TIMEOUT)
         if response.status_code == 200:
             data = response.json()
             print("✅ Health check passed")
@@ -61,7 +63,7 @@ def test_metrics_endpoint():
     """Test the new metrics endpoint."""
     print("\n2. Testing metrics endpoint...")
     try:
-        response = requests.get(f"{BASE_URL}/metrics")
+        response = requests.get(f"{BASE_URL}/metrics", timeout=DEFAULT_TIMEOUT)
         if response.status_code == 200:
             data = response.json()
             print("✅ Metrics endpoint working")
@@ -93,6 +95,7 @@ def test_single_predictions():
                 f"{BASE_URL}/predict",
                 json={"text": text},
                 headers={"Content-Type": "application/json"},
+                timeout=DEFAULT_TIMEOUT,
             )
             end_time = time.time()
 
@@ -141,6 +144,7 @@ def test_batch_predictions():
             f"{BASE_URL}/predict_batch",
             json={"texts": TEST_TEXTS[:5]},
             headers={"Content-Type": "application/json"},
+            timeout=DEFAULT_TIMEOUT,
         )
         end_time = time.time()
 
@@ -184,6 +188,7 @@ def test_rate_limiting():
                 f"{BASE_URL}/predict",
                 json={"text": "Test rate limiting"},
                 headers={"Content-Type": "application/json"},
+                timeout=DEFAULT_TIMEOUT,
             )
             return response.status_code
         except:
@@ -226,6 +231,7 @@ def test_error_handling():
             f"{BASE_URL}/predict",
             json={},
             headers={"Content-Type": "application/json"},
+            timeout=DEFAULT_TIMEOUT,
         )
         if response.status_code == 400:
             print("✅ Missing text error handled correctly")
@@ -242,6 +248,7 @@ def test_error_handling():
             f"{BASE_URL}/predict",
             json={"text": ""},
             headers={"Content-Type": "application/json"},
+            timeout=DEFAULT_TIMEOUT,
         )
         if response.status_code == 400:
             print("✅ Empty text error handled correctly")
@@ -258,6 +265,7 @@ def test_error_handling():
             f"{BASE_URL}/predict",
             data="invalid json",
             headers={"Content-Type": "application/json"},
+            timeout=DEFAULT_TIMEOUT,
         )
         if response.status_code == 400:
             print("✅ Invalid JSON error handled correctly")
@@ -282,6 +290,7 @@ def test_performance():
                 f"{BASE_URL}/predict",
                 json={"text": "Performance test"},
                 headers={"Content-Type": "application/json"},
+                timeout=DEFAULT_TIMEOUT,
             )
             end_time = time.time()
             return {

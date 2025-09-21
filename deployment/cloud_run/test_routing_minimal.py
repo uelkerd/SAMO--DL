@@ -19,7 +19,7 @@ api = Api(
 )
 
 # Create namespace with a different path to avoid conflicts
-main_ns = Namespace("/api", description="Main operations")  # Changed from '/' to '/api'
+main_ns = Namespace("Main operations", description="Main operations", path="/api")
 api.add_namespace(main_ns)
 
 

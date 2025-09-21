@@ -448,7 +448,8 @@ if __name__ == "__main__":
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
             def init(self, parser, opts, args):
                 """Initialize the application (abstract method override)."""
-                raise NotImplementedError
+                # No-op implementation to avoid NotImplementedError during Gunicorn startup
+                pass
 
             def __init__(self, flask_app, gunicorn_options=None):
                 self.options = gunicorn_options or {}
@@ -463,8 +464,12 @@ if __name__ == "__main__":
                 return self.application
 
         # Production configuration
+        host = "0.0.0.0"
+        port = os.environ.get("PORT", "8080")
+        bind_address = f"{host}:{port}"
+        
         options = {
-            "bind": "127.0.0.1:8080",
+            "bind": bind_address,
             "workers": 1,
             "worker_class": "sync",
             "timeout": 120,
@@ -478,4 +483,6 @@ if __name__ == "__main__":
 
     except ImportError:
         # Development server
-        app.run(host="127.0.0.1", port=8080, debug=False)
+        host = "0.0.0.0"
+        port = int(os.environ.get("PORT", "8080"))
+        app.run(host=host, port=port, debug=False)

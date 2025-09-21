@@ -53,13 +53,9 @@ def test_model():
             f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})"
         )
 
-        # Show top 3 predictions
-        sorted_probs = sorted(
-            result["probabilities"].items(), key=lambda x: x[1], reverse=True
-        )
-        print(
-            f"    Top 3: {', '.join([f'{emotion}({prob:.3f})' for emotion, prob in sorted_probs[:3]])}"
-        )
+        # Show prediction details
+        print(f"    Input text: {result.get('text', text[:50])}...")
+        print(f"    Confidence: {result['confidence']:.3f}")
         print()
 
     print("🎉 Testing completed!")

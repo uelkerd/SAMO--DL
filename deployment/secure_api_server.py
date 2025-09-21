@@ -200,9 +200,9 @@ def secure_endpoint(f):
 
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type="endpoint_error")
-            logger.error(f"Endpoint error: {e!s}")
+            logger.exception("Endpoint error occurred")
             # Return a generic error message to the user, do not expose exception details
-            return jsonify({"error": "An internal error has occurred."}), 500
+            return jsonify({"error": "Internal server error"}), 500
 
     return decorated_function
 

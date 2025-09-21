@@ -196,12 +196,13 @@ class HealthMonitor:
         if model_health["status"] != "healthy" or api_health["status"] != "healthy":
             overall_status = "unhealthy"
 
-        # Check resource thresholds
-        if system_metrics["memory_usage_mb"] > 1500:  # 1.5GB threshold
-            overall_status = "degraded"
+        # Check resource thresholds (only if not already unhealthy)
+        if overall_status == "healthy":
+            if system_metrics["memory_usage_mb"] > 1500:  # 1.5GB threshold
+                overall_status = "degraded"
 
-        if system_metrics["cpu_usage_percent"] > 80:  # 80% CPU threshold
-            overall_status = "degraded"
+            if system_metrics["cpu_usage_percent"] > 80:  # 80% CPU threshold
+                overall_status = "degraded"
 
         health_data = {
             "status": overall_status,

@@ -754,7 +754,7 @@ class SAMOModelDeployment:
                 logger.info(f"📝 Testing text {i+1}/{len(test_texts)}: '{text[:50]}...'")
 
                 # Make prediction
-                instances = [{"textContent": text}]
+                instances = [{"content": text}]
                 prediction = endpoint.predict(instances=instances)
 
                 # Parse results
