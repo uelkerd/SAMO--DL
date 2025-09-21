@@ -292,14 +292,12 @@ exclude = [
     "scripts/deployment/vertex_ai_phase4_automation.py",
     # CI scripts - already have type annotations
     "scripts/ci/.*",
-    # Jupyter notebooks and experimental training files (invalid syntax)
-    "scripts/training/.*bulletproof.*",
+    # Training files moved to separate repository
 ]
 
 # Focus on these critical paths first
 files = [
     "src/",
-    "scripts/training/",
     "scripts/database/",
 ]
 
@@ -313,10 +311,7 @@ disallow_any_explicit = false
 disallow_any_generics = false
 disallow_subclassing_any = false
 
-[[tool.mypy.overrides]]
-# Training scripts - critical ML pipeline
-module = "scripts.training.*"
-check_untyped_defs = true
+# Training scripts moved to separate repository - override removed
 
 [[tool.mypy.overrides]]
 # Database scripts - data integrity critical
