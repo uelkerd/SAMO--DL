@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 """Minimal validation script for emotion detection model."""
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from torch import nn
-import torch
-import torch.nn.functional as F
 import logging
 import sys
 
+import torch
+import torch.nn.functional as F
+from torch import nn
 
-
-
-
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Minimal Validation for Core Components
@@ -34,7 +29,6 @@ def test_imports():
 
         logger.info("   ✅ Transformers: {transformers.__version__}")
 
-
         logger.info("   ✅ NumPy: {np.__version__}")
 
         logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
@@ -52,6 +46,7 @@ def test_focal_loss():
     logger.info("🧮 Testing Focal Loss...")
 
     try:
+
         class FocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -63,7 +58,9 @@ def test_focal_loss():
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-                bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+                bce_loss = F.binary_cross_entropy_with_logits(
+                    inputs, targets, reduction="none"
+                )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
@@ -92,7 +89,7 @@ def test_file_structure():
         "src/models/emotion_detection/training_pipeline.py",
         "scripts/focal_loss_training.py",
         "scripts/threshold_optimization.py",
-"docs/GCP_DEPLOYMENT_GUIDE.md",
+        "docs/GCP_DEPLOYMENT_GUIDE.md",
     ]
 
     missing_files = []
@@ -106,9 +103,8 @@ def test_file_structure():
     if missing_files:
         logger.error("❌ File Structure: FAILED - {len(missing_files)} files missing")
         return False
-    else:
-        logger.info("✅ File Structure: PASSED - All {len(required_files)} files found")
-        return True
+    logger.info("✅ File Structure: PASSED - All {len(required_files)} files found")
+    return True
 
 
 def test_model_creation():
@@ -119,7 +115,9 @@ def test_model_creation():
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
         model, loss_fn = create_bert_emotion_classifier(
-            model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
+            model_name="bert-base-uncased",
+            class_weights=None,
+            freeze_bert_layers=4,
         )
 
         param_count = sum(p.numel() for p in model.parameters())
@@ -174,10 +172,9 @@ def main():
         logger.info("🚀 Core components are working correctly.")
         logger.info("📋 Next: Follow docs/GCP_DEPLOYMENT_GUIDE.md")
         return True
-    else:
-        logger.info("⚠️ Some validations failed.")
-        logger.info("🔧 Check environment setup before GCP deployment")
-        return False
+    logger.info("⚠️ Some validations failed.")
+    logger.info("🔧 Check environment setup before GCP deployment")
+    return False
 
 
 if __name__ == "__main__":

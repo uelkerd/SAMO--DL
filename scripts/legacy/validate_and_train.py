@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""
-Validation and Training Script
+"""Validation and Training Script
 
 Validates environment and starts model training.
 """
 
-from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-from pre_training_validation import PreTrainingValidator
-from pathlib import Path
 import logging
 import sys
 import time
+from pathlib import Path
 
+from pre_training_validation import PreTrainingValidator
 
-
-
-
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 
 """
 Validate and Train Script for SAMO Deep Learning.
@@ -29,7 +25,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("training_session.log")],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("training_session.log"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,6 @@ def run_pre_training_validation():
     logger.info("🔍 Running pre-training validation...")
 
     try:
-
         sys.path.insert(0, str(Path(__file__).parent))
         validator = PreTrainingValidator()
         all_passed = validator.run_all_validations()
@@ -108,7 +106,9 @@ def main():
             for i, warning in enumerate(warnings, 1):
                 logger.warning("   {i}. {warning}")
 
-        logger.error("\n🔧 Please fix all critical issues before running training again.")
+        logger.error(
+            "\n🔧 Please fix all critical issues before running training again."
+        )
         return False
 
     logger.info("\n✅ VALIDATION PASSED!")
@@ -157,10 +157,9 @@ def main():
         logger.info("   • models/emotion_detection/ - Model checkpoints")
 
         return True
-    else:
-        logger.error("\n❌ TRAINING FAILED!")
-        logger.error("Check training_session.log for detailed error information.")
-        return False
+    logger.error("\n❌ TRAINING FAILED!")
+    logger.error("Check training_session.log for detailed error information.")
+    return False
 
 
 if __name__ == "__main__":

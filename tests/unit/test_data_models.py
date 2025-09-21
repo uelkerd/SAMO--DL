@@ -33,7 +33,7 @@ class TestUser:
         """Test User initialization."""
         user = User(
             email="test@example.com",
-            password_hash=TEST_USER_PASSWORD_HASH
+            password_hash=TEST_USER_PASSWORD_HASH,
         )
 
         assert user.email == "test@example.com"
@@ -47,7 +47,7 @@ class TestUser:
             password_hash=TEST_USER_PASSWORD_HASH,
             consent_version="1.0",
             consent_given_at=custom_time,
-            data_retention_policy="standard"
+            data_retention_policy="standard",
         )
 
         assert user.email == "test@example.com"
@@ -64,12 +64,12 @@ class TestJournalEntry:
         """Test JournalEntry initialization."""
         entry = JournalEntry(
             user_id="test-user-id",
-            content="Test journal entry"
+            content="Test journal entry",
         )
 
         assert entry.user_id == "test-user-id"
         assert entry.content == "Test journal entry"
-        assert JournalEntry.__table__.columns['is_private'].default.arg is True
+        assert JournalEntry.__table__.columns["is_private"].default.arg is True
 
     def test_journal_entry_with_all_fields(self):
         """Test JournalEntry with all fields."""
@@ -82,7 +82,7 @@ class TestJournalEntry:
             mood_category="happy",
             is_private=False,
             created_at=custom_time,
-            updated_at=custom_time
+            updated_at=custom_time,
         )
 
         assert entry.user_id == "test-user-id"
@@ -102,7 +102,7 @@ class TestEmbedding:
         """Test Embedding initialization."""
         embedding = Embedding(
             journal_entry_id="test-entry-id",
-            embedding_vector=[0.1, 0.2, 0.3]
+            embedding_vector=[0.1, 0.2, 0.3],
         )
 
         assert embedding.journal_entry_id == "test-entry-id"
@@ -115,7 +115,7 @@ class TestEmbedding:
             journal_entry_id="test-entry-id",
             embedding_vector=[0.1, 0.2, 0.3],
             model_name="test-model",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert embedding.journal_entry_id == "test-entry-id"
@@ -132,7 +132,7 @@ class TestPrediction:
         prediction = Prediction(
             journal_entry_id="test-entry-id",
             prediction_type="emotion",
-            prediction_value={"happy": 0.8, "sad": 0.2}
+            prediction_value={"happy": 0.8, "sad": 0.2},
         )
 
         assert prediction.journal_entry_id == "test-entry-id"
@@ -148,7 +148,7 @@ class TestPrediction:
             prediction_value={"happy": 0.8, "sad": 0.2},
             confidence_score=0.95,
             model_name="test-model",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert prediction.journal_entry_id == "test-entry-id"
@@ -166,7 +166,7 @@ class TestVoiceTranscription:
         """Test VoiceTranscription initialization."""
         transcription = VoiceTranscription(
             journal_entry_id="test-entry-id",
-            transcription_text="Test transcription"
+            transcription_text="Test transcription",
         )
 
         assert transcription.journal_entry_id == "test-entry-id"
@@ -182,7 +182,7 @@ class TestVoiceTranscription:
             confidence_score=0.95,
             model_name="whisper-large",
             processing_time=2.5,
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert transcription.journal_entry_id == "test-entry-id"
@@ -210,7 +210,7 @@ class TestTag:
             name="test-tag",
             description="Test tag description",
             color="#FF0000",
-            created_at=custom_time
+            created_at=custom_time,
         )
 
         assert tag.name == "test-tag"

@@ -1,62 +1,61 @@
-                # Test loading the checkpoint
-        # Additional training with focal loss
-        # Apply class weights if provided
-        # Calculate binary cross entropy loss
-        # Calculate class weights
-        # Calculate focal loss
-        # Calculate focal weight
-        # Check if target achieved
-        # Check if target achieved
-        # Convert logits to probabilities
-        # Create focal loss
-        # Create or load model
-        # Create trainer for focal loss fine-tuning
-        # Evaluate final model
-        # For now, save the best individual model
-        # IMPORTANT: Disable dev mode to use full dataset
-        # Load dataset
-        # Model 1: Standard configuration
-        # Model 2: Different learning rate
-        # Model 3: With focal loss
-        # Note: This will be handled in the trainer initialization
-        # Save model
-        # Save model
-        # Simple ensemble prediction (average of predictions)
-        # Train fresh model with extended epochs and full dataset
-        # Train multiple models with different configurations
-    # Apply selected technique
-    # Create data loader
-    # Create model with optimal settings
-    # Create trainer with development mode disabled for better results
-    # Evaluate
-    # Find valid checkpoint (if any)
-    # Report results
-    # Set device
-    # Train model on full dataset
-    # Update output path
+# Test loading the checkpoint
+# Additional training with focal loss
+# Apply class weights if provided
+# Calculate binary cross entropy loss
+# Calculate class weights
+# Calculate focal loss
+# Calculate focal weight
+# Check if target achieved
+# Check if target achieved
+# Convert logits to probabilities
+# Create focal loss
+# Create or load model
+# Create trainer for focal loss fine-tuning
+# Evaluate final model
+# For now, save the best individual model
+# IMPORTANT: Disable dev mode to use full dataset
+# Load dataset
+# Model 1: Standard configuration
+# Model 2: Different learning rate
+# Model 3: With focal loss
+# Note: This will be handled in the trainer initialization
+# Save model
+# Save model
+# Simple ensemble prediction (average of predictions)
+# Train fresh model with extended epochs and full dataset
+# Train multiple models with different configurations
+# Apply selected technique
+# Create data loader
+# Create model with optimal settings
+# Create trainer with development mode disabled for better results
+# Evaluate
+# Find valid checkpoint (if any)
+# Report results
+# Set device
+# Train model on full dataset
+# Update output path
 # Add src to path
 # Configure logging
 # Constants
 #!/usr/bin/env python3
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from torch import nn
-from typing import Optional
 import argparse
 import logging
 import time
+from typing import Optional
+
 import torch
 import torch.nn.functional as F
+from torch import nn
 
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Fixed F1 Score Improvement Script
@@ -120,8 +119,7 @@ def find_valid_checkpoint() -> Optional[str]:
                 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
                     logger.info("✅ Found valid checkpoint: {checkpoint_path}")
                     return str(path)
-                else:
-                    logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
+                logger.warning("⚠️ Checkpoint {checkpoint_path} has unexpected format")
             except Exception:
                 logger.warning("⚠️ Checkpoint {checkpoint_path} is corrupted: {e}")
 
@@ -141,7 +139,7 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     datasets = data_loader.prepare_datasets()
 
     model, loss_fn = create_bert_emotion_classifier(
-        freeze_bert_layers=4  # Less freezing for better learning
+        freeze_bert_layers=4,  # Less freezing for better learning
     )
 
     trainer = EmotionDetectionTrainer(
@@ -161,7 +159,7 @@ def train_fresh_model(epochs: int = 3, batch_size: int = 16) -> tuple[nn.Module,
     metrics = trainer.evaluate(datasets["test"])
 
     logger.info(
-        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+        "Fresh model results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}",
     )
 
     return model, metrics
@@ -182,12 +180,16 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         if checkpoint_path and Path(checkpoint_path).exists():
             logger.info("Loading model from checkpoint: {checkpoint_path}")
             model, _ = create_bert_emotion_classifier()
-            checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+            checkpoint = torch.load(
+                checkpoint_path, map_location="cpu", weights_only=False
+            )
             model.load_state_dict(checkpoint["model_state_dict"])
         else:
             logger.info("Training fresh model with Focal Loss...")
             model, initial_metrics = train_fresh_model(epochs=5, batch_size=32)
-            logger.info("Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}")
+            logger.info(
+                "Fresh model baseline - F1: {initial_metrics.get('micro_f1', 0):.4f}"
+            )
 
         focal_loss = FocalLoss(gamma=2.0, alpha=class_weights_tensor)
 
@@ -211,7 +213,7 @@ def improve_with_focal_loss(checkpoint_path: Optional[str] = None) -> bool:
         metrics = trainer.evaluate(datasets["test"])
 
         logger.info(
-            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}"
+            "Focal Loss results - Micro F1: {metrics['micro_f1']:.4f}, Macro F1: {metrics['macro_f1']:.4f}",
         )
 
         output_path = Path(DEFAULT_OUTPUT_MODEL)

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Run API Rate Limiter Tests
+"""Run API Rate Limiter Tests
 
 This script explicitly runs the API rate limiter tests to ensure they're discovered
 and included in test coverage metrics.
@@ -11,14 +10,15 @@ Usage:
 
 import contextlib
 import os
-import pytest
 import sys
 import tempfile
 
+import pytest
+
 # DRY bootstrap
 from scripts.testing._bootstrap import (
-    ensure_project_root_on_sys_path,
     configure_basic_logging,
+    ensure_project_root_on_sys_path,
 )
 
 # Configure logging and path
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create a temporary pytest configuration to avoid conflicts with pyproject.toml
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
         f.write("""[pytest]
 addopts = --cov=src.api_rate_limiter --cov-report=term-missing --cov-fail-under=50 -v --tb=short
 """)

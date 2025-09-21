@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
-"""
-Simple Test Script
+"""Simple Test Script
 
 Basic test for model components and data loading.
 """
 
-from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-import traceback
-from pathlib import Path
 import logging
 import sys
 import traceback
+from pathlib import Path
 
-
-
-
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Simple test to understand the dataset object type.
 """
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
 
 def main():
     logging.info("🔍 Simple test...")
@@ -51,7 +47,9 @@ def main():
             logging.info("❌ Cannot access labels: {e}")
 
         try:
-            logging.info("✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}")
+            logging.info(
+                "✅ Labels attr: {getattr(first_example, 'labels', 'No labels attr')}"
+            )
         except Exception:
             logging.info("❌ Cannot get labels attr: {e}")
 
@@ -61,6 +59,7 @@ def main():
         logging.info("❌ Error: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-API Health Check for CI/CD Pipeline.
+"""API Health Check for CI/CD Pipeline.
 
 This script validates that all API components are working correctly
 and can be imported without errors.
@@ -14,8 +13,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Test imports
-from api_rate_limiter import TokenBucketRateLimiter, RateLimitConfig
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import BaseModel, Field, ValidationError
+
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -71,7 +71,9 @@ def test_api_validation():
 
         class TestRequest(BaseModel):
             text: str = Field(..., min_length=1, description="Text cannot be empty")
-            threshold: float = Field(0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1")
+            threshold: float = Field(
+                0.2, ge=0.0, le=1.0, description="Threshold between 0 and 1"
+            )
 
         try:
             TestRequest(text="")  # Invalid: empty text
@@ -111,9 +113,9 @@ def main():
     total = len(tests)
 
     for _test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
+        logger.info(f"\n{'=' * 50}")
         logger.info(f"Running: {_test_name}")
-        logger.info(f"{'='*50}")
+        logger.info(f"{'=' * 50}")
 
         if test_func():
             passed += 1
@@ -121,9 +123,9 @@ def main():
         else:
             logger.error(f"❌ {_test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info(f"API Health Check Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info(f"{'=' * 50}")
 
     if passed < total:
         logger.error("💥 Some API health checks failed!")

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Whisper Voice Transcription Test for CI/CD Pipeline.
+"""Whisper Voice Transcription Test for CI/CD Pipeline.
 
 This script validates the Whisper transcription model functionality
 with a simple test audio file.
@@ -8,12 +7,12 @@ with a simple test audio file.
 
 import contextlib
 import logging
-import numpy as np
 import os
 import sys
 import tempfile
 from pathlib import Path
 
+import numpy as np
 from scipy.io import wavfile
 
 # Add src to path
@@ -187,9 +186,8 @@ def test_minimal_transcription():
             if result and result.text:
                 logger.info(f"✅ Transcription successful: {result.text[:50]}...")
                 return True
-            else:
-                logger.error("❌ Transcription returned empty result")
-                return False
+            logger.error("❌ Transcription returned empty result")
+            return False
 
         finally:
             # Clean up test file
@@ -216,9 +214,9 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
+        logger.info(f"\n{'=' * 50}")
         logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*50}")
+        logger.info(f"{'=' * 50}")
 
         if test_func():
             passed += 1
@@ -226,16 +224,15 @@ def main():
         else:
             logger.error(f"❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info(f"Whisper Transcription Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info(f"{'=' * 50}")
 
     if passed == total:
         logger.info("🎉 All Whisper transcription tests passed!")
         return True
-    else:
-        logger.error("💥 Some Whisper transcription tests failed!")
-        return False
+    logger.error("💥 Some Whisper transcription tests failed!")
+    return False
 
 
 if __name__ == "__main__":

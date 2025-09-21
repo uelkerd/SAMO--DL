@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-T5 Summarization Model Test for CI/CD Pipeline.
+"""T5 Summarization Model Test for CI/CD Pipeline.
 
 This script validates that the T5 text summarization model
 can be loaded and initialized correctly.
@@ -24,7 +23,8 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from .validation_utils import validate_hasattrs, ensure
+from .validation_utils import ensure, validate_hasattrs
+
 
 def test_t5_model_loading():
     """Test T5 model initialization."""
@@ -50,9 +50,8 @@ def test_t5_model_loading():
         if "SentencePiece" in str(e):
             logger.warning("⚠️ SentencePiece not available, skipping T5 test")
             return True  # Skip gracefully
-        else:
-            logger.error(f"❌ T5 model loading failed: {e}")
-            return False
+        logger.error(f"❌ T5 model loading failed: {e}")
+        return False
 
 
 def test_t5_summarization():
@@ -75,7 +74,7 @@ def test_t5_summarization():
         summary = model.generate_summary(
             text=test_text.strip(),
             max_length=50,
-            min_length=10
+            min_length=10,
         )
 
         logger.info(f"✅ Summarization successful: {summary[:50]}...")
@@ -91,11 +90,12 @@ def test_t5_summarization():
 
     except Exception as e:
         if "SentencePiece" in str(e):
-            logger.warning("⚠️ SentencePiece not available, skipping T5 summarization test")
+            logger.warning(
+                "⚠️ SentencePiece not available, skipping T5 summarization test"
+            )
             return True  # Skip gracefully
-        else:
-            logger.error(f"❌ T5 summarization test failed: {e}")
-            return False
+        logger.error(f"❌ T5 summarization test failed: {e}")
+        return False
 
 
 def main():
@@ -123,9 +123,8 @@ def main():
     if passed == total:
         logger.info("🎉 All T5 model tests passed!")
         return True
-    else:
-        logger.error("💥 Some T5 model tests failed!")
-        return False
+    logger.error("💥 Some T5 model tests failed!")
+    return False
 
 
 if __name__ == "__main__":

@@ -254,7 +254,9 @@ class EmotionDetectionTrainer:
         )
 
         if self.train_dataloader is None:
-            raise RuntimeError("train_dataloader not initialized. Call prepare_data() first.")
+            raise RuntimeError(
+                "train_dataloader not initialized. Call prepare_data() first."
+            )
         total_steps = len(self.train_dataloader) * self.num_epochs
 
         self.scheduler = get_linear_schedule_with_warmup(
@@ -306,7 +308,9 @@ class EmotionDetectionTrainer:
         # Setup training
         total_loss = 0.0
         if self.train_dataloader is None:
-            raise RuntimeError("train_dataloader not initialized. Call prepare_data() first.")
+            raise RuntimeError(
+                "train_dataloader not initialized. Call prepare_data() first."
+            )
         num_batches = len(self.train_dataloader)
         start_time = time.time()
         val_frequency = max(500, num_batches // 5)

@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""
-Standalone Focal Loss Test
+"""Standalone Focal Loss Test
 
 Tests focal loss implementation independently.
 """
 
-from datasets import load_dataset
-from torch import nn
-from transformers import AutoTokenizer, AutoModel
 import logging
 import sys
+
 import torch
 import torch.nn.functional as F
-
-
-
-
+from datasets import load_dataset
+from torch import nn
+from transformers import AutoModel, AutoTokenizer
 
 """
 Standalone Focal Loss Test
@@ -27,7 +23,9 @@ Usage:
     python3 standalone_focal_test.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -161,9 +159,8 @@ def main():
         logger.info("✅ All tests passed! Ready for full training.")
         logger.info("🚀 Next step: Create full training script with these components")
         return True
-    else:
-        logger.info("⚠️  Some tests failed. Check environment setup.")
-        return False
+    logger.info("⚠️  Some tests failed. Check environment setup.")
+    return False
 
 
 if __name__ == "__main__":

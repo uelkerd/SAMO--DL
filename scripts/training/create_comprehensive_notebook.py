@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create Comprehensive Notebook
+"""Create Comprehensive Notebook
 ============================
 
 This script creates a comprehensive notebook that includes all the advanced
@@ -9,9 +8,9 @@ features from the original working notebook while fixing the technical issues.
 
 import json
 
+
 def create_comprehensive_notebook():
     """Create a comprehensive notebook with all advanced features."""
-
     notebook_content = {
         "cells": [
             {
@@ -31,8 +30,8 @@ def create_comprehensive_notebook():
                     "✅ Model architecture fixes\n",
                     "✅ Comprehensive dataset\n",
                     "\n",
-                    "**Target**: Reliable 75-85% F1 score with consistent performance"
-                ]
+                    "**Target**: Reliable 75-85% F1 score with consistent performance",
+                ],
             },
             {
                 "cell_type": "code",
@@ -41,8 +40,8 @@ def create_comprehensive_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas huggingface_hub wandb"
-                ]
+                    "!pip install transformers torch scikit-learn numpy pandas huggingface_hub wandb",
+                ],
             },
             {
                 "cell_type": "code",
@@ -63,15 +62,15 @@ def create_comprehensive_notebook():
                     "\n",
                     "print('✅ All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
-                    "print(f'CUDA available: {torch.cuda.is_available()}')"
-                ]
+                    "print(f'CUDA available: {torch.cuda.is_available()}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔑 WANDB API KEY SETUP"
-                ]
+                    "## 🔑 WANDB API KEY SETUP",
+                ],
             },
             {
                 "cell_type": "code",
@@ -141,15 +140,15 @@ def create_comprehensive_notebook():
                     "    print('3. Enter your API key when prompted')\n",
                     "    print('\\n⚠️ Continuing without WandB logging...')\n",
                     "\n",
-                    "print('\\n✅ WandB setup completed')"
-                ]
+                    "print('\\n✅ WandB setup completed')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS"
-                ]
+                    "## 🔍 VERIFYING SPECIALIZED MODEL ACCESS",
+                ],
             },
             {
                 "cell_type": "code",
@@ -187,15 +186,15 @@ def create_comprehensive_notebook():
                     "    specialized_model_name = 'roberta-base'\n",
                     "    test_tokenizer = AutoTokenizer.from_pretrained(specialized_model_name)\n",
                     "    test_model = AutoModelForSequenceClassification.from_pretrained(specialized_model_name, num_labels=12)\n",
-                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')"
-                ]
+                    "    print(f'✅ Fallback model loaded: {specialized_model_name}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 DEFINING EMOTION CLASSES"
-                ]
+                    "## 🎯 DEFINING EMOTION CLASSES",
+                ],
             },
             {
                 "cell_type": "code",
@@ -206,15 +205,15 @@ def create_comprehensive_notebook():
                     "# Define our emotion classes\n",
                     "emotions = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']\n",
                     "print(f'🎯 Our emotion classes: {emotions}')\n",
-                    "print(f'📊 Number of emotions: {len(emotions)}')"
-                ]
+                    "print(f'📊 Number of emotions: {len(emotions)}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 CREATING COMPREHENSIVE ENHANCED DATASET"
-                ]
+                    "## 📊 CREATING COMPREHENSIVE ENHANCED DATASET",
+                ],
             },
             {
                 "cell_type": "code",
@@ -496,7 +495,7 @@ def create_comprehensive_notebook():
                     "\n",
                     "# Advanced data augmentation function\n",
                     "def augment_text(text, emotion):\n",
-                    "    \"\"\"Create augmented versions of the text with sophisticated techniques.\"\"\"\n",
+                    '    """Create augmented versions of the text with sophisticated techniques."""\n',
                     "    augmented = []\n",
                     "    \n",
                     "    # Synonym replacement with emotion-specific synonyms\n",
@@ -556,36 +555,36 @@ def create_comprehensive_notebook():
                     "texts = [item['text'] for item in enhanced_data]\n",
                     "labels = [item['label'] for item in enhanced_data]\n",
                     "\n",
-                    "print(f'✅ Comprehensive dataset prepared with {len(texts)} samples')"
-                ]
-            }
+                    "print(f'✅ Comprehensive dataset prepared with {len(texts)} samples')",
+                ],
+            },
         ],
         "metadata": {
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
-                "name": "python3"
+                "name": "python3",
             },
             "language_info": {
                 "codemirror_mode": {
                     "name": "ipython",
-                    "version": 3
+                    "version": 3,
                 },
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook
     output_path = "notebooks/COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Created comprehensive notebook: {output_path}")
@@ -598,6 +597,7 @@ def create_comprehensive_notebook():
     print("\\n🚀 This will be a full-featured notebook!")
 
     return output_path
+
 
 if __name__ == "__main__":
     create_comprehensive_notebook()

@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
-"""
-Working Training Script
+"""Working Training Script
 
 Working training script for emotion detection.
 """
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-import traceback
-from pathlib import Path
 import logging
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
 
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Working Training Script based on the successful local validation approach.
@@ -22,7 +19,9 @@ Working Training Script based on the successful local validation approach.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 

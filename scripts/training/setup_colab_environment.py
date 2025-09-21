@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""
-Colab Environment Setup Script for SAMO Deep Learning
+"""Colab Environment Setup Script for SAMO Deep Learning
 
 This script sets up the environment for Google Colab with GPU support.
 It installs all required dependencies and configures the environment
 for optimal performance in the Colab environment.
 """
 
-import os
-import sys
-import subprocess
 import logging
+import os
+import subprocess
+import sys
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -24,9 +25,8 @@ def detect_colab_environment():
         logger.info("🎯 Detected Google Colab environment")
         logger.info(f"📊 Colab GPU: {os.environ.get('COLAB_GPU', 'unknown')}")
         return True
-    else:
-        logger.info("💻 Running in local environment")
-        return False
+    logger.info("💻 Running in local environment")
+    return False
 
 
 def install_dependencies():
@@ -65,8 +65,12 @@ def install_dependencies():
     for package in packages:
         try:
             logger.info(f"📦 Installing {package}...")
-            subprocess.run([sys.executable, "-m", "pip", "install", package],
-                         check=True, capture_output=True, text=True)
+            subprocess.run(
+                [sys.executable, "-m", "pip", "install", package],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
             logger.info(f"✅ {package} installed successfully")
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Failed to install {package}: {e}")
@@ -98,9 +102,8 @@ def setup_gpu_environment():
             logger.info(f"✅ GPU test successful, result shape: {result.shape}")
 
             return True
-        else:
-            logger.warning("⚠️ No GPU available, using CPU")
-            return True
+        logger.warning("⚠️ No GPU available, using CPU")
+        return True
 
     except ImportError:
         logger.error("❌ PyTorch not available for GPU setup")
@@ -114,7 +117,7 @@ def create_colab_notebook():
     """Create a Colab-ready notebook template."""
     logger.info("📓 Creating Colab notebook template...")
 
-    notebook_content = '''{
+    notebook_content = """{
   "cells": [
     {
       "cell_type": "markdown",
@@ -210,7 +213,7 @@ def create_colab_notebook():
   },
   "nbformat": 4,
   "nbformat_minor": 4
-}'''
+}"""
 
     with open("samo_dl_colab_setup.ipynb", "w") as f:
         f.write(notebook_content)
@@ -226,9 +229,10 @@ def run_ci_pipeline():
     try:
         result = subprocess.run(
             [sys.executable, "scripts/ci/run_full_ci_pipeline.py"],
+            check=False,
             capture_output=True,
             text=True,
-            timeout=600  # 10 minute timeout
+            timeout=600,  # 10 minute timeout
         )
 
         if result.returncode == 0:
@@ -236,10 +240,9 @@ def run_ci_pipeline():
             logger.info("📊 CI Results:")
             logger.info(result.stdout)
             return True
-        else:
-            logger.error("❌ CI pipeline verification failed")
-            logger.error(result.stderr)
-            return False
+        logger.error("❌ CI pipeline verification failed")
+        logger.error(result.stderr)
+        return False
 
     except subprocess.TimeoutExpired:
         logger.error("⏰ CI pipeline verification timed out")

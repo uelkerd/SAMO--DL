@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
-"""
-Simple Working Training Script
+"""Simple Working Training Script
 
 Simple working training script for emotion detection.
 """
 
-import traceback
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
+from torch import nn
 
-
-
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Simple Working Training Script - FIXES ALL ISSUES
@@ -32,14 +30,18 @@ This script addresses the critical issues:
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
+    def __init__(
+        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+    ):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -47,22 +49,22 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
 
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def train_simple_model():
     """Train a simple BERT model with focal loss."""
-
     logger.info("🚀 Starting Simple Working Training")
     logger.info("   • Focal Loss: alpha=0.25, gamma=2.0")
     logger.info("   • Learning Rate: 2e-05")
@@ -99,8 +101,12 @@ def train_simple_model():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=16, shuffle=True
+        )
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         best_val_loss = float("in")
         training_history = []
@@ -155,7 +161,11 @@ def train_simple_model():
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {
+                    "epoch": epoch + 1,
+                    "train_loss": avg_train_loss,
+                    "val_loss": avg_val_loss,
+                },
             )
 
             if avg_val_loss < best_val_loss:

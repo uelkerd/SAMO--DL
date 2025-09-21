@@ -1,15 +1,12 @@
-            # Clean up the temporary file
-            # Execute the script
-            # Parse the output
-        # Create a temporary JS file
-        # Ensure we return a list, even if the result is a single dict
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+# Clean up the temporary file
+# Execute the script
+# Parse the output
+# Create a temporary JS file
+# Ensure we return a list, even if the result is a single dict
 import json
 import subprocess
-
-
-
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 """Prisma client utility for the SAMO-DL application.
 
@@ -17,6 +14,7 @@ This module provides functions to interact with the Prisma client via subprocess
 
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
+
 
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.
@@ -78,7 +76,10 @@ main();
                 Path("temp_prisma_script.js").unlink()
 
     def create_user(
-        self, email: str, password_hash: str, consent_version: Optional[str] = None
+        self,
+        email: str,
+        password_hash: str,
+        consent_version: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Create a new user.
 
@@ -105,7 +106,11 @@ main();
         return self.execute_prisma_command(script)
 
     def create_journal_entry(
-        self, user_id: str, title: str, content: str, is_private: bool = True
+        self,
+        user_id: str,
+        title: str,
+        content: str,
+        is_private: bool = True,
     ) -> Dict[str, Any]:
         """Create a new journal entry.
 
@@ -156,7 +161,9 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_journal_entries_by_user(
+        self, user_id: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
@@ -178,7 +185,6 @@ main();
         result = self.execute_prisma_command(script)
         if isinstance(result, list):
             return result
-        elif isinstance(result, dict):
+        if isinstance(result, dict):
             return [result]
-        else:
-            return []
+        return []

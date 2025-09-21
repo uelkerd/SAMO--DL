@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-"""
-Temperature Scaling Calibration Script
+"""Temperature Scaling Calibration Script
 
 Calibrates model confidence scores using temperature scaling.
 """
 
-from src.models.emotion_detection.bert_classifier import EmotionDataset
-from transformers import AutoTokenizer
-import traceback
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
 import logging
 import os
 import sys
-import torch
 import traceback
 
+import torch
+from torch import nn
+from transformers import AutoTokenizer
 
-
-
-
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Temperature Scaling for Model Calibration
@@ -31,7 +28,9 @@ and potentially boost F1 score by 5-10%.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -72,12 +71,15 @@ def calibrate_temperature(model, val_loader, device):
     all_logits = torch.cat(all_logits, dim=0)
     all_labels = torch.cat(all_labels, dim=0)
 
-    optimizer = torch.optim.LBFGS([temperature_scaling.temperature], lr=0.01, max_iter=50)
+    optimizer = torch.optim.LBFGS(
+        [temperature_scaling.temperature], lr=0.01, max_iter=50
+    )
 
     def eval():
         optimizer.zero_grad()
         loss = nn.functional.binary_cross_entropy_with_logits(
-            temperature_scaling(all_logits), all_labels
+            temperature_scaling(all_logits),
+            all_labels,
         )
         loss.backward()
         return loss
@@ -92,7 +94,6 @@ def calibrate_temperature(model, val_loader, device):
 
 def apply_temperature_scaling():
     """Apply temperature scaling to improve model calibration."""
-
     logger.info("🌡️ Starting Temperature Scaling")
     logger.info("   • Expected improvement: 5-10% F1 score")
     logger.info("   • Method: Model calibration")
@@ -111,7 +112,9 @@ def apply_temperature_scaling():
 
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not Path(model_path):

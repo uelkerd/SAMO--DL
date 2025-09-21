@@ -67,8 +67,12 @@ class EmotionRequest(BaseModel):
 
     text: str = Field(description="Text to analyze", min_length=1, max_length=2000)
     user_id: Optional[str] = Field(default=None, description="User ID for tracking")
-    threshold: float = Field(default=0.5, description="Confidence threshold", ge=0.0, le=1.0)
-    top_k: Optional[int] = Field(default=5, description="Number of top emotions to return", ge=1, le=28)
+    threshold: float = Field(
+        default=0.5, description="Confidence threshold", ge=0.0, le=1.0
+    )
+    top_k: Optional[int] = Field(
+        default=5, description="Number of top emotions to return", ge=1, le=28
+    )
 
     class Config:
         schema_extra = {
@@ -91,7 +95,9 @@ class EmotionRequest(BaseModel):
 class EmotionResponse(BaseModel):
     """Response model for emotion analysis."""
 
-    primary_emotion: str = Field(description="Emotion with highest confidence", example="joy")
+    primary_emotion: str = Field(
+        description="Emotion with highest confidence", example="joy"
+    )
     confidence: float = Field(
         description="Confidence score for primary emotion", ge=0.0, le=1.0, example=0.85
     )
@@ -102,7 +108,8 @@ class EmotionResponse(BaseModel):
         description="Scores for predicted emotions", example=[0.85, 0.72, 0.64]
     )
     all_probabilities: List[float] = Field(
-        description="Probabilities for all emotions", example=[0.85, 0.72, 0.64, 0.0, 0.0]
+        description="Probabilities for all emotions",
+        example=[0.85, 0.72, 0.64, 0.0, 0.0],
     )
     processing_time_ms: float = Field(
         description="Processing time in milliseconds", example=42.5
@@ -375,7 +382,9 @@ async def analyze_emotions_batch(
             "results": results,
             "count": len(results),
             "batch_processing_time_ms": processing_time * 1000,
-            "average_processing_time_ms": (processing_time * 1000) / len(texts) if texts else 0,
+            "average_processing_time_ms": (processing_time * 1000) / len(texts)
+            if texts
+            else 0,
         }
 
     except HTTPException:

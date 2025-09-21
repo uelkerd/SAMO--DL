@@ -1,23 +1,15 @@
 #!/usr/bin/env python3
-"""
-Vertex AI Setup and Training Script
+"""Vertex AI Setup and Training Script
 
 Sets up Vertex AI environment and runs training jobs.
 """
 
-from google.cloud import aiplatform
-import subprocess
 import logging
 import os
+import subprocess
 import sys
 
-
-
-
-
-
-
-
+from google.cloud import aiplatform
 
 """
 Vertex AI Setup for SAMO Deep Learning Project.
@@ -28,7 +20,9 @@ and provide managed ML training, deployment, and monitoring.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +35,7 @@ class VertexAISetup:
         Args:
             project_id: GCP project ID
             region: GCP region for Vertex AI resources
+
         """
         self.project_id = project_id
         self.region = region
@@ -53,10 +48,17 @@ class VertexAISetup:
         logger.info("🔧 Setting up Vertex AI environment...")
 
         try:
-            subprocess.run([
-                sys.executable, "-m", "pip", "install",
-                "google-cloud-aiplatform", "google-cloud-storage"
-            ], check=True)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "google-cloud-aiplatform",
+                    "google-cloud-storage",
+                ],
+                check=True,
+            )
 
             logger.info("✅ Vertex AI SDK installed successfully")
 
@@ -93,12 +95,12 @@ class VertexAISetup:
                     "--use_focal_loss=true",
                     "--class_weights=true",
                     "--dev_mode=false",
-                    "--debug_mode=true"
+                    "--debug_mode=true",
                 ],
                 "machine_spec": {
                     "machine_type": "n1-standard-4",
                     "accelerator_type": "NVIDIA_TESLA_T4",
-                    "accelerator_count": 1
+                    "accelerator_count": 1,
                 },
                 "replica_count": 1,
                 "training_fraction_split": 0.8,
@@ -111,7 +113,9 @@ class VertexAISetup:
             job = aiplatform.CustomTrainingJob(
                 display_name=job_config["display_name"],
                 container_uri=job_config["container_uri"],
-                model_serving_container_image_uri=job_config["model_serving_container_image_uri"],
+                model_serving_container_image_uri=job_config[
+                    "model_serving_container_image_uri"
+                ],
                 args=job_config["args"],
                 machine_type=job_config["machine_spec"]["machine_type"],
                 accelerator_type=job_config["machine_spec"]["accelerator_type"],
@@ -151,12 +155,12 @@ class VertexAISetup:
                     "--max_length=512",
                     "--use_focal_loss=true",
                     "--class_weights=true",
-                    "--dev_mode=true"
+                    "--dev_mode=true",
                 ],
                 "machine_spec": {
                     "machine_type": "n1-standard-4",
                     "accelerator_type": "NVIDIA_TESLA_T4",
-                    "accelerator_count": 1
+                    "accelerator_count": 1,
                 },
                 "replica_count": 1,
                 "max_trial_count": 10,
@@ -166,20 +170,20 @@ class VertexAISetup:
                         "type": "DOUBLE",
                         "min_value": 1e-6,
                         "max_value": 5e-5,
-                        "scale_type": "UNIT_LOG_SCALE"
+                        "scale_type": "UNIT_LOG_SCALE",
                     },
                     "batch_size": {
                         "type": "DISCRETE",
-                        "values": [8, 16, 32]
+                        "values": [8, 16, 32],
                     },
                     "freeze_bert_layers": {
                         "type": "DISCRETE",
-                        "values": [4, 6, 8]
-                    }
+                        "values": [4, 6, 8],
+                    },
                 },
                 "metric_spec": {
-                    "f1_score": "maximize"
-                }
+                    "f1_score": "maximize",
+                },
             }
 
             tuning_job = aiplatform.HyperparameterTuningJob(
@@ -223,9 +227,9 @@ class VertexAISetup:
                         "prediction_latency",
                         "prediction_throughput",
                         "model_accuracy",
-                        "data_drift"
-                    ]
-                }
+                        "data_drift",
+                    ],
+                },
             }
 
             logger.info("✅ Model monitoring configuration created")
@@ -251,19 +255,21 @@ class VertexAISetup:
                     "data_preprocessing",
                     "model_training",
                     "model_evaluation",
-                    "model_deployment"
+                    "model_deployment",
                 ],
                 "schedule": "0 2 * * *",  # Daily at 2 AM
                 "trigger_conditions": [
                     "data_drift_detected",
                     "model_performance_degradation",
-                    "new_data_available"
-                ]
+                    "new_data_available",
+                ],
             }
 
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
-            logger.info("   Trigger conditions: data drift, performance degradation, new data")
+            logger.info(
+                "   Trigger conditions: data drift, performance degradation, new data"
+            )
 
             return {"config": pipeline_config}
 
@@ -284,10 +290,10 @@ class VertexAISetup:
                     "--check_data_distribution=true",
                     "--check_model_architecture=true",
                     "--check_loss_function=true",
-                    "--check_training_config=true"
+                    "--check_training_config=true",
                 ],
                 "machine_spec": {
-                    "machine_type": "n1-standard-4"
+                    "machine_type": "n1-standard-4",
                 },
                 "replica_count": 1,
             }
@@ -371,7 +377,9 @@ def main():
             logger.error("❌ {component.title()}: FAILED")
 
     logger.info("\n🎯 NEXT STEPS:")
-    logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
+    logger.info(
+        "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai"
+    )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
     logger.info("   4. Monitor training progress and results")

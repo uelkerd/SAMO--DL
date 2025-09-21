@@ -38,7 +38,7 @@ class GoEmotionsDataset(Dataset):
         texts: List[str],
         labels: List[List[int]],
         tokenizer: AutoTokenizer,
-        max_length: int = 512
+        max_length: int = 512,
     ):
         """Initialize the dataset.
 
@@ -64,25 +64,27 @@ class GoEmotionsDataset(Dataset):
         encoding = self.tokenizer(
             text,
             truncation=True,
-            padding='max_length',
+            padding="max_length",
             max_length=self.max_length,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         # Convert label to tensor
         label_tensor = torch.tensor(label, dtype=torch.float)
 
         return {
-            'input_ids': encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0),
-            'labels': label_tensor
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            "labels": label_tensor,
         }
 
 
 class GoEmotionsPreprocessor:
     """Preprocessing pipeline for GoEmotions dataset following SAMO requirements."""
 
-    def __init__(self, model_name: str = "bert-base-uncased", max_length: int = 512) -> None:
+    def __init__(
+        self, model_name: str = "bert-base-uncased", max_length: int = 512
+    ) -> None:
         """Initialize preprocessor with BERT tokenizer.
 
         Args:
@@ -91,7 +93,9 @@ class GoEmotionsPreprocessor:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
-        logger.info(f"Initialized preprocessor with {model_name}, max_length={max_length}")
+        logger.info(
+            f"Initialized preprocessor with {model_name}, max_length={max_length}"
+        )
 
     def clean_text(self, text: str) -> str:
         """Clean and normalize text while preserving emotional signals.
@@ -108,7 +112,7 @@ class GoEmotionsPreprocessor:
             return ""
 
         # Remove excessive whitespace while preserving structure
-        text = re.sub(r'\s+', ' ', text.strip())
+        text = re.sub(r"\s+", " ", text.strip())
 
         # The dataset is already split by HuggingFace
         # Tokenize with BERT tokenizer
@@ -198,7 +202,9 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             self.download_dataset()
 
-        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
+        assert self.dataset is not None, (
+            "Dataset should be loaded after download_dataset()"
+        )
         stats = {}
 
         # Basic statistics
@@ -235,7 +241,9 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             self.download_dataset()
 
-        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
+        assert self.dataset is not None, (
+            "Dataset should be loaded after download_dataset()"
+        )
 
         # Count emotion occurrences
         emotion_counts = np.zeros(len(GOEMOTIONS_EMOTIONS))
@@ -267,7 +275,9 @@ class GoEmotionsDataLoader:
         if self.dataset is None:
             self.download_dataset()
 
-        assert self.dataset is not None, "Dataset should be loaded after download_dataset()"
+        assert self.dataset is not None, (
+            "Dataset should be loaded after download_dataset()"
+        )
 
         # Split the training data
         train_val_test = self.dataset["train"].train_test_split(
@@ -342,4 +352,6 @@ def create_goemotions_loader(
 if __name__ == "__main__":
     loader = create_goemotions_loader()
     datasets = loader.prepare_datasets()
-    logger.info(f"Dataset prepared successfully: {len(datasets['train_data'])} training samples")
+    logger.info(
+        f"Dataset prepared successfully: {len(datasets['train_data'])} training samples"
+    )

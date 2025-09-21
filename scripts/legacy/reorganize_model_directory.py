@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Reorganize Model Directory
+"""Reorganize Model Directory
 ==========================
 
 This script reorganizes the deployment model directory to:
@@ -9,14 +8,14 @@ This script reorganizes the deployment model directory to:
 3. Create clear versioning and documentation
 """
 
+import json
 import os
 import shutil
-import json
 from datetime import datetime
+
 
 def reorganize_model_directory():
     """Reorganize the model directory with versioning."""
-
     print("📁 REORGANIZING MODEL DIRECTORY")
     print("=" * 50)
 
@@ -54,21 +53,21 @@ def reorganize_model_directory():
                 "average_confidence": "0.298",
                 "architecture": "DistilRoBERTa",
                 "num_labels": 12,
-                "problem_type": "single_label_classification"
+                "problem_type": "single_label_classification",
             },
             "training_details": {
                 "dataset_size": "60 samples (48 train, 12 validation)",
                 "training_epochs": 3,
                 "final_f1_score": "0.8889",
-                "final_accuracy": "0.9167"
+                "final_accuracy": "0.9167",
             },
             "status": "fallback_model",
-            "notes": "Successfully resolved configuration persistence issue. Ready for deployment."
+            "notes": "Successfully resolved configuration persistence issue. Ready for deployment.",
         }
 
         # Save metadata
         metadata_path = os.path.join(model_1_path, "model_metadata.json")
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, "w") as f:
             json.dump(model_1_metadata, f, indent=2)
         print(f"✅ Created model metadata: {metadata_path}")
 
@@ -97,7 +96,7 @@ def reorganize_model_directory():
             "average_confidence": "pending",
             "architecture": "DistilRoBERTa",
             "num_labels": 12,
-            "problem_type": "single_label_classification"
+            "problem_type": "single_label_classification",
         },
         "training_details": {
             "dataset_size": "240+ samples with augmentation",
@@ -107,16 +106,16 @@ def reorganize_model_directory():
                 "Class weighting",
                 "Advanced data augmentation",
                 "Comprehensive validation",
-                "Configuration persistence"
-            ]
+                "Configuration persistence",
+            ],
         },
         "status": "pending_training",
-        "notes": "Will be trained using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
+        "notes": "Will be trained using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb",
     }
 
     # Save default metadata
     default_metadata_path = os.path.join(default_model_path, "model_metadata.json")
-    with open(default_metadata_path, 'w') as f:
+    with open(default_metadata_path, "w") as f:
         json.dump(default_metadata, f, indent=2)
     print(f"✅ Created default model metadata: {default_metadata_path}")
 
@@ -133,21 +132,21 @@ def reorganize_model_directory():
                 "path": "model_1_fallback",
                 "version": "1.0",
                 "status": "ready",
-                "description": "Working model with configuration persistence fix"
+                "description": "Working model with configuration persistence fix",
             },
             "default": {
                 "path": "default",
                 "version": "2.0",
                 "status": "pending",
-                "description": "Comprehensive model with all advanced features"
-            }
+                "description": "Comprehensive model with all advanced features",
+            },
         },
         "last_updated": datetime.now().isoformat(),
-        "notes": "Use default model for production, model_1_fallback as backup"
+        "notes": "Use default model for production, model_1_fallback as backup",
     }
 
     index_path = os.path.join(models_dir, "models_index.json")
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         json.dump(models_index, f, indent=2)
     print(f"✅ Created models index: {index_path}")
 
@@ -224,7 +223,7 @@ Each model directory contains:
 """
 
     readme_path = os.path.join(models_dir, "README.md")
-    with open(readme_path, 'w') as f:
+    with open(readme_path, "w") as f:
         f.write(readme_content)
     print(f"✅ Created models README: {readme_path}")
 
@@ -267,7 +266,9 @@ Each model directory contains:
     print("   └── README.md             # Documentation")
     print()
     print("🎯 Next Steps:")
-    print("   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb")
+    print(
+        "   1. Train the comprehensive model using COMPREHENSIVE_ULTIMATE_TRAINING_COLAB.ipynb"
+    )
     print("   2. Save the trained model to deployment/models/default/")
     print("   3. Update the default model metadata")
     print("   4. Test the new model")
@@ -276,6 +277,7 @@ Each model directory contains:
     print("   - Model 1 is preserved as fallback")
     print("   - Original model backed up to deployment/model_backup/")
     print("   - Clear versioning and documentation")
+
 
 if __name__ == "__main__":
     reorganize_model_directory()

@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
-"""
-Local Validation Debug Script
+"""Local Validation Debug Script
 
 Debugs and validates local model training and inference components.
 """
 
-from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 import sys
 
-
-
-
-
-
-
+from src.models.emotion_detection.bert_classifier import (
+    WeightedBCELoss,
+    create_bert_emotion_classifier,
+)
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Local Validation and Debug Script for SAMO Deep Learning.
@@ -26,7 +21,9 @@ It can be run locally to diagnose problems before deploying to GCP.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -74,7 +71,9 @@ def check_data_loading():
 
         stats = datasets["statistics"]
         logger.info("✅ Total examples: {stats.get('total_examples', 'N/A')}")
-        logger.info("✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions")
+        logger.info(
+            "✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions"
+        )
 
         return True
 
@@ -146,11 +145,17 @@ def check_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
+        bce_manual = F.binary_cross_entropy_with_logits(
+            logits, labels, reduction="mean"
+        )
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info("✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}")
-        logger.info("✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}")
+        logger.info(
+            "✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}"
+        )
+        logger.info(
+            "✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}"
+        )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
         if loss1.item() <= 0:
@@ -202,11 +207,11 @@ def check_data_distribution():
             logger.error("❌ CRITICAL: No positive labels found!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate == 1:
+        if positive_rate == 1:
             logger.error("❌ CRITICAL: All labels are positive!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate < 0.01:
+        if positive_rate < 0.01:
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""
-Test Voice Pipeline for SAMO
+"""Test Voice Pipeline for SAMO
 
 This script tests the complete voice-first pipeline including
 audio recording, transcription, and emotion detection.
 """
-from pathlib import Path
+
 import logging
-import numpy as np
 import sys
+from pathlib import Path
+
+import numpy as np
 import torch
 
 # Ensure project root is on sys.path
@@ -16,9 +17,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier  # noqa: E402
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -36,10 +41,14 @@ def test_whisper_transcription():
 
     try:
         import whisper  # Local import to handle optional dependency
+
         model = whisper.load_model("base")
         logger.info("✅ Whisper model loaded successfully")
         logger.info("   • Model: %s", getattr(model, "name", "base"))
-        logger.info("   • Parameters: %s", getattr(getattr(model, "dims", object()), "n_text_state", "unknown"))
+        logger.info(
+            "   • Parameters: %s",
+            getattr(getattr(model, "dims", object()), "n_text_state", "unknown"),
+        )
 
         logger.info("   • Transcription test: Simulated audio processing")
         logger.info("   • Expected output: Text transcription")
@@ -96,6 +105,7 @@ def test_voice_emotion_features():
 
     try:
         import librosa  # Local import to handle optional dependency
+
         sample_rate = 16000
         duration = 3
         samples = int(sample_rate * duration)
@@ -103,13 +113,19 @@ def test_voice_emotion_features():
         audio_data = np.random.randn(samples).astype(np.float32)
 
         mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
-        spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)
+        spectral_centroids = librosa.feature.spectral_centroid(
+            y=audio_data, sr=sample_rate
+        )
         zero_crossing_rate = librosa.feature.zero_crossing_rate(audio_data)
 
         logger.info("✅ Voice emotion features extracted successfully")
         logger.info("   • MFCC features: %s", getattr(mfccs, "shape", None))
-        logger.info("   • Spectral centroids: %s", getattr(spectral_centroids, "shape", None))
-        logger.info("   • Zero crossing rate: %s", getattr(zero_crossing_rate, "shape", None))
+        logger.info(
+            "   • Spectral centroids: %s", getattr(spectral_centroids, "shape", None)
+        )
+        logger.info(
+            "   • Zero crossing rate: %s", getattr(zero_crossing_rate, "shape", None)
+        )
 
         return True
 

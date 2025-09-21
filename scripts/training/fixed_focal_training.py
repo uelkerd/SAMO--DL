@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
+import json
+import logging
+import random
 from pathlib import Path
+
+import numpy as np
+import torch
+import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_score, recall_score
 from torch import nn
 from tqdm import tqdm
-import json
-import logging
-import numpy as np
-import random
-import torch
-import torch.nn.functional as F
 from transformers import AutoModel, AutoTokenizer
 
 """
@@ -24,7 +25,9 @@ Usage:
     python3 scripts/fixed_focal_training.py
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -63,11 +66,34 @@ def create_proper_training_data():
     logger.info("📊 Creating proper training data with diverse emotion labels...")
 
     emotion_names = [
-        "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-        "confusion", "curiosity", "desire", "disappointment", "disapproval",
-        "disgust", "embarrassment", "excitement", "fear", "gratitude", "grief",
-        "joy", "love", "nervousness", "optimism", "pride", "realization",
-        "relief", "remorse", "sadness", "surprise", "neutral"
+        "admiration",
+        "amusement",
+        "anger",
+        "annoyance",
+        "approval",
+        "caring",
+        "confusion",
+        "curiosity",
+        "desire",
+        "disappointment",
+        "disapproval",
+        "disgust",
+        "embarrassment",
+        "excitement",
+        "fear",
+        "gratitude",
+        "grief",
+        "joy",
+        "love",
+        "nervousness",
+        "optimism",
+        "pride",
+        "realization",
+        "relief",
+        "remorse",
+        "sadness",
+        "surprise",
+        "neutral",
     ]
 
     # Create diverse training data with proper emotion labels
@@ -84,7 +110,7 @@ def create_proper_training_data():
         "I'm feeling great and optimistic!",
         "What a fantastic experience!",
         "I'm delighted with how things turned out!",
-        "This brings me so much joy!"
+        "This brings me so much joy!",
     ]
 
     # Sadness examples
@@ -98,7 +124,7 @@ def create_proper_training_data():
         "This is so disappointing and sad.",
         "I'm feeling really low today.",
         "Everything is going wrong.",
-        "I'm so upset about this situation."
+        "I'm so upset about this situation.",
     ]
 
     # Anger examples
@@ -112,7 +138,7 @@ def create_proper_training_data():
         "This is unacceptable!",
         "I'm so frustrated and angry!",
         "This is driving me crazy!",
-        "I'm really annoyed and angry!"
+        "I'm really annoyed and angry!",
     ]
 
     # Fear examples
@@ -126,7 +152,7 @@ def create_proper_training_data():
         "I'm scared of what comes next.",
         "This is causing me a lot of fear.",
         "I'm terrified of the outcome.",
-        "This is making me really nervous."
+        "This is making me really nervous.",
     ]
 
     # Love examples
@@ -140,7 +166,7 @@ def create_proper_training_data():
         "I'm so grateful for your love.",
         "You're my everything.",
         "I love spending time with you.",
-        "You're the love of my life."
+        "You're the love of my life.",
     ]
 
     # Disgust examples
@@ -154,7 +180,7 @@ def create_proper_training_data():
         "This is revolting!",
         "I'm appalled by this.",
         "This is really sickening.",
-        "I'm really grossed out."
+        "I'm really grossed out.",
     ]
 
     # Surprise examples
@@ -168,7 +194,7 @@ def create_proper_training_data():
         "I'm stunned by this revelation!",
         "This is unbelievable!",
         "I'm really surprised by this!",
-        "This is astonishing!"
+        "This is astonishing!",
     ]
 
     # Neutral examples
@@ -182,7 +208,7 @@ def create_proper_training_data():
         "The car is parked outside.",
         "I have an appointment at 3 PM.",
         "The computer is working fine.",
-        "I'm reading a book."
+        "I'm reading a book.",
     ]
 
     # Create labeled data
@@ -235,10 +261,12 @@ def create_proper_training_data():
     val_size = int(0.15 * total_samples)
 
     train_data = training_data[:train_size]
-    val_data = training_data[train_size:train_size + val_size]
-    test_data = training_data[train_size + val_size:]
+    val_data = training_data[train_size : train_size + val_size]
+    test_data = training_data[train_size + val_size :]
 
-    logger.info(f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples")
+    logger.info(
+        f"✅ Created {len(train_data)} training, {len(val_data)} validation, {len(test_data)} test samples"
+    )
 
     return train_data, val_data, test_data
 
@@ -248,7 +276,7 @@ def create_dataloader(data, model, batch_size=8):
     dataloader = []
 
     for i in range(0, len(data), batch_size):
-        batch = data[i:i + batch_size]
+        batch = data[i : i + batch_size]
 
         texts = [item["text"] for item in batch]
         labels = [item["labels"] for item in batch]
@@ -259,14 +287,16 @@ def create_dataloader(data, model, batch_size=8):
             padding=True,
             truncation=True,
             max_length=512,
-            return_tensors="pt"
+            return_tensors="pt",
         )
 
-        dataloader.append({
-            "input_ids": tokenized["input_ids"],
-            "attention_mask": tokenized["attention_mask"],
-            "labels": torch.tensor(labels, dtype=torch.float32)
-        })
+        dataloader.append(
+            {
+                "input_ids": tokenized["input_ids"],
+                "attention_mask": tokenized["attention_mask"],
+                "labels": torch.tensor(labels, dtype=torch.float32),
+            }
+        )
 
     return dataloader
 
@@ -279,7 +309,7 @@ def train_model(model, train_data, val_data, device, epochs=10):
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     criterion = FocalLoss()
 
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
 
     for epoch in range(epochs):
         model.train()
@@ -314,7 +344,9 @@ def train_model(model, train_data, val_data, device, epochs=10):
         avg_train_loss = total_loss / len(train_data)
         avg_val_loss = val_loss / len(val_data)
 
-        logger.info(f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+        logger.info(
+            f"Epoch {epoch + 1}: Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
+        )
 
         # Save best model
         if avg_val_loss < best_val_loss:
@@ -357,11 +389,19 @@ def evaluate_model(model, test_data, device):
         binary_predictions = (all_predictions > threshold).astype(int)
 
         # Calculate metrics
-        f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-        recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+        f1 = f1_score(
+            all_labels, binary_predictions, average="weighted", zero_division=0
+        )
+        precision = precision_score(
+            all_labels, binary_predictions, average="weighted", zero_division=0
+        )
+        recall = recall_score(
+            all_labels, binary_predictions, average="weighted", zero_division=0
+        )
 
-        logger.info(f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+        logger.info(
+            f"Threshold {threshold}: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}"
+        )
 
         if f1 > best_f1:
             best_f1 = f1
@@ -371,17 +411,25 @@ def evaluate_model(model, test_data, device):
 
     # Final evaluation with best threshold
     binary_predictions = (all_predictions > best_threshold).astype(int)
-    final_f1 = f1_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_precision = precision_score(all_labels, binary_predictions, average='weighted', zero_division=0)
-    final_recall = recall_score(all_labels, binary_predictions, average='weighted', zero_division=0)
+    final_f1 = f1_score(
+        all_labels, binary_predictions, average="weighted", zero_division=0
+    )
+    final_precision = precision_score(
+        all_labels, binary_predictions, average="weighted", zero_division=0
+    )
+    final_recall = recall_score(
+        all_labels, binary_predictions, average="weighted", zero_division=0
+    )
 
-    logger.info(f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
+    logger.info(
+        f"🏆 Final Results - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}"
+    )
 
     return {
         "f1": final_f1,
         "precision": final_precision,
         "recall": final_recall,
-        "best_threshold": best_threshold
+        "best_threshold": best_threshold,
     }
 
 
@@ -402,7 +450,9 @@ def main():
 
     # Create model
     model = SimpleBERTClassifier()
-    logger.info(f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters")
+    logger.info(
+        f"🤖 Created model with {sum(p.numel() for p in model.parameters())} parameters"
+    )
 
     # Create dataloaders
     train_dataloader = create_dataloader(train_data, model, batch_size=8)
@@ -410,7 +460,9 @@ def main():
     test_dataloader = create_dataloader(test_data, model, batch_size=8)
 
     # Train model
-    trained_model = train_model(model, train_dataloader, val_dataloader, device, epochs=5)
+    trained_model = train_model(
+        model, train_dataloader, val_dataloader, device, epochs=5
+    )
 
     # Load best model
     trained_model.load_state_dict(torch.load("best_focal_model.pth"))

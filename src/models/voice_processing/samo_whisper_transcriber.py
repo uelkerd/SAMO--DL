@@ -38,7 +38,7 @@ class SAMOWhisperTranscriber:
     def __init__(
         self,
         config: Optional[SAMOWhisperConfig] = None,
-        model_size: Optional[str] = None
+        model_size: Optional[str] = None,
     ) -> None:
         """Initialize SAMO Whisper transcriber."""
         self.config = config or SAMOWhisperConfig()
@@ -90,20 +90,20 @@ class SAMOWhisperTranscriber:
             result = model.transcribe(processed_audio_path, **transcribe_options)
 
             processing_time = time.time() - start_time
-            word_count = len(result['text'].split())
+            word_count = len(result["text"].split())
             speaking_rate = self.result_processor.calculate_speaking_rate(
-                word_count, audio_metadata['duration']
+                word_count, audio_metadata["duration"]
             )
 
             # Calculate confidence from segments
             confidence = self.result_processor.calculate_confidence(
-                result.get('segments', [])
+                result.get("segments", [])
             )
 
             # Calculate no_speech_probability from segments
             no_speech_probability = (
                 self.result_processor.calculate_no_speech_probability(
-                    result.get('segments', [])
+                    result.get("segments", [])
                 )
             )
 
@@ -113,14 +113,14 @@ class SAMOWhisperTranscriber:
             )
 
             transcription_result = TranscriptionResult(
-                text=result['text'].strip() if isinstance(
-                    result.get('text'), str
-                ) else '',
-                language=result.get('language', 'unknown'),
+                text=result["text"].strip()
+                if isinstance(result.get("text"), str)
+                else "",
+                language=result.get("language", "unknown"),
                 confidence=confidence,
-                duration=audio_metadata['duration'],
+                duration=audio_metadata["duration"],
                 processing_time=processing_time,
-                segments=result.get('segments', []),
+                segments=result.get("segments", []),
                 audio_quality=audio_quality,
                 word_count=word_count,
                 speaking_rate=speaking_rate,
@@ -129,11 +129,11 @@ class SAMOWhisperTranscriber:
 
             logger.info(
                 "✅ Transcription complete: %d words, %.2f confidence",
-                word_count, confidence
+                word_count,
+                confidence,
             )
             logger.info(
-                "Processing time: %.2fs, Quality: %s",
-                processing_time, audio_quality
+                "Processing time: %.2fs, Quality: %s", processing_time, audio_quality
             )
 
             return transcription_result
@@ -158,8 +158,7 @@ class SAMOWhisperTranscriber:
 
         for i, audio_path in enumerate(audio_paths, 1):
             logger.info(
-                "Processing file %d/%d: %s",
-                i, len(audio_paths), Path(audio_path).name
+                "Processing file %d/%d: %s", i, len(audio_paths), Path(audio_path).name
             )
 
             try:
@@ -184,8 +183,10 @@ class SAMOWhisperTranscriber:
         logger.info("✅ Batch transcription complete: %d files", len(results))
         logger.info(
             "Successful: %d/%d, Total audio: %.1fs, Processing: %.1fs",
-            successful_transcriptions, len(results),
-            total_duration, total_processing_time
+            successful_transcriptions,
+            len(results),
+            total_duration,
+            total_processing_time,
         )
 
         if errors:
@@ -201,8 +202,7 @@ class SAMOWhisperTranscriber:
 
 
 def create_samo_whisper_transcriber(
-    config_path: Optional[str] = None,
-    model_size: Optional[str] = None
+    config_path: Optional[str] = None, model_size: Optional[str] = None
 ) -> SAMOWhisperTranscriber:
     """Create a SAMO Whisper transcriber with specified configuration."""
     config = SAMOWhisperConfig(config_path) if config_path else None

@@ -1,29 +1,26 @@
 #!/usr/bin/env python3
-"""
-Minimal Working Training Script
+"""Minimal Working Training Script
 
 Minimal working training script for emotion detection.
 """
 
-from transformers import AutoModel, AutoTokenizer
-import traceback
-from torch import nn
 import logging
 import os
 import sys
-import torch
 import traceback
 
-
-
-
+import torch
+from torch import nn
+from transformers import AutoModel, AutoTokenizer
 
 """
 Minimal Working Training Script
 Uses only working modules to avoid environment issues
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -55,16 +52,17 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs, targets):
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_synthetic_data(num_samples=1000, seq_length=128):
@@ -80,7 +78,6 @@ def create_synthetic_data(num_samples=1000, seq_length=128):
 
 def train_minimal_model():
     """Train a minimal BERT model with synthetic data."""
-
     logger.info("🚀 Starting Minimal Working Training")
     logger.info("   • Using only working modules (PyTorch, NumPy, Transformers)")
     logger.info("   • Synthetic data to avoid dataset loading issues")
@@ -98,7 +95,9 @@ def train_minimal_model():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_input_ids, train_attention_mask, train_labels = create_synthetic_data(1000)
+        train_input_ids, train_attention_mask, train_labels = create_synthetic_data(
+            1000
+        )
         val_input_ids, val_attention_mask, val_labels = create_synthetic_data(200)
 
         best_val_loss = float("in")
@@ -114,7 +113,9 @@ def train_minimal_model():
             batch_size = 16
             for i in range(0, len(train_input_ids), batch_size):
                 batch_input_ids = train_input_ids[i : i + batch_size].to(device)
-                batch_attention_mask = train_attention_mask[i : i + batch_size].to(device)
+                batch_attention_mask = train_attention_mask[i : i + batch_size].to(
+                    device
+                )
                 batch_labels = train_labels[i : i + batch_size].to(device)
 
                 optimizer.zero_grad()
@@ -140,10 +141,14 @@ def train_minimal_model():
             with torch.no_grad():
                 for i in range(0, len(val_input_ids), batch_size):
                     batch_input_ids = val_input_ids[i : i + batch_size].to(device)
-                    batch_attention_mask = val_attention_mask[i : i + batch_size].to(device)
+                    batch_attention_mask = val_attention_mask[i : i + batch_size].to(
+                        device
+                    )
                     batch_labels = val_labels[i : i + batch_size].to(device)
 
-                    outputs = model(batch_input_ids, attention_mask=batch_attention_mask)
+                    outputs = model(
+                        batch_input_ids, attention_mask=batch_attention_mask
+                    )
                     loss = focal_loss(outputs["logits"], batch_labels)
 
                     val_loss += loss.item()
@@ -155,7 +160,11 @@ def train_minimal_model():
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {
+                    "epoch": epoch + 1,
+                    "train_loss": avg_train_loss,
+                    "val_loss": avg_val_loss,
+                },
             )
 
             if avg_val_loss < best_val_loss:
@@ -181,7 +190,9 @@ def train_minimal_model():
 
         logger.info("🎉 Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
-        logger.info("   • Model saved to: ./models/checkpoints/minimal_working_model.pt")
+        logger.info(
+            "   • Model saved to: ./models/checkpoints/minimal_working_model.pt"
+        )
 
         return True
 

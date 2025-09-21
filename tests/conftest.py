@@ -1,17 +1,17 @@
-    # Create a simple sine wave for testing
+# Create a simple sine wave for testing
 # Custom markers for test categorization
 # Skip GPU tests if CUDA not available
-from fastapi.testclient import TestClient
-from pathlib import Path
-from src.unified_ai_api import app
-from unittest.mock import Mock, patch
-import numpy as np
 import os
-import pytest
 import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import numpy as np
+import pytest
 import torch
+from fastapi.testclient import TestClient
 
-
+from src.unified_ai_api import app
 
 """
 SAMO Deep Learning - Pytest Configuration and Shared Fixtures
@@ -49,7 +49,6 @@ def sample_journal_entry():
 @pytest.fixture
 def sample_audio_data():
     """Provide sample audio data for voice processing tests."""
-
     sample_rate = 16000
     duration = 2.0  # seconds
     frequency = 440  # Hz
@@ -77,7 +76,9 @@ def mock_bert_model():
 @pytest.fixture
 def mock_t5_model():
     """Mock T5 model for testing without loading actual weights."""
-    with patch("src.models.summarization.t5_summarizer.T5ForConditionalGeneration") as mock_model:
+    with patch(
+        "src.models.summarization.t5_summarizer.T5ForConditionalGeneration"
+    ) as mock_model:
         mock_instance = Mock()
         mock_model.from_pretrained.return_value = mock_instance
         yield mock_model
@@ -86,7 +87,9 @@ def mock_t5_model():
 @pytest.fixture
 def mock_whisper_model():
     """Mock Whisper model for testing without loading actual weights."""
-    with patch("src.models.voice_processing.whisper_transcriber.whisper") as mock_whisper:
+    with patch(
+        "src.models.voice_processing.whisper_transcriber.whisper"
+    ) as mock_whisper:
         mock_model = Mock()
         mock_model.transcribe.return_value = {"text": "test transcription"}
         mock_whisper.load_model.return_value = mock_model
@@ -105,7 +108,7 @@ def api_client():
     client = TestClient(app)
 
     # Reset rate limiter state before each test
-    if hasattr(app.state, 'rate_limiter'):
+    if hasattr(app.state, "rate_limiter"):
         app.state.rate_limiter.reset_state()
 
     return client
@@ -114,7 +117,8 @@ def api_client():
 def pytest_configure(config):
     """Register custom markers."""
     config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+        "markers",
+        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     )
     config.addinivalue_line("markers", "gpu: marks tests that require GPU")
     config.addinivalue_line("markers", "integration: marks integration tests")

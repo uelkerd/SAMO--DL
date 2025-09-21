@@ -13,6 +13,7 @@ def count_model_params(model: torch.nn.Module, only_trainable: bool = False) -> 
 
     Returns:
         int: Number of parameters (total or trainable only)
+
     """
     if only_trainable:
         return sum(p.numel() for p in model.parameters() if p.requires_grad)

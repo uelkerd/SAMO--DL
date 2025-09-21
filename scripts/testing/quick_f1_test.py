@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""
-Quick F1 Test Script
+"""Quick F1 Test Script
 
 Quick test to evaluate F1 scores and model performance.
 """
 
-import traceback
-from pathlib import Path
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 import logging
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
 
-
-
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Quick F1 Score Test and Improvement
@@ -76,7 +72,9 @@ def main():
         else:
             logger.info("⚠️ Need more optimization techniques.")
 
-        checkpoint_path = Path("models/checkpoints/bert_emotion_classifier_quick_test.pt")
+        checkpoint_path = Path(
+            "models/checkpoints/bert_emotion_classifier_quick_test.pt"
+        )
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
         torch.save(

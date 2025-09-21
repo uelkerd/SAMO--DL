@@ -1,28 +1,24 @@
-        # Add original entry
-        # Add variations
-    # Count emotions
-    # Create more samples by duplicating and slightly modifying
-    # Create test data
-    # Sample texts with emotion labels
-    # Save to file
-    # Show sample
-    # Shuffle the data
+# Add original entry
+# Add variations
+# Count emotions
+# Create more samples by duplicating and slightly modifying
+# Create test data
+# Sample texts with emotion labels
+# Save to file
+# Show sample
+# Shuffle the data
 #!/usr/bin/env python3
 import json
 import logging
 import random
 
-
-
-
-
 """
 Create a test dataset with emotion labels for Vertex AI
 """
 
+
 def create_test_dataset():
     """Create a test dataset with emotion labels"""
-
     test_data = [
         {
             "text": "I'm so happy today! Everything is going perfectly.",
@@ -42,40 +38,73 @@ def create_test_dataset():
         },
         {"text": "I'm confused about what to do next.", "emotions": ["confusion"]},
         {"text": "This is disgusting. I can't stand it.", "emotions": ["disgust"]},
-        {"text": "I'm so proud of what we accomplished together.", "emotions": ["pride", "joy"]},
-        {"text": "I feel so sad and lonely right now.", "emotions": ["sadness", "grie"]},
-        {"text": "Wow! That was completely unexpected!", "emotions": ["surprise", "excitement"]},
+        {
+            "text": "I'm so proud of what we accomplished together.",
+            "emotions": ["pride", "joy"],
+        },
+        {
+            "text": "I feel so sad and lonely right now.",
+            "emotions": ["sadness", "grie"],
+        },
+        {
+            "text": "Wow! That was completely unexpected!",
+            "emotions": ["surprise", "excitement"],
+        },
         {"text": "I love spending time with you.", "emotions": ["love", "joy"]},
         {"text": "I'm embarrassed about what happened.", "emotions": ["embarrassment"]},
         {"text": "I'm curious about how this works.", "emotions": ["curiosity"]},
-        {"text": "I really want to learn more about this.", "emotions": ["desire", "curiosity"]},
+        {
+            "text": "I really want to learn more about this.",
+            "emotions": ["desire", "curiosity"],
+        },
         {"text": "I care about your wellbeing.", "emotions": ["caring"]},
         {
             "text": "I admire your dedication to this project.",
             "emotions": ["admiration", "approval"],
         },
-        {"text": "This is so funny! I can't stop laughing.", "emotions": ["amusement", "joy"]},
-        {"text": "I'm annoyed by all these interruptions.", "emotions": ["annoyance", "anger"]},
+        {
+            "text": "This is so funny! I can't stop laughing.",
+            "emotions": ["amusement", "joy"],
+        },
+        {
+            "text": "I'm annoyed by all these interruptions.",
+            "emotions": ["annoyance", "anger"],
+        },
         {"text": "I disapprove of this behavior.", "emotions": ["disapproval"]},
         {"text": "I realize now what I need to do.", "emotions": ["realization"]},
         {"text": "I feel relieved that it's finally over.", "emotions": ["relie"]},
         {"text": "I deeply regret my actions.", "emotions": ["remorse", "sadness"]},
         {"text": "I'm optimistic about the future.", "emotions": ["optimism"]},
-        {"text": "I'm nervous about the presentation.", "emotions": ["nervousness", "fear"]},
+        {
+            "text": "I'm nervous about the presentation.",
+            "emotions": ["nervousness", "fear"],
+        },
         {"text": "Today was just an ordinary day.", "emotions": ["neutral"]},
         {
             "text": "I'm excited about the new opportunities.",
             "emotions": ["excitement", "optimism"],
         },
-        {"text": "I'm disappointed with the results.", "emotions": ["disappointment", "sadness"]},
+        {
+            "text": "I'm disappointed with the results.",
+            "emotions": ["disappointment", "sadness"],
+        },
         {"text": "This makes me so angry!", "emotions": ["anger"]},
         {"text": "I'm grateful for all the support.", "emotions": ["gratitude", "joy"]},
-        {"text": "I'm grieving the loss of my friend.", "emotions": ["grie", "sadness"]},
+        {
+            "text": "I'm grieving the loss of my friend.",
+            "emotions": ["grie", "sadness"],
+        },
         {"text": "I'm surprised by the outcome.", "emotions": ["surprise"]},
-        {"text": "I'm loving this new experience.", "emotions": ["love", "joy", "excitement"]},
+        {
+            "text": "I'm loving this new experience.",
+            "emotions": ["love", "joy", "excitement"],
+        },
         {"text": "I'm scared of what might happen.", "emotions": ["fear"]},
         {"text": "I'm confused by these instructions.", "emotions": ["confusion"]},
-        {"text": "I'm curious about the science behind this.", "emotions": ["curiosity"]},
+        {
+            "text": "I'm curious about the science behind this.",
+            "emotions": ["curiosity"],
+        },
         {"text": "I desire to learn more.", "emotions": ["desire", "curiosity"]},
         {"text": "I care deeply about this issue.", "emotions": ["caring"]},
         {"text": "I admire your courage.", "emotions": ["admiration"]},
@@ -131,7 +160,7 @@ def main():
 
     logging.info("\n📊 Sample entries:")
     for i, entry in enumerate(test_data[:3]):
-        logging.info(f"  {i+1}. Text: '{entry['text'][:50]}...'")
+        logging.info(f"  {i + 1}. Text: '{entry['text'][:50]}...'")
         logging.info(f"     Emotions: {entry['emotions']}")
 
     emotion_counts = {}

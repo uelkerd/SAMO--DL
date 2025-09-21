@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Model Loading Health Check
+"""Model Loading Health Check
 Check if the model is loading properly in the container.
 """
 
@@ -12,7 +11,7 @@ def check_model_health(base_url=None):
     """Check model health status"""
     config = create_test_config()
     if base_url:
-        config.base_url = base_url.rstrip('/')
+        config.base_url = base_url.rstrip("/")
     client = create_api_client()
 
     print("🔍 Model Health Check")
@@ -30,7 +29,7 @@ def check_model_health(base_url=None):
     # Test emotions from main endpoint
     try:
         data = client.get("/")
-        emotions_count = data.get('emotions_supported', 0)
+        emotions_count = data.get("emotions_supported", 0)
         print(f"✅ Emotions: {emotions_count} emotions available")
     except requests.exceptions.RequestException as e:
         print(f"❌ Emotions check error: {e}")
@@ -42,9 +41,9 @@ def check_model_health(base_url=None):
         data = client.post("/predict", payload)
 
         # Handle confidence formatting with null checks
-        primary_emotion = data.get('primary_emotion', {})
-        emotion = primary_emotion.get('emotion', 'Unknown')
-        confidence = primary_emotion.get('confidence')
+        primary_emotion = data.get("primary_emotion", {})
+        emotion = primary_emotion.get("emotion", "Unknown")
+        confidence = primary_emotion.get("confidence")
         if confidence is not None:
             confidence_str = f"{confidence:.3f}"
         else:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Robust Focal Loss Training Script
+"""Robust Focal Loss Training Script
 
 This script provides a robust implementation of focal loss training
 with comprehensive error handling and validation.
@@ -35,17 +34,18 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets):
         """Forward pass of focal loss."""
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_training_data():
@@ -99,9 +99,13 @@ def robust_focal_training():
 
         # Create dataloader
         dataset = torch.utils.data.TensorDataset(
-            inputs["input_ids"], inputs["attention_mask"], labels_tensor
+            inputs["input_ids"],
+            inputs["attention_mask"],
+            labels_tensor,
         )
-        train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=2, shuffle=True)
+        train_dataloader = torch.utils.data.DataLoader(
+            dataset, batch_size=2, shuffle=True
+        )
 
         # Setup optimizer and loss
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""
-CREATE CORRECTED SPECIALIZED NOTEBOOK
+"""CREATE CORRECTED SPECIALIZED NOTEBOOK
 ======================================
 Creates a notebook that properly uses j-hartmann/emotion-english-distilroberta-base
 with verification steps to ensure the correct model is being used
 """
+
 from pathlib import Path
+
 
 def create_corrected_notebook():
     """Create a corrected notebook with proper specialized model usage"""
-
-    notebook_content = '''{
+    notebook_content = """{
  "cells": [
   {
    "cell_type": "markdown",
@@ -618,11 +618,15 @@ def create_corrected_notebook():
  },
  "nbformat": 4,
  "nbformat_minor": 4
-}'''
+}"""
 
     # Save the notebook
-    notebook_path = Path(__file__).parent.parent / 'notebooks' / 'CORRECTED_SPECIALIZED_TRAINING.ipynb'
-    with open(notebook_path, 'w') as f:
+    notebook_path = (
+        Path(__file__).parent.parent
+        / "notebooks"
+        / "CORRECTED_SPECIALIZED_TRAINING.ipynb"
+    )
+    with open(notebook_path, "w") as f:
         f.write(notebook_content)
 
     print(f"✅ Created corrected specialized notebook: {notebook_path}")
@@ -639,6 +643,7 @@ def create_corrected_notebook():
     print("   4. Run all cells")
     print("   5. Verify the model is actually using the specialized architecture")
     print("   6. Only deploy if reliability tests pass")
+
 
 if __name__ == "__main__":
     create_corrected_notebook()

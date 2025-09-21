@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
+from torch import nn
 
-
-
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Fine-tune Emotion Detection Model on GoEmotions Dataset
@@ -23,13 +23,14 @@ to improve emotion detection performance.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 def fine_tune_model():
     """Fine-tune the emotion detection model on GoEmotions dataset."""
-
     logger.info("🎯 Starting Model Fine-tuning")
     logger.info("   • Dataset: GoEmotions")
     logger.info("   • Model: BERT-base-uncased")
@@ -66,8 +67,12 @@ def fine_tune_model():
         optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=16, shuffle=True
+        )
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         best_val_loss = float("in")
         training_history = []
@@ -131,7 +136,7 @@ def fine_tune_model():
                     "train_loss": avg_train_loss,
                     "val_loss": avg_val_loss,
                     "learning_rate": current_lr,
-                }
+                },
             )
 
             if avg_val_loss < best_val_loss:

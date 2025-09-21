@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""
-🚀 CREATE MODEL DEPLOYMENT PACKAGE
+"""🚀 CREATE MODEL DEPLOYMENT PACKAGE
 ==================================
 Create a complete deployment package for the trained emotion model.
 This includes model files, inference scripts, and documentation.
 """
+
 import os
+
 
 def create_model_deployment_package():
     """Create the deployment package content"""
-
     # Create deployment directory structure
     deployment_files = {
         "README.md": """# 🚀 EMOTION DETECTION MODEL - DEPLOYMENT PACKAGE
@@ -56,7 +56,6 @@ python api_server.py
 - **Improvement**: 1,813% increase
 - **Target**: 75-85% F1 (CRUSHED!)
 """,
-
         "requirements.txt": """transformers==4.35.0
 torch==2.1.0
 scikit-learn==1.3.0
@@ -65,7 +64,6 @@ pandas==2.0.3
 flask==2.3.3
 requests==2.32.4
 """,
-
         "inference.py": '''#!/usr/bin/env python3
 """
 🚀 EMOTION DETECTION INFERENCE SCRIPT
@@ -175,7 +173,6 @@ def main():
 if __name__ == "__main__":
     main()
 ''',
-
         "test_examples.py": '''#!/usr/bin/env python3
 """
 🧪 TEST EMOTION DETECTION MODEL
@@ -242,7 +239,6 @@ def test_model():
 if __name__ == "__main__":
     test_model()
 ''',
-
         "api_server.py": '''#!/usr/bin/env python3
 """
 🚀 EMOTION DETECTION API SERVER
@@ -352,7 +348,6 @@ if __name__ == '__main__':
 
     app.run(host='0.0.0.0', port=5000, debug=False)
 ''',
-
         "deploy.sh": """#!/bin/bash
 # 🚀 DEPLOYMENT SCRIPT
 # ====================
@@ -380,7 +375,6 @@ echo "🌐 Starting API server..."
 echo "Server will be available at: http://localhost:5000"
 python api_server.py
 """,
-
         "dockerfile": """# 🚀 EMOTION DETECTION MODEL DOCKERFILE
 # =====================================
 
@@ -409,7 +403,6 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \\
 # Run the application
 CMD ["python", "api_server.py"]
 """,
-
         "docker-compose.yml": """version: '3.8'
 
 services:
@@ -428,7 +421,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-"""
+""",
     }
 
     # Create deployment directory
@@ -438,7 +431,7 @@ services:
     # Write all files
     for filename, content in deployment_files.items():
         filepath = os.path.join(deployment_dir, filename)
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(content)
 
     # Make shell script executable
@@ -446,12 +439,13 @@ services:
 
     print("✅ Deployment package created: deployment/")
     print("📦 Files included:")
-    for filename in deployment_files.keys():
+    for filename in deployment_files:
         print(f"  - {filename}")
     print("🚀 Next steps:")
     print("  1. Copy trained model to deployment/model/")
     print("  2. Run: cd deployment && ./deploy.sh")
     print("  3. Test API at: http://localhost:5000")
+
 
 if __name__ == "__main__":
     create_model_deployment_package()

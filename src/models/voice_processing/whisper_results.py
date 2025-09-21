@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TranscriptionResult:
     """Result of audio transcription."""
+
     text: str
     language: str
     confidence: float

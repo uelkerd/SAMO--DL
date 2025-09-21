@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""
-PR #5: CI/CD Pipeline Overhaul - Integration Test
+"""PR #5: CI/CD Pipeline Overhaul - Integration Test
 
 This script validates that the CircleCI configuration fixes are working correctly.
 """
 
 import os
-import sys
-import yaml
 import subprocess
+import sys
 from pathlib import Path
+
+import yaml
+
 
 def test_yaml_syntax():
     """Test that the CircleCI config YAML is valid."""
@@ -29,6 +30,7 @@ def test_yaml_syntax():
         print(f"❌ YAML syntax error: {e}")
         return False
 
+
 def test_conda_environment_setup():
     """Test that conda environment setup configuration is valid (FAST VERSION)."""
     print("🔍 Testing conda environment setup (fast validation)...")
@@ -39,10 +41,15 @@ def test_conda_environment_setup():
         if os.path.exists(conda_path):
             conda_cmd = [conda_path]
         else:
-            conda_cmd = ['conda']  # fallback to PATH
+            conda_cmd = ["conda"]  # fallback to PATH
 
-        result = subprocess.run(conda_cmd + ['--version'],
-                                capture_output=True, text=True, timeout=10)
+        result = subprocess.run(
+            conda_cmd + ["--version"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
         if result.returncode != 0:
             print("❌ Conda not available")
             return False
@@ -58,26 +65,27 @@ def test_conda_environment_setup():
             env_yaml = yaml.safe_load(f)
 
         # Check required fields
-        if 'name' not in env_yaml:
+        if "name" not in env_yaml:
             print("❌ environment.yml missing 'name' field")
             return False
 
-        if 'dependencies' not in env_yaml:
+        if "dependencies" not in env_yaml:
             print("❌ environment.yml missing 'dependencies' field")
             return False
 
-        dependencies = env_yaml.get('dependencies', [])
+        dependencies = env_yaml.get("dependencies", [])
         if not dependencies:
             print("❌ environment.yml has no dependencies")
             return False
 
         # Check for key packages
         import re
+
         found_packages = []
         for dep in dependencies:
             if isinstance(dep, str):
-                package_name = re.split(r'[=<>~,]+', dep)[0].strip()
-                if package_name != 'python':
+                package_name = re.split(r"[=<>~,]+", dep)[0].strip()
+                if package_name != "python":
                     found_packages.append(package_name)
 
         if not found_packages:
@@ -91,6 +99,7 @@ def test_conda_environment_setup():
     except Exception as e:
         print(f"❌ Conda environment test failed: {e}")
         return False
+
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied using YAML parsing."""
@@ -174,12 +183,17 @@ def test_critical_fixes():
                 found_pythonpath = True
                 break
     if found_pythonpath:
-        print("✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)")
+        print(
+            "✅ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src found)"
+        )
     else:
-        print("❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)")
+        print(
+            "❌ PYTHONPATH configuration (PYTHONPATH: $CIRCLE_WORKING_DIRECTORY/src NOT FOUND)"
+        )
         all_fixes_present = False
 
     return all_fixes_present
+
 
 def test_pipeline_structure():
     """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
@@ -197,7 +211,7 @@ def test_pipeline_structure():
         "executors",
         "commands",
         "jobs",
-        "workflows"
+        "workflows",
     ]
 
     all_components_present = True
@@ -214,6 +228,7 @@ def test_pipeline_structure():
 
     return all_components_present
 
+
 def test_pipeline_structure_edge_cases():
     """Test pipeline structure with missing sections and malformed YAML (edge cases)."""
     print("🔍 Testing pipeline structure edge cases...")
@@ -229,23 +244,30 @@ def test_pipeline_structure_edge_cases():
         "executors",
         "commands",
         "jobs",
-        "workflows"
+        "workflows",
     ]
     missing_count = 0
     for component in required_components:
         if component not in incomplete_config:
             missing_count += 1
-    print(f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)")
+    print(
+        f"✅ Simulated missing sections test: {missing_count} components missing (expected: 2)"
+    )
 
     # Test 2: Malformed YAML types
     malformed_configs = [None, [], "not_a_dict"]
     for idx, malformed in enumerate(malformed_configs):
         if not isinstance(malformed, dict):
-            print(f"✅ Malformed config case {idx+1}: {repr(malformed)} correctly identified as invalid")
+            print(
+                f"✅ Malformed config case {idx + 1}: {malformed!r} correctly identified as invalid"
+            )
         else:
-            print(f"❌ Malformed config case {idx+1}: {repr(malformed)} incorrectly identified as valid")
+            print(
+                f"❌ Malformed config case {idx + 1}: {malformed!r} incorrectly identified as valid"
+            )
 
     return True
+
 
 def test_job_dependencies():
     """Test that job dependencies are properly configured with order verification."""
@@ -259,14 +281,14 @@ def test_job_dependencies():
         print(f"❌ Failed to load config: {e}")
         return False
 
-    workflows = config.get('workflows', {})
+    workflows = config.get("workflows", {})
     if not workflows:
         print("❌ No workflows found")
         return False
 
     main_workflow = None
     for workflow_name, workflow_config in workflows.items():
-        if workflow_name == 'samo-ci-cd':
+        if workflow_name == "samo-ci-cd":
             main_workflow = workflow_config
             break
 
@@ -274,7 +296,7 @@ def test_job_dependencies():
         print("❌ Main workflow 'samo-ci-cd' not found")
         return False
 
-    jobs = main_workflow.get('jobs', [])
+    jobs = main_workflow.get("jobs", [])
     if not jobs:
         print("❌ No jobs in main workflow")
         return False
@@ -293,8 +315,8 @@ def test_job_dependencies():
             job_names.append(job_name)
 
             # Check for dependencies
-            if 'requires' in job_config:
-                job_dependencies[job_name] = job_config['requires']
+            if "requires" in job_config:
+                job_dependencies[job_name] = job_config["requires"]
                 print(f"✅ Job '{job_name}' has dependencies: {job_config['requires']}")
             else:
                 job_dependencies[job_name] = []
@@ -329,6 +351,7 @@ def test_job_dependencies():
 
     return all_deps_valid and not has_circular
 
+
 def test_environment_variables():
     """Test that environment variables are properly configured."""
     print("🔍 Testing environment variables...")
@@ -352,7 +375,7 @@ def test_environment_variables():
 
     hardcoded_paths = [
         "$HOME/miniconda/bin/conda",
-        "~/miniconda/bin/conda"
+        "~/miniconda/bin/conda",
     ]
 
     found_hardcoded = False
@@ -376,6 +399,7 @@ def test_environment_variables():
         print(f"✅ Found {found_env_vars} environment variables in use")
 
     return True
+
 
 def main():
     """Run all PR #5 CI/CD integration tests."""
@@ -413,7 +437,7 @@ def main():
     print(f"Total Tests: {total}")
     print(f"Passed: {passed}")
     print(f"Failed: {total - passed}")
-    print(f"Success Rate: {(passed/total)*100:.1f}%")
+    print(f"Success Rate: {(passed / total) * 100:.1f}%")
 
     if passed == total:
         print("\n✅ PR #5 CI/CD pipeline is ready for testing!")
@@ -423,6 +447,7 @@ def main():
         print("Please address the failing tests above")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

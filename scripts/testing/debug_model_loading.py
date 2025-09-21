@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
-Debug Model Loading Issues
+"""Debug Model Loading Issues
 Get detailed information about why the model is not loading properly.
 """
 
-import requests
 import json
+
+import requests
 from test_config import create_api_client, create_test_config
 
 
@@ -71,7 +71,7 @@ def debug_model_loading():
     ]
 
     for i, test_case in enumerate(test_cases):
-        print(f"   Test case {i+1}: {test_case}")
+        print(f"   Test case {i + 1}: {test_case}")
         try:
             data = client.post("/predict", test_case)
             print(f"     ✅ Success: {data.get('emotion', 'Unknown')}")

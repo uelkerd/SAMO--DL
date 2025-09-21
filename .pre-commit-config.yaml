@@ -1,4 +1,49 @@
+# Comprehensive Code Quality System for SAMO-DL
+# Prevents ALL recurring security and quality issues with automated enforcement
+
+# Global exclude pattern - applies to all hooks unless overridden
+exclude: |
+  (?x)^(
+      \.git|
+      \.venv|
+      \.env|
+      __pycache__|
+      \.pytest_cache|
+      \.mypy_cache|
+      \.ruff_cache|
+      build|
+      dist|
+      \.eggs|
+      \.tox|
+      \.coverage|
+      htmlcov|
+      \.cache|
+      \.logs|
+      results|
+      samples|
+      notebooks|
+      website|
+      docs/diagrams|
+      \.DS_Store|
+      artifacts|
+      \.benchmarks|
+      \.kilocode|
+      \.vscode|
+      deprecated|
+      test_reports|
+      test_report\.txt|
+      \.gitignore-pages|
+      \.nojekyll|
+      \.deepsource\.toml|
+      trivy-results-.*\.json|
+      vulnerabilities-.*\.json|
+      scripts/legacy|
+      scripts/maintenance|
+      scripts/testing
+  )$
+
 repos:
+  # Basic pre-commit hooks (run first)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -18,17 +63,24 @@ repos:
       - id: check-ast
       - id: check-added-large-files
 
+  # Python linting and formatting with Ruff (replaces black, isort, flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.8
+    rev: v0.3.0
     hooks:
       - id: ruff
+        name: ruff-linting
         args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
       - id: ruff-format
+        name: ruff-formatting
+        types: [python]
 
+  # Type checking with MyPy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.8.0
     hooks:
       - id: mypy
+        args: [--ignore-missing-imports, --python-version=3.8]
         additional_dependencies: [types-requests, types-PyYAML]
         # Strategic exclusions to focus on core business logic (matching pyproject.toml)
         exclude: |
@@ -52,8 +104,64 @@ repos:
         # Focus on core business logic paths
         files: ^(src/|scripts/training/|scripts/database/).*\.py$
 
-  - repo: https://github.com/pycqa/bandit
+  # Code quality with Pylint
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.0.3
+    hooks:
+      - id: pylint
+        args: [--rcfile=pyproject.toml]
+        types: [python]
+
+  # Security scanning with Bandit (comprehensive rules)
+  - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6
     hooks:
       - id: bandit
+        name: bandit (production code)
+        # Scan production code with all security rules
+        types: [python]
+        exclude: '^(tests/|.*_test\.py$)'
         args: [-c, pyproject.toml]
+
+      - id: bandit
+        name: bandit (tests, B101 skipped)
+        # Scan test files with B101 (assert_used) disabled
+        args: [-c, pyproject.toml, -s, B101]
+        types: [python]
+        files: '^(tests/|.*_test\.py$)'
+
+  # Security vulnerability scanning with Safety
+  - repo: local
+    hooks:
+      - id: safety-scan
+        name: Safety (dependency vulnerability scan)
+        entry: safety
+        language: python
+        additional_dependencies: [safety>=3.0.0]
+        args: [scan, --json, --output, safety-report.json]
+        pass_filenames: false
+        stages: [manual]
+        files: ^(requirements.*\.txt|pyproject\.toml)$
+
+  # Documentation formatting with Docformatter
+  - repo: local
+    hooks:
+      - id: docformatter
+        name: Docformatter (docstring formatting)
+        entry: docformatter
+        language: python
+        additional_dependencies: [docformatter>=1.7.0]
+        args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
+        types: [python]
+
+  # String formatting with flynt
+  - repo: https://github.com/ikamensh/flynt
+    rev: "0.78"
+    hooks:
+      - id: flynt
+        args: [--line-length=88]
+        types: [python]
+
+# Global configuration
+default_language_version:
+  python: python3.8

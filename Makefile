@@ -9,20 +9,23 @@ help: ## Show this help message
 format: ## Format code with ruff
 	ruff format src/ tests/ scripts/
 
-lint: ## Run linting with ruff and pylint
-	ruff check src/ tests/ scripts/
-	pylint src/ tests/ scripts/
+lint: ## Run comprehensive linting with ruff and pylint
+	ruff check --fix src/ tests/ scripts/
+	pylint --rcfile=pyproject.toml src/ tests/ scripts/
 
 test: ## Run tests with coverage
 	pytest tests/ --cov=src --cov-report=term-missing
 
-quality-check: ## Run all quality checks
-	@echo "Running code quality checks..."
+quality-check: ## Run all quality checks (matches pre-commit)
+	@echo "Running comprehensive code quality checks..."
+	ruff check --diff src/ tests/ scripts/
 	ruff format --check src/ tests/ scripts/
-	ruff check src/ tests/ scripts/
-	pylint src/ tests/ scripts/
-	bandit -r src/ -s B101,B601  # Skip assert statements and subprocess shell injection checks
-	safety check --json --output safety-report.json
+	pylint --rcfile=pyproject.toml src/ tests/ scripts/
+	mypy src/ scripts/training/ scripts/database/
+	bandit -r src/ -c pyproject.toml
+	bandit -r tests/ -c pyproject.toml -s B101
+	safety scan --json --output safety-report.json
+	docformatter --check --wrap-summaries=88 --wrap-descriptions=88 src/ tests/ scripts/
 
 check-scope: ## Check PR scope compliance
 	python scripts/check_pr_scope.py --strict

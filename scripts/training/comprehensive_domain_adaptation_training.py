@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SAMO Deep Learning - Comprehensive Domain Adaptation Training Script
+"""SAMO Deep Learning - Comprehensive Domain Adaptation Training Script
 
 SENIOR-LEVEL IMPLEMENTATION for REQ-DL-012: Domain-Adapted Emotion Detection
 that completely avoids dependency hell and provides production-ready code.
@@ -18,40 +17,43 @@ Features:
 - Performance optimization
 """
 
-import os
-import sys
 import json
-import warnings
-import subprocess
 import logging
+import os
+import subprocess
+import sys
+import warnings
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass
+
 import torch
-import torch.nn as nn
 import torch.optim
+from torch import nn
 
 # Suppress warnings for cleaner output
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Set environment variables for stability
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-os.environ['TOKENIZERS_PARALLELISM'] = "false"
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('domain_adaptation_training.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("domain_adaptation_training.log"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class TrainingConfig:
     """Configuration class for training parameters."""
+
     model_name: str = "bert-base-uncased"
     num_epochs: int = 5
     batch_size: int = 16
@@ -68,6 +70,7 @@ class TrainingConfig:
     target_f1: float = 0.7
     patience: int = 3
 
+
 class EnvironmentManager:
     """Manages environment setup and dependency installation."""
 
@@ -79,6 +82,7 @@ class EnvironmentManager:
         """Detect if running in Google Colab."""
         try:
             import google.colab
+
             logger.info("✅ Running in Google Colab")
             return True
         except ImportError:
@@ -91,38 +95,57 @@ class EnvironmentManager:
 
         # Define compatible versions - more conservative approach
         dependencies = {
-            'torch': '2.0.1',
-            'torchvision': '0.15.2',
-            'torchaudio': '2.0.2',
-            'transformers': '4.28.0',
-            'datasets': '2.12.0',
-            'evaluate': '0.4.0',
-            'scikit-learn': '1.3.0',
-            'pandas': '2.0.3',
-            'numpy': '1.23.5',  # Conservative version
-            'matplotlib': '3.7.2',
-            'seaborn': '0.12.2',
-            'accelerate': '0.20.3',
-            'wandb': '0.15.8'
+            "torch": "2.0.1",
+            "torchvision": "0.15.2",
+            "torchaudio": "2.0.2",
+            "transformers": "4.28.0",
+            "datasets": "2.12.0",
+            "evaluate": "0.4.0",
+            "scikit-learn": "1.3.0",
+            "pandas": "2.0.3",
+            "numpy": "1.23.5",  # Conservative version
+            "matplotlib": "3.7.2",
+            "seaborn": "0.12.2",
+            "accelerate": "0.20.3",
+            "wandb": "0.15.8",
         }
 
         try:
             # Step 1: Clean slate - remove conflicting packages
             logger.info("🧹 Cleaning existing packages...")
-            subprocess.run([
-                "pip", "uninstall", "torch", "torchvision", "torchaudio",
-                "transformers", "datasets", "-y"
-            ], capture_output=True)
+            subprocess.run(
+                [
+                    "pip",
+                    "uninstall",
+                    "torch",
+                    "torchvision",
+                    "torchaudio",
+                    "transformers",
+                    "datasets",
+                    "-y",
+                ],
+                check=False,
+                capture_output=True,
+            )
 
             # Step 2: Install PyTorch with compatible CUDA version
             logger.info("🔥 Installing PyTorch with CUDA support...")
-            result = subprocess.run([
-                "pip", "install", f"torch=={dependencies['torch']}",
-                f"torchvision=={dependencies['torchvision']}",
-                f"torchaudio=={dependencies['torchaudio']}",
-                "--index-url", "https://download.pytorch.org/whl/cu118",
-                "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=600)
+            result = subprocess.run(
+                [
+                    "pip",
+                    "install",
+                    f"torch=={dependencies['torch']}",
+                    f"torchvision=={dependencies['torchvision']}",
+                    f"torchaudio=={dependencies['torchaudio']}",
+                    "--index-url",
+                    "https://download.pytorch.org/whl/cu118",
+                    "--no-cache-dir",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
 
             if result.returncode != 0:
                 logger.error(f"❌ PyTorch installation failed: {result.stderr}")
@@ -130,10 +153,19 @@ class EnvironmentManager:
 
             # Step 3: Install Transformers with compatible version
             logger.info("🤗 Installing Transformers...")
-            result = subprocess.run([
-                "pip", "install", f"transformers=={dependencies['transformers']}",
-                f"datasets=={dependencies['datasets']}", "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                [
+                    "pip",
+                    "install",
+                    f"transformers=={dependencies['transformers']}",
+                    f"datasets=={dependencies['datasets']}",
+                    "--no-cache-dir",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
 
             if result.returncode != 0:
                 logger.error(f"❌ Transformers installation failed: {result.stderr}")
@@ -141,30 +173,42 @@ class EnvironmentManager:
 
             # Step 4: Install additional dependencies
             logger.info("📚 Installing additional dependencies...")
-            result = subprocess.run([
-                "pip", "install",
-                f"evaluate=={dependencies['evaluate']}",
-                f"scikit-learn=={dependencies['scikit-learn']}",
-                f"pandas=={dependencies['pandas']}",
-                f"numpy=={dependencies['numpy']}",
-                f"matplotlib=={dependencies['matplotlib']}",
-                f"seaborn=={dependencies['seaborn']}",
-                f"accelerate=={dependencies['accelerate']}",
-                f"wandb=={dependencies['wandb']}",
-                "--no-cache-dir"
-            ], capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                [
+                    "pip",
+                    "install",
+                    f"evaluate=={dependencies['evaluate']}",
+                    f"scikit-learn=={dependencies['scikit-learn']}",
+                    f"pandas=={dependencies['pandas']}",
+                    f"numpy=={dependencies['numpy']}",
+                    f"matplotlib=={dependencies['matplotlib']}",
+                    f"seaborn=={dependencies['seaborn']}",
+                    f"accelerate=={dependencies['accelerate']}",
+                    f"wandb=={dependencies['wandb']}",
+                    "--no-cache-dir",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
 
             if result.returncode != 0:
-                logger.error(f"❌ Additional dependencies installation failed: {result.stderr}")
+                logger.error(
+                    f"❌ Additional dependencies installation failed: {result.stderr}"
+                )
                 return False
 
             # Step 5: Apply numpy compatibility fix proactively
             logger.info("🔧 Applying numpy compatibility fix...")
             try:
                 import numpy as np
-                if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+
+                if not hasattr(np.lib.stride_tricks, "broadcast_to"):
+
                     def broadcast_to(array, shape):
                         return np.broadcast_arrays(array, np.empty(shape))[0]
+
                     np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                     logger.info("  ✅ Numpy compatibility fix applied proactively")
             except Exception as e:
@@ -186,9 +230,9 @@ class EnvironmentManager:
         logger.info("🔍 Verifying installation...")
 
         try:
+            import datasets
             import torch
             import transformers
-            import datasets
 
             logger.info(f"  PyTorch: {torch.__version__}")
             logger.info(f"  Transformers: {transformers.__version__}")
@@ -197,7 +241,9 @@ class EnvironmentManager:
 
             if torch.cuda.is_available():
                 logger.info(f"  GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+                logger.info(
+                    f"  Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                )
                 torch.backends.cudnn.benchmark = True
                 logger.info("  ✅ GPU optimized for training")
             else:
@@ -206,16 +252,21 @@ class EnvironmentManager:
             # Test critical imports with numpy compatibility fix
             try:
                 from transformers import AutoModel, AutoTokenizer
+
                 logger.info("  ✅ Transformers imports successful")
             except ImportError as e:
                 if "broadcast_to" in str(e):
-                    logger.warning("⚠️ Numpy compatibility issue detected. Applying workaround...")
+                    logger.warning(
+                        "⚠️ Numpy compatibility issue detected. Applying workaround..."
+                    )
                     # Apply numpy compatibility fix
                     import numpy as np
-                    if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+
+                    if not hasattr(np.lib.stride_tricks, "broadcast_to"):
                         # Add broadcast_to to numpy if missing
                         def broadcast_to(array, shape):
                             return np.broadcast_arrays(array, np.empty(shape))[0]
+
                         np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                         logger.info("  ✅ Numpy compatibility fix applied")
 
@@ -234,9 +285,12 @@ class EnvironmentManager:
                 logger.info("🔄 Attempting to fix numpy compatibility issue...")
                 try:
                     import numpy as np
-                    if not hasattr(np.lib.stride_tricks, 'broadcast_to'):
+
+                    if not hasattr(np.lib.stride_tricks, "broadcast_to"):
+
                         def broadcast_to(array, shape):
                             return np.broadcast_arrays(array, np.empty(shape))[0]
+
                         np.lib.stride_tricks.broadcast_to = broadcast_to  # type: ignore
                         logger.info("✅ Numpy compatibility fix applied")
 
@@ -247,6 +301,7 @@ class EnvironmentManager:
                     logger.error(f"❌ Could not fix numpy issue: {fix_error}")
 
             return False
+
 
 class RepositoryManager:
     """Manages repository setup and file validation."""
@@ -262,13 +317,19 @@ class RepositoryManager:
             """Execute command with comprehensive error handling."""
             logger.info(f"🔄 {description}...")
             try:
-                result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=300)
+                result = subprocess.run(
+                    command,
+                    check=False,
+                    shell=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                )
                 if result.returncode == 0:
                     logger.info(f"  ✅ {description} completed")
                     return True
-                else:
-                    logger.error(f"  ❌ {description} failed: {result.stderr}")
-                    return False
+                logger.error(f"  ❌ {description} failed: {result.stderr}")
+                return False
             except subprocess.TimeoutExpired:
                 logger.error(f"  ❌ {description} timed out")
                 return False
@@ -277,13 +338,16 @@ class RepositoryManager:
                 return False
 
         # Clone repository if not exists
-        if not Path('SAMO--DL').exists():
-            if not run_command_safe('git clone https://github.com/uelkerd/SAMO--DL.git', 'Cloning repository'):
+        if not Path("SAMO--DL").exists():
+            if not run_command_safe(
+                "git clone https://github.com/uelkerd/SAMO--DL.git",
+                "Cloning repository",
+            ):
                 return False
 
         # Change to project directory
         try:
-            os.chdir('SAMO--DL')
+            os.chdir("SAMO--DL")
             self.project_root = Path.cwd()
             logger.info(f"📁 Working directory: {self.project_root}")
         except Exception as e:
@@ -291,13 +355,13 @@ class RepositoryManager:
             return False
 
         # Pull latest changes
-        run_command_safe('git pull origin main', 'Pulling latest changes')
+        run_command_safe("git pull origin main", "Pulling latest changes")
 
         # Verify essential files exist
         essential_files = [
-            'data/journal_test_dataset.json',
-            'scripts/robust_domain_adaptation_training.py',
-            'README.md'
+            "data/journal_test_dataset.json",
+            "scripts/robust_domain_adaptation_training.py",
+            "README.md",
         ]
 
         missing_files = []
@@ -311,6 +375,7 @@ class RepositoryManager:
 
         logger.info("✅ Repository setup completed successfully")
         return True
+
 
 class DataManager:
     """Manages data loading and preprocessing with comprehensive error handling."""
@@ -328,14 +393,16 @@ class DataManager:
         try:
             # Load GoEmotions dataset
             from datasets import load_dataset
+
             self.go_emotions = load_dataset("go_emotions", "simplified")
             logger.info("✅ GoEmotions dataset loaded")
 
             # Load journal dataset
-            with open('data/journal_test_dataset.json', encoding='utf-8') as f:
+            with open("data/journal_test_dataset.json", encoding="utf-8") as f:
                 journal_entries = json.load(f)
 
             import pandas as pd
+
             self.journal_df = pd.DataFrame(journal_entries)
             logger.info(f"✅ Journal dataset loaded ({len(journal_entries)} entries)")
 
@@ -353,13 +420,15 @@ class DataManager:
             from sklearn.preprocessing import LabelEncoder
 
             # Get GoEmotions labels
-            go_train = self.go_emotions['train']
-            go_label_names = go_train.features['labels'].feature.names
-            go_single_labels_int = [label[0] if label else 0 for label in go_train['labels'][:1000]]
+            go_train = self.go_emotions["train"]
+            go_label_names = go_train.features["labels"].feature.names
+            go_single_labels_int = [
+                label[0] if label else 0 for label in go_train["labels"][:1000]
+            ]
             go_single_labels_str = [go_label_names[i] for i in go_single_labels_int]
 
             # Get journal labels
-            journal_emotions = self.journal_df['emotion'].tolist()
+            journal_emotions = self.journal_df["emotion"].tolist()
 
             # Create unified label encoder
             self.label_encoder = LabelEncoder()
@@ -384,21 +453,36 @@ class DataManager:
             import numpy as np
 
             # Get sample texts
-            go_texts = self.go_emotions['train']['text'][:1000]
-            journal_texts = self.journal_df['content'].tolist()
+            go_texts = self.go_emotions["train"]["text"][:1000]
+            journal_texts = self.journal_df["content"].tolist()
 
             # Analyze writing styles
             def analyze_style(texts, domain_name):
-                valid_texts = [text for text in texts if text and isinstance(text, str) and len(text.strip()) > 0]
+                valid_texts = [
+                    text
+                    for text in texts
+                    if text and isinstance(text, str) and len(text.strip()) > 0
+                ]
 
                 if not valid_texts:
                     logger.warning(f"⚠️ No valid texts for {domain_name}")
                     return None
 
                 avg_length = np.mean([len(text.split()) for text in valid_texts])
-                personal_pronouns = sum(['I ' in text or 'my ' in text or 'me ' in text for text in valid_texts]) / len(valid_texts)
-                reflection_words = sum(['think' in text.lower() or 'feel' in text.lower() or 'believe' in text.lower()
-                                       for text in valid_texts]) / len(valid_texts)
+                personal_pronouns = sum(
+                    [
+                        "I " in text or "my " in text or "me " in text
+                        for text in valid_texts
+                    ]
+                ) / len(valid_texts)
+                reflection_words = sum(
+                    [
+                        "think" in text.lower()
+                        or "feel" in text.lower()
+                        or "believe" in text.lower()
+                        for text in valid_texts
+                    ]
+                ) / len(valid_texts)
 
                 logger.info(f"{domain_name} Style Analysis:")
                 logger.info(f"  Average length: {avg_length:.1f} words")
@@ -407,10 +491,10 @@ class DataManager:
                 logger.info(f"  Sample size: {len(valid_texts)} texts")
 
                 return {
-                    'avg_length': avg_length,
-                    'personal_pronouns': personal_pronouns,
-                    'reflection_words': reflection_words,
-                    'sample_size': len(valid_texts)
+                    "avg_length": avg_length,
+                    "personal_pronouns": personal_pronouns,
+                    "reflection_words": reflection_words,
+                    "sample_size": len(valid_texts),
                 }
 
             go_analysis = analyze_style(go_texts, "GoEmotions (Reddit)")
@@ -418,25 +502,31 @@ class DataManager:
 
             if go_analysis and journal_analysis:
                 logger.info("🎯 Key Insights:")
-                logger.info(f"- Journal entries are {journal_analysis['avg_length']/go_analysis['avg_length']:.1f}x longer")
-                logger.info(f"- Journal entries use {journal_analysis['personal_pronouns']/go_analysis['personal_pronouns']:.1f}x more personal pronouns")
-                logger.info(f"- Journal entries contain {journal_analysis['reflection_words']/go_analysis['reflection_words']:.1f}x more reflection words")
+                logger.info(
+                    f"- Journal entries are {journal_analysis['avg_length'] / go_analysis['avg_length']:.1f}x longer"
+                )
+                logger.info(
+                    f"- Journal entries use {journal_analysis['personal_pronouns'] / go_analysis['personal_pronouns']:.1f}x more personal pronouns"
+                )
+                logger.info(
+                    f"- Journal entries contain {journal_analysis['reflection_words'] / go_analysis['reflection_words']:.1f}x more reflection words"
+                )
 
                 return True
-            else:
-                logger.error("❌ Domain analysis failed")
-                return False
+            logger.error("❌ Domain analysis failed")
+            return False
 
         except Exception as e:
             logger.error(f"❌ Domain analysis failed: {e}")
             return False
+
 
 class ModelManager:
     """Manages model architecture and initialization."""
 
     def __init__(self, config: TrainingConfig):
         self.config = config
-        self.model: Optional['DomainAdaptedEmotionClassifier'] = None
+        self.model: Optional[DomainAdaptedEmotionClassifier] = None
         self.tokenizer = None
         self.device: Optional[torch.device] = None
 
@@ -444,11 +534,14 @@ class ModelManager:
         """Setup device (GPU/CPU) with optimization."""
         try:
             import torch
+
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
             if torch.cuda.is_available():
                 logger.info(f"🚀 Using GPU: {torch.cuda.get_device_name(0)}")
-                logger.info(f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+                logger.info(
+                    f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+                )
                 torch.backends.cudnn.benchmark = True
                 torch.backends.cudnn.deterministic = False
             else:
@@ -475,7 +568,7 @@ class ModelManager:
             self.model = DomainAdaptedEmotionClassifier(
                 model_name=self.config.model_name,
                 num_labels=num_labels,
-                dropout=self.config.dropout
+                dropout=self.config.dropout,
             )
 
             # Ensure model was created successfully
@@ -487,8 +580,12 @@ class ModelManager:
 
             # Verify model parameters
             total_params = sum(p.numel() for p in self.model.parameters())
-            trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-            logger.info(f"📊 Model parameters: {total_params:,} (trainable: {trainable_params:,})")
+            trainable_params = sum(
+                p.numel() for p in self.model.parameters() if p.requires_grad
+            )
+            logger.info(
+                f"📊 Model parameters: {total_params:,} (trainable: {trainable_params:,})"
+            )
 
             return True
 
@@ -496,10 +593,11 @@ class ModelManager:
             logger.error(f"❌ Model initialization failed: {e}")
             return False
 
+
 class FocalLoss:
     """Focal Loss for addressing class imbalance in emotion detection."""
 
-    def __init__(self, alpha=1, gamma=2, reduction='mean'):
+    def __init__(self, alpha=1, gamma=2, reduction="mean"):
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
@@ -507,16 +605,17 @@ class FocalLoss:
     def __call__(self, inputs, targets):
         import torch
         import torch.nn.functional as F
-        ce_loss = F.cross_entropy(inputs, targets, reduction='none')
+
+        ce_loss = F.cross_entropy(inputs, targets, reduction="none")
         pt = torch.exp(-ce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
 
-        if self.reduction == 'mean':
+        if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == 'sum':
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
+
 
 class DomainAdaptedEmotionClassifier(nn.Module):
     """BERT-based emotion classifier with domain adaptation capabilities."""
@@ -530,10 +629,12 @@ class DomainAdaptedEmotionClassifier(nn.Module):
         elif num_labels <= 0:
             raise ValueError(f"num_labels must be positive, got {num_labels}")
 
-        logger.info(f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}")
+        logger.info(
+            f"🏗️ Initializing DomainAdaptedEmotionClassifier with num_labels = {num_labels}"
+        )
 
         try:
-            import torch.nn as nn
+            from torch import nn
             from transformers import AutoModel
 
             self.bert = AutoModel.from_pretrained(model_name)
@@ -545,7 +646,7 @@ class DomainAdaptedEmotionClassifier(nn.Module):
                 nn.Linear(self.bert.config.hidden_size, 512),
                 nn.ReLU(),
                 nn.Dropout(0.3),
-                nn.Linear(512, 2)  # 2 domains: GoEmotions vs Journal
+                nn.Linear(512, 2),  # 2 domains: GoEmotions vs Journal
             )
 
             logger.info(f"✅ Model initialized successfully with {num_labels} labels")
@@ -573,16 +674,22 @@ class DomainAdaptedEmotionClassifier(nn.Module):
             logger.error(f"❌ Forward pass failed: {e}")
             raise
 
+
 class TrainingManager:
     """Manages the complete training pipeline."""
 
-    def __init__(self, config: TrainingConfig, model_manager: ModelManager, data_manager: DataManager):
+    def __init__(
+        self,
+        config: TrainingConfig,
+        model_manager: ModelManager,
+        data_manager: DataManager,
+    ):
         self.config = config
         self.model_manager = model_manager
         self.data_manager = data_manager
         self.optimizer: Optional[torch.optim.AdamW] = None
         self.scheduler = None
-        self.criterion: Optional['FocalLoss'] = None
+        self.criterion: Optional[FocalLoss] = None
         self.best_f1 = 0.0
         self.patience_counter = 0
 
@@ -591,7 +698,9 @@ class TrainingManager:
         logger.info("🎯 Setting up training components...")
 
         # Ensure model is initialized
-        assert self.model_manager.model is not None, "Model must be initialized before setup_training"
+        assert self.model_manager.model is not None, (
+            "Model must be initialized before setup_training"
+        )
 
         try:
             from torch.optim import AdamW
@@ -601,21 +710,25 @@ class TrainingManager:
             self.optimizer = AdamW(
                 self.model_manager.model.parameters(),
                 lr=self.config.learning_rate,
-                weight_decay=self.config.weight_decay
+                weight_decay=self.config.weight_decay,
             )
 
             # Setup scheduler
-            total_steps = len(self.data_manager.go_emotions['train']) // self.config.batch_size * self.config.num_epochs
+            total_steps = (
+                len(self.data_manager.go_emotions["train"])
+                // self.config.batch_size
+                * self.config.num_epochs
+            )
             self.scheduler = get_linear_schedule_with_warmup(
                 self.optimizer,
                 num_warmup_steps=self.config.warmup_steps,
-                num_training_steps=total_steps
+                num_training_steps=total_steps,
             )
 
             # Setup loss function
             self.criterion = FocalLoss(
                 alpha=self.config.focal_alpha,
-                gamma=self.config.focal_gamma
+                gamma=self.config.focal_gamma,
             )
 
             logger.info("✅ Training components setup completed")
@@ -639,9 +752,12 @@ class TrainingManager:
             logger.error(f"❌ Training failed: {e}")
             return False
 
+
 def main():
     """Main execution function with comprehensive error handling."""
-    logger.info("🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training")
+    logger.info(
+        "🚀 Starting SAMO Deep Learning - Comprehensive Domain Adaptation Training"
+    )
     logger.info("=" * 80)
 
     # Initialize configuration
@@ -706,6 +822,7 @@ def main():
     logger.info("  4. Update PRD with results")
 
     return True
+
 
 if __name__ == "__main__":
     success = main()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Fix Imports in Ultimate Notebook
+"""Fix Imports in Ultimate Notebook
 ================================
 
 This script adds the missing imports to the ultimate notebook to ensure
@@ -9,18 +8,18 @@ all features work properly.
 
 import json
 
+
 def fix_imports():
     """Add missing imports to the ultimate notebook."""
-
     # Read the existing notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
+    with open("notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     # Find the imports cell and update it
-    for cell in notebook['cells']:
-        if cell['cell_type'] == 'code' and 'import torch' in ''.join(cell['source']):
+    for cell in notebook["cells"]:
+        if cell["cell_type"] == "code" and "import torch" in "".join(cell["source"]):
             # Update the imports cell
-            cell['source'] = [
+            cell["source"] = [
                 "import torch\n",
                 "import numpy as np\n",
                 "import pandas as pd\n",
@@ -35,19 +34,20 @@ def fix_imports():
                 "\n",
                 "print('✅ All packages imported successfully')\n",
                 "print(f'PyTorch version: {torch.__version__}')\n",
-                "print(f'CUDA available: {torch.cuda.is_available()}')"
+                "print(f'CUDA available: {torch.cuda.is_available()}')",
             ]
             break
 
     # Save the updated notebook
-    with open('notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Fixed imports in ultimate notebook!')
-    print('📋 Added missing imports:')
-    print('   ✅ f1_score, accuracy_score, precision_score, recall_score')
-    print('   ✅ compute_class_weight')
-    print('   ✅ CUDA availability check')
+    print("✅ Fixed imports in ultimate notebook!")
+    print("📋 Added missing imports:")
+    print("   ✅ f1_score, accuracy_score, precision_score, recall_score")
+    print("   ✅ compute_class_weight")
+    print("   ✅ CUDA availability check")
+
 
 if __name__ == "__main__":
     fix_imports()

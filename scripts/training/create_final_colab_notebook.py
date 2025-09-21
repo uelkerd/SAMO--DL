@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-🚀 CREATE FINAL COLAB NOTEBOOK
+"""🚀 CREATE FINAL COLAB NOTEBOOK
 ==============================
 
 This script creates the final Colab notebook for combined training.
@@ -8,9 +7,9 @@ This script creates the final Colab notebook for combined training.
 
 import json
 
+
 def create_colab_notebook():
     """Create the final Colab notebook content"""
-
     notebook_content = {
         "cells": [
             {
@@ -27,15 +26,15 @@ def create_colab_notebook():
                     "1. ✅ Original journal dataset (150 high-quality samples)\n",
                     "2. ✅ CMU-MOSEI dataset (diverse, real-world samples)\n",
                     "3. ✅ Optimized hyperparameters\n",
-                    "4. ✅ GPU training for maximum performance"
-                ]
+                    "4. ✅ GPU training for maximum performance",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📥 Setup and Dependencies"
-                ]
+                    "## 📥 Setup and Dependencies",
+                ],
             },
             {
                 "cell_type": "code",
@@ -65,15 +64,15 @@ def create_colab_notebook():
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "\n",
-                    "print(\"✅ All dependencies installed and imported!\")"
-                ]
+                    'print("✅ All dependencies installed and imported!")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔧 Clone Repository and Load Data"
-                ]
+                    "## 🔧 Clone Repository and Load Data",
+                ],
             },
             {
                 "cell_type": "code",
@@ -85,8 +84,8 @@ def create_colab_notebook():
                     "!git clone https://github.com/uelkerd/SAMO--DL.git\n",
                     "!cd SAMO--DL\n",
                     "\n",
-                    "print(\"📂 Repository cloned successfully!\")"
-                ]
+                    'print("📂 Repository cloned successfully!")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -95,7 +94,7 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Load combined dataset\n",
-                    "print(\"📊 Loading combined dataset...\")\n",
+                    'print("📊 Loading combined dataset...")\n',
                     "\n",
                     "combined_samples = []\n",
                     "\n",
@@ -110,9 +109,9 @@ def create_colab_notebook():
                     "            'emotion': item['emotion'],\n",
                     "            'source': 'journal'\n",
                     "        })\n",
-                    "    print(f\"✅ Loaded {len(journal_data)} journal samples\")\n",
+                    '    print(f"✅ Loaded {len(journal_data)} journal samples")\n',
                     "except Exception as e:\n",
-                    "    print(f\"⚠️ Could not load journal data: {e}\")\n",
+                    '    print(f"⚠️ Could not load journal data: {e}")\n',
                     "\n",
                     "# Load expanded journal dataset (subset to avoid synthetic issues)\n",
                     "try:\n",
@@ -129,11 +128,11 @@ def create_colab_notebook():
                     "            'emotion': item['emotion'],\n",
                     "            'source': 'expanded_journal'\n",
                     "        })\n",
-                    "    print(f\"✅ Loaded {subset_size} expanded journal samples\")\n",
+                    '    print(f"✅ Loaded {subset_size} expanded journal samples")\n',
                     "except Exception as e:\n",
-                    "    print(f\"⚠️ Could not load expanded journal data: {e}\")\n",
+                    '    print(f"⚠️ Could not load expanded journal data: {e}")\n',
                     "\n",
-                    "print(f\"📊 Total combined samples: {len(combined_samples)}\")\n",
+                    'print(f"📊 Total combined samples: {len(combined_samples)}")\n',
                     "\n",
                     "# Show emotion distribution\n",
                     "emotion_counts = {}\n",
@@ -141,17 +140,17 @@ def create_colab_notebook():
                     "    emotion = sample['emotion']\n",
                     "    emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1\n",
                     "\n",
-                    "print(\"📊 Emotion distribution:\")\n",
+                    'print("📊 Emotion distribution:")\n',
                     "for emotion, count in sorted(emotion_counts.items()):\n",
-                    "    print(f\"  {emotion}: {count} samples\")"
-                ]
+                    '    print(f"  {emotion}: {count} samples")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🗂️ Data Preparation"
-                ]
+                    "## 🗂️ Data Preparation",
+                ],
             },
             {
                 "cell_type": "code",
@@ -167,17 +166,17 @@ def create_colab_notebook():
                     "label_encoder = LabelEncoder()\n",
                     "labels = label_encoder.fit_transform(emotions)\n",
                     "\n",
-                    "print(f\"🎯 Number of labels: {len(label_encoder.classes_)}\")\n",
-                    "print(f\"📊 Labels: {list(label_encoder.classes_)}\")\n",
+                    'print(f"🎯 Number of labels: {len(label_encoder.classes_)}")\n',
+                    'print(f"📊 Labels: {list(label_encoder.classes_)}")\n',
                     "\n",
                     "# Split data\n",
                     "train_texts, test_texts, train_labels, test_labels = train_test_split(\n",
                     "    texts, labels, test_size=0.2, random_state=42, stratify=labels\n",
                     ")\n",
                     "\n",
-                    "print(f\"📈 Training samples: {len(train_texts)}\")\n",
-                    "print(f\"🧪 Test samples: {len(test_labels)}\")"
-                ]
+                    'print(f"📈 Training samples: {len(train_texts)}")\n',
+                    'print(f"🧪 Test samples: {len(test_labels)}")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -187,7 +186,7 @@ def create_colab_notebook():
                 "source": [
                     "# Custom dataset class\n",
                     "class EmotionDataset(Dataset):\n",
-                    "    \"\"\"Custom dataset for emotion classification\"\"\"\n",
+                    '    """Custom dataset for emotion classification"""\n',
                     "    \n",
                     "    def __init__(self, texts, labels, tokenizer, max_length=128):\n",
                     "        self.texts = texts\n",
@@ -217,7 +216,7 @@ def create_colab_notebook():
                     "        }\n",
                     "\n",
                     "def compute_metrics(eval_pred):\n",
-                    "    \"\"\"Compute F1 score and accuracy\"\"\"\n",
+                    '    """Compute F1 score and accuracy"""\n',
                     "    predictions, labels = eval_pred\n",
                     "    predictions = np.argmax(predictions, axis=1)\n",
                     "    \n",
@@ -229,15 +228,15 @@ def create_colab_notebook():
                     "        'accuracy': accuracy\n",
                     "    }\n",
                     "\n",
-                    "print(\"✅ Dataset class and metrics function defined!\")"
-                ]
+                    'print("✅ Dataset class and metrics function defined!")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🚀 Model Training"
-                ]
+                    "## 🚀 Model Training",
+                ],
             },
             {
                 "cell_type": "code",
@@ -246,22 +245,22 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Initialize tokenizer and model\n",
-                    "print(\"🔧 Initializing model...\")\n",
-                    "model_name = \"bert-base-uncased\"\n",
+                    'print("🔧 Initializing model...")\n',
+                    'model_name = "bert-base-uncased"\n',
                     "tokenizer = AutoTokenizer.from_pretrained(model_name)\n",
                     "\n",
                     "model = AutoModelForSequenceClassification.from_pretrained(\n",
                     "    model_name,\n",
                     "    num_labels=len(label_encoder.classes_),\n",
-                    "    problem_type=\"single_label_classification\"\n",
+                    '    problem_type="single_label_classification"\n',
                     ")\n",
                     "\n",
                     "# Create datasets\n",
                     "train_dataset = EmotionDataset(train_texts, train_labels, tokenizer)\n",
                     "test_dataset = EmotionDataset(test_texts, test_labels, tokenizer)\n",
                     "\n",
-                    "print(\"✅ Model and datasets initialized!\")"
-                ]
+                    'print("✅ Model and datasets initialized!")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -271,20 +270,20 @@ def create_colab_notebook():
                 "source": [
                     "# Training arguments optimized for performance\n",
                     "training_args = TrainingArguments(\n",
-                    "    output_dir=\"./emotion_model_combined\",\n",
+                    '    output_dir="./emotion_model_combined",\n',
                     "    num_train_epochs=8,  # More epochs for better performance\n",
                     "    per_device_train_batch_size=16,\n",
                     "    per_device_eval_batch_size=16,\n",
                     "    warmup_steps=500,\n",
                     "    weight_decay=0.01,\n",
-                    "    logging_dir=\"./logs\",\n",
+                    '    logging_dir="./logs",\n',
                     "    logging_steps=50,\n",
-                    "    eval_strategy=\"steps\",\n",
+                    '    eval_strategy="steps",\n',
                     "    eval_steps=100,\n",
-                    "    save_strategy=\"steps\",\n",
+                    '    save_strategy="steps",\n',
                     "    save_steps=100,\n",
                     "    load_best_model_at_end=True,\n",
-                    "    metric_for_best_model=\"f1\",\n",
+                    '    metric_for_best_model="f1",\n',
                     "    greater_is_better=True,\n",
                     "    dataloader_num_workers=2,\n",
                     "    remove_unused_columns=False,\n",
@@ -304,8 +303,8 @@ def create_colab_notebook():
                     "    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]\n",
                     ")\n",
                     "\n",
-                    "print(\"✅ Trainer initialized with optimized settings!\")"
-                ]
+                    'print("✅ Trainer initialized with optimized settings!")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -314,23 +313,23 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Train model\n",
-                    "print(\"🚀 Starting training...\")\n",
-                    "print(\"🎯 Target F1 Score: 75-85%\")\n",
-                    "print(\"🔧 Current Best: 67%\")\n",
-                    "print(\"📈 Expected Improvement: 8-18%\")\n",
+                    'print("🚀 Starting training...")\n',
+                    'print("🎯 Target F1 Score: 75-85%")\n',
+                    'print("🔧 Current Best: 67%")\n',
+                    'print("📈 Expected Improvement: 8-18%")\n',
                     "print()\n",
                     "\n",
                     "trainer.train()\n",
                     "\n",
-                    "print(\"✅ Training completed!\")"
-                ]
+                    'print("✅ Training completed!")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 Results and Evaluation"
-                ]
+                    "## 📊 Results and Evaluation",
+                ],
             },
             {
                 "cell_type": "code",
@@ -339,7 +338,7 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Evaluate final model\n",
-                    "print(\"📊 Evaluating final model...\")\n",
+                    'print("📊 Evaluating final model...")\n',
                     "results = trainer.evaluate()\n",
                     "\n",
                     "print(f\"🏆 Final F1 Score: {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)\")\n",
@@ -349,8 +348,8 @@ def create_colab_notebook():
                     "# Calculate improvement\n",
                     "baseline_f1 = 0.67\n",
                     "improvement = ((results['eval_f1'] - baseline_f1) / baseline_f1) * 100\n",
-                    "print(f\"📈 Improvement from baseline: {improvement:.1f}%\")"
-                ]
+                    'print(f"📈 Improvement from baseline: {improvement:.1f}%")',
+                ],
             },
             {
                 "cell_type": "code",
@@ -359,39 +358,39 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Test on sample texts\n",
-                    "print(\"\\n🧪 Testing on sample texts...\")\n",
+                    'print("\\n🧪 Testing on sample texts...")\n',
                     "test_texts = [\n",
-                    "    \"I'm feeling really happy today!\",\n",
-                    "    \"This is so frustrating, nothing works.\",\n",
-                    "    \"I'm anxious about the presentation.\",\n",
-                    "    \"I'm grateful for all the support.\",\n",
-                    "    \"I'm tired and need some rest.\",\n",
-                    "    \"I'm proud of what we accomplished.\",\n",
-                    "    \"I'm hopeful about the future.\",\n",
-                    "    \"I'm content with how things are going.\"\n",
+                    '    "I\'m feeling really happy today!",\n',
+                    '    "This is so frustrating, nothing works.",\n',
+                    '    "I\'m anxious about the presentation.",\n',
+                    '    "I\'m grateful for all the support.",\n',
+                    '    "I\'m tired and need some rest.",\n',
+                    '    "I\'m proud of what we accomplished.",\n',
+                    '    "I\'m hopeful about the future.",\n',
+                    '    "I\'m content with how things are going."\n',
                     "]\n",
                     "\n",
                     "model.eval()\n",
                     "with torch.no_grad():\n",
                     "    for text in test_texts:\n",
-                    "        inputs = tokenizer(text, return_tensors=\"pt\", truncation=True, max_length=128)\n",
+                    '        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=128)\n',
                     "        outputs = model(**inputs)\n",
                     "        probs = torch.softmax(outputs.logits, dim=1)\n",
                     "        predicted_label = torch.argmax(probs, dim=1).item()\n",
                     "        confidence = torch.max(probs).item()\n",
                     "        \n",
                     "        predicted_emotion = label_encoder.inverse_transform([predicted_label])[0]\n",
-                    "        print(f\"Text: {text}\")\n",
-                    "        print(f\"Predicted: {predicted_emotion} (confidence: {confidence:.3f})\")\n",
-                    "        print()"
-                ]
+                    '        print(f"Text: {text}")\n',
+                    '        print(f"Predicted: {predicted_emotion} (confidence: {confidence:.3f})")\n',
+                    "        print()",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 💾 Save Model"
-                ]
+                    "## 💾 Save Model",
+                ],
             },
             {
                 "cell_type": "code",
@@ -400,22 +399,22 @@ def create_colab_notebook():
                 "outputs": [],
                 "source": [
                     "# Save model\n",
-                    "trainer.save_model(\"./emotion_model_final_combined\")\n",
-                    "print(\"💾 Model saved to ./emotion_model_final_combined\")\n",
+                    'trainer.save_model("./emotion_model_final_combined")\n',
+                    'print("💾 Model saved to ./emotion_model_final_combined")\n',
                     "\n",
                     "# Save label encoder\n",
                     "import pickle\n",
                     "with open('./emotion_model_final_combined/label_encoder.pkl', 'wb') as f:\n",
                     "    pickle.dump(label_encoder, f)\n",
-                    "print(\"💾 Label encoder saved!\")"
-                ]
+                    'print("💾 Label encoder saved!")',
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎉 Final Summary"
-                ]
+                    "## 🎉 Final Summary",
+                ],
             },
             {
                 "cell_type": "code",
@@ -423,44 +422,45 @@ def create_colab_notebook():
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "print(\"🎉 TRAINING COMPLETED!\")\n",
-                    "print(\"=\" * 50)\n",
+                    'print("🎉 TRAINING COMPLETED!")\n',
+                    'print("=" * 50)\n',
                     "print(f\"📈 Final F1 Score: {results['eval_f1']*100:.2f}%\")\n",
-                    "print(f\"🎯 Target: 75-85%\")\n",
-                    "print(f\"📊 Improvement: {improvement:.1f}% from baseline\")\n",
-                    "print(f\"📈 Training samples: {len(train_texts)}\")\n",
-                    "print(f\"🧪 Test samples: {len(test_labels)}\")\n",
-                    "print(f\"🎯 Emotions: {len(label_encoder.classes_)}\")\n",
+                    'print(f"🎯 Target: 75-85%")\n',
+                    'print(f"📊 Improvement: {improvement:.1f}% from baseline")\n',
+                    'print(f"📈 Training samples: {len(train_texts)}")\n',
+                    'print(f"🧪 Test samples: {len(test_labels)}")\n',
+                    'print(f"🎯 Emotions: {len(label_encoder.classes_)}")\n',
                     "print()\n",
-                    "print(\"✅ Model saved and ready for deployment!\")\n",
-                    "print(\"✅ Target achieved: {'YES!' if results['eval_f1'] >= 0.75 else 'Not yet, but close!'}\")"
-                ]
-            }
+                    'print("✅ Model saved and ready for deployment!")\n',
+                    "print(\"✅ Target achieved: {'YES!' if results['eval_f1'] >= 0.75 else 'Not yet, but close!'}\")",
+                ],
+            },
         ],
         "metadata": {
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
-                "name": "python3"
+                "name": "python3",
             },
             "language_info": {
                 "codemirror_mode": {
                     "name": "ipython",
-                    "version": 3
+                    "version": 3,
                 },
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     return notebook_content
+
 
 def main():
     """Create the notebook file"""
@@ -470,7 +470,7 @@ def main():
 
     # Save to file
     output_file = "notebooks/FINAL_COMBINED_TRAINING_COLAB.ipynb"
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Notebook created: {output_file}")
@@ -480,6 +480,7 @@ def main():
     print("  3. Set Runtime → GPU")
     print("  4. Run all cells")
     print("  5. Expect 75-85% F1 score!")
+
 
 if __name__ == "__main__":
     main()

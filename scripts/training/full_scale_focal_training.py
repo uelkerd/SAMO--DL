@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Full Scale Focal Loss Training Script
+"""Full Scale Focal Loss Training Script
 
 This script provides a full-scale focal loss training implementation
 for the emotion detection model with comprehensive evaluation.
@@ -35,24 +34,34 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets):
         """Forward pass of focal loss."""
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_large_training_data():
     """Create large training dataset for full-scale training."""
     logger.info("Creating large training dataset...")
 
-    emotions = ["joy", "sadness", "anger", "fear", "surprise", "disgust", "trust", "anticipation"]
+    emotions = [
+        "joy",
+        "sadness",
+        "anger",
+        "fear",
+        "surprise",
+        "disgust",
+        "trust",
+        "anticipation",
+    ]
     base_texts = [
         "I am feeling happy today!",
         "This makes me very sad.",
@@ -121,7 +130,9 @@ def full_scale_focal_training():
 
     # Create dataloader
     dataset = torch.utils.data.TensorDataset(
-        inputs["input_ids"], inputs["attention_mask"], labels_tensor
+        inputs["input_ids"],
+        inputs["attention_mask"],
+        labels_tensor,
     )
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
 

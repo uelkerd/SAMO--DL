@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 from typing import Any, Union
 
 from .constants import EMOTION_MODEL_DIR
@@ -45,9 +45,9 @@ class HFEmotionService(EmotionService):
             return
         try:
             from transformers import (
-                pipeline,
-                AutoTokenizer,
                 AutoModelForSequenceClassification,
+                AutoTokenizer,
+                pipeline,
             )  # type: ignore
         except Exception as e:  # pragma: no cover
             logger.error("Failed to import transformers components: %s", e)
@@ -55,7 +55,8 @@ class HFEmotionService(EmotionService):
 
         model_dir = os.environ.get(self.model_dir_env)
         local_only = os.environ.get(
-            self.local_only_env, "1"
+            self.local_only_env,
+            "1",
         ).strip() not in {"", "0", "false", "False"}
 
         if not model_dir and local_only:
@@ -64,10 +65,12 @@ class HFEmotionService(EmotionService):
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
             tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir,
+                local_files_only=True,
             )
             model = AutoModelForSequenceClassification.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir,
+                local_files_only=True,
             )
             self._pipeline = pipeline(
                 task="text-classification",
@@ -83,7 +86,7 @@ class HFEmotionService(EmotionService):
             raise RuntimeError(
                 "Local-only mode enabled but local model directory not found. "
                 f"Expected at: {model_dir or DEFAULT_LOCAL_MODEL_DIR}. "
-                f"Please place the model files locally or set {self.model_dir_env}."
+                f"Please place the model files locally or set {self.model_dir_env}.",
             )
 
         # Fallback to remote model (dev only). Token optional.
@@ -92,7 +95,7 @@ class HFEmotionService(EmotionService):
             "model": self.model_name,
             "return_all_scores": True,
         }
-        if (token := os.environ.get(self.hf_token_env)):
+        if token := os.environ.get(self.hf_token_env):
             kwargs["token"] = token
         # Explicitly disable remote code execution for safety
         kwargs["trust_remote_code"] = False

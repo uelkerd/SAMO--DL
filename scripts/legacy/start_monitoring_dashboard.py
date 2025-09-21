@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
-"""
-Monitoring Dashboard Startup Script
+"""Monitoring Dashboard Startup Script
 
 Starts the model monitoring dashboard and health monitoring system.
 """
 
-from scripts.model_monitoring import ModelHealthMonitor
-from pathlib import Path
 import argparse
 import logging
 import sys
 import threading
 import time
+from pathlib import Path
 
-
-
+from scripts.model_monitoring import ModelHealthMonitor
 
 """
 Model Monitoring Dashboard Starter
@@ -46,6 +43,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
     Args:
         config_path: Path to monitoring configuration
         port: Dashboard port
+
     """
     logger.info("🚀 Starting SAMO Model Monitoring System...")
 
@@ -88,7 +86,10 @@ def main():
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help="Dashboard port (default: {DEFAULT_PORT})",
     )
 
     args = parser.parse_args()

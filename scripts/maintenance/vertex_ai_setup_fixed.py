@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
-"""
-Fixed Vertex AI Setup Script
+"""Fixed Vertex AI Setup Script
 
 Sets up Vertex AI environment with corrected API syntax.
 """
 
-from google.cloud import aiplatform
-# Configure logging
-#!/usr/bin/env python3
-from pathlib import Path
-from typing import Dict, Any
 import logging
 import os
 import sys
 
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Any, Dict
 
-
-
-
-
+from google.cloud import aiplatform
 
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
@@ -29,7 +24,9 @@ to solve the 0.0000 loss issue and provide managed ML training.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -116,20 +113,20 @@ class VertexAISetupFixed:
                         "type": "DOUBLE",
                         "min_value": 1e-6,
                         "max_value": 5e-5,
-                        "scale_type": "UNIT_LOG_SCALE"
+                        "scale_type": "UNIT_LOG_SCALE",
                     },
                     "batch_size": {
                         "type": "DISCRETE",
-                        "values": [8, 16, 32]
+                        "values": [8, 16, 32],
                     },
                     "freeze_bert_layers": {
                         "type": "DISCRETE",
-                        "values": [4, 6, 8]
-                    }
+                        "values": [4, 6, 8],
+                    },
                 },
                 metric_spec={
-                    "f1_score": "maximize"
-                }
+                    "f1_score": "maximize",
+                },
             )
 
             logger.info("✅ Hyperparameter tuning job created successfully")
@@ -159,9 +156,9 @@ class VertexAISetupFixed:
                         "prediction_latency",
                         "prediction_throughput",
                         "model_accuracy",
-                        "data_drift"
-                    ]
-                }
+                        "data_drift",
+                    ],
+                },
             }
 
             logger.info("✅ Model monitoring configuration created")
@@ -187,19 +184,21 @@ class VertexAISetupFixed:
                     "data_preprocessing",
                     "model_training",
                     "model_evaluation",
-                    "model_deployment"
+                    "model_deployment",
                 ],
                 "schedule": "0 2 * * *",  # Daily at 2 AM
                 "trigger_conditions": [
                     "data_drift_detected",
                     "model_performance_degradation",
-                    "new_data_available"
-                ]
+                    "new_data_available",
+                ],
             }
 
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
-            logger.info("   Trigger conditions: data drift, performance degradation, new data")
+            logger.info(
+                "   Trigger conditions: data drift, performance degradation, new data"
+            )
 
             return {"config": pipeline_config, "success": True}
 
@@ -290,7 +289,9 @@ def main():
             logger.error("❌ {component.title()}: FAILED")
 
     logger.info("\n🎯 NEXT STEPS:")
-    logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
+    logger.info(
+        "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai"
+    )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
     logger.info("   4. Monitor training progress and results")

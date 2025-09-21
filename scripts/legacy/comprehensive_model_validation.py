@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""
-COMPREHENSIVE MODEL VALIDATION SCRIPT
+"""COMPREHENSIVE MODEL VALIDATION SCRIPT
 ========================================
 Thoroughly validates the emotion detection model to ensure 100% reliability
 """
 
-import torch
 import json
-import numpy as np
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from pathlib import Path
 import time
+from pathlib import Path
+
+import numpy as np
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def comprehensive_validation():
     """Comprehensive validation of the emotion detection model"""
-
     print("🔬 COMPREHENSIVE MODEL VALIDATION")
     print("=" * 60)
     print("🎯 Goal: Verify 99.54% F1 score reliability")
     print("=" * 60)
 
     # Check model files
-    model_dir = Path(__file__).parent.parent / 'deployment' / 'model'
-    required_files = ['config.json', 'model.safetensors', 'training_args.bin']
+    model_dir = Path(__file__).parent.parent / "deployment" / "model"
+    required_files = ["config.json", "model.safetensors", "training_args.bin"]
 
     print("\n📁 MODEL FILE VALIDATION")
     print("-" * 40)
@@ -47,7 +47,7 @@ def comprehensive_validation():
     print("\n🔧 MODEL CONFIGURATION VALIDATION")
     print("-" * 40)
 
-    with open(model_dir / 'config.json') as f:
+    with open(model_dir / "config.json") as f:
         config = json.load(f)
 
     print(f"Model Type: {config.get('model_type', 'unknown')}")
@@ -57,7 +57,20 @@ def comprehensive_validation():
     print(f"Vocab Size: {config.get('vocab_size', 'unknown')}")
 
     # Define emotion mapping
-    emotion_mapping = ['anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful', 'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired']
+    emotion_mapping = [
+        "anxious",
+        "calm",
+        "content",
+        "excited",
+        "frustrated",
+        "grateful",
+        "happy",
+        "hopeful",
+        "overwhelmed",
+        "proud",
+        "sad",
+        "tired",
+    ]
     print(f"Emotion Classes: {len(emotion_mapping)}")
 
     # Load model and tokenizer
@@ -75,13 +88,13 @@ def comprehensive_validation():
         load_time = time.time() - start_time
         print(f"✅ Model loaded: {load_time:.2f}s")
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
         model.eval()
         print(f"✅ Model moved to {device}")
 
     except Exception as e:
-        print(f"❌ Model loading failed: {str(e)}")
+        print(f"❌ Model loading failed: {e!s}")
         return False
 
     # Test 1: Basic Functionality
@@ -100,7 +113,7 @@ def comprehensive_validation():
         ("I feel calm and peaceful.", "calm"),
         ("I'm excited about the new opportunity.", "excited"),
         ("I feel content with my life.", "content"),
-        ("I'm hopeful for the future.", "hopeful")
+        ("I'm hopeful for the future.", "hopeful"),
     ]
 
     correct_predictions = 0
@@ -109,7 +122,9 @@ def comprehensive_validation():
     for text, expected_emotion in test_cases:
         try:
             # Tokenize
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             # Predict
@@ -128,10 +143,12 @@ def comprehensive_validation():
             else:
                 status = "❌"
 
-            print(f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})")
+            print(
+                f"{status} '{text}' → {predicted_emotion} (expected: {expected_emotion}, confidence: {confidence:.3f})"
+            )
 
         except Exception as e:
-            print(f"❌ Error predicting '{text}': {str(e)}")
+            print(f"❌ Error predicting '{text}': {e!s}")
             return False
 
     accuracy = correct_predictions / total_predictions
@@ -149,7 +166,9 @@ def comprehensive_validation():
 
     confidence_scores = []
     for text, _ in test_cases:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+            text, return_tensors="pt", truncation=True, max_length=512, padding=True
+        )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.no_grad():
@@ -187,7 +206,9 @@ def comprehensive_validation():
     edge_case_success = 0
     for text in edge_cases:
         try:
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+            inputs = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=512, padding=True
+            )
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             with torch.no_grad():
@@ -198,10 +219,12 @@ def comprehensive_validation():
 
             predicted_emotion = emotion_mapping[predicted_class]
             edge_case_success += 1
-            print(f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})")
+            print(
+                f"✅ Edge case handled: '{text[:30]}...' → {predicted_emotion} ({confidence:.3f})"
+            )
 
         except Exception as e:
-            print(f"❌ Edge case failed: '{text[:30]}...' - {str(e)}")
+            print(f"❌ Edge case failed: '{text[:30]}...' - {e!s}")
 
     print(f"\n📊 Edge Case Results: {edge_case_success}/{len(edge_cases)} successful")
 
@@ -214,7 +237,13 @@ def comprehensive_validation():
 
     start_time = time.time()
     for _ in range(num_iterations):
-        inputs = tokenizer(benchmark_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+            benchmark_text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
+        )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.no_grad():
@@ -240,7 +269,13 @@ def comprehensive_validation():
     predictions = []
 
     for _ in range(10):
-        inputs = tokenizer(consistency_text, return_tensors="pt", truncation=True, max_length=512, padding=True)
+        inputs = tokenizer(
+            consistency_text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
+        )
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
         with torch.no_grad():
@@ -256,7 +291,10 @@ def comprehensive_validation():
     is_consistent = len(unique_predictions) == 1
 
     if is_consistent:
-        emotion, avg_conf = unique_predictions.pop(), np.mean([p[1] for p in predictions])
+        emotion, avg_conf = (
+            unique_predictions.pop(),
+            np.mean([p[1] for p in predictions]),
+        )
         print(f"✅ Consistent predictions: {emotion} (avg confidence: {avg_conf:.3f})")
     else:
         print(f"❌ Inconsistent predictions: {unique_predictions}")
@@ -272,7 +310,7 @@ def comprehensive_validation():
         "basic_functionality": accuracy >= 0.8,
         "edge_cases": edge_case_success >= len(edge_cases) * 0.8,
         "performance": avg_time < 1.0,
-        "consistency": is_consistent
+        "consistency": is_consistent,
     }
 
     all_passed = all(validation_results.values())
@@ -290,6 +328,7 @@ def comprehensive_validation():
         print("⚠️  Model needs further validation before deployment")
 
     return all_passed
+
 
 if __name__ == "__main__":
     success = comprehensive_validation()

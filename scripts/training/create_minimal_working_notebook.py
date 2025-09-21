@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create Minimal Working Notebook
+"""Create Minimal Working Notebook
 ==============================
 
 This script creates a minimal working notebook with the most basic
@@ -9,9 +8,9 @@ training arguments that should work in any transformers version.
 
 import json
 
+
 def create_minimal_notebook():
     """Create a minimal working notebook."""
-
     notebook_content = {
         "cells": [
             {
@@ -27,8 +26,8 @@ def create_minimal_notebook():
                     "✅ Simple data processing\n",
                     "✅ Model saving with verification\n",
                     "\n",
-                    "**Target**: Get training working first, then optimize"
-                ]
+                    "**Target**: Get training working first, then optimize",
+                ],
             },
             {
                 "cell_type": "code",
@@ -37,8 +36,8 @@ def create_minimal_notebook():
                 "outputs": [],
                 "source": [
                     "# Install required packages\n",
-                    "!pip install transformers torch scikit-learn numpy pandas"
-                ]
+                    "!pip install transformers torch scikit-learn numpy pandas",
+                ],
             },
             {
                 "cell_type": "code",
@@ -58,15 +57,15 @@ def create_minimal_notebook():
                     "\n",
                     "print('✅ All packages imported successfully')\n",
                     "print(f'PyTorch version: {torch.__version__}')\n",
-                    "print(f'CUDA available: {torch.cuda.is_available()}')"
-                ]
+                    "print(f'CUDA available: {torch.cuda.is_available()}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🎯 SETUP"
-                ]
+                    "## 🎯 SETUP",
+                ],
             },
             {
                 "cell_type": "code",
@@ -107,15 +106,15 @@ def create_minimal_notebook():
                     "    {'text': 'I feel exhausted from the work.', 'label': 11}\n",
                     "]\n",
                     "\n",
-                    "print(f'📊 Dataset size: {len(data)} samples')"
-                ]
+                    "print(f'📊 Dataset size: {len(data)} samples')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🔧 MODEL SETUP"
-                ]
+                    "## 🔧 MODEL SETUP",
+                ],
             },
             {
                 "cell_type": "code",
@@ -136,15 +135,15 @@ def create_minimal_notebook():
                     "model.config.label2id = {emotion: i for i, emotion in enumerate(emotions)}\n",
                     "\n",
                     "print(f'✅ Model configured for {len(emotions)} emotions')\n",
-                    "print(f'✅ id2label: {model.config.id2label}')"
-                ]
+                    "print(f'✅ id2label: {model.config.id2label}')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📝 DATA PREPROCESSING"
-                ]
+                    "## 📝 DATA PREPROCESSING",
+                ],
             },
             {
                 "cell_type": "code",
@@ -185,15 +184,15 @@ def create_minimal_notebook():
                     "train_dataset = SimpleDataset(train_encodings, train_labels)\n",
                     "val_dataset = SimpleDataset(val_encodings, val_labels)\n",
                     "\n",
-                    "print('✅ Data preprocessing completed')"
-                ]
+                    "print('✅ Data preprocessing completed')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## ⚙️ MINIMAL TRAINING ARGUMENTS"
-                ]
+                    "## ⚙️ MINIMAL TRAINING ARGUMENTS",
+                ],
             },
             {
                 "cell_type": "code",
@@ -212,15 +211,15 @@ def create_minimal_notebook():
                     "    eval_steps=50\n",
                     ")\n",
                     "\n",
-                    "print('✅ Minimal training arguments configured')"
-                ]
+                    "print('✅ Minimal training arguments configured')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📊 COMPUTE METRICS"
-                ]
+                    "## 📊 COMPUTE METRICS",
+                ],
             },
             {
                 "cell_type": "code",
@@ -238,15 +237,15 @@ def create_minimal_notebook():
                     "        'accuracy': accuracy_score(labels, predictions)\n",
                     "    }\n",
                     "\n",
-                    "print('✅ Compute metrics function ready')"
-                ]
+                    "print('✅ Compute metrics function ready')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 🚀 TRAINING"
-                ]
+                    "## 🚀 TRAINING",
+                ],
             },
             {
                 "cell_type": "code",
@@ -275,15 +274,15 @@ def create_minimal_notebook():
                     "# Train the model\n",
                     "trainer.train()\n",
                     "\n",
-                    "print('✅ Training completed successfully!')"
-                ]
+                    "print('✅ Training completed successfully!')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 📈 EVALUATION"
-                ]
+                    "## 📈 EVALUATION",
+                ],
             },
             {
                 "cell_type": "code",
@@ -300,15 +299,15 @@ def create_minimal_notebook():
                     "print(f'F1 Score: {results[\"eval_f1\"]:.4f}')\n",
                     "print(f'Accuracy: {results[\"eval_accuracy\"]:.4f}')\n",
                     "\n",
-                    "print('✅ Evaluation completed!')"
-                ]
+                    "print('✅ Evaluation completed!')",
+                ],
             },
             {
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## 💾 MODEL SAVING"
-                ]
+                    "## 💾 MODEL SAVING",
+                ],
             },
             {
                 "cell_type": "code",
@@ -332,40 +331,40 @@ def create_minimal_notebook():
                     "    config = json.load(f)\n",
                     "\n",
                     "print(f'\\n🔍 SAVED CONFIGURATION:')\n",
-                    "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                    "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                    "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
+                    'print(f\'Model type: {config.get("model_type", "NOT SET")}\')\n',
+                    'print(f\'Number of labels: {config.get("num_labels", "NOT SET")}\')\n',
+                    'print(f\'id2label: {config.get("id2label", "NOT SET")}\')\n',
                     "\n",
-                    "print('\\n✅ Model saving completed!')"
-                ]
-            }
+                    "print('\\n✅ Model saving completed!')",
+                ],
+            },
         ],
         "metadata": {
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
-                "name": "python3"
+                "name": "python3",
             },
             "language_info": {
                 "codemirror_mode": {
                     "name": "ipython",
-                    "version": 3
+                    "version": 3,
                 },
                 "file_extension": ".py",
                 "mimetype": "text/x-python",
                 "name": "python",
                 "nbconvert_exporter": "python",
                 "pygments_lexer": "ipython3",
-                "version": "3.8.5"
-            }
+                "version": "3.8.5",
+            },
         },
         "nbformat": 4,
-        "nbformat_minor": 4
+        "nbformat_minor": 4,
     }
 
     # Save the notebook
     output_path = "notebooks/MINIMAL_WORKING_TRAINING_COLAB.ipynb"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(notebook_content, f, indent=2)
 
     print(f"✅ Created minimal working notebook: {output_path}")
@@ -377,6 +376,7 @@ def create_minimal_notebook():
     print("\\n🚀 This should work in ANY transformers version!")
 
     return output_path
+
 
 if __name__ == "__main__":
     create_minimal_notebook()

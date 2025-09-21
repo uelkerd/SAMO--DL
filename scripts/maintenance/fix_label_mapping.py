@@ -1,21 +1,31 @@
 #!/usr/bin/env python3
-"""
-Fix the label mapping issue between GoEmotions and Journal datasets.
-"""
+"""Fix the label mapping issue between GoEmotions and Journal datasets."""
 
 import subprocess
 import sys
+
 
 def install_dependencies():
     """Install required dependencies."""
     print("🔧 Installing dependencies...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "datasets", "pandas", "transformers"])
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "datasets",
+                "pandas",
+                "transformers",
+            ]
+        )
         print("✅ Dependencies installed")
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to install dependencies: {e}")
         return False
     return True
+
 
 # Install dependencies first
 if not install_dependencies():
@@ -23,8 +33,10 @@ if not install_dependencies():
     sys.exit(1)
 
 import json
+
 import pandas as pd
 from datasets import load_dataset
+
 
 def analyze_label_mapping():
     """Analyze the label mapping issue."""
@@ -32,25 +44,27 @@ def analyze_label_mapping():
 
     # Load datasets
     go_emotions = load_dataset("go_emotions", "simplified")
-    with open('data/journal_test_dataset.json') as f:
+    with open("data/journal_test_dataset.json") as f:
         journal_entries = json.load(f)
     journal_df = pd.DataFrame(journal_entries)
 
     # Analyze GoEmotions labels
     print("\n📊 GoEmotions Analysis:")
     go_label_counts = {}
-    for example in go_emotions['train']:
-        if example['labels']:
-            for label in example['labels']:
+    for example in go_emotions["train"]:
+        if example["labels"]:
+            for label in example["labels"]:
                 go_label_counts[label] = go_label_counts.get(label, 0) + 1
 
     print(f"GoEmotions unique labels: {len(go_label_counts)}")
     print(f"GoEmotions labels: {sorted(list(go_label_counts.keys()))}")
-    print(f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}")
+    print(
+        f"Top 10 GoEmotions labels: {dict(sorted(go_label_counts.items(), key=lambda x: x[1], reverse=True)[:10])}"
+    )
 
     # Analyze Journal labels
     print("\n📊 Journal Analysis:")
-    journal_label_counts = journal_df['emotion'].value_counts().to_dict()
+    journal_label_counts = journal_df["emotion"].value_counts().to_dict()
     print(f"Journal unique labels: {len(journal_label_counts)}")
     print(f"Journal labels: {sorted(list(journal_label_counts.keys()))}")
     print(f"Journal label counts: {journal_label_counts}")
@@ -69,49 +83,50 @@ def analyze_label_mapping():
 
     return go_label_counts, journal_label_counts
 
+
 def create_emotion_mapping():
     """Create a mapping between GoEmotions and Journal emotions."""
     print("\n🔧 Creating emotion mapping...")
 
     # GoEmotions emotion labels (from their documentation)
     go_emotions_mapping = {
-        'admiration': 'admiration',
-        'amusement': 'happy',
-        'anger': 'frustrated',
-        'annoyance': 'frustrated',
-        'approval': 'proud',
-        'caring': 'content',
-        'confusion': 'overwhelmed',
-        'curiosity': 'excited',
-        'desire': 'excited',
-        'disappointment': 'sad',
-        'disapproval': 'frustrated',
-        'disgust': 'frustrated',
-        'embarrassment': 'anxious',
-        'excitement': 'excited',
-        'fear': 'anxious',
-        'gratitude': 'grateful',
-        'grief': 'sad',
-        'joy': 'happy',
-        'love': 'content',
-        'nervousness': 'anxious',
-        'optimism': 'hopeful',
-        'pride': 'proud',
-        'realization': 'content',
-        'relief': 'calm',
-        'remorse': 'sad',
-        'sadness': 'sad',
-        'surprise': 'excited',
-        'neutral': 'calm'
+        "admiration": "admiration",
+        "amusement": "happy",
+        "anger": "frustrated",
+        "annoyance": "frustrated",
+        "approval": "proud",
+        "caring": "content",
+        "confusion": "overwhelmed",
+        "curiosity": "excited",
+        "desire": "excited",
+        "disappointment": "sad",
+        "disapproval": "frustrated",
+        "disgust": "frustrated",
+        "embarrassment": "anxious",
+        "excitement": "excited",
+        "fear": "anxious",
+        "gratitude": "grateful",
+        "grief": "sad",
+        "joy": "happy",
+        "love": "content",
+        "nervousness": "anxious",
+        "optimism": "hopeful",
+        "pride": "proud",
+        "realization": "content",
+        "relief": "calm",
+        "remorse": "sad",
+        "sadness": "sad",
+        "surprise": "excited",
+        "neutral": "calm",
     }
 
     print(f"Created mapping with {len(go_emotions_mapping)} emotions")
     return go_emotions_mapping
 
+
 def create_fixed_bulletproof_cell():
     """Create a fixed bulletproof cell with proper emotion mapping."""
-
-    cell_code = '''# 🚀 BULLETPROOF TRAINING CELL - FIXED LABEL MAPPING
+    cell_code = """# 🚀 BULLETPROOF TRAINING CELL - FIXED LABEL MAPPING
 # Runtime → Change runtime type → GPU (T4 or V100)
 # Kernel → Restart and run all
 
@@ -504,14 +519,17 @@ files.download('best_simple_model.pth')
 files.download('simple_training_results.json')
 
 print("\\n🎉 BULLETPROOF TRAINING COMPLETED!")
-print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")'''
+print("📁 Files downloaded: best_simple_model.pth, simple_training_results.json")"""
 
     # Write to file
-    with open('bulletproof_training_cell_fixed.py', 'w') as f:
+    with open("bulletproof_training_cell_fixed.py", "w") as f:
         f.write(cell_code)
 
-    print("✅ Created fixed bulletproof training cell: bulletproof_training_cell_fixed.py")
+    print(
+        "✅ Created fixed bulletproof training cell: bulletproof_training_cell_fixed.py"
+    )
     print("📋 This version has proper emotion mapping!")
+
 
 if __name__ == "__main__":
     # Analyze the issue

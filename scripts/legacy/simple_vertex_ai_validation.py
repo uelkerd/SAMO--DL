@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""
-Simple Vertex AI Validation Script
+"""Simple Vertex AI Validation Script
 
 Validates Vertex AI setup and configuration.
 """
 
-from google.cloud import aiplatform
 import logging
 import os
 import sys
 
-
-
+from google.cloud import aiplatform
 
 """
 Simple Vertex AI Validation for SAMO Deep Learning.
@@ -20,7 +17,9 @@ This script runs a simple validation on Vertex AI to identify the 0.0000 loss is
 without complex infrastructure setup.
 """
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -55,7 +54,9 @@ def main():
         logger.info("✅ Validation job created successfully!")
         logger.info("")
         logger.info("🎯 NEXT STEPS:")
-        logger.info("1. Go to Vertex AI Console: https://console.cloud.google.com/vertex-ai")
+        logger.info(
+            "1. Go to Vertex AI Console: https://console.cloud.google.com/vertex-ai"
+        )
         logger.info("2. Navigate to Training → Custom jobs")
         logger.info("3. Find 'samo-simple-validation' job")
         logger.info("4. Click on it to see details and logs")
@@ -75,9 +76,13 @@ def main():
         logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")
-        logger.error("Since Vertex AI setup is complex, let's focus on the immediate issue:")
+        logger.error(
+            "Since Vertex AI setup is complex, let's focus on the immediate issue:"
+        )
         logger.error("")
-        logger.error("1. Run local validation: python scripts/local_validation_debug.py")
+        logger.error(
+            "1. Run local validation: python scripts/local_validation_debug.py"
+        )
         logger.error("2. Check data distribution manually")
         logger.error("3. Verify model architecture")
         logger.error("4. Test loss function")

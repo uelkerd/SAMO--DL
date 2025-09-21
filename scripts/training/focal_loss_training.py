@@ -1,27 +1,24 @@
 #!/usr/bin/env python3
-"""
-Focal Loss Training Script
+"""Focal Loss Training Script
 
 Training script using focal loss for emotion detection.
 """
 
-from src.models.emotion_detection.bert_classifier import EmotionDataset
-from transformers import AutoTokenizer
-import traceback
-from pathlib import Path
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
-from torch import nn
 import logging
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
+from torch import nn
+from transformers import AutoTokenizer
 
-
-
-
+from src.models.emotion_detection.bert_classifier import EmotionDataset
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Focal Loss Training Script for SAMO Emotion Detection
@@ -32,14 +29,18 @@ This script implements focal loss training to improve F1 score
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class FocalLoss(nn.Module):
     """Focal Loss for handling class imbalance."""
 
-    def __init__(self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"):
+    def __init__(
+        self, alpha: float = 0.25, gamma: float = 2.0, reduction: str = "mean"
+    ):
         super().__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -47,22 +48,22 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         """Forward pass with focal loss calculation."""
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+        bce_loss = nn.functional.binary_cross_entropy_with_logits(
+            inputs, targets, reduction="none"
+        )
 
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def train_with_focal_loss():
     """Train BERT model with focal loss for improved F1 score."""
-
     logger.info("🚀 Starting Focal Loss Training")
     logger.info("   • Gamma: 2.0")
     logger.info("   • Alpha: 0.25")
@@ -93,9 +94,13 @@ def train_with_focal_loss():
 
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        train_dataset = EmotionDataset(train_texts, train_labels, tokenizer, max_length=512)
+        train_dataset = EmotionDataset(
+            train_texts, train_labels, tokenizer, max_length=512
+        )
         val_dataset = EmotionDataset(val_texts, val_labels, tokenizer, max_length=512)
-        test_dataset = EmotionDataset(test_texts, test_labels, tokenizer, max_length=512)
+        test_dataset = EmotionDataset(
+            test_texts, test_labels, tokenizer, max_length=512
+        )
 
         logger.info("Dataset loaded successfully:")
         logger.info("   • Train: {len(train_dataset)} examples")
@@ -114,8 +119,12 @@ def train_with_focal_loss():
 
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=16, shuffle=True
+        )
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         best_val_loss = float("in")
         training_history = []
@@ -170,7 +179,11 @@ def train_with_focal_loss():
             logger.info("   • Val Loss: {avg_val_loss:.4f}")
 
             training_history.append(
-                {"epoch": epoch + 1, "train_loss": avg_train_loss, "val_loss": avg_val_loss}
+                {
+                    "epoch": epoch + 1,
+                    "train_loss": avg_train_loss,
+                    "val_loss": avg_val_loss,
+                },
             )
 
             if avg_val_loss < best_val_loss:
@@ -196,7 +209,9 @@ def train_with_focal_loss():
 
         logger.info("🎉 Focal Loss Training completed successfully!")
         logger.info("   • Best validation loss: {best_val_loss:.4f}")
-        logger.info("   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt")
+        logger.info(
+            "   • Model saved to: ./models/checkpoints/focal_loss_best_model.pt"
+        )
 
         return True
 

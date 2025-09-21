@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Model F1 Score Improvement Script
+"""Model F1 Score Improvement Script
 
 This script focuses on improving the F1 score of the emotion detection model
 through various optimization techniques.
@@ -35,17 +34,18 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets):
         """Forward pass of focal loss."""
         bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
+            inputs,
+            targets,
+            reduction="none",
         )
         pt = torch.exp(-bce_loss)
         focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == "mean":
             return focal_loss.mean()
-        elif self.reduction == "sum":
+        if self.reduction == "sum":
             return focal_loss.sum()
-        else:
-            return focal_loss
+        return focal_loss
 
 
 def create_balanced_training_data():
@@ -126,7 +126,9 @@ def improve_model_f1():
 
     # Create dataloader
     dataset = torch.utils.data.TensorDataset(
-        inputs["input_ids"], inputs["attention_mask"], labels_tensor
+        inputs["input_ids"],
+        inputs["attention_mask"],
+        labels_tensor,
     )
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=True)
 

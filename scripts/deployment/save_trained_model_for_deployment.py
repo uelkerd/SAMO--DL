@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""
-🚀 SAVE TRAINED MODEL FOR DEPLOYMENT
+"""🚀 SAVE TRAINED MODEL FOR DEPLOYMENT
 ====================================
 Save the trained emotion detection model in deployment-ready format.
 This includes model files, tokenizer, and label encoder.
 """
 
-import os
 import json
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
+
 from sklearn.preprocessing import LabelEncoder
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 
 def save_model_for_deployment():
     """Save the trained model for deployment"""
-
     print("🚀 SAVING TRAINED MODEL FOR DEPLOYMENT")
     print("=" * 50)
 
@@ -37,7 +37,9 @@ def save_model_for_deployment():
         print("❌ No trained model found!")
         print("📋 Available paths checked:")
         for path in model_paths:
-            print(f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}")
+            print(
+                f"  - {path}: {'✅ EXISTS' if os.path.exists(path) else '❌ NOT FOUND'}"
+            )
         return False
 
     print(f"🎯 Using model: {best_model_path}")
@@ -60,8 +62,18 @@ def save_model_for_deployment():
         # Create label encoder (12 emotions)
         print("🏷️ Creating label encoder...")
         emotions = [
-            'anxious', 'calm', 'content', 'excited', 'frustrated', 'grateful',
-            'happy', 'hopeful', 'overwhelmed', 'proud', 'sad', 'tired'
+            "anxious",
+            "calm",
+            "content",
+            "excited",
+            "frustrated",
+            "grateful",
+            "happy",
+            "hopeful",
+            "overwhelmed",
+            "proud",
+            "sad",
+            "tired",
         ]
 
         label_encoder = LabelEncoder()
@@ -69,35 +81,35 @@ def save_model_for_deployment():
 
         # Save label encoder
         label_encoder_data = {
-            'classes': label_encoder.classes_.tolist(),
-            'n_classes': len(label_encoder.classes_)
+            "classes": label_encoder.classes_.tolist(),
+            "n_classes": len(label_encoder.classes_),
         }
 
-        with open(f"{deployment_model_dir}/label_encoder.json", 'w') as f:
+        with open(f"{deployment_model_dir}/label_encoder.json", "w") as f:
             json.dump(label_encoder_data, f, indent=2)
 
         # Create model info file
         model_info = {
-            'model_name': best_model_path,
-            'emotions': emotions,
-            'n_emotions': len(emotions),
-            'performance': {
-                'f1_score': 0.9948,  # 99.48%
-                'accuracy': 0.9948,  # 99.48%
-                'target_achieved': True,
-                'improvement': 1813  # 1,813% improvement
+            "model_name": best_model_path,
+            "emotions": emotions,
+            "n_emotions": len(emotions),
+            "performance": {
+                "f1_score": 0.9948,  # 99.48%
+                "accuracy": 0.9948,  # 99.48%
+                "target_achieved": True,
+                "improvement": 1813,  # 1,813% improvement
             },
-            'training_info': {
-                'specialized_model': 'finiteautomata/bertweet-base-emotion-analysis',
-                'data_augmentation': True,
-                'model_ensembling': True,
-                'hyperparameter_optimization': True
+            "training_info": {
+                "specialized_model": "finiteautomata/bertweet-base-emotion-analysis",
+                "data_augmentation": True,
+                "model_ensembling": True,
+                "hyperparameter_optimization": True,
             },
-            'deployment_ready': True,
-            'created_at': '2025-08-03'
+            "deployment_ready": True,
+            "created_at": "2025-08-03",
         }
 
-        with open(f"{deployment_model_dir}/model_info.json", 'w') as f:
+        with open(f"{deployment_model_dir}/model_info.json", "w") as f:
             json.dump(model_info, f, indent=2)
 
         print("✅ Model saved successfully!")
@@ -117,6 +129,7 @@ def save_model_for_deployment():
         print(f"❌ Error saving model: {e}")
         return False
 
+
 def test_saved_model(model_dir):
     """Test the saved model"""
     try:
@@ -131,7 +144,7 @@ def test_saved_model(model_dir):
             "I'm so frustrated with this project.",
             "I feel anxious about the presentation.",
             "I'm grateful for all the support.",
-            "I'm feeling overwhelmed with tasks."
+            "I'm feeling overwhelmed with tasks.",
         ]
 
         print("📊 Testing saved model:")
@@ -140,7 +153,9 @@ def test_saved_model(model_dir):
         for text in test_texts:
             result = detector.predict(text)
             print(f"Text: {text}")
-            print(f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})")
+            print(
+                f"Emotion: {result['emotion']} (confidence: {result['confidence']:.3f})"
+            )
             print()
 
         print("✅ Saved model test completed!")
@@ -148,9 +163,9 @@ def test_saved_model(model_dir):
     except Exception as e:
         print(f"⚠️ Could not test saved model: {e}")
 
+
 def create_deployment_script():
     """Create a deployment script"""
-
     deployment_script = """#!/bin/bash
 # 🚀 EMOTION DETECTION MODEL DEPLOYMENT
 # =====================================
@@ -187,12 +202,13 @@ echo "Press Ctrl+C to stop the server"
 python api_server.py
 """
 
-    with open("deployment/deploy.sh", 'w') as f:
+    with open("deployment/deploy.sh", "w") as f:
         f.write(deployment_script)
 
     # Make executable
     os.chmod("deployment/deploy.sh", 0o755)
     print("✅ Deployment script updated!")
+
 
 if __name__ == "__main__":
     success = save_model_for_deployment()

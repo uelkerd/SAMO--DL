@@ -5,13 +5,13 @@
 - Consistent sys.path insertion (idempotent)
 - Simple logging configuration helper
 """
+
 from __future__ import annotations
 
 import logging
 import sys
 from pathlib import Path
 from typing import Iterable, Optional
-
 
 _MARKERS: tuple[str, ...] = (
     "pyproject.toml",

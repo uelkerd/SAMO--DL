@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""
-Script to check git status and trigger CI pipeline.
-"""
+"""Script to check git status and trigger CI pipeline."""
 
 import logging
 import subprocess
 from typing import Tuple
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def run_command(cmd: str, description: str) -> Tuple[bool, str]:
@@ -21,10 +21,9 @@ def run_command(cmd: str, description: str) -> Tuple[bool, str]:
         if result.returncode == 0:
             logging.info(f"✅ {description} - SUCCESS")
             return True, output
-        else:
-            logging.info(f"❌ {description} - FAILED")
-            logging.info(f"Error: {result.stderr}")
-            return False, result.stderr
+        logging.info(f"❌ {description} - FAILED")
+        logging.info(f"Error: {result.stderr}")
+        return False, result.stderr
     except Exception as e:
         logging.info(f"❌ {description} - EXCEPTION: {e}")
         return False, str(e)
@@ -74,7 +73,9 @@ def main():
 
     logging.info("🚀 Force pushing to trigger CI pipeline...")
     # Force push to trigger CI
-    success, push_output = run_command("git push --force-with-lease", "Force pushing to remote")
+    success, push_output = run_command(
+        "git push --force-with-lease", "Force pushing to remote"
+    )
 
     if success:
         logging.info("✅ Successfully pushed changes!")

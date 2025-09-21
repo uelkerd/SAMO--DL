@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Code Quality Fixer Script
+"""Code Quality Fixer Script
 
 This script automatically fixes common code quality issues
 identified by Ruff linter.
@@ -31,7 +30,9 @@ class CodeQualityFixer:
                 lines = content.split("\n")
                 import_found = False
                 for i, line in enumerate(lines):
-                    if line.strip().startswith("import ") or line.strip().startswith("from "):
+                    if line.strip().startswith("import ") or line.strip().startswith(
+                        "from "
+                    ):
                         if "pathlib" in line:
                             import_found = True
                             break
@@ -45,8 +46,14 @@ class CodeQualityFixer:
 
         # Replace os.path operations with pathlib equivalents
         content = re.sub(r"os\.path\.join\(([^)]+)\)", r"Path(\1).as_posix()", content)
-        content = re.sub(r"os\.makedirs\(([^,)]+)\)", r"Path(\1).mkdir(parents=True, exist_ok=True)", content)
-        content = re.sub(r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content)
+        content = re.sub(
+            r"os\.makedirs\(([^,)]+)\)",
+            r"Path(\1).mkdir(parents=True, exist_ok=True)",
+            content,
+        )
+        content = re.sub(
+            r"os\.remove\(([^)]+)\)", r"Path(\1).unlink(missing_ok=True)", content
+        )
         content = re.sub(r"os\.path\.exists\(([^)]+)\)", r"Path(\1).exists()", content)
         content = re.sub(r"os\.path\.isfile\(([^)]+)\)", r"Path(\1).is_file()", content)
         content = re.sub(r"os\.path\.isdir\(([^)]+)\)", r"Path(\1).is_dir()", content)

@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
-"""
-Threshold Optimization Script
+"""Threshold Optimization Script
 
 Optimizes classification thresholds for better performance.
 """
 
-import traceback
-from pathlib import Path
-from sklearn.metrics import f1_score
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from src.models.emotion_detection.training_pipeline import create_bert_emotion_classifier
 import logging
-import numpy as np
 import os
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import numpy as np
+import torch
+from sklearn.metrics import f1_score
 
-
-
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+from src.models.emotion_detection.training_pipeline import (
+    create_bert_emotion_classifier,
+)
 
 """
 Threshold Optimization for Multi-label Classification
@@ -31,7 +29,9 @@ by 10-15% through better classification boundaries.
 project_root = Path(__file__).parent.parent.resolve()
 sys.path.append(str(project_root))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -67,7 +67,6 @@ def optimize_thresholds(val_logits, val_labels, num_classes=28):
 
 def apply_threshold_optimization():
     """Apply threshold optimization to improve classification performance."""
-
     logger.info("🎯 Starting Threshold Optimization")
     logger.info("   • Expected improvement: 10-15% F1 score")
     logger.info("   • Method: Per-class threshold tuning")
@@ -81,7 +80,9 @@ def apply_threshold_optimization():
         datasets = data_loader.prepare_datasets()
 
         val_dataset = datasets["validation"]  # Fixed key name
-        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=False)
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset, batch_size=16, shuffle=False
+        )
 
         model_path = "./models/checkpoints/focal_loss_best_model.pt"
         if not Path(model_path):
@@ -138,7 +139,9 @@ def apply_threshold_optimization():
 
         logger.info("✅ Optimized thresholds saved to: {thresholds_path}")
         logger.info("   • Average F1: {np.mean(f1_scores):.3f}")
-        logger.info("   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}")
+        logger.info(
+            "   • Threshold range: {min(thresholds):.3f} - {max(thresholds):.3f}"
+        )
 
         return True
 

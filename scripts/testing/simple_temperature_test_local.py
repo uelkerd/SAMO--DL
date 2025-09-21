@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
-"""
-Simple Temperature Test Local Script
+"""Simple Temperature Test Local Script
 
 Tests temperature scaling calibration locally.
 """
 
-import sys
 import logging
-import torch
+import sys
 from pathlib import Path
+
+import torch
 from sklearn.metrics import f1_score
-
-
-
-
-
-
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
 
 def simple_temperature_test_local():
     logging.info("🌡️ Simple Temperature Scaling Test (Local Data)")

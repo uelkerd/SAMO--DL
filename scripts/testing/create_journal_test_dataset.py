@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Create Journal Entry Test Dataset for Domain Adaptation
+"""Create Journal Entry Test Dataset for Domain Adaptation
 
 This script generates a realistic test dataset of journal entries for domain adaptation
 testing as required by REQ-DL-012. The dataset will be used to validate that our
@@ -13,9 +12,10 @@ Success Metric: 70% F1 score on this test set
 
 import json
 import random
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 import pandas as pd
 
 # Realistic journal entry templates that reflect personal, reflective writing
@@ -164,22 +164,27 @@ REFLECTIVE_STATEMENTS = [
     "I'm learning to embrace uncertainty.",
 ]
 
+
 def generate_journal_content(topic: str, emotion: str) -> str:
     """Generate realistic journal entry content."""
     template = random.choice(JOURNAL_TEMPLATES)
-    emotion_context = random.choice(EMOTION_CONTEXTS.get(emotion, ["I'm feeling this way."]))
+    emotion_context = random.choice(
+        EMOTION_CONTEXTS.get(emotion, ["I'm feeling this way."])
+    )
     reflection = random.choice(REFLECTIVE_STATEMENTS)
 
     content = template.format(
         topic=topic,
         emotion=emotion,
         emotion_context=emotion_context,
-        reflection=reflection
+        reflection=reflection,
     )
 
     # Add more depth with additional sentences
     if random.random() > 0.3:  # 70% chance of adding more detail
-        additional_context = random.choice(EMOTION_CONTEXTS.get(emotion, ["I'm processing this."]))
+        additional_context = random.choice(
+            EMOTION_CONTEXTS.get(emotion, ["I'm processing this."])
+        )
         content += f" {additional_context}"
 
     if random.random() > 0.5:  # 50% chance of adding another reflection
@@ -188,7 +193,10 @@ def generate_journal_content(topic: str, emotion: str) -> str:
 
     return content
 
-def generate_journal_entry(entry_id: int, user_id: int, created_at: datetime) -> Dict[str, Any]:
+
+def generate_journal_entry(
+    entry_id: int, user_id: int, created_at: datetime
+) -> Dict[str, Any]:
     """Generate a single realistic journal entry."""
     topic = random.choice(JOURNAL_TOPICS)
     emotion = random.choice(list(EMOTION_CONTEXTS.keys()))
@@ -207,10 +215,11 @@ def generate_journal_entry(entry_id: int, user_id: int, created_at: datetime) ->
         "word_count": len(generate_journal_content(topic, emotion).split()),
     }
 
+
 def create_journal_test_dataset(
     num_entries: int = 150,
     num_users: int = 10,
-    days_back: int = 90
+    days_back: int = 90,
 ) -> List[Dict[str, Any]]:
     """Create a comprehensive journal test dataset."""
     start_date = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -236,14 +245,16 @@ def create_journal_test_dataset(
 
     return entries
 
+
 def save_test_dataset(entries: List[Dict[str, Any]], output_path: str) -> None:
     """Save the test dataset to JSON."""
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(entries, f, indent=2)
 
     print(f"✅ Saved {len(entries)} journal entries to {output_path}")
+
 
 def create_dataset_summary(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Create a summary of the dataset for validation."""
@@ -257,12 +268,13 @@ def create_dataset_summary(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
         "avg_word_count": df["word_count"].mean(),
         "date_range": {
             "start": min(df["created_at"]),
-            "end": max(df["created_at"])
+            "end": max(df["created_at"]),
         },
-        "sample_entries": entries[:3]  # First 3 entries as examples
+        "sample_entries": entries[:3],  # First 3 entries as examples
     }
 
     return summary
+
 
 def main():
     """Main function to create the journal test dataset."""
@@ -273,7 +285,7 @@ def main():
     entries = create_journal_test_dataset(
         num_entries=150,  # Exceeds the 100+ requirement
         num_users=10,
-        days_back=90
+        days_back=90,
     )
 
     # Save to data directory
@@ -284,7 +296,7 @@ def main():
     summary = create_dataset_summary(entries)
     summary_path = "data/journal_test_dataset_summary.json"
 
-    with open(summary_path, 'w') as f:
+    with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
 
     print(f"✅ Saved dataset summary to {summary_path}")
@@ -294,16 +306,19 @@ def main():
     print(f"   Total Entries: {summary['total_entries']}")
     print(f"   Unique Users: {summary['unique_users']}")
     print(f"   Average Word Count: {summary['avg_word_count']:.1f}")
-    print(f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}")
+    print(
+        f"   Date Range: {summary['date_range']['start'][:10]} to {summary['date_range']['end'][:10]}"
+    )
 
     print("\n🎯 Emotion Distribution:")
-    for emotion, count in summary['emotion_distribution'].items():
-        percentage = (count / summary['total_entries']) * 100
+    for emotion, count in summary["emotion_distribution"].items():
+        percentage = (count / summary["total_entries"]) * 100
         print(f"   {emotion}: {count} ({percentage:.1f}%)")
 
     print("\n✅ Journal Test Dataset Created Successfully!")
     print("   This dataset will be used for REQ-DL-012 domain adaptation testing")
     print("   Target: 70% F1 score on journal-style text vs Reddit comments")
+
 
 if __name__ == "__main__":
     main()

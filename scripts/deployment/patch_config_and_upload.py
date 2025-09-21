@@ -2,8 +2,9 @@
 # pip install -U transformers huggingface_hub
 import os
 import tempfile
-from transformers import AutoConfig
+
 from huggingface_hub import HfApi, HfFolder
+from transformers import AutoConfig
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 
@@ -15,17 +16,39 @@ if not TOKEN:
     if not TOKEN:
         raise ValueError(
             "No Hugging Face token found. Please run 'hf auth login' first or "
-            "set HF_TOKEN environment variable."
+            "set HF_TOKEN environment variable.",
         )
 
 # Define the new labels we want to use
 new_labels = [
-    "admiration", "amusement", "anger", "annoyance", "approval",
-    "caring", "confusion", "curiosity", "desire", "disappointment",
-    "disapproval", "disgust", "embarrassment", "excitement", "fear",
-    "gratitude", "grief", "joy", "love", "nervousness",
-    "optimism", "pride", "realization", "relief", "remorse",
-    "sadness", "surprise", "neutral",
+    "admiration",
+    "amusement",
+    "anger",
+    "annoyance",
+    "approval",
+    "caring",
+    "confusion",
+    "curiosity",
+    "desire",
+    "disappointment",
+    "disapproval",
+    "disgust",
+    "embarrassment",
+    "excitement",
+    "fear",
+    "gratitude",
+    "grief",
+    "joy",
+    "love",
+    "nervousness",
+    "optimism",
+    "pride",
+    "realization",
+    "relief",
+    "remorse",
+    "sadness",
+    "surprise",
+    "neutral",
 ]
 
 print("Token configured successfully")
@@ -36,7 +59,7 @@ cfg = AutoConfig.from_pretrained(MODEL_ID, token=TOKEN)
 print(f"Current model has {getattr(cfg, 'num_labels', 'unknown')} labels")
 
 # Check if labels need updating
-if hasattr(cfg, 'id2label') and cfg.id2label:
+if hasattr(cfg, "id2label") and cfg.id2label:
     print("Current labels:")
     items = sorted(
         cfg.id2label.items(),
@@ -53,11 +76,11 @@ if hasattr(cfg, 'id2label') and cfg.id2label:
 orig_num_labels = getattr(cfg, "num_labels", None)
 if orig_num_labels not in (None, len(new_labels)):
     print(
-        f"⚠️  Existing cfg.num_labels={orig_num_labels}, new_labels={len(new_labels)}."
+        f"⚠️  Existing cfg.num_labels={orig_num_labels}, new_labels={len(new_labels)}.",
     )
     print(
         f"Ensure the classifier head out_features matches {len(new_labels)} "
-        "before publishing."
+        "before publishing.",
     )
 
 # Update config with new labels
@@ -82,7 +105,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
             repo_type="model",
             commit_message="fix: set id2label/label2id + multi_label_classification",
         )
-        commit_id = getattr(info, 'oid', getattr(info, 'commit_sha', 'unknown'))
+        commit_id = getattr(info, "oid", getattr(info, "commit_sha", "unknown"))
         print(f"✅ Uploaded config.json with proper labels (commit: {commit_id})")
     except Exception as e:
         print(f"❌ Failed to upload config.json: {e}")

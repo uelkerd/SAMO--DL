@@ -1,20 +1,19 @@
-        # Create trainer and load dataset
-        # Initialize the model with class weights
-        # Load trained model
-        # Prepare dataset
-        # Test much lower thresholds
+# Create trainer and load dataset
+# Initialize the model with class weights
+# Load trained model
+# Prepare dataset
+# Test much lower thresholds
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import logging
 import sys
+from pathlib import Path
+
 import torch
 
-
-
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """Fix Threshold Tuning for Better F1 Scores.
 
@@ -63,7 +62,10 @@ def main():
             logger.info("🔍 Testing threshold: {threshold}")
 
             metrics = evaluate_emotion_classifier(
-                trainer.model, trainer.val_dataloader, trainer.device, threshold=threshold
+                trainer.model,
+                trainer.val_dataloader,
+                trainer.device,
+                threshold=threshold,
             )
 
             macro_f1 = metrics["macro_f1"]
@@ -80,9 +82,8 @@ def main():
         if best_f1 > 0.15:  # 15% is reasonable for this dataset
             logger.info("🎉 Found good threshold! Model is working well.")
             return 0
-        else:
-            logger.warning("⚠️  F1 scores still low. Model may need more training.")
-            return 1
+        logger.warning("⚠️  F1 scores still low. Model may need more training.")
+        return 1
 
     except Exception:
         logger.error("❌ Threshold tuning failed: {e}")

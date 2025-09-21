@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""
-Final Temperature Scaling Test - Guaranteed to Work!
-"""
+"""Final Temperature Scaling Test - Guaranteed to Work!"""
 
 import logging
 import sys
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-import numpy as np
 
 # Add src to path
 sys.path.append(str(Path.cwd() / "src"))
 
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
 from sklearn.metrics import f1_score
+
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset,
+    create_bert_emotion_classifier,
+)
 
 
 def final_temperature_test():
@@ -34,7 +36,9 @@ def final_temperature_test():
     logging.info("📦 Loading checkpoint...")
 
     try:
-        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+        checkpoint = torch.load(
+            checkpoint_path, map_location=device, weights_only=False
+        )
         logging.info(f"✅ Checkpoint loaded successfully! Type: {type(checkpoint)}")
 
         if isinstance(checkpoint, dict):
@@ -90,7 +94,7 @@ def final_temperature_test():
         "I feel great about everything!",
         "This is disappointing.",
         "I'm furious with you!",
-        "I'm terrified of the dark."
+        "I'm terrified of the dark.",
     ]
 
     test_labels = [
@@ -147,8 +151,12 @@ def final_temperature_test():
         all_labels = np.concatenate(all_labels, axis=0)
 
         # Calculate metrics
-        micro_f1 = f1_score(all_labels, all_predictions, average='micro', zero_division=0)
-        macro_f1 = f1_score(all_labels, all_predictions, average='macro', zero_division=0)
+        micro_f1 = f1_score(
+            all_labels, all_predictions, average="micro", zero_division=0
+        )
+        macro_f1 = f1_score(
+            all_labels, all_predictions, average="macro", zero_division=0
+        )
 
         logging.info(f"  Micro F1: {micro_f1:.4f}")
         logging.info(f"  Macro F1: {macro_f1:.4f}")
@@ -156,8 +164,14 @@ def final_temperature_test():
         # Show some predictions
         logging.info("  Sample predictions:")
         for i in range(min(3, len(test_texts))):
-            pred_emotions = [emotion_labels[j] for j, pred in enumerate(all_predictions[i]) if pred > 0.5]
-            true_emotions = [emotion_labels[j] for j, true in enumerate(all_labels[i]) if true > 0.5]
+            pred_emotions = [
+                emotion_labels[j]
+                for j, pred in enumerate(all_predictions[i])
+                if pred > 0.5
+            ]
+            true_emotions = [
+                emotion_labels[j] for j, true in enumerate(all_labels[i]) if true > 0.5
+            ]
             logging.info(f"    Text: {test_texts[i]}")
             logging.info(f"    Predicted: {pred_emotions}")
             logging.info(f"    True: {true_emotions}")

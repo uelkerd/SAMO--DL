@@ -63,10 +63,13 @@ test = [
     "factory-boy>=3.3.0",  # For test data generation
 ]
 dev = [
-    "ruff>=0.0.280",
-    "mypy>=1.7.1",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
     "bandit[toml]>=1.7.6",
-    # safety removed - kept optional in CI to avoid resolver backtracking
+    "safety>=3.0.0",
+    "pylint>=3.0.0",
+    "docformatter>=1.7.0",
+    "flynt>=0.78",
     "pre-commit>=3.5.0",
     "jupyterlab>=4.0.0",
     "ipykernel>=6.25.0",
@@ -86,9 +89,70 @@ line-length = 88
 target-version = "py38"
 
 [tool.ruff.lint]
-# Enable pycodestyle, Pyflakes, and additional useful rules
-select = ["E", "F", "B", "C4", "UP"]
-ignore = ["E501"]  # line too long (handled by formatter)
+# Enable comprehensive linting rules (replaces flake8, isort functionality)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "I",   # isort (import sorting)
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+    "S",   # flake8-bandit (basic security)
+    "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
+    "A",   # flake8-builtins
+    "COM", # flake8-commas
+    "C90", # mccabe complexity
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PYI", # flake8-pyi
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TCH", # flake8-type-checking
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PGH", # pygrep-hooks
+    "PL",  # Pylint
+    "TRY", # tryceratops
+    "FLY", # flynt
+    "NPY", # NumPy-specific rules
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "D100",   # Missing docstring in public module
+    "D101",   # Missing docstring in public class
+    "D102",   # Missing docstring in public method
+    "D103",   # Missing docstring in public function
+    "D104",   # Missing docstring in public package
+    "D105",   # Missing docstring in magic method
+    "D203",   # 1 blank line required before class docstring (conflicts with D211)
+    "D213",   # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "S101",   # Use of assert detected (acceptable in tests)
+    "PLR0913", # Too many arguments to function call
+    "PLR0915", # Too many statements
+    "TRY300", # Consider moving statement to else block (often unnecessary complexity)
+    "BLE001", # Do not catch blind exception (sometimes necessary)
+    "S603",   # subprocess call check (handled by bandit more comprehensively)
+]
+
+[tool.ruff.lint.isort]
+# Configure import sorting (replaces isort)
+known-first-party = ["src", "training", "tests"]
+force-single-line = false
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 # Allow imports to be at the top level in __init__.py files
@@ -121,8 +185,83 @@ extend-ignore = ["E203", "W503"]
 exclude = [".git", "__pycache__", "build", "dist", "*.egg-info"]
 
 [tool.bandit]
-exclude_dirs = ["tests", "scripts"]
-skips = ["B101", "B601"]
+# Comprehensive security scanning configuration
+exclude_dirs = [
+    "tests",           # Test files can use assertions
+    "scripts/testing", # Testing scripts have different security requirements
+    "deprecated",      # Legacy code not in active use
+    "artifacts",       # Generated files and reports
+    "build",          # Build artifacts
+    "dist"            # Distribution files
+]
+
+# Security checks to skip (with justification)
+skips = [
+    "B101",  # assert_used - legitimate in test files (handled separately)
+    "B601",  # paramiko_calls - legacy code, will be addressed separately
+]
+
+# Security tests to always run (high priority)
+tests = [
+    "B102",  # exec_used
+    "B103",  # set_bad_file_permissions
+    "B104",  # hardcoded_bind_all_interfaces
+    "B105",  # hardcoded_password_string
+    "B106",  # hardcoded_password_funcarg
+    "B107",  # hardcoded_password_default
+    "B108",  # hardcoded_tmp_directory
+    "B110",  # try_except_pass
+    "B112",  # try_except_continue
+    "B201",  # flask_debug_true
+    "B301",  # pickle
+    "B302",  # marshal
+    "B303",  # md5
+    "B304",  # des
+    "B305",  # cipher
+    "B306",  # mktemp_q
+    "B307",  # eval
+    "B308",  # mark_safe
+    "B309",  # httpsconnection
+    "B310",  # urllib_urlopen
+    "B311",  # random
+    "B312",  # telnetlib
+    "B313",  # xml_bad_cElementTree
+    "B314",  # xml_bad_ElementTree
+    "B315",  # xml_bad_expatreader
+    "B316",  # xml_bad_expatbuilder
+    "B317",  # xml_bad_sax
+    "B318",  # xml_bad_minidom
+    "B319",  # xml_bad_pulldom
+    "B320",  # xml_bad_etree
+    "B321",  # ftplib
+    "B322",  # input
+    "B323",  # unverified_context
+    "B324",  # hashlib_new_insecure_functions
+    "B325",  # tempnam
+    "B501",  # request_with_no_cert_validation
+    "B502",  # ssl_with_bad_version
+    "B503",  # ssl_with_bad_defaults
+    "B504",  # ssl_with_no_version
+    "B505",  # weak_cryptographic_key
+    "B506",  # yaml_load
+    "B507",  # ssh_no_host_key_verification
+    "B602",  # subprocess_popen_with_shell_equals_true
+    "B603",  # subprocess_without_shell_equals_true
+    "B604",  # any_other_function_with_shell_equals_true
+    "B605",  # start_process_with_a_shell
+    "B606",  # start_process_with_no_shell
+    "B607",  # start_process_with_partial_path
+    "B608",  # hardcoded_sql_expressions
+    "B609",  # linux_commands_wildcard_injection
+    "B610",  # django_extra_used
+    "B611",  # django_rawsql_used
+    "B701",  # jinja2_autoescape_false
+    "B702",  # use_of_mako_templates
+    "B703",  # django_mark_safe
+]
+
+# Severity levels
+severity = "medium"  # Report medium and high severity issues
 
 [tool.mypy]
 # Strategic mypy configuration - focus on core business logic

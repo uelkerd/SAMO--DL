@@ -1,24 +1,21 @@
-        # Split command for security (avoid shell=True)
-    # Change to project root
-    # Fix 1: Format code with ruff
-    # Fix 2: Check for any remaining formatting issues
-    # Fix 3: Run specific failing tests to verify fixes
-    # Summary
+# Split command for security (avoid shell=True)
+# Change to project root
+# Fix 1: Format code with ruff
+# Fix 2: Check for any remaining formatting issues
+# Fix 3: Run specific failing tests to verify fixes
+# Summary
 #!/usr/bin/env python3
-from pathlib import Path
-from typing import Tuple
 import logging
 import os
 import subprocess
 import sys
-
-
-
-
+from pathlib import Path
+from typing import Tuple
 
 """
 Script to fix CI issues identified in the SAMO Deep Learning project.
 """
+
 
 def run_command(cmd: str, description: str) -> Tuple[bool, str]:
     """Run a command and return success status and output."""
@@ -30,10 +27,9 @@ def run_command(cmd: str, description: str) -> Tuple[bool, str]:
         if result.returncode == 0:
             logging.info("✅ {description} - SUCCESS")
             return True, output
-        else:
-            logging.info("❌ {description} - FAILED")
-            logging.info("Error: {result.stderr}")
-            return False, result.stderr
+        logging.info("❌ {description} - FAILED")
+        logging.info("Error: {result.stderr}")
+        return False, result.stderr
     except Exception as e:
         logging.info("❌ {description} - EXCEPTION: {e}")
         return False, str(e)
@@ -47,9 +43,13 @@ def main():
     project_root = Path(__file__).parent.parent
     os.chdir(project_root)
 
-    success1, _ = run_command("ruff format src/ tests/ scripts/", "Formatting code with ru")
+    success1, _ = run_command(
+        "ruff format src/ tests/ scripts/", "Formatting code with ru"
+    )
 
-    success2, _ = run_command("ruff check src/ tests/ scripts/ --fix", "Fixing linting issues")
+    success2, _ = run_command(
+        "ruff check src/ tests/ scripts/ --fix", "Fixing linting issues"
+    )
 
     success3, _ = run_command(
         "python -m pytest tests/unit/test_emotion_detection.py::TestBertEmotionClassifier::test_forward_pass -v",
@@ -71,11 +71,9 @@ def main():
     if all([success1, success2, success3, success4]):
         logging.info("\n🎉 All CI issues fixed successfully!")
         return 0
-    else:
-        logging.info("\n⚠️ Some issues remain. Please check the output above.")
-        return 1
+    logging.info("\n⚠️ Some issues remain. Please check the output above.")
+    return 1
 
 
 if __name__ == "__main__":
-
     sys.exit(main())

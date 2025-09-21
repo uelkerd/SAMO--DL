@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Complete Simple Notebook
+"""Complete Simple Notebook
 ========================
 
 This script adds all the missing training, validation, and model saving
@@ -9,11 +8,11 @@ components to the simple notebook.
 
 import json
 
+
 def complete_simple_notebook():
     """Add all missing components to the simple notebook."""
-
     # Read the existing notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb') as f:
+    with open("notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb") as f:
         notebook = json.load(f)
 
     # Add all the missing cells
@@ -22,8 +21,8 @@ def complete_simple_notebook():
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🎯 FOCAL LOSS IMPLEMENTATION"
-            ]
+                "## 🎯 FOCAL LOSS IMPLEMENTATION",
+            ],
         },
         {
             "cell_type": "code",
@@ -33,7 +32,7 @@ def complete_simple_notebook():
             "source": [
                 "# Focal Loss Implementation\n",
                 "class FocalLoss(torch.nn.Module):\n",
-                "    \"\"\"Focal Loss for handling class imbalance.\"\"\"\n",
+                '    """Focal Loss for handling class imbalance."""\n',
                 "    \n",
                 "    def __init__(self, alpha=1, gamma=2, reduction='mean'):\n",
                 "        super(FocalLoss, self).__init__()\n",
@@ -53,15 +52,15 @@ def complete_simple_notebook():
                 "        else:\n",
                 "            return focal_loss\n",
                 "\n",
-                "print('✅ Focal Loss implementation ready')"
-            ]
+                "print('✅ Focal Loss implementation ready')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## ⚖️ CLASS WEIGHTING & WEIGHTED LOSS TRAINER"
-            ]
+                "## ⚖️ CLASS WEIGHTING & WEIGHTED LOSS TRAINER",
+            ],
         },
         {
             "cell_type": "code",
@@ -89,7 +88,7 @@ def complete_simple_notebook():
                 "\n",
                 "# Weighted Loss Trainer\n",
                 "class WeightedLossTrainer(Trainer):\n",
-                "    \"\"\"Custom trainer with focal loss and class weighting.\"\"\"\n",
+                '    """Custom trainer with focal loss and class weighting."""\n',
                 "    \n",
                 "    def __init__(self, focal_alpha=1, focal_gamma=2, class_weights=None, *args, **kwargs):\n",
                 "        super().__init__(*args, **kwargs)\n",
@@ -97,7 +96,7 @@ def complete_simple_notebook():
                 "        self.class_weights = class_weights\n",
                 "    \n",
                 "    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):\n",
-                "        labels = inputs.pop(\"labels\")\n",
+                '        labels = inputs.pop("labels")\n',
                 "        outputs = model(**inputs)\n",
                 "        logits = outputs.logits\n",
                 "        \n",
@@ -119,15 +118,15 @@ def complete_simple_notebook():
                 "        \n",
                 "        return (loss, outputs) if return_outputs else loss\n",
                 "\n",
-                "print('✅ WeightedLossTrainer ready')"
-            ]
+                "print('✅ WeightedLossTrainer ready')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🔧 LOADING & CONFIGURING MODEL"
-            ]
+                "## 🔧 LOADING & CONFIGURING MODEL",
+            ],
         },
         {
             "cell_type": "code",
@@ -155,15 +154,15 @@ def complete_simple_notebook():
                 "# Move to GPU if available\n",
                 "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n",
                 "model = model.to(device)\n",
-                "print(f'✅ Model moved to: {device}')"
-            ]
+                "print(f'✅ Model moved to: {device}')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📝 DATA PREPROCESSING"
-            ]
+                "## 📝 DATA PREPROCESSING",
+            ],
         },
         {
             "cell_type": "code",
@@ -219,15 +218,15 @@ def complete_simple_notebook():
                 "train_dataset = SimpleDataset(train_encodings, train_labels)\n",
                 "val_dataset = SimpleDataset(val_encodings, val_labels)\n",
                 "\n",
-                "print('✅ Data preprocessing completed')"
-            ]
+                "print('✅ Data preprocessing completed')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## ⚙️ TRAINING ARGUMENTS"
-            ]
+                "## ⚙️ TRAINING ARGUMENTS",
+            ],
         },
         {
             "cell_type": "code",
@@ -256,15 +255,15 @@ def complete_simple_notebook():
                 "    run_name='ultimate_emotion_model'\n",
                 ")\n",
                 "\n",
-                "print('✅ Training arguments configured')"
-            ]
+                "print('✅ Training arguments configured')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📊 COMPUTE METRICS"
-            ]
+                "## 📊 COMPUTE METRICS",
+            ],
         },
         {
             "cell_type": "code",
@@ -274,7 +273,7 @@ def complete_simple_notebook():
             "source": [
                 "# Compute metrics function\n",
                 "def compute_metrics(eval_pred):\n",
-                "    \"\"\"Compute evaluation metrics.\"\"\"\n",
+                '    """Compute evaluation metrics."""\n',
                 "    predictions, labels = eval_pred\n",
                 "    predictions = np.argmax(predictions, axis=1)\n",
                 "    \n",
@@ -285,15 +284,15 @@ def complete_simple_notebook():
                 "        'recall': recall_score(labels, predictions, average='weighted')\n",
                 "    }\n",
                 "\n",
-                "print('✅ Compute metrics function ready')"
-            ]
+                "print('✅ Compute metrics function ready')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🚀 TRAINING"
-            ]
+                "## 🚀 TRAINING",
+            ],
         },
         {
             "cell_type": "code",
@@ -328,15 +327,15 @@ def complete_simple_notebook():
                 "# Train the model\n",
                 "trainer.train()\n",
                 "\n",
-                "print('✅ Training completed successfully!')"
-            ]
+                "print('✅ Training completed successfully!')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 📈 EVALUATION"
-            ]
+                "## 📈 EVALUATION",
+            ],
         },
         {
             "cell_type": "code",
@@ -355,15 +354,15 @@ def complete_simple_notebook():
                 "print(f'Precision: {results[\"eval_precision\"]:.4f}')\n",
                 "print(f'Recall: {results[\"eval_recall\"]:.4f}')\n",
                 "\n",
-                "print('✅ Evaluation completed!')"
-            ]
+                "print('✅ Evaluation completed!')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 🧪 ADVANCED VALIDATION"
-            ]
+                "## 🧪 ADVANCED VALIDATION",
+            ],
         },
         {
             "cell_type": "code",
@@ -404,15 +403,15 @@ def complete_simple_notebook():
                 "    \n",
                 "    print(f'{i+1:2d}. \"{example}\" → {emotions[predicted_class]} ({confidence:.3f})')\n",
                 "\n",
-                "print('✅ Advanced validation completed!')"
-            ]
+                "print('✅ Advanced validation completed!')",
+            ],
         },
         {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "## 💾 MODEL SAVING WITH VERIFICATION"
-            ]
+                "## 💾 MODEL SAVING WITH VERIFICATION",
+            ],
         },
         {
             "cell_type": "code",
@@ -437,10 +436,10 @@ def complete_simple_notebook():
                 "with open(config_path, 'r') as f:\n",
                 "    config = json.load(f)\n",
                 "\n",
-                "print(f'Model type: {config.get(\"model_type\", \"NOT SET\")}')\n",
-                "print(f'Number of labels: {config.get(\"num_labels\", \"NOT SET\")}')\n",
-                "print(f'id2label: {config.get(\"id2label\", \"NOT SET\")}')\n",
-                "print(f'label2id: {config.get(\"label2id\", \"NOT SET\")}')\n",
+                'print(f\'Model type: {config.get("model_type", "NOT SET")}\')\n',
+                'print(f\'Number of labels: {config.get("num_labels", "NOT SET")}\')\n',
+                'print(f\'id2label: {config.get("id2label", "NOT SET")}\')\n',
+                'print(f\'label2id: {config.get("label2id", "NOT SET")}\')\n',
                 "\n",
                 "# Test loading the saved model\n",
                 "print('\\n🧪 TESTING SAVED MODEL:')\n",
@@ -461,31 +460,32 @@ def complete_simple_notebook():
                 "print(f'Predicted emotion: {test_model.config.id2label[test_predicted_class]}')\n",
                 "print(f'Confidence: {test_confidence:.3f}')\n",
                 "\n",
-                "print('\\n✅ Model saving and verification completed!')"
-            ]
-        }
+                "print('\\n✅ Model saving and verification completed!')",
+            ],
+        },
     ]
 
     # Add all new cells
-    notebook['cells'].extend(new_cells)
+    notebook["cells"].extend(new_cells)
 
     # Save the completed notebook
-    with open('notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb', 'w') as f:
+    with open("notebooks/SIMPLE_ULTIMATE_BULLETPROOF_TRAINING_COLAB.ipynb", "w") as f:
         json.dump(notebook, f, indent=2)
 
-    print('✅ Completed simple notebook with ALL components!')
-    print('📋 Added components:')
-    print('   ✅ Focal Loss implementation')
-    print('   ✅ Class weighting & WeightedLossTrainer')
-    print('   ✅ Model loading & configuration')
-    print('   ✅ Data preprocessing (simple approach)')
-    print('   ✅ Training arguments')
-    print('   ✅ Compute metrics')
-    print('   ✅ Training execution')
-    print('   ✅ Evaluation')
-    print('   ✅ Advanced validation')
-    print('   ✅ Model saving with verification')
-    print('\\n🚀 The notebook is now COMPLETE and ready to use!')
+    print("✅ Completed simple notebook with ALL components!")
+    print("📋 Added components:")
+    print("   ✅ Focal Loss implementation")
+    print("   ✅ Class weighting & WeightedLossTrainer")
+    print("   ✅ Model loading & configuration")
+    print("   ✅ Data preprocessing (simple approach)")
+    print("   ✅ Training arguments")
+    print("   ✅ Compute metrics")
+    print("   ✅ Training execution")
+    print("   ✅ Evaluation")
+    print("   ✅ Advanced validation")
+    print("   ✅ Model saving with verification")
+    print("\\n🚀 The notebook is now COMPLETE and ready to use!")
+
 
 if __name__ == "__main__":
     complete_simple_notebook()

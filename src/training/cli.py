@@ -6,8 +6,9 @@ import logging
 import sys
 from pathlib import Path
 
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -32,38 +33,39 @@ Examples:
   samo-train summarization            # Train text summarization model
   samo-train voice                    # Train voice processing model
   samo-train all                      # Train all models
-        """
+        """,
     )
 
     parser.add_argument(
         "command",
         choices=["emotion", "summarization", "voice", "all"],
-        help="Training command to execute"
+        help="Training command to execute",
     )
 
     parser.add_argument(
         "--config",
         type=str,
-        help="Path to training configuration file"
+        help="Path to training configuration file",
     )
 
     parser.add_argument(
         "--output-dir",
         type=str,
         default="./models",
-        help="Output directory for trained models (default: ./models)"
+        help="Output directory for trained models (default: ./models)",
     )
 
     parser.add_argument(
         "--gpu",
         action="store_true",
-        help="Use GPU for training if available"
+        help="Use GPU for training if available",
     )
 
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
-        help="Enable verbose logging"
+        help="Enable verbose logging",
     )
 
     args = parser.parse_args()
@@ -102,7 +104,7 @@ def train_emotion_model(args):
         config = {
             "output_dir": args.output_dir,
             "use_gpu": args.gpu,
-            "config_file": args.config
+            "config_file": args.config,
         }
 
         run_emotion_training(config)
@@ -113,12 +115,21 @@ def train_emotion_model(args):
         # Fallback to a simple training script
         import subprocess
 
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "training" / "minimal_working_training.py"
+        script_path = (
+            Path(__file__).parent.parent.parent
+            / "scripts"
+            / "training"
+            / "minimal_working_training.py"
+        )
         # Resolve to absolute path and validate it's within the project directory
         script_path = script_path.resolve()
         project_root = Path(__file__).parent.parent.parent.resolve()
 
-        if script_path.exists() and script_path.is_file() and _is_relative_to(script_path, project_root):
+        if (
+            script_path.exists()
+            and script_path.is_file()
+            and _is_relative_to(script_path, project_root)
+        ):
             cmd = [sys.executable, str(script_path)]
             if args.gpu:
                 cmd.append("--gpu")
@@ -134,12 +145,14 @@ def train_summarization_model(args):
 
     try:
         # Import and run summarization training
-        from src.models.summarization.training_pipeline import run_summarization_training
+        from src.models.summarization.training_pipeline import (
+            run_summarization_training,
+        )
 
         config = {
             "output_dir": args.output_dir,
             "use_gpu": args.gpu,
-            "config_file": args.config
+            "config_file": args.config,
         }
 
         run_summarization_training(config)
@@ -161,7 +174,7 @@ def train_voice_model(args):
         config = {
             "output_dir": args.output_dir,
             "use_gpu": args.gpu,
-            "config_file": args.config
+            "config_file": args.config,
         }
 
         run_voice_training(config)

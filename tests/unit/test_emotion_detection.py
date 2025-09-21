@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""
-Unit tests for emotion detection models.
-"""
+"""Unit tests for emotion detection models."""
+
+from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
-from unittest.mock import MagicMock, patch
 from transformers.modeling_outputs import BaseModelOutputWithPooling
 
 try:
@@ -13,7 +12,7 @@ try:
 except ImportError as e:
     raise RuntimeError(
         f"Failed to import BERTEmotionClassifier: {e}. "
-        "Make sure all dependencies are installed."
+        "Make sure all dependencies are installed.",
     )
 
 
@@ -90,7 +89,7 @@ class TestBertEmotionClassifier:
     def test_predict_emotions(self):
         """Test emotion prediction functionality."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
-            "transformers.AutoModel.from_pretrained"
+            "transformers.AutoModel.from_pretrained",
         ), patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer:
             model = BERTEmotionClassifier(num_emotions=4)
             model.eval()
@@ -99,7 +98,7 @@ class TestBertEmotionClassifier:
             mock_tokenizer_instance = MagicMock()
             mock_tokenizer_instance.return_value = {
                 "input_ids": torch.tensor([[1, 2, 3, 0]]),  # [batch, seq_len]
-                "attention_mask": torch.tensor([[1, 1, 1, 0]])  # [batch, seq_len]
+                "attention_mask": torch.tensor([[1, 1, 1, 0]]),  # [batch, seq_len]
             }
             mock_tokenizer.return_value = mock_tokenizer_instance
 
@@ -173,7 +172,7 @@ class TestBertEmotionClassifier:
     def test_class_weights_handling(self):
         """Test that class weights are handled correctly."""
         with patch("transformers.AutoConfig.from_pretrained"), patch(
-            "transformers.AutoModel.from_pretrained"
+            "transformers.AutoModel.from_pretrained",
         ):
             class_weights = torch.tensor([1.0, 2.0, 3.0, 4.0])
             model = BERTEmotionClassifier(num_emotions=4, class_weights=class_weights)

@@ -1,50 +1,49 @@
-            # Get the actual words
-            # Get top word indices for this topic
-        # Add topic scores as features
-        # Apply SVD to reduce dimensions and extract topics
-        # Apply sentiment analyzer to get scores
-        # Assign dominant topic to each document
-        # Average word length
-        # Character count
-        # Convert topics to DataFrame for easier inspection
-        # Create TF-IDF vectorizer
-        # Create sentiment category based on compound score
-        # Ensure NLTK resources are downloaded
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Extract basic text features
-        # Extract basic time components
-        # Extract sentiment components into separate columns
-        # Extract sentiment features
-        # Extract time features
-        # Extract topic features if requested
-        # Get feature names (words)
-        # Get top words for each topic
-        # Lexical diversity (unique words / total words)
-        # Sentence count
-        # Time of day features
-        # Transform texts to TF-IDF matrix
-        # Try to ensure timestamp column is datetime type
-        # Unique word count
-        # Word count
-        # Words per sentence
+# Get the actual words
+# Get top word indices for this topic
+# Add topic scores as features
+# Apply SVD to reduce dimensions and extract topics
+# Apply sentiment analyzer to get scores
+# Assign dominant topic to each document
+# Average word length
+# Character count
+# Convert topics to DataFrame for easier inspection
+# Create TF-IDF vectorizer
+# Create sentiment category based on compound score
+# Ensure NLTK resources are downloaded
+# Ensure text column is string type
+# Ensure text column is string type
+# Ensure text column is string type
+# Extract basic text features
+# Extract basic time components
+# Extract sentiment components into separate columns
+# Extract sentiment features
+# Extract time features
+# Extract topic features if requested
+# Get feature names (words)
+# Get top words for each topic
+# Lexical diversity (unique words / total words)
+# Sentence count
+# Time of day features
+# Transform texts to TF-IDF matrix
+# Try to ensure timestamp column is datetime type
+# Unique word count
+# Word count
+# Words per sentence
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from nltk.sentiment import SentimentIntensityAnalyzer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
+import re
+
 import nltk
 import numpy as np
 import pandas as pd
-import re
-
-
-
+from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,9 @@ class FeatureEngineer:
             self.sentiment_analyzer = None
 
     def extract_basic_features(
-        self, df: pd.DataFrame, text_column: str = "content"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
     ) -> pd.DataFrame:
         """Extract basic statistical features from text.
 
@@ -86,10 +87,14 @@ class FeatureEngineer:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([len(word) for word in x.split()])
+            if len(x.split()) > 0
+            else 0,
         )
 
-        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
+        df["sentence_count"] = df[text_column].apply(
+            lambda x: len(re.split(r"[.!?]+", x)) - 1
+        )
 
         df["words_per_sentence"] = df.apply(
             lambda row: row["word_count"] / row["sentence_count"]
@@ -110,7 +115,9 @@ class FeatureEngineer:
         return df
 
     def extract_sentiment_features(
-        self, df: pd.DataFrame, text_column: str = "content"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
     ) -> pd.DataFrame:
         """Extract sentiment features from text using NLTK's VADER.
 
@@ -124,7 +131,7 @@ class FeatureEngineer:
         """
         if self.sentiment_analyzer is None:
             logger.warning(
-                "Sentiment analyzer not available. Skipping sentiment feature extraction."
+                "Sentiment analyzer not available. Skipping sentiment feature extraction.",
             )
             return df
 
@@ -144,7 +151,7 @@ class FeatureEngineer:
         df["sentiment_category"] = df["sentiment_compound"].apply(
             lambda score: "positive"
             if score > 0.05
-            else ("negative" if score < -0.05 else "neutral")
+            else ("negative" if score < -0.05 else "neutral"),
         )
 
         return df
@@ -207,7 +214,9 @@ class FeatureEngineer:
         return df, topics_df
 
     def extract_time_features(
-        self, df: pd.DataFrame, timestamp_column: str = "created_at"
+        self,
+        df: pd.DataFrame,
+        timestamp_column: str = "created_at",
     ) -> pd.DataFrame:
         """Extract time-related features from timestamp.
 
@@ -222,7 +231,9 @@ class FeatureEngineer:
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning(
+                "Timestamp column '{timestamp_column}' not found in DataFrame"
+            )
             return df
 
         try:

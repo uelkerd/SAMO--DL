@@ -1,18 +1,15 @@
-        # Stop if we hit a KeyboardInterrupt
-    # Summary
-    # Test basic Python
-    # Test core modules one by one
+# Stop if we hit a KeyboardInterrupt
+# Summary
+# Test basic Python
+# Test core modules one by one
 #!/usr/bin/env python3
 import logging
 import sys
-
-
 
 """
 Basic Environment Test Script
 Tests imports one by one to identify issues
 """
-
 
 
 def test_import(module_name, description):
@@ -66,9 +63,8 @@ def main():
     if working == total:
         logging.info("🎉 All tests passed! Environment is working.")
         return True
-    else:
-        logging.info("⚠️  Some tests failed. Environment has issues.")
-        return False
+    logging.info("⚠️  Some tests failed. Environment has issues.")
+    return False
 
 
 if __name__ == "__main__":

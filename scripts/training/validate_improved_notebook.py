@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""
-Validate Improved Expanded Training Notebook
+"""Validate Improved Expanded Training Notebook
 Tests the notebook structure, content, and ensures it's ready for Colab execution
 """
 
 import json
 
+
 def validate_notebook():
     """Validate the improved notebook for Colab execution."""
-
     print("🔍 Validating improved notebook...")
 
     # Load the notebook
     try:
-        with open('notebooks/expanded_dataset_training_improved.ipynb') as f:
+        with open("notebooks/expanded_dataset_training_improved.ipynb") as f:
             notebook = json.load(f)
         print("✅ Notebook JSON is valid")
     except Exception as e:
@@ -21,19 +20,19 @@ def validate_notebook():
         return False
 
     # Check notebook structure
-    cells = notebook['cells']
+    cells = notebook["cells"]
     print(f"📊 Notebook has {len(cells)} cells")
 
     # Validate cell types
-    markdown_cells = [c for c in cells if c['cell_type'] == 'markdown']
-    code_cells = [c for c in cells if c['cell_type'] == 'code']
+    markdown_cells = [c for c in cells if c["cell_type"] == "markdown"]
+    code_cells = [c for c in cells if c["cell_type"] == "code"]
 
     print(f"📝 Markdown cells: {len(markdown_cells)}")
     print(f"💻 Code cells: {len(code_cells)}")
 
     # Check for critical components
-    cell_sources = [str(c.get('source', '')) for c in cells]
-    all_source = ' '.join(cell_sources)
+    cell_sources = [str(c.get("source", "")) for c in cells]
+    all_source = " ".join(cell_sources)
 
     # Critical checks
     checks = [
@@ -77,7 +76,7 @@ def validate_notebook():
         "torch.cuda.empty_cache()",
         "non_blocking=True",
         "num_workers=2",
-        "pin_memory=True"
+        "pin_memory=True",
     ]
 
     print("\n🔍 GPU optimization checks:")
@@ -96,7 +95,7 @@ def validate_notebook():
         "scaler.step(optimizer)",
         "scaler.update()",
         "ReduceLROnPlateau",
-        "Early stopping triggered"
+        "Early stopping triggered",
     ]
 
     print("\n🔍 Training optimization checks:")
@@ -125,6 +124,7 @@ def validate_notebook():
         print("\n⚠️  Notebook needs fixes before Colab execution")
 
     return all_passed
+
 
 if __name__ == "__main__":
     validate_notebook()
