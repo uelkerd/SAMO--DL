@@ -33,7 +33,7 @@ transcription:
   no_speech_threshold: 0.6          # Higher = more speech required
 
   # Performance settings
-  fp16: true  # Use half precision for speed
+  fp16: false  # Use half precision for speed (only when CUDA available)
 
 # Audio Processing Configuration
 audio:

@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import torch
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,8 @@ class SAMOWhisperConfig:
             "condition_on_previous_text",
             transcription_config.get("condition_on_previous_text", True),
         )
-        self.fp16 = whisper_config.get("fp16", transcription_config.get("fp16", True))
+        config_fp16 = whisper_config.get("fp16", transcription_config.get("fp16", False))
+        self.fp16 = config_fp16 and torch.cuda.is_available()
         self.compression_ratio_threshold = whisper_config.get(
             "compression_ratio_threshold",
             transcription_config.get("compression_ratio_threshold", 2.4),
@@ -99,7 +101,7 @@ class SAMOWhisperConfig:
         self.suppress_tokens = "-1"
         self.initial_prompt = None
         self.condition_on_previous_text = True
-        self.fp16 = True
+        self.fp16 = torch.cuda.is_available()
         self.compression_ratio_threshold = 2.4
         self.logprob_threshold = -1.0
         self.no_speech_threshold = 0.6

@@ -96,7 +96,8 @@ class SAMOWhisperConfig:
             "condition_on_previous_text",
             transcription_config.get("condition_on_previous_text", True),
         )
-        self.fp16 = whisper_config.get("fp16", transcription_config.get("fp16", True))
+        config_fp16 = whisper_config.get("fp16", transcription_config.get("fp16", False))
+        self.fp16 = config_fp16 and torch.cuda.is_available()
         self.compression_ratio_threshold = whisper_config.get(
             "compression_ratio_threshold",
             transcription_config.get("compression_ratio_threshold", 2.4),
@@ -123,7 +124,7 @@ class SAMOWhisperConfig:
         self.suppress_tokens = "-1"
         self.initial_prompt = None
         self.condition_on_previous_text = True
-        self.fp16 = True
+        self.fp16 = torch.cuda.is_available()
         self.compression_ratio_threshold = 2.4
         self.logprob_threshold = -1.0
         self.no_speech_threshold = 0.6
@@ -280,6 +281,9 @@ class SAMOWhisperTranscriber:
         else:
             self.device = torch.device(self.config.device)
 
+        # Set runtime_fp16 based on CUDA availability
+        self.runtime_fp16 = self.config.fp16 and torch.cuda.is_available()
+
         logger.info("Initializing SAMO Whisper %s model...", self.config.model_size)
         logger.info("Device: %s", self.device)
 
@@ -386,7 +390,7 @@ class SAMOWhisperTranscriber:
                 "suppress_tokens": self.config.suppress_tokens,
                 "initial_prompt": initial_prompt or self.config.initial_prompt,
                 "condition_on_previous_text": self.config.condition_on_previous_text,
-                "fp16": self.config.fp16,
+                "fp16": self.runtime_fp16,
                 "compression_ratio_threshold": self.config.compression_ratio_threshold,
                 "logprob_threshold": self.config.logprob_threshold,
                 "no_speech_threshold": self.config.no_speech_threshold,

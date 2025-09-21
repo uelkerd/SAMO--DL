@@ -53,7 +53,7 @@ class TranscriptionConfig:
     suppress_tokens: str = "-1"  # Tokens to suppress
     initial_prompt: Optional[str] = None  # Context prompt
     condition_on_previous_text: bool = True
-    fp16: bool = True
+    fp16: bool = False  # Will be set to True only if CUDA is available
     compression_ratio_threshold: float = 2.4
     logprob_threshold: float = -1.0
     no_speech_threshold: float = 0.6
@@ -215,6 +215,9 @@ class WhisperTranscriber:
         else:
             self.device = torch.device(self.config.device)
 
+        # Set runtime_fp16 based on CUDA availability
+        self.runtime_fp16 = self.config.fp16 and torch.cuda.is_available()
+
         logger.info(
             "Initializing Whisper {self.config.model_size} model...",
             extra={"format_args": True},
@@ -273,7 +276,7 @@ class WhisperTranscriber:
                 "suppress_tokens": self.config.suppress_tokens,
                 "initial_prompt": initial_prompt or self.config.initial_prompt,
                 "condition_on_previous_text": self.config.condition_on_previous_text,
-                "fp16": self.config.fp16,
+                "fp16": self.runtime_fp16,
                 "compression_ratio_threshold": self.config.compression_ratio_threshold,
                 "logprob_threshold": self.config.logprob_threshold,
                 "no_speech_threshold": self.config.no_speech_threshold,
