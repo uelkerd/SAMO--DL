@@ -17,7 +17,8 @@ def test_http_exception_handler_400_detail_shape():
     resp = client.get("/__raise_400_test__")
     assert resp.status_code == 400
     body = resp.json()
-    assert isinstance(body, dict) and "detail" in body
+    assert isinstance(body, dict)
+    assert "detail" in body
     assert body["detail"] == "Bad input"
 
 
@@ -31,7 +32,8 @@ def test_http_exception_handler_500_shape():
     resp = client.get("/__raise_500_test__")
     assert resp.status_code == 500
     body = resp.json()
-    assert "error" in body and body["error"] == "Boom"
+    assert "error" in body
+    assert body["error"] == "Boom"
     assert body.get("status_code") == 500
 
 
@@ -53,6 +55,6 @@ def test_http_exception_handler_other_4xx_codes():
         resp = client.get(path)
         assert resp.status_code == expected[0]
         body = resp.json()
-        assert isinstance(body, dict) and "detail" in body
+        assert isinstance(body, dict)
+        assert "detail" in body
         assert body["detail"] == expected[1]
-

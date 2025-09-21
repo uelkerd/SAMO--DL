@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug Calibration Script
+"""Debug Calibration Script.
 
 This script helps debug the calibration test by checking file paths and permissions.
 """
@@ -35,13 +34,18 @@ def debug_calibration_issue():
             logger.info(f"File permissions: {oct(checkpoint_file.stat().st_mode)}")
 
             try:
-                checkpoint = torch.load(checkpoint_file, map_location="cpu", weights_only=False)
+                checkpoint = torch.load(
+                    checkpoint_file,
+                    map_location="cpu",
+                    weights_only=False,
+                )
                 logger.info("✅ Checkpoint loaded successfully")
                 logger.info(
-                    f"Checkpoint keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}"
+                    f"Checkpoint keys: "
+                    f"{list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'Not a dict'}",
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to load checkpoint: {e}")
+                logger.exception(f"❌ Failed to load checkpoint: {e}")
         else:
             logger.error("❌ best_model.pt does not exist")
     else:
@@ -50,7 +54,7 @@ def debug_calibration_issue():
     try:
         logger.info("✅ PyTorch imported successfully")
     except ImportError as e:
-        logger.error(f"❌ PyTorch import failed: {e}")
+        logger.exception(f"❌ PyTorch import failed: {e}")
 
 
 if __name__ == "__main__":

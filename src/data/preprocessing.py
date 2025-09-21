@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""
-Text Preprocessing Module for SAMO Deep Learning.
+"""Text Preprocessing Module for SAMO Deep Learning.
 
 This module provides comprehensive text preprocessing functionality
 for journal entries and other text data.
 """
+
 import string
 from typing import Optional
 
@@ -30,6 +30,7 @@ class TextPreprocessor:
         """Initialize text preprocessor.
 
         Args:
+        ----
             remove_stopwords: Whether to remove stopwords
             remove_punctuation: Whether to remove punctuation
             lowercase: Whether to convert text to lowercase
@@ -59,9 +60,11 @@ class TextPreprocessor:
         """Apply full preprocessing pipeline to text.
 
         Args:
+        ----
             text: Input text to preprocess
 
         Returns:
+        -------
             Preprocessed text
 
         """
@@ -96,11 +99,13 @@ class TextPreprocessor:
         """Preprocess text in a DataFrame column.
 
         Args:
+        ----
             df: DataFrame containing text data
             text_column: Name of column containing raw text
             output_column: Name of column to store processed text
 
         Returns:
+        -------
             DataFrame with processed text column added
 
         """
@@ -109,15 +114,19 @@ class TextPreprocessor:
         return df
 
     def extract_features(
-        self, df: pd.DataFrame, text_column: str = "processed_text"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "processed_text",
     ) -> pd.DataFrame:
         """Extract basic text features from preprocessed text.
 
         Args:
+        ----
             df: DataFrame containing processed text
             text_column: Name of column containing processed text
 
         Returns:
+        -------
             DataFrame with text features added
 
         """
@@ -128,11 +137,13 @@ class TextPreprocessor:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["sentence_count"] = df[text_column].apply(
-            lambda x: x.count(".") + x.count("!") + x.count("?") + 1
+            lambda x: x.count(".") + x.count("!") + x.count("?") + 1,
         )
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([len(word) for word in x.split()])
+            if len(x.split()) > 0
+            else 0,
         )
 
         return df
@@ -145,6 +156,7 @@ class JournalEntryPreprocessor:
         """Initialize journal entry preprocessor.
 
         Args:
+        ----
             text_preprocessor: Text preprocessor to use
 
         """
@@ -159,11 +171,13 @@ class JournalEntryPreprocessor:
         """Preprocess journal entries DataFrame.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             title_column: Name of column containing entry titles
 
         Returns:
+        -------
             DataFrame with processed entries
 
         """

@@ -1,31 +1,30 @@
-        # Get predictions
-        # Process labels
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Create model
-    # Create tokenizer
-    # Load checkpoint
-    # Load model
-    # Load validation data
-    # Process validation data
-    # Set optimal temperature
+# Get predictions
+# Process labels
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Create model
+# Create tokenizer
+# Load checkpoint
+# Load model
+# Load validation data
+# Process validation data
+# Set optimal temperature
 # Add src to path
 # Configure logging
 # Constants
 #!/usr/bin/env python3
-from pathlib import Path
-from sklearn.metrics import f1_score
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-from transformers import AutoTokenizer
 import logging
 import os
 import sys
+from pathlib import Path
+
 import torch
+from sklearn.metrics import f1_score
+from transformers import AutoTokenizer
 
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 """
 Test Model Calibration
@@ -88,7 +87,11 @@ def test_calibration():
         batch = val_dataset[i : i + batch_size]
 
         inputs = tokenizer(
-            batch["text"], padding=True, truncation=True, max_length=512, return_tensors="pt"
+            batch["text"],
+            padding=True,
+            truncation=True,
+            max_length=512,
+            return_tensors="pt",
         ).to(device)
 
         with torch.no_grad():
@@ -115,9 +118,8 @@ def test_calibration():
     if micro_f1 >= TARGET_F1_SCORE:
         logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
         return 0
-    else:
-        logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
-        return 1
+    logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
+    return 1
 
 
 if __name__ == "__main__":

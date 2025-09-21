@@ -172,7 +172,7 @@ def analyze_emotion(text):
         json={"text": text},
         headers={"Content-Type": "application/json"}
     )
-    
+
     if response.status_code == 200:
         result = response.json()
         return {
@@ -196,7 +196,7 @@ def analyze_emotions_batch(texts):
         json={"texts": texts},
         headers={"Content-Type": "application/json"}
     )
-    
+
     if response.status_code == 200:
         results = response.json()
         return results['predictions']
@@ -223,7 +223,7 @@ async function analyzeEmotion(text) {
             },
             body: JSON.stringify({ text })
         });
-        
+
         if (response.ok) {
             const result = await response.json();
             return {
@@ -257,7 +257,7 @@ async function analyzeEmotionsBatch(texts) {
             },
             body: JSON.stringify({ texts })
         });
-        
+
         if (response.ok) {
             const results = await response.json();
             return results.predictions;
@@ -294,7 +294,7 @@ async function analyzeEmotion(text) {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         return {
             emotion: response.data.predicted_emotion,
             confidence: response.data.confidence,
@@ -316,7 +316,7 @@ async function analyzeEmotionsBatch(texts) {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         return response.data.predictions;
     } catch (error) {
         console.error('Error:', error.message);
@@ -419,7 +419,7 @@ def analyze_emotion_with_retry(text, max_retries=3):
                 json={"text": text},
                 headers={"Content-Type": "application/json"}
             )
-            
+
             if response.status_code == 429:  # Rate limited
                 wait_time = (2 ** attempt) + random.uniform(0, 1)
                 time.sleep(wait_time)
@@ -428,12 +428,12 @@ def analyze_emotion_with_retry(text, max_retries=3):
                 return response.json()
             else:
                 return {'error': f"Request failed: {response.status_code}"}
-                
+
         except Exception as e:
             if attempt == max_retries - 1:
                 return {'error': str(e)}
             time.sleep(1)
-    
+
     return {'error': 'Max retries exceeded'}
 ```
 
@@ -445,13 +445,13 @@ Always validate text input before sending:
 def validate_text(text):
     if not text or not isinstance(text, str):
         return False, "Text must be a non-empty string"
-    
+
     if len(text.strip()) == 0:
         return False, "Text cannot be empty or whitespace only"
-    
+
     if len(text) > 1000:  # Adjust limit as needed
         return False, "Text too long (max 1000 characters)"
-    
+
     return True, "Valid"
 
 # Usage
@@ -474,23 +474,23 @@ from collections import defaultdict
 class EmotionAnalyzer:
     def __init__(self):
         self.stats = defaultdict(list)
-    
+
     def analyze_with_monitoring(self, text):
         start_time = time.time()
-        
+
         try:
             result = analyze_emotion(text)
             response_time = (time.time() - start_time) * 1000
-            
+
             self.stats['response_times'].append(response_time)
             self.stats['success_count'] += 1
-            
+
             return result
-            
+
         except Exception as e:
             self.stats['error_count'] += 1
             raise e
-    
+
     def get_stats(self):
         if self.stats['response_times']:
             avg_time = sum(self.stats['response_times']) / len(self.stats['response_times'])
@@ -546,7 +546,7 @@ def safe_analyze_emotion(text):
             headers={"Content-Type": "application/json"},
             timeout=10  # 10 second timeout
         )
-        
+
         if response.status_code == 200:
             return {'success': True, 'data': response.json()}
         elif response.status_code == 400:
@@ -557,7 +557,7 @@ def safe_analyze_emotion(text):
             return {'success': False, 'error': 'Server error', 'details': response.json()}
         else:
             return {'success': False, 'error': f'Unexpected status: {response.status_code}'}
-            
+
     except requests.exceptions.Timeout:
         return {'success': False, 'error': 'Request timeout'}
     except requests.exceptions.ConnectionError:
@@ -580,7 +580,7 @@ else:
 ```python
 def analyze_emotion_with_threshold(text, confidence_threshold=0.8):
     result = analyze_emotion(text)
-    
+
     if result['confidence'] >= confidence_threshold:
         return {
             'emotion': result['emotion'],
@@ -602,19 +602,19 @@ def analyze_emotion_with_threshold(text, confidence_threshold=0.8):
 def analyze_emotion_trend(texts):
     """Analyze emotional trend across multiple texts."""
     results = analyze_emotions_batch(texts)
-    
+
     emotion_counts = defaultdict(int)
     total_confidence = 0
-    
+
     for result in results:
         emotion_counts[result['predicted_emotion']] += 1
         total_confidence += result['confidence']
-    
+
     avg_confidence = total_confidence / len(results) if results else 0
-    
+
     # Find dominant emotion
     dominant_emotion = max(emotion_counts.items(), key=lambda x: x[1])[0]
-    
+
     return {
         'dominant_emotion': dominant_emotion,
         'emotion_distribution': dict(emotion_counts),
@@ -737,4 +737,4 @@ For additional support:
 - Review the deployment guide for production setup
 - Monitor system metrics for optimal performance
 
-Happy emotion analyzing! 🎉 
+Happy emotion analyzing! 🎉

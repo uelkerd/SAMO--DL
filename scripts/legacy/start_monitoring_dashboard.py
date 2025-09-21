@@ -1,23 +1,17 @@
-        # Import monitoring components
-        # Initialize monitor
-        # Keep main thread alive
-        # Start monitoring in background thread
-        from scripts.model_monitoring import ModelHealthMonitor
-    # Check if config file exists
-    # Start monitoring system
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
-from pathlib import Path
+"""Monitoring Dashboard Startup Script.
+
+Starts the model monitoring dashboard and health monitoring system.
+"""
+
 import argparse
 import logging
 import sys
 import threading
 import time
+from pathlib import Path
 
-
-
+from scripts.model_monitoring import ModelHealthMonitor
 
 """
 Model Monitoring Dashboard Starter
@@ -47,8 +41,10 @@ def start_monitoring_system(config_path: str, port: int) -> None:
     """Start the complete monitoring system.
 
     Args:
+    ----
         config_path: Path to monitoring configuration
         port: Dashboard port
+
     """
     logger.info("🚀 Starting SAMO Model Monitoring System...")
 
@@ -68,7 +64,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
         try:
             while True:
                 time.sleep(60)
-                health_status = monitor.get_health_status()
+                monitor.get_health_status()
                 logger.info("💚 System Health: {health_status['overall_status']}")
 
         except KeyboardInterrupt:
@@ -76,8 +72,8 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             monitor.stop_monitoring()
             logger.info("✅ Monitoring system stopped gracefully")
 
-    except Exception as e:
-        logger.error("❌ Failed to start monitoring system: {e}")
+    except Exception:
+        logger.exception("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 
 
@@ -91,7 +87,10 @@ def main():
         help="Path to monitoring configuration (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT, help="Dashboard port (default: {DEFAULT_PORT})"
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help="Dashboard port (default: {DEFAULT_PORT})",
     )
 
     args = parser.parse_args()

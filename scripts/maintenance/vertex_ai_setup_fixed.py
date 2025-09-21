@@ -1,39 +1,19 @@
-            # Create custom job with correct API syntax
-            # Create hyperparameter tuning job with correct API syntax
-            # Create validation job with correct API syntax
-            # Import Vertex AI
-            # Initialize Vertex AI
-            # Model monitoring configuration
-            # Pipeline configuration
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import aiplatform
-            from google.cloud import storage
-        # Step 1: Environment setup
-        # Step 2: Create validation job
-        # Step 3: Create custom training job
-        # Step 4: Create hyperparameter tuning
-        # Step 5: Create monitoring
-        # Step 6: Create automated pipeline
-    # Create Vertex AI setup
-    # Get project ID from environment or user input
-    # Setup complete infrastructure
-    # Summary
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from typing import Dict, Any, Optional
+"""Fixed Vertex AI Setup Script.
+
+Sets up Vertex AI environment with corrected API syntax.
+"""
+
 import logging
 import os
 import sys
 
+# Configure logging
+#!/usr/bin/env python3
+from pathlib import Path
+from typing import Any, Dict
 
-
-
-
-
+from google.cloud import aiplatform
 
 """
 Fixed Vertex AI Setup for SAMO Deep Learning Project.
@@ -44,7 +24,10 @@ to solve the 0.0000 loss issue and provide managed ML training.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -76,11 +59,12 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
-            logger.error("❌ Vertex AI setup failed: {e}")
+        except Exception:
+            logger.exception("❌ Vertex AI setup failed: {e}")
             return False
 
-    def create_custom_training_job(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_custom_training_job() -> Dict[str, Any]:
         """Create custom training job for emotion detection model."""
         logger.info("🚀 Creating Vertex AI custom training job...")
 
@@ -88,7 +72,9 @@ class VertexAISetupFixed:
             job = aiplatform.CustomTrainingJob(
                 display_name="samo-emotion-detection-training",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-gpu.2-0:latest",
-                model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest",
+                model_serving_container_image_uri=(
+                    "gcr.io/cloud-aiplatform/prediction/pytorch-gpu.2-0:latest"
+                ),
                 machine_type="n1-standard-4",
                 accelerator_type="NVIDIA_TESLA_T4",
                 accelerator_count=1,
@@ -109,10 +95,11 @@ class VertexAISetupFixed:
             return {"job": job, "success": True}
 
         except Exception as e:
-            logger.error("❌ Custom training job creation failed: {e}")
+            logger.exception("❌ Custom training job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def create_hyperparameter_tuning_job(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_hyperparameter_tuning_job() -> Dict[str, Any]:
         """Create hyperparameter tuning job to optimize the model."""
         logger.info("🎯 Creating hyperparameter tuning job...")
 
@@ -131,20 +118,20 @@ class VertexAISetupFixed:
                         "type": "DOUBLE",
                         "min_value": 1e-6,
                         "max_value": 5e-5,
-                        "scale_type": "UNIT_LOG_SCALE"
+                        "scale_type": "UNIT_LOG_SCALE",
                     },
                     "batch_size": {
                         "type": "DISCRETE",
-                        "values": [8, 16, 32]
+                        "values": [8, 16, 32],
                     },
                     "freeze_bert_layers": {
                         "type": "DISCRETE",
-                        "values": [4, 6, 8]
-                    }
+                        "values": [4, 6, 8],
+                    },
                 },
                 metric_spec={
-                    "f1_score": "maximize"
-                }
+                    "f1_score": "maximize",
+                },
             )
 
             logger.info("✅ Hyperparameter tuning job created successfully")
@@ -155,7 +142,7 @@ class VertexAISetupFixed:
             return {"tuning_job": tuning_job, "success": True}
 
         except Exception as e:
-            logger.error("❌ Hyperparameter tuning job creation failed: {e}")
+            logger.exception("❌ Hyperparameter tuning job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
     def create_model_monitoring(self) -> Dict[str, Any]:
@@ -174,9 +161,9 @@ class VertexAISetupFixed:
                         "prediction_latency",
                         "prediction_throughput",
                         "model_accuracy",
-                        "data_drift"
-                    ]
-                }
+                        "data_drift",
+                    ],
+                },
             }
 
             logger.info("✅ Model monitoring configuration created")
@@ -186,10 +173,11 @@ class VertexAISetupFixed:
             return {"config": monitoring_config, "success": True}
 
         except Exception as e:
-            logger.error("❌ Model monitoring setup failed: {e}")
+            logger.exception("❌ Model monitoring setup failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def create_automated_pipeline(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_automated_pipeline() -> Dict[str, Any]:
         """Create automated ML pipeline for continuous training."""
         logger.info("🔄 Creating automated ML pipeline...")
 
@@ -202,32 +190,35 @@ class VertexAISetupFixed:
                     "data_preprocessing",
                     "model_training",
                     "model_evaluation",
-                    "model_deployment"
+                    "model_deployment",
                 ],
                 "schedule": "0 2 * * *",  # Daily at 2 AM
                 "trigger_conditions": [
                     "data_drift_detected",
                     "model_performance_degradation",
-                    "new_data_available"
-                ]
+                    "new_data_available",
+                ],
             }
 
             logger.info("✅ Automated pipeline configuration created")
             logger.info("   Schedule: Daily at 2 AM")
-            logger.info("   Trigger conditions: data drift, performance degradation, new data")
+            logger.info(
+                "   Trigger conditions: data drift, performance degradation, new data",
+            )
 
             return {"config": pipeline_config, "success": True}
 
         except Exception as e:
-            logger.error("❌ Automated pipeline setup failed: {e}")
+            logger.exception("❌ Automated pipeline setup failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def run_validation_on_vertex(self) -> bool:
+    @staticmethod
+    def run_validation_on_vertex() -> bool:
         """Run validation on Vertex AI to identify 0.0000 loss issues."""
         logger.info("🔍 Running validation on Vertex AI...")
 
         try:
-            validation_job = aiplatform.CustomTrainingJob(
+            aiplatform.CustomTrainingJob(
                 display_name="samo-validation-job",
                 container_uri="gcr.io/cloud-aiplatform/training/pytorch-cpu.2-0:latest",
                 machine_type="n1-standard-4",
@@ -240,8 +231,8 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
-            logger.error("❌ Validation job creation failed: {e}")
+        except Exception:
+            logger.exception("❌ Validation job creation failed: {e}")
             return False
 
     def setup_complete_infrastructure(self) -> Dict[str, Any]:
@@ -298,14 +289,16 @@ def main():
     logger.info("📊 VERTEX AI SETUP SUMMARY")
     logger.info("{'='*50}")
 
-    for component, result in results.items():
+    for _component, result in results.items():
         if result:
             logger.info("✅ {component.title()}: SUCCESS")
         else:
             logger.error("❌ {component.title()}: FAILED")
 
     logger.info("\n🎯 NEXT STEPS:")
-    logger.info("   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai")
+    logger.info(
+        "   1. Check Vertex AI console: https://console.cloud.google.com/vertex-ai",
+    )
     logger.info("   2. Run validation job to identify 0.0000 loss root cause")
     logger.info("   3. Start training job with optimized configuration")
     logger.info("   4. Monitor training progress and results")

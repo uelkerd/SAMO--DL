@@ -8,23 +8,23 @@ set -e
 # Check for required tools
 check_required_tools() {
     echo "🔧 Checking for required tools..."
-    
+
     if ! command -v jq &> /dev/null; then
         echo "❌ Error: jq is not installed. Please install jq before running this script."
         echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
         exit 1
     fi
-    
+
     if ! command -v docker &> /dev/null; then
         echo "❌ Error: docker is not installed. Please install docker before running this script."
         exit 1
     fi
-    
+
     if ! docker scout --version &> /dev/null; then
         echo "❌ Error: Docker Scout is not available. Please ensure Docker Desktop is up to date."
         exit 1
     fi
-    
+
     echo "✅ All required tools are available."
 }
 
@@ -71,7 +71,7 @@ if [ -f scout_cves.json ]; then
         exit 2
     fi
     echo "✅ No critical vulnerabilities detected."
-    
+
     # Display vulnerability summary
     echo "📊 Vulnerability summary:"
     jq -r '.summary' scout_cves.json

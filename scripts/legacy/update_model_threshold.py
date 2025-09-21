@@ -1,24 +1,23 @@
-        # Create model
-        # Load checkpoint
-        # Load state dict
-        # Save model
-        # Set temperature
-        # Update threshold
-    # Find an existing model file
+# Create model
+# Load checkpoint
+# Load state dict
+# Save model
+# Set temperature
+# Update threshold
+# Find an existing model file
 # Add src to path
 # Configure logging
 # Constants
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 import argparse
 import logging
 import os
 import sys
+from pathlib import Path
+
 import torch
 
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Update Model Threshold
@@ -39,17 +38,23 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_THRESHOLD = 0.6
 DEFAULT_TEMPERATURE = 1.0
-MODEL_PATHS = ["models/checkpoints/bert_emotion_classifier.pth", "test_checkpoints/best_model.pt"]
+MODEL_PATHS = [
+    "models/checkpoints/bert_emotion_classifier.pth",
+    "test_checkpoints/best_model.pt",
+]
 
 
 def update_threshold(threshold: float = DEFAULT_THRESHOLD):
     """Update the model's prediction threshold.
 
     Args:
+    ----
         threshold: New threshold value (0.0-1.0)
 
     Returns:
+    -------
         bool: True if successful, False otherwise
+
     """
     if threshold < 0.0 or threshold > 1.0:
         logger.error("Invalid threshold: {threshold}. Must be between 0.0 and 1.0")
@@ -81,7 +86,8 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
             return False
 
         logger.info(
-            "Updating prediction threshold from {model.prediction_threshold} to {threshold}"
+            "Updating prediction threshold from {model.prediction_threshold} to "
+            "{threshold}",
         )
         model.prediction_threshold = threshold
 
@@ -99,7 +105,7 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
         return True
 
     except Exception:
-        logger.error("Error updating model threshold: {e}")
+        logger.exception("Error updating model threshold: {e}")
         return False
 
 

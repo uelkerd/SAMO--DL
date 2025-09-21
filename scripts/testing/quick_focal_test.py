@@ -1,27 +1,19 @@
-                # Simple focal loss implementation
-        # Add src to path
-        # Add src to path
-        # Create dummy inputs and targets
-        # Create model
-        # Load dataset
-        # Test focal loss
-        # Test with dummy data
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
-        from torch import nn
-        import torch
-        import torch.nn.functional as F
-    # Summary
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
+"""Quick Focal Loss Test Script.
+
+Tests focal loss implementation and performance.
+"""
+
 import logging
 import sys
+from pathlib import Path
 
+import torch
+import torch.nn.functional as F
+from torch import nn
 
-
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 """
 Quick Focal Loss Test
@@ -38,6 +30,7 @@ def test_focal_loss_math():
     logger.info("🧮 Testing Focal Loss Mathematics...")
 
     try:
+
         class SimpleFocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -49,7 +42,11 @@ def test_focal_loss_math():
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-                bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+                bce_loss = F.binary_cross_entropy_with_logits(
+                    inputs,
+                    targets,
+                    reduction="none",
+                )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
@@ -60,7 +57,7 @@ def test_focal_loss_math():
         targets = torch.randint(0, 2, (batch_size, num_classes)).float()
 
         focal_loss = SimpleFocalLoss(alpha=0.25, gamma=2.0)
-        loss = focal_loss(inputs, targets)
+        focal_loss(inputs, targets)
 
         logger.info("✅ Focal Loss Test PASSED")
         logger.info("   • Loss value: {loss.item():.4f}")
@@ -69,8 +66,8 @@ def test_focal_loss_math():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Focal Loss Test FAILED: {e}")
+    except Exception:
+        logger.exception("❌ Focal Loss Test FAILED: {e}")
         return False
 
 
@@ -84,18 +81,20 @@ def test_dataset_loading():
         data_loader = GoEmotionsDataLoader()
         datasets = data_loader.prepare_datasets()  # Use correct method name
 
-        train_size = len(datasets["train"])
-        val_size = len(datasets["validation"])
+        len(datasets["train"])
+        len(datasets["validation"])
 
         logger.info("✅ Dataset Loading Test PASSED")
         logger.info("   • Train examples: {train_size}")
         logger.info("   • Validation examples: {val_size}")
-        logger.info("   • Class weights computed: {datasets['class_weights'] is not None}")
+        logger.info(
+            "   • Class weights computed: {datasets['class_weights'] is not None}",
+        )
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Dataset Loading Test FAILED: {e}")
+    except Exception:
+        logger.exception("❌ Dataset Loading Test FAILED: {e}")
         return False
 
 
@@ -107,11 +106,13 @@ def test_model_creation():
         sys.path.append(str(Path(__file__).parent.parent.resolve()))
 
         model, loss_fn = create_bert_emotion_classifier(
-            model_name="bert-base-uncased", class_weights=None, freeze_bert_layers=4
+            model_name="bert-base-uncased",
+            class_weights=None,
+            freeze_bert_layers=4,
         )
 
-        param_count = sum(p.numel() for p in model.parameters())
-        trainable_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        sum(p.numel() for p in model.parameters())
+        sum(p.numel() for p in model.parameters() if p.requires_grad)
 
         logger.info("✅ Model Creation Test PASSED")
         logger.info("   • Total parameters: {param_count:,}")
@@ -120,8 +121,8 @@ def test_model_creation():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Model Creation Test FAILED: {e}")
+    except Exception:
+        logger.exception("❌ Model Creation Test FAILED: {e}")
         return False
 
 
@@ -142,8 +143,8 @@ def main():
         logger.info("\n📋 Running {test_name}...")
         try:
             results[test_name] = test_func()
-        except Exception as e:
-            logger.error("❌ {test_name} failed with exception: {e}")
+        except Exception:
+            logger.exception("❌ {test_name} failed with exception: {e}")
             results[test_name] = False
 
     logger.info("\n📊 Test Results Summary:")
@@ -152,8 +153,7 @@ def main():
     passed = sum(results.values())
     total = len(results)
 
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+    for test_name, _result in results.items():
         logger.info("   • {test_name}: {status}")
 
     logger.info("\n🎯 Overall: {passed}/{total} tests passed")

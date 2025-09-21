@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Prepare Vertex AI Data Script
+"""Prepare Vertex AI Data Script.
 
 This script prepares data for training on Google Cloud Vertex AI.
 """
@@ -36,6 +35,7 @@ def prepare_vertex_data():
 
         # Save training data
         import json
+
         with open(data_dir / "training_data.json", "w") as f:
             json.dump(sample_data, f, indent=2)
 
@@ -58,7 +58,7 @@ def prepare_vertex_data():
         logger.info("✅ Vertex AI data preparation completed!")
 
     except Exception as e:
-        logger.error(f"❌ Data preparation failed: {e}")
+        logger.exception(f"❌ Data preparation failed: {e}")
         raise
 
 

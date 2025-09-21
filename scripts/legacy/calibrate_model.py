@@ -1,25 +1,24 @@
-    # --- Calibration Search ---
-    # --- Load Data ---
-    # --- Load Model ---
-    # --- Report Results ---
+# --- Calibration Search ---
+# --- Load Data ---
+# --- Load Model ---
+# --- Report Results ---
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
+import logging
+import sys
 from pathlib import Path
+
+import numpy as np
+import torch
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import AutoTokenizer
-import logging
-import numpy as np
-import sys
-import torch
 
-
-
-
-
-
+from src.models.emotion_detection.bert_classifier import (
+    EmotionDataset,
+    create_bert_emotion_classifier,
+)
+from src.models.emotion_detection.dataset_loader import GoEmotionsDataLoader
 
 """
 Model Calibration Script
@@ -29,6 +28,7 @@ model by evaluating its performance on the validation set across a range of valu
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
 
 def calibrate_model():
     """Find the best temperature and threshold for the model."""
@@ -43,7 +43,9 @@ def calibrate_model():
         return
 
     checkpoint = torch.load(
-        checkpoint_path, map_location=device, weights_only=False
+        checkpoint_path,
+        map_location=device,
+        weights_only=False,
     )  # Set to False
     model, _ = create_bert_emotion_classifier()
     model.load_state_dict(checkpoint["model_state_dict"])
@@ -95,7 +97,12 @@ def calibrate_model():
 
         for thresh in thresholds:
             predictions = (all_probs > thresh).astype(int)
-            micro_f1 = f1_score(all_labels, predictions, average="micro", zero_division=0)
+            micro_f1 = f1_score(
+                all_labels,
+                predictions,
+                average="micro",
+                zero_division=0,
+            )
 
             results.append((temp, thresh, micro_f1))
 

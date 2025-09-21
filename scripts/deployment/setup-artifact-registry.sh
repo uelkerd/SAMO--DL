@@ -30,12 +30,12 @@ print_error() {
 # Check for required tools
 check_required_tools() {
     print_status "Checking for required tools..."
-    
+
     if ! command -v gcloud &> /dev/null; then
         print_error "gcloud CLI is not installed. Please install it first."
         exit 1
     fi
-    
+
     print_success "All required tools are available."
 }
 
@@ -54,9 +54,9 @@ get_project_id() {
 # Enable required APIs
 enable_apis() {
     print_status "Enabling required APIs..."
-    
+
     gcloud services enable artifactregistry.googleapis.com --project="$PROJECT_ID"
-    
+
     print_success "Artifact Registry API enabled successfully."
 }
 
@@ -64,9 +64,9 @@ enable_apis() {
 create_artifact_repository() {
     local repo_name="${_ARTIFACT_REPO:-samo-dl-repo}" # Default to 'samo-dl-repo' if not set
     local location="${_REGION:-us-central1}" # Default to 'us-central1' if not set
-    
+
     print_status "Creating Artifact Registry repository '$repo_name' in '$location'..."
-    
+
     if gcloud artifacts repositories describe "$repo_name" --location="$location" --project="$PROJECT_ID" &>/dev/null; then
         print_warning "Repository '$repo_name' already exists in '$location'. Skipping creation."
     else
@@ -82,12 +82,12 @@ create_artifact_repository() {
 # Main function
 main() {
     print_status "Setting up Google Artifact Registry..."
-    
+
     check_required_tools
     get_project_id
     enable_apis
     create_artifact_repository
-    
+
     print_success "Artifact Registry setup complete!"
     print_status "Repository name: ${_ARTIFACT_REPO:-samo-dl-repo}"
     print_status "Project ID: $PROJECT_ID"

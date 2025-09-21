@@ -1,44 +1,28 @@
-                # Apply threshold
-        # Calculate macro F1
-        # Calculate metrics
-        # Calculate micro F1
-        # Concatenate results
-        # Convert to numpy for sklearn
-        # If it's a tuple, assume first element is the state dict
-        # If it's just the state dict directly
-        # Run evaluation
-        # Set temperature
-        # Show some predictions
-        from sklearn.metrics import f1_score
-    # Create dataset
-    # Create emotion labels (simplified for testing)
-    # Create simple test data
-    # Handle different checkpoint formats
-    # Initialize model
-    # Load checkpoint
-    # Load sample data
-    # Set device
-    # Test different temperatures
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier, EmotionDataset
-from pathlib import Path
-from torch.utils.data import DataLoader
+"""Simple Temperature Test Local Script.
+
+Tests temperature scaling calibration locally.
+"""
+
 import json
 import logging
 import sys
+from pathlib import Path
+
 import torch
-
-
-
-
-
-
+from sklearn.metrics import f1_score
+from torch.utils.data import DataLoader
 
 """
 Simple Temperature Scaling Test - Using Local Sample Data.
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
+# Import required modules
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
+from src.models.emotion_detection.dataset import EmotionDataset
+
 
 def simple_temperature_test_local():
     logging.info("🌡️ Simple Temperature Scaling Test (Local Data)")
@@ -131,17 +115,15 @@ def simple_temperature_test_local():
         pred_np = all_predictions.numpy()
         label_np = all_labels.numpy()
 
-        micro_f1 = f1_score(label_np, pred_np, average="micro", zero_division=0)
+        f1_score(label_np, pred_np, average="micro", zero_division=0)
 
-        macro_f1 = f1_score(label_np, pred_np, average="macro", zero_division=0)
+        f1_score(label_np, pred_np, average="macro", zero_division=0)
 
         logging.info("   Micro F1: {micro_f1:.4f}")
         logging.info("   Macro F1: {macro_f1:.4f}")
 
         logging.info("   Sample predictions (first 2 samples):")
         for i in range(min(2, len(test_texts))):
-            pred_emotions = pred_np[i]
-            true_emotions = label_np[i]
             logging.info("     Text: {test_texts[i][:50]}...")
             logging.info("     Pred: {pred_emotions}")
             logging.info("     True: {true_emotions}")

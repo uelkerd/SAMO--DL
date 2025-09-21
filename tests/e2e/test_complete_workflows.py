@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-End-to-end tests for complete user workflows.
+"""End-to-end tests for complete user workflows.
 Tests full system integration, data flow, and user scenarios.
 """
+
 import tempfile
 import time
 from pathlib import Path
@@ -57,7 +57,7 @@ class TestCompleteWorkflows:
         assert isinstance(emotions, dict)
         assert len(emotions) > 0
 
-        for emotion, confidence in emotions.items():
+        for _emotion, confidence in emotions.items():
             assert 0.0 <= confidence <= 1.0
 
         summary = data["summary"]
@@ -67,7 +67,9 @@ class TestCompleteWorkflows:
         assert isinstance(summary["key_emotions"], list)
 
         assert workflow_time < MAX_WORKFLOW_TIME  # Complete workflow under 3 seconds
-        assert data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000  # Processing time under 2 seconds
+        assert (
+            data["processing_time_ms"] < MAX_PROCESSING_TIME * 1000
+        )  # Processing time under 2 seconds
 
     @pytest.mark.slow
     def test_voice_journal_complete_workflow(self, api_client, sample_audio_data):
@@ -79,17 +81,25 @@ class TestCompleteWorkflows:
         try:
             with Path(temp_audio_path).open("rb") as audio_file:
                 files = {"audio_file": ("test_audio.wav", audio_file, "audio/wav")}
-                data = {"language": "en", "generate_summary": True, "emotion_threshold": 0.5}
+                data = {
+                    "language": "en",
+                    "generate_summary": True,
+                    "emotion_threshold": 0.5,
+                }
 
                 with patch(
-                    "src.models.voice_processing.whisper_transcriber.whisper"
+                    "src.models.voice_processing.whisper_transcriber.whisper",
                 ) as mock_whisper:
                     mock_model = mock_whisper.load_model.return_value
                     mock_model.transcribe.return_value = {
-                        "text": sample_audio_data["expected_text"]
+                        "text": sample_audio_data["expected_text"],
                     }
 
-                    response = api_client.post("/analyze/voice-journal", files=files, data=data)
+                    response = api_client.post(
+                        "/analyze/voice-journal",
+                        files=files,
+                        data=data,
+                    )
 
             # Voice processing may fail in test environment, so we accept both success and failure
             if response.status_code == HTTP_OK:
@@ -120,7 +130,11 @@ class TestCompleteWorkflows:
         long_text = "test " * 1000  # Very long text
         response = api_client.post(
             "/analyze/journal",
-            json={"text": long_text, "generate_summary": True, "emotion_threshold": 0.5},
+            json={
+                "text": long_text,
+                "generate_summary": True,
+                "emotion_threshold": 0.5,
+            },
         )
         assert response.status_code in [200, 413]  # Should handle gracefully
 
@@ -138,7 +152,11 @@ class TestCompleteWorkflows:
     def test_high_volume_workflow(self, api_client):
         """Test high volume processing with multiple requests."""
         requests_data = [
-            {"text": f"Request {i}: I had a great day!", "generate_summary": True, "emotion_threshold": 0.5}
+            {
+                "text": f"Request {i}: I had a great day!",
+                "generate_summary": True,
+                "emotion_threshold": 0.5,
+            }
             for i in range(5)
         ]
 
@@ -173,7 +191,7 @@ class TestCompleteWorkflows:
 
         # Check data consistency
         response_data = [r.json() for r in responses]
-        
+
         # Basic structure should be consistent
         for data in response_data:
             assert "emotion_analysis" in data

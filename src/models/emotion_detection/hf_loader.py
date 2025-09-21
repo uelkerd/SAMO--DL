@@ -6,7 +6,6 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 import requests
 import torch
@@ -18,10 +17,10 @@ from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTok
 class HFEmotionDetector:
     model: AutoModelForSequenceClassification
     tokenizer: AutoTokenizer
-    id2label: Dict[int, str]
+    id2label: dict[int, str]
     multi_label: bool
 
-    def predict(self, text: str, threshold: float = 0.5) -> Dict:
+    def predict(self, text: str, threshold: float = 0.5) -> dict:
         if not text:
             return {}
         self.model.eval()
@@ -59,11 +58,11 @@ class HFEmotionDetector:
 
 
 class HFRemoteInferenceDetector:
-    def __init__(self, endpoint_url: str, token: Optional[str] = None):
+    def __init__(self, endpoint_url: str, token: str | None = None):
         self.endpoint_url = endpoint_url.rstrip("/")
         self.token = token
 
-    def predict(self, text: str, threshold: float = 0.5) -> Dict:
+    def predict(self, text: str, threshold: float = 0.5) -> dict:
         if not text:
             return {}
         headers = {"Content-Type": "application/json"}
@@ -72,7 +71,10 @@ class HFRemoteInferenceDetector:
         payload = {"inputs": text}
         try:
             resp = requests.post(
-                self.endpoint_url, json=payload, headers=headers, timeout=30
+                self.endpoint_url,
+                json=payload,
+                headers=headers,
+                timeout=30,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -108,8 +110,8 @@ class HFRemoteInferenceDetector:
 
 def _wrap_local_model(
     local_dir: str,
-    token: Optional[str] = None,
-    force_multi_label: Optional[bool] = None,
+    token: str | None = None,
+    force_multi_label: bool | None = None,
 ) -> HFEmotionDetector:
     cfg = AutoConfig.from_pretrained(local_dir, token=token)
     tok = AutoTokenizer.from_pretrained(local_dir, token=token, use_fast=True)
@@ -123,23 +125,28 @@ def _wrap_local_model(
         problem_type = getattr(cfg, "problem_type", None)
         multi_label = problem_type == "multi_label_classification"
     return HFEmotionDetector(
-        model=mdl, tokenizer=tok, id2label=id2label, multi_label=multi_label
+        model=mdl,
+        tokenizer=tok,
+        id2label=id2label,
+        multi_label=multi_label,
     )
 
 
 def load_hf_emotion_model(
-    model_id: str, token: Optional[str] = None, force_multi_label: Optional[bool] = None
+    model_id: str,
+    token: str | None = None,
+    force_multi_label: bool | None = None,
 ) -> HFEmotionDetector:
     return _wrap_local_model(model_id, token=token, force_multi_label=force_multi_label)
 
 
 def load_emotion_model_multi_source(
-    model_id: Optional[str] = None,
-    token: Optional[str] = None,
-    local_dir: Optional[str] = None,
-    archive_url: Optional[str] = None,
-    endpoint_url: Optional[str] = None,
-    force_multi_label: Optional[bool] = None,
+    model_id: str | None = None,
+    token: str | None = None,
+    local_dir: str | None = None,
+    archive_url: str | None = None,
+    endpoint_url: str | None = None,
+    force_multi_label: bool | None = None,
 ) -> object:
     """Try multiple sources to load the emotion model.
 
@@ -156,7 +163,9 @@ def load_emotion_model_multi_source(
     if local_dir and os.path.isdir(local_dir):
         try:
             return _wrap_local_model(
-                local_dir, token=token, force_multi_label=force_multi_label
+                local_dir,
+                token=token,
+                force_multi_label=force_multi_label,
             )
         except Exception:
             pass
@@ -165,7 +174,9 @@ def load_emotion_model_multi_source(
     if model_id:
         try:
             return load_hf_emotion_model(
-                model_id, token=token, force_multi_label=force_multi_label
+                model_id,
+                token=token,
+                force_multi_label=force_multi_label,
             )
         except Exception:
             pass
@@ -175,10 +186,14 @@ def load_emotion_model_multi_source(
         try:
             cache_base = os.getenv("HF_HOME", "/var/tmp/hf-cache")
             snap_dir = snapshot_download(
-                repo_id=model_id, token=token, cache_dir=cache_base
+                repo_id=model_id,
+                token=token,
+                cache_dir=cache_base,
             )
             return _wrap_local_model(
-                snap_dir, token=token, force_multi_label=force_multi_label
+                snap_dir,
+                token=token,
+                force_multi_label=force_multi_label,
             )
         except Exception:
             pass
@@ -199,7 +214,7 @@ def load_emotion_model_multi_source(
                     f.write(r.content)
             # Extract
             extract_dir = tempfile.mkdtemp(prefix="model_", dir=cache_dir)
-            if archive_path.endswith(".tar.gz") or archive_path.endswith(".tgz"):
+            if archive_path.endswith((".tar.gz", ".tgz")):
                 with tarfile.open(archive_path, "r:gz") as tar:
                     tar.extractall(path=extract_dir)
             elif archive_path.endswith(".zip"):
@@ -216,13 +231,14 @@ def load_emotion_model_multi_source(
             ]
             for cand in candidates:
                 if os.path.isdir(cand) and os.path.exists(
-                    os.path.join(cand, "config.json")
+                    os.path.join(cand, "config.json"),
                 ):
                     try:
-                        det = _wrap_local_model(
-                            cand, token=token, force_multi_label=force_multi_label
+                        return _wrap_local_model(
+                            cand,
+                            token=token,
+                            force_multi_label=force_multi_label,
                         )
-                        return det
                     except Exception:
                         continue
             # Clean up if nothing worked

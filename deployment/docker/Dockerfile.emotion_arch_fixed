@@ -56,4 +56,4 @@ CMD exec gunicorn \
     --access-logfile - \
     --error-logfile - \
     --log-level info \
-    robust_predict:app 
+    robust_predict:app

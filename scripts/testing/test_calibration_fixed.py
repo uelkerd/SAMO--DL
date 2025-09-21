@@ -1,29 +1,28 @@
-                # Try to load the checkpoint
-        # Create new model
-        # Get predictions
-        # Load existing model
-        # Tokenize
-    # Calculate metrics
-    # Check if F1 score meets target
-    # Convert to numpy arrays
-    # Create simple labels (one emotion per text)
-    # Create test data
-    # Create tokenizer
-    # Find valid checkpoint
-    # Process test data
-    # Set optimal temperature
+# Try to load the checkpoint
+# Create new model
+# Get predictions
+# Load existing model
+# Tokenize
+# Calculate metrics
+# Check if F1 score meets target
+# Convert to numpy arrays
+# Create simple labels (one emotion per text)
+# Create test data
+# Create tokenizer
+# Find valid checkpoint
+# Process test data
+# Set optimal temperature
 # Configure logging
 # Constants
 #!/usr/bin/env python3
-from pathlib import Path
-from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
 import logging
-import numpy as np
 import sys
+from pathlib import Path
+
+import numpy as np
 import torch
-
-
+from sklearn.metrics import f1_score
+from transformers import AutoModel, AutoTokenizer
 
 """
 Fixed Model Calibration Test
@@ -71,8 +70,7 @@ class SimpleBERTClassifier(torch.nn.Module):
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         pooled_output = outputs.pooler_output
-        logits = self.classifier(pooled_output)
-        return logits
+        return self.classifier(pooled_output)
 
 
 def find_valid_checkpoint():
@@ -156,7 +154,11 @@ def test_calibration():
         model.to(device)
 
         try:
-            checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+            checkpoint = torch.load(
+                checkpoint_path,
+                map_location=device,
+                weights_only=False,
+            )
             if "model_state_dict" in checkpoint:
                 model.load_state_dict(checkpoint["model_state_dict"])
                 logger.info("✅ Model loaded successfully")
@@ -185,7 +187,11 @@ def test_calibration():
 
     for _i, (text, labels) in enumerate(zip(test_texts, test_labels)):
         inputs = tokenizer(
-            text, padding=True, truncation=True, max_length=128, return_tensors="pt"
+            text,
+            padding=True,
+            truncation=True,
+            max_length=128,
+            return_tensors="pt",
         ).to(device)
 
         with torch.no_grad():
@@ -208,9 +214,8 @@ def test_calibration():
     if micro_f1 >= TARGET_F1_SCORE:
         logger.info("✅ F1 score {micro_f1:.4f} meets target of {TARGET_F1_SCORE}")
         return 0
-    else:
-        logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
-        return 1
+    logger.error("❌ F1 score {micro_f1:.4f} below target of {TARGET_F1_SCORE}")
+    return 1
 
 
 if __name__ == "__main__":

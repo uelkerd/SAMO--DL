@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""
-Unit tests for API rate limiter functionality.
-"""
+"""Unit tests for API rate limiter functionality."""
+
 from fastapi import FastAPI
 
 from src.api_rate_limiter import (
-    TokenBucketRateLimiter,
     RateLimitConfig,
+    TokenBucketRateLimiter,
     add_rate_limiting,
 )
 
@@ -56,10 +55,10 @@ class TestTokenBucketRateLimiter:
     def test_allow_request_rate_limit_exceeded(self):
         """Test that allow_request returns False when rate limit exceeded."""
         config = RateLimitConfig(
-            requests_per_minute=1, 
+            requests_per_minute=1,
             burst_size=1,
             enable_user_agent_analysis=False,  # Disable abuse detection for testing
-            enable_request_pattern_analysis=False
+            enable_request_pattern_analysis=False,
         )
         rate_limiter = TokenBucketRateLimiter(config)
 
@@ -79,9 +78,9 @@ class TestAddRateLimiting:
     def test_add_rate_limiting(self):
         """Test that add_rate_limiting adds middleware to app."""
         app = FastAPI()
-        
+
         # This should not raise an exception
         add_rate_limiting(app)
-        
+
         # Verify middleware was added (basic check)
-        assert hasattr(app, 'user_middleware')
+        assert hasattr(app, "user_middleware")

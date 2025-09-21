@@ -1,39 +1,38 @@
-        # Benchmark original model
-        # Benchmark quantized model
-        # Calculate speedup
-        # Check if input model exists
-        # Create model
-        # Create output directory if it doesn't exist
-        # Define quantization configuration
-        # Load checkpoint
-        # Load state dict
-        # Measure original model size
-        # Measure quantized model size
-        # Prepare model for quantization
-        # Quantize
-        # Quantize model
-        # Save compression metrics
-        # Save quantized model
-        # Set model to evaluation mode
-        # Set optimal temperature and threshold
-    # Benchmark
-    # Create dummy input (batch_size=1, seq_len=128)
-    # Warm up
+# Benchmark original model
+# Benchmark quantized model
+# Calculate speedup
+# Check if input model exists
+# Create model
+# Create output directory if it doesn't exist
+# Define quantization configuration
+# Load checkpoint
+# Load state dict
+# Measure original model size
+# Measure quantized model size
+# Prepare model for quantization
+# Quantize
+# Quantize model
+# Save compression metrics
+# Save quantized model
+# Set model to evaluation mode
+# Set optimal temperature and threshold
+# Benchmark
+# Create dummy input (batch_size=1, seq_len=128)
+# Warm up
 # Add src to path
 # Configure logging
 # Constants
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 import argparse
 import logging
 import sys
 import time
+from pathlib import Path
+
 import torch
 import torch.quantization
 
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Compress Model
@@ -63,11 +62,14 @@ def compress_model(input_model: str, output_model: str) -> bool:
     """Compress model using dynamic quantization.
 
     Args:
+    ----
         input_model: Path to input model
         output_model: Path to save compressed model
 
     Returns:
+    -------
         bool: True if successful, False otherwise
+
     """
     try:
         device = torch.device("cpu")  # Quantization requires CPU
@@ -112,7 +114,9 @@ def compress_model(input_model: str, output_model: str) -> bool:
         torch.quantization.prepare(model, inplace=True)
 
         quantized_model = torch.quantization.quantize_dynamic(
-            model, {torch.nn.Linear}, dtype=torch.qint8
+            model,
+            {torch.nn.Linear},
+            dtype=torch.qint8,
         )
 
         quantized_size = get_model_size(quantized_model)
@@ -152,7 +156,7 @@ def compress_model(input_model: str, output_model: str) -> bool:
         return True
 
     except Exception:
-        logger.error("Error compressing model: {e}")
+        logger.exception("Error compressing model: {e}")
         return False
 
 
@@ -160,10 +164,13 @@ def get_model_size(model: torch.nn.Module) -> float:
     """Get model size in MB.
 
     Args:
+    ----
         model: PyTorch model
 
     Returns:
+    -------
         float: Model size in MB
+
     """
     temp_file = Path("temp_model.pt")
     torch.save(model.state_dict(), temp_file)
@@ -176,11 +183,14 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
     """Benchmark model inference time.
 
     Args:
+    ----
         model: PyTorch model
         num_runs: Number of inference runs to average
 
     Returns:
+    -------
         float: Average inference time in seconds
+
     """
     dummy_input = {
         "input_ids": torch.randint(0, 30522, (1, 128)),
@@ -201,7 +211,9 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compress BERT emotion classifier model")
+    parser = argparse.ArgumentParser(
+        description="Compress BERT emotion classifier model",
+    )
     parser.add_argument(
         "--input_model",
         type=str,

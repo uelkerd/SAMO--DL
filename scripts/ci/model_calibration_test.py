@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-CI Model Calibration Test
+"""CI Model Calibration Test.
 
 This script tests the BERT emotion classifier calibration for CI/CD pipeline.
 It creates a simple model and tests basic functionality without requiring checkpoints.
@@ -8,16 +7,19 @@ It creates a simple model and tests basic functionality without requiring checkp
 Usage:
     python scripts/ci/model_calibration_test.py
 
-Returns:
+Returns
+-------
     0 if test passes
     1 if test fails
+
 """
 
 import logging
 import sys
+
 import torch
 from sklearn.metrics import f1_score
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModel, AutoTokenizer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -40,10 +42,13 @@ class SimpleBERTClassifier(torch.nn.Module):
         self.temperature = torch.nn.Parameter(torch.ones(1))
 
     def forward(self, input_ids, attention_mask, token_type_ids=None):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+        outputs = self.bert(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+        )
         pooled_output = outputs.pooler_output
-        logits = self.classifier(pooled_output)
-        return logits
+        return self.classifier(pooled_output)
 
 
 def create_test_data():
@@ -88,10 +93,10 @@ def create_test_data():
 
     # Create tokenizer
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-    
+
     # Basic validation
     assert len(test_texts) == len(emotions), "Texts and emotions must have same length"
-    
+
     return test_texts, emotions, emotion_to_idx, tokenizer
 
 
@@ -102,7 +107,7 @@ def test_model_calibration():
 
         # Create test data
         test_texts, emotions, emotion_to_idx, tokenizer = create_test_data()
-        
+
         # Create model
         model = SimpleBERTClassifier("bert-base-uncased", num_emotions=28)
         model.eval()
@@ -117,13 +122,13 @@ def test_model_calibration():
                 return_tensors="pt",
                 padding=True,
                 truncation=True,
-                max_length=512
+                max_length=512,
             )
-            
+
             # Get predictions (only pass required arguments)
             outputs = model(inputs["input_ids"], inputs["attention_mask"])
             probabilities = torch.sigmoid(outputs)
-            
+
             logger.info(f"✅ Model inference successful, output shape: {outputs.shape}")
 
         # Test temperature setting
@@ -133,7 +138,9 @@ def test_model_calibration():
         # Test threshold optimization
         threshold = 0.5
         predictions = (probabilities > threshold).float()
-        logger.info(f"✅ Threshold optimization successful, predictions shape: {predictions.shape}")
+        logger.info(
+            f"✅ Threshold optimization successful, predictions shape: {predictions.shape}",
+        )
 
         # Test metrics calculation
         if len(test_texts) > 1:
@@ -141,16 +148,16 @@ def test_model_calibration():
             labels = torch.zeros(1, 28)  # Match the single prediction shape
             if emotions[0] in emotion_to_idx:
                 labels[0, emotion_to_idx[emotions[0]]] = 1.0
-            
+
             # Calculate F1 score
-            f1 = f1_score(labels.flatten(), predictions.flatten(), average='micro')
+            f1 = f1_score(labels.flatten(), predictions.flatten(), average="micro")
             logger.info(f"✅ Metrics calculation successful, F1: {f1:.3f}")
 
         logger.info("✅ Model calibration test passed")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Model calibration test failed: {e}")
+        logger.exception(f"❌ Model calibration test failed: {e}")
         return False
 
 
@@ -161,9 +168,8 @@ def main():
     if test_model_calibration():
         logger.info("🎉 All model calibration tests passed!")
         return True
-    else:
-        logger.error("💥 Model calibration tests failed!")
-        return False
+    logger.error("💥 Model calibration tests failed!")
+    return False
 
 
 if __name__ == "__main__":

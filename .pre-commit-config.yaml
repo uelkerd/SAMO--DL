@@ -1,36 +1,7 @@
-# Comprehensive Code Quality Prevention System for SAMO-DL
-# This configuration prevents ALL recurring DeepSource issues from ever happening again
-#
-# TODO: Re-enable all disabled hooks once configuration issues are resolved
-# Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-#
-# Disabled hooks and their status:
-# ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
-# ✅ Safety: RE-ENABLED - Local hook with safety package, runs on push, scans all deps
-# ✅ Docformatter: RE-ENABLED - Local hook with docformatter package for reliability
-# ✅ Flynt: RE-ENABLED - Fully configured with always_run and pass_filenames for consistency
-# - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
-#
-# IMPROVEMENTS IMPLEMENTED:
-# ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
-# ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
-# ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
-# ✅ Safety implemented as local hook with safety package, optimized for push-only execution
-# ✅ Docformatter implemented as local hook with docformatter package for reliability
-# ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
-# ✅ Global exclude pattern enhanced to cover ALL test artifacts and build directories
-# ✅ Configuration is now much more maintainable and follows best practices
-# ✅ All code review comments addressed and resolved
-#
-# Next steps:
-# 1. Test Safety hook with local implementation
-# 2. Test Docformatter hook with system language configuration
-# 3. Test and re-enable local hooks
-# 4. Update this TODO section as hooks are re-enabled
-#
+# Comprehensive Code Quality System for SAMO-DL
+# Prevents ALL recurring security and quality issues with automated enforcement
+
 # Global exclude pattern - applies to all hooks unless overridden
-# Uses anchored regex with extended mode for readability and accuracy
-# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples, test artifacts
 exclude: |
   (?x)^(
       \.git|
@@ -61,18 +32,14 @@ exclude: |
       deprecated|
       test_reports|
       test_report\.txt|
-      \.pytest_cache|
-      \.mypy_cache|
-      \.ruff_cache|
-      \.coverage|
-      coverage\.xml|
-      \.coveragerc|
       \.gitignore-pages|
       \.nojekyll|
       \.deepsource\.toml|
-      \.pre-commit-exclude-patterns\.yaml|
       trivy-results-.*\.json|
-      vulnerabilities-.*\.json
+      vulnerabilities-.*\.json|
+      scripts/legacy|
+      scripts/maintenance|
+      scripts/testing
   )$
 
 repos:
@@ -94,30 +61,18 @@ repos:
       - id: fix-byte-order-marker
       - id: mixed-line-ending
       - id: check-ast
+      - id: check-added-large-files
 
-  # Python formatting and linting (in order)
-  - repo: https://github.com/psf/black
-    rev: 24.2.0
-    hooks:
-      - id: black
-        language_version: python3
-        args: [--line-length=88, --target-version=py38]
-        types: [python]
-
-  # Import sorting and organization
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile=black, --line-length=88, --py=38]
-        types: [python]
-
-  # Python linting with Ruff (super fast)
+  # Python linting and formatting with Ruff (replaces black, isort, flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.6.8
     hooks:
       - id: ruff
+        name: ruff-linting
         args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
+      - id: ruff-format
+        name: ruff-formatting
         types: [python]
 
   # Type checking with MyPy
@@ -125,94 +80,87 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports, --python-version=3.8]
+        args: [--ignore-missing-imports, --python-version=3.9]
+        additional_dependencies: [types-requests, types-PyYAML]
+        # Strategic exclusions to focus on core business logic (matching pyproject.toml)
+        exclude: |
+          (?x)(
+            # Legacy scripts - defer until core is stable
+            scripts/legacy/.*
+            # Maintenance utilities - non-critical path
+            | scripts/maintenance/.*
+            # Testing scripts - can be addressed separately
+            | scripts/testing/.*
+            # Deployment automation - secondary priority
+            | scripts/deployment/vertex_ai_phase4_automation\.py
+            # CI scripts - already have type annotations
+            | scripts/ci/.*
+            # Jupyter notebooks and experimental training files (invalid syntax)
+            | scripts/training/.*bulletproof.*
+            # Additional tooling directories
+            | deployment/.*
+            | test_.*\.py$
+          )
+        # Focus on core business logic paths
+        files: ^(src/|scripts/training/|scripts/database/).*\.py$
+
+  # Code quality with Pylint
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.0.3
+    hooks:
+      - id: pylint
+        args: [--rcfile=pyproject.toml]
         types: [python]
 
-  # Security scanning with Bandit (optimized for performance)
-  # Split into targeted hooks: changed files (all rules) + tests (B101 skipped)
+  # Security scanning with Bandit (comprehensive rules)
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.7.6
     hooks:
       - id: bandit
-        name: bandit (changed files)
-        # Scan only changed Python files, enforce all rules
+        name: bandit (production code)
+        # Scan production code with all security rules
         types: [python]
         exclude: '^(tests/|.*_test\.py$)'
+        args: [-c, pyproject.toml]
 
       - id: bandit
         name: bandit (tests, B101 skipped)
         # Scan test files with B101 (assert_used) disabled
-        args: [-s, B101]
+        args: [-c, pyproject.toml, -s, B101]
         types: [python]
         files: '^(tests/|.*_test\.py$)'
 
-  # Security vulnerability scanning with Safety (local hook)
-  # Local hook with safety package for reliability and control
-  # Runs on push to avoid blocking commits, scans all dependency files
+  # Security vulnerability scanning with Safety
   - repo: local
     hooks:
       - id: safety-scan
         name: Safety (dependency vulnerability scan)
         entry: safety
         language: python
-        additional_dependencies: [safety==3.6.0]
-        args: [scan, --full-report, --target, .]
+        additional_dependencies: [safety>=3.0.0]
+        args: [scan, --json, --output, safety-report.json]
         pass_filenames: false
-        stages: [push]
-        # Optional: Add policy file for custom rules
-        # args: [scan, --full-report, --policy-file, .safety-policy.yml]
-        # env:
-        #   - SAFETY_API_KEY  # if using the commercial DB
+        files: ^(requirements.*\.txt|pyproject\.toml)$
 
-  # Documentation formatting with Docformatter (local hook)
-  # Local hook with docformatter package to avoid external repository compatibility issues
+  # Documentation formatting with Docformatter
   - repo: local
     hooks:
       - id: docformatter
         name: Docformatter (docstring formatting)
         entry: docformatter
         language: python
-        additional_dependencies: [docformatter==1.7.3]
+        additional_dependencies: [docformatter>=1.7.0]
         args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
         types: [python]
 
   # String formatting with flynt
-  # Configuration consistent with Bandit hooks for maintainability
   - repo: https://github.com/ikamensh/flynt
     rev: "0.78"
     hooks:
       - id: flynt
-        args: [--line-length=88, .]
+        args: [--line-length=88]
         types: [python]
-        pass_filenames: false
-        always_run: true
-
-  # Custom SAMO-DL code quality enforcer
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: local
-  #   hooks:
-  #     - id: samo-code-quality-enforcer
-  #       name: SAMO-DL Code Quality Enforcer
-  #       entry: python scripts/maintenance/code_quality_enforcer.py
-  #       language: python
-  #       types: [python]
-  #       pass_filenames: false
-  #       always_run: true
-
-  # Auto-fix common code quality issues
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: local
-  #   hooks:
-  #     - id: samo-auto-fix-code-quality
-  #       name: SAMO-DL Auto-Fix Code Quality
-  #       entry: python scripts/maintenance/auto_fix_code_quality.py
-  #       language: python
-  #       types: [python]
-  #       pass_filenames: false
-  #       always_run: true
 
 # Global configuration
 default_language_version:
-  python: python3.8
+  python: python3.9

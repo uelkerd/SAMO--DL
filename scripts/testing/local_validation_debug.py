@@ -1,51 +1,21 @@
-            # Check per-class distribution
-            # Count positive labels
-        # Analyze first few examples
-        # Calculate statistics
-        # Check CUDA
-        # Check for critical issues
-        # Check for issues
-        # Check for issues
-        # Check if we have the expected keys
-        # Check statistics
-        # Compare with manual BCE
-        # Create loader without dev_mode parameter
-        # Create model
-        # Ensure some positive labels
-        # Get training data
-        # Load data
-        # Log class distribution
-        # Prepare datasets
-        # Scenario 1: Mixed labels
-        # Test different scenarios
-        # Test forward pass
-        from src.models.emotion_detection.bert_classifier import WeightedBCELoss
-        from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        from src.models.emotion_detection.dataset_loader import create_goemotions_loader
-        import pandas as pd
-        import torch
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-    # Run all validations
-    # Run validations
-    # Summary
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
+"""Local Validation Debug Script.
+
+Debugs and validates local model training and inference components.
+"""
+
 import logging
-import numpy as np
 import sys
+from pathlib import Path
 
+import torch
+import torch.nn.functional as F
 
-
-
-
-
-
+from src.models.emotion_detection.bert_classifier import (
+    WeightedBCELoss,
+    create_bert_emotion_classifier,
+)
+from src.models.emotion_detection.dataset_loader import create_goemotions_loader
 
 """
 Local Validation and Debug Script for SAMO Deep Learning.
@@ -56,7 +26,10 @@ It can be run locally to diagnose problems before deploying to GCP.
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -77,8 +50,8 @@ def check_environment():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Environment check failed: {e}")
+    except Exception:
+        logger.exception("❌ Environment check failed: {e}")
         return False
 
 
@@ -102,14 +75,16 @@ def check_data_loading():
         logger.info("✅ Validation set: {len(datasets['validation'])} examples")
         logger.info("✅ Test set: {len(datasets['test'])} examples")
 
-        stats = datasets["statistics"]
+        datasets["statistics"]
         logger.info("✅ Total examples: {stats.get('total_examples', 'N/A')}")
-        logger.info("✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions")
+        logger.info(
+            "✅ Emotion distribution: {len(stats.get('emotion_counts', {}))} emotions",
+        )
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Data loading failed: {e}")
+    except Exception:
+        logger.exception("❌ Data loading failed: {e}")
         return False
 
 
@@ -156,8 +131,8 @@ def check_model_creation():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Model creation failed: {e}")
+    except Exception:
+        logger.exception("❌ Model creation failed: {e}")
         return False
 
 
@@ -176,11 +151,21 @@ def check_loss_function():
         loss_fn = WeightedBCELoss()
         loss1 = loss_fn(logits, labels)
 
-        bce_manual = F.binary_cross_entropy_with_logits(logits, labels, reduction="mean")
+        F.binary_cross_entropy_with_logits(
+            logits,
+            labels,
+            reduction="mean",
+        )
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
-        logger.info("✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}")
-        logger.info("✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}")
+        logger.info(
+            "✅ All positive loss: "
+            "{loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}",
+        )
+        logger.info(
+            "✅ All negative loss: "
+            "{loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}",
+        )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 
         if loss1.item() <= 0:
@@ -189,8 +174,8 @@ def check_loss_function():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Loss function check failed: {e}")
+    except Exception:
+        logger.exception("❌ Loss function check failed: {e}")
         return False
 
 
@@ -232,11 +217,11 @@ def check_data_distribution():
             logger.error("❌ CRITICAL: No positive labels found!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate == 1:
+        if positive_rate == 1:
             logger.error("❌ CRITICAL: All labels are positive!")
             logger.error("   This will cause 0.0000 loss with BCE")
             return False
-        elif positive_rate < 0.01:
+        if positive_rate < 0.01:
             logger.warning("⚠️  Very low positive label rate")
             logger.warning("   Consider using focal loss or class weights")
 
@@ -248,8 +233,8 @@ def check_data_distribution():
 
         return True
 
-    except Exception as e:
-        logger.error("❌ Data distribution check failed: {e}")
+    except Exception:
+        logger.exception("❌ Data distribution check failed: {e}")
         return False
 
 
@@ -281,8 +266,8 @@ def main():
             else:
                 logger.error("❌ {name} FAILED")
 
-        except Exception as e:
-            logger.error("❌ {name} ERROR: {e}")
+        except Exception:
+            logger.exception("❌ {name} ERROR: {e}")
             results[name] = False
 
     passed = sum(results.values())

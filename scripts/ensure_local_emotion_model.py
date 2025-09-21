@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Ensure local copy of the Hugging Face emotion model exists.
+"""Ensure local copy of the Hugging Face emotion model exists.
 
 - Defaults:
   - repo_id: j-hartmann/emotion-english-distilroberta-base
@@ -20,12 +19,11 @@ import sys
 from pathlib import Path
 
 # Add src to path to import constants
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import argparse
 import logging
 import os
-from typing import List
 
 from constants import EMOTION_MODEL_DIR
 
@@ -38,11 +36,11 @@ LOG_FILE = LOG_DIR / "model_download.log"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(str(LOG_FILE)),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger("ensure_local_emotion_model")
 
@@ -50,7 +48,7 @@ logger = logging.getLogger("ensure_local_emotion_model")
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments and environment overrides."""
     parser = argparse.ArgumentParser(
-        description="Ensure local HF emotion model is available"
+        description="Ensure local HF emotion model is available",
     )
     parser.add_argument(
         "--repo-id",
@@ -95,7 +93,9 @@ def required_files_present(target_dir: Path) -> bool:
 
 
 def ensure_with_hf_hub(
-    repo_id: str, target_dir: Path, token: str | None
+    repo_id: str,
+    target_dir: Path,
+    token: str | None,
 ) -> bool:
     """Download model snapshot via huggingface_hub if available."""
     try:
@@ -105,7 +105,8 @@ def ensure_with_hf_hub(
         return False
 
     logger.info(
-        "Using huggingface_hub.snapshot_download for repo %s", repo_id
+        "Using huggingface_hub.snapshot_download for repo %s",
+        repo_id,
     )
     try:
         snapshot_download(
@@ -118,37 +119,41 @@ def ensure_with_hf_hub(
         )
         return True
     except Exception as e:
-        logger.error("snapshot_download failed: %s", e)
+        logger.exception("snapshot_download failed: %s", e)
         return False
 
 
 def ensure_with_transformers(
-    repo_id: str, target_dir: Path, token: str | None
+    repo_id: str,
+    target_dir: Path,
+    token: str | None,
 ) -> bool:
     """Download and save model/tokenizer via transformers.*_pretrained APIs."""
     try:
         from transformers import (
-            AutoTokenizer,
             AutoModelForSequenceClassification,
-        )  # type: ignore
+            AutoTokenizer,
+        )
     except Exception as e:
-        logger.error("transformers not available: %s", e)
+        logger.exception("transformers not available: %s", e)
         return False
 
     logger.info("Using transformers save_pretrained for repo %s", repo_id)
     try:
         tokenizer = AutoTokenizer.from_pretrained(
-            repo_id, token=token or None
+            repo_id,
+            token=token or None,
         )
         model = AutoModelForSequenceClassification.from_pretrained(
-            repo_id, token=token or None
+            repo_id,
+            token=token or None,
         )
         target_dir.mkdir(parents=True, exist_ok=True)
         tokenizer.save_pretrained(str(target_dir))
         model.save_pretrained(str(target_dir))
         return True
     except Exception as e:
-        logger.error("transformers download/save failed: %s", e)
+        logger.exception("transformers download/save failed: %s", e)
         return False
 
 
@@ -171,13 +176,14 @@ def main() -> int:
     ok = ensure_with_hf_hub(repo_id, target_dir, token)
     if not ok:
         logger.info(
-            "Falling back to transformers save_pretrained approach"
+            "Falling back to transformers save_pretrained approach",
         )
         ok = ensure_with_transformers(repo_id, target_dir, token)
 
     if not ok:
         logger.error(
-            "Failed to materialize model to %s", str(target_dir)
+            "Failed to materialize model to %s",
+            str(target_dir),
         )
         return 2
 

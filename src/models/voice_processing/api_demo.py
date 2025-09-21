@@ -1,28 +1,28 @@
-                # Add error result
-                # Add to results
-                # Save to temporary file
-                # Transcribe
-                # Validate audio
-                # Validate file
-            # Get audio metadata
-        # Calculate batch metrics
-        # Cleanup temporary file
-        # Cleanup temporary files
-        # Convert to API response
-        # Create temporary file
-        # In a real implementation, you might transcribe a short test audio
-        # Process each file
-        # Transcribe audio
-        # Validate audio file
-        # Validate with AudioPreprocessor
-        # Write uploaded content
-    # Add API information
-    # Basic format validation
-    # Save and validate audio content
-    # Save uploaded file temporarily
-    # Shutdown: Cleanup
-    # Startup: Load Whisper model
-    # Validate file type
+# Add error result
+# Add to results
+# Save to temporary file
+# Transcribe
+# Validate audio
+# Validate file
+# Get audio metadata
+# Calculate batch metrics
+# Cleanup temporary file
+# Cleanup temporary files
+# Convert to API response
+# Create temporary file
+# In a real implementation, you might transcribe a short test audio
+# Process each file
+# Transcribe audio
+# Validate audio file
+# Validate with AudioPreprocessor
+# Write uploaded content
+# Add API information
+# Basic format validation
+# Save and validate audio content
+# Save uploaded file temporarily
+# Shutdown: Cleanup
+# Startup: Load Whisper model
+# Validate file type
 # API Endpoints
 # Configure logging
 # Error Handlers
@@ -30,22 +30,21 @@
 # Global model instance (loaded on startup)
 # Initialize FastAPI with lifecycle management
 # Request/Response Models
-from .audio_preprocessor import AudioPreprocessor
-from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
-from contextlib import asynccontextmanager, suppress
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
 import logging
 import os
 import tempfile
 import time
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import uvicorn
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
-
-
+from .audio_preprocessor import AudioPreprocessor
+from .whisper_transcriber import WhisperTranscriber, create_whisper_transcriber
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -70,14 +69,19 @@ async def lifespan(app: FastAPI):
 
         time.time() - start_time
         logger.info(
-            "✅ Whisper model loaded successfully in {load_time:.2f}s", extra={"format_args": True}
+            "✅ Whisper model loaded successfully in {load_time:.2f}s",
+            extra={"format_args": True},
         )
         logger.info(
-            "Model info: {whisper_transcriber.get_model_info()}", extra={"format_args": True}
+            "Model info: {whisper_transcriber.get_model_info()}",
+            extra={"format_args": True},
         )
 
     except Exception:
-        logger.error("❌ Failed to load Whisper model: {exc}", extra={"format_args": True})
+        logger.exception(
+            "❌ Failed to load Whisper model: {exc}",
+            extra={"format_args": True},
+        )
         logger.info("⚠️  Running in development mode without Whisper model")
         whisper_transcriber = None  # Continue without model for development
 
@@ -114,10 +118,14 @@ class BatchTranscriptionResponse(BaseModel):
     """Response model for batch transcription."""
 
     transcriptions: List[TranscriptionResponse] = Field(
-        ..., description="List of transcription results"
+        ...,
+        description="List of transcription results",
     )
     total_processing_time: float = Field(..., description="Total batch processing time")
-    average_processing_time: float = Field(..., description="Average per-file processing time")
+    average_processing_time: float = Field(
+        ...,
+        description="Average per-file processing time",
+    )
     success_count: int = Field(..., description="Number of successful transcriptions")
     error_count: int = Field(..., description="Number of failed transcriptions")
 
@@ -160,7 +168,8 @@ async def transcribe_audio(
     """
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503,
+            detail="Whisper model not available - running in development mode",
         )
 
     if not audio_file.filename:
@@ -188,7 +197,9 @@ async def transcribe_audio(
 
         time.time()
         result = whisper_transcriber.transcribe_audio(
-            temp_file.name, language=language, initial_prompt=initial_prompt
+            temp_file.name,
+            language=language,
+            initial_prompt=initial_prompt,
         )
 
         response = TranscriptionResponse(
@@ -206,7 +217,7 @@ async def transcribe_audio(
 
         logger.info(
             "Transcribed {audio_file.filename}: {result.word_count} words, "
-            "{result.confidence:.2f} confidence, {result.processing_time:.2f}s"
+            "{result.confidence:.2f} confidence, {result.processing_time:.2f}s",
         )
 
         return response
@@ -214,7 +225,7 @@ async def transcribe_audio(
     except HTTPException:
         raise
     except Exception:
-        logger.error("Transcription error: {e}", extra={"format_args": True})
+        logger.exception("Transcription error: {e}", extra={"format_args": True})
         raise HTTPException(status_code=500, detail="Transcription failed: {e!s}")
 
     finally:
@@ -236,12 +247,14 @@ async def transcribe_batch(
     """
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503,
+            detail="Whisper model not available - running in development mode",
         )
 
     if len(audio_files) > 10:  # Limit batch size
         raise HTTPException(
-            status_code=400, detail="Batch size too large. Maximum 10 files per batch."
+            status_code=400,
+            detail="Batch size too large. Maximum 10 files per batch.",
         )
 
     temp_files = []
@@ -257,21 +270,30 @@ async def transcribe_batch(
 
                 file_extension = Path(audio_file.filename).suffix.lower()
                 if file_extension not in AudioPreprocessor.SUPPORTED_FORMATS:
-                    raise ValueError("File {i + 1}: Unsupported format {file_extension}")
+                    raise ValueError(
+                        "File {i + 1}: Unsupported format {file_extension}",
+                    )
 
-                temp_file = tempfile.NamedTemporaryFile(suffix=file_extension, delete=False)
+                temp_file = tempfile.NamedTemporaryFile(
+                    suffix=file_extension,
+                    delete=False,
+                )
                 temp_files.append(temp_file.name)
 
                 content = await audio_file.read()
                 temp_file.write(content)
                 temp_file.close()
 
-                is_valid, error_msg = AudioPreprocessor.validate_audio_file(temp_file.name)
+                is_valid, error_msg = AudioPreprocessor.validate_audio_file(
+                    temp_file.name,
+                )
                 if not is_valid:
                     raise ValueError("File {i + 1}: {error_msg}")
 
                 result = whisper_transcriber.transcribe_audio(
-                    temp_file.name, language=language, initial_prompt=initial_prompt
+                    temp_file.name,
+                    language=language,
+                    initial_prompt=initial_prompt,
                 )
 
                 transcriptions.append(
@@ -286,7 +308,7 @@ async def transcribe_batch(
                         audio_quality=result.audio_quality,
                         no_speech_probability=result.no_speech_probability,
                         model_info=whisper_transcriber.get_model_info(),
-                    )
+                    ),
                 )
 
                 logger.info(
@@ -295,7 +317,7 @@ async def transcribe_batch(
                 )
 
             except Exception:
-                logger.error(
+                logger.exception(
                     "Failed to process file {i+1} ({audio_file.filename}): {e}",
                     extra={"format_args": True},
                 )
@@ -311,13 +333,15 @@ async def transcribe_batch(
                         audio_quality="error",
                         no_speech_probability=1.0,
                         model_info={},
-                    )
+                    ),
                 )
 
         total_processing_time = (time.time() - start_time) * 1000
         success_count = sum(1 for t in transcriptions if t.confidence > 0)
         error_count = len(transcriptions) - success_count
-        average_time = total_processing_time / len(transcriptions) if transcriptions else 0
+        average_time = (
+            total_processing_time / len(transcriptions) if transcriptions else 0
+        )
 
         response = BatchTranscriptionResponse(
             transcriptions=transcriptions,
@@ -329,7 +353,7 @@ async def transcribe_batch(
 
         logger.info(
             "Batch transcription complete: {success_count}/{len(audio_files)} successful, "
-            "{total_processing_time:.2f}ms total"
+            "{total_processing_time:.2f}ms total",
         )
 
         return response
@@ -337,8 +361,11 @@ async def transcribe_batch(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Batch transcription error: {e}", extra={"format_args": True})
-        raise HTTPException(status_code=500, detail="Batch transcription failed: {e!s}") from e
+        logger.exception("Batch transcription error: {e}", extra={"format_args": True})
+        raise HTTPException(
+            status_code=500,
+            detail="Batch transcription failed: {e!s}",
+        ) from e
 
     finally:
         for temp_file in temp_files:
@@ -352,7 +379,8 @@ async def get_model_info() -> Dict[str, Any]:
     """Get detailed information about the loaded Whisper model."""
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503,
+            detail="Whisper model not available - running in development mode",
         )
 
     info = whisper_transcriber.get_model_info()
@@ -364,7 +392,7 @@ async def get_model_info() -> Dict[str, Any]:
             "max_file_duration": AudioPreprocessor.MAX_DURATION,
             "supported_languages": "auto-detect + 99 languages",
             "recommended_formats": [".wav", ".mp3", ".m4a"],
-        }
+        },
     )
 
     return info
@@ -417,14 +445,18 @@ async def validate_audio(audio_file: UploadFile = File(...)):
                     "file_size": metadata["file_size"],
                 },
             }
-        else:
-            return JSONResponse(
-                status_code=400,
-                content={"valid": False, "error": "validation_failed", "message": error_msg},
-            )
+        logger.warning(f"Audio file validation failed: {error_msg}")
+        return JSONResponse(
+            status_code=400,
+            content={
+                "valid": False,
+                "error": "validation_failed",
+                "message": "Audio file failed validation; unsupported or corrupted audio format.",
+            },
+        )
 
     except Exception:
-        logger.error("Audio validation error occurred")
+        logger.exception("Audio validation error occurred")
         return JSONResponse(
             status_code=500,
             content={
@@ -445,7 +477,8 @@ async def warm_up_model(background_tasks: BackgroundTasks):
     """Warm up the model for faster subsequent requests."""
     if whisper_transcriber is None:
         raise HTTPException(
-            status_code=503, detail="Whisper model not available - running in development mode"
+            status_code=503,
+            detail="Whisper model not available - running in development mode",
         )
 
     def warm_up() -> None:
@@ -461,7 +494,8 @@ async def warm_up_model(background_tasks: BackgroundTasks):
 async def value_error_handler(request, exc):
     logger.error("Validation error: {exc}", extra={"format_args": True})
     return JSONResponse(
-        status_code=422, content=ErrorResponse(error="validation_error", message=str(exc)).dict()
+        status_code=422,
+        content=ErrorResponse(error="validation_error", message=str(exc)).dict(),
     )
 
 

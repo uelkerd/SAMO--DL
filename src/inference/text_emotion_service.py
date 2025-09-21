@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
 import logging
-from typing import List, Dict, Any, Optional, Union
+import os
+from typing import Any
 
 from .constants import EMOTION_MODEL_DIR
 
@@ -14,7 +14,7 @@ DEFAULT_LOCAL_MODEL_DIR = EMOTION_MODEL_DIR
 class EmotionService:
     """Abstract emotion classification service interface."""
 
-    def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
+    def classify(self, texts: str | list[str]) -> list[list[dict[str, Any]]]:
         """Classify one or many texts into emotion score distributions."""
         raise NotImplementedError
 
@@ -45,17 +45,18 @@ class HFEmotionService(EmotionService):
             return
         try:
             from transformers import (
-                pipeline,
-                AutoTokenizer,
                 AutoModelForSequenceClassification,
-            )  # type: ignore
+                AutoTokenizer,
+                pipeline,
+            )
         except Exception as e:  # pragma: no cover
-            logger.error("Failed to import transformers components: %s", e)
+            logger.exception("Failed to import transformers components: %s", e)
             raise
 
         model_dir = os.environ.get(self.model_dir_env)
         local_only = os.environ.get(
-            self.local_only_env, "1"
+            self.local_only_env,
+            "1",
         ).strip() not in {"", "0", "false", "False"}
 
         if not model_dir and local_only:
@@ -64,10 +65,12 @@ class HFEmotionService(EmotionService):
         if model_dir and os.path.isdir(model_dir):
             # Load strictly from local directory
             tokenizer = AutoTokenizer.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir,
+                local_files_only=True,
             )
             model = AutoModelForSequenceClassification.from_pretrained(
-                model_dir, local_files_only=True
+                model_dir,
+                local_files_only=True,
             )
             self._pipeline = pipeline(
                 task="text-classification",
@@ -83,23 +86,23 @@ class HFEmotionService(EmotionService):
             raise RuntimeError(
                 "Local-only mode enabled but local model directory not found. "
                 f"Expected at: {model_dir or DEFAULT_LOCAL_MODEL_DIR}. "
-                f"Please place the model files locally or set {self.model_dir_env}."
+                f"Please place the model files locally or set {self.model_dir_env}.",
             )
 
         # Fallback to remote model (dev only). Token optional.
-        kwargs: Dict[str, Any] = {
+        kwargs: dict[str, Any] = {
             "task": "text-classification",
             "model": self.model_name,
             "return_all_scores": True,
         }
-        if (token := os.environ.get(self.hf_token_env)):
+        if token := os.environ.get(self.hf_token_env):
             kwargs["token"] = token
         # Explicitly disable remote code execution for safety
         kwargs["trust_remote_code"] = False
         self._pipeline = pipeline(**kwargs)
         logger.info("HFEmotionService loaded remote model: %s", self.model_name)
 
-    def classify(self, texts: Union[str, List[str]]) -> List[List[Dict[str, Any]]]:
+    def classify(self, texts: str | list[str]) -> list[list[dict[str, Any]]]:
         """Return list of per-text distributions [{label, score}, ...]."""
         inputs = [texts] if isinstance(texts, str) else texts
         if self._pipeline is None:

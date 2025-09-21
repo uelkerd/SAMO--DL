@@ -1,5 +1,4 @@
-"""
-Comprehensive Monitoring Dashboard for SAMO Deep Learning API
+"""Comprehensive Monitoring Dashboard for SAMO Deep Learning API.
 
 This module provides real-time monitoring capabilities including:
 - System resource monitoring
@@ -9,14 +8,11 @@ This module provides real-time monitoring capabilities including:
 - Performance metrics visualization
 """
 
-import asyncio
-import json
 import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
 from collections import defaultdict, deque
+from dataclasses import asdict, dataclass
+from typing import Any, DefaultDict, Deque, Dict, List, Optional
 
 import psutil
 
@@ -32,9 +28,11 @@ MODEL_ERROR_COUNT_THRESHOLD = 10
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class SystemMetrics:
     """System resource metrics."""
+
     timestamp: float
     cpu_percent: float
     memory_percent: float
@@ -44,9 +42,11 @@ class SystemMetrics:
     network_sent_mb: float
     network_recv_mb: float
 
+
 @dataclass
 class ModelMetrics:
     """Model performance metrics."""
+
     model_name: str
     total_requests: int
     successful_requests: int
@@ -56,15 +56,18 @@ class ModelMetrics:
     is_loaded: bool
     error_count: int
 
+
 @dataclass
 class APIMetrics:
     """API usage metrics."""
+
     total_requests: int
     requests_per_minute: float
     average_response_time_ms: float
     error_rate: float
     active_connections: int
     uptime_seconds: float
+
 
 class MonitoringDashboard:
     """Comprehensive monitoring dashboard for SAMO Deep Learning API."""
@@ -74,43 +77,45 @@ class MonitoringDashboard:
         self.start_time = time.time()
 
         # Metrics storage
-        self.system_metrics_history = deque(maxlen=history_size)
-        self.model_metrics = defaultdict(lambda: ModelMetrics(
-            model_name="",
-            total_requests=0,
-            successful_requests=0,
-            failed_requests=0,
-            average_response_time_ms=0.0,
-            last_used=None,
-            is_loaded=False,
-            error_count=0
-        ))
+        self.system_metrics_history: Deque[SystemMetrics] = deque(maxlen=history_size)
+        self.model_metrics: DefaultDict[str, ModelMetrics] = defaultdict(
+            lambda: ModelMetrics(
+                model_name="",
+                total_requests=0,
+                successful_requests=0,
+                failed_requests=0,
+                average_response_time_ms=0.0,
+                last_used=None,
+                is_loaded=False,
+                error_count=0,
+            ),
+        )
         self.api_metrics = APIMetrics(
             total_requests=0,
             requests_per_minute=0.0,
             average_response_time_ms=0.0,
             error_rate=0.0,
             active_connections=0,
-            uptime_seconds=0.0
+            uptime_seconds=0.0,
         )
 
         # Request tracking
-        self.request_times = deque(maxlen=history_size)
-        self.error_log = deque(maxlen=history_size)
+        self.request_times: Deque[float] = deque(maxlen=history_size)
+        self.error_log: Deque[Dict[str, Any]] = deque(maxlen=history_size)
         self.total_errors = 0  # Track total errors for accurate error rate
 
         # Performance tracking
-        self.response_times = deque(maxlen=history_size)
+        self.response_times: Deque[float] = deque(maxlen=history_size)
 
         logger.info("Monitoring dashboard initialized")
 
-    def update_system_metrics(self) -> SystemMetrics:
+    def update_system_metrics(self) -> Optional[SystemMetrics]:
         """Update and store current system metrics."""
         try:
             # CPU and memory
             cpu_percent = psutil.cpu_percent(interval=None)
             memory = psutil.virtual_memory()
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
 
             # Network metrics
             network = psutil.net_io_counters()
@@ -125,17 +130,22 @@ class MonitoringDashboard:
                 disk_percent=disk.percent,
                 disk_free_gb=disk.free / (1024**3),
                 network_sent_mb=network_sent_mb,
-                network_recv_mb=network_recv_mb
+                network_recv_mb=network_recv_mb,
             )
 
             self.system_metrics_history.append(metrics)
             return metrics
 
         except Exception as exc:
-            logger.error(f"Failed to update system metrics: {exc}")
+            logger.exception(f"Failed to update system metrics: {exc}")
             return None
 
-    def record_model_request(self, model_name: str, success: bool, response_time_ms: float):
+    def record_model_request(
+        self,
+        model_name: str,
+        success: bool,
+        response_time_ms: float,
+    ):
         """Record a model request for metrics tracking."""
         metrics = self.model_metrics[model_name]
         metrics.model_name = model_name
@@ -152,9 +162,9 @@ class MonitoringDashboard:
             metrics.average_response_time_ms = response_time_ms
         else:
             metrics.average_response_time_ms = (
-                (metrics.average_response_time_ms * (metrics.total_requests - 1) + response_time_ms)
-                / metrics.total_requests
-            )
+                metrics.average_response_time_ms * (metrics.total_requests - 1)
+                + response_time_ms
+            ) / metrics.total_requests
 
         metrics.last_used = time.time()
 
@@ -165,10 +175,12 @@ class MonitoringDashboard:
         self.response_times.append(response_time_ms)
 
         if not success:
-            self.error_log.append({
-                "timestamp": time.time(),
-                "error": "API request failed"
-            })
+            self.error_log.append(
+                {
+                    "timestamp": time.time(),
+                    "error": "API request failed",
+                },
+            )
             self.total_errors += 1
 
         # Update metrics
@@ -185,11 +197,15 @@ class MonitoringDashboard:
 
         # Calculate average response time
         if self.response_times:
-            self.api_metrics.average_response_time_ms = sum(self.response_times) / len(self.response_times)
+            self.api_metrics.average_response_time_ms = sum(self.response_times) / len(
+                self.response_times,
+            )
 
         # Calculate error rate
         if self.api_metrics.total_requests > 0:
-            self.api_metrics.error_rate = self.total_errors / self.api_metrics.total_requests
+            self.api_metrics.error_rate = (
+                self.total_errors / self.api_metrics.total_requests
+            )
 
         # Update uptime
         self.api_metrics.uptime_seconds = current_time - self.start_time
@@ -208,7 +224,10 @@ class MonitoringDashboard:
         self._update_api_metrics()
 
         # Prepare model metrics
-        model_metrics_dict = {model_name: asdict(metrics) for model_name, metrics in self.model_metrics.items()}
+        model_metrics_dict = {
+            model_name: asdict(metrics)
+            for model_name, metrics in self.model_metrics.items()
+        }
 
         # Calculate trends
         trends = self._calculate_trends()
@@ -223,7 +242,7 @@ class MonitoringDashboard:
             "models": model_metrics_dict,
             "api": asdict(self.api_metrics),
             "trends": trends,
-            "alerts": self._generate_alerts()
+            "alerts": self._generate_alerts(),
         }
 
     def _calculate_trends(self) -> Dict[str, Any]:
@@ -257,7 +276,8 @@ class MonitoringDashboard:
         return {
             "cpu_trend": cpu_trend,
             "memory_trend": memory_trend,
-            "response_time_trend": "stable"  # Could be enhanced with more sophisticated analysis
+            # Could be enhanced with more sophisticated analysis
+            "response_time_trend": "stable",
         }
 
     def _calculate_health_status(self) -> str:
@@ -268,23 +288,27 @@ class MonitoringDashboard:
         current_metrics = self.system_metrics_history[-1]
 
         # Check critical thresholds first
-        if (current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD or
-            current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD or
-            current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD):
+        if (
+            current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD
+            or current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD
+            or current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD
+        ):
             return "critical"
 
         # Check warning thresholds
-        if (current_metrics.cpu_percent > WARNING_CPU_THRESHOLD or
-            current_metrics.memory_percent > WARNING_MEMORY_THRESHOLD or
-            current_metrics.disk_percent > WARNING_DISK_THRESHOLD or
-            self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD):
+        if (
+            current_metrics.cpu_percent > WARNING_CPU_THRESHOLD
+            or current_metrics.memory_percent > WARNING_MEMORY_THRESHOLD
+            or current_metrics.disk_percent > WARNING_DISK_THRESHOLD
+            or self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD
+        ):
             return "warning"
 
         return "healthy"
 
     def _generate_alerts(self) -> List[Dict[str, Any]]:
         """Generate alerts based on current metrics."""
-        alerts = []
+        alerts: List[Dict[str, Any]] = []
 
         if not self.system_metrics_history:
             return alerts
@@ -293,42 +317,58 @@ class MonitoringDashboard:
 
         # System alerts
         if current_metrics.cpu_percent > CRITICAL_CPU_THRESHOLD:
-            alerts.append({
-                "level": "critical",
-                "message": f"High CPU usage: {current_metrics.cpu_percent:.1f}%",
-                "timestamp": current_metrics.timestamp
-            })
+            alerts.append(
+                {
+                    "level": "critical",
+                    "message": f"High CPU usage: {current_metrics.cpu_percent:.1f}%",
+                    "timestamp": current_metrics.timestamp,
+                },
+            )
 
         if current_metrics.memory_percent > CRITICAL_MEMORY_THRESHOLD:
-            alerts.append({
-                "level": "critical",
-                "message": f"High memory usage: {current_metrics.memory_percent:.1f}%",
-                "timestamp": current_metrics.timestamp
-            })
+            alerts.append(
+                {
+                    "level": "critical",
+                    "message": (
+                        f"High memory usage: {current_metrics.memory_percent:.1f}%"
+                    ),
+                    "timestamp": current_metrics.timestamp,
+                },
+            )
 
         if current_metrics.disk_percent > CRITICAL_DISK_THRESHOLD:
-            alerts.append({
-                "level": "critical",
-                "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
-                "timestamp": current_metrics.timestamp
-            })
+            alerts.append(
+                {
+                    "level": "critical",
+                    "message": (
+                        f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free"
+                    ),
+                    "timestamp": current_metrics.timestamp,
+                },
+            )
 
         # API alerts
         if self.api_metrics.error_rate > CRITICAL_ERROR_RATE_THRESHOLD:
-            alerts.append({
-                "level": "warning",
-                "message": f"High error rate: {self.api_metrics.error_rate:.1%}",
-                "timestamp": time.time()
-            })
+            alerts.append(
+                {
+                    "level": "warning",
+                    "message": f"High error rate: {self.api_metrics.error_rate:.1%}",
+                    "timestamp": time.time(),
+                },
+            )
 
         # Model alerts
         for model_name, metrics in self.model_metrics.items():
             if metrics.error_count > MODEL_ERROR_COUNT_THRESHOLD:
-                alerts.append({
-                    "level": "warning",
-                    "message": f"High error count for {model_name}: {metrics.error_count} errors",
-                    "timestamp": time.time()
-                })
+                alerts.append(
+                    {
+                        "level": "warning",
+                        "message": (
+                            f"High error count for {model_name}: {metrics.error_count} errors"
+                        ),
+                        "timestamp": time.time(),
+                    },
+                )
 
         return alerts
 
@@ -338,20 +378,20 @@ class MonitoringDashboard:
 
         # Filter system metrics
         historical_system = [
-            asdict(metrics) for metrics in self.system_metrics_history
+            asdict(metrics)
+            for metrics in self.system_metrics_history
             if metrics.timestamp > cutoff_time
         ]
 
         # Filter response times
         historical_response_times = [
-            rt for rt in self.response_times
-            if rt > cutoff_time
+            rt for rt in self.response_times if rt > cutoff_time
         ]
 
         return {
             "system_metrics": historical_system,
             "response_times": historical_response_times,
-            "period_hours": hours
+            "period_hours": hours,
         }
 
     def reset_metrics(self):
@@ -364,6 +404,7 @@ class MonitoringDashboard:
         self.start_time = time.time()
 
         logger.info("Monitoring metrics reset")
+
 
 # Global dashboard instance
 dashboard = MonitoringDashboard()

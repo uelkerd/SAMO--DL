@@ -1,0 +1,91 @@
+name: PR Scope Check
+
+permissions:
+  contents: read
+  pull-requests: read
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  scope-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get full history for proper diff
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Run PR Scope Check
+      run: |
+        python scripts/check_pr_scope.py --strict
+      continue-on-error: false
+
+    - name: Check branch naming (secure)
+      env:
+        BRANCH_NAME: ${{ github.head_ref }}
+      run: |
+        # Validate branch name using environment variable (safer than direct interpolation)
+        if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|chore|refactor|docs|test)/[a-z]+(-[a-z]+)*$ ]]; then
+          echo "❌ Branch name must follow pattern: type/short-description"
+          echo "   Current: $BRANCH_NAME"
+          echo "   Examples: feat/add-user-auth, fix/validate-input, chore/update-deps"
+          exit 1
+        fi
+        echo "✅ Branch name follows convention: $BRANCH_NAME"
+
+    - name: Check PR size limits (secure)
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
+        HEAD_REF: ${{ github.head_ref }}
+      run: |
+        # Validate input parameters
+        if [[ -z "$BASE_BRANCH" || -z "$HEAD_REF" ]]; then
+          echo "❌ Missing required branch information"
+          exit 1
+        fi
+
+        # Ensure base branch exists in origin
+        if ! git show-ref --verify --quiet "refs/remotes/origin/$BASE_BRANCH"; then
+          echo "❌ Base branch origin/$BASE_BRANCH not found"
+          exit 1
+        fi
+
+        # Count files changed using safe git commands
+        FILES_CHANGED=$(git diff --name-only "origin/$BASE_BRANCH" | wc -l)
+        echo "Files changed: $FILES_CHANGED"
+
+        # Count lines changed using shortstat (more reliable)
+        SHORTSTAT=$(git diff --shortstat "origin/$BASE_BRANCH")
+        LINES_CHANGED=0
+
+        if [[ -n "$SHORTSTAT" ]]; then
+          # Extract insertions and deletions from shortstat
+          INSERTIONS=$(echo "$SHORTSTAT" | grep -o '[0-9]\+ insertion' | head -1 | grep -o '[0-9]\+' || echo "0")
+          DELETIONS=$(echo "$SHORTSTAT" | grep -o '[0-9]\+ deletion' | head -1 | grep -o '[0-9]\+' || echo "0")
+          LINES_CHANGED=$((INSERTIONS + DELETIONS))
+        fi
+
+        echo "Lines changed: $LINES_CHANGED"
+
+        # Check limits with proper error handling
+        if [[ "$FILES_CHANGED" -gt 50 ]]; then
+          echo "❌ Too many files changed: $FILES_CHANGED (max 50)"
+          exit 1
+        fi
+
+        if [[ "$LINES_CHANGED" -gt 1500 ]]; then
+          echo "❌ Too many lines changed: $LINES_CHANGED (max 1500)"
+          exit 1
+        fi
+
+        echo "✅ PR size within limits: $FILES_CHANGED files, $LINES_CHANGED lines"

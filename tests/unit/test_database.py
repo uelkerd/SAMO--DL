@@ -23,8 +23,8 @@ class TestDatabaseConnection:
     def test_get_db_generator(self):
         """Test get_db function returns a generator."""
         db_gen = get_db()
-        assert hasattr(db_gen, '__iter__')
-        assert hasattr(db_gen, '__next__')
+        assert hasattr(db_gen, "__iter__")
+        assert hasattr(db_gen, "__next__")
 
     def test_init_db_function_exists(self):
         """Test init_db function exists and is callable."""
@@ -33,7 +33,7 @@ class TestDatabaseConnection:
     def test_engine_exists(self):
         """Test engine is properly configured."""
         assert engine is not None
-        assert hasattr(engine, 'url')
+        assert hasattr(engine, "url")
 
     def test_session_local_exists(self):
         """Test SessionLocal is properly configured."""
@@ -47,7 +47,7 @@ class TestDatabaseConnection:
     def test_base_exists(self):
         """Test Base class exists."""
         assert Base is not None
-        assert hasattr(Base, 'metadata')
+        assert hasattr(Base, "metadata")
 
 
 class TestDatabaseFunctions:
@@ -69,9 +69,9 @@ class TestDatabaseFunctions:
 
     def test_engine_configuration(self):
         """Test engine is properly configured with expected attributes."""
-        assert hasattr(engine, 'url')
-        assert hasattr(engine, 'pool')
-        assert hasattr(engine, 'dispose')
+        assert hasattr(engine, "url")
+        assert hasattr(engine, "pool")
+        assert hasattr(engine, "dispose")
 
     def test_session_local_configuration(self):
         """Test SessionLocal is properly configured."""
@@ -80,7 +80,9 @@ class TestDatabaseFunctions:
             session = SessionLocal()
             session.close()
         except Exception as exc:
-            logger.debug(f"Session creation failed (expected in test environment): {exc}")
+            logger.debug(
+                f"Session creation failed (expected in test environment): {exc}",
+            )
 
 
 class TestDatabaseErrorHandling:

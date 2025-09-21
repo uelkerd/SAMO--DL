@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Conservative Linting Issues Fixer
+"""Conservative Linting Issues Fixer.
 
 This script fixes common linting issues in Python files without being too aggressive.
 It focuses on:
@@ -26,7 +25,9 @@ class ConservativeLintingFixer:
         """Initialize the fixer.
 
         Args:
+        ----
             project_root: Root directory of the project
+
         """
         self.project_root = Path(project_root)
         self.fixed_files: List[str] = []
@@ -36,11 +37,14 @@ class ConservativeLintingFixer:
         """Check if an import should be preserved.
 
         Args:
+        ----
             import_name: Name of the import to check
             file_content: Content of the file
 
         Returns:
+        -------
             True if import should be preserved
+
         """
         # Check if the import is actually used in the file
         # This is a simple check - could be improved
@@ -50,11 +54,15 @@ class ConservativeLintingFixer:
         """Fix F841: Remove unused variables in exception handlers.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
+
         """
+
         def replace_exception(match):
             exception_var = match.group(1)
             if not self.should_preserve_import(exception_var, content):
@@ -62,26 +70,29 @@ class ConservativeLintingFixer:
             return match.group(0)
 
         # Replace unused exception variables
-        content = re.sub(r'except\s+(\w+):', replace_exception, content)
+        content = re.sub(r"except\s+(\w+):", replace_exception, content)
         return content
 
     def fix_e402_import_order(self, content: str) -> str:
         """Fix E402: Move imports to top of file.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
+
         """
-        lines = content.split('\n')
+        lines = content.split("\n")
         import_lines = []
         other_lines = []
         in_import_section = True
 
         for line in lines:
             stripped = line.strip()
-            if stripped.startswith(('import ', 'from ')):
+            if stripped.startswith(("import ", "from ")):
                 import_lines.append(line)
                 in_import_section = True
             elif stripped and in_import_section:
@@ -95,58 +106,68 @@ class ConservativeLintingFixer:
         result = []
         if import_lines:
             result.extend(import_lines)
-            result.append('')  # Add blank line after imports
+            result.append("")  # Add blank line after imports
         result.extend(other_lines)
-        
-        return '\n'.join(result)
+
+        return "\n".join(result)
 
     def fix_ruf022_all_sorting(self, content: str) -> str:
         """Fix RUF022: Sort __all__ lists.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
+
         """
+
         def sort_all_list(match):
             all_content = match.group(1)
-            items = [item.strip().strip('"\'') for item in all_content.split(',')]
+            items = [item.strip().strip("\"'") for item in all_content.split(",")]
             items = [item for item in items if item]  # Remove empty items
             items.sort()
             formatted_items = [f'"{item}"' for item in items]
-            return f'__all__ = [\n    {",\n    ".join(formatted_items)},\n]'
+            return f"__all__ = [\n    {',\n    '.join(formatted_items)},\n]"
 
-        pattern = r'__all__\s*=\s*\[(.*?)\]'
+        pattern = r"__all__\s*=\s*\[(.*?)\]"
         return re.sub(pattern, sort_all_list, content, flags=re.DOTALL)
 
     def fix_w291_trailing_whitespace(self, content: str) -> str:
         """Fix W291: Remove trailing whitespace.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
+
         """
-        lines = content.split('\n')
+        lines = content.split("\n")
         fixed_lines = [line.rstrip() for line in lines]
-        return '\n'.join(fixed_lines)
+        return "\n".join(fixed_lines)
 
     def fix_t201_print_statements(self, content: str) -> str:
         """Fix T201: Replace print statements with logging.
 
         Args:
+        ----
             content: File content
 
         Returns:
+        -------
             Fixed content
-        """
-        if 'print(' in content and 'logging' not in content:
-            if 'import logging' not in content:
-                content = 'import logging\n\n' + content
 
-            content = re.sub(r'print\((.*?)\)', r'logging.info(\1)', content)
+        """
+        if "print(" in content and "logging" not in content:
+            if "import logging" not in content:
+                content = "import logging\n\n" + content
+
+            content = re.sub(r"print\((.*?)\)", r"logging.info(\1)", content)
 
         return content
 
@@ -154,13 +175,16 @@ class ConservativeLintingFixer:
         """Fix linting issues in a single file.
 
         Args:
+        ----
             file_path: Path to the file to fix
 
         Returns:
+        -------
             True if file was modified
+
         """
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -172,7 +196,7 @@ class ConservativeLintingFixer:
             content = self.fix_t201_print_statements(content)
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
                 self.fixed_files.append(str(file_path))
                 return True
@@ -188,7 +212,9 @@ class ConservativeLintingFixer:
         """Process all Python files in a directory.
 
         Args:
+        ----
             directory: Directory to process
+
         """
         dir_path = self.project_root / directory
 
@@ -196,7 +222,7 @@ class ConservativeLintingFixer:
             print(f"Directory {directory} does not exist")
             return
 
-        python_files = list(dir_path.rglob('*.py'))
+        python_files = list(dir_path.rglob("*.py"))
         print(f"Processing {len(python_files)} Python files in {directory}/")
 
         for file_path in python_files:
@@ -210,7 +236,7 @@ class ConservativeLintingFixer:
         print("🔧 Starting Conservative Linting Fixer...")
         print("=" * 50)
 
-        directories = ['scripts', 'src', 'tests']
+        directories = ["scripts", "src", "tests"]
 
         for directory in directories:
             print(f"\n📁 Processing {directory}/ directory...")

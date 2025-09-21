@@ -1,70 +1,29 @@
-                # Calculate drift score using KL divergence or statistical distance
-                # Check for data drift (if detector is initialized)
-                # Check for degradation
-                # Collect metrics
-                # Initialize tokenizer
-                # Load checkpoint
-                # Sleep for monitoring interval
-            # Calculate mock metrics (in real scenario, these would come from actual evaluation)
-            # Calculate throughput
-            # For now, just log the action
-            # Generate test data
-            # Get GPU utilization if available
-            # Get memory usage
-            # In a real implementation, this would trigger the retraining pipeline
-            # Inference
-            # Load model
-            # Move to device
-            # Tokenize
-            import psutil
-        # Calculate degradation
-        # Calculate overall drift score
-        # Calculate trends
-        # Check each feature for drift
-        # Check if degradation exceeds threshold
-        # Combined drift score
-        # Extract metrics arrays
-        # For now, return mock drift metrics
-        # Get recent alerts
-        # Get recent metrics
-        # In a real implementation, this would analyze actual incoming data
-        # Initialize model
-        # Keep running
-        # Normalize by reference statistics
-        # Print final status
-        # Save alert to file
-        # Set baseline if not set
-        # Use Wasserstein distance as drift measure
-    # Create directory if needed
-    # Create monitor
-    # Save configuration
-    # Start monitoring
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
-from collections import deque
-from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
-from pathlib import Path
-from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
-from transformers import AutoTokenizer
-from typing import Any, Optional
+"""Model Monitoring Script.
+
+Monitors model performance, drift, and resource usage.
+"""
+
 import argparse
 import json
 import logging
-import numpy as np
-import pandas as pd
 import sys
 import threading
 import time
+from collections import deque
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Optional
+
+import numpy as np
+import pandas as pd
+import psutil
 import torch
 import yaml
+from transformers import AutoTokenizer
 
-
-
-
-
+from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 """
 Model Monitoring Script for REQ-DL-010
@@ -141,7 +100,9 @@ class PerformanceTracker:
         """Initialize performance tracker.
 
         Args:
+        ----
             window_size: Size of sliding window for metrics
+
         """
         self.window_size = window_size
         self.metrics_history = deque(maxlen=window_size)
@@ -152,7 +113,9 @@ class PerformanceTracker:
         """Add new metrics to the tracker.
 
         Args:
+        ----
             metrics: Model performance metrics
+
         """
         self.metrics_history.append(metrics)
 
@@ -163,8 +126,10 @@ class PerformanceTracker:
     def get_current_performance(self) -> dict[str, float]:
         """Get current performance metrics.
 
-        Returns:
+        Returns
+        -------
             Dictionary with current performance metrics
+
         """
         if not self.metrics_history:
             return {}
@@ -182,8 +147,10 @@ class PerformanceTracker:
     def detect_degradation(self) -> Optional[Alert]:
         """Detect performance degradation.
 
-        Returns:
+        Returns
+        -------
             Alert if degradation detected, None otherwise
+
         """
         if not self.metrics_history or self.baseline_metrics is None:
             return None
@@ -203,7 +170,9 @@ class PerformanceTracker:
         max_degradation = max(f1_degradation, precision_degradation, recall_degradation)
 
         if max_degradation > self.degradation_threshold:
-            severity = "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
+            severity = (
+                "HIGH" if max_degradation > DEFAULT_RETRAIN_THRESHOLD else "MEDIUM"
+            )
             action_required = max_degradation > DEFAULT_RETRAIN_THRESHOLD
 
             return Alert(
@@ -225,8 +194,10 @@ class PerformanceTracker:
     def get_trend_analysis(self) -> dict[str, Any]:
         """Analyze performance trends.
 
-        Returns:
+        Returns
+        -------
             Dictionary with trend analysis
+
         """
         if len(self.metrics_history) < 10:
             return {"insufficient_data": True}
@@ -250,13 +221,17 @@ class DataDriftDetector:
     """Detect data drift using statistical methods."""
 
     def __init__(
-        self, reference_data: pd.DataFrame, drift_threshold: float = DEFAULT_DRIFT_THRESHOLD
+        self,
+        reference_data: pd.DataFrame,
+        drift_threshold: float = DEFAULT_DRIFT_THRESHOLD,
     ):
         """Initialize drift detector.
 
         Args:
+        ----
             reference_data: Reference dataset for drift detection
             drift_threshold: Threshold for drift detection
+
         """
         self.reference_data = reference_data
         self.drift_threshold = drift_threshold
@@ -265,8 +240,10 @@ class DataDriftDetector:
     def _compute_reference_stats(self) -> dict[str, dict[str, float]]:
         """Compute reference statistics for features.
 
-        Returns:
+        Returns
+        -------
             Dictionary with feature statistics
+
         """
         stats_dict = {}
 
@@ -285,10 +262,13 @@ class DataDriftDetector:
         """Detect data drift in current data.
 
         Args:
+        ----
             current_data: Current data to check for drift
 
         Returns:
+        -------
             Drift metrics
+
         """
         drift_scores = {}
         affected_features = []
@@ -299,7 +279,10 @@ class DataDriftDetector:
                 current_std = current_data[feature].std()
 
                 drift_score = self._calculate_drift_score(
-                    ref_stats["mean"], ref_stats["std"], current_mean, current_std
+                    ref_stats["mean"],
+                    ref_stats["std"],
+                    current_mean,
+                    current_std,
                 )
 
                 drift_scores[feature] = drift_score
@@ -323,19 +306,26 @@ class DataDriftDetector:
             affected_features=affected_features,
         )
 
+    @staticmethod
     def _calculate_drift_score(
-        self, ref_mean: float, ref_std: float, current_mean: float, current_std: float
+        ref_mean: float,
+        ref_std: float,
+        current_mean: float,
+        current_std: float,
     ) -> float:
         """Calculate drift score between reference and current distributions.
 
         Args:
+        ----
             ref_mean: Reference mean
             ref_std: Reference standard deviation
             current_mean: Current mean
             current_std: Current standard deviation
 
         Returns:
+        -------
             Drift score
+
         """
         mean_diff = abs(current_mean - ref_mean)
         std_diff = abs(current_std - ref_std)
@@ -343,9 +333,7 @@ class DataDriftDetector:
         normalized_mean_diff = mean_diff / (ref_std + 1e-8)
         normalized_std_diff = std_diff / (ref_std + 1e-8)
 
-        drift_score = (normalized_mean_diff + normalized_std_diff) / 2
-
-        return drift_score
+        return (normalized_mean_diff + normalized_std_diff) / 2
 
 
 class ModelHealthMonitor:
@@ -355,11 +343,13 @@ class ModelHealthMonitor:
         """Initialize model health monitor.
 
         Args:
+        ----
             config_path: Path to monitoring configuration
+
         """
         self.config = self._load_config(config_path)
         self.performance_tracker = PerformanceTracker(
-            window_size=self.config.get("window_size", 100)
+            window_size=self.config.get("window_size", 100),
         )
         self.drift_detector = None  # Will be initialized with reference data
         self.alerts = deque(maxlen=1000)
@@ -370,14 +360,18 @@ class ModelHealthMonitor:
         self.tokenizer = None
         self._initialize_model()
 
-    def _load_config(self, config_path: str) -> dict[str, Any]:
+    @staticmethod
+    def _load_config(config_path: str) -> dict[str, Any]:
         """Load monitoring configuration.
 
         Args:
+        ----
             config_path: Path to configuration file
 
         Returns:
+        -------
             Configuration dictionary
+
         """
         config_file = Path(config_path)
         if config_file.exists():
@@ -397,7 +391,8 @@ class ModelHealthMonitor:
         """Initialize the model for monitoring."""
         try:
             model_path = self.config.get(
-                "model_path", "models/checkpoints/bert_emotion_classifier_final.pt"
+                "model_path",
+                "models/checkpoints/bert_emotion_classifier_final.pt",
             )
             if Path(model_path).exists():
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -415,8 +410,8 @@ class ModelHealthMonitor:
                 logger.info("Model initialized for monitoring")
             else:
                 logger.warning("Model not found: {model_path}")
-        except Exception as e:
-            logger.error("Error initializing model: {e}")
+        except Exception:
+            logger.exception("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
         """Start continuous monitoring."""
@@ -466,17 +461,21 @@ class ModelHealthMonitor:
                         self.alerts.append(drift_alert)
                         self._handle_alert(drift_alert)
 
-                time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
+                time.sleep(
+                    self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL),
+                )
 
-            except Exception as e:
-                logger.error("Error in monitoring loop: {e}")
+            except Exception:
+                logger.exception("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
     def _collect_metrics(self) -> Optional[ModelMetrics]:
         """Collect current model performance metrics.
 
-        Returns:
+        Returns
+        -------
             Model metrics if collection successful, None otherwise
+
         """
         if not self.model:
             return None
@@ -493,7 +492,11 @@ class ModelHealthMonitor:
             ]
 
             inputs = self.tokenizer(
-                test_texts, return_tensors="pt", padding=True, truncation=True, max_length=128
+                test_texts,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=128,
             )
 
             device = next(self.model.parameters()).device
@@ -527,15 +530,18 @@ class ModelHealthMonitor:
                 gpu_utilization=gpu_utilization,
             )
 
-        except Exception as e:
-            logger.error("Error collecting metrics: {e}")
+        except Exception:
+            logger.exception("Error collecting metrics: {e}")
             return None
 
-    def _get_memory_usage(self) -> float:
+    @staticmethod
+    def _get_memory_usage() -> float:
         """Get current memory usage in MB.
 
-        Returns:
+        Returns
+        -------
             Memory usage in MB
+
         """
         try:
             process = psutil.Process()
@@ -543,11 +549,14 @@ class ModelHealthMonitor:
         except ImportError:
             return 0.0
 
-    def _get_gpu_utilization(self) -> Optional[float]:
+    @staticmethod
+    def _get_gpu_utilization() -> Optional[float]:
         """Get GPU utilization percentage.
 
-        Returns:
+        Returns
+        -------
             GPU utilization percentage if available, None otherwise
+
         """
         try:
             if torch.cuda.is_available():
@@ -556,11 +565,14 @@ class ModelHealthMonitor:
             pass
         return None
 
-    def _check_data_drift(self) -> DriftMetrics:
+    @staticmethod
+    def _check_data_drift() -> DriftMetrics:
         """Check for data drift in incoming data.
 
-        Returns:
+        Returns
+        -------
             Drift metrics
+
         """
         return DriftMetrics(
             timestamp=datetime.now(),
@@ -575,7 +587,9 @@ class ModelHealthMonitor:
         """Handle monitoring alerts.
 
         Args:
+        ----
             alert: Alert to handle
+
         """
         logger.warning("ALERT [{alert.severity}]: {alert.message}")
 
@@ -600,31 +614,38 @@ class ModelHealthMonitor:
             )
             self.alerts.append(retrain_alert)
 
-        except Exception as e:
-            logger.error("Error triggering retraining: {e}")
+        except Exception:
+            logger.exception("Error triggering retraining: {e}")
 
-    def _save_alert(self, alert: Alert) -> None:
+    @staticmethod
+    def _save_alert(alert: Alert) -> None:
         """Save alert to file.
 
         Args:
+        ----
             alert: Alert to save
+
         """
         try:
             alerts_dir = Path("logs/alerts")
             alerts_dir.mkdir(parents=True, exist_ok=True)
 
-            alert_file = alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            alert_file = (
+                alerts_dir / "alert_{alert.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            )
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
-        except Exception as e:
-            logger.error("Error saving alert: {e}")
+        except Exception:
+            logger.exception("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:
         """Get current model health status.
 
-        Returns:
+        Returns
+        -------
             Dictionary with health status
+
         """
         current_performance = self.performance_tracker.get_current_performance()
         trend_analysis = self.performance_tracker.get_trend_analysis()
@@ -636,7 +657,11 @@ class ModelHealthMonitor:
             "current_performance": current_performance,
             "trend_analysis": trend_analysis,
             "recent_alerts": len(
-                [a for a in self.alerts if a.timestamp > datetime.now() - timedelta(hours=1)]
+                [
+                    a
+                    for a in self.alerts
+                    if a.timestamp > datetime.now() - timedelta(hours=1)
+                ],
             ),
             "total_alerts": len(self.alerts),
         }
@@ -644,8 +669,10 @@ class ModelHealthMonitor:
     def get_dashboard_data(self) -> dict[str, Any]:
         """Get data for monitoring dashboard.
 
-        Returns:
+        Returns
+        -------
             Dictionary with dashboard data
+
         """
         recent_metrics = list(self.performance_tracker.metrics_history)[-50:]
 
@@ -664,7 +691,9 @@ def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
     """Create default monitoring configuration.
 
     Args:
+    ----
         output_path: Path to save configuration
+
     """
     config = {
         "model_path": "models/checkpoints/bert_emotion_classifier_final.pt",
@@ -706,7 +735,9 @@ if __name__ == "__main__":
         help="Performance degradation threshold for alerts (default: {DEFAULT_ALERT_THRESHOLD})",
     )
     parser.add_argument(
-        "--create_config", action="store_true", help="Create default monitoring configuration"
+        "--create_config",
+        action="store_true",
+        help="Create default monitoring configuration",
     )
 
     args = parser.parse_args()

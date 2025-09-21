@@ -1,15 +1,14 @@
-            # Clean up the temporary file
-            # Execute the script
-            # Parse the output
-        # Create a temporary JS file
-        # Ensure we return a list, even if the result is a single dict
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+"""Prisma database client integration for SAMO Deep Learning.
+
+This module provides a Python wrapper for Prisma database operations,
+enabling seamless interaction with the database schema through Node.js
+Prisma client. Supports CRUD operations and complex queries.
+"""
+
 import json
 import subprocess
-
-
-
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 """Prisma client utility for the SAMO-DL application.
 
@@ -17,6 +16,7 @@ This module provides functions to interact with the Prisma client via subprocess
 
 It's a simple wrapper that allows Python code to execute Prisma commands.
 """
+
 
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.
@@ -29,12 +29,15 @@ class PrismaClient:
         """Execute a Node.js script that uses Prisma client.
 
         Args:
+        ----
             script (str): The JavaScript code to execute
 
         Returns:
+        -------
             Dict[str, Any]: The result of the operation as a dictionary
 
         Raises:
+        ------
             Exception: If the script execution fails
 
         """
@@ -78,16 +81,21 @@ main();
                 Path("temp_prisma_script.js").unlink()
 
     def create_user(
-        self, email: str, password_hash: str, consent_version: Optional[str] = None
+        self,
+        email: str,
+        password_hash: str,
+        consent_version: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Create a new user.
 
         Args:
+        ----
             email (str): User's email
             password_hash (str): Hashed password
             consent_version (str, optional): Version of consent the user agreed to
 
         Returns:
+        -------
             Dict[str, Any]: Created user data
 
         """
@@ -105,17 +113,23 @@ main();
         return self.execute_prisma_command(script)
 
     def create_journal_entry(
-        self, user_id: str, title: str, content: str, is_private: bool = True
+        self,
+        user_id: str,
+        title: str,
+        content: str,
+        is_private: bool = True,
     ) -> Dict[str, Any]:
         """Create a new journal entry.
 
         Args:
+        ----
             user_id (str): ID of the user who owns this entry
             title (str): Entry title
             content (str): Entry content
             is_private (bool): Whether the entry is private
 
         Returns:
+        -------
             Dict[str, Any]: Created journal entry data
 
         """
@@ -141,9 +155,11 @@ main();
         """Get a user by email.
 
         Args:
+        ----
             email (str): Email to lookup
 
         Returns:
+        -------
             Optional[Dict[str, Any]]: User data or None if not found
 
         """
@@ -156,14 +172,20 @@ main();
         result = self.execute_prisma_command(script)
         return result if result else None
 
-    def get_journal_entries_by_user(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_journal_entries_by_user(
+        self,
+        user_id: str,
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
         """Get journal entries for a specific user.
 
         Args:
+        ----
             user_id (str): User ID
             limit (int): Maximum number of entries to return
 
         Returns:
+        -------
             List[Dict[str, Any]]: List of journal entries
 
         """
@@ -178,7 +200,6 @@ main();
         result = self.execute_prisma_command(script)
         if isinstance(result, list):
             return result
-        elif isinstance(result, dict):
+        if isinstance(result, dict):
             return [result]
-        else:
-            return []
+        return []

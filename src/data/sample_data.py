@@ -1,26 +1,22 @@
-        # Add hour/minute/second for more realistic timestamps
-        # Create the entry
-        # Generate a random date within the range
-        # Randomly select user_id
-    # Convert datetime objects to strings for JSON serialization
-    # Convert string dates back to datetime
-    # Ensure output directory exists
-    # Generate 100 entries from 5 users over the past 60 days
-    # Save to data/raw directory
+"""Sample data generation for testing and development.
+
+This module provides utilities to generate realistic sample journal entries,
+emotion data, and user interactions for development and testing purposes.
+Includes configurable data patterns and export capabilities.
+"""
+# Save to data/raw directory
 # Additional sentences to add variety
 # Emotion categories for entries
 # Sample topics to generate journal entries about
 # Templates for journal entry content
 # Title templates
-from datetime import datetime, timezone, timedelta
+import json
+import random
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import json
+
 import pandas as pd
-import random
-
-
-
 
 TOPICS = [
     "work",
@@ -141,7 +137,11 @@ def generate_content(topic: str, emotion: str) -> str:
     """Generate journal entry content."""
     template = random.choice(ENTRY_TEMPLATES)
     base_sentence = random.choice(ADDITIONAL_SENTENCES)
-    content = template.format(topic=topic, emotion=emotion, additional_sentence=base_sentence)
+    content = template.format(
+        topic=topic,
+        emotion=emotion,
+        additional_sentence=base_sentence,
+    )
 
     # Add more complexity with a chance of a second or third sentence
     if random.random() > 0.4:  # 60% chance of adding more detail
@@ -150,7 +150,12 @@ def generate_content(topic: str, emotion: str) -> str:
         content += f" {random.choice(REFLECTION_TEMPLATES)}"
     return content
 
-def generate_entry(user_id: int, created_at: datetime, id_start: int = 1) -> Dict[str, Any]:
+
+def generate_entry(
+    user_id: int,
+    created_at: datetime,
+    id_start: int = 1,
+) -> Dict[str, Any]:
     """Generate a single journal entry."""
     topic = random.choice(TOPICS)
     emotion = random.choice(EMOTIONS)
@@ -177,12 +182,14 @@ def generate_entries(
     """Generate a list of synthetic journal entries.
 
     Args:
+    ----
         num_entries: Number of entries to generate
         num_users: Number of unique users to create entries for
         start_date: Start date for entries (defaults to 60 days ago)
         end_date: End date for entries (defaults to today)
 
     Returns:
+    -------
         List of dictionaries containing journal entries
 
     """
@@ -216,6 +223,7 @@ def save_entries_to_json(entries: List[Dict[str, Any]], output_path: str) -> Non
     """Save generated entries to a JSON file.
 
     Args:
+    ----
         entries: List of entry dictionaries
         output_path: Path to save the JSON file
 
@@ -237,9 +245,11 @@ def load_sample_entries(json_path: str) -> pd.DataFrame:
     """Load sample entries from JSON file.
 
     Args:
+    ----
         json_path: Path to the JSON file
 
     Returns:
+    -------
         DataFrame containing the entries
 
     """

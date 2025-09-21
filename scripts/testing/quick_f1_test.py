@@ -1,24 +1,17 @@
-        # Configuration 1: Standard training with full dataset
-        # Evaluate model
-        # Initialize model with class weights
-        # Prepare data with dev_mode=False for full dataset
-        # Report results
-        # Save the model
-        # Train model
-        import traceback
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
+"""Quick F1 Test Script.
+
+Quick test to evaluate F1 scores and model performance.
+"""
+
 import logging
 import sys
-import torch
 import traceback
+from pathlib import Path
 
+import torch
 
-
-
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Quick F1 Score Test and Improvement
@@ -79,7 +72,9 @@ def main():
         else:
             logger.info("⚠️ Need more optimization techniques.")
 
-        checkpoint_path = Path("models/checkpoints/bert_emotion_classifier_quick_test.pt")
+        checkpoint_path = Path(
+            "models/checkpoints/bert_emotion_classifier_quick_test.pt",
+        )
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
         torch.save(
@@ -97,9 +92,9 @@ def main():
 
         return metrics["micro_f1"]
 
-    except Exception as e:
-        logger.error("❌ Quick F1 test failed: {e}")
-        logger.error(traceback.format_exc())
+    except Exception:
+        logger.exception("❌ Quick F1 test failed: {e}")
+        logger.exception(traceback.format_exc())
         return 0.0
 
 

@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""
-Sequential smoke test for local and Cloud Run deployments.
+"""Sequential smoke test for local and Cloud Run deployments.
 
 Usage:
   BASE_URL="http://127.0.0.1:8000" python scripts/testing/smoke_local.py
   python scripts/testing/smoke_local.py --base-url https://YOUR-SERVICE-url.run.app
 
-Notes:
+Notes
+-----
 - Sets User-Agent: testclient to bypass local rate limiting.
 - Mints a short-lived elevated JWT for endpoints requiring special permissions.
 - Keeps output minimal: endpoint, status, brief detail.
+
 """
 
 import argparse
+import asyncio  # ensure available for ws async path
 import io
 import json
 import os
@@ -20,15 +22,15 @@ import time
 import wave
 from contextlib import suppress
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import numpy as np
 import requests
-import asyncio  # ensure available for ws async path
 
 # WebSocket client: prefer websocket-client if available; fallback to websockets (async)
 try:
     import websocket  # type: ignore
+
     WEBSOCKET_BACKEND = "websocket-client"
 except Exception:
     websocket = None  # type: ignore
@@ -48,7 +50,9 @@ except ImportError:
 
 
 def tiny_tone_wav_bytes(
-    duration_s: float = 0.3, sample_rate: int = 16000, freq_hz: int = 440
+    duration_s: float = 0.3,
+    sample_rate: int = 16000,
+    freq_hz: int = 440,
 ) -> bytes:
     """Generate a tiny in-memory WAV tone for voice endpoint tests."""
     t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
@@ -112,7 +116,8 @@ def phase_basic_gets(
 
 
 def login_and_get_access_token(
-    session: requests.Session, url: Callable[[str], str]
+    session: requests.Session,
+    url: Callable[[str], str],
 ) -> Optional[str]:
     """Attempt login and return an access token; return None on failure."""
     try:
@@ -129,7 +134,9 @@ def login_and_get_access_token(
 
 
 def phase_auth_login_refresh_logout(
-    session: requests.Session, url: Callable[[str], str], pause: Callable[[], None]
+    session: requests.Session,
+    url: Callable[[str], str],
+    pause: Callable[[], None],
 ) -> tuple[Optional[str], Optional[str]]:
     """Exercise login, profile, refresh, and logout flow sequentially."""
     access_token: Optional[str] = None
@@ -175,7 +182,7 @@ def phase_auth_login_refresh_logout(
                 new = (
                     r.json()
                     if r.headers.get("content-type", "").startswith(
-                        "application/json"
+                        "application/json",
                     )
                     else {}
                 )
@@ -365,15 +372,16 @@ def phase_websocket(
     """Attempt a minimal WS exchange if HTTPS → WSS; otherwise print skipped."""
     if base_url.startswith("https://"):
         ws_url = (
-            url("/ws/realtime").replace("https://", "wss://")
-            + f"?token={elevated}"
+            url("/ws/realtime").replace("https://", "wss://") + f"?token={elevated}"
         )
     else:
         ws_url = None
     if ws_url and websocket is not None and WEBSOCKET_BACKEND == "websocket-client":
         try:
             ws = websocket.create_connection(  # type: ignore
-                ws_url, timeout=10, header=["User-Agent: testclient"]
+                ws_url,
+                timeout=10,
+                header=["User-Agent: testclient"],
             )
             ws.send_binary(wav1)
             raw = ws.recv()
@@ -388,11 +396,13 @@ def phase_websocket(
         except Exception as exc:
             p("WS /ws/realtime", None, f"error: {exc}")
     elif ws_url and WEBSOCKET_BACKEND == "websockets" and websockets is not None:
+
         async def ws_run():
             """Minimal WS flow using websockets client for smoke tests."""
             try:
                 async with websockets.connect(
-                    ws_url, extra_headers={"User-Agent": "testclient"}
+                    ws_url,
+                    extra_headers={"User-Agent": "testclient"},
                 ) as ws:
                     await ws.send(wav1)
                     raw = await ws.recv()

@@ -1,0 +1,25 @@
+# SAMO-DL Commit Message Template
+#
+# Format: <type>(<scope>): <subject>
+#
+# Types:
+#   feat:     A new feature
+#   fix:      A bug fix
+#   chore:    Changes to the build process or auxiliary tools/libraries
+#   refactor: A code change that neither fixes a bug nor adds a feature
+#   docs:     Documentation only changes
+#   test:     Adding missing tests or correcting existing tests
+#
+# Rules:
+#   - ONE purpose per commit (no "and", "also", "plus")
+#   - Subject line < 50 characters
+#   - Use imperative mood ("Add" not "Added")
+#   - No period at end of subject line
+#
+# Examples:
+#   feat: add user authentication system
+#   fix: resolve memory leak in model loading
+#   chore: update dependency versions
+#   refactor: simplify rate limiter logic
+#   docs: update API documentation
+#   test: add unit tests for validation functions

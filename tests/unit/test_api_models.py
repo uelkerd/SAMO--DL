@@ -1,26 +1,24 @@
-        # All successful responses should have these fields
-        # For now, just validate the test structure
-        # TODO: Implement when API models are available
-        # Test invalid extension
-        # Test invalid language codes
-        # Test invalid thresholds
-        # Test maximum length (e.g., 10,000 characters)
-        # Test minimum length
-        # Test reasonable length
-        # Test valid emotion result
-        # Test valid extensions
-        # Test valid language codes
-        # Test validation logic
-        # This test will need actual model import to work
+# All successful responses should have these fields
+# For now, just validate the test structure
+# TODO: Implement when API models are available
+# Test invalid extension
+# Test invalid language codes
+# Test invalid thresholds
+# Test maximum length (e.g., 10,000 characters)
+# Test minimum length
+# Test reasonable length
+# Test valid emotion result
+# Test valid extensions
+# Test valid language codes
+# Test validation logic
+# This test will need actual model import to work
 from datetime import datetime, timezone
-
-
-
 
 """
 Unit tests for API data models and validation.
 Tests Pydantic models, request/response validation, and data transformations.
 """
+
 
 class TestAPIModels:
     """Test suite for API data models."""
@@ -28,7 +26,6 @@ class TestAPIModels:
     def test_emotion_result_validation(self):
         """Test EmotionResult model validation."""
         valid_data = {"emotion": "joy", "confidence": 0.85, "probability": 0.92}
-
 
         assert valid_data["emotion"] == "joy"
         assert 0.0 <= valid_data["confidence"] <= 1.0

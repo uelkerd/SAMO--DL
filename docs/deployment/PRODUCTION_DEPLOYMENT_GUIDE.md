@@ -303,10 +303,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
@@ -314,7 +314,7 @@ jobs:
         file: ./deployment/cloud-run/Dockerfile
         push: true
         tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/samo-dl-api:${{ github.sha }}
-    
+
     - name: Deploy to Cloud Run
       uses: google-github-actions/deploy-cloudrun@v1
       with:
@@ -457,4 +457,4 @@ conn.close()
 
 **Last Updated**: August 5, 2025
 **Version**: 1.0.0
-**Maintainer**: SAMO-DL Team 
+**Maintainer**: SAMO-DL Team

@@ -1,25 +1,33 @@
+"""Data loading utilities for journal entries and datasets.
+
+This module provides data loaders for journal entries, emotion datasets,
+and other training data. Supports multiple data sources including database,
+JSON files, and external APIs with proper error handling and validation.
+"""
+
+import json
+from typing import Optional
+
+import pandas as pd
+
 from .database import db_session
 from .models import JournalEntry
 from .prisma_client import PrismaClient
-from typing import Optional
-import json
-import pandas as pd
-
-
-
-
 
 
 def load_entries_from_db(
-    limit: Optional[int] = None, user_id: Optional[int] = None
+    limit: Optional[int] = None,
+    user_id: Optional[int] = None,
 ) -> pd.DataFrame:
     """Load journal entries from database.
 
     Args:
+    ----
         limit: Maximum number of entries to load
         user_id: Filter entries by user_id
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -50,15 +58,18 @@ def load_entries_from_db(
 
 
 def load_entries_from_prisma(
-    limit: Optional[int] = None, user_id: Optional[str] = None
+    limit: Optional[int] = None,
+    user_id: Optional[str] = None,
 ) -> pd.DataFrame:
     """Load journal entries using Prisma client.
 
     Args:
+    ----
         limit: Maximum number of entries to load
         user_id: Filter entries by user_id
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -69,7 +80,9 @@ def load_entries_from_prisma(
         filters["user_id"] = user_id
 
     entries = (
-        prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10) if user_id else []
+        prisma.get_journal_entries_by_user(user_id=user_id, limit=limit or 10)
+        if user_id
+        else []
     )
 
     return pd.DataFrame(entries)
@@ -79,9 +92,11 @@ def load_entries_from_json(file_path: str) -> pd.DataFrame:
     """Load journal entries from a JSON file.
 
     Args:
+    ----
         file_path: Path to the JSON file
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -95,9 +110,11 @@ def load_entries_from_csv(file_path: str) -> pd.DataFrame:
     """Load journal entries from a CSV file.
 
     Args:
+    ----
         file_path: Path to the CSV file
 
     Returns:
+    -------
         DataFrame containing journal entries
 
     """
@@ -108,6 +125,7 @@ def save_entries_to_csv(df: pd.DataFrame, output_path: str) -> None:
     """Save journal entries DataFrame to CSV.
 
     Args:
+    ----
         df: DataFrame containing journal entries
         output_path: Path to save the CSV file
 
@@ -119,6 +137,7 @@ def save_entries_to_json(df: pd.DataFrame, output_path: str) -> None:
     """Save journal entries DataFrame to JSON.
 
     Args:
+    ----
         df: DataFrame containing journal entries
         output_path: Path to save the JSON file
 

@@ -1,13 +1,13 @@
-"""
-SAMO Whisper Transcription Results Module
+"""SAMO Whisper Transcription Results Module.
 
 This module defines the data structures for transcription results
 and provides utilities for result processing and analysis.
 """
 
 import logging
+from dataclasses import asdict, dataclass
 from typing import Dict, List
-from dataclasses import dataclass, asdict
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TranscriptionResult:
     """Result of audio transcription."""
+
     text: str
     language: str
     confidence: float
@@ -55,7 +56,8 @@ class ResultProcessor:
 
             # Calculate segment confidence
             segment_confidence = min(
-                1.0, max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob))
+                1.0,
+                max(0.0, np.exp(avg_logprob) * (1 - no_speech_prob)),
             )
             confidences.append(segment_confidence)
 

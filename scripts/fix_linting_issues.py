@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-"""
-🔧 SAMO Linting Issues Fix Script
+"""🔧 SAMO Linting Issues Fix Script.
 ==================================
 Fixes trailing whitespace, stray blank-line whitespace, and simple
 continuation-indentation issues flagged by common linters (e.g., Ruff/Flake8).
 Use with care.
 """
 
-import os
 import argparse
+import contextlib
+import os
 import shutil
 import tempfile
-import contextlib
 from pathlib import Path
 from typing import Optional
-
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -33,7 +31,7 @@ def _resolve_safe_path(path: Path) -> Path:
             is_under = False
     if not is_under:
         raise ValueError(
-            f"Refusing to operate outside project root: {resolved}"
+            f"Refusing to operate outside project root: {resolved}",
         )
     if not resolved.exists() or not resolved.is_file():
         raise FileNotFoundError(f"File not found: {resolved}")
@@ -47,9 +45,22 @@ def find_python_files(
     """Find all Python files in the project, skipping excluded directories."""
     if excluded_dirs is None:
         excluded_dirs = {
-            '.git', '__pycache__', '.venv', 'venv', 'node_modules', 'build', 'dist',
-            '.mypy_cache', '.pytest_cache', '.cache', '.coverage', '.eggs', '.tox',
-            '.idea', '.vscode', '.DS_Store'
+            ".git",
+            "__pycache__",
+            ".venv",
+            "venv",
+            "node_modules",
+            "build",
+            "dist",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".cache",
+            ".coverage",
+            ".eggs",
+            ".tox",
+            ".idea",
+            ".vscode",
+            ".DS_Store",
         }
 
     python_files = []
@@ -57,9 +68,7 @@ def find_python_files(
         # Skip certain directories
         dirs[:] = [d for d in dirs if d not in excluded_dirs]
 
-        python_files.extend(
-            Path(root) / file for file in files if file.endswith('.py')
-        )
+        python_files.extend(Path(root) / file for file in files if file.endswith(".py"))
 
     return python_files
 
@@ -73,17 +82,19 @@ def fix_trailing_whitespace(
     issues_fixed: list[str] = []
     try:
         safe_path = _resolve_safe_path(file_path)
-        with open(safe_path, encoding='utf-8') as src, tempfile.NamedTemporaryFile(
-            'w', delete=False, encoding='utf-8'
+        with open(safe_path, encoding="utf-8") as src, tempfile.NamedTemporaryFile(
+            "w",
+            delete=False,
+            encoding="utf-8",
         ) as tmp:
             for i, line in enumerate(src, 1):
                 # Remove trailing whitespace and normalize newline
-                stripped_line_no_nl = line.rstrip('\r\n')
+                stripped_line_no_nl = line.rstrip("\r\n")
                 stripped_line = stripped_line_no_nl.rstrip()
                 if stripped_line != stripped_line_no_nl:
                     changed = True
                     issues_fixed.append(f"Line {i}: Removed trailing whitespace")
-                tmp.write(stripped_line + '\n')
+                tmp.write(stripped_line + "\n")
         # If content changed, optionally back up and replace
         if changed:
             if backup:
@@ -96,7 +107,7 @@ def fix_trailing_whitespace(
         return changed, issues_fixed
     except Exception as e:
         # Best-effort cleanup of temp file if it still exists
-        if 'tmp' in locals():
+        if "tmp" in locals():
             with contextlib.suppress(FileNotFoundError):
                 Path(tmp.name).unlink()
         return False, [f"Error processing {file_path}: {e}"]
@@ -106,11 +117,12 @@ def fix_indentation_issues(file_path: Path) -> tuple[bool, list[str]]:
     """Detect indentation issues using AST; do not attempt automatic fixes."""
     try:
         safe_path = _resolve_safe_path(file_path)
-        with open(safe_path, encoding='utf-8') as f:
+        with open(safe_path, encoding="utf-8") as f:
             original_content = f.read()
 
         # Use ast to check for indentation/syntax issues without modifying the file
         import ast
+
         try:
             ast.parse(original_content)
             return False, []  # Parsed successfully; assume no indentation issues
@@ -129,7 +141,7 @@ def fix_blank_lines_with_whitespace(
     """Fix blank lines that contain whitespace."""
     try:
         safe_path = _resolve_safe_path(file_path)
-        with open(safe_path, encoding='utf-8') as f:
+        with open(safe_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -139,26 +151,26 @@ def fix_blank_lines_with_whitespace(
 
         for i, line in enumerate(lines, 1):
             # Check if line is blank but contains whitespace
-            if not line.strip() and line != '':
+            if not line.strip() and line != "":
                 issues_fixed.append(
-                    f"Line {i}: Removed whitespace from blank line"
+                    f"Line {i}: Removed whitespace from blank line",
                 )
-                fixed_lines.append('')
+                fixed_lines.append("")
                 continue
 
             fixed_lines.append(line)
 
         # Reconstruct content
-        fixed_content = '\n'.join(fixed_lines)
-        if fixed_content and not fixed_content.endswith('\n'):
-            fixed_content += '\n'
+        fixed_content = "\n".join(fixed_lines)
+        if fixed_content and not fixed_content.endswith("\n"):
+            fixed_content += "\n"
 
         if fixed_content != original_content:
             if backup:
                 bak = Path(f"{safe_path}.bak")
                 if not bak.exists():
                     shutil.copyfile(safe_path, bak)
-            with open(safe_path, 'w', encoding='utf-8') as f_out:
+            with open(safe_path, "w", encoding="utf-8") as f_out:
                 f_out.write(fixed_content)
             return True, issues_fixed
 
@@ -171,7 +183,7 @@ def fix_blank_lines_with_whitespace(
 def main():
     """Main function to fix all linting issues."""
     parser = argparse.ArgumentParser(
-        description="Fix linting issues in files."
+        description="Fix linting issues in files.",
     )
     parser.add_argument(
         "--backup",
@@ -184,10 +196,10 @@ def main():
     if not args.backup:
         print(
             "⚠️ WARNING: No backups will be created before modifying files. "
-            "This may result in accidental data loss."
+            "This may result in accidental data loss.",
         )
         print(
-            "   Use the --backup option to create .bak files before changes are made.\n"
+            "   Use the --backup option to create .bak files before changes are made.\n",
         )
 
     print("🔧 SAMO Linting Issues Fix Script")
@@ -244,7 +256,7 @@ def main():
         if detected_issues:
             print(
                 f"  ⚠️ Detected {len(detected_issues)} issues that may require "
-                f"manual attention:"
+                f"manual attention:",
             )
             for issue in detected_issues:
                 print(f"    - {issue}")

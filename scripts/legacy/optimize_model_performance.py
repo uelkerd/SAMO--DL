@@ -1,57 +1,55 @@
-                # Prune 20% of weights with lowest magnitude
-            # Benchmark
-            # Get predictions
-            # Measure inference time
-            # Tokenize
-            # Tokenize batch
-            # Warmup
-        # 1. Batch processing
-        # 1. Pruning - Remove less important weights
-        # 2. Input preprocessing optimization
-        # 2. Quantization - Reduce precision
-        # 3. Knowledge distillation (if teacher model available)
-        # 3. Memory optimization
-        # Apply optimizations
-        # Benchmark metrics
-        # Benchmark performance
-        # Cache tokenizer vocabulary
-        # Calculate statistics
-        # Convert to ONNX
-        # Create dummy input
-        # Enable gradient checkpointing for memory efficiency
-        # For now, skip this step
-        # Initialize model
-        # Initialize optimizer
-        # Load checkpoint
-        # Load model
-        # Load state dict
-        # Load tokenizer
-        # ONNX export
-        # Overall assessment
-        # Prune attention heads and layers
-        # Quantize the model
-        # Save optimized model
-        # Success criteria check
-        # This would require a larger teacher model
-        # Use mixed precision if available
-    # Check if model exists
+# Prune 20% of weights with lowest magnitude
+# Benchmark
+# Get predictions
+# Measure inference time
+# Tokenize
+# Tokenize batch
+# Warmup
+# 1. Batch processing
+# 1. Pruning - Remove less important weights
+# 2. Input preprocessing optimization
+# 2. Quantization - Reduce precision
+# 3. Knowledge distillation (if teacher model available)
+# 3. Memory optimization
+# Apply optimizations
+# Benchmark metrics
+# Benchmark performance
+# Cache tokenizer vocabulary
+# Calculate statistics
+# Convert to ONNX
+# Create dummy input
+# Enable gradient checkpointing for memory efficiency
+# For now, skip this step
+# Initialize model
+# Initialize optimizer
+# Load checkpoint
+# Load model
+# Load state dict
+# Load tokenizer
+# ONNX export
+# Overall assessment
+# Prune attention heads and layers
+# Quantize the model
+# Save optimized model
+# Success criteria check
+# This would require a larger teacher model
+# Use mixed precision if available
+# Check if model exists
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
-from pathlib import Path
-from torch import nn
-from transformers import AutoTokenizer
-from typing import Any
 import logging
-import numpy as np
 import sys
 import time
+from pathlib import Path
+from typing import Any
+
+import numpy as np
 import torch
+from torch import nn
+from transformers import AutoTokenizer
 
-
-
-
+from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 """SAMO Model Performance Optimization Script.
 
@@ -69,7 +67,8 @@ Current: 614ms (from training logs)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -92,7 +91,10 @@ class ModelOptimizer:
 
         checkpoint = torch.load(self.model_path, map_location=self.device)
 
-        self.model = BERTEmotionClassifier(model_name="bert-base-uncased", num_emotions=28)
+        self.model = BERTEmotionClassifier(
+            model_name="bert-base-uncased",
+            num_emotions=28,
+        )
 
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.model.to(self.device)
@@ -100,7 +102,9 @@ class ModelOptimizer:
 
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-        logger.info("Model loaded successfully. Parameters: {self.model.count_parameters():,}")
+        logger.info(
+            "Model loaded successfully. Parameters: {self.model.count_parameters():,}",
+        )
 
     def compress_model(self) -> None:
         """Apply model compression techniques."""
@@ -132,7 +136,11 @@ class ModelOptimizer:
         """Apply quantization to reduce precision."""
         logger.info("  Applying dynamic quantization...")
 
-        self.model = torch.quantization.quantize_dynamic(self.model, {nn.Linear}, dtype=torch.qint8)
+        self.model = torch.quantization.quantize_dynamic(
+            self.model,
+            {nn.Linear},
+            dtype=torch.qint8,
+        )
 
         logger.info("  Dynamic quantization applied")
 
@@ -224,7 +232,8 @@ class ModelOptimizer:
                 best_batch_size = batch_size
 
         logger.info(
-            "  Optimal batch size: {best_batch_size} (throughput: {best_throughput:.1f} samples/sec)"
+            "  Optimal batch size: {best_batch_size} (throughput: "
+            "{best_throughput:.1f} samples/sec)",
         )
         return best_batch_size
 
@@ -264,7 +273,10 @@ class ModelOptimizer:
         logger.info("  Memory optimization applied")
         return optimizations
 
-    def benchmark_performance(self, test_texts: list[str] | None = None) -> dict[str, float]:
+    def benchmark_performance(
+        self,
+        test_texts: list[str] | None = None,
+    ) -> dict[str, float]:
         """Benchmark model performance."""
         logger.info("📊 Benchmarking model performance...")
 
@@ -287,7 +299,11 @@ class ModelOptimizer:
 
         for text in test_texts:
             encoded = self.tokenizer(
-                text, padding=True, truncation=True, max_length=512, return_tensors="pt"
+                text,
+                padding=True,
+                truncation=True,
+                max_length=512,
+                return_tensors="pt",
             ).to(self.device)
 
             start_time = time.time()
@@ -300,7 +316,9 @@ class ModelOptimizer:
             latencies.append(latency)
 
             predictions = (probabilities >= 0.2).float()
-            accuracies.append(predictions.sum().item() > 0)  # At least one emotion predicted
+            accuracies.append(
+                predictions.sum().item() > 0,
+            )  # At least one emotion predicted
 
         avg_latency = np.mean(latencies)
         p95_latency = np.percentile(latencies, 95)
@@ -320,7 +338,9 @@ class ModelOptimizer:
         logger.info("  95th percentile latency: {p95_latency:.2f}ms")
         logger.info("  99th percentile latency: {p99_latency:.2f}ms")
         logger.info("  Accuracy: {accuracy:.2%}")
-        logger.info("  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec")
+        logger.info(
+            "  Throughput: {results['throughput_samples_per_sec']:.1f} samples/sec",
+        )
 
         return results
 
@@ -338,7 +358,10 @@ class ModelOptimizer:
                     "num_emotions": 28,
                     "optimized": True,
                 },
-                "tokenizer_config": {"vocab_size": self.tokenizer.vocab_size, "max_length": 512},
+                "tokenizer_config": {
+                    "vocab_size": self.tokenizer.vocab_size,
+                    "max_length": 512,
+                },
             },
             optimized_path,
         )
@@ -375,7 +398,9 @@ def main():
         success_criteria = {
             "p95_latency_under_500ms": performance_results["p95_latency_ms"] < 500,
             "accuracy_above_50%": performance_results["accuracy"] > 0.5,
-            "throughput_above_1_sample_per_sec": performance_results["throughput_samples_per_sec"]
+            "throughput_above_1_sample_per_sec": performance_results[
+                "throughput_samples_per_sec"
+            ]
             > 1,
         }
 
@@ -387,18 +412,20 @@ def main():
         total_criteria = len(success_criteria)
 
         if passed_criteria == total_criteria:
-            logger.info("🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets.")
+            logger.info(
+                "🎉 OPTIMIZATION SUCCESSFUL! Model meets all performance targets.",
+            )
             logger.info("📁 Optimized model saved to: {optimized_path}")
             logger.info("📁 ONNX model saved to: {onnx_path}")
             return 0
-        else:
-            logger.warning(
-                "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations needed."
-            )
-            return 1
+        logger.warning(
+            "⚠️  {passed_criteria}/{total_criteria} criteria met. Some optimizations "
+            "needed.",
+        )
+        return 1
 
     except Exception:
-        logger.error("❌ Optimization failed: {e}")
+        logger.exception("❌ Optimization failed: {e}")
         return 1
 
 

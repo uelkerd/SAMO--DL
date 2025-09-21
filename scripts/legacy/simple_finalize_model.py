@@ -1,22 +1,14 @@
-    # Check if checkpoint exists
-    # Copy checkpoint to final location
-    # Create final model
-    # Create model metadata
-    # Create output directory
-    # Save metadata
-    # Verify requirements
-    import shutil
-# Add src to path
-# Configure logging
-# Constants
 #!/usr/bin/env python3
-from pathlib import Path
+"""Simple Model Finalization Script.
+
+Finalizes and packages trained models for deployment.
+"""
+
 import json
 import logging
+import shutil
 import sys
-
-
-
+from pathlib import Path
 
 """
 Simple Model Finalization Script
@@ -44,10 +36,13 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     """Create final emotion detection model from existing checkpoint.
 
     Args:
+    ----
         output_model: Path to save final model
 
     Returns:
+    -------
         Dictionary with model info
+
     """
     logger.info("Creating final emotion detection model...")
 
@@ -92,8 +87,10 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
 def verify_model_requirements() -> bool:
     """Verify that all required dependencies are available.
 
-    Returns:
+    Returns
+    -------
         True if all requirements are met
+
     """
     logger.info("Verifying model requirements...")
 
@@ -136,8 +133,8 @@ def main():
         logger.info("📁 Model saved to: {model_info['model_path']}")
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
-    except Exception as e:
-        logger.error("❌ Error during model finalization: {e}")
+    except Exception:
+        logger.exception("❌ Error during model finalization: {e}")
         sys.exit(1)
 
 

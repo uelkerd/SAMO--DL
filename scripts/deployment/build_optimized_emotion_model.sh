@@ -7,7 +7,7 @@ set -e
 # Check for required tools
 check_required_tools() {
     echo "🔧 Checking for required tools..."
-    
+
     if ! command -v docker &> /dev/null; then
         echo "❌ Error: docker is not installed. Please install docker before running this script."
         exit 1
@@ -18,7 +18,7 @@ check_required_tools() {
         echo "   Install with: brew install jq (macOS) or apt-get install jq (Ubuntu)"
         exit 1
     fi
-    
+
     if ! command -v curl &> /dev/null; then
         echo "❌ Error: curl is not installed. Please install curl before running this script."
         exit 1
@@ -28,7 +28,7 @@ check_required_tools() {
         echo "❌ Error: openssl is not installed. Please install openssl before running this script."
         exit 1
     fi
-    
+
     echo "✅ All required tools are available."
 }
 

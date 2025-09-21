@@ -1,28 +1,27 @@
-            # Check if all probabilities are high
-            # Forward pass
-            # Sample analysis
-        # Check gradients
-        # Create fake logits and labels
-        # Create simple test case
-        # Create trainer
-        # Get a few samples from validation set
-        # Get one batch for detailed analysis
-        # Load trained model
-        # Prepare data
-        # Set some emotions as positive
-        # Test BCE loss
-        # Test with class weights
+# Check if all probabilities are high
+# Forward pass
+# Sample analysis
+# Check gradients
+# Create fake logits and labels
+# Create simple test case
+# Create trainer
+# Get a few samples from validation set
+# Get one batch for detailed analysis
+# Load trained model
+# Prepare data
+# Set some emotions as positive
+# Test BCE loss
+# Test with class weights
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import logging
 import sys
+from pathlib import Path
+
 import torch
 
-
-
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """Diagnose Model Issue - Why is the model predicting all emotions?
 
@@ -87,7 +86,7 @@ def diagnose_model_outputs():
             logger.info("  Logits std: {logits.std():.4f}")
 
             logger.info(
-                "  Probabilities range: [{probabilities.min():.4f}, {probabilities.max():.4f}]"
+                "  Probabilities range: [{probabilities.min():.4f}, {probabilities.max():.4f}]",
             )
             logger.info("  Probabilities mean: {probabilities.mean():.4f}")
             logger.info("  Probabilities std: {probabilities.std():.4f}")
@@ -96,7 +95,7 @@ def diagnose_model_outputs():
             probabilities.numel()
 
             logger.info(
-                "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)"
+                "  Predictions > 0.5: {high_prob_count}/{total_predictions} ({100*high_prob_count/total_predictions:.1f}%)",
             )
 
             for i in range(min(3, input_ids.shape[0])):
@@ -116,7 +115,7 @@ def diagnose_model_outputs():
         return True
 
     except Exception:
-        logger.error("❌ Diagnosis failed: {e}")
+        logger.exception("❌ Diagnosis failed: {e}")
         return False
 
 
@@ -142,7 +141,9 @@ def diagnose_loss_function():
 
         logger.info("BCE Loss: {loss.item():.4f}")
 
-        pos_weight = torch.ones(num_emotions) * 2.0  # Give more weight to positive class
+        pos_weight = (
+            torch.ones(num_emotions) * 2.0
+        )  # Give more weight to positive class
         weighted_bce = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         weighted_bce(logits, labels)
 
@@ -156,7 +157,7 @@ def diagnose_loss_function():
         return True
 
     except Exception:
-        logger.error("❌ Loss function diagnosis failed: {e}")
+        logger.exception("❌ Loss function diagnosis failed: {e}")
         return False
 
 

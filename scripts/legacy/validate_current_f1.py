@@ -1,10 +1,8 @@
-    # Current status based on your summary
+# Current status based on your summary
 # Configure logging
 #!/usr/bin/env python3
 import logging
 import sys
-
-
 
 """
 Validate Current F1 Score
@@ -100,5 +98,5 @@ if __name__ == "__main__":
         logger.info("   • Next: {' → '.join(results['next_steps'][:2])}")
 
     except Exception:
-        logger.error("❌ Validation failed: {e}")
+        logger.exception("❌ Validation failed: {e}")
         sys.exit(1)

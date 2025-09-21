@@ -1,13 +1,15 @@
 # metrics_test.py
 # pip install -U transformers datasets scikit-learn torch tqdm huggingface_hub
 
+import contextlib
 import os
+
 import numpy as np
 import torch
-from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
+from tqdm import tqdm
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
@@ -50,10 +52,8 @@ if not cfg_label2id:
     l2i = getattr(cfg, "label2id", {}) or {}
     tmp = {}
     for k, v in l2i.items():
-        try:
+        with contextlib.suppress(Exception):
             tmp[norm(k)] = int(v)
-        except Exception:
-            pass
     if tmp:
         cfg_label2id = tmp
 
@@ -83,20 +83,19 @@ kept_model_indices = []
 if mapped_count >= 5:
     kept_ds_indices = [i for i in range(len(ds_names)) if i in ds_to_model]
     kept_model_indices = [ds_to_model[i] for i in kept_ds_indices]
+elif num_labels == len(ds_names):
+    print(
+        "Low mapping coverage; identity mapping (assumes same order).",
+    )
+    kept_ds_indices = list(range(num_labels))
+    kept_model_indices = list(range(num_labels))
 else:
-    if num_labels == len(ds_names):
-        print(
-            "Low mapping coverage; identity mapping (assumes same order)."
-        )
-        kept_ds_indices = list(range(num_labels))
-        kept_model_indices = list(range(num_labels))
-    else:
-        m = min(num_labels, len(ds_names))
-        print(
-            f"Low mapping coverage; min-dim identity mapping ({m} labels)."
-        )
-        kept_ds_indices = list(range(m))
-        kept_model_indices = list(range(m))
+    m = min(num_labels, len(ds_names))
+    print(
+        f"Low mapping coverage; min-dim identity mapping ({m} labels).",
+    )
+    kept_ds_indices = list(range(m))
+    kept_model_indices = list(range(m))
 
 D = len(kept_ds_indices)
 kept_ds_pos = {ds_idx: pos for pos, ds_idx in enumerate(kept_ds_indices)}
@@ -130,13 +129,12 @@ def predict_probs(batch_texts):
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.inference_mode():
         batch_logits = mdl(**enc).logits
-        probs_array = torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
-    return probs_array
+        return torch.sigmoid(batch_logits).cpu().numpy()  # (B, num_labels)
 
 
 all_probs_full, all_true = [], []
 for i in tqdm(range(0, len(val), BATCH)):
-    batch = val[i:i + BATCH]
+    batch = val[i : i + BATCH]
     batch_probs = predict_probs(batch["text"])  # predictions for this batch
     all_probs_full.append(batch_probs)
     all_true.append(np.stack(batch["y"]))
@@ -144,7 +142,7 @@ all_probs_full = np.concatenate(all_probs_full, axis=0)
 all_true = np.concatenate(all_true, axis=0)
 
 # Slice predictions to kept labels
-all_probs = all_probs_full[:, kept_model_indices]  # shape (N, D)
+all_probs = all_probs_full[:, kept_model_indices]  # type: ignore  # shape (N, D)
 
 
 def evaluate(th):

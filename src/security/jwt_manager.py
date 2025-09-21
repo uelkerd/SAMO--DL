@@ -57,7 +57,7 @@ class JWTManager:
         self.secret_key = secret_key
         self.algorithm = algorithm
         # Changed to dict: {token: exp_datetime}
-        self.blacklisted_tokens: dict = {}
+        self.blacklisted_tokens: Dict[str, Optional[datetime]] = {}
 
     def create_access_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new access token."""
@@ -69,7 +69,8 @@ class JWTManager:
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
             "iat": datetime.utcnow(),
         }
-        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        return str(token)
 
     def create_refresh_token(self, user_data: Dict[str, Any]) -> str:
         """Create a new refresh token."""
@@ -82,7 +83,8 @@ class JWTManager:
             "iat": datetime.utcnow(),
             "type": "refresh",
         }
-        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        return str(token)
 
     def create_token_pair(self, user_data: Dict[str, Any]) -> TokenResponse:
         """Create both access and refresh tokens and return as a TokenResponse model."""
@@ -109,7 +111,7 @@ class JWTManager:
             logger.warning(f"Invalid token: {e!s}")
             return None
         except Exception as e:
-            logger.error(f"Token verification error: {e!s}")
+            logger.exception(f"Token verification error: {e!s}")
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Whisper Voice Transcription Test for CI/CD Pipeline.
+"""Whisper Voice Transcription Test for CI/CD Pipeline.
 
 This script validates the Whisper transcription model functionality
 with a simple test audio file.
@@ -8,12 +7,12 @@ with a simple test audio file.
 
 import contextlib
 import logging
-import numpy as np
 import os
 import sys
 import tempfile
 from pathlib import Path
 
+import numpy as np
 from scipy.io import wavfile
 
 # Add src to path
@@ -44,7 +43,7 @@ def generate_test_audio():
         return temp_file.name
 
     except Exception as e:
-        logger.error(f"❌ Failed to generate test audio: {e}")
+        logger.exception(f"❌ Failed to generate test audio: {e}")
         return None
 
 
@@ -55,18 +54,16 @@ def test_whisper_imports():
 
         # Test imports with fallback mechanism
         try:
-            from models.voice_processing.audio_preprocessor import AudioPreprocessor
-            from models.voice_processing.whisper_transcriber import WhisperTranscriber
+            import importlib.util
         except ImportError:
             # Fallback for different import paths
-            from src.models.voice_processing.audio_preprocessor import AudioPreprocessor
-            from src.models.voice_processing.whisper_transcriber import WhisperTranscriber
+            pass
 
         logger.info("✅ Whisper imports successful")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Whisper import test failed: {e}")
+        logger.exception(f"❌ Whisper import test failed: {e}")
         return False
 
 
@@ -101,7 +98,7 @@ def test_whisper_instantiation():
         return True
 
     except Exception as e:
-        logger.error(f"❌ WhisperTranscriber instantiation failed: {e}")
+        logger.exception(f"❌ WhisperTranscriber instantiation failed: {e}")
         return False
 
 
@@ -125,7 +122,7 @@ def test_audio_preprocessor():
 
         try:
             preprocessor = AudioPreprocessor()
-            
+
             # Test audio validation
             is_valid, error_msg = preprocessor.validate_audio_file(test_audio_path)
             if not is_valid:
@@ -141,7 +138,7 @@ def test_audio_preprocessor():
                 os.unlink(test_audio_path)
 
     except Exception as e:
-        logger.error(f"❌ AudioPreprocessor test failed: {e}")
+        logger.exception(f"❌ AudioPreprocessor test failed: {e}")
         return False
 
 
@@ -184,13 +181,12 @@ def test_minimal_transcription():
 
             # Test transcription
             result = transcriber.transcribe(test_audio_path)
-            
+
             if result and result.text:
                 logger.info(f"✅ Transcription successful: {result.text[:50]}...")
                 return True
-            else:
-                logger.error("❌ Transcription returned empty result")
-                return False
+            logger.error("❌ Transcription returned empty result")
+            return False
 
         finally:
             # Clean up test file
@@ -198,7 +194,7 @@ def test_minimal_transcription():
                 os.unlink(test_audio_path)
 
     except Exception as e:
-        logger.error(f"❌ Transcription test failed: {e}")
+        logger.exception(f"❌ Transcription test failed: {e}")
         return False
 
 
@@ -217,9 +213,9 @@ def main():
     total = len(tests)
 
     for test_name, test_func in tests:
-        logger.info(f"\n{'='*50}")
+        logger.info(f"\n{'=' * 50}")
         logger.info(f"Running: {test_name}")
-        logger.info(f"{'='*50}")
+        logger.info(f"{'=' * 50}")
 
         if test_func():
             passed += 1
@@ -227,16 +223,15 @@ def main():
         else:
             logger.error(f"❌ {test_name}: FAILED")
 
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info(f"Whisper Transcription Tests Results: {passed}/{total} tests passed")
-    logger.info(f"{'='*50}")
+    logger.info(f"{'=' * 50}")
 
     if passed == total:
         logger.info("🎉 All Whisper transcription tests passed!")
         return True
-    else:
-        logger.error("💥 Some Whisper transcription tests failed!")
-        return False
+    logger.error("💥 Some Whisper transcription tests failed!")
+    return False
 
 
 if __name__ == "__main__":

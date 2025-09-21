@@ -1,25 +1,22 @@
-        # Quick evaluation
-        # Update temperature
-    # Initialize trainer with dev_mode
-    # Load model
-    # Test temperatures
+# Quick evaluation
+# Update temperature
+# Initialize trainer with dev_mode
+# Load model
+# Test temperatures
 #!/usr/bin/env python3
-from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
-from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
-from pathlib import Path
 import logging
 import sys
+from pathlib import Path
 
-
-
-
-
+from src.models.emotion_detection.bert_classifier import evaluate_emotion_classifier
+from src.models.emotion_detection.training_pipeline import EmotionDetectionTrainer
 
 """
 Quick Temperature Scaling Test.
 """
 
 sys.path.append(str(Path.cwd() / "src"))
+
 
 def quick_temperature_test():
     logging.info("🌡️ Quick Temperature Scaling Test")
@@ -46,7 +43,10 @@ def quick_temperature_test():
         trainer.model.set_temperature(temp)
 
         evaluate_emotion_classifier(
-            trainer.model, trainer.val_loader, trainer.device, threshold=threshold
+            trainer.model,
+            trainer.val_loader,
+            trainer.device,
+            threshold=threshold,
         )
 
         logging.info("  📊 Macro F1: {metrics['macro_f1']:.4f}")

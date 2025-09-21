@@ -1,25 +1,23 @@
-        # Calculate compression ratio
-        # Create a simple model for testing
-        # Create dummy input
-        # Create simple model
-        # Get compressed model size and performance
-        # Get original model size and performance
-        # Simple forward pass for testing
-        # Test quantization
-        # Test saving compressed model
-        # Validate compression
+# Calculate compression ratio
+# Create a simple model for testing
+# Create dummy input
+# Create simple model
+# Get compressed model size and performance
+# Get original model size and performance
+# Simple forward pass for testing
+# Test quantization
+# Test saving compressed model
+# Validate compression
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
-from torch import nn
 import logging
 import sys
 import tempfile
+from pathlib import Path
+
 import torch
-
-
-
+from torch import nn
 
 """
 Model Compression Test for CI/CD Pipeline.
@@ -62,15 +60,18 @@ def get_model_size(model):
     buffer_size = 0
     for buffer in model.buffers():
         buffer_size += buffer.nelement() * buffer.element_size()
-    size_mb = (param_size + buffer_size) / 1024 / 1024
-    return size_mb
+    return (param_size + buffer_size) / 1024 / 1024
 
 
 def benchmark_inference(model, input_tensor, num_runs=100):
     """Benchmark model inference time."""
     model.eval()
-    start_time = torch.cuda.Event(enable_timing=True) if torch.cuda.is_available() else None
-    end_time = torch.cuda.Event(enable_timing=True) if torch.cuda.is_available() else None
+    start_time = (
+        torch.cuda.Event(enable_timing=True) if torch.cuda.is_available() else None
+    )
+    end_time = (
+        torch.cuda.Event(enable_timing=True) if torch.cuda.is_available() else None
+    )
 
     if start_time and end_time:
         start_time.record()
@@ -111,7 +112,9 @@ def test_model_compression():
 
         logger.info("Testing quantization...")
         quantized_model = torch.quantization.quantize_dynamic(
-            model, {nn.Linear}, dtype=torch.qint8
+            model,
+            {nn.Linear},
+            dtype=torch.qint8,
         )
 
         compressed_size = get_model_size(quantized_model)
@@ -123,7 +126,10 @@ def test_model_compression():
         compression_ratio = original_size / compressed_size
         logger.info("Compression ratio: {compression_ratio:.2f}x")
 
-        ensure(compressed_size < original_size, "Model should be smaller after compression")
+        ensure(
+            compressed_size < original_size,
+            "Model should be smaller after compression",
+        )
         ensure(compression_ratio > 1.0, "Compression ratio should be greater than 1")
 
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=True) as temp_file:
@@ -134,7 +140,7 @@ def test_model_compression():
         return True
 
     except Exception:
-        logger.error("❌ Model compression test failed: {e}")
+        logger.exception("❌ Model compression test failed: {e}")
         return False
 
 
@@ -167,9 +173,8 @@ def main():
     if passed == total:
         logger.info("🎉 All model compression tests passed!")
         return True
-    else:
-        logger.error("💥 Some model compression tests failed!")
-        return False
+    logger.error("💥 Some model compression tests failed!")
+    return False
 
 
 if __name__ == "__main__":

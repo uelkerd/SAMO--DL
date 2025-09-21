@@ -1,21 +1,22 @@
-            # Average vectors or use zero vector if no tokens found
-            # Get vectors for tokens that are in vocabulary
-        # Create DataFrame with IDs and embeddings
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
+"""Embedding generation and management for text processing.
+
+This module provides utilities for creating and managing text embeddings
+using various models including Word2Vec, GloVe, and transformer-based
+embeddings. Supports batch processing and caching for efficient computation.
+"""
+
+import logging
+from typing import List, Optional
+
+import numpy as np
+import pandas as pd
 from gensim.models import FastText, Word2Vec
 from gensim.utils import simple_preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
-import logging
-import numpy as np
-import pandas as pd
-from typing import List, Optional
-
-
-
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
@@ -30,9 +31,11 @@ class BaseEmbedder:
         """Fit the embedding model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
@@ -43,9 +46,11 @@ class BaseEmbedder:
         """Transform texts into embeddings.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of embeddings
 
         """
@@ -56,9 +61,11 @@ class BaseEmbedder:
         """Fit the model and transform texts into embeddings.
 
         Args:
+        ----
             texts: List of texts to fit and transform
 
         Returns:
+        -------
             Array of embeddings
 
         """
@@ -78,6 +85,7 @@ class TfidfEmbedder(BaseEmbedder):
         """Initialize TF-IDF embedder.
 
         Args:
+        ----
             max_features: Maximum number of features (vocabulary size)
             min_df: Minimum document frequency for terms
             max_df: Maximum document frequency for terms
@@ -100,15 +108,19 @@ class TfidfEmbedder(BaseEmbedder):
         """Fit the TF-IDF vectorizer on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the vectorizer on
 
         Returns:
+        -------
             Self for chaining
 
         """
         logger.info(
-            "Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}"
+            "Fitting TF-IDF vectorizer on {len(texts)} texts with "
+            "max_features={self.max_features}",
         )
+        assert self.model is not None, "Model should be initialized"
         self.model.fit(texts)
         logger.info(
             "Vocabulary size: {len(self.model.vocabulary_)}",
@@ -120,9 +132,11 @@ class TfidfEmbedder(BaseEmbedder):
         """Transform texts into TF-IDF embeddings.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of TF-IDF embeddings
 
         """
@@ -148,6 +162,7 @@ class Word2VecEmbedder(BaseEmbedder):
         """Initialize Word2Vec embedder.
 
         Args:
+        ----
             vector_size: Dimensionality of word vectors
             window: Maximum distance between current and predicted word
             min_count: Minimum word count
@@ -169,9 +184,11 @@ class Word2VecEmbedder(BaseEmbedder):
         """Preprocess texts for Word2Vec training.
 
         Args:
+        ----
             texts: List of texts to preprocess
 
         Returns:
+        -------
             List of tokenized texts
 
         """
@@ -181,17 +198,23 @@ class Word2VecEmbedder(BaseEmbedder):
         """Fit Word2Vec model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for Word2Vec", extra={"format_args": True})
+        logger.info(
+            "Preprocessing {len(texts)} texts for Word2Vec",
+            extra={"format_args": True},
+        )
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            "Training Word2Vec model with vector_size={self.vector_size}, window={self.window}"
+            "Training Word2Vec model with vector_size={self.vector_size}, "
+            "window={self.window}",
         )
         self.model = Word2Vec(
             sentences=tokenized_texts,
@@ -204,7 +227,8 @@ class Word2VecEmbedder(BaseEmbedder):
         )
 
         logger.info(
-            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words "
+            "in vocabulary",
         )
         return self
 
@@ -212,9 +236,11 @@ class Word2VecEmbedder(BaseEmbedder):
         """Transform texts into Word2Vec embeddings by averaging word vectors.
 
         Args:
+        ----
             texts: List of texts to transform
 
         Returns:
+        -------
             Array of averaged Word2Vec embeddings
 
         """
@@ -226,9 +252,13 @@ class Word2VecEmbedder(BaseEmbedder):
         embeddings = []
 
         for tokens in tokenized_texts:
-            vectors = [self.model.wv[token] for token in tokens if token in self.model.wv]
+            vectors = [
+                self.model.wv[token] for token in tokens if token in self.model.wv
+            ]
 
-            embedding = np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
+            embedding = (
+                np.mean(vectors, axis=0) if vectors else np.zeros(self.vector_size)
+            )
 
             embeddings.append(embedding)
 
@@ -242,17 +272,23 @@ class FastTextEmbedder(Word2VecEmbedder):
         """Fit FastText model on a list of texts.
 
         Args:
+        ----
             texts: List of texts to fit the model on
 
         Returns:
+        -------
             Self for chaining
 
         """
-        logger.info("Preprocessing {len(texts)} texts for FastText", extra={"format_args": True})
+        logger.info(
+            "Preprocessing {len(texts)} texts for FastText",
+            extra={"format_args": True},
+        )
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            "Training FastText model with vector_size={self.vector_size}, window={self.window}"
+            "Training FastText model with vector_size={self.vector_size}, "
+            "window={self.window}",
         )
         self.model = FastText(
             sentences=tokenized_texts,
@@ -265,7 +301,8 @@ class FastTextEmbedder(Word2VecEmbedder):
         )
 
         logger.info(
-            "FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary"
+            "FastText model trained with {len(self.model.wv.index_to_key)} words "
+            "in vocabulary",
         )
         return self
 
@@ -277,6 +314,7 @@ class EmbeddingPipeline:
         """Initialize embedding pipeline.
 
         Args:
+        ----
             embedder: Text embedder to use
 
         """
@@ -291,11 +329,13 @@ class EmbeddingPipeline:
         """Generate embeddings for texts in a DataFrame.
 
         Args:
+        ----
             df: DataFrame containing texts
             text_column: Name of column containing processed texts
             id_column: Name of column containing unique identifiers
 
         Returns:
+        -------
             DataFrame with text IDs and embeddings
 
         """
@@ -305,7 +345,10 @@ class EmbeddingPipeline:
 
         texts = df[text_column].tolist()
 
-        logger.info("Generating embeddings for {len(texts)} texts", extra={"format_args": True})
+        logger.info(
+            "Generating embeddings for {len(texts)} texts",
+            extra={"format_args": True},
+        )
         embeddings = self.embedder.fit_transform(texts)
 
         logger.info(
@@ -317,13 +360,18 @@ class EmbeddingPipeline:
             {
                 "entry_id": df[id_column],
                 "embedding": [embedding.tolist() for embedding in embeddings],
-            }
+            },
         )
 
-    def save_embeddings_to_csv(self, embeddings_df: pd.DataFrame, output_path: str) -> None:
+    def save_embeddings_to_csv(
+        self,
+        embeddings_df: pd.DataFrame,
+        output_path: str,
+    ) -> None:
         """Save embeddings DataFrame to CSV.
 
         Args:
+        ----
             embeddings_df: DataFrame containing entry IDs and embeddings
             output_path: Path to save the CSV file
 

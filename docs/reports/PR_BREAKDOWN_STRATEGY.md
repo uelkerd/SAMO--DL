@@ -117,4 +117,4 @@
 2. **Single responsibility** per PR
 3. **Comprehensive testing** before PR creation
 4. **Clear documentation** for each change
-5. **Proper model file management** with LFS 
+5. **Proper model file management** with LFS

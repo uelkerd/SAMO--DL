@@ -1,27 +1,17 @@
-        # Test with dummy data
-        from torch import nn
-        import sklearn
-        import torch
-        import torch
-        import torch.nn.functional as F
-        import transformers
-    # Check if gcloud is available
-    # Check if we have the deployment guide
-    # Summary
-    import subprocess
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
+"""Simple Validation Script.
+
+Validates model components and deployment readiness.
+"""
+
 import logging
-import numpy as np
+import subprocess
 import sys
+from pathlib import Path
 
-
-
-
-
-
-
+import torch
+import torch.nn.functional as F
+from torch import nn
 
 """
 Simple Validation for GCP Deployment
@@ -38,6 +28,7 @@ def validate_focal_loss():
     logger.info("🧮 Validating Focal Loss Implementation...")
 
     try:
+
         class FocalLoss(nn.Module):
             def __init__(self, alpha=0.25, gamma=2.0):
                 super().__init__()
@@ -49,7 +40,11 @@ def validate_focal_loss():
                 pt = probs * targets + (1 - probs) * (1 - targets)
                 focal_weight = (1 - pt) ** self.gamma
                 alpha_weight = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-                bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+                bce_loss = F.binary_cross_entropy_with_logits(
+                    inputs,
+                    targets,
+                    reduction="none",
+                )
                 focal_loss = alpha_weight * focal_weight * bce_loss
                 return focal_loss.mean()
 
@@ -57,13 +52,13 @@ def validate_focal_loss():
         targets = torch.randint(0, 2, (4, 28)).float()
 
         focal_loss = FocalLoss(alpha=0.25, gamma=2.0)
-        loss = focal_loss(inputs, targets)
+        focal_loss(inputs, targets)
 
         logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
-    except Exception as e:
-        logger.error("❌ Focal Loss: FAILED - {e}")
+    except Exception:
+        logger.exception("❌ Focal Loss: FAILED - {e}")
         return False
 
 
@@ -90,9 +85,8 @@ def validate_script_files():
     if missing_files:
         logger.error("❌ Script Files: FAILED - {len(missing_files)} files missing")
         return False
-    else:
-        logger.info("✅ Script Files: PASSED - All {len(required_scripts)} files found")
-        return True
+    logger.info("✅ Script Files: PASSED - All {len(required_scripts)} files found")
+    return True
 
 
 def validate_python_environment():
@@ -104,7 +98,6 @@ def validate_python_environment():
 
         logger.info("   ✅ Transformers: {transformers.__version__}")
 
-
         logger.info("   ✅ NumPy: {np.__version__}")
 
         logger.info("   ✅ Scikit-learn: {sklearn.__version__}")
@@ -113,7 +106,7 @@ def validate_python_environment():
         return True
 
     except ImportError as _:
-        logger.error("❌ Python Environment: FAILED - {e}")
+        logger.exception("❌ Python Environment: FAILED - {e}")
         return False
 
 
@@ -123,7 +116,11 @@ def validate_gcp_readiness():
 
     try:
         result = subprocess.run(
-            ["gcloud", "--version"], capture_output=True, text=True, timeout=10, check=False
+            ["gcloud", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
         )
         if result.returncode == 0:
             logger.info("   ✅ gcloud CLI: Available")
@@ -135,7 +132,7 @@ def validate_gcp_readiness():
         logger.warning("   ⚠️ gcloud CLI: Not available (will need to install)")
         gcp_ready = False
 
-if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
+    if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
         logger.info("   ✅ GCP Deployment Guide: Available")
         guide_ready = True
     else:
@@ -145,12 +142,11 @@ if Path("docs/GCP_DEPLOYMENT_GUIDE.md").exists():
     if gcp_ready and guide_ready:
         logger.info("✅ GCP Readiness: PASSED")
         return True
-    elif guide_ready:
+    if guide_ready:
         logger.info("✅ GCP Readiness: READY (gcloud can be installed on GCP)")
         return True
-    else:
-        logger.error("❌ GCP Readiness: FAILED")
-        return False
+    logger.error("❌ GCP Readiness: FAILED")
+    return False
 
 
 def main():
@@ -171,18 +167,17 @@ def main():
         logger.info("\n📋 Running {name} validation...")
         try:
             results[name] = validation_func()
-        except Exception as e:
-            logger.error("❌ {name} validation failed with exception: {e}")
+        except Exception:
+            logger.exception("❌ {name} validation failed with exception: {e}")
             results[name] = False
 
     logger.info("\n📊 Validation Results:")
     logger.info("=" * 30)
 
     passed = sum(results.values())
-    total = len(results)
+    len(results)
 
-    for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+    for name, _result in results.items():
         logger.info("   • {name}: {status}")
 
     logger.info("\n🎯 Overall: {passed}/{total} validations passed")
@@ -194,10 +189,9 @@ def main():
         logger.info("   2. Create GPU instance")
         logger.info("   3. Run focal loss training")
         return True
-    else:
-        logger.info("⚠️ Some validations failed.")
-        logger.info("🔧 Consider fixing issues or proceeding with GCP setup")
-        return False
+    logger.info("⚠️ Some validations failed.")
+    logger.info("🔧 Consider fixing issues or proceeding with GCP setup")
+    return False
 
 
 if __name__ == "__main__":

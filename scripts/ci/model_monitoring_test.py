@@ -1,38 +1,37 @@
-        # Calculate baseline and current metrics
-        # Calculate drift (simplified)
-        # Calculate metrics
-        # Create a simple model for testing
-        # Create baseline data
-        # Create current data (simulate drift)
-        # Create model
-        # Create model and data
-        # Create monitoring log entry
-        # Get baseline predictions
-        # Get predictions
-        # Simple forward pass for testing
-        # Simulate logging
-        # Validate drift detection
-        # Validate log entry
-        # Validate metrics
-    # Calculate F1 score
-    # Calculate accuracy
-    # Calculate precision and recall (simplified)
-    # Convert predictions to binary
-    # Create synthetic input data
-    # Create synthetic labels (multi-label)
+# Calculate baseline and current metrics
+# Calculate drift (simplified)
+# Calculate metrics
+# Create a simple model for testing
+# Create baseline data
+# Create current data (simulate drift)
+# Create model
+# Create model and data
+# Create monitoring log entry
+# Get baseline predictions
+# Get predictions
+# Simple forward pass for testing
+# Simulate logging
+# Validate drift detection
+# Validate log entry
+# Validate metrics
+# Calculate F1 score
+# Calculate accuracy
+# Calculate precision and recall (simplified)
+# Convert predictions to binary
+# Create synthetic input data
+# Create synthetic labels (multi-label)
 # Add src to path
 # Configure logging
 #!/usr/bin/env python3
-from datetime import datetime, timezone
-from pathlib import Path
-from torch import nn
 import logging
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
 import torch
-from .validation_utils import validate_metric_ranges, validate_required_keys, ensure
+from torch import nn
 
-
-
+from .validation_utils import ensure, validate_metric_ranges, validate_required_keys
 
 """
 Model Monitoring Test for CI/CD Pipeline.
@@ -94,10 +93,10 @@ def calculate_metrics(predictions, labels, threshold=0.5):
     f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
 
     return {
-        'accuracy': accuracy.item(),
-        'precision': precision.item(),
-        'recall': recall.item(),
-        'f1_score': f1_score.item()
+        "accuracy": accuracy.item(),
+        "precision": precision.item(),
+        "recall": recall.item(),
+        "f1_score": f1_score.item(),
     }
 
 
@@ -128,7 +127,7 @@ def test_model_performance_monitoring():
         return True
 
     except Exception:
-        logger.error("❌ Model performance monitoring test failed: {e}")
+        logger.exception("❌ Model performance monitoring test failed: {e}")
         return False
 
 
@@ -140,9 +139,13 @@ def test_model_drift_detection():
         model = SimpleBERTClassifier(num_emotions=28)
         model.eval()
 
-        baseline_input_ids, baseline_attention_mask, baseline_labels = create_synthetic_data(100, 28)
+        baseline_input_ids, baseline_attention_mask, baseline_labels = (
+            create_synthetic_data(100, 28)
+        )
 
-        current_input_ids, current_attention_mask, current_labels = create_synthetic_data(100, 28)
+        current_input_ids, current_attention_mask, current_labels = (
+            create_synthetic_data(100, 28)
+        )
 
         with torch.no_grad():
             baseline_logits = model(baseline_input_ids, baseline_attention_mask)
@@ -154,8 +157,8 @@ def test_model_drift_detection():
         baseline_metrics = calculate_metrics(baseline_probabilities, baseline_labels)
         current_metrics = calculate_metrics(current_probabilities, current_labels)
 
-        accuracy_drift = abs(current_metrics['accuracy'] - baseline_metrics['accuracy'])
-        f1_drift = abs(current_metrics['f1_score'] - baseline_metrics['f1_score'])
+        accuracy_drift = abs(current_metrics["accuracy"] - baseline_metrics["accuracy"])
+        f1_drift = abs(current_metrics["f1_score"] - baseline_metrics["f1_score"])
 
         logger.info("Accuracy drift: {accuracy_drift:.4f}")
         logger.info("F1 score drift: {f1_drift:.4f}")
@@ -167,7 +170,7 @@ def test_model_drift_detection():
         return True
 
     except Exception:
-        logger.error("❌ Model drift detection test failed: {e}")
+        logger.exception("❌ Model drift detection test failed: {e}")
         return False
 
 
@@ -179,28 +182,32 @@ def test_monitoring_logging():
         timestamp = datetime.now(timezone.utc)
         model_version = "test-v1.0.0"
         metrics = {
-            'accuracy': 0.85,
-            'precision': 0.82,
-            'recall': 0.88,
-            'f1_score': 0.85
+            "accuracy": 0.85,
+            "precision": 0.82,
+            "recall": 0.88,
+            "f1_score": 0.85,
         }
 
         log_entry = {
-            'timestamp': timestamp.isoformat(),
-            'model_version': model_version,
-            'metrics': metrics,
-            'status': 'healthy'
+            "timestamp": timestamp.isoformat(),
+            "model_version": model_version,
+            "metrics": metrics,
+            "status": "healthy",
         }
 
         logger.info("Monitoring log entry: {log_entry}")
 
-        validate_required_keys(log_entry, ["timestamp", "model_version", "metrics", "status"], label="Log entry")
+        validate_required_keys(
+            log_entry,
+            ["timestamp", "model_version", "metrics", "status"],
+            label="Log entry",
+        )
 
         logger.info("✅ Monitoring logging test passed")
         return True
 
     except Exception:
-        logger.error("❌ Monitoring logging test failed: {e}")
+        logger.exception("❌ Monitoring logging test failed: {e}")
         return False
 
 
@@ -235,9 +242,8 @@ def main():
     if passed == total:
         logger.info("🎉 All model monitoring tests passed!")
         return True
-    else:
-        logger.error("💥 Some model monitoring tests failed!")
-        return False
+    logger.error("💥 Some model monitoring tests failed!")
+    return False
 
 
 if __name__ == "__main__":

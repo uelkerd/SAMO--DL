@@ -1,12 +1,11 @@
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from pathlib import Path
-from pydub import AudioSegment
-from typing import Optional, Union, Tuple, Dict
 import logging
 import tempfile
+from pathlib import Path
+from typing import Dict, Optional, Tuple, Union
 
-
+from pydub import AudioSegment
 
 """Audio Preprocessing for SAMO Voice Processing.
 
@@ -36,46 +35,61 @@ class AudioPreprocessor:
         """Validate audio file format and properties.
 
         Args:
+        ----
             audio_path: Path to audio file
 
         Returns:
+        -------
             tuple of (is_valid, error_message)
+
         """
         audio_path = Path(audio_path)
 
         if not audio_path.exists():
-            return False, "Audio file not found: {audio_path}"
+            logger.warning(f"Audio file not found: {audio_path}")
+            return False, "Audio file not found"
 
         if audio_path.suffix.lower() not in AudioPreprocessor.SUPPORTED_FORMATS:
-            return False, "Unsupported audio format: {audio_path.suffix}"
+            logger.warning(f"Unsupported audio format: {audio_path.suffix}")
+            return False, "Unsupported audio format"
 
         try:
             audio = AudioSegment.from_file(str(audio_path))
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                return False, "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s"
+                logger.warning(f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s for file {audio_path}")
+                return (
+                    False,
+                    f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
+                )
 
             if duration < 0.1:  # Too short
-                return False, "Audio too short: {duration:.1f}s"
+                logger.warning(f"Audio too short: {duration:.1f}s for file {audio_path}")
+                return False, f"Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
 
         except Exception as exc:
-            return False, f"Error loading audio file: {exc}"
+            logger.exception(f"Error loading audio file {audio_path}: {exc}")
+            return False, "Error processing audio file"
 
     @staticmethod
     def preprocess_audio(
-        audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+        audio_path: Union[str, Path],
+        output_path: Optional[Union[str, Path]] = None,
     ) -> Tuple[str, Dict]:
         """Preprocess audio for optimal Whisper performance.
 
         Args:
+        ----
             audio_path: Input audio file path
             output_path: Output path (temporary file if None)
 
         Returns:
+        -------
             tuple of (processed_audio_path, metadata)
+
         """
         audio_path = Path(audio_path)
 
@@ -102,7 +116,8 @@ class AudioPreprocessor:
         if audio.frame_rate != AudioPreprocessor.TARGET_SAMPLE_RATE:
             audio = audio.set_frame_rate(AudioPreprocessor.TARGET_SAMPLE_RATE)
             logger.info(
-                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz", extra={"format_args": True}
+                "Resampled to {AudioPreprocessor.TARGET_SAMPLE_RATE}Hz",
+                extra={"format_args": True},
             )
 
         audio = audio.normalize()
@@ -128,7 +143,8 @@ class AudioPreprocessor:
 
 
 def preprocess_audio(
-    audio_path: Union[str, Path], output_path: Optional[Union[str, Path]] = None
+    audio_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
 ) -> Tuple[str, Dict]:
     """Convenience function for audio preprocessing."""
     return AudioPreprocessor.preprocess_audio(audio_path, output_path)

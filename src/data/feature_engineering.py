@@ -1,50 +1,46 @@
-            # Get the actual words
-            # Get top word indices for this topic
-        # Add topic scores as features
-        # Apply SVD to reduce dimensions and extract topics
-        # Apply sentiment analyzer to get scores
-        # Assign dominant topic to each document
-        # Average word length
-        # Character count
-        # Convert topics to DataFrame for easier inspection
-        # Create TF-IDF vectorizer
-        # Create sentiment category based on compound score
-        # Ensure NLTK resources are downloaded
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Ensure text column is string type
-        # Extract basic text features
-        # Extract basic time components
-        # Extract sentiment components into separate columns
-        # Extract sentiment features
-        # Extract time features
-        # Extract topic features if requested
-        # Get feature names (words)
-        # Get top words for each topic
-        # Lexical diversity (unique words / total words)
-        # Sentence count
-        # Time of day features
-        # Transform texts to TF-IDF matrix
-        # Try to ensure timestamp column is datetime type
-        # Unique word count
-        # Word count
-        # Words per sentence
+"""Feature engineering utilities for text and emotion analysis.
+
+This module provides comprehensive feature extraction and engineering
+capabilities including text statistics, sentiment analysis, topic modeling,
+and linguistic features. Supports dimensionality reduction and feature
+selection for machine learning pipelines.
+"""
+# Create sentiment category based on compound score
+# Ensure NLTK resources are downloaded
+# Ensure text column is string type
+# Ensure text column is string type
+# Ensure text column is string type
+# Extract basic text features
+# Extract basic time components
+# Extract sentiment components into separate columns
+# Extract sentiment features
+# Extract time features
+# Extract topic features if requested
+# Get feature names (words)
+# Get top words for each topic
+# Lexical diversity (unique words / total words)
+# Sentence count
+# Time of day features
+# Transform texts to TF-IDF matrix
+# Try to ensure timestamp column is datetime type
+# Unique word count
+# Word count
+# Words per sentence
 # Configure logging
 # G004: Logging f-strings temporarily allowed for development
-from nltk.sentiment import SentimentIntensityAnalyzer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
+import re
+
 import nltk
 import numpy as np
 import pandas as pd
-import re
-
-
-
+from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
@@ -58,22 +54,26 @@ class FeatureEngineer:
             nltk.download("vader_lexicon", quiet=True)
             self.sentiment_analyzer = SentimentIntensityAnalyzer()
         except Exception:
-            logger.error(
+            logger.exception(
                 "Failed to initialize sentiment analyzer: {e}",
                 extra={"format_args": True},
             )
             self.sentiment_analyzer = None
 
     def extract_basic_features(
-        self, df: pd.DataFrame, text_column: str = "content"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
     ) -> pd.DataFrame:
         """Extract basic statistical features from text.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
 
         Returns:
+        -------
             DataFrame with basic features added
 
         """
@@ -86,10 +86,14 @@ class FeatureEngineer:
         df["word_count"] = df[text_column].apply(lambda x: len(x.split()))
 
         df["avg_word_length"] = df[text_column].apply(
-            lambda x: np.mean([len(word) for word in x.split()]) if len(x.split()) > 0 else 0
+            lambda x: np.mean([len(word) for word in x.split()])
+            if len(x.split()) > 0
+            else 0,
         )
 
-        df["sentence_count"] = df[text_column].apply(lambda x: len(re.split(r"[.!?]+", x)) - 1)
+        df["sentence_count"] = df[text_column].apply(
+            lambda x: len(re.split(r"[.!?]+", x)) - 1,
+        )
 
         df["words_per_sentence"] = df.apply(
             lambda row: row["word_count"] / row["sentence_count"]
@@ -110,21 +114,25 @@ class FeatureEngineer:
         return df
 
     def extract_sentiment_features(
-        self, df: pd.DataFrame, text_column: str = "content"
+        self,
+        df: pd.DataFrame,
+        text_column: str = "content",
     ) -> pd.DataFrame:
         """Extract sentiment features from text using NLTK's VADER.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
 
         Returns:
+        -------
             DataFrame with sentiment features added
 
         """
         if self.sentiment_analyzer is None:
             logger.warning(
-                "Sentiment analyzer not available. Skipping sentiment feature extraction."
+                "Sentiment analyzer not available. Skipping sentiment feature extraction.",
             )
             return df
 
@@ -144,7 +152,7 @@ class FeatureEngineer:
         df["sentiment_category"] = df["sentiment_compound"].apply(
             lambda score: "positive"
             if score > 0.05
-            else ("negative" if score < -0.05 else "neutral")
+            else ("negative" if score < -0.05 else "neutral"),
         )
 
         return df
@@ -159,12 +167,14 @@ class FeatureEngineer:
         """Extract topic-related features using TF-IDF and SVD.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             n_topics: Number of topics to extract
             n_top_words: Number of top words to include per topic
 
         Returns:
+        -------
             DataFrame with topic features added
 
         """
@@ -207,28 +217,34 @@ class FeatureEngineer:
         return df, topics_df
 
     def extract_time_features(
-        self, df: pd.DataFrame, timestamp_column: str = "created_at"
+        self,
+        df: pd.DataFrame,
+        timestamp_column: str = "created_at",
     ) -> pd.DataFrame:
         """Extract time-related features from timestamp.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             timestamp_column: Name of column containing timestamps
 
         Returns:
+        -------
             DataFrame with time features added
 
         """
         df = df.copy()
 
         if timestamp_column not in df.columns:
-            logger.warning("Timestamp column '{timestamp_column}' not found in DataFrame")
+            logger.warning(
+                "Timestamp column '{timestamp_column}' not found in DataFrame",
+            )
             return df
 
         try:
             df[timestamp_column] = pd.to_datetime(df[timestamp_column])
         except Exception:
-            logger.error(
+            logger.exception(
                 "Failed to convert '{timestamp_column}' to datetime: {e}",
                 extra={"format_args": True},
             )
@@ -262,12 +278,14 @@ class FeatureEngineer:
         """Extract all features from journal entries.
 
         Args:
+        ----
             df: DataFrame containing journal entries
             text_column: Name of column containing entry content
             timestamp_column: Name of column containing timestamps
             extract_topics: Whether to extract topic features
 
         Returns:
+        -------
             DataFrame with all features added
 
         """

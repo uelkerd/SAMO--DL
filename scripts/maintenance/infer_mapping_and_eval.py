@@ -1,11 +1,12 @@
 import os
+
 import numpy as np
 import torch
-from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from sklearn.metrics import f1_score, accuracy_score
 from scipy.optimize import linear_sum_assignment
+from sklearn.metrics import accuracy_score, f1_score
+from tqdm import tqdm
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
@@ -47,13 +48,12 @@ def predict_probs(texts):
     enc = {k: v.to(DEVICE) for k, v in enc.items()}
     with torch.inference_mode():
         logits = mdl(**enc).logits
-        probs = torch.sigmoid(logits).cpu().numpy()
-    return probs
+        return torch.sigmoid(logits).cpu().numpy()
 
 
 P_chunks = []
 for i in tqdm(range(0, len(ds), BATCH)):
-    P_chunks.append(predict_probs(ds[i:i + BATCH]["text"]))
+    P_chunks.append(predict_probs(ds[i : i + BATCH]["text"]))
 P = np.concatenate(P_chunks, axis=0)  # (N, num_labels)
 
 
@@ -115,7 +115,6 @@ print(f"- Accuracy (subset): {ab:.4f}")
 
 # Optional: write corrected config.json with inferred labels in model-index order
 if os.getenv("WRITE_CONFIG", "0") == "1":
-    from transformers import AutoConfig
     cfg = mdl.config
     id2label = {int(mi): ds_names[dj] for mi, dj in mapping}
     for i in range(M):

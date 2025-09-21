@@ -1,26 +1,17 @@
-        # Import the validation module
-        # Start training
-        # Training configuration optimized for debugging
-        from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
-        from pre_training_validation import PreTrainingValidator
-        import traceback
-    # Ask for user confirmation
-    # Step 1: Pre-training validation
-    # Step 2: User confirmation
-    # Step 3: Start training
-# Add src to path
-# Configure logging
 #!/usr/bin/env python3
-from pathlib import Path
+"""Validation and Training Script.
+
+Validates environment and starts model training.
+"""
+
 import logging
 import sys
 import time
-import traceback
+from pathlib import Path
 
+from pre_training_validation import PreTrainingValidator
 
-
-
-
+from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 
 """
 Validate and Train Script for SAMO Deep Learning.
@@ -34,7 +25,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("training_session.log")],
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("training_session.log"),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -44,7 +38,6 @@ def run_pre_training_validation():
     logger.info("🔍 Running pre-training validation...")
 
     try:
-
         sys.path.insert(0, str(Path(__file__).parent))
         validator = PreTrainingValidator()
         all_passed = validator.run_all_validations()
@@ -52,8 +45,8 @@ def run_pre_training_validation():
 
         return all_passed, validator.critical_issues, validator.warnings
 
-    except Exception as e:
-        logger.error("❌ Pre-training validation failed: {e}")
+    except Exception:
+        logger.exception("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
 
@@ -74,21 +67,21 @@ def run_training_with_debugging():
         }
 
         logger.info("📋 Training Configuration:")
-        for key, value in config.items():
+        for _key, _value in config.items():
             logger.info("   {key}: {value}")
 
         start_time = time.time()
         results = train_emotion_detection_model(**config)
-        training_time = time.time() - start_time
+        time.time() - start_time
 
         logger.info("✅ Training completed in {training_time/60:.1f} minutes!")
         logger.info("📊 Final results: {results}")
 
         return True, results
 
-    except Exception as e:
-        logger.error("❌ Training failed: {e}")
-        logger.error("Traceback: {traceback.format_exc()}")
+    except Exception:
+        logger.exception("❌ Training failed: {e}")
+        logger.exception("Traceback: {traceback.format_exc()}")
         return False, None
 
 
@@ -105,22 +98,24 @@ def main():
     if not validation_passed:
         logger.error("\n❌ VALIDATION FAILED - Training blocked!")
         logger.error("Critical issues found:")
-        for i, issue in enumerate(critical_issues, 1):
+        for _i, _issue in enumerate(critical_issues, 1):
             logger.error("   {i}. {issue}")
 
         if warnings:
             logger.warning("\nWarnings (non-blocking):")
-            for i, warning in enumerate(warnings, 1):
+            for _i, _warning in enumerate(warnings, 1):
                 logger.warning("   {i}. {warning}")
 
-        logger.error("\n🔧 Please fix all critical issues before running training again.")
+        logger.error(
+            "\n🔧 Please fix all critical issues before running training again.",
+        )
         return False
 
     logger.info("\n✅ VALIDATION PASSED!")
 
     if warnings:
         logger.warning("\n⚠️  {len(warnings)} warnings detected:")
-        for i, warning in enumerate(warnings, 1):
+        for _i, _warning in enumerate(warnings, 1):
             logger.warning("   {i}. {warning}")
 
         logger.warning("\nConsider addressing these warnings before proceeding.")
@@ -153,7 +148,7 @@ def main():
         logger.info("\n🎉 TRAINING COMPLETED SUCCESSFULLY!")
         logger.info("📊 Results summary:")
         if results:
-            for key, value in results.items():
+            for _key, _value in results.items():
                 logger.info("   {key}: {value}")
 
         logger.info("\n📁 Check the following files for details:")
@@ -162,10 +157,9 @@ def main():
         logger.info("   • models/emotion_detection/ - Model checkpoints")
 
         return True
-    else:
-        logger.error("\n❌ TRAINING FAILED!")
-        logger.error("Check training_session.log for detailed error information.")
-        return False
+    logger.error("\n❌ TRAINING FAILED!")
+    logger.error("Check training_session.log for detailed error information.")
+    return False
 
 
 if __name__ == "__main__":
