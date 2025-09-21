@@ -40,22 +40,32 @@ def test_health_check():
         if response.status_code == 200:
             data = response.json()
             print("✅ Health check passed")
-            print(f"   Status: {data['status']}")
-            print(f"   Model Version: {data['model_version']}")
-            print(f"   Uptime: {data['uptime_seconds']:.1f} seconds")
-            print(f"   Total Requests: {data['metrics']['total_requests']}")
-            print(
-                f"   Success Rate: {data['metrics']['successful_requests']}/{data['metrics']['total_requests']}"
-            )
-            print(
-                f"   Avg Response Time: {data['metrics']['average_response_time_ms']}ms"
-            )
+            status = data.get("status", data.get("state", "unknown"))
+            print(f"   Status: {status}")
+            if "timestamp" in data:
+                print(f"   Timestamp: {data['timestamp']}")
+            if "model_version" in data:
+                print(f"   Model Version: {data['model_version']}")
+            if "uptime_seconds" in data:
+                print(f"   Uptime: {data['uptime_seconds']:.1f} seconds")
+            metrics = data.get("metrics")
+            if isinstance(metrics, dict):
+                total = metrics.get("total_requests")
+                success = metrics.get("successful_requests")
+                if total is not None and success is not None:
+                    print(f"   Success Rate: {success}/{total}")
+                avg_ms = metrics.get("average_response_time_ms")
+                if avg_ms is not None:
+                    print(f"   Avg Response Time: {avg_ms}ms")
             return True
         else:
             print(f"❌ Health check failed: {response.status_code}")
             return False
-    except Exception as e:
-        print(f"❌ Health check error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Health check HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Health check JSON parse error: {e!s}")
         return False
 
 
@@ -65,21 +75,26 @@ def test_metrics_endpoint():
     try:
         response = requests.get(f"{BASE_URL}/metrics", timeout=DEFAULT_TIMEOUT)
         if response.status_code == 200:
-            data = response.json()
-            print("✅ Metrics endpoint working")
-            print(f"   Success Rate: {data['server_metrics']['success_rate']}")
-            print(
-                f"   Requests/Minute: {data['server_metrics']['requests_per_minute']:.2f}"
-            )
-            print(
-                f"   Rate Limiting: {data['rate_limiting']['max_requests']} req/{data['rate_limiting']['window_seconds']}s"
-            )
+            ctype = response.headers.get("Content-Type", "")
+            if ctype.startswith("text/"):
+                print("✅ Metrics endpoint served Prometheus exposition format")
+                lines = response.text.splitlines()
+                if lines:
+                    print(f"   Sample: {lines[0][:120]}")
+            else:
+                # Fallback: JSON metrics (if implemented)
+                data = response.json()
+                print("✅ Metrics endpoint working (JSON)")
+                print(f"   Keys: {list(data)[:5]}")
             return True
         else:
             print(f"❌ Metrics endpoint failed: {response.status_code}")
             return False
-    except Exception as e:
-        print(f"❌ Metrics endpoint error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Metrics endpoint HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Metrics endpoint JSON parse error: {e!s}")
         return False
 
 
@@ -122,8 +137,11 @@ def test_single_predictions():
                 print(f"❌ Test {i} failed: {response.status_code}")
                 return False
 
-        except Exception as e:
-            print(f"❌ Test {i} error: {e!s}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Test {i} HTTP error: {e!s}")
+            return False
+        except ValueError as e:
+            print(f"❌ Test {i} JSON parse error: {e!s}")
             return False
 
     # Calculate average performance
@@ -150,9 +168,13 @@ def test_batch_predictions():
 
         if response.status_code == 200:
             data = response.json()
-            predictions = data["predictions"]
+            predictions = data.get("predictions") or data.get("results")
             batch_time = data.get("batch_processing_time_ms", 0)
             total_time = (end_time - start_time) * 1000
+
+            if not isinstance(predictions, list):
+                print("❌ Unexpected batch response format")
+                return False
 
             print(f"✅ Batch prediction successful: {len(predictions)} predictions")
             print(f"   Batch processing time: {batch_time}ms")
@@ -173,8 +195,11 @@ def test_batch_predictions():
             print(f"❌ Batch prediction failed: {response.status_code}")
             return False
 
-    except Exception as e:
-        print(f"❌ Batch prediction error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Batch prediction HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Batch prediction JSON parse error: {e!s}")
         return False
 
 
@@ -238,8 +263,11 @@ def test_error_handling():
         else:
             print(f"❌ Missing text error not handled: {response.status_code}")
             return False
-    except Exception as e:
-        print(f"❌ Missing text test error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Missing text test HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Missing text test JSON parse error: {e!s}")
         return False
 
     # Test empty text
@@ -255,8 +283,11 @@ def test_error_handling():
         else:
             print(f"❌ Empty text error not handled: {response.status_code}")
             return False
-    except Exception as e:
-        print(f"❌ Empty text test error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Empty text test HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Empty text test JSON parse error: {e!s}")
         return False
 
     # Test invalid JSON
@@ -272,8 +303,11 @@ def test_error_handling():
         else:
             print(f"❌ Invalid JSON error not handled: {response.status_code}")
             return False
-    except Exception as e:
-        print(f"❌ Invalid JSON test error: {e!s}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Invalid JSON test HTTP error: {e!s}")
+        return False
+    except ValueError as e:
+        print(f"❌ Invalid JSON test JSON parse error: {e!s}")
         return False
 
     return True
@@ -297,8 +331,10 @@ def test_performance():
                 "status_code": response.status_code,
                 "response_time": (end_time - start_time) * 1000,
             }
-        except Exception as e:
-            return {"status_code": 0, "response_time": 0, "error": str(e)}
+        except requests.exceptions.RequestException as e:
+            return {"status_code": 0, "response_time": 0, "error": f"HTTP error: {e!s}"}
+        except ValueError as e:
+            return {"status_code": 0, "response_time": 0, "error": f"JSON parse error: {e!s}"}
 
     # Test with concurrent requests
     print("   Testing with 20 concurrent requests...")
@@ -366,8 +402,12 @@ def main():
                 passed += 1
             else:
                 print(f"❌ {test_name} failed")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ {test_name} HTTP error: {e!s}")
+        except ValueError as e:
+            print(f"❌ {test_name} JSON parse error: {e!s}")
         except Exception as e:
-            print(f"❌ {test_name} error: {e!s}")
+            print(f"❌ {test_name} unexpected error: {e!s}")
 
     print("\n" + "=" * 50)
     print("🎉 ENHANCED API TESTING COMPLETED!")

@@ -498,6 +498,47 @@ class TokenBucketRateLimiter:
                     self.concurrent_requests[client_key] - 1,
                 )
 
+    def add_to_blacklist(self, ip: str) -> None:
+        """Add IP to blacklist (thread-safe)."""
+        with self.lock:
+            if self.config.blacklisted_ips is not None:
+                self.config.blacklisted_ips.add(ip)
+                # Clean up any existing client data for this IP
+                self._cleanup_client_data(ip)
+                logger.info(f"Added {ip} to blacklist")
+
+    def remove_from_blacklist(self, ip: str) -> None:
+        """Remove IP from blacklist (thread-safe)."""
+        with self.lock:
+            if self.config.blacklisted_ips is not None:
+                self.config.blacklisted_ips.discard(ip)
+                logger.info(f"Removed {ip} from blacklist")
+
+    def add_to_whitelist(self, ip: str) -> None:
+        """Add IP to whitelist (thread-safe)."""
+        with self.lock:
+            if self.config.whitelisted_ips is not None:
+                self.config.whitelisted_ips.add(ip)
+                logger.info(f"Added {ip} to whitelist")
+
+    def remove_from_whitelist(self, ip: str) -> None:
+        """Remove IP from whitelist (thread-safe)."""
+        with self.lock:
+            if self.config.whitelisted_ips is not None:
+                self.config.whitelisted_ips.discard(ip)
+                logger.info(f"Removed {ip} from whitelist")
+
+    def _cleanup_client_data(self, ip: str) -> None:
+        """Clean up client data for a specific IP."""
+        # Remove from buckets, blocked clients, and concurrent requests
+        keys_to_remove = [key for key in self.buckets.keys() if key.startswith(f"{ip}:")]
+        for key in keys_to_remove:
+            self.buckets.pop(key, None)
+            self.last_refill.pop(key, None)
+            self.blocked_clients.pop(key, None)
+            self.concurrent_requests.pop(key, None)
+            self.request_history.pop(key, None)
+
     def get_stats(self) -> Dict:
         """Get rate limiter statistics."""
         with self.lock:

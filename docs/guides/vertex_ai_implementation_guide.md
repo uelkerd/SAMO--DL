@@ -700,8 +700,10 @@ class SAMOModelDeployment:
 
         # List models and find ours
         models = aiplatform.Model.list(
-            filter=f'labels.project="samo" AND labels.experiment="{experiment_name}"'
+            filter='labels.project="samo" AND labels.track="deep-learning"'
         )
+        # Narrow down by display name containing the experiment name
+        models = [m for m in models if experiment_name in m.display_name]
 
         if not models:
             # Fallback: list all models and find by display name

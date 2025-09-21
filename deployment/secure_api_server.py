@@ -179,6 +179,8 @@ def secure_endpoint(f):
                     logger.warning(
                         f"Invalid content type: {content_type} from {client_ip}"
                     )
+                    # Release acquired slot before returning
+                    rate_limiter.release_request(client_ip, user_agent)
                     return jsonify(
                         {
                             "error": "Invalid content type",
@@ -374,7 +376,10 @@ class SecureEmotionDetectionModel:
 
             prediction_time = time.time() - start_time
             logger.info(
-                f"Secure prediction completed in {prediction_time:.3f}s: '{sanitized_text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})"
+                "Secure prediction completed in %.3fs → %s (conf=%.3f)",
+                prediction_time,
+                predicted_emotion,
+                confidence,
             )
 
             # Create secure response
@@ -383,8 +388,9 @@ class SecureEmotionDetectionModel:
                 "predicted_emotion": predicted_emotion,
                 "confidence": float(confidence),
                 "probabilities": {
-                    emotion: float(prob)
-                    for emotion, prob in zip(self.emotions, all_probs)
+                    # Align labels to logits index via id2label; fall back to label_i
+                    (self.model.config.id2label.get(str(i)) or self.model.config.id2label.get(i) or f"label_{i}"): float(p)
+                    for i, p in enumerate(all_probs)
                 },
                 "model_version": "2.0",
                 "model_type": "secure_emotion_detection",
@@ -732,9 +738,11 @@ def predict():
         model_instance = get_secure_model()
         if not getattr(model_instance, "loaded", False):
             return jsonify({"error": "Secure model not loaded"}), 503
+        threshold_raw = sanitized_data.get("confidence_threshold")
+        threshold = float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
         result = model_instance.predict(
             sanitized_data["text"],
-            confidence_threshold=sanitized_data.get("confidence_threshold"),
+            confidence_threshold=threshold,
         )
 
         # Add sanitization warnings to response
@@ -800,11 +808,13 @@ def predict_batch():
         model_instance = get_secure_model()
         if not getattr(model_instance, "loaded", False):
             return jsonify({"error": "Secure model not loaded"}), 503
+        threshold_raw = sanitized_data.get("confidence_threshold")
+        threshold = float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
         for text in sanitized_data["texts"]:
             if text.strip():
                 result = model_instance.predict(
                     text,
-                    confidence_threshold=sanitized_data.get("confidence_threshold"),
+                    confidence_threshold=threshold,
                 )
                 results.append(result)
 
