@@ -63,9 +63,33 @@ class SecurityDeploymentFix:
 
     @staticmethod
     def log(message: str, level: str = "INFO"):
-        """Log messages with timestamp."""
+        """Log messages with timestamp. Automatically sanitizes sensitive data."""
+        # Additional safety check to prevent accidental logging of sensitive data
+        if isinstance(message, str):
+            # Check for common sensitive patterns in the message itself
+            sensitive_patterns = [
+                "ADMIN_API_KEY=", "SECRET_KEY=", "API_KEY=", "PASSWORD=", "TOKEN=",
+                "PRIVATE_KEY=", "CREDENTIALS=", "AUTH_TOKEN=", "ACCESS_TOKEN=",
+                "REFRESH_TOKEN=", "SESSION_KEY=", "ENCRYPTION_KEY=", "SIGNING_KEY="
+            ]
+            
+            # If message contains sensitive patterns, sanitize it
+            for pattern in sensitive_patterns:
+                if pattern in message:
+                    # Replace the sensitive value with <REDACTED>
+                    import re
+                    message = re.sub(f"{pattern}[^,\s]+", f"{pattern}<REDACTED>", message)
+        
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
+
+    @staticmethod
+    def log_safe_command(command: List[str], level: str = "INFO"):
+        """Safely log command execution with guaranteed sensitive data redaction."""
+        # This method is specifically designed to never log sensitive data
+        safe_command = SecurityDeploymentFix._sanitize_command_for_logging(command)
+        safe_message = f"Running: {' '.join(safe_command)}"
+        SecurityDeploymentFix.log(safe_message, level)
 
     @staticmethod
     def _sanitize_command_for_logging(command: List[str]) -> List[str]:
@@ -102,9 +126,8 @@ class SecurityDeploymentFix:
         check: bool = True,
     ) -> subprocess.CompletedProcess:
         """Run shell command with error handling."""
-        # Create a safe version for logging that redacts sensitive data BEFORE any processing
-        safe_command = self._sanitize_command_for_logging(command)
-        self.log(f"Running: {' '.join(safe_command)}")
+        # Use the dedicated safe logging method that guarantees no sensitive data exposure
+        self.log_safe_command(command)
         
         # Sanitize command for security (for subprocess execution)
         sanitized_command = []
