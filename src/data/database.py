@@ -50,7 +50,8 @@ else:
     if not allow_sqlite:
         raise RuntimeError(
             "SQLite fallback is disabled. Set DATABASE_URL or all Postgres env vars, "
-            "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test.",
+            "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in "
+            "dev/test.",
         )
     default_sqlite_path = (
         Path(os.environ.get("SQLITE_PATH", "./samo_local.db"))

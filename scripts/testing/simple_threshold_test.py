@@ -55,7 +55,8 @@ def test_threshold_application():
     logging.info("  - Mean: {predictions.mean().item():.4f}")
     logging.info("  - Expected sum: {num_above_threshold}")
     logging.info(
-        "  - Match: {'✅' if predictions.sum().item() == num_above_threshold else '❌'}",
+        "  - Match: "
+        "{'✅' if predictions.sum().item() == num_above_threshold else '❌'}",
     )
 
     samples_with_no_predictions = (predictions.sum(dim=1) == 0).sum().item()

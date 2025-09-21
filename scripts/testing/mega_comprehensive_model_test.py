@@ -2,7 +2,8 @@
 """MEGA COMPREHENSIVE MODEL TEST SUITE.
 ===================================
 
-This script conducts the most extensive and holistic testing possible on the default model,
+This script conducts the most extensive and holistic testing possible on the default 
+model,
 covering every aspect of performance, robustness, bias, and real-world scenarios.
 """
 
@@ -697,7 +698,8 @@ class MegaComprehensiveModelTester:
             print(f"   Median: {confidence_stats['median']:.3f}")
             print(f"   Std Dev: {confidence_stats['std']:.3f}")
             print(
-                f"   Range: {confidence_stats['min']:.3f} - {confidence_stats['max']:.3f}",
+                f"   Range: {confidence_stats['min']:.3f} - "
+                f"{confidence_stats['max']:.3f}",
             )
             print(
                 f"   High confidence (≥0.8): "
@@ -763,7 +765,10 @@ class MegaComprehensiveModelTester:
         }
 
         # Save report
-        report_path = f"test_reports/mega_comprehensive_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_path = (
+            f"test_reports/mega_comprehensive_test_report_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         os.makedirs("test_reports", exist_ok=True)
 
         with open(report_path, "w") as f:

@@ -32,7 +32,8 @@ def display_mega_test_results():
     print("   ✅ Accuracy: 81.58% (31/38)")
     print("   ✅ Average Confidence: 0.832 (83.2%)")
     print(
-        "   ✅ Handles short inputs, long inputs, mixed emotions, negations, questions",
+        "   ✅ Handles short inputs, long inputs, mixed emotions, negations, "
+        "questions",
     )
     print(
         "   ✅ Handles emojis, symbols, capitalization variations, special characters",
@@ -73,7 +74,9 @@ def display_mega_test_results():
         "   ✅ Tested: Social media posts, journal entries, customer service, "
         "work scenarios",
     )
-    print("   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)")
+    print(
+        "   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)"
+    )
     print()
 
     # Confidence Analysis
