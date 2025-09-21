@@ -267,6 +267,26 @@ setup_database() {
     fi
 }
 
+# Initialize git submodules
+init_submodules() {
+    print_status "Initializing git submodules..."
+    
+    # Check if we're in a git repository
+    if [ ! -d ".git" ]; then
+        print_warning "Not in a git repository, skipping submodule initialization"
+        return 0
+    fi
+    
+    # Initialize and update submodules
+    if git submodule update --init --recursive; then
+        print_success "Git submodules initialized successfully"
+        print_status "Training repository available at: notebooks/goemotions-deberta/"
+    else
+        print_warning "Failed to initialize git submodules (this may be expected if not cloned with --recursive)"
+        print_warning "To initialize manually, run: git submodule update --init --recursive"
+    fi
+}
+
 # Main execution
 main() {
     echo "=========================================="
@@ -275,6 +295,7 @@ main() {
     
     check_conda
     init_conda
+    init_submodules
     setup_environment
     activate_and_setup
     test_environment
@@ -288,10 +309,12 @@ main() {
     echo "Next steps:"
     echo "1. Activate environment: conda activate $ENV_NAME"
     echo "2. Edit .env file with your database credentials"
-    echo "3. Run training: python -m src.models.emotion_detection.training_pipeline"
-    echo "4. Test APIs: python src/unified_ai_api.py"
+    echo "3. Access training repository: cd notebooks/goemotions-deberta/"
+    echo "4. Run training: python -m src.models.emotion_detection.training_pipeline"
+    echo "5. Test APIs: python src/unified_ai_api.py"
     echo ""
     echo "For more information, see ENVIRONMENT_SETUP.md"
+    echo "For training resources, see notebooks/goemotions-deberta/README.md"
 }
 
 # Run main function

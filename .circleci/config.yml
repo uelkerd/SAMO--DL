@@ -120,6 +120,13 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Initialize Git Submodules
+          command: |
+            echo "🔧 Initializing git submodules..."
+            git submodule update --init --recursive
+            echo "✅ Submodules initialized successfully"
+            echo "📁 Training repository available at: notebooks/goemotions-deberta/"
+      - run:
           name: Environment Check
           command: |
             echo "Python version: $(python3 --version)"
