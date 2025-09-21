@@ -141,14 +141,23 @@ class VertexAIPhase4Automation:
                     "list",
                     "--enabled",
                     "--filter=name:aiplatform.googleapis.com",
+                    "--format=json",
                 ],
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            return (
-                result.returncode == 0 and "aiplatform.googleapis.com" in result.stdout
-            )
+            if result.returncode != 0:
+                return False
+            try:
+                services = json.loads(result.stdout)
+                # Each item should be a dict with "name" key
+                return any(
+                    service.get("name") == "aiplatform.googleapis.com"
+                    for service in services
+                )
+            except Exception:
+                return False
         except Exception:
             return False
 
@@ -163,13 +172,15 @@ class VertexAIPhase4Automation:
                     "list",
                     "--enabled",
                     "--filter=name:monitoring.googleapis.com",
+                    "--format=value(NAME)",
                 ],
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            return (
-                result.returncode == 0 and "monitoring.googleapis.com" in result.stdout
+            return result.returncode == 0 and any(
+                line.strip() == "monitoring.googleapis.com"
+                for line in result.stdout.splitlines()
             )
         except Exception:
             return False
@@ -190,7 +201,10 @@ class VertexAIPhase4Automation:
                 text=True,
                 check=True,
             )
-            return result.returncode == 0 and "logging.googleapis.com" in result.stdout
+            return result.returncode == 0 and any(
+                line.strip() == "logging.googleapis.com"
+                for line in result.stdout.splitlines()
+            )
         except Exception:
             return False
 
@@ -210,9 +224,10 @@ class VertexAIPhase4Automation:
                 text=True,
                 check=True,
             )
+            enabled_services = [line.strip() for line in result.stdout.splitlines()]
             return (
                 result.returncode == 0
-                and "artifactregistry.googleapis.com" in result.stdout
+                and "artifactregistry.googleapis.com" in enabled_services
             )
         except Exception:
             return False

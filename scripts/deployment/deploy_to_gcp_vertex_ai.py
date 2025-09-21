@@ -82,13 +82,27 @@ def check_prerequisites():
                 "list",
                 "--enabled",
                 "--filter=name:aiplatform.googleapis.com",
+                "--format=json",
             ],
             check=False,
             capture_output=True,
             text=True,
         )
-        if result.returncode == 0 and "aiplatform.googleapis.com" in result.stdout:
-            print("✅ Vertex AI API is enabled")
+        if result.returncode == 0:
+            try:
+                services = json.loads(result.stdout)
+            except Exception:
+                services = []
+            enabled = any(
+                service.get("config", {}).get("name") == "aiplatform.googleapis.com"
+                for service in services
+            )
+            if enabled:
+                print("✅ Vertex AI API is enabled")
+            else:
+                print("❌ Vertex AI API is not enabled")
+                print("   Run: gcloud services enable aiplatform.googleapis.com")
+                return False
         else:
             print("❌ Vertex AI API is not enabled")
             print("   Run: gcloud services enable aiplatform.googleapis.com")
