@@ -17,7 +17,7 @@ def debug_model_loading():
     print("🔍 Debugging Model Loading Issues")
     print("=" * 50)
     print(f"Testing URL: {config.base_url}")
-    print(f"API Key: {config.api_key[:20]}...")
+    print(f"API Key: <REDACTED>")
 
     # Test model status with API key
     print("\n1. Testing model status with API key...")

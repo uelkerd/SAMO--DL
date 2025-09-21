@@ -33,20 +33,21 @@ class EmotionDetectionModel:
             else:
                 print("⚠️ CUDA not available, using CPU")
 
-            self.emotions = [
-                "anxious",
-                "calm",
-                "content",
-                "excited",
-                "frustrated",
-                "grateful",
-                "happy",
-                "hopeful",
-                "overwhelmed",
-                "proud",
-                "sad",
-                "tired",
-            ]
+            # Get emotion labels from model config
+            try:
+                if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
+                    self.emotions = [self.model.config.id2label[i] for i in range(len(self.model.config.id2label))]
+                    print(f"✅ Loaded emotion labels from model: {self.emotions}")
+                else:
+                    raise AttributeError("Model config missing id2label")
+            except Exception as label_error:
+                print(f"⚠️ Failed to load labels from model config: {label_error}")
+                # Fallback to static mapping
+                self.emotions = [
+                    "anxious", "calm", "content", "excited", "frustrated",
+                    "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
+                ]
+                print(f"✅ Using fallback emotion labels: {self.emotions}")
             print("✅ Model loaded successfully")
 
         except Exception as e:

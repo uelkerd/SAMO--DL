@@ -135,11 +135,12 @@ class EnvironmentConfig:
 
     def get_gunicorn_config(self) -> Dict[str, Any]:
         """Get Gunicorn configuration for Cloud Run"""
+        port = os.getenv("PORT", "8080")
         return {
-            "bind": f':{os.getenv("PORT", "8080")}',
+            "bind": f"0.0.0.0:{port}",
             "workers": 1,  # Cloud Run best practice
             "threads": 8,
-            "timeout": 0,  # Cloud Run handles timeouts
+            "timeout": self.config.timeout_seconds,  # Use finite timeout
             "keepalive": 5,
             "max_requests": 1000,
             "max_requests_jitter": 100,
@@ -148,7 +149,7 @@ class EnvironmentConfig:
             "loglevel": self.config.log_level,
             "preload_app": True,
             "worker_class": "sync",
-            "worker_connections": self.config.concurrency,
+            # Removed worker_connections as it's not used with sync worker
         }
 
     def get_health_check_config(self) -> Dict[str, Any]:

@@ -58,8 +58,8 @@ def load_model():
     with model_lock:
         if model_loading or model_loaded:
             return
+        model_loading = True
 
-    model_loading = True
     logger.info("🔄 Starting model loading...")
 
     try:
@@ -71,9 +71,9 @@ def load_model():
         if not model_path.exists():
             raise FileNotFoundError(f"Model directory not found: {model_path}")
 
-        # Load tokenizer and model
+        # Load tokenizer and model from the same local path
         logger.info("📥 Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path))
 
         logger.info("📥 Loading model...")
         model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
@@ -84,18 +84,22 @@ def load_model():
         model.eval()
 
         emotion_mapping = EMOTION_MAPPING
-        model_loaded = True
-        model_loading = False
+        
+        with model_lock:
+            model_loaded = True
+            model_loading = False
 
         logger.info(f"✅ Model loaded successfully on {device}")
         logger.info(f"🎯 Supported emotions: {emotion_mapping}")
 
     except Exception:
-        model_loading = False
+        with model_lock:
+            model_loading = False
         logger.exception("❌ Failed to load model")
         # Do not re-raise to maintain secure error handling
     finally:
-        model_loading = False
+        with model_lock:
+            model_loading = False
 
 
 def predict_emotion(text):

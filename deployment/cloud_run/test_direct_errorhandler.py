@@ -4,6 +4,8 @@
 import os
 import sys
 
+from werkzeug.exceptions import TooManyRequests, InternalServerError
+
 
 def main():
     """Main test function with proper environment handling."""
@@ -33,25 +35,31 @@ def main():
             print(f"❌ API creation failed: {e}")
             raise SystemExit(1)
 
-        # Let's try to register error handlers directly
+        # Let's try to register error handlers using decorators
         try:
-            print("1. Testing direct error handler registration...")
+            print("1. Testing decorator-based error handler registration...")
 
+            @api.errorhandler(429)
             def rate_limit_handler(error):
                 return {"error": "Rate limit exceeded"}, 429
 
+            @api.errorhandler(500)
             def internal_error_handler(error):
                 return {"error": "Internal server error"}, 500
 
-            # Try to register directly
-            api.error_handlers[429] = rate_limit_handler
-            api.error_handlers[500] = internal_error_handler
+            @api.errorhandler(TooManyRequests)
+            def werkzeug_rate_limit_handler(error):
+                return {"error": "Rate limit exceeded (Werkzeug)"}, 429
 
-            print("✅ Direct registration successful")
+            @api.errorhandler(InternalServerError)
+            def werkzeug_internal_error_handler(error):
+                return {"error": "Internal server error (Werkzeug)"}, 500
+
+            print("✅ Decorator registration successful")
             print(f"Error handlers: {api.error_handlers}")
 
         except Exception as e:
-            print(f"❌ Direct registration failed: {e}")
+            print(f"❌ Decorator registration failed: {e}")
 
         # Let's also try using the Flask app's error handler
         try:

@@ -379,7 +379,7 @@ def health_check():
         return jsonify(health_data), 200
 
     except Exception as e:
-        logger.error(f"❌ Health check failed: {e}")
+        logger.exception("❌ Health check failed")
         REQUEST_COUNT.labels(endpoint="/health", status="error").inc()
         return jsonify({"error": "Internal server error"}), 500
 
@@ -391,13 +391,17 @@ def predict():
 
     try:
         # Get request data
-        data = request.get_json()
-        if not data or "text" not in data:
-            return jsonify({"error": "Missing text field"}), 400
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict) or "text" not in data:
+            return jsonify({"error": "Missing or invalid JSON with text field"}), 400
 
         text = data["text"].strip()
         if not text:
             return jsonify({"error": "Text cannot be empty"}), 400
+
+        # Check if model and vocab are ready
+        if model_session is None or vocab is None:
+            return jsonify({"error": "Model not ready"}), 503
 
         # Predict emotions
         result = predict_emotions(text)
@@ -410,11 +414,11 @@ def predict():
         return jsonify(result), 200
 
     except Exception as e:
-        logger.error(f"❌ Prediction failed: {e}")
+        logger.exception("❌ Prediction failed")
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint="/predict").observe(duration)
         REQUEST_COUNT.labels(endpoint="/predict", status="error").inc()
-        return jsonify({"error": "An internal error has occurred."}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/metrics", methods=["GET"])

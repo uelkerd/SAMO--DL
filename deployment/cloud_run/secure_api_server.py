@@ -20,6 +20,7 @@ from model_utils import (
     ensure_model_loaded,
     get_model_status,
     predict_emotions,
+    get_emotion_labels,
 )
 from rate_limiter import rate_limit
 
@@ -80,11 +81,12 @@ api = Api(
 
 # Create namespaces for better organization
 main_ns = Namespace(
-    "api", description="Main API operations"
-)  # Removed leading slash to avoid double slashes
+    "api", description="Main API operations", path="/api"
+)
 admin_ns = Namespace(
-    "/admin",
+    "admin",
     description="Admin operations",
+    path="/admin",
     authorizations={
         "apikey": {
             "type": "apiKey",
@@ -177,21 +179,32 @@ model_loading = False
 model_loaded = False
 model_lock = threading.Lock()
 
-# Emotion mapping based on training order
-EMOTION_MAPPING = [
-    "anxious",
-    "calm",
-    "content",
-    "excited",
-    "frustrated",
-    "grateful",
-    "happy",
-    "hopeful",
-    "overwhelmed",
-    "proud",
-    "sad",
-    "tired",
-]
+# Emotion mapping - will be loaded from model at runtime
+EMOTION_MAPPING = None  # Will be initialized from model labels
+
+
+def initialize_emotion_mapping():
+    """Initialize emotion mapping from the loaded model"""
+    global EMOTION_MAPPING
+    
+    if EMOTION_MAPPING is None:
+        try:
+            EMOTION_MAPPING = get_emotion_labels()
+            logger.info(f"✅ Initialized emotion mapping from model: {EMOTION_MAPPING}")
+        except Exception as e:
+            logger.warning(f"Failed to get emotion labels from model: {e}")
+            # Fallback to static mapping
+            EMOTION_MAPPING = [
+                "anxious", "calm", "content", "excited", "frustrated",
+                "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
+            ]
+            logger.info(f"Using fallback emotion mapping: {EMOTION_MAPPING}")
+
+
+def setup_request_id():
+    """Set up request ID from X-Request-ID header or generate new one"""
+    if not hasattr(g, 'request_id'):
+        g.request_id = request.headers.get('X-Request-ID', str(uuid.uuid4()))
 
 
 def require_api_key(f):
@@ -253,6 +266,9 @@ def load_model():
     if not success:
         logger.error("❌ Model loading failed")
         raise RuntimeError("Model loading failed - check logs for details")
+    
+    # Initialize emotion mapping from the loaded model
+    initialize_emotion_mapping()
 
 
 def predict_emotion(text: str) -> dict:
@@ -261,7 +277,7 @@ def predict_emotion(text: str) -> dict:
     result = predict_emotions(text)
 
     # Add request ID for tracking
-    result["request_id"] = str(uuid.uuid4())
+    result["request_id"] = g.request_id
 
     return result
 
@@ -277,7 +293,7 @@ def create_error_response(error_message: str, status_code: int):
     error_response = {
         "error": error_message,
         "status_code": status_code,
-        "request_id": str(uuid.uuid4()),
+        "request_id": g.request_id,
         "timestamp": time.time(),
     }
     return error_response, status_code
@@ -301,7 +317,7 @@ def log_rate_limit_info():
 def before_request():
     """Add request ID and timing to all requests"""
     g.start_time = time.time()
-    g.request_id = str(uuid.uuid4())
+    setup_request_id()
 
     # Lazy model initialization on first request
     if not check_model_loaded():
@@ -505,6 +521,11 @@ class Emotions(Resource):
         """Get list of supported emotions"""
         try:
             logger.info(f"Emotions list requested from {request.remote_addr}")
+            
+            # Ensure emotion mapping is initialized
+            if EMOTION_MAPPING is None:
+                initialize_emotion_mapping()
+            
             return {
                 "emotions": EMOTION_MAPPING,
                 "count": len(EMOTION_MAPPING),

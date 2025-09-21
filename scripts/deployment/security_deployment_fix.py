@@ -67,6 +67,24 @@ class SecurityDeploymentFix:
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [{level}] {message}")
 
+    @staticmethod
+    def _sanitize_command_for_logging(command: List[str]) -> List[str]:
+        """Sanitize command arguments for safe logging by redacting sensitive data."""
+        safe_command = []
+        for arg in command:
+            # Check if this argument contains sensitive environment variables
+            if isinstance(arg, str) and "=" in arg:
+                # Split on the first = to separate key and value
+                key, value = arg.split("=", 1)
+                # Redact sensitive keys
+                if key in ["ADMIN_API_KEY", "SECRET_KEY", "API_KEY", "PASSWORD", "TOKEN"]:
+                    safe_command.append(f"{key}=<REDACTED>")
+                else:
+                    safe_command.append(arg)
+            else:
+                safe_command.append(arg)
+        return safe_command
+
     def run_command(
         self,
         command: List[str],
@@ -81,7 +99,9 @@ class SecurityDeploymentFix:
             else:
                 sanitized_command.append(str(arg))
 
-        self.log(f"Running: {' '.join(sanitized_command)}")
+        # Create a safe version for logging that redacts sensitive data
+        safe_command = self._sanitize_command_for_logging(sanitized_command)
+        self.log(f"Running: {' '.join(safe_command)}")
         try:
             # Use the sanitized command to prevent command injection
             result = subprocess.run(

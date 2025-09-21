@@ -298,6 +298,22 @@ def get_model_status() -> Dict[str, Any]:
     }
 
 
+def get_emotion_labels() -> List[str]:
+    """Get the current emotion labels from the loaded model.
+    
+    Returns:
+    -------
+        List[str]: List of emotion labels in the correct order
+    """
+    global emotion_labels_runtime
+    
+    if not model_loaded:
+        logger.warning("Model not loaded, returning fallback labels")
+        return EMOTION_LABELS.copy()
+    
+    return emotion_labels_runtime.copy()
+
+
 def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     """Predict emotions for multiple texts using the emotion model.
 

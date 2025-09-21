@@ -124,7 +124,7 @@ def predict():
         return jsonify(result), 200
 
     except Exception as e:
-        logger.error(f"❌ Prediction endpoint error: {e}")
+        logger.exception("❌ Prediction endpoint error")
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint="/predict").observe(duration)
         REQUEST_COUNT.labels(endpoint="/predict", status="error").inc()
