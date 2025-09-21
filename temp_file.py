@@ -493,7 +493,9 @@ def _get_request_scoped_summarizer(model: str):
         except ValueError as exc:  # invalid model name/config
             raise ValueError(f"Invalid summarizer model: {model}") from exc
         except Exception as exc:  # treat unknown models as bad request in tests
-            raise RuntimeError(f"Requested summarizer model '{model}' unavailable") from exc
+            raise RuntimeError(
+                f"Requested summarizer model '{model}' unavailable"
+            ) from exc
     return text_summarizer
 
 

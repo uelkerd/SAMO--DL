@@ -227,7 +227,9 @@ def _get_request_scoped_summarizer(model: str):
         except ValueError as exc:  # invalid model name/config
             raise ValueError(f"Invalid summarizer model: {model}") from exc
         except Exception as exc:  # treat unknown models as bad request in tests
-            raise RuntimeError(f"Requested summarizer model '{model}' unavailable") from exc
+            raise RuntimeError(
+                f"Requested summarizer model '{model}' unavailable"
+            ) from exc
     return text_summarizer
 
 
@@ -267,7 +269,9 @@ def main():
         from fastapi.responses import JSONResponse, Response
         from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
         from fastapi.websockets import WebSocketDisconnect
-        from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+        from prometheus_client import (
+            CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+        )
         from pydantic import BaseModel, Field
         
         from api_rate_limiter import add_rate_limiting
@@ -279,10 +283,22 @@ def main():
         ) from e
     
     # Now that we have the imports, we can set up the global variables
-    global app, REQUEST_COUNT, REQUEST_LATENCY, app_start_time, jwt_manager, security, websocket_manager
-    global UserLogin, UserRegister, UserProfile, emotion_detector, text_summarizer, voice_transcriber
-    global JournalEntryRequest, EmotionAnalysis, TextSummary, VoiceTranscription, CompleteJournalAnalysis
-    global RefreshTokenRequest, ChatMessage, ChatResponse, get_current_user, require_permission, lifespan
+    global (
+        app, REQUEST_COUNT, REQUEST_LATENCY, app_start_time, jwt_manager, security,
+        websocket_manager
+    )
+    global (
+        UserLogin, UserRegister, UserProfile, emotion_detector, text_summarizer,
+        voice_transcriber
+    )
+    global (
+        JournalEntryRequest, EmotionAnalysis, TextSummary, VoiceTranscription,
+        CompleteJournalAnalysis
+    )
+    global (
+        RefreshTokenRequest, ChatMessage, ChatResponse, get_current_user,
+        require_permission, lifespan
+    )
     
     # Initialize global variables
     app_start_time = time.time()
@@ -326,7 +342,9 @@ def main():
         username: str = Field(description="Username")
         email: str = Field(description="Email address")
         full_name: str = Field(description="Full name")
-        permissions: list[str] = Field(default_factory=list, description="User permissions")
+        permissions: list[str] = Field(
+            default_factory=list, description="User permissions"
+        )
         created_at: str = Field(description="Account creation date")
     
     # Set global references
@@ -375,7 +393,9 @@ def main():
             # Load AI models here (same logic as before)
             logger.info("Loading emotion detection model...")
             try:
-                from models.emotion_detection.hf_loader import load_emotion_model_multi_source
+                from models.emotion_detection.hf_loader import (
+                    load_emotion_model_multi_source,
+                )
                 hf_model_id = os.getenv("EMOTION_MODEL_ID", "0xmnrv/samo")
                 hf_token = os.getenv("HF_TOKEN")
                 emotion_detector = load_emotion_model_multi_source(
@@ -396,7 +416,9 @@ def main():
 
             logger.info("Loading voice processing model...")
             try:
-                from models.voice_processing.whisper_transcriber import create_whisper_transcriber
+                from models.voice_processing.whisper_transcriber import (
+                    create_whisper_transcriber,
+                )
                 voice_transcriber = create_whisper_transcriber()
                 logger.info("Voice processing model loaded")
             except Exception as exc:
@@ -448,9 +470,15 @@ def main():
     # Define request/response models
     class JournalEntryRequest(BaseModel):
         """Request model for journal entry analysis."""
-        text: str = Field(..., description="Journal text to analyze", min_length=5, max_length=5000)
-        generate_summary: bool = Field(default=True, description="Whether to generate a summary")
-        emotion_threshold: float = Field(0.1, description="Threshold for emotion detection", ge=0, le=1)
+        text: str = Field(
+            ..., description="Journal text to analyze", min_length=5, max_length=5000
+        )
+        generate_summary: bool = Field(
+            default=True, description="Whether to generate a summary"
+        )
+        emotion_threshold: float = Field(
+            0.1, description="Threshold for emotion detection", ge=0, le=1
+        )
 
     # Add a simple health endpoint
     @app.get("/health")
