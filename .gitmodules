@@ -2,3 +2,4 @@
 	path = notebooks/goemotions-deberta
 	url = https://github.com/uelkerd/goemotions-deberta.git
 	branch = main
+	shallow = true
