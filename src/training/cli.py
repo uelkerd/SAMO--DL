@@ -64,11 +64,11 @@ For training operations, please use the dedicated training repository.
 
     logger.warning(
         "Training functionality has been moved to a separate repository. "
-        "This CLI no longer performs actual training operations."
+        "This CLI no longer performs actual training operations.",
     )
     logger.info(f"Requested command: {args.command}")
     logger.info(
-        "Please use the dedicated training repository for actual training operations."
+        "Please use the dedicated training repository for actual training operations.",
     )
 
     return True

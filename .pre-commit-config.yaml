@@ -65,7 +65,7 @@ repos:
 
   # Python linting and formatting with Ruff (replaces black, isort, flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.6.8
     hooks:
       - id: ruff
         name: ruff-linting
@@ -80,7 +80,7 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports, --python-version=3.8]
+        args: [--ignore-missing-imports, --python-version=3.9]
         additional_dependencies: [types-requests, types-PyYAML]
         # Strategic exclusions to focus on core business logic (matching pyproject.toml)
         exclude: |
@@ -140,7 +140,6 @@ repos:
         additional_dependencies: [safety>=3.0.0]
         args: [scan, --json, --output, safety-report.json]
         pass_filenames: false
-        stages: [manual]
         files: ^(requirements.*\.txt|pyproject\.toml)$
 
   # Documentation formatting with Docformatter
@@ -164,4 +163,4 @@ repos:
 
 # Global configuration
 default_language_version:
-  python: python3.8
+  python: python3.9
