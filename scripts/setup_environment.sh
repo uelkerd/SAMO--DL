@@ -277,13 +277,14 @@ init_submodules() {
         return 0
     fi
     
-    # Initialize and update submodules
-    if git submodule update --init --recursive; then
+    # Sync and initialize submodules with depth 1 for faster clones
+    if git submodule sync --recursive && git submodule update --init --recursive --depth 1; then
         print_success "Git submodules initialized successfully"
         print_status "Training repository available at: notebooks/goemotions-deberta/"
+        print_status "To update to latest main: git submodule update --remote --recursive notebooks/goemotions-deberta"
     else
         print_warning "Failed to initialize git submodules (this may be expected if not cloned with --recursive)"
-        print_warning "To initialize manually, run: git submodule update --init --recursive"
+        print_warning "To initialize manually, run: git submodule sync --recursive && git submodule update --init --recursive --depth 1"
     fi
 }
 
