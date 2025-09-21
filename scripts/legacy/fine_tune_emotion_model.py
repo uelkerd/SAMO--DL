@@ -163,7 +163,7 @@ def fine_tune_model():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Fine-tuning failed: {e}")
         traceback.print_exc()
         return False

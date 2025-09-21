@@ -39,32 +39,32 @@ log_error() {
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
+
     # Check if gcloud is installed
     if ! command -v gcloud &> /dev/null; then
         log_error "gcloud CLI is not installed. Please install it first."
         exit 1
     fi
-    
+
     # Check if we're authenticated
     if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q .; then
         log_error "Not authenticated with gcloud. Please run 'gcloud auth login' first."
         exit 1
     fi
-    
+
     # Check if project is set
     if [ "$(gcloud config get-value project)" != "$PROJECT_ID" ]; then
         log_warning "Setting project to $PROJECT_ID"
         gcloud config set project $PROJECT_ID
     fi
-    
+
     log_success "Prerequisites check passed"
 }
 
 # Create Pub/Sub topic for budget alerts
 create_pubsub_topic() {
     log_info "Creating Pub/Sub topic for budget alerts..."
-    
+
     # Create topic if it doesn't exist
     if ! gcloud pubsub topics describe budget-alerts &> /dev/null; then
         gcloud pubsub topics create budget-alerts
@@ -77,7 +77,7 @@ create_pubsub_topic() {
 # Create budget with alerts
 create_budget() {
     log_info "Creating budget with alerts..."
-    
+
     # Create budget
     gcloud billing budgets create \
         --billing-account=$BILLING_ACCOUNT \
@@ -89,14 +89,14 @@ create_budget() {
         --threshold-rule=percent=1.0 \
         --notifications-rule=pubsub-topic=projects/$PROJECT_ID/topics/budget-alerts \
         --notifications-rule=email=$EMAIL_ALERT
-    
+
     log_success "Budget created with alerts at 50%, 80%, 90%, and 100% thresholds"
 }
 
 # Enable billing export to BigQuery
 enable_billing_export() {
     log_info "Enabling billing export to BigQuery..."
-    
+
     # Create BigQuery dataset if it doesn't exist
     if ! bq show billing_export &> /dev/null; then
         bq mk --dataset $PROJECT_ID:billing_export
@@ -104,40 +104,40 @@ enable_billing_export() {
     else
         log_info "BigQuery dataset 'billing_export' already exists"
     fi
-    
+
     # Enable billing export
     gcloud billing accounts update $BILLING_ACCOUNT \
         --enable-bigquery-export \
         --bigquery-dataset=projects/$PROJECT_ID/datasets/billing_export
-    
+
     log_success "Billing export enabled"
 }
 
 # Set resource quotas
 set_resource_quotas() {
     log_info "Setting resource quotas..."
-    
+
     # Get current quotas
     log_info "Current quotas in $REGION:"
     gcloud compute regions describe $REGION \
         --format="value(quotas[].limit,quotas[].metric,quotas[].usage)" \
         --project=$PROJECT_ID
-    
+
     # Set conservative quotas for development
     log_info "Setting conservative quotas for development..."
-    
+
     # Request quota updates (these may require approval)
     gcloud compute regions update $REGION \
         --quotas=CPUS=4,CPUS_ALL_REGIONS=8 \
         --project=$PROJECT_ID || log_warning "Quota update may require approval"
-    
+
     log_success "Resource quotas configured"
 }
 
 # Create cost monitoring dashboard
 create_cost_dashboard() {
     log_info "Creating cost monitoring dashboard..."
-    
+
     # Create dashboard configuration
     cat > /tmp/cost-dashboard.json << EOF
 {
@@ -187,33 +187,33 @@ create_cost_dashboard() {
   }
 }
 EOF
-    
+
     # Create dashboard
     gcloud monitoring dashboards create \
         --project=$PROJECT_ID \
         --config-from-file=/tmp/cost-dashboard.json
-    
+
     log_success "Cost monitoring dashboard created"
 }
 
 # Create notification channel for alerts
 create_notification_channel() {
     log_info "Creating notification channel for cost alerts..."
-    
+
     # Create notification channel
     gcloud alpha monitoring channels create \
         --display-name="Cost Alerts" \
         --type=email \
         --channel-labels=email_address=$EMAIL_ALERT \
         --project=$PROJECT_ID
-    
+
     log_success "Notification channel created"
 }
 
 # Apply cost controls to existing resources
 apply_cost_controls() {
     log_info "Applying cost controls to existing resources..."
-    
+
     # Cloud Run cost controls
     if gcloud run services describe emotion-detection-api --region=$REGION &> /dev/null; then
         log_info "Applying cost controls to Cloud Run service..."
@@ -230,7 +230,7 @@ apply_cost_controls() {
     else
         log_info "Cloud Run service not found, skipping"
     fi
-    
+
     # Vertex AI cost controls (if endpoint exists)
     if gcloud ai endpoints list --region=$REGION --filter="displayName:comprehensive-emotion-detection-endpoint" --format="value(name)" | grep -q .; then
         ENDPOINT_ID=$(gcloud ai endpoints list --region=$REGION --filter="displayName:comprehensive-emotion-detection-endpoint" --format="value(name)")
@@ -249,7 +249,7 @@ apply_cost_controls() {
 # Create emergency cost reduction script
 create_emergency_script() {
     log_info "Creating emergency cost reduction script..."
-    
+
     cat > scripts/cost-controls/emergency_cost_reduction.sh << 'EOF'
 #!/bin/bash
 
@@ -293,7 +293,7 @@ done
 echo "Emergency cost reduction completed"
 echo "All resources have been scaled down to minimum levels"
 EOF
-    
+
     chmod +x scripts/cost-controls/emergency_cost_reduction.sh
     log_success "Emergency cost reduction script created"
 }
@@ -326,7 +326,7 @@ display_summary() {
 # Main setup process
 main() {
     log_info "Setting up GCP cost controls for SAMO Deep Learning project"
-    
+
     check_prerequisites
     create_pubsub_topic
     create_budget
@@ -337,9 +337,9 @@ main() {
     apply_cost_controls
     create_emergency_script
     display_summary
-    
+
     log_success "Cost control setup completed successfully!"
 }
 
 # Run main function
-main "$@" 
+main "$@"

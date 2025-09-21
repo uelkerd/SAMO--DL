@@ -73,7 +73,7 @@ def start_monitoring_system(config_path: str, port: int) -> None:
             monitor.stop_monitoring()
             logger.info("✅ Monitoring system stopped gracefully")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Failed to start monitoring system: {e}")
         sys.exit(1)
 

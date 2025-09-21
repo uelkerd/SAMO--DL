@@ -158,7 +158,7 @@ def _add_typing_imports(content: str, imports_to_add: set, dry_run: bool) -> str
 def fix_file(file_path: Path, dry_run: bool = False) -> Dict[str, Any]:
     """Fix Python 3.8 compatibility issues in a single file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             content = f.read()
 
         original_content = content
@@ -260,7 +260,7 @@ def _print_summary(results: List[Dict[str, Any]], total_changes: int, dry_run: b
     modified = [r for r in results if r.get('modified', False)]
     errors = [r for r in results if 'error' in r]
     no_changes = [
-        r for r in results 
+        r for r in results
         if not r.get('modified', False) and 'error' not in r
     ]
 

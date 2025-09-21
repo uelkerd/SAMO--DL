@@ -6,11 +6,8 @@ Validates model components and deployment readiness.
 """
 
 from torch import nn
-import sklearn
 import torch
 import torch.nn.functional as F
-import transformers
-import numpy as np
 import sys
 import logging
 
@@ -60,7 +57,7 @@ def validate_focal_loss():
         logger.info("✅ Focal Loss: PASSED (loss={loss.item():.4f})")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -169,7 +166,7 @@ def main():
         logger.info("\n📋 Running {name} validation...")
         try:
             results[name] = validation_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {name} validation failed with exception: {e}")
             results[name] = False
 

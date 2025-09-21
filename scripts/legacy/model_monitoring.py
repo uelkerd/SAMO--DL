@@ -379,7 +379,7 @@ class ModelHealthMonitor:
                 logger.info("Model initialized for monitoring")
             else:
                 logger.warning("Model not found: {model_path}")
-        except Exception as e:
+        except Exception:
             logger.error("Error initializing model: {e}")
 
     def start_monitoring(self) -> None:
@@ -432,7 +432,7 @@ class ModelHealthMonitor:
 
                 time.sleep(self.config.get("monitor_interval", DEFAULT_MONITOR_INTERVAL))
 
-            except Exception as e:
+            except Exception:
                 logger.error("Error in monitoring loop: {e}")
                 time.sleep(60)  # Wait before retrying
 
@@ -491,7 +491,7 @@ class ModelHealthMonitor:
                 gpu_utilization=gpu_utilization,
             )
 
-        except Exception as e:
+        except Exception:
             logger.error("Error collecting metrics: {e}")
             return None
 
@@ -564,7 +564,7 @@ class ModelHealthMonitor:
             )
             self.alerts.append(retrain_alert)
 
-        except Exception as e:
+        except Exception:
             logger.error("Error triggering retraining: {e}")
 
     def _save_alert(self, alert: Alert) -> None:
@@ -581,7 +581,7 @@ class ModelHealthMonitor:
             with open(alert_file, "w") as f:
                 json.dump(asdict(alert), f, indent=2, default=str)
 
-        except Exception as e:
+        except Exception:
             logger.error("Error saving alert: {e}")
 
     def get_health_status(self) -> dict[str, Any]:

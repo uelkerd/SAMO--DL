@@ -6,7 +6,6 @@ Sets up Vertex AI environment and runs training jobs.
 """
 
 from google.cloud import aiplatform
-from google.cloud import storage
 import subprocess
 import logging
 import os
@@ -71,7 +70,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -133,7 +132,7 @@ class VertexAISetup:
 
             return {"job": job, "config": job_config}
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Custom training job creation failed: {e}")
             return {}
 
@@ -204,7 +203,7 @@ class VertexAISetup:
 
             return {"tuning_job": tuning_job, "config": tuning_config}
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Hyperparameter tuning job creation failed: {e}")
             return {}
 
@@ -235,7 +234,7 @@ class VertexAISetup:
 
             return {"config": monitoring_config}
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Model monitoring setup failed: {e}")
             return {}
 
@@ -268,7 +267,7 @@ class VertexAISetup:
 
             return {"config": pipeline_config}
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Automated pipeline setup failed: {e}")
             return {}
 
@@ -307,7 +306,7 @@ class VertexAISetup:
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 

@@ -7,12 +7,10 @@ Validates environment and starts model training.
 
 from src.models.emotion_detection.training_pipeline import train_emotion_detection_model
 from pre_training_validation import PreTrainingValidator
-import traceback
 from pathlib import Path
 import logging
 import sys
 import time
-import traceback
 
 
 
@@ -49,7 +47,7 @@ def run_pre_training_validation():
 
         return all_passed, validator.critical_issues, validator.warnings
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Pre-training validation failed: {e}")
         return False, ["Validation error: {e}"], []
 
@@ -83,7 +81,7 @@ def run_training_with_debugging():
 
         return True, results
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Training failed: {e}")
         logger.error("Traceback: {traceback.format_exc()}")
         return False, None

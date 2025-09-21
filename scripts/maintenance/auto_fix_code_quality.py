@@ -16,7 +16,7 @@ Auto-fixes:
 import sys
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any
 import logging
 
 # Configure logging
@@ -49,7 +49,7 @@ class CodeQualityAutoFixer:
         logger.info("Fixing: %s", file_path)
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             original_content = content

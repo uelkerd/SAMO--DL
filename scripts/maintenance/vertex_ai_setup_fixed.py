@@ -6,11 +6,10 @@ Sets up Vertex AI environment with corrected API syntax.
 """
 
 from google.cloud import aiplatform
-from google.cloud import storage
 # Configure logging
 #!/usr/bin/env python3
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 import os
 import sys
@@ -62,7 +61,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Vertex AI setup failed: {e}")
             return False
 
@@ -226,7 +225,7 @@ class VertexAISetupFixed:
 
             return True
 
-        except Exception as e:
+        except Exception:
             logger.error("❌ Validation job creation failed: {e}")
             return False
 

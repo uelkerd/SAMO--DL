@@ -142,7 +142,7 @@ def apply_threshold_optimization():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Threshold optimization failed: {e}")
         traceback.print_exc()
         return False

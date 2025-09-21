@@ -152,7 +152,7 @@ def apply_temperature_scaling():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Temperature scaling failed: {e}")
         traceback.print_exc()
         return False

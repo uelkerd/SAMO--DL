@@ -6,7 +6,6 @@ Validates Vertex AI setup and configuration.
 """
 
 from google.cloud import aiplatform
-from pathlib import Path
 import logging
 import os
 import sys
@@ -72,7 +71,7 @@ def main():
 
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Vertex AI validation failed: {e}")
         logger.error("")
         logger.error("🔧 ALTERNATIVE APPROACH:")

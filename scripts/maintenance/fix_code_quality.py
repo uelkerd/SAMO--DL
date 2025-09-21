@@ -9,7 +9,6 @@ identified by Ruff linter.
 import logging
 import re
 from pathlib import Path
-from typing import List, Set
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -59,10 +58,10 @@ class CodeQualityFixer:
         # Fix f-strings without placeholders
         content = re.sub(r'f"([^"]*)"', r'"\1"', content)
         content = re.sub(r"f'([^']*)'", r"'\1'", content)
-        
+
         # Fix f-strings with invalid syntax
         content = re.sub(r'f"([^"]*)\{([^}]*)\}([^"]*)"', r'f"\1{\2}\3"', content)
-        
+
         return content
 
     def fix_import_order(self, content: str) -> str:
@@ -70,16 +69,16 @@ class CodeQualityFixer:
         lines = content.split("\n")
         import_lines = []
         other_lines = []
-        
+
         for line in lines:
             if line.strip().startswith(("import ", "from ")):
                 import_lines.append(line)
             else:
                 other_lines.append(line)
-        
+
         # Sort import lines
         import_lines.sort()
-        
+
         # Reconstruct content
         return "\n".join(import_lines + [""] + other_lines)
 
@@ -87,14 +86,14 @@ class CodeQualityFixer:
         """Remove unused imports."""
         lines = content.split("\n")
         filtered_lines = []
-        
+
         for line in lines:
             if line.strip().startswith(("import ", "from ")):
                 # Keep all imports for now - let Ruff handle specific removals
                 filtered_lines.append(line)
             else:
                 filtered_lines.append(line)
-        
+
         return "\n".join(filtered_lines)
 
     def fix_trailing_whitespace(self, content: str) -> str:
@@ -112,7 +111,7 @@ class CodeQualityFixer:
     def fix_file(self, file_path: Path) -> bool:
         """Fix code quality issues in a single file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -150,7 +149,7 @@ class CodeQualityFixer:
             if self.fix_file(file_path):
                 self.total_issues += 1
 
-        logger.info(f"✅ Code quality fixes completed!")
+        logger.info("✅ Code quality fixes completed!")
         logger.info(f"   • Files fixed: {self.fixed_files}")
         logger.info(f"   • Total issues resolved: {self.total_issues}")
 

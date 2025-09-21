@@ -256,7 +256,7 @@ def _add_typing_imports_to_lines(lines: List[str], imports_to_add: set) -> None:
 
 def _read_file_content(file_path: Path) -> str:
     """Read file content."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         return f.read()
 
 

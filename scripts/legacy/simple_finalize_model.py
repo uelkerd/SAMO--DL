@@ -132,7 +132,7 @@ def main():
         logger.info("📁 Model saved to: {model_info['model_path']}")
         logger.info("📊 Target F1 Score: {TARGET_F1_SCORE}")
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error during model finalization: {e}")
         sys.exit(1)
 

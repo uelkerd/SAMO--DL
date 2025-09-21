@@ -97,7 +97,7 @@ class ConservativeLintingFixer:
             result.extend(import_lines)
             result.append('')  # Add blank line after imports
         result.extend(other_lines)
-        
+
         return '\n'.join(result)
 
     def fix_ruf022_all_sorting(self, content: str) -> str:
@@ -160,7 +160,7 @@ class ConservativeLintingFixer:
             True if file was modified
         """
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             original_content = content

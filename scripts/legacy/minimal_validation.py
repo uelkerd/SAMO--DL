@@ -3,12 +3,9 @@
 
 from src.models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from torch import nn
-import sklearn
 import torch
 import torch.nn.functional as F
-import transformers
 import logging
-import numpy as np
 import sys
 
 
@@ -80,7 +77,7 @@ def test_focal_loss():
         logger.info("✅ Focal Loss: PASSED")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Focal Loss: FAILED - {e}")
         return False
 
@@ -133,7 +130,7 @@ def test_model_creation():
         logger.info("✅ Model Creation: PASSED")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Model Creation: FAILED - {e}")
         return False
 
@@ -156,7 +153,7 @@ def main():
         logger.info("\n📋 Running {name}...")
         try:
             results[name] = validation_func()
-        except Exception as e:
+        except Exception:
             logger.error("❌ {name} failed with exception: {e}")
             results[name] = False
 

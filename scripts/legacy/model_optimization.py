@@ -189,7 +189,7 @@ def convert_to_onnx(model: torch.nn.Module, output_path: str, opset_version: int
     except ImportError:
         logger.warning("⚠️ ONNX package not installed, skipping verification")
         logger.info("To install: pip install onnx")
-    except Exception as e:
+    except Exception:
         logger.error("❌ ONNX model verification failed: {e}")
 
     return output_path
@@ -232,7 +232,7 @@ def benchmark_models(
     except ImportError:
         logger.warning("⚠️ ONNX Runtime not installed, skipping ONNX benchmarks")
         logger.info("To install: pip install onnxruntime")
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error loading ONNX model: {e}")
 
     for batch_size in batch_sizes:
@@ -377,7 +377,7 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
             logger.error("❌ Model outputs differ between CPU and GPU")
             return False
 
-    except Exception as e:
+    except Exception:
         logger.error("❌ Error during GPU compatibility check: {e}")
         return False
     finally:
