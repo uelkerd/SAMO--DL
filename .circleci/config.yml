@@ -120,6 +120,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Initialize Git Submodules
+          command: |
+            echo "🔧 Syncing and initializing git submodules..."
+            git submodule sync --recursive
+            git submodule update --init --recursive --depth 1
+            echo "✅ Submodules initialized successfully"
+            echo "📁 Training repository available at: notebooks/goemotions-deberta/"
+      - run:
           name: Environment Check
           command: |
             echo "Python version: $(python3 --version)"
@@ -421,6 +429,37 @@ jobs:
           path: safety-live.json
           when: always
 
+  update-training-submodule:
+    executor: python-simple
+    steps:
+      - checkout
+      - run:
+          name: Sync and Initialize Submodules
+          command: |
+            echo "🔧 Syncing and initializing git submodules..."
+            git submodule sync --recursive
+            git submodule update --init --recursive --depth 1
+            echo "✅ Submodules initialized successfully"
+      - run:
+          name: Update Training Submodule to Latest Main
+          command: |
+            echo "🔄 Updating training submodule to latest main branch..."
+            git submodule update --remote --recursive notebooks/goemotions-deberta
+            echo "✅ Training submodule updated to latest main"
+            echo "📁 Current training repository commit:"
+            cd notebooks/goemotions-deberta && git log --oneline -1
+      - run:
+          name: Check for Submodule Changes
+          command: |
+            echo "🔍 Checking if submodule has updates..."
+            if git diff --quiet notebooks/goemotions-deberta; then
+              echo "ℹ️ No updates available for training submodule"
+            else
+              echo "📝 Training submodule has updates:"
+              git diff notebooks/goemotions-deberta
+              echo "💡 Consider creating a PR to update the pinned commit"
+            fi
+
 workflows:
   simple-ci:
     jobs:
@@ -448,3 +487,13 @@ workflows:
             branches:
               only:
                 - /^bootstrap-only\/.*/
+
+  update-submodules:
+    jobs:
+      - update-training-submodule:
+          filters:
+            branches:
+              only: main
+          triggers:
+            - schedule:
+                cron: "0 2 * * 1"  # Every Monday at 2 AM UTC
