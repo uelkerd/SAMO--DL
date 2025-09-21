@@ -276,7 +276,8 @@ class MonitoringDashboard:
         return {
             "cpu_trend": cpu_trend,
             "memory_trend": memory_trend,
-            "response_time_trend": "stable",  # Could be enhanced with more sophisticated analysis
+            # Could be enhanced with more sophisticated analysis
+            "response_time_trend": "stable",
         }
 
     def _calculate_health_status(self) -> str:
@@ -328,7 +329,9 @@ class MonitoringDashboard:
             alerts.append(
                 {
                     "level": "critical",
-                    "message": f"High memory usage: {current_metrics.memory_percent:.1f}%",
+                    "message": (
+                        f"High memory usage: {current_metrics.memory_percent:.1f}%"
+                    ),
                     "timestamp": current_metrics.timestamp,
                 },
             )
@@ -337,7 +340,9 @@ class MonitoringDashboard:
             alerts.append(
                 {
                     "level": "critical",
-                    "message": f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free",
+                    "message": (
+                        f"Low disk space: {100 - current_metrics.disk_percent:.1f}% free"
+                    ),
                     "timestamp": current_metrics.timestamp,
                 },
             )
@@ -358,7 +363,9 @@ class MonitoringDashboard:
                 alerts.append(
                     {
                         "level": "warning",
-                        "message": f"High error count for {model_name}: {metrics.error_count} errors",
+                        "message": (
+                            f"High error count for {model_name}: {metrics.error_count} errors"
+                        ),
                         "timestamp": time.time(),
                     },
                 )

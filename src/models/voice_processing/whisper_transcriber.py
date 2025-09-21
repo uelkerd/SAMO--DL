@@ -111,7 +111,8 @@ class AudioPreprocessor:
             if duration > AudioPreprocessor.MAX_DURATION:
                 return (
                     False,
-                    "Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
+                    f"Audio too long: {duration:.1f}s > "
+                    f"{AudioPreprocessor.MAX_DURATION}s",
                 )
 
             if duration < 0.1:  # Too short
@@ -386,7 +387,8 @@ class WhisperTranscriber:
 
         logger.info(f"✅ Batch transcription complete: {len(results)} files")
         logger.info(
-            f"Total audio: {total_duration:.1f}s, Processing: {total_processing_time:.1f}s",
+            f"Total audio: {total_duration:.1f}s, "
+            f"Processing: {total_processing_time:.1f}s",
         )
 
         return results

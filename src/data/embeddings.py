@@ -287,7 +287,8 @@ class FastTextEmbedder(Word2VecEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            "Training FastText model with vector_size={self.vector_size}, window={self.window}",
+            "Training FastText model with vector_size={self.vector_size}, "
+            "window={self.window}",
         )
         self.model = FastText(
             sentences=tokenized_texts,
@@ -300,7 +301,8 @@ class FastTextEmbedder(Word2VecEmbedder):
         )
 
         logger.info(
-            "FastText model trained with {len(self.model.wv.index_to_key)} words in vocabulary",
+            "FastText model trained with {len(self.model.wv.index_to_key)} words "
+            "in vocabulary",
         )
         return self
 

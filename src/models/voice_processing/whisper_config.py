@@ -73,7 +73,9 @@ class SAMOWhisperConfig:
             "condition_on_previous_text",
             transcription_config.get("condition_on_previous_text", True),
         )
-        config_fp16 = whisper_config.get("fp16", transcription_config.get("fp16", False))
+        config_fp16 = whisper_config.get(
+            "fp16", transcription_config.get("fp16", False)
+        )
         self.fp16 = config_fp16 and torch.cuda.is_available()
         self.compression_ratio_threshold = whisper_config.get(
             "compression_ratio_threshold",
