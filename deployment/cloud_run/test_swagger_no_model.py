@@ -6,12 +6,7 @@ import os
 from flask import Flask, jsonify
 from flask_restx import Api, Namespace, Resource
 
-# Set required environment variables
-os.environ["ADMIN_API_KEY"] = "test-key-123"
-os.environ["MAX_INPUT_LENGTH"] = "512"
-os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
-os.environ["MODEL_PATH"] = "/app/model"
-os.environ["PORT"] = "8083"
+# Environment variables will be set in main block to avoid import-time side effects
 
 # Create Flask app
 app = Flask(__name__)
@@ -46,6 +41,13 @@ class Health(Resource):
 
 
 if __name__ == "__main__":
+    # Set required environment variables with defaults (only when running as main)
+    os.environ.setdefault("ADMIN_API_KEY", "test-key-123")
+    os.environ.setdefault("MAX_INPUT_LENGTH", "512")
+    os.environ.setdefault("RATE_LIMIT_PER_MINUTE", "100")
+    os.environ.setdefault("MODEL_PATH", "/app/model")
+    os.environ.setdefault("PORT", "8083")
+    
     print("=== Routes ===")
     for rule in app.url_map.iter_rules():
         print(f"{rule.rule} -> {rule.endpoint}")
