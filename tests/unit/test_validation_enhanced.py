@@ -125,8 +125,6 @@ class TestDataValidatorEnhanced:
         assert isinstance(results["missing_values"], dict)
 
         # Assert the structure/type of validated_df
-        import pandas as pd
-
         assert isinstance(results["validated_df"], pd.DataFrame)
         # Should have the original columns plus text quality columns
         original_columns = list(self.test_df.columns)
@@ -166,7 +164,8 @@ class TestDataValidatorEnhanced:
 class TestValidateTextInputEnhanced:
     """Enhanced test suite for validate_text_input function."""
 
-    def test_validate_text_input_valid(self):
+    @staticmethod
+    def test_validate_text_input_valid():
         """Test valid text input."""
         result = validate_text_input("This is a valid text input")
 
@@ -174,7 +173,8 @@ class TestValidateTextInputEnhanced:
         assert result["is_valid"] is True
         assert "error" in result
 
-    def test_validate_text_input_too_short(self):
+    @staticmethod
+    def test_validate_text_input_too_short():
         """Test text input that's too short."""
         result = validate_text_input("", min_length=5)
 
@@ -182,7 +182,8 @@ class TestValidateTextInputEnhanced:
         assert result["is_valid"] is False
         assert "error" in result
 
-    def test_validate_text_input_too_long(self):
+    @staticmethod
+    def test_validate_text_input_too_long():
         """Test text input that's too long."""
         long_text = "x" * 10001
         result = validate_text_input(long_text, max_length=10000)
@@ -191,14 +192,16 @@ class TestValidateTextInputEnhanced:
         assert result["is_valid"] is False
         assert "error" in result
 
-    def test_validate_text_input_custom_lengths(self):
+    @staticmethod
+    def test_validate_text_input_custom_lengths():
         """Test text input with custom length constraints."""
         result = validate_text_input("Test", min_length=3, max_length=10)
 
         assert isinstance(result, dict)
         assert result["is_valid"] is True
 
-    def test_validate_text_input_edge_cases(self):
+    @staticmethod
+    def test_validate_text_input_edge_cases():
         """Test text input edge cases."""
         # Test with whitespace
         result = validate_text_input("   ", min_length=1)
@@ -213,7 +216,8 @@ class TestValidateTextInputEnhanced:
         result = validate_text_input(exact_text, max_length=100)
         assert result["is_valid"] is True
 
-    def test_validate_text_input_invalid_types(self):
+    @staticmethod
+    def test_validate_text_input_invalid_types():
         """Test text input with invalid types."""
         # Test with None
         result = validate_text_input(None)
