@@ -13,11 +13,11 @@ import time
 import unittest
 
 import pytest
+from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
 
 # Import security components
 from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from input_sanitizer import InputSanitizer, SanitizationConfig
-from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
 
 
 class TestRateLimiter(unittest.TestCase):

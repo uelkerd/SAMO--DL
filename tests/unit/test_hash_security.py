@@ -12,8 +12,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import hashlib
 import unittest
 
-from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 
 
 class TestHashSecurity(unittest.TestCase):

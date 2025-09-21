@@ -225,9 +225,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all directives in a single loop
         for directive, description in required_directives:
-            assert (
-                directive in csp_policy
-            ), f"Missing CSP directive: {description} ({directive})"
+            assert directive in csp_policy, (
+                f"Missing CSP directive: {description} ({directive})"
+            )
 
     def test_csp_policy_production_ready(self):
         """Test that CSP policy is production-ready with comprehensive security."""
@@ -246,9 +246,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all production security features in a single loop
         for directive, description in production_security:
-            assert (
-                directive in csp_policy
-            ), f"Production security missing: {description} ({directive})"
+            assert directive in csp_policy, (
+                f"Production security missing: {description} ({directive})"
+            )
 
 
 if __name__ == "__main__":

@@ -697,9 +697,9 @@ class TrainingManager:
         logger.info("🎯 Setting up training components...")
 
         # Ensure model is initialized
-        assert (
-            self.model_manager.model is not None
-        ), "Model must be initialized before setup_training"
+        assert self.model_manager.model is not None, (
+            "Model must be initialized before setup_training"
+        )
 
         try:
             from torch.optim import AdamW

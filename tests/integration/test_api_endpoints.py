@@ -33,7 +33,7 @@ Tests API functionality, request/response handling, and error scenarios.
 """
 
 
-@pytest.mark.integration()
+@pytest.mark.integration
 class TestAPIEndpoints:
     """Integration tests for SAMO AI API endpoints."""
 
@@ -124,7 +124,7 @@ class TestAPIEndpoints:
             assert "model_type" in data[model]
             assert "capabilities" in data[model]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     def test_performance_requirements(self, api_client):
         """Test API meets performance requirements."""
         test_data = {"text": "I feel great today! This is a wonderful experience."}

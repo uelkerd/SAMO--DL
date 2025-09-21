@@ -28,14 +28,14 @@ def test_data_dir():
     return Path(__file__).parent / "test_data"
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_dir():
     """Provide temporary directory for test files."""
     with tempfile.TemporaryDirectory() as tmp_dir:
         yield Path(tmp_dir)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_journal_entry():
     """Provide sample journal entry for testing."""
     return {
@@ -46,7 +46,7 @@ def sample_journal_entry():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_audio_data():
     """Provide sample audio data for voice processing tests."""
     sample_rate = 16000
@@ -63,7 +63,7 @@ def sample_audio_data():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_bert_model():
     """Mock BERT model for testing without loading actual weights."""
     with patch("src.models.emotion_detection.bert_classifier.BertModel") as mock_model:
@@ -73,7 +73,7 @@ def mock_bert_model():
         yield mock_model
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_t5_model():
     """Mock T5 model for testing without loading actual weights."""
     with patch(
@@ -84,7 +84,7 @@ def mock_t5_model():
         yield mock_model
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_whisper_model():
     """Mock Whisper model for testing without loading actual weights."""
     with patch(
@@ -102,7 +102,7 @@ def cpu_device():
     return torch.device("cpu")
 
 
-@pytest.fixture()
+@pytest.fixture
 def api_client():
     """Provide FastAPI test client."""
     client = TestClient(app)

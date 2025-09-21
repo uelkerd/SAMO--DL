@@ -12,8 +12,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 import time
 import unittest
 
-from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 from security_headers import SecurityHeadersConfig, SecurityHeadersMiddleware
+
+from api_rate_limiter import RateLimitConfig, TokenBucketRateLimiter
 
 
 class TestAnomalyDetection(unittest.TestCase):
@@ -171,9 +172,9 @@ class TestAnomalyDetection(unittest.TestCase):
             client_ip,
             legitimate_ua,
         )
-        assert (
-            not abuse_detected
-        ), "Legitimate user agent should not trigger abuse detection"
+        assert not abuse_detected, (
+            "Legitimate user agent should not trigger abuse detection"
+        )
 
     def test_false_positive_reduction(self):
         """Test that legitimate traffic doesn't trigger false positives."""
@@ -196,9 +197,9 @@ class TestAnomalyDetection(unittest.TestCase):
             client_ip,
             legitimate_ua,
         )
-        assert (
-            not abuse_detected
-        ), "Normal browsing pattern should not trigger abuse detection"
+        assert not abuse_detected, (
+            "Normal browsing pattern should not trigger abuse detection"
+        )
 
     def test_configuration_options(self):
         """Test that configuration options work correctly."""
@@ -264,8 +265,6 @@ class TestAnomalyDetection(unittest.TestCase):
 
     def test_anomaly_detection_performance(self):
         """Test that anomaly detection doesn't significantly impact performance."""
-        import time
-
         client_ip = "192.168.1.1"
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
@@ -278,9 +277,9 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Should complete within reasonable time (less than 1 second for 100 requests)
         processing_time = end_time - start_time
-        assert (
-            processing_time < 1.0
-        ), f"Anomaly detection too slow: {processing_time:.3f}s"
+        assert processing_time < 1.0, (
+            f"Anomaly detection too slow: {processing_time:.3f}s"
+        )
 
 
 if __name__ == "__main__":

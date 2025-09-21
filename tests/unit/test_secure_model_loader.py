@@ -292,8 +292,6 @@ class TestSecureModelLoader(unittest.TestCase):
         )
 
         # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
-
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
 
@@ -411,8 +409,6 @@ class TestSecureModelLoaderIntegration(unittest.TestCase):
         )
 
         # Calculate checksum for validation
-        from src.models.secure_loader.integrity_checker import IntegrityChecker
-
         self.checker = IntegrityChecker()
         self.model_checksum = self.checker.calculate_checksum(self.model_file)
 

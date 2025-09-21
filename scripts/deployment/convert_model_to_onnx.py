@@ -13,8 +13,9 @@ import torch
 # Add src to path
 sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
 
-from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 from transformers import AutoTokenizer
+
+from models.emotion_detection.bert_classifier import create_bert_emotion_classifier
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

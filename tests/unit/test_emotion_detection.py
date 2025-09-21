@@ -181,7 +181,7 @@ class TestBertEmotionClassifier:
             assert hasattr(model, "class_weights")
             assert torch.equal(model.class_weights, class_weights)
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     @patch("transformers.AutoConfig.from_pretrained")
     @patch("transformers.AutoModel.from_pretrained")
     def test_emotion_label_mapping(self, mock_bert, mock_config):

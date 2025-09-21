@@ -28,7 +28,7 @@ def auth_override():
         app.dependency_overrides.pop(get_current_user, None)
 
 
-@pytest.fixture()
+@pytest.fixture
 def client() -> TestClient:
     """Pytest TestClient fixture for the unified API app."""
     return TestClient(app)
