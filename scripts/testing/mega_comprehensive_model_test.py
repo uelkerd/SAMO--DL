@@ -358,7 +358,8 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% success rate, "
+            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% "
+            f"success rate, "
             f"{avg_confidence:.3f} avg confidence",
         )
         print(f"   Successful: {successful}/{len(results)}")
