@@ -44,7 +44,7 @@ class SAMOWhisperConfig:
     def __init__(self, config_path: Optional[str] = None):
         """Initialize configuration from file or defaults."""
         if config_path and Path(config_path).exists():
-            with open(config_path, 'r') as f:
+            with open(config_path) as f:
                 config_data = yaml.safe_load(f)
                 self._load_from_dict(config_data)
         else:
@@ -301,7 +301,7 @@ class SAMOWhisperTranscriber:
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
                 if not os.path.isfile(model_file):
                     return True
-                
+
                 # Check minimum file size based on model size
                 min_sizes = {
                     "tiny": 39_000_000,    # ~39MB
@@ -310,7 +310,7 @@ class SAMOWhisperTranscriber:
                     "medium": 769_000_000, # ~769MB
                     "large": 1_550_000_000 # ~1.55GB
                 }
-                
+
                 min_size = min_sizes.get(model_size, 1_000_000)  # Default 1MB
                 return os.path.getsize(model_file) < min_size
 
@@ -327,7 +327,7 @@ class SAMOWhisperTranscriber:
                     device=self.device,
                     download_root=cache_dir
                 )
-            except (RuntimeError, OSError) as e:
+            except (RuntimeError, OSError):
                 logger.exception(
                     "Model loading failed, possibly due to cache corruption. "
                     "Clearing cache and retrying..."

@@ -55,7 +55,7 @@ class IntegrityChecker:
             return {}
 
         try:
-            with open(self.trusted_checksums_file, 'r') as f:
+            with open(self.trusted_checksums_file) as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"Failed to load trusted checksums: {e}")

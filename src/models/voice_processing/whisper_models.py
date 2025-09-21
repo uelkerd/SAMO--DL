@@ -8,7 +8,7 @@ with robust error handling and cache corruption detection.
 import logging
 import os
 import shutil
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import whisper
 
 from .whisper_audio_preprocessor import AudioPreprocessor

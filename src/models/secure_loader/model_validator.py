@@ -9,7 +9,7 @@ This module provides model validation capabilities including:
 """
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 import torch.nn as nn

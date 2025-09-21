@@ -107,7 +107,7 @@ class SAMOT5Summarizer:
 
         if config_path and os.path.exists(config_path):
             try:
-                with open(config_path, 'r', encoding='utf-8') as f:
+                with open(config_path, encoding='utf-8') as f:
                     user_config = yaml.safe_load(f)
                 # Deep merge user config into default config
                 for key, value in user_config.items():

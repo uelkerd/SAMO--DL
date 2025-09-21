@@ -6,7 +6,7 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 
 import requests
 import torch
@@ -18,10 +18,10 @@ from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTok
 class HFEmotionDetector:
     model: AutoModelForSequenceClassification
     tokenizer: AutoTokenizer
-    id2label: Dict[int, str]
+    id2label: dict[int, str]
     multi_label: bool
 
-    def predict(self, text: str, threshold: float = 0.5) -> Dict:
+    def predict(self, text: str, threshold: float = 0.5) -> dict:
         if not text:
             return {}
         self.model.eval()
@@ -63,7 +63,7 @@ class HFRemoteInferenceDetector:
         self.endpoint_url = endpoint_url.rstrip("/")
         self.token = token
 
-    def predict(self, text: str, threshold: float = 0.5) -> Dict:
+    def predict(self, text: str, threshold: float = 0.5) -> dict:
         if not text:
             return {}
         headers = {"Content-Type": "application/json"}

@@ -207,5 +207,3 @@ def create_samo_whisper_transcriber(
     """Create a SAMO Whisper transcriber with specified configuration."""
     config = SAMOWhisperConfig(config_path) if config_path else None
     return SAMOWhisperTranscriber(config, model_size)
-
-
