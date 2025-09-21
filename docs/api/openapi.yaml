@@ -3,27 +3,27 @@ info:
   title: SAMO-DL Emotion Detection API
   description: |
     # SAMO-DL Emotion Detection API
-    
+
     A production-ready API for emotion detection using advanced deep learning models.
-    
+
     ## Features
     - Real-time emotion detection from text
     - Batch processing capabilities
     - High accuracy (99.48% F1 Score)
     - Production-grade security and monitoring
-    
+
     ## Supported Emotions
     - anxious, calm, content, excited, frustrated, grateful
     - happy, hopeful, overwhelmed, proud, sad, tired
-    
+
     ## Authentication
     This API requires authentication using API keys. Include your API key in the `X-API-Key` header.
-    
+
     ## Rate Limiting
     - 60 requests per minute per API key
     - 100 requests per hour per user
     - Batch requests count as individual requests
-    
+
     ## Security
     - All endpoints use HTTPS
     - Input validation and sanitization
@@ -374,4 +374,4 @@ tags:
   - name: Prediction
     description: Emotion prediction endpoints
   - name: Information
-    description: Information and status endpoints 
+    description: Information and status endpoints

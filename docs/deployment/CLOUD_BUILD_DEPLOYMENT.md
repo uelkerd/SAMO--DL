@@ -207,7 +207,7 @@ options:
 
 **Customization Options:**
 - **E2_STANDARD_2**: 2 vCPUs, 8GB RAM (~10-15 min build time)
-- **E2_HIGHCPU_4**: 4 vCPUs, 16GB RAM (~7-10 min build time)  
+- **E2_HIGHCPU_4**: 4 vCPUs, 16GB RAM (~7-10 min build time)
 - **E2_HIGHCPU_8**: 8 vCPUs, 32GB RAM (~5-8 min build time)
 
 ## 🧪 Testing the Deployment
