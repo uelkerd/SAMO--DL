@@ -256,7 +256,7 @@ def main():
         if is_mixed_concerns:
             print(f"⚠️  Mixed concerns detected: {', '.join(sorted(file_types))}")
             print("   Consider splitting into separate PRs")
-            print(f"   Acceptable combinations include: code+tests, code+tests+config, etc.")
+            print("   Acceptable combinations include: code+tests, code+tests+config, etc.")
             if args.strict:
                 all_passed = False
         elif len(file_types) > 2:
