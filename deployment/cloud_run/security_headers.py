@@ -2,7 +2,6 @@
 """Security Headers Module for Cloud Run API"""
 
 from flask import Flask, request, g
-from typing import Dict, Any
 
 def add_security_headers(app: Flask) -> None:
     """Add comprehensive security headers to Flask app"""

@@ -20,7 +20,7 @@ You can customize where the script looks for models by setting an environment va
 
 ```bash
 # Option 1: Set base directory (script will add /deployment/models)
-export SAMO_DL_BASE_DIR="/path/to/your/project" 
+export SAMO_DL_BASE_DIR="/path/to/your/project"
 
 # Option 2: Alternative environment variable name
 export MODEL_BASE_DIR="/path/to/your/project"
@@ -36,7 +36,7 @@ export MODEL_BASE_DIR="/path/to/your/project"
 
 2. Place them in your model directory:
    - **AUTO-DETECTED**: Script will find your `PROJECT_ROOT/deployment/models/` automatically
-   - **CUSTOM**: Set `SAMO_DL_BASE_DIR` environment variable to override location  
+   - **CUSTOM**: Set `SAMO_DL_BASE_DIR` environment variable to override location
    - **FALLBACK**: `~/Downloads/`, `~/Desktop/`, `~/Documents/`, or project root directory
 
 ### Model files we're looking for:
@@ -103,7 +103,7 @@ def predict_with_hf_api(text: str) -> dict:
     """Use HuggingFace Serverless Inference API"""
     API_URL = "https://api-inference.huggingface.co/models/your-username/samo-dl-emotion-model"
     headers = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
-    
+
     response = requests.post(API_URL, headers=headers, json={"inputs": text})
     return response.json()
 ```
@@ -142,7 +142,7 @@ def predict_with_inference_endpoint(text: str) -> dict:
     """
     ENDPOINT_URL = "https://<your-endpoint-id>.<region>.aws.endpoints.huggingface.cloud"
     headers = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
-    
+
     response = requests.post(ENDPOINT_URL, headers=headers, json={"inputs": text})
     return response.json()
 ```
@@ -171,12 +171,12 @@ def predict_local(text: str) -> dict:
         outputs = model(**inputs)
         probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
         predicted_class = torch.argmax(probabilities, dim=-1)
-    
+
     return {
         "emotion": model.config.id2label[predicted_class.item()],
         "confidence": probabilities[0][predicted_class].item(),
         "all_emotions": {
-            model.config.id2label[i]: prob.item() 
+            model.config.id2label[i]: prob.item()
             for i, prob in enumerate(probabilities[0])
         }
     }
@@ -194,7 +194,7 @@ DEPLOYMENT_TYPE=serverless
 
 ### For Inference Endpoints:
 ```bash
-# Environment variables  
+# Environment variables
 HF_TOKEN=your_hf_token_here
 INFERENCE_ENDPOINT_URL=https://your-endpoint.aws.endpoints.huggingface.cloud
 DEPLOYMENT_TYPE=endpoint
@@ -388,7 +388,7 @@ Your API → HF Hub → your-username/samo-dl-emotion-model → Accurate results
 - **Domain**: General text
 - **Cost**: Free but poor results
 
-### Custom Model (After)  
+### Custom Model (After)
 - **Accuracy**: ~85% (your specific emotions)
 - **F1 Score**: ~0.75
 - **Domain**: Journal/personal text
@@ -403,7 +403,7 @@ Your API → HF Hub → your-username/samo-dl-emotion-model → Accurate results
 
 ### Inference Endpoints (Production)
 - **CPU instance**: ~$0.06-0.24/hour
-- **GPU instance**: ~$0.60-1.20/hour  
+- **GPU instance**: ~$0.60-1.20/hour
 - **Storage**: Same as above
 - **No per-request charges**
 
@@ -421,7 +421,7 @@ Your custom model will provide much better accuracy for your specific use case! 
 
 If you encounter issues:
 1. Check HuggingFace Hub status and quotas
-2. Verify your model files exist and are accessible  
+2. Verify your model files exist and are accessible
 3. Ensure HuggingFace authentication is working
 4. Test with Serverless API before moving to Inference Endpoints
 5. Monitor your usage at https://huggingface.co/settings/billing
