@@ -118,7 +118,9 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 ```
 SAMO--DL/
 ├── notebooks/
-│   └── training/              # Colab training notebooks & experiments
+│   ├── goemotions-deberta/   # 🧠 MAIN TRAINING REPOSITORY
+│   │   └── notebooks/        # Complete training notebooks & experiments
+│   └── training/             # Additional training resources
 ├── deployment/
 │   ├── cloud-run/            # Production ONNX API server
 │   └── local/                # Development environment
@@ -136,6 +138,19 @@ SAMO--DL/
     └── optimization/         # ONNX optimized models
 ```
 
+## 🧠 Training Repository
+
+**Main Training Files**: All model training, experimentation, and optimization work is conducted in the dedicated [goemotions-deberta](https://github.com/uelkerd/goemotions-deberta) repository, located at `notebooks/goemotions-deberta/`.
+
+This repository contains:
+- **Complete training notebooks** for emotion detection model development
+- **Performance optimization scripts** for model fine-tuning
+- **Comprehensive testing frameworks** for model validation
+- **Scientific loss comparison tools** for model improvement
+- **DeBERTa-v3-large implementation** for multi-label emotion classification
+
+> **Note**: The main training work is isolated in this dedicated repository to maintain clean separation between research/experimentation and production deployment code.
+
 ## 🛠️ Development Workflow
 
 ### Model Training (Google Colab)
@@ -150,6 +165,8 @@ trainer = EmotionTrainer(
 )
 trainer.train()  # Achieved 90.70% F1 score
 ```
+
+**Training Repository**: All training notebooks and experiments are located in [`notebooks/goemotions-deberta/`](https://github.com/uelkerd/goemotions-deberta) - the dedicated repository for model development and optimization.
 
 ### Production Deployment
 ```bash
@@ -253,10 +270,14 @@ python deployment/local/api_server.py
 
 ### Model Training
 ```bash
-# Open training notebook in Google Colab
-# Follow notebooks/training/emotion_detection_training.ipynb
+# Main training repository
+cd notebooks/goemotions-deberta/
+# Open training notebooks in Google Colab
+# Follow notebooks/ directory for complete training experiments
 # Experiment with hyperparameters and architectures
 ```
+
+**Training Resources**: The complete training infrastructure is available in the [`goemotions-deberta`](https://github.com/uelkerd/goemotions-deberta) repository with comprehensive notebooks, optimization scripts, and testing frameworks.
 
 
 ## 📅 Project Roadmap
