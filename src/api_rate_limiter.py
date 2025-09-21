@@ -531,7 +531,9 @@ class TokenBucketRateLimiter:
     def _cleanup_client_data(self, ip: str) -> None:
         """Clean up client data for a specific IP."""
         # Remove from buckets, blocked clients, and concurrent requests
-        keys_to_remove = [key for key in self.buckets.keys() if key.startswith(f"{ip}:")]
+        keys_to_remove = [
+            key for key in self.buckets.keys() if key.startswith(f"{ip}:")
+        ]
         for key in keys_to_remove:
             self.buckets.pop(key, None)
             self.last_refill.pop(key, None)

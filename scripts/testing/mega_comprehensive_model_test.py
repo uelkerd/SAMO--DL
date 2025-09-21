@@ -520,7 +520,9 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Robustness Test Results: {successful / len(robustness_results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence",
+            f"📊 Robustness Test Results: "
+            f"{successful / len(robustness_results) * 100:.2f}% success rate, "
+            f"{avg_confidence:.3f} avg confidence",
         )
         print(f"   Successful: {successful}/{len(robustness_results)}")
 
@@ -631,7 +633,8 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Real-World Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
+            f"📊 Real-World Results: {accuracy:.2f}% accuracy, "
+            f"{avg_confidence:.3f} avg confidence",
         )
         print(f"   Correct: {correct}/{len(real_world_cases)}")
 
@@ -641,7 +644,8 @@ class MegaComprehensiveModelTester:
             key=lambda x: x[1]["accuracy"],
         )[:3]
         print(
-            f"   Worst performing emotions: {', '.join([f'{e[0]} ({e[1]["accuracy"]:.1f}%)' for e in worst_emotions])}",
+            f"   Worst performing emotions: "
+            f"{', '.join([f'{e[0]} ({e[1]["accuracy"]:.1f}%)' for e in worst_emotions])}",
         )
 
     def analyze_confidence_distribution(self):
@@ -689,13 +693,19 @@ class MegaComprehensiveModelTester:
                 f"   Range: {confidence_stats['min']:.3f} - {confidence_stats['max']:.3f}",
             )
             print(
-                f"   High confidence (≥0.8): {confidence_stats['high_confidence']}/{confidence_stats['total']} ({confidence_stats['high_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"   High confidence (≥0.8): "
+                f"{confidence_stats['high_confidence']}/{confidence_stats['total']} "
+                f"({confidence_stats['high_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
             print(
-                f"   Medium confidence (0.5-0.8): {confidence_stats['medium_confidence']}/{confidence_stats['total']} ({confidence_stats['medium_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"   Medium confidence (0.5-0.8): "
+                f"{confidence_stats['medium_confidence']}/{confidence_stats['total']} "
+                f"({confidence_stats['medium_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
             print(
-                f"   Low confidence (<0.5): {confidence_stats['low_confidence']}/{confidence_stats['total']} ({confidence_stats['low_confidence'] / confidence_stats['total'] * 100:.1f}%)",
+                f"   Low confidence (<0.5): "
+                f"{confidence_stats['low_confidence']}/{confidence_stats['total']} "
+                f"({confidence_stats['low_confidence'] / confidence_stats['total'] * 100:.1f}%)",
             )
 
     def generate_comprehensive_report(self):
@@ -760,7 +770,8 @@ class MegaComprehensiveModelTester:
         print(f"   Model Status: {report['summary']['model_status']}")
         print(f"   Confidence Status: {report['summary']['confidence_status']}")
         print(
-            f"   Deployment Ready: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
+            f"   Deployment Ready: "
+            f"{'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
         )
 
         print(f"\n📁 Detailed report saved to: {report_path}")
@@ -810,7 +821,8 @@ def main():
         print(f"   Confidence: {report['overall_metrics']['overall_confidence']:.3f}")
         print(f"   Status: {report['summary']['model_status']}")
         print(
-            f"   Ready for deployment: {'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
+            f"   Ready for deployment: "
+            f"{'✅ YES' if report['summary']['deployment_ready'] else '❌ NO'}",
         )
     else:
         print("\n❌ Testing failed!")

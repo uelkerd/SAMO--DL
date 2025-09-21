@@ -43,7 +43,8 @@ def test_threshold_application():
     logging.info("  - Total positions: {total_positions}")
     logging.info("  - Positions >= {threshold}: {num_above_threshold}")
     logging.info(
-        "  - Percentage >= {threshold}: {100 * num_above_threshold / total_positions:.1f}%",
+        "  - Percentage >= {threshold}: "
+        "{100 * num_above_threshold / total_positions:.1f}%",
     )
 
     predictions = (probabilities >= threshold).float()
@@ -75,7 +76,8 @@ def test_threshold_application():
         logging.info("  - Sum: {predictions_with_fallback.sum().item()}")
         logging.info("  - Mean: {predictions_with_fallback.mean().item():.4f}")
         print(
-            "  - Samples with 0 predictions: {(predictions_with_fallback.sum(dim=1) == 0).sum().item()}",
+            "  - Samples with 0 predictions: "
+            "{(predictions_with_fallback.sum(dim=1) == 0).sum().item()}",
         )
 
     return predictions

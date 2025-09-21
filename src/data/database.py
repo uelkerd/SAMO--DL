@@ -53,7 +53,9 @@ else:
             "or explicitly allow SQLite fallback via ALLOW_SQLITE_FALLBACK=1 in dev/test.",
         )
     default_sqlite_path = (
-        Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
+        Path(os.environ.get("SQLITE_PATH", "./samo_local.db"))
+        .expanduser()
+        .resolve()
     )
     # Ensure directory for SQLite exists before engine creation
     sqlite_dir = default_sqlite_path.parent

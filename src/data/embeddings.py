@@ -117,7 +117,8 @@ class TfidfEmbedder(BaseEmbedder):
 
         """
         logger.info(
-            "Fitting TF-IDF vectorizer on {len(texts)} texts with max_features={self.max_features}",
+            "Fitting TF-IDF vectorizer on {len(texts)} texts with "
+            "max_features={self.max_features}",
         )
         assert self.model is not None, "Model should be initialized"
         self.model.fit(texts)
@@ -212,7 +213,8 @@ class Word2VecEmbedder(BaseEmbedder):
         tokenized_texts = self._preprocess_texts(texts)
 
         logger.info(
-            "Training Word2Vec model with vector_size={self.vector_size}, window={self.window}",
+            "Training Word2Vec model with vector_size={self.vector_size}, "
+            "window={self.window}",
         )
         self.model = Word2Vec(
             sentences=tokenized_texts,
@@ -225,7 +227,8 @@ class Word2VecEmbedder(BaseEmbedder):
         )
 
         logger.info(
-            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words in vocabulary",
+            "Word2Vec model trained with {len(self.model.wv.index_to_key)} words "
+            "in vocabulary",
         )
         return self
 

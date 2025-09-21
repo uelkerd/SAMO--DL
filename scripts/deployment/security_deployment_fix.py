@@ -70,19 +70,30 @@ class SecurityDeploymentFix:
     @staticmethod
     def _sanitize_command_for_logging(command: List[str]) -> List[str]:
         """Sanitize command arguments for safe logging by redacting sensitive data."""
+        # Comprehensive list of sensitive patterns to redact
+        sensitive_patterns = [
+            "ADMIN_API_KEY", "SECRET_KEY", "API_KEY", "PASSWORD", "TOKEN",
+            "PRIVATE_KEY", "CREDENTIALS", "AUTH_TOKEN", "ACCESS_TOKEN",
+            "REFRESH_TOKEN", "SESSION_KEY", "ENCRYPTION_KEY", "SIGNING_KEY"
+        ]
+        
         safe_command = []
         for arg in command:
-            # Check if this argument contains sensitive environment variables
             if isinstance(arg, str) and "=" in arg:
                 # Split on the first = to separate key and value
                 key, value = arg.split("=", 1)
-                # Redact sensitive keys
-                if key in ["ADMIN_API_KEY", "SECRET_KEY", "API_KEY", "PASSWORD", "TOKEN"]:
+                # Check if key matches any sensitive pattern (case-insensitive)
+                if any(pattern.lower() in key.upper() for pattern in sensitive_patterns):
                     safe_command.append(f"{key}=<REDACTED>")
                 else:
                     safe_command.append(arg)
             else:
-                safe_command.append(arg)
+                # Check if the entire argument looks like a sensitive value
+                if isinstance(arg, str) and len(arg) > 20 and any(char.isalnum() for char in arg):
+                    # If it's a long alphanumeric string, it might be a token/key
+                    safe_command.append("<REDACTED>")
+                else:
+                    safe_command.append(arg)
         return safe_command
 
     def run_command(
@@ -91,7 +102,11 @@ class SecurityDeploymentFix:
         check: bool = True,
     ) -> subprocess.CompletedProcess:
         """Run shell command with error handling."""
-        # Sanitize command for security
+        # Create a safe version for logging that redacts sensitive data BEFORE any processing
+        safe_command = self._sanitize_command_for_logging(command)
+        self.log(f"Running: {' '.join(safe_command)}")
+        
+        # Sanitize command for security (for subprocess execution)
         sanitized_command = []
         for arg in command:
             if isinstance(arg, str):
@@ -99,9 +114,6 @@ class SecurityDeploymentFix:
             else:
                 sanitized_command.append(str(arg))
 
-        # Create a safe version for logging that redacts sensitive data
-        safe_command = self._sanitize_command_for_logging(sanitized_command)
-        self.log(f"Running: {' '.join(safe_command)}")
         try:
             # Use the sanitized command to prevent command injection
             result = subprocess.run(

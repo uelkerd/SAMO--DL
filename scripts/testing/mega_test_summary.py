@@ -12,7 +12,8 @@ def display_mega_test_results():
     print("=" * 80)
     print("📁 Model Tested: deployment/models/default")
     print(
-        "🎯 Emotions: anxious, calm, content, excited, frustrated, grateful, happy, hopeful, overwhelmed, proud, sad, tired",
+        "🎯 Emotions: anxious, calm, content, excited, frustrated, grateful, "
+        "happy, hopeful, overwhelmed, proud, sad, tired",
     )
     print()
 
@@ -69,7 +70,8 @@ def display_mega_test_results():
     print("   ✅ Accuracy: 93.75% (45/48)")
     print("   ✅ Average Confidence: 0.898 (89.8%)")
     print(
-        "   ✅ Tested: Social media posts, journal entries, customer service, work scenarios",
+        "   ✅ Tested: Social media posts, journal entries, customer service, "
+        "work scenarios",
     )
     print("   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)")
     print()
@@ -135,14 +137,16 @@ def display_mega_test_results():
     print("⚠️  MINOR AREAS FOR IMPROVEMENT:")
     print("   - Edge case accuracy could be improved (81.6%)")
     print(
-        "   - Some emotions (excited, grateful, hopeful) need attention in real-world scenarios",
+        "   - Some emotions (excited, grateful, hopeful) need attention "
+        "in real-world scenarios",
     )
     print("   - Low confidence predictions (11.4%) could be reduced")
     print()
     print("🎉 FINAL VERDICT:")
     print("   This model is EXCELLENT and READY FOR PRODUCTION DEPLOYMENT!")
     print(
-        "   The comprehensive testing confirms it's a robust, reliable emotion detection system.",
+        "   The comprehensive testing confirms it's a robust, reliable "
+        "emotion detection system.",
     )
     print()
     print("📈 PERFORMANCE COMPARISON:")

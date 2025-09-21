@@ -29,14 +29,18 @@ def test_evaluation_logic():
     logging.info("🔍 Testing evaluation logic:")
     logging.info("  Probabilities shape: {probabilities.shape}")
     print(
-        "  Probabilities min/max/mean: {probabilities.min():.4f}/{probabilities.max():.4f}/{probabilities.mean():.4f}",
+        "  Probabilities min/max/mean: "
+        "{probabilities.min():.4f}/{probabilities.max():.4f}/"
+        "{probabilities.mean():.4f}",
     )
 
     (probabilities >= threshold).sum().item()
     batch_size * num_emotions
 
     print(
-        "  Expected above threshold: {expected_above_threshold}/{total_positions} ({100*expected_above_threshold/total_positions:.1f}%)",
+        "  Expected above threshold: "
+        "{expected_above_threshold}/{total_positions} "
+        "({100*expected_above_threshold/total_positions:.1f}%)",
     )
 
     predictions = (probabilities >= threshold).float()
@@ -45,7 +49,8 @@ def test_evaluation_logic():
     logging.info("    - Sum: {predictions.sum().item()}")
     logging.info("    - Mean: {predictions.mean().item():.4f}")
     print(
-        "    - Match expected: {'✅' if predictions.sum().item() == expected_above_threshold else '❌'}",
+        "    - Match expected: "
+        "{'✅' if predictions.sum().item() == expected_above_threshold else '❌'}",
     )
 
     samples_with_zero = (predictions.sum(dim=1) == 0).sum().item()

@@ -133,7 +133,8 @@ def setup_testing():
         if not find_model_file():
             print("\n❌ Cannot proceed without model file!")
             print(
-                "📋 Please download best_simple_model.pth from Colab and place it in this directory",
+                "📋 Please download best_simple_model.pth from Colab and "
+                "place it in this directory",
             )
             return False
 
