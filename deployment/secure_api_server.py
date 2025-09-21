@@ -133,7 +133,7 @@ def update_metrics(
         # Update average response time
         if metrics["response_times"]:
             metrics["average_response_time"] = sum(metrics["response_times"]) / len(
-                metrics["response_times"]
+                metrics["response_times"],
             )
 
 
@@ -149,7 +149,7 @@ def secure_endpoint(f):
         try:
             # Rate limiting
             allowed, reason, rate_limit_meta = rate_limiter.allow_request(
-                client_ip, user_agent
+                client_ip, user_agent,
             )
             if not allowed:
                 response_time = time.time() - start_time
@@ -165,7 +165,7 @@ def secure_endpoint(f):
                         "error": "Rate limit exceeded",
                         "message": reason,
                         "retry_after": rate_limit_config.window_size_seconds,
-                    }
+                    },
                 ), 429
 
             # Content type validation
@@ -174,10 +174,10 @@ def secure_endpoint(f):
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
                     update_metrics(
-                        response_time, success=False, error_type="invalid_content_type"
+                        response_time, success=False, error_type="invalid_content_type",
                     )
                     logger.warning(
-                        f"Invalid content type: {content_type} from {client_ip}"
+                        f"Invalid content type: {content_type} from {client_ip}",
                     )
                     # Release acquired slot before returning
                     rate_limiter.release_request(client_ip, user_agent)
@@ -185,7 +185,7 @@ def secure_endpoint(f):
                         {
                             "error": "Invalid content type",
                             "message": "Content-Type must be application/json",
-                        }
+                        },
                     ), 400
 
             # Process request
@@ -196,7 +196,7 @@ def secure_endpoint(f):
 
             return result
 
-        except Exception as e:
+        except Exception:
             # Release rate limit slot on error
             rate_limiter.release_request(client_ip, user_agent)
 
@@ -251,7 +251,7 @@ class SecureEmotionDetectionModel:
         # In CI/TESTING, or when model directory is missing/invalid, run in stub mode
         if os.environ.get("TESTING") or os.environ.get("CI"):
             logger.warning(
-                "TEST/CI environment detected. Running secure model in stub mode."
+                "TEST/CI environment detected. Running secure model in stub mode.",
             )
             self.tokenizer = None
             self.model = None
@@ -292,10 +292,10 @@ class SecureEmotionDetectionModel:
             )
 
             self.tokenizer = AutoTokenizer.from_pretrained(
-                str(self.model_path), local_files_only=True
+                str(self.model_path), local_files_only=True,
             )
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                str(self.model_path), local_files_only=True
+                str(self.model_path), local_files_only=True,
             )
 
             # Move to GPU if available
@@ -314,7 +314,7 @@ class SecureEmotionDetectionModel:
 
         except Exception as e:
             logger.error(
-                f"❌ Failed to load secure model: {e!s}. Falling back to stub mode."
+                f"❌ Failed to load secure model: {e!s}. Falling back to stub mode.",
             )
             self.tokenizer = None
             self.model = None
@@ -327,7 +327,7 @@ class SecureEmotionDetectionModel:
         try:
             if not getattr(self, "loaded", False):
                 raise RuntimeError(
-                    "SecureEmotionDetectionModel is not loaded; prediction unavailable."
+                    "SecureEmotionDetectionModel is not loaded; prediction unavailable.",
                 )
             # Ensure torch is available within function scope for linter/runtime
             try:
@@ -409,7 +409,7 @@ class SecureEmotionDetectionModel:
         except Exception as e:
             prediction_time = time.time() - start_time
             logger.error(
-                f"Secure prediction failed after {prediction_time:.3f}s: {e!s}"
+                f"Secure prediction failed after {prediction_time:.3f}s: {e!s}",
             )
             raise
 
@@ -533,7 +533,7 @@ def require_admin_api_key(f):
         expected_key = get_admin_api_key()
         if not expected_key or api_key != expected_key:
             logger.warning(
-                f"Unauthorized admin access attempt from {request.remote_addr}"
+                f"Unauthorized admin access attempt from {request.remote_addr}",
             )
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
@@ -679,7 +679,7 @@ def health_check():
                 "rate_limited_requests": metrics["rate_limited_requests"],
                 "sanitization_warnings": metrics["sanitization_warnings"],
                 "average_response_time_ms": round(
-                    metrics["average_response_time"] * 1000, 2
+                    metrics["average_response_time"] * 1000, 2,
                 ),
             },
         }
@@ -689,7 +689,7 @@ def health_check():
 
         return jsonify(response)
 
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="health_check_error")
         logger.exception("Health check failed")
@@ -834,7 +834,7 @@ def predict_batch():
                     "request_id": getattr(g, "request_id", None),
                     "correlation_id": getattr(g, "correlation_id", None),
                 },
-            }
+            },
         )
 
     except Exception as e:
@@ -956,7 +956,7 @@ def nlp_emotion_batch():
                     "scores": dist,
                     "top_label": top.get("label"),
                     "top_score": top.get("score"),
-                }
+                },
             )
 
         response_time = time.time() - start_time
@@ -984,7 +984,7 @@ def nlp_emotion_batch():
                 "results": responses,
                 "count": len(responses),
                 "provider": os.environ.get(
-                    "EMOTION_PROVIDER", EMOTION_PROVIDER
+                    "EMOTION_PROVIDER", EMOTION_PROVIDER,
                 ).lower(),
                 "provider_info": _build_provider_info(),
                 "batch_processing_time_ms": round(response_time * 1000, 2),
@@ -993,7 +993,7 @@ def nlp_emotion_batch():
                     "request_id": getattr(g, "request_id", None),
                     "correlation_id": getattr(g, "correlation_id", None),
                 },
-            }
+            },
         )
     except _ClientError as ce:
         response_time = time.time() - start_time
@@ -1032,11 +1032,11 @@ def get_metrics():
                     "security_violations": metrics["security_violations"],
                     "success_rate": f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
                     "average_response_time_ms": round(
-                        metrics["average_response_time"] * 1000, 2
+                        metrics["average_response_time"] * 1000, 2,
                     ),
                     "requests_per_minute": metrics["total_requests"]
                     / max(
-                        (datetime.now() - metrics["start_time"]).total_seconds() / 60, 1
+                        (datetime.now() - metrics["start_time"]).total_seconds() / 60, 1,
                     ),
                 },
                 "emotion_distribution": dict(metrics["emotion_distribution"]),
@@ -1046,7 +1046,7 @@ def get_metrics():
                     "sanitization": input_sanitizer.get_sanitization_stats(),
                     "security_headers": security_middleware.get_security_stats(),
                 },
-            }
+            },
         )
 
 
@@ -1201,7 +1201,7 @@ if __name__ == "__main__":
     logger.info('        -d \'{"text": "I am feeling happy today!"}\'')
     logger.info("")
     logger.info(
-        f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute"
+        f"🔒 Rate limiting: {rate_limit_config.requests_per_minute} requests per minute",
     )
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
