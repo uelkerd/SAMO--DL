@@ -20,4 +20,3 @@ pip install -c dependencies/constraints.txt -r dependencies/requirements-ml.txt
 ```
 
 Rationale: fewer, clearer files reduce drift and simplify security scanning and upgrades.
-
