@@ -254,8 +254,8 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="health_check_error")
-        logger.error(f"Health check failed: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        logger.exception("Health check failed")  # Logs stack trace
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/predict", methods=["POST"])
@@ -294,8 +294,8 @@ def predict():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="prediction_error")
-        logger.error(f"Prediction endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        logger.exception("Prediction endpoint error")  # Logs stack trace
+        return jsonify({"error": "An internal error has occurred."}), 500
 
 
 @app.route("/predict_batch", methods=["POST"])
@@ -348,7 +348,7 @@ def predict_batch():
             response_time, success=False, error_type="batch_prediction_error"
         )
         logger.error(f"Batch prediction endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal error has occurred."}), 500
 
 
 @app.route("/metrics", methods=["GET"])
@@ -435,7 +435,7 @@ def home():
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="documentation_error")
         logger.error(f"Documentation endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal server error occurred. Please try again later."}), 500
 
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)

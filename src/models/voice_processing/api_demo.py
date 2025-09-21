@@ -445,12 +445,13 @@ async def validate_audio(audio_file: UploadFile = File(...)):
                     "file_size": metadata["file_size"],
                 },
             }
+        logger.warning(f"Audio file validation failed: {error_msg}")
         return JSONResponse(
             status_code=400,
             content={
                 "valid": False,
                 "error": "validation_failed",
-                "message": error_msg,
+                "message": "Audio file failed validation; unsupported or corrupted audio format.",
             },
         )
 

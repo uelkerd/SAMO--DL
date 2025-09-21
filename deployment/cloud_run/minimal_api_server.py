@@ -83,7 +83,7 @@ def health_check():
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}")
         REQUEST_COUNT.labels(endpoint="/health", status="error").inc()
-        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+        return jsonify({"status": "unhealthy", "error": "Internal server error"}), 500
 
 
 @app.route("/predict", methods=["POST"])

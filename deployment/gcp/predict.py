@@ -144,7 +144,7 @@ def predict():
 
     except Exception as e:
         print(f"Prediction endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/", methods=["GET"])

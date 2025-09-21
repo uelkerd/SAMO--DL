@@ -201,7 +201,8 @@ def secure_endpoint(f):
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type="endpoint_error")
             logger.error(f"Endpoint error: {e!s}")
-            return jsonify({"error": str(e)}), 500
+            # Return a generic error message to the user, do not expose exception details
+            return jsonify({"error": "An internal error has occurred."}), 500
 
     return decorated_function
 
@@ -686,8 +687,8 @@ def health_check():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="health_check_error")
-        logger.error(f"Health check failed: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        logger.exception("Health check failed")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/predict", methods=["POST"])
@@ -718,7 +719,7 @@ def predict():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type="validation_error")
             logger.warning(f"Validation error: {e!s} from {request.remote_addr}")
-            return jsonify({"error": str(e)}), 400
+            return jsonify({"error": "Invalid request data"}), 400
 
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
@@ -754,7 +755,7 @@ def predict():
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="prediction_error")
         logger.error(f"Secure prediction endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal server error occurred."}), 500
 
 
 @app.route("/predict_batch", methods=["POST"])
@@ -785,7 +786,7 @@ def predict_batch():
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type="validation_error")
             logger.warning(f"Batch validation error: {e!s} from {request.remote_addr}")
-            return jsonify({"error": str(e)}), 400
+            return jsonify({"error": "Batch request validation failed"}), 400
 
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
@@ -1055,7 +1056,7 @@ def add_to_blacklist():
         return jsonify({"message": f"Added {ip} to blacklist"})
     except Exception as e:
         logger.error(f"Blacklist error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Failed to update blacklist."}), 500
 
 
 @app.route("/security/whitelist", methods=["POST"])
@@ -1073,7 +1074,7 @@ def add_to_whitelist():
         return jsonify({"message": f"Added {ip} to whitelist"})
     except Exception as e:
         logger.error(f"Whitelist error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal error occurred. Please contact an administrator."}), 500
 
 
 @app.route("/", methods=["GET"])
@@ -1138,7 +1139,7 @@ def home():
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="documentation_error")
         logger.error(f"Documentation endpoint error: {e!s}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)

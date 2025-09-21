@@ -381,7 +381,7 @@ def health_check():
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}")
         REQUEST_COUNT.labels(endpoint="/health", status="error").inc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/predict", methods=["POST"])
@@ -414,7 +414,7 @@ def predict():
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint="/predict").observe(duration)
         REQUEST_COUNT.labels(endpoint="/predict", status="error").inc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal error has occurred."}), 500
 
 
 @app.route("/metrics", methods=["GET"])
