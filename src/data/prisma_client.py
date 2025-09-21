@@ -1,8 +1,10 @@
-# Clean up the temporary file
-# Execute the script
-# Parse the output
-# Create a temporary JS file
-# Ensure we return a list, even if the result is a single dict
+"""Prisma database client integration for SAMO Deep Learning.
+
+This module provides a Python wrapper for Prisma database operations,
+enabling seamless interaction with the database schema through Node.js
+Prisma client. Supports CRUD operations and complex queries.
+"""
+
 import json
 import subprocess
 from pathlib import Path

@@ -1,11 +1,9 @@
-# Add hour/minute/second for more realistic timestamps
-# Create the entry
-# Generate a random date within the range
-# Randomly select user_id
-# Convert datetime objects to strings for JSON serialization
-# Convert string dates back to datetime
-# Ensure output directory exists
-# Generate 100 entries from 5 users over the past 60 days
+"""Sample data generation for testing and development.
+
+This module provides utilities to generate realistic sample journal entries,
+emotion data, and user interactions for development and testing purposes.
+Includes configurable data patterns and export capabilities.
+"""
 # Save to data/raw directory
 # Additional sentences to add variety
 # Emotion categories for entries

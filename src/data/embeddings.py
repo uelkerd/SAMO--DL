@@ -1,8 +1,10 @@
-# Average vectors or use zero vector if no tokens found
-# Get vectors for tokens that are in vocabulary
-# Create DataFrame with IDs and embeddings
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
+"""Embedding generation and management for text processing.
+
+This module provides utilities for creating and managing text embeddings
+using various models including Word2Vec, GloVe, and transformer-based
+embeddings. Supports batch processing and caching for efficient computation.
+"""
+
 import logging
 from typing import List, Optional
 

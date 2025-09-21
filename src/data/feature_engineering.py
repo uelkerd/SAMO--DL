@@ -1,13 +1,10 @@
-# Get the actual words
-# Get top word indices for this topic
-# Add topic scores as features
-# Apply SVD to reduce dimensions and extract topics
-# Apply sentiment analyzer to get scores
-# Assign dominant topic to each document
-# Average word length
-# Character count
-# Convert topics to DataFrame for easier inspection
-# Create TF-IDF vectorizer
+"""Feature engineering utilities for text and emotion analysis.
+
+This module provides comprehensive feature extraction and engineering
+capabilities including text statistics, sentiment analysis, topic modeling,
+and linguistic features. Supports dimensionality reduction and feature
+selection for machine learning pipelines.
+"""
 # Create sentiment category based on compound score
 # Ensure NLTK resources are downloaded
 # Ensure text column is string type

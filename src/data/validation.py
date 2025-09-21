@@ -1,5 +1,10 @@
-# Configure logging
-# G004: Logging f-strings temporarily allowed for development
+"""Data validation utilities for input sanitization and quality checks.
+
+This module provides comprehensive validation functions for text inputs,
+emotion labels, and data quality assessment. Includes sanitization,
+format validation, and content filtering for security and accuracy.
+"""
+
 import logging
 from typing import Dict, List, Optional, Union
 

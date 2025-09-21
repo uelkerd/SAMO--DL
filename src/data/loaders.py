@@ -1,3 +1,10 @@
+"""Data loading utilities for journal entries and datasets.
+
+This module provides data loaders for journal entries, emotion datasets,
+and other training data. Supports multiple data sources including database,
+JSON files, and external APIs with proper error handling and validation.
+"""
+
 import json
 from typing import Optional
 

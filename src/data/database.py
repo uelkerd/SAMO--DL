@@ -1,10 +1,10 @@
-# Create tables
-# Import all models here to ensure they're registered with Base.metadata
-# Create engine
-# Create scoped session for thread safety
-# Create sessionmaker
-# Create the database URL
-# Get database connection details from environment variables
+"""Database connection and session management for SAMO Deep Learning.
+
+This module provides SQLAlchemy database configuration with support for
+PostgreSQL with pgvector extension for storing embeddings and text data.
+Includes session management and table creation utilities.
+"""
+
 import os
 from pathlib import Path
 from urllib.parse import quote_plus
