@@ -63,7 +63,8 @@ class VertexAISetupFixed:
             logger.exception("❌ Vertex AI setup failed: {e}")
             return False
 
-    def create_custom_training_job(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_custom_training_job() -> Dict[str, Any]:
         """Create custom training job for emotion detection model."""
         logger.info("🚀 Creating Vertex AI custom training job...")
 
@@ -95,7 +96,8 @@ class VertexAISetupFixed:
             logger.exception("❌ Custom training job creation failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def create_hyperparameter_tuning_job(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_hyperparameter_tuning_job() -> Dict[str, Any]:
         """Create hyperparameter tuning job to optimize the model."""
         logger.info("🎯 Creating hyperparameter tuning job...")
 
@@ -172,7 +174,8 @@ class VertexAISetupFixed:
             logger.exception("❌ Model monitoring setup failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def create_automated_pipeline(self) -> Dict[str, Any]:
+    @staticmethod
+    def create_automated_pipeline() -> Dict[str, Any]:
         """Create automated ML pipeline for continuous training."""
         logger.info("🔄 Creating automated ML pipeline...")
 
@@ -207,7 +210,8 @@ class VertexAISetupFixed:
             logger.exception("❌ Automated pipeline setup failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def run_validation_on_vertex(self) -> bool:
+    @staticmethod
+    def run_validation_on_vertex() -> bool:
         """Run validation on Vertex AI to identify 0.0000 loss issues."""
         logger.info("🔍 Running validation on Vertex AI...")
 

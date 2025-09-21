@@ -361,11 +361,10 @@ class Health(Resource):
                     "port": PORT,
                     "timestamp": time.time(),
                 }
-            else:
-                logger.warning("Health check failed - model not ready")
-                return create_error_response(
-                    "Service unavailable - model not ready", 503
-                )
+            logger.warning("Health check failed - model not ready")
+            return create_error_response(
+                "Service unavailable - model not ready", 503
+            )
 
         except Exception as e:
             logger.error(f"Health check error for {request.remote_addr}: {e!s}")

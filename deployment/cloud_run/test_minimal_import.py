@@ -2,6 +2,7 @@
 """Minimal test to isolate the API issue"""
 
 import os
+import sys
 
 os.environ["ADMIN_API_KEY"] = "test123"
 
@@ -15,7 +16,7 @@ try:
     print("✅ Basic imports successful")
 except Exception as e:
     print(f"❌ Basic imports failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 try:
     print("2. Creating Flask app...")
@@ -23,7 +24,7 @@ try:
     print("✅ Flask app created")
 except Exception as e:
     print(f"❌ Flask app creation failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 try:
     print("3. Creating API object...")
@@ -31,7 +32,7 @@ try:
     print(f"✅ API object created: {type(api)}")
 except Exception as e:
     print(f"❌ API creation failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 try:
     print("4. Testing API methods...")
@@ -41,7 +42,7 @@ try:
     print("✅ API methods check successful")
 except Exception as e:
     print(f"❌ API methods check failed: {e}")
-    exit(1)
+    sys.exit(1)
 
 try:
     print("5. Testing errorhandler call...")
@@ -50,6 +51,6 @@ try:
 except Exception as e:
     print(f"❌ errorhandler(429) call failed: {e}")
     print(f"Error type: {type(e)}")
-    exit(1)
+    sys.exit(1)
 
 print("🎉 All tests passed!")

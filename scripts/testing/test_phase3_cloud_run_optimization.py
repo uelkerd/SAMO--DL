@@ -164,7 +164,8 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         if non_numeric_metrics:
             self.fail(f"Non-numeric metrics: {', '.join(non_numeric_metrics)}")
 
-    def _test_multiple_requests(self, monitor):
+    @staticmethod
+    def _test_multiple_requests(monitor):
         """Helper method to test multiple requests."""
         # Add 10 requests
         for _i in range(10):

@@ -201,7 +201,8 @@ class TestAnomalyDetection(unittest.TestCase):
             "Normal browsing pattern should not trigger abuse detection"
         )
 
-    def test_configuration_options(self):
+    @staticmethod
+    def test_configuration_options():
         """Test that configuration options work correctly."""
         # Test with user agent analysis disabled
         config_disabled = RateLimitConfig(

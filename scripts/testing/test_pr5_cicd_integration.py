@@ -103,7 +103,6 @@ def test_conda_environment_setup():
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied using YAML parsing."""
-    import yaml
 
     print("🔍 Testing critical CircleCI fixes...")
 

@@ -54,7 +54,6 @@ MAX_INPUT_LENGTH = 512
 
 def load_model():
     """Load the emotion detection model"""
-    global model, tokenizer, emotion_mapping, model_loading, model_loaded, model_lock
 
     with model_lock:
         if model_loading or model_loaded:
@@ -101,7 +100,6 @@ def load_model():
 
 def predict_emotion(text):
     """Predict emotion for given text"""
-    global model, tokenizer, emotion_mapping
 
     if not model_loaded:
         raise RuntimeError("Model not loaded")

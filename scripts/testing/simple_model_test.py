@@ -66,7 +66,6 @@ def test_python_environment():
 
     # Test JSON
     try:
-        import json
 
         print("✅ JSON module available")
     except ImportError:
@@ -75,7 +74,6 @@ def test_python_environment():
 
     # Test OS
     try:
-        import os
 
         print("✅ OS module available")
     except ImportError:

@@ -58,7 +58,8 @@ class TestSandboxExecutor(unittest.TestCase):
         assert "__import__" not in builtins_dict
         assert "open" not in builtins_dict
 
-    def test_no_global_builtins_modification(self):
+    @staticmethod
+    def test_no_global_builtins_modification():
         """Test that global __builtins__ is not modified."""
         import builtins
 
@@ -148,7 +149,8 @@ class TestSandboxExecutor(unittest.TestCase):
         assert len(errors) == 0
         assert len(results) == 5
 
-    def test_resource_limits(self):
+    @staticmethod
+    def test_resource_limits():
         """Test that resource limits are respected."""
         # This test might not work on all platforms due to resource module limitations
         try:
