@@ -159,10 +159,12 @@ def check_loss_function():
 
         logger.info("✅ Mixed labels loss: {loss1.item():.8f}")
         logger.info(
-            "✅ All positive loss: {loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}",
+            "✅ All positive loss: "
+            "{loss_fn(logits, torch.ones(batch_size, num_classes)).item():.8f}",
         )
         logger.info(
-            "✅ All negative loss: {loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}",
+            "✅ All negative loss: "
+            "{loss_fn(logits, torch.zeros(batch_size, num_classes)).item():.8f}",
         )
         logger.info("✅ Manual BCE loss: {bce_manual.item():.8f}")
 

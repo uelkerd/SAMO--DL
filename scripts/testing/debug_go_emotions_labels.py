@@ -100,7 +100,11 @@ def debug_go_emotions():
     print("\n🔍 Checking dataset documentation...")
     print("GoEmotions dataset should have emotion names like:")
     print(
-        "['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral']",
+        "['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', "
+        "'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', "
+        "'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', "
+        "'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', "
+        "'relief', 'remorse', 'sadness', 'surprise', 'neutral']",
     )
 
     return go_emotions

@@ -155,7 +155,8 @@ class MegaComprehensiveModelTester:
 
             status = "✅" if is_correct else "❌"
             print(
-                f'{status} {i:2d}. "{text}" → {predicted} (expected: {expected}) [conf: {confidence:.3f}]',
+                f'{status} {i:2d}. "{text}" → {predicted} (expected: {expected}) '
+                f'[conf: {confidence:.3f}]',
             )
 
         accuracy = correct / len(basic_test_cases) * 100
@@ -169,7 +170,8 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"\n📊 Basic Test Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
+            f"\n📊 Basic Test Results: {accuracy:.2f}% accuracy, "
+            f"{avg_confidence:.3f} avg confidence",
         )
 
     def test_edge_cases(self):
@@ -185,7 +187,10 @@ class MegaComprehensiveModelTester:
             ("Anxious?", "anxious"),
             # Very long inputs
             (
-                "I am feeling incredibly happy and joyful and ecstatic and delighted and pleased and satisfied and content and cheerful and glad and thrilled and overjoyed and elated and jubilant and euphoric and blissful and radiant and beaming and glowing and sparkling and wonderful",
+                "I am feeling incredibly happy and joyful and ecstatic and delighted and "
+                "pleased and satisfied and content and cheerful and glad and thrilled and "
+                "overjoyed and elated and jubilant and euphoric and blissful and radiant and "
+                "beaming and glowing and sparkling and wonderful",
                 "happy",
             ),
             # Mixed emotions
@@ -260,7 +265,8 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Edge Case Results: {accuracy:.2f}% accuracy, {avg_confidence:.3f} avg confidence",
+            f"📊 Edge Case Results: {accuracy:.2f}% accuracy, "
+            f"{avg_confidence:.3f} avg confidence",
         )
         print(f"   Correct: {correct}/{len(results)}")
 
@@ -351,7 +357,8 @@ class MegaComprehensiveModelTester:
         }
 
         print(
-            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% success rate, {avg_confidence:.3f} avg confidence",
+            f"📊 Stress Test Results: {successful / len(results) * 100:.2f}% success rate, "
+            f"{avg_confidence:.3f} avg confidence",
         )
         print(f"   Successful: {successful}/{len(results)}")
 
