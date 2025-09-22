@@ -14,7 +14,10 @@ def scan_violations():
     # Run ruff on all Python files
     try:
         result = subprocess.run(
-            ['/Users/minervae/.pyenv/shims/ruff', 'check', '.', '--output-format', 'json'],
+            [
+                '/Users/minervae/.pyenv/shims/ruff', 
+                'check', '.', '--output-format', 'json'
+            ],
             capture_output=True, text=True, cwd='.',
             check=True)
         if result.stdout:
@@ -57,7 +60,9 @@ def update_tracking_file(violations_data):
 
     # Generate quarantined section
     quarantined_section = "## 🔴 QUARANTINED FILES (Auto-populated)\n"
-    quarantined_section += "<!-- Auto-updated by scripts/update-legacy-tracking.py -->\n"
+    quarantined_section += (
+        "<!-- Auto-updated by scripts/update-legacy-tracking.py -->\n"
+    )
 
     for file_path, violation_list in sorted(violations_data.items()):
         if file_path.startswith('src/quality_enforced/'):
