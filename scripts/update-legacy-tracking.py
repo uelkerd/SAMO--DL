@@ -6,6 +6,7 @@ import re
 import os
 from collections import defaultdict
 
+
 def scan_violations():
     """Run quality tools on entire codebase, collect violations per file"""
     violations = defaultdict(list)
@@ -43,6 +44,7 @@ def scan_violations():
         print(f"Warning: Could not run bandit scan: {e}")
 
     return dict(violations)
+
 
 def update_tracking_file(violations_data):
     """Update LEGACY_TRACKING.md with current violations"""

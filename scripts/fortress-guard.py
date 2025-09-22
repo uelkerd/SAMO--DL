@@ -5,6 +5,7 @@ import sys
 import subprocess
 import os
 
+
 def check_file_limit():
     """Kill PR if >5 files changed"""
     try:
@@ -22,6 +23,7 @@ def check_file_limit():
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
     return True
+
 
 def check_quarantine_violations():
     """Block modifications to quarantined files"""
