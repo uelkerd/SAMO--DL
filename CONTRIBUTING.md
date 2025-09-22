@@ -42,6 +42,10 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
 
    # Install dependencies
    pip install -r requirements.txt
+   # Install development tools (formatters/linters/test plugins)
+   pip install -r requirements-dev.txt
+   # Enable git hooks
+   pre-commit install
    ```
 
 3. **Run tests**
@@ -50,7 +54,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    pytest
 
    # Run with coverage
-   pytest --cov=.
+   pytest --cov=src
    ```
 
 ## 🛠️ Development Setup
@@ -75,7 +79,7 @@ LOG_LEVEL=DEBUG
 docker build -f deployment/cloud-run/Dockerfile -t samo-dl-dev .
 
 # Run with development settings
-docker run -p 8080:8080 \
+docker run --rm --name samo-dl-dev -p 8080:8080 \
   -e ENVIRONMENT=development \
   -e DATABASE_URL=postgresql://user:pass@host:5432/db \
   samo-dl-dev
@@ -101,8 +105,14 @@ alembic upgrade head
 We follow **PEP 8** with some modifications:
 
 ```python
+from typing import TypedDict
+
+class EmotionPrediction(TypedDict):
+    emotion: str
+    confidence: float
+
 # ✅ Good
-def predict_emotion(text: str) -> Dict[str, Any]:
+def predict_emotion(text: str) -> EmotionPrediction:
     """Predict emotion from text input.
 
     Args:
@@ -130,6 +140,13 @@ def predict_emotion(text):
 ### Code Formatting
 
 We use **Black** for code formatting and **Ruff** for linting:
+
+**Configuration** (pyproject.toml):
+```toml
+[tool.ruff]
+lint.select = ["E", "F", "I", "D"]
+lint.pydocstyle.convention = "google"
+```
 
 ```bash
 # Format code
@@ -230,13 +247,18 @@ tests/
 import pytest
 from src.emotion_detector import EmotionDetector
 
+class StubEmotionDetector(EmotionDetector):
+    """Stub implementation for testing."""
+    def predict(self, text):
+        return {"emotion": "happy", "confidence": 0.99, "text": text}
+
 class TestEmotionDetector:
     """Test cases for EmotionDetector class."""
 
     @pytest.fixture
     def detector(self):
         """Create EmotionDetector instance for testing."""
-        return EmotionDetector()
+        return StubEmotionDetector()
 
     def test_predict_happy_text(self, detector):
         """Test emotion prediction for happy text."""
@@ -244,7 +266,7 @@ class TestEmotionDetector:
         result = detector.predict(text)
 
         assert result["emotion"] == "happy"
-        assert result["confidence"] > 0.8
+        assert result["confidence"] == 0.99  # Fixed value for testing
         assert "text" in result
 
     def test_predict_empty_text(self, detector):
@@ -273,7 +295,7 @@ pytest --cov=src --cov-report=html
 # Run integration tests only
 pytest tests/integration/
 
-# Run tests in parallel
+# Run tests in parallel (requires pytest-xdist)
 pytest -n auto
 ```
 
@@ -286,7 +308,7 @@ We aim for **90%+ test coverage**:
 pytest --cov=src --cov-report=term-missing
 
 # View HTML coverage report
-open htmlcov/index.html
+python -m webbrowser htmlcov/index.html
 ```
 
 ## 🔄 Pull Request Process
@@ -420,6 +442,8 @@ Brief description of changes
    # ✅ Good - Use environment variables
    import os
    api_key = os.getenv('API_KEY')
+   if not api_key:
+       raise RuntimeError("API_KEY is not set")
 
    # ❌ Bad - Hardcoded secrets
    api_key = "your-api-key-here"  # Never commit real API keys
@@ -430,7 +454,7 @@ Brief description of changes
    # ✅ Good - Use parameterized queries
    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 
-   # ❌ Bad - String concatenation
+   # ❌ Bad - String concatenation (vulnerable to SQL injection; do NOT use)
    cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
    ```
 
@@ -444,6 +468,27 @@ Brief description of changes
 - [ ] Rate limiting implemented
 - [ ] Error messages don't leak information
 - [ ] Dependencies are up-to-date
+
+### Automated Security Scanning
+
+Run these tools locally and in CI:
+
+```bash
+# Dependency audit
+pip-audit
+
+# Static analysis
+bandit -q -r src
+
+# Secret scanning
+gitleaks detect --no-git
+
+# Container scanning (if shipping images)
+trivy image your-image:tag
+
+# SBOM generation
+syft packages your-image:tag
+```
 
 ### Reporting Security Issues
 
