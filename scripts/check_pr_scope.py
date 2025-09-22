@@ -330,8 +330,9 @@ def check_mixed_concerns(files: List[str]) -> Tuple[bool, Set[str]]:
         detected_types = detect_file_types(file)
         file_types.update(detected_types)
 
-    # Flag as mixed concerns only if we have more than MAX_FILE_TYPES_FOR_MIXED_CONCERNS
-    # types OR if we have an unusual combination that's not in acceptable list
+    # Flag as mixed concerns only if we have more than
+    # MAX_FILE_TYPES_FOR_MIXED_CONCERNS types OR if we have an unusual
+    # combination that's not in acceptable list
     is_mixed_concerns = (
         len(file_types) > MAX_FILE_TYPES_FOR_MIXED_CONCERNS or
         (len(file_types) > MAX_FILE_TYPES_FOR_WARNING and
