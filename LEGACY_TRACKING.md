@@ -6,9 +6,9 @@
 - **Migration Queue**: Empty (populate as needed)
 
 ## 🔴 QUARANTINED FILES (Auto-populated)
-<!-- This section will be auto-updated by scripts/update-legacy-tracking.py -->
-*Run `python scripts/update-legacy-tracking.py` to populate this section*
-
+<!-- Auto-updated by scripts/update-legacy-tracking.py -->
+- [ ] src/models/old_model.py (5 violations) #legacy-quarantined
+- [ ] scripts/test_script.py (2 violations) #legacy-quarantined
 ## 🟡 MIGRATION CANDIDATES
 *Files ready for migration to fortress (manually curated)*
 

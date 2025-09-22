@@ -4,6 +4,7 @@
 import subprocess
 import re
 import os
+import json
 from collections import defaultdict
 
 
@@ -21,7 +22,6 @@ def scan_violations():
             capture_output=True, text=True, cwd='.',
             check=True)
         if result.stdout:
-            import json
             data = json.loads(result.stdout)
             for item in data:
                 file_path = item.get('filename', '')
@@ -37,7 +37,6 @@ def scan_violations():
             capture_output=True, text=True,
             check=True)
         if result.stdout:
-            import json
             data = json.loads(result.stdout)
             for item in data.get('results', []):
                 file_path = item.get('filename', '')
