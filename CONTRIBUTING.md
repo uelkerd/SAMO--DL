@@ -2,7 +2,8 @@
 
 ## 🎯 Welcome Contributors!
 
-Thank you for your interest in contributing to the SAMO-DL project! This guide will help you get started and ensure your contributions align with our project standards.
+Thank you for your interest in contributing to the SAMO-DL project! This guide will help
+you get started and ensure your contributions align with our project standards.
 
 ## 📋 Table of Contents
 
@@ -28,6 +29,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
 ### Quick Start
 
 1. **Fork the repository**
+
    ```bash
    # Fork on GitHub, then clone your fork
    git clone https://github.com/YOUR_USERNAME/SAMO--DL.git
@@ -35,6 +37,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    ```
 
 2. **Set up development environment**
+
    ```bash
    # Create virtual environment
    python -m venv venv
@@ -49,6 +52,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    ```
 
 3. **Run tests**
+
    ```bash
    # Run all tests
    pytest
@@ -139,14 +143,19 @@ def predict_emotion(text):
 
 ### Code Formatting
 
-We use **Black** for code formatting and **Ruff** for linting:
+We use **Black** for code formatting, **Ruff** for linting, and **Prettier** for
+markdown formatting:
 
 **Configuration** (pyproject.toml):
+
 ```toml
 [tool.ruff]
 lint.select = ["E", "F", "I", "D"]
 lint.pydocstyle.convention = "google"
 ```
+
+**Pre-commit hooks** automatically format markdown files with Prettier (88-character
+line width, prose wrapping).
 
 ```bash
 # Format code
@@ -345,6 +354,7 @@ git commit -m "test(emotion): add comprehensive test coverage"
 ```
 
 **Commit Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -368,20 +378,24 @@ Use our PR template:
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -394,6 +408,7 @@ Brief description of changes
 ### For Contributors
 
 **Before submitting PR:**
+
 - [ ] Self-review your code
 - [ ] Ensure all tests pass
 - [ ] Update documentation
@@ -401,6 +416,7 @@ Brief description of changes
 - [ ] Follow naming conventions
 
 **During review:**
+
 - Respond to feedback promptly
 - Be open to suggestions
 - Explain your reasoning when needed
@@ -409,6 +425,7 @@ Brief description of changes
 ### For Reviewers
 
 **Review checklist:**
+
 - [ ] Code follows project standards
 - [ ] Tests are comprehensive
 - [ ] Documentation is updated
@@ -417,6 +434,7 @@ Brief description of changes
 - [ ] Error handling is appropriate
 
 **Review comments:**
+
 - Be constructive and specific
 - Suggest alternatives when possible
 - Focus on code quality and maintainability
@@ -427,6 +445,7 @@ Brief description of changes
 ### Security Best Practices
 
 1. **Input Validation**
+
    ```python
    # ✅ Good
    def validate_text(text: str) -> str:
@@ -438,6 +457,7 @@ Brief description of changes
    ```
 
 2. **Secrets Management**
+
    ```python
    # ✅ Good - Use environment variables
    import os
@@ -450,6 +470,7 @@ Brief description of changes
    ```
 
 3. **SQL Injection Prevention**
+
    ```python
    # ✅ Good - Use parameterized queries
    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
@@ -493,6 +514,7 @@ syft packages your-image:tag
 ### Reporting Security Issues
 
 **For security vulnerabilities:**
+
 1. **DO NOT** create a public issue
 2. Email: security@samo-project.com
 3. Include detailed description and reproduction steps
@@ -544,6 +566,7 @@ syft packages your-image:tag
 ### Issue Templates
 
 Use our issue templates:
+
 - **Bug Report**: For reporting bugs
 - **Feature Request**: For requesting new features
 - **Documentation**: For documentation issues
@@ -553,6 +576,7 @@ Use our issue templates:
 ### Contributors
 
 We recognize contributors in several ways:
+
 - **Contributors list** in README
 - **Release notes** for significant contributions
 - **Special thanks** for major features
@@ -566,7 +590,8 @@ We recognize contributors in several ways:
 
 ## 📄 License
 
-By contributing to SAMO-DL, you agree that your contributions will be licensed under the MIT License.
+By contributing to SAMO-DL, you agree that your contributions will be licensed under the
+MIT License.
 
 ---
 
