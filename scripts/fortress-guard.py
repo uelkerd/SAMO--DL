@@ -32,7 +32,7 @@ def check_quarantine_violations():
         return True
 
     try:
-        with open('LEGACY_TRACKING.md', 'r') as f:
+        with open('LEGACY_TRACKING.md', 'r', encoding='utf-8') as f:
             content = f.read()
 
         # Extract quarantined files (lines with #legacy-quarantined tag)
@@ -59,20 +59,20 @@ def check_quarantine_violations():
         normalized_quarantined = {
             os.path.normpath(path) for path in quarantined
         }
-        if violations := [
-            f for f in staged_files
-            if os.path.normpath(f) in normalized_quarantined
-        ]:
-            print("🚨 QUARANTINED FILE VIOLATION:")
+        normalized_staged = {os.path.normpath(f) for f in staged_files}
+        violations = sorted(normalized_staged & normalized_quarantined)
+        if violations:
+            print("🚨 QUARANTINED FILE VIOLATION:", file=sys.stderr)
             for f in violations:
-                print(f"   🔴 {f}")
-            print("🏰 These files are in quarantine until migration")
+                print(f"   🔴 {f}", file=sys.stderr)
+            print("🏰 These files are in quarantine until migration", file=sys.stderr)
             return False
 
     except Exception as e:
-        print(f"Warning: Could not check quarantine: {e}")
-
-    return True
+        print(f"Error: Could not check quarantine: {e}", file=sys.stderr)
+        # Fail-closed by default, but allow fail-open via environment variable
+        fail_open = os.getenv('FORTRESS_FAIL_OPEN', '').lower() in ('1', 'true', 'yes')
+        return True if fail_open else False
 
 
 if __name__ == "__main__":
