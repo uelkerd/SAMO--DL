@@ -10,8 +10,8 @@ def check_file_limit():
     try:
         result = subprocess.run(
             ['git', 'diff', '--cached', '--name-only'],
-            capture_output=True, text=True, 
-        check=True)
+            capture_output=True, text=True,
+            check=True)
         files = result.stdout.strip().split('\n') if result.stdout.strip() else []
 
         if len(files) > 5:
@@ -45,8 +45,8 @@ def check_quarantine_violations():
         # Check if any staged files are quarantined
         result = subprocess.run(
             ['git', 'diff', '--cached', '--name-only'],
-            capture_output=True, text=True, 
-        check=True)
+            capture_output=True, text=True,
+            check=True)
         staged_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
 
         violations = [f for f in staged_files if f in quarantined]

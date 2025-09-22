@@ -14,8 +14,8 @@ def scan_violations():
     try:
         result = subprocess.run(
             ['ruff', 'check', '.', '--output-format', 'json'],
-            capture_output=True, text=True, cwd='.', 
-        check=True)
+            capture_output=True, text=True, cwd='.',
+            check=True)
         if result.stdout:
             import json
             data = json.loads(result.stdout)
@@ -30,8 +30,8 @@ def scan_violations():
     try:
         result = subprocess.run(
             ['bandit', '-r', '.', '-f', 'json'],
-            capture_output=True, text=True, 
-        check=True)
+            capture_output=True, text=True,
+            check=True)
         if result.stdout:
             import json
             data = json.loads(result.stdout)
