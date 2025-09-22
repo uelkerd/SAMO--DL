@@ -55,8 +55,13 @@ def check_quarantine_violations():
         )
 
         # Normalize file paths for comparison
-        normalized_quarantined = {os.path.normpath(path) for path in quarantined}
-        if violations := [f for f in staged_files if os.path.normpath(f) in normalized_quarantined]:
+        normalized_quarantined = {
+            os.path.normpath(path) for path in quarantined
+        }
+        if violations := [
+            f for f in staged_files 
+            if os.path.normpath(f) in normalized_quarantined
+        ]:
             print("🚨 QUARANTINED FILE VIOLATION:")
             for f in violations:
                 print(f"   🔴 {f}")
