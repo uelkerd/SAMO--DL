@@ -160,7 +160,7 @@ def main():
     )
 
     # Parse known args to allow pre-commit to pass filenames
-    args, unknown = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
     # Validate arguments
     if (args.base and not args.head) or (args.head and not args.base):
