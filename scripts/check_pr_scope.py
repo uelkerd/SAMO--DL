@@ -72,7 +72,7 @@ def run_command(cmd: List[str]) -> Tuple[str, str, int]:
 
     # Additional validation: only allow specific git subcommands
     allowed_git_commands = {
-        "diff", "log", "rev-list", "branch", "show"
+        "diff", "log", "rev-list", "branch", "show", "symbolic-ref"
     }
     if len(cmd) > 1 and cmd[1] not in allowed_git_commands:
         raise ValueError(
@@ -132,8 +132,8 @@ def _determine_commit_range(base: Optional[str], head: Optional[str]) -> str:
     # Check for common CI environment variables
     if os.environ.get("GITHUB_BASE_REF") and os.environ.get("GITHUB_HEAD_REF"):
         base_ref = os.environ["GITHUB_BASE_REF"]
-        head_ref = os.environ["GITHUB_HEAD_REF"]
-        return f"origin/{base_ref}..origin/{head_ref}"
+        # Use local HEAD for the PR tip to handle forked PRs
+        return f"origin/{base_ref}..HEAD"
 
     # Fallback to HEAD^..HEAD for single commit
     return "HEAD^..HEAD"
@@ -210,14 +210,26 @@ def check_commit_message_quality(
 
 def check_branch_name_quality() -> bool:
     """Check if branch name follows naming conventions."""
-    stdout, stderr, code = run_command(["git", "branch", "--show-current"])
-    if code != 0:
-        print(f"❌ Git branch error: {stderr}")
-        return False
+    # First check for GitHub CI environment variable
+    branch_name = os.environ.get("GITHUB_HEAD_REF", "").strip()
 
-    branch_name = stdout.strip()
     if not branch_name:
-        print("❌ Could not determine current branch")
+        # Try git symbolic-ref as fallback for detached HEAD
+        stdout, stderr, code = run_command(["git", "symbolic-ref", "--short", "HEAD"])
+        if code == 0 and stdout.strip():
+            branch_name = stdout.strip()
+
+    if not branch_name:
+        # Fallback to git branch --show-current
+        stdout, stderr, code = run_command(["git", "branch", "--show-current"])
+        if code != 0:
+            print(f"❌ Git branch error: {stderr}")
+            return False
+        branch_name = stdout.strip()
+
+    if not branch_name:
+        print("❌ Could not determine current branch (detached HEAD in CI)")
+        print("   This may occur in CI environments. Consider setting GITHUB_HEAD_REF")
         return False
 
     # Check naming pattern: type/short-description

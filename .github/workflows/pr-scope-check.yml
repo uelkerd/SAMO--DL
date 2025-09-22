@@ -60,12 +60,12 @@ jobs:
           exit 1
         fi
 
-        # Count files changed using safe git commands
-        FILES_CHANGED=$(git diff --name-only "origin/$BASE_BRANCH" | wc -l)
+        # Count files changed using triple-dot merge-base diff for accurate PR changes
+        FILES_CHANGED=$(git diff --name-only "origin/$BASE_BRANCH...HEAD" | wc -l)
         echo "Files changed: $FILES_CHANGED"
 
-        # Count lines changed using shortstat (more reliable)
-        SHORTSTAT=$(git diff --shortstat "origin/$BASE_BRANCH")
+        # Count lines changed using triple-dot merge-base diff for accurate PR changes
+        SHORTSTAT=$(git diff --shortstat "origin/$BASE_BRANCH...HEAD")
         LINES_CHANGED=0
 
         if [[ -n "$SHORTSTAT" ]]; then
