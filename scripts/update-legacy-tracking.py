@@ -13,7 +13,7 @@ def scan_violations():
     # Run ruff on all Python files
     try:
         result = subprocess.run(
-            ['ruff', 'check', '.', '--output-format', 'json'],
+            ['/Users/minervae/.pyenv/shims/ruff', 'check', '.', '--output-format', 'json'],
             capture_output=True, text=True, cwd='.',
             check=True)
         if result.stdout:
@@ -29,7 +29,7 @@ def scan_violations():
     # Run bandit scan
     try:
         result = subprocess.run(
-            ['bandit', '-r', '.', '-f', 'json'],
+            ['/Users/minervae/.pyenv/shims/bandit', '-r', '.', '-f', 'json'],
             capture_output=True, text=True,
             check=True)
         if result.stdout:

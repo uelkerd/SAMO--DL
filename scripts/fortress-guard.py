@@ -9,7 +9,7 @@ def check_file_limit():
     """Kill PR if >5 files changed"""
     try:
         result = subprocess.run(
-            ['git', 'diff', '--cached', '--name-only'],
+            ['/usr/bin/git', 'diff', '--cached', '--name-only'],
             capture_output=True, text=True,
             check=True)
         files = result.stdout.strip().split('\n') if result.stdout.strip() else []
@@ -44,7 +44,7 @@ def check_quarantine_violations():
 
         # Check if any staged files are quarantined
         result = subprocess.run(
-            ['git', 'diff', '--cached', '--name-only'],
+            ['/usr/bin/git', 'diff', '--cached', '--name-only'],
             capture_output=True, text=True,
             check=True)
         staged_files = (
