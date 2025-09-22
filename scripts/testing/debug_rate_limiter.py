@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Debug aid for TokenBucketRateLimiter.
 
-Runs a pair of requests against a minimal config and prints bucket,
-refill, history, and block status to help diagnose rate-limit behavior.
+Runs a pair of requests against a minimal config and prints bucket, refill, history, and
+block status to help diagnose rate-limit behavior.
 """
 
 # pylint: disable=protected-access

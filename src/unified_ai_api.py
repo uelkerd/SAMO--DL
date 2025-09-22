@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Unified AI API for SAMO Deep Learning.
 
-This module provides a unified FastAPI interface for all AI models
-in the SAMO Deep Learning pipeline.
+This module provides a unified FastAPI interface for all AI models in the SAMO Deep
+Learning pipeline.
 """
 
 from __future__ import annotations
@@ -206,8 +206,8 @@ def _ensure_summarizer_loaded() -> None:
 def _get_request_scoped_summarizer(model: str):
     """Return summarizer for requested model.
 
-    If the requested model differs, attempt to create a request-scoped instance.
-    On failure, raise ValueError/RuntimeError instead of HTTPException.
+    If the requested model differs, attempt to create a request-scoped instance. On
+    failure, raise ValueError/RuntimeError instead of HTTPException.
     """
     if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
         try:
@@ -273,7 +273,7 @@ def main():
             CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
         )
         from pydantic import BaseModel, Field
-        
+
         from api_rate_limiter import add_rate_limiting
         from security.jwt_manager import JWTManager, TokenPayload, TokenResponse
     except ImportError as e:
@@ -281,7 +281,7 @@ def main():
             f"Required dependencies not found: {e}. "
             "Please install the project dependencies with: pip install -e ."
         ) from e
-    
+
     # Now that we have the imports, we can set up the global variables
     global (
         app, REQUEST_COUNT, REQUEST_LATENCY, app_start_time, jwt_manager, security,
@@ -299,10 +299,10 @@ def main():
         RefreshTokenRequest, ChatMessage, ChatResponse, get_current_user,
         require_permission, lifespan
     )
-    
+
     # Initialize global variables
     app_start_time = time.time()
-    
+
     # Metrics
     REQUEST_COUNT = Counter(
         "samo_requests_total",
@@ -314,15 +314,15 @@ def main():
         "Request latency (s)",
         ["endpoint", "method"],
     )
-    
+
     # JWT Authentication
     jwt_manager = JWTManager()
     security = HTTPBearer()
-    
+
     # Global WebSocket manager
     # websocket_manager = WebSocketConnectionManager()  # TODO: Define this class
     websocket_manager = None
-    
+
     # Authentication models
     class UserLogin(BaseModel):
         """User login request model."""
@@ -346,12 +346,12 @@ def main():
             default_factory=list, description="User permissions"
         )
         created_at: str = Field(description="Account creation date")
-    
+
     # Set global references
     globals()['UserLogin'] = UserLogin
     globals()['UserRegister'] = UserRegister
     globals()['UserProfile'] = UserProfile
-    
+
     # Authentication dependency
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),

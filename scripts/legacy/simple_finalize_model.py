@@ -42,7 +42,6 @@ def create_final_model(output_model: str = DEFAULT_OUTPUT_MODEL) -> dict:
     Returns:
     -------
         Dictionary with model info
-
     """
     logger.info("Creating final emotion detection model...")
 
@@ -90,7 +89,6 @@ def verify_model_requirements() -> bool:
     Returns
     -------
         True if all requirements are met
-
     """
     logger.info("Verifying model requirements...")
 

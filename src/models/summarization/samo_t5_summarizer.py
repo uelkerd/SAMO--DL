@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__)
 class SAMOT5Summarizer:
     """SAMO-optimized T5 text summarization model.
 
-    Optimized for journal entries with emotional context awareness
-    and configurable summarization parameters.
+    Optimized for journal entries with emotional context awareness and configurable
+    summarization parameters.
     """
 
     def __init__(self, config_path: Optional[str] = None):
@@ -38,7 +38,6 @@ class SAMOT5Summarizer:
         Args:
         ----
             config_path: Path to configuration file
-
         """
         self.config = self._load_config(config_path)
         log_level = self.config.get("samo_optimizations", {}).get("log_level", "INFO")
@@ -188,7 +187,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             Tuple of (is_valid, error_message)
-
         """
         if not isinstance(text, str):
             return False, "Input must be a string"
@@ -220,7 +218,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             List of emotional keywords
-
         """
         import re
 
@@ -249,7 +246,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             Sanitized text
-
         """
         # Basic sanitization - remove excessive whitespace and normalize
         import re
@@ -270,7 +266,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             Optimized input text for T5
-
         """
         # Start with base prompt
         prompt_parts = ["summarize"]
@@ -315,7 +310,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             Dictionary containing summary and metadata
-
         """
         start_time = time.time()
 
@@ -415,7 +409,6 @@ class SAMOT5Summarizer:
         Returns:
         -------
             List of summary dictionaries
-
         """
         start_time = time.time()
 
@@ -581,7 +574,6 @@ def create_samo_t5_summarizer(config_path: Optional[str] = None) -> SAMOT5Summar
     Returns:
     -------
         SAMOT5Summarizer instance
-
     """
     return SAMOT5Summarizer(config_path)
 

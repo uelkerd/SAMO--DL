@@ -31,10 +31,14 @@ model_lock = threading.Lock()
 
 # Prometheus metrics
 REQUEST_COUNT = Counter(
-    "emotion_api_requests_total", "Total requests", ["endpoint", "status"]
+    "emotion_api_requests_total",
+    "Total requests",
+    ["endpoint", "status"],
 )
 REQUEST_DURATION = Histogram(
-    "emotion_api_request_duration_seconds", "Request duration", ["endpoint"]
+    "emotion_api_request_duration_seconds",
+    "Request duration",
+    ["endpoint"],
 )
 MODEL_LOAD_TIME = Histogram("emotion_model_load_time_seconds", "Model load time")
 
@@ -286,7 +290,7 @@ def postprocess_predictions(logits: np.ndarray) -> List[Dict[str, float]]:
                 {
                     "emotion": EMOTION_LABELS[i],
                     "confidence": float(prob),
-                }
+                },
             )
 
     # Sort by confidence
@@ -378,7 +382,7 @@ def health_check():
         REQUEST_COUNT.labels(endpoint="/health", status="success").inc()
         return jsonify(health_data), 200
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Health check failed")
         REQUEST_COUNT.labels(endpoint="/health", status="error").inc()
         return jsonify({"error": "Internal server error"}), 500
@@ -413,7 +417,7 @@ def predict():
 
         return jsonify(result), 200
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Prediction failed")
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint="/predict").observe(duration)
@@ -440,7 +444,7 @@ def root():
                 "/predict": "Emotion prediction (POST)",
                 "/metrics": "Prometheus metrics",
             },
-        }
+        },
     ), 200
 
 
@@ -453,7 +457,6 @@ if __name__ == "__main__":
             def init(self, parser, opts, args):
                 """Initialize the application (abstract method override)."""
                 # No-op implementation to avoid NotImplementedError during Gunicorn startup
-                pass
 
             def __init__(self, flask_app, gunicorn_options=None):
                 self.options = gunicorn_options or {}
@@ -471,7 +474,7 @@ if __name__ == "__main__":
         host = "0.0.0.0"
         port = os.environ.get("PORT", "8080")
         bind_address = f"{host}:{port}"
-        
+
         options = {
             "bind": bind_address,
             "workers": 1,

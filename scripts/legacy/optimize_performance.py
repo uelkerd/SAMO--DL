@@ -49,7 +49,6 @@ def check_gpu_setup() -> dict[str, any]:
     Returns
     -------
         Dictionary with GPU setup information
-
     """
     logger.info("🔍 Checking GPU Setup...")
 
@@ -127,7 +126,6 @@ def convert_to_onnx(
     Returns:
     -------
         Path to the converted ONNX model
-
     """
     logger.info("🔄 Converting model to ONNX format...")
 
@@ -195,7 +193,6 @@ def benchmark_model_performance(
     Returns:
     -------
         Dictionary with benchmark results
-
     """
     logger.info("📊 Starting performance benchmark...")
 

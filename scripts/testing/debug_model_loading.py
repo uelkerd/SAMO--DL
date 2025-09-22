@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Debug Model Loading Issues
-Get detailed information about why the model is not loading properly.
-"""
+"""Debug Model Loading Issues Get detailed information about why the model is not
+loading properly."""
 
 import json
 
@@ -17,7 +16,7 @@ def debug_model_loading():
     print("🔍 Debugging Model Loading Issues")
     print("=" * 50)
     print(f"Testing URL: {config.base_url}")
-    print(f"API Key: <REDACTED>")
+    print("API Key: <REDACTED>")
 
     # Test model status with API key
     print("\n1. Testing model status with API key...")

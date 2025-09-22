@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Detailed debug script to understand the errorhandler issue"""
+"""Detailed debug script to understand the errorhandler issue."""
 
 import os
 import sys
@@ -36,7 +36,7 @@ try:
     print(f"✅ errorhandler method found: {type(errorhandler_method)}")
     print(f"errorhandler callable: {callable(errorhandler_method)}")
     print(
-        f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}"
+        f"errorhandler bound: {errorhandler_method.__self__ if hasattr(errorhandler_method, '__self__') else 'Not bound'}",
     )
 except Exception as e:
     print(f"❌ errorhandler method access failed: {e}")

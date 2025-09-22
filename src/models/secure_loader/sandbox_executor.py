@@ -1,7 +1,7 @@
 """Sandbox Executor for Secure Model Loading.
 
-This module provides sandboxed execution capabilities for model loading,
-preventing potential RCE vulnerabilities and malicious code execution.
+This module provides sandboxed execution capabilities for model loading, preventing
+potential RCE vulnerabilities and malicious code execution.
 """
 
 import logging
@@ -62,7 +62,6 @@ class SandboxExecutor:
             max_cpu_time: Maximum CPU time in seconds
             max_wall_time: Maximum wall clock time in seconds
             allow_network: Whether to allow network access
-
         """
         self.max_memory_mb = max_memory_mb
         self.max_cpu_time = max_cpu_time
@@ -201,7 +200,8 @@ class SandboxExecutor:
 
     @contextmanager
     def sandbox_context(self):
-        """Context manager for sandboxed execution (resource limits, signals, network)."""
+        """Context manager for sandboxed execution (resource limits, signals,
+        network)."""
         original_signal_handlers = {}
         try:
             self._set_resource_limits()
@@ -274,7 +274,6 @@ class SandboxExecutor:
         Returns:
         -------
             Loaded model instance
-
         """
 
         def load_model():
@@ -310,7 +309,6 @@ class SandboxExecutor:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
 
         def validate_model():
@@ -342,7 +340,6 @@ class SandboxExecutor:
         Returns
         -------
             Dictionary with resource usage information
-
         """
         try:
             import psutil  # type: ignore

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Data Pipeline for SAMO Deep Learning.
 
-This module provides data processing pipelines for text and audio data,
-including preprocessing, feature extraction, and dataset management.
+This module provides data processing pipelines for text and audio data, including
+preprocessing, feature extraction, and dataset management.
 """
 
 import logging
@@ -51,7 +51,6 @@ class DataPipeline:
             validator: Data validator
             feature_engineer: Feature engineer
             embedding_method: Method for generating embeddings ('tfid', 'word2vec', or 'fasttext')
-
         """
         self.preprocessor = preprocessor or JournalEntryPreprocessor()
         self.validator = validator or DataValidator()
@@ -97,7 +96,6 @@ class DataPipeline:
         Returns:
         -------
             Dictionary of DataFrames with raw, processed, featured and embeddings data
-
         """
         raw_df = self._load_data(data_source, source_type, user_id, limit)
 
@@ -188,7 +186,6 @@ class DataPipeline:
         Returns:
         -------
             DataFrame containing raw journal entries
-
         """
         if source_type == "dataframe" and isinstance(data_source, pd.DataFrame):
             logger.info(
@@ -242,7 +239,6 @@ class DataPipeline:
             embeddings_df: DataFrame with embeddings
             topics_df: DataFrame with topic information
             save_intermediates: Whether to save intermediate DataFrames
-
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 

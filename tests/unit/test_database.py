@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for database module.
+
 Tests database connection, operations, and utilities.
 """
 

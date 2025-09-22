@@ -1,8 +1,8 @@
 # Test script for SAMO T5 Summarization Model
-"""Standalone test for SAMO T5 Summarization Model
+"""Standalone test for SAMO T5 Summarization Model.
 
-This script tests the T5 summarization model independently
-to ensure it works correctly before integration.
+This script tests the T5 summarization model independently to ensure it works correctly
+before integration.
 """
 
 import sys
@@ -70,7 +70,8 @@ def test_single_summarization(summarizer):
     ), "Compression ratio should be between 0 and 1"
     assert "emotional_keywords" in result, "Result should contain emotional keywords"
     assert isinstance(
-        result["emotional_keywords"], list
+        result["emotional_keywords"],
+        list,
     ), "Emotional keywords should be a list"
 
     print("✅ Summarization successful!")
@@ -108,7 +109,8 @@ def test_batch_processing(summarizer):
             and result["summary"].strip()
         ), f"Summary {idx} is empty"
         assert "emotional_keywords" in result and isinstance(
-            result["emotional_keywords"], list
+            result["emotional_keywords"],
+            list,
         ), f"Emotional keywords missing for input {idx}"
 
 

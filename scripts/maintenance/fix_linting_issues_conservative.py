@@ -27,7 +27,6 @@ class ConservativeLintingFixer:
         Args:
         ----
             project_root: Root directory of the project
-
         """
         self.project_root = Path(project_root)
         self.fixed_files: List[str] = []
@@ -44,7 +43,6 @@ class ConservativeLintingFixer:
         Returns:
         -------
             True if import should be preserved
-
         """
         # Check if the import is actually used in the file
         # This is a simple check - could be improved
@@ -181,7 +179,6 @@ class ConservativeLintingFixer:
         Returns:
         -------
             True if file was modified
-
         """
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -214,7 +211,6 @@ class ConservativeLintingFixer:
         Args:
         ----
             directory: Directory to process
-
         """
         dir_path = self.project_root / directory
 

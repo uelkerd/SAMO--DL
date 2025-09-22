@@ -101,7 +101,8 @@ class TestCSPConfiguration(unittest.TestCase):
             os.unlink(config_path)
 
     def test_csp_fallback_on_missing_csp_key(self):
-        """Test that CSP falls back to secure default when CSP key is missing from config."""
+        """Test that CSP falls back to secure default when CSP key is missing from
+        config."""
         # Create a temporary config file without CSP
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(
@@ -225,9 +226,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all directives in a single loop
         for directive, description in required_directives:
-            assert directive in csp_policy, (
-                f"Missing CSP directive: {description} ({directive})"
-            )
+            assert (
+                directive in csp_policy
+            ), f"Missing CSP directive: {description} ({directive})"
 
     def test_csp_policy_production_ready(self):
         """Test that CSP policy is production-ready with comprehensive security."""
@@ -246,9 +247,9 @@ class TestCSPConfiguration(unittest.TestCase):
 
         # Test all production security features in a single loop
         for directive, description in production_security:
-            assert directive in csp_policy, (
-                f"Production security missing: {description} ({directive})"
-            )
+            assert (
+                directive in csp_policy
+            ), f"Production security missing: {description} ({directive})"
 
 
 if __name__ == "__main__":

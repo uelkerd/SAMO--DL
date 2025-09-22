@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Working Inference Test Script for Emotion Detection Model
-Uses public roberta-base tokenizer and maps generic labels to emotions.
-"""
+"""Working Inference Test Script for Emotion Detection Model Uses public roberta-base
+tokenizer and maps generic labels to emotions."""
 
 import json
 from pathlib import Path

@@ -151,13 +151,13 @@ model:
     validate_model_files: true
     check_model_signatures: true
     max_model_size_mb: 1000
-    
+
     # Trusted signers configuration
     trusted_signers:
       # Key repository configuration
       key_repository_url: "https://keys.samo-dl.com/trusted-keys/"
       local_key_path: "/app/security/trusted-keys/"
-      
+
       # Allowed signer IDs and fingerprints
       allowed_signers:
         - signer_id: "samo-dl-maintainer"
@@ -166,7 +166,7 @@ model:
         - signer_id: "samo-dl-ci"
           key_fingerprint: "SHA256:abcdef1234567890..."
           description: "CI/CD signing key"
-      
+
       # Key rotation and refresh settings
       key_rotation:
         refresh_interval_hours: 24

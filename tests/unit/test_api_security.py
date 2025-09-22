@@ -333,7 +333,8 @@ class TestInputSanitizer(unittest.TestCase):
         assert len(warnings) > 0
 
     def test_deeply_nested_json_sanitization(self):
-        """Test that deeply nested JSON triggers max_depth logic and does not cause stack overflow."""
+        """Test that deeply nested JSON triggers max_depth logic and does not cause
+        stack overflow."""
         # Construct a deeply nested JSON object
         max_depth = getattr(self.sanitizer, "max_depth", 10)
         deep_data = current = {}

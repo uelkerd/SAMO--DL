@@ -69,7 +69,6 @@ def compress_model(input_model: str, output_model: str) -> bool:
     Returns:
     -------
         bool: True if successful, False otherwise
-
     """
     try:
         device = torch.device("cpu")  # Quantization requires CPU
@@ -170,7 +169,6 @@ def get_model_size(model: torch.nn.Module) -> float:
     Returns:
     -------
         float: Model size in MB
-
     """
     temp_file = Path("temp_model.pt")
     torch.save(model.state_dict(), temp_file)
@@ -190,7 +188,6 @@ def benchmark_inference(model: torch.nn.Module, num_runs: int = 50) -> float:
     Returns:
     -------
         float: Average inference time in seconds
-
     """
     dummy_input = {
         "input_ids": torch.randint(0, 30522, (1, 128)),

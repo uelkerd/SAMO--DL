@@ -10,7 +10,6 @@ Notes
 - Sets User-Agent: testclient to bypass local rate limiting.
 - Mints a short-lived elevated JWT for endpoints requiring special permissions.
 - Keeps output minimal: endpoint, status, brief detail.
-
 """
 
 import argparse

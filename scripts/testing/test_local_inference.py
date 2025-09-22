@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Local Inference Test Script for Emotion Detection Model
-Tests the downloaded model files directly without API server.
-"""
+"""Local Inference Test Script for Emotion Detection Model Tests the downloaded model
+files directly without API server."""
 
 import sys
 

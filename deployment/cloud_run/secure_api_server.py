@@ -18,9 +18,9 @@ from flask_restx import Api, Namespace, Resource, fields
 # Import shared model utilities
 from model_utils import (
     ensure_model_loaded,
+    get_emotion_labels,
     get_model_status,
     predict_emotions,
-    get_emotion_labels,
 )
 from rate_limiter import rate_limit
 
@@ -43,7 +43,7 @@ add_security_headers(app)
 # Register root endpoint BEFORE Flask-RESTX initialization to avoid conflicts
 @app.route("/")
 def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX's root
-    """Get API status and information"""
+    """Get API status and information."""
     try:
         logger.info(f"Root endpoint accessed from {request.remote_addr}")
         return jsonify(
@@ -54,7 +54,7 @@ def home():  # Changed from api_root to home to avoid conflict with Flask-RESTX'
                 "security": "enabled",
                 "rate_limit": RATE_LIMIT_PER_MINUTE,
                 "timestamp": time.time(),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"Root endpoint error for {request.remote_addr}: {e!s}")
@@ -81,7 +81,9 @@ api = Api(
 
 # Create namespaces for better organization
 main_ns = Namespace(
-    "api", description="Main API operations", path="/api"
+    "api",
+    description="Main API operations",
+    path="/api",
 )
 admin_ns = Namespace(
     "admin",
@@ -124,8 +126,8 @@ emotion_response_model = api.model(
                         "emotion": fields.String(description="Emotion label"),
                         "confidence": fields.Float(description="Confidence score"),
                     },
-                )
-            )
+                ),
+            ),
         ),
         "confidence": fields.Float(description="Overall confidence"),
         "request_id": fields.String(description="Unique request identifier"),
@@ -184,9 +186,9 @@ EMOTION_MAPPING = None  # Will be initialized from model labels
 
 
 def initialize_emotion_mapping():
-    """Initialize emotion mapping from the loaded model"""
+    """Initialize emotion mapping from the loaded model."""
     global EMOTION_MAPPING
-    
+
     if EMOTION_MAPPING is None:
         try:
             EMOTION_MAPPING = get_emotion_labels()
@@ -195,20 +197,30 @@ def initialize_emotion_mapping():
             logger.warning(f"Failed to get emotion labels from model: {e}")
             # Fallback to static mapping
             EMOTION_MAPPING = [
-                "anxious", "calm", "content", "excited", "frustrated",
-                "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
+                "anxious",
+                "calm",
+                "content",
+                "excited",
+                "frustrated",
+                "grateful",
+                "happy",
+                "hopeful",
+                "overwhelmed",
+                "proud",
+                "sad",
+                "tired",
             ]
             logger.info(f"Using fallback emotion mapping: {EMOTION_MAPPING}")
 
 
 def setup_request_id():
-    """Set up request ID from X-Request-ID header or generate new one"""
-    if not hasattr(g, 'request_id'):
-        g.request_id = request.headers.get('X-Request-ID', str(uuid.uuid4()))
+    """Set up request ID from X-Request-ID header or generate new one."""
+    if not hasattr(g, "request_id"):
+        g.request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
 
 
 def require_api_key(f):
-    """Decorator to require API key via X-API-Key header"""
+    """Decorator to require API key via X-API-Key header."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -222,14 +234,14 @@ def require_api_key(f):
 
 
 def verify_api_key(api_key: str) -> bool:
-    """Verify API key using constant-time comparison"""
+    """Verify API key using constant-time comparison."""
     if not api_key:
         return False
     return hmac.compare_digest(api_key, ADMIN_API_KEY)
 
 
 def sanitize_input(text: str) -> str:
-    """Sanitize input text"""
+    """Sanitize input text."""
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
 
@@ -260,19 +272,19 @@ def sanitize_input(text: str) -> str:
 
 
 def load_model():
-    """Load the emotion detection model using shared utilities"""
+    """Load the emotion detection model using shared utilities."""
     # Use the shared model loading function
     success = ensure_model_loaded()
     if not success:
         logger.error("❌ Model loading failed")
         raise RuntimeError("Model loading failed - check logs for details")
-    
+
     # Initialize emotion mapping from the loaded model
     initialize_emotion_mapping()
 
 
 def predict_emotion(text: str) -> dict:
-    """Predict emotion for given text using shared utilities"""
+    """Predict emotion for given text using shared utilities."""
     # Use shared prediction function
     result = predict_emotions(text)
 
@@ -283,13 +295,13 @@ def predict_emotion(text: str) -> dict:
 
 
 def check_model_loaded():
-    """Ensure model is loaded before processing requests"""
+    """Ensure model is loaded before processing requests."""
     # Use shared model loading function
     return ensure_model_loaded()
 
 
 def create_error_response(error_message: str, status_code: int):
-    """Create a properly formatted error response for Flask-RESTX"""
+    """Create a properly formatted error response for Flask-RESTX."""
     error_response = {
         "error": error_message,
         "status_code": status_code,
@@ -306,16 +318,16 @@ def handle_rate_limit_exceeded():
 
 
 def log_rate_limit_info():
-    """Log rate limiting information for debugging"""
+    """Log rate limiting information for debugging."""
     logger.debug(
-        f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute"
+        f"Rate limiting configured: {RATE_LIMIT_PER_MINUTE} requests per minute",
     )
     logger.debug(f"Current request from: {request.remote_addr}")
 
 
 @app.before_request
 def before_request():
-    """Add request ID and timing to all requests"""
+    """Add request ID and timing to all requests."""
     g.start_time = time.time()
     setup_request_id()
 
@@ -326,7 +338,7 @@ def before_request():
 
     # Log incoming requests for debugging
     logger.info(
-        f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})"
+        f"📥 Request: {request.method} {request.path} from {request.remote_addr} (ID: {g.request_id})",
     )
 
     # Log request headers for debugging (excluding sensitive ones)
@@ -340,7 +352,7 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    """Add request tracking headers"""
+    """Add request tracking headers."""
     if hasattr(g, "start_time"):
         duration = time.time() - g.start_time
         response.headers["X-Request-Duration"] = str(duration)
@@ -350,7 +362,7 @@ def after_request(response):
     # Log response for debugging
     logger.info(
         f"📤 Response: {response.status_code} for {request.method} {request.path} "
-        f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)"
+        f"from {request.remote_addr} (ID: {g.request_id}, Duration: {duration:.3f}s)",
     )
 
     return response
@@ -363,7 +375,7 @@ class Health(Resource):
     @api.response(503, "Service Unavailable", error_model)
     @api.response(500, "Internal Server Error", error_model)
     def get(self):
-        """Get API health status"""
+        """Get API health status."""
         try:
             logger.info(f"Health check from {request.remote_addr}")
             model_status = check_model_loaded()
@@ -379,7 +391,8 @@ class Health(Resource):
                 }
             logger.warning("Health check failed - model not ready")
             return create_error_response(
-                "Service unavailable - model not ready", 503
+                "Service unavailable - model not ready",
+                503,
             )
 
         except Exception as e:
@@ -399,7 +412,7 @@ class Predict(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotion for a single text input"""
+        """Predict emotion for a single text input."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -408,14 +421,14 @@ class Predict(Resource):
             data = request.get_json()
             if not data or "text" not in data:
                 logger.warning(
-                    f"Missing text field in request from {request.remote_addr}"
+                    f"Missing text field in request from {request.remote_addr}",
                 )
                 return create_error_response("Missing text field", 400)
 
             text = data["text"]
             if not text or not isinstance(text, str):
                 logger.warning(
-                    f"Invalid text input from {request.remote_addr}: {type(text)}"
+                    f"Invalid text input from {request.remote_addr}: {type(text)}",
                 )
                 return create_error_response("Text must be a non-empty string", 400)
 
@@ -424,7 +437,7 @@ class Predict(Resource):
                 text = sanitize_input(text)
             except ValueError as e:
                 logger.warning(
-                    f"Input sanitization failed for {request.remote_addr}: {e!s}"
+                    f"Input sanitization failed for {request.remote_addr}: {e!s}",
                 )
                 return create_error_response(str(e), 400)
 
@@ -455,7 +468,7 @@ class PredictBatch(Resource):
     @rate_limit(RATE_LIMIT_PER_MINUTE)
     @require_api_key
     def post(self):
-        """Predict emotions for multiple text inputs"""
+        """Predict emotions for multiple text inputs."""
         try:
             # Log rate limiting info for debugging
             log_rate_limit_info()
@@ -464,20 +477,20 @@ class PredictBatch(Resource):
             data = request.get_json()
             if not data or "texts" not in data:
                 logger.warning(
-                    f"Missing texts field in batch request from {request.remote_addr}"
+                    f"Missing texts field in batch request from {request.remote_addr}",
                 )
                 return create_error_response("Missing texts field", 400)
 
             texts = data["texts"]
             if not isinstance(texts, list) or len(texts) == 0:
                 logger.warning(
-                    f"Invalid texts input from {request.remote_addr}: {type(texts)}"
+                    f"Invalid texts input from {request.remote_addr}: {type(texts)}",
                 )
                 return create_error_response("Texts must be a non-empty list", 400)
 
             if len(texts) > 100:  # Limit batch size
                 logger.warning(
-                    f"Batch size too large from {request.remote_addr}: {len(texts)}"
+                    f"Batch size too large from {request.remote_addr}: {len(texts)}",
                 )
                 return create_error_response("Batch size too large (max 100)", 400)
 
@@ -488,7 +501,7 @@ class PredictBatch(Resource):
 
             # Process each text
             logger.info(
-                f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts"
+                f"Processing batch prediction request for {request.remote_addr} with {len(texts)} texts",
             )
             results = []
             for text in texts:
@@ -501,7 +514,7 @@ class PredictBatch(Resource):
                     results.append(result)
                 except Exception as e:
                     logger.warning(
-                        f"Failed to process text in batch from {request.remote_addr}: {e!s}"
+                        f"Failed to process text in batch from {request.remote_addr}: {e!s}",
                     )
                     continue
 
@@ -518,14 +531,14 @@ class Emotions(Resource):
     @api.response(200, "Success")
     @api.response(500, "Internal Server Error", error_model)
     def get(self):
-        """Get list of supported emotions"""
+        """Get list of supported emotions."""
         try:
             logger.info(f"Emotions list requested from {request.remote_addr}")
-            
+
             # Ensure emotion mapping is initialized
             if EMOTION_MAPPING is None:
                 initialize_emotion_mapping()
-            
+
             return {
                 "emotions": EMOTION_MAPPING,
                 "count": len(EMOTION_MAPPING),
@@ -582,33 +595,33 @@ class SecurityStatus(Resource):
 
 # Error handlers for Flask-RESTX - using direct registration due to decorator compatibility issue
 def rate_limit_exceeded(error):
-    """Handle rate limit exceeded errors"""
+    """Handle rate limit exceeded errors."""
     logger.warning(f"Rate limit exceeded for {request.remote_addr}")
     return create_error_response("Rate limit exceeded - too many requests", 429)
 
 
 def internal_error(error):
-    """Handle internal server errors"""
+    """Handle internal server errors."""
     logger.error(f"Internal server error for {request.remote_addr}: {error!s}")
     return create_error_response("Internal server error", 500)
 
 
 def not_found(error):
-    """Handle not found errors"""
+    """Handle not found errors."""
     logger.warning(f"Endpoint not found for {request.remote_addr}: {request.url}")
     return create_error_response("Endpoint not found", 404)
 
 
 def method_not_allowed(error):
-    """Handle method not allowed errors"""
+    """Handle method not allowed errors."""
     logger.warning(
-        f"Method not allowed for {request.remote_addr}: {request.method} {request.url}"
+        f"Method not allowed for {request.remote_addr}: {request.method} {request.url}",
     )
     return create_error_response("Method not allowed", 405)
 
 
 def handle_unexpected_error(error):
-    """Handle any unexpected errors"""
+    """Handle any unexpected errors."""
     logger.error(f"Unexpected error for {request.remote_addr}: {error!s}")
     return create_error_response("An unexpected error occurred", 500)
 
@@ -622,11 +635,11 @@ api.error_handlers[Exception] = handle_unexpected_error
 
 
 def initialize_model():
-    """Initialize the emotion detection model"""
+    """Initialize the emotion detection model."""
     try:
         logger.info("🚀 Initializing emotion detection API server...")
         logger.info(
-            f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min"
+            f"📊 Configuration: MAX_INPUT_LENGTH={MAX_INPUT_LENGTH}, RATE_LIMIT={RATE_LIMIT_PER_MINUTE}/min",
         )
         logger.info("🔐 Security: API key protection enabled, Admin API key configured")
         logger.info(f"🌐 Server: Port {PORT}, Model path: {MODEL_PATH}")
@@ -652,7 +665,7 @@ else:
     # For production deployment - don't initialize during import
     # Model will be initialized when the app actually starts
     logger.info(
-        "🚀 Production deployment detected - model will be initialized on first request"
+        "🚀 Production deployment detected - model will be initialized on first request",
     )
 
 # Root endpoint is now registered BEFORE Flask-RESTX initialization to avoid conflicts

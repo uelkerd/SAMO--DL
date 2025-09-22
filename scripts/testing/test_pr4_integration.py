@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Integration Tests for PR #4: Documentation & Security Enhancements.
 
-This script validates that the security configurations and documentation
-implemented in PR #4 are properly integrated and functional.
+This script validates that the security configurations and documentation implemented in
+PR #4 are properly integrated and functional.
 """
 
 import shutil

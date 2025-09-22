@@ -1,8 +1,8 @@
 """Database connection and session management for SAMO Deep Learning.
 
-This module provides SQLAlchemy database configuration with support for
-PostgreSQL with pgvector extension for storing embeddings and text data.
-Includes session management and table creation utilities.
+This module provides SQLAlchemy database configuration with support for PostgreSQL with
+pgvector extension for storing embeddings and text data. Includes session management and
+table creation utilities.
 """
 
 import os
@@ -54,9 +54,7 @@ else:
             "dev/test.",
         )
     default_sqlite_path = (
-        Path(os.environ.get("SQLITE_PATH", "./samo_local.db"))
-        .expanduser()
-        .resolve()
+        Path(os.environ.get("SQLITE_PATH", "./samo_local.db")).expanduser().resolve()
     )
     # Ensure directory for SQLite exists before engine creation
     sqlite_dir = default_sqlite_path.parent
@@ -98,7 +96,6 @@ def get_db():
     Yields
     ------
         Session: SQLAlchemy database session
-
     """
     db = SessionLocal()
     try:

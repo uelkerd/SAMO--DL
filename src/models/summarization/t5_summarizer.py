@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """T5-based Text Summarization for SAMO Deep Learning.
 
-This module provides T5-based text summarization capabilities for
-journal entries and other text content.
+This module provides T5-based text summarization capabilities for journal entries and
+other text content.
 """
 
 import logging
@@ -72,7 +72,6 @@ class SummarizationDataset(Dataset):
             tokenizer: Tokenizer for the model
             max_source_length: Maximum input sequence length
             max_target_length: Maximum summary sequence length
-
         """
         self.texts = texts
         self.summaries = summaries
@@ -134,7 +133,6 @@ class T5SummarizationModel(nn.Module):
         ----
             config: Model configuration
             model_name: Override model name from config
-
         """
         super().__init__()
 
@@ -219,7 +217,6 @@ class T5SummarizationModel(nn.Module):
         Returns:
         -------
             Generated summary text
-
         """
         # Treat API max/min as new token targets for speed and stability on CPU
         max_length = max_length or self.config.max_target_length
@@ -289,7 +286,6 @@ class T5SummarizationModel(nn.Module):
         Returns:
         -------
             List of generated summaries
-
         """
         summaries = []
 
@@ -393,7 +389,6 @@ def create_t5_summarizer(
     Returns:
     -------
         Configured T5SummarizationModel instance
-
     """
     config = SummarizationConfig(
         model_name=model_name,

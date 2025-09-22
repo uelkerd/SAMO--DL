@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 @dataclass
 class CloudRunConfig:
-    """Cloud Run specific configuration"""
+    """Cloud Run specific configuration."""
 
     # Resource allocation
     memory_limit_mb: int = 2048
@@ -50,14 +50,14 @@ class CloudRunConfig:
 
 
 class EnvironmentConfig:
-    """Environment-specific configuration management"""
+    """Environment-specific configuration management."""
 
     def __init__(self, environment: Optional[str] = None):
         self.environment = environment or os.getenv("ENVIRONMENT", "development")
         self.config = self._load_environment_config()
 
     def _load_environment_config(self) -> CloudRunConfig:
-        """Load configuration based on environment"""
+        """Load configuration based on environment."""
         if self.environment == "production":
             return CloudRunConfig(
                 memory_limit_mb=int(os.getenv("MEMORY_LIMIT_MB", "2048") or "2048"),
@@ -67,23 +67,23 @@ class EnvironmentConfig:
                 concurrency=int(os.getenv("CONCURRENCY", "80") or "80"),
                 timeout_seconds=int(os.getenv("TIMEOUT_SECONDS", "300") or "300"),
                 target_cpu_utilization=float(
-                    os.getenv("TARGET_CPU_UTILIZATION", "0.7") or "0.7"
+                    os.getenv("TARGET_CPU_UTILIZATION", "0.7") or "0.7",
                 ),
                 target_memory_utilization=float(
-                    os.getenv("TARGET_MEMORY_UTILIZATION", "0.8") or "0.8"
+                    os.getenv("TARGET_MEMORY_UTILIZATION", "0.8") or "0.8",
                 ),
                 health_check_interval_seconds=int(
-                    os.getenv("HEALTH_CHECK_INTERVAL", "30") or "30"
+                    os.getenv("HEALTH_CHECK_INTERVAL", "30") or "30",
                 ),
                 graceful_shutdown_timeout_seconds=int(
-                    os.getenv("GRACEFUL_SHUTDOWN_TIMEOUT", "30") or "30"
+                    os.getenv("GRACEFUL_SHUTDOWN_TIMEOUT", "30") or "30",
                 ),
                 enable_monitoring=os.getenv("ENABLE_MONITORING", "true").lower()
                 == "true",
                 enable_metrics=os.getenv("ENABLE_METRICS", "true").lower() == "true",
                 log_level=os.getenv("LOG_LEVEL", "info"),
                 max_requests_per_minute=int(
-                    os.getenv("MAX_REQUESTS_PER_MINUTE", "1000") or "1000"
+                    os.getenv("MAX_REQUESTS_PER_MINUTE", "1000") or "1000",
                 ),
                 enable_cors=True,
                 cors_origins=os.getenv("CORS_ORIGINS", "*").split(","),
@@ -134,7 +134,7 @@ class EnvironmentConfig:
         )
 
     def get_gunicorn_config(self) -> Dict[str, Any]:
-        """Get Gunicorn configuration for Cloud Run"""
+        """Get Gunicorn configuration for Cloud Run."""
         port = os.getenv("PORT", "8080")
         return {
             "bind": f"0.0.0.0:{port}",
@@ -153,7 +153,7 @@ class EnvironmentConfig:
         }
 
     def get_health_check_config(self) -> Dict[str, Any]:
-        """Get health check configuration"""
+        """Get health check configuration."""
         return {
             "interval_seconds": self.config.health_check_interval_seconds,
             "timeout_seconds": self.config.health_check_timeout_seconds,
@@ -162,7 +162,7 @@ class EnvironmentConfig:
         }
 
     def get_monitoring_config(self) -> Dict[str, Any]:
-        """Get monitoring configuration"""
+        """Get monitoring configuration."""
         return {
             "enabled": self.config.enable_monitoring,
             "metrics_enabled": self.config.enable_metrics,
@@ -172,7 +172,7 @@ class EnvironmentConfig:
         }
 
     def get_security_config(self) -> Dict[str, Any]:
-        """Get security configuration"""
+        """Get security configuration."""
         return {
             "enable_cors": self.config.enable_cors,
             "cors_origins": self.config.cors_origins,
@@ -182,7 +182,7 @@ class EnvironmentConfig:
         }
 
     def validate_config(self) -> None:
-        """Validate configuration settings"""
+        """Validate configuration settings."""
         # Validate resource limits
         if not 512 <= self.config.memory_limit_mb <= 8192:
             raise AssertionError("Memory limit must be between 512MB and 8GB")
@@ -198,7 +198,7 @@ class EnvironmentConfig:
             raise AssertionError("Timeout must be between 10 and 900 seconds")
         if not 5 <= self.config.health_check_interval_seconds <= 300:
             raise AssertionError(
-                "Health check interval must be between 5 and 300 seconds"
+                "Health check interval must be between 5 and 300 seconds",
             )
 
         # Validate utilization targets
@@ -206,11 +206,11 @@ class EnvironmentConfig:
             raise AssertionError("CPU utilization target must be between 0.1 and 0.9")
         if not 0.1 <= self.config.target_memory_utilization <= 0.9:
             raise AssertionError(
-                "Memory utilization target must be between 0.1 and 0.9"
+                "Memory utilization target must be between 0.1 and 0.9",
             )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to dictionary"""
+        """Convert configuration to dictionary."""
         return {
             "environment": self.environment,
             "cloud_run": {
@@ -235,5 +235,5 @@ config = EnvironmentConfig()
 
 
 def get_config() -> EnvironmentConfig:
-    """Get the global configuration instance"""
+    """Get the global configuration instance."""
     return config

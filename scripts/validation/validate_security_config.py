@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Security Configuration Validator.
 
-This script validates the security configuration file to ensure all required
-settings are present and valid according to the security schema.
+This script validates the security configuration file to ensure all required settings
+are present and valid according to the security schema.
 """
 
 import sys

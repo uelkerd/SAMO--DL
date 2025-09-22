@@ -1,7 +1,7 @@
 """Shared model utilities for Cloud Run deployment with Hugging Face emotion model.
 
-This module provides common functionality for model loading, inference,
-and error handling to eliminate code duplication between API servers.
+This module provides common functionality for model loading, inference, and error
+handling to eliminate code duplication between API servers.
 """
 
 import logging
@@ -67,7 +67,6 @@ def _create_emotion_pipeline(tokenizer, model) -> TextClassificationPipeline:
     Returns:
     -------
         A configured Hugging Face text-classification pipeline.
-
     """
     return pipeline(
         task="text-classification",
@@ -90,7 +89,6 @@ def _validate_and_prepare_texts(
     Returns:
     -------
         Tuple of (results_list, valid_texts, valid_indices)
-
     """
     results = [None] * len(texts)
     valid_texts = []
@@ -122,7 +120,6 @@ def ensure_model_loaded() -> bool:
     Returns
     -------
         bool: True if model is loaded successfully, False otherwise
-
     """
     global emotion_pipeline, model_loaded, model_loading, emotion_labels_runtime
 
@@ -170,7 +167,8 @@ def ensure_model_loaded() -> bool:
                 logger.info("✅ Emotion model loaded from Hugging Face Hub")
             except Exception as download_error:
                 logger.warning(
-                    "Failed to load from cache, downloading model: %s", download_error
+                    "Failed to load from cache, downloading model: %s",
+                    download_error,
                 )
                 # Force download the model
                 from huggingface_hub import snapshot_download
@@ -200,7 +198,8 @@ def ensure_model_loaded() -> bool:
             emotion_labels_runtime = [id2label[i] for i in range(len(id2label))]
         except Exception as label_err:
             logger.debug(
-                "Unable to derive runtime labels from model config: %s", label_err
+                "Unable to derive runtime labels from model config: %s",
+                label_err,
             )
         with model_lock:
             model_loaded = True
@@ -228,7 +227,6 @@ def predict_emotions(text: str) -> Dict[str, Any]:
     Returns:
     -------
         Dict[str, Any]: Prediction results with emotions and confidence scores
-
     """
     # Validate input first
     ok, err = validate_text_input(text)
@@ -253,7 +251,7 @@ def predict_emotions(text: str) -> Dict[str, Any]:
                 {
                     "emotion": result["label"],
                     "confidence": result["score"],
-                }
+                },
             )
 
         # Sort by confidence (highest first)
@@ -284,7 +282,6 @@ def get_model_status() -> Dict[str, Any]:
     Returns
     -------
         Dict[str, Any]: Model status information
-
     """
     return {
         "model_loaded": model_loaded,
@@ -300,17 +297,17 @@ def get_model_status() -> Dict[str, Any]:
 
 def get_emotion_labels() -> List[str]:
     """Get the current emotion labels from the loaded model.
-    
-    Returns:
+
+    Returns
     -------
         List[str]: List of emotion labels in the correct order
     """
     global emotion_labels_runtime
-    
+
     if not model_loaded:
         logger.warning("Model not loaded, returning fallback labels")
         return EMOTION_LABELS.copy()
-    
+
     return emotion_labels_runtime.copy()
 
 
@@ -324,7 +321,6 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     Returns:
     -------
         List[Dict[str, Any]]: List of prediction results for each text
-
     """
     if not ensure_model_loaded():
         return [
@@ -339,7 +335,7 @@ def predict_emotions_batch(texts: List[str]) -> List[Dict[str, Any]]:
     try:
         # Validate and prepare texts for processing
         results, valid_texts_to_process, valid_indices = _validate_and_prepare_texts(
-            texts
+            texts,
         )
 
         # Only run pipeline if there are valid texts
@@ -398,7 +394,6 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
     Returns:
     -------
         Tuple[bool, str]: (is_valid, error_message)
-
     """
     if not isinstance(text, str) or not text.strip():
         return False, "Text must be a non-empty string"

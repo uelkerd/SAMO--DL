@@ -65,13 +65,13 @@ class TestSecurityIntegration(unittest.TestCase):
         # Test all headers with consistent validation
         for header, validation in required_headers:
             assert header in response.headers, f"Missing security header: {header}"
-            assert isinstance(response.headers[header], str), (
-                f"Header {header} should be string"
-            )
+            assert isinstance(
+                response.headers[header], str
+            ), f"Header {header} should be string"
             if validation == "non-empty":
-                assert len(response.headers[header]) > 0, (
-                    f"Header {header} should not be empty"
-                )
+                assert (
+                    len(response.headers[header]) > 0
+                ), f"Header {header} should not be empty"
 
     def test_csp_policy_default_src(self):
         """Test that CSP policy includes default-src directive."""
@@ -106,23 +106,23 @@ class TestSecurityIntegration(unittest.TestCase):
     def test_csp_policy_frame_ancestors(self):
         """Test that CSP policy includes frame-ancestors directive."""
         csp_policy = self.middleware._build_csp_policy()
-        assert "frame-ancestors 'none'" in csp_policy, (
-            "Missing frame-ancestors directive"
-        )
+        assert (
+            "frame-ancestors 'none'" in csp_policy
+        ), "Missing frame-ancestors directive"
 
     def test_csp_policy_upgrade_insecure_requests(self):
         """Test that CSP policy includes upgrade-insecure-requests directive."""
         csp_policy = self.middleware._build_csp_policy()
-        assert "upgrade-insecure-requests" in csp_policy, (
-            "Missing upgrade-insecure-requests directive"
-        )
+        assert (
+            "upgrade-insecure-requests" in csp_policy
+        ), "Missing upgrade-insecure-requests directive"
 
     def test_csp_policy_block_mixed_content(self):
         """Test that CSP policy includes block-all-mixed-content directive."""
         csp_policy = self.middleware._build_csp_policy()
-        assert "block-all-mixed-content" in csp_policy, (
-            "Missing block-all-mixed-content directive"
-        )
+        assert (
+            "block-all-mixed-content" in csp_policy
+        ), "Missing block-all-mixed-content directive"
 
     def test_csp_disallows_unsafe_inline_and_eval(self):
         """Test that CSP policy does NOT allow unsafe directives."""
@@ -158,9 +158,9 @@ class TestSecurityIntegration(unittest.TestCase):
     def test_permissions_policy_encrypted_media(self):
         """Test that permissions policy restricts encrypted media access."""
         permissions_policy = self.middleware._build_permissions_policy()
-        assert "encrypted-media=()" in permissions_policy, (
-            "Missing encrypted media restriction"
-        )
+        assert (
+            "encrypted-media=()" in permissions_policy
+        ), "Missing encrypted media restriction"
 
     def test_user_agent_analysis_integration(self):
         """Test user agent analysis integration with security middleware."""
@@ -361,21 +361,21 @@ class TestSecurityIntegration(unittest.TestCase):
 
         # Test each production security header individually
         assert "X-Frame-Options" in response.headers, "Missing X-Frame-Options header"
-        assert response.headers["X-Frame-Options"] == "DENY", (
-            "X-Frame-Options should be DENY"
-        )
+        assert (
+            response.headers["X-Frame-Options"] == "DENY"
+        ), "X-Frame-Options should be DENY"
 
-        assert "X-Content-Type-Options" in response.headers, (
-            "Missing X-Content-Type-Options header"
-        )
-        assert response.headers["X-Content-Type-Options"] == "nosniff", (
-            "X-Content-Type-Options should be nosniff"
-        )
+        assert (
+            "X-Content-Type-Options" in response.headers
+        ), "Missing X-Content-Type-Options header"
+        assert (
+            response.headers["X-Content-Type-Options"] == "nosniff"
+        ), "X-Content-Type-Options should be nosniff"
 
         assert "X-XSS-Protection" in response.headers, "Missing X-XSS-Protection header"
-        assert response.headers["X-XSS-Protection"] == "1; mode=block", (
-            "X-XSS-Protection should be 1; mode=block"
-        )
+        assert (
+            response.headers["X-XSS-Protection"] == "1; mode=block"
+        ), "X-XSS-Protection should be 1; mode=block"
 
         assert "Referrer-Policy" in response.headers, "Missing Referrer-Policy header"
         assert (

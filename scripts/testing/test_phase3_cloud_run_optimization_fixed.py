@@ -107,18 +107,18 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
         assert "uptime_seconds" in metrics, "Missing metric: uptime_seconds"
 
         # Validate metric types
-        assert isinstance(metrics["memory_usage_mb"], (int, float)), (
-            "memory_usage_mb should be numeric"
-        )
-        assert isinstance(metrics["cpu_usage_percent"], (int, float)), (
-            "cpu_usage_percent should be numeric"
-        )
-        assert isinstance(metrics["memory_percent"], (int, float)), (
-            "memory_percent should be numeric"
-        )
-        assert isinstance(metrics["uptime_seconds"], (int, float)), (
-            "uptime_seconds should be numeric"
-        )
+        assert isinstance(
+            metrics["memory_usage_mb"], (int, float)
+        ), "memory_usage_mb should be numeric"
+        assert isinstance(
+            metrics["cpu_usage_percent"], (int, float)
+        ), "cpu_usage_percent should be numeric"
+        assert isinstance(
+            metrics["memory_percent"], (int, float)
+        ), "memory_percent should be numeric"
+        assert isinstance(
+            metrics["uptime_seconds"], (int, float)
+        ), "uptime_seconds should be numeric"
 
         print("✅ System metrics structure validation passed")
 
@@ -270,9 +270,9 @@ class Phase3CloudRunOptimizationTestFixed(unittest.TestCase):
 
         # Check for health and monitoring environment variables
         assert "HEALTH_CHECK_INTERVAL" in args_str, "Missing health check interval"
-        assert "GRACEFUL_SHUTDOWN_TIMEOUT" in args_str, (
-            "Missing graceful shutdown timeout"
-        )
+        assert (
+            "GRACEFUL_SHUTDOWN_TIMEOUT" in args_str
+        ), "Missing graceful shutdown timeout"
         assert "ENABLE_MONITORING" in args_str, "Missing monitoring enablement"
         assert "ENABLE_HEALTH_CHECKS" in args_str, "Missing health checks enablement"
 

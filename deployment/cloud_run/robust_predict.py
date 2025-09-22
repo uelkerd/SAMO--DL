@@ -53,8 +53,7 @@ MAX_INPUT_LENGTH = 512
 
 
 def load_model():
-    """Load the emotion detection model"""
-
+    """Load the emotion detection model."""
     with model_lock:
         if model_loading or model_loaded:
             return
@@ -84,7 +83,7 @@ def load_model():
         model.eval()
 
         emotion_mapping = EMOTION_MAPPING
-        
+
         with model_lock:
             model_loaded = True
             model_loading = False
@@ -103,8 +102,7 @@ def load_model():
 
 
 def predict_emotion(text):
-    """Predict emotion for given text"""
-
+    """Predict emotion for given text."""
     if not model_loaded:
         raise RuntimeError("Model not loaded")
 
@@ -141,7 +139,7 @@ def predict_emotion(text):
 
 
 def ensure_model_loaded():
-    """Ensure model is loaded before processing requests"""
+    """Ensure model is loaded before processing requests."""
     if not model_loaded and not model_loading:
         load_model()
 
@@ -150,32 +148,32 @@ def ensure_model_loaded():
 
 
 def create_error_response(message, status_code=500):
-    """Create standardized error response with request ID for debugging"""
+    """Create standardized error response with request ID for debugging."""
     request_id = str(uuid.uuid4())
     logger.exception(f"{message} [request_id={request_id}]")
     return jsonify(
         {
             "error": message,
             "request_id": request_id,
-        }
+        },
     ), status_code
 
 
 @app.route("/", methods=["GET"])
 def root():
-    """Root endpoint"""
+    """Root endpoint."""
     return jsonify(
         {
             "message": "Hello from SAMO Emotion Detection API!",
             "status": "running",
             "timestamp": time.time(),
-        }
+        },
     )
 
 
 @app.route("/health", methods=["GET"])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return jsonify(
         {
             "status": "healthy",
@@ -183,13 +181,13 @@ def health_check():
             "model_loading": model_loading,
             "port": os.environ.get("PORT", "8080"),
             "timestamp": time.time(),
-        }
+        },
     )
 
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Predict emotion for given text"""
+    """Predict emotion for given text."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -216,13 +214,13 @@ def predict():
 
     except Exception:
         return create_error_response(
-            "Prediction processing failed. Please try again later."
+            "Prediction processing failed. Please try again later.",
         )
 
 
 @app.route("/predict_batch", methods=["POST"])
 def predict_batch():
-    """Predict emotions for multiple texts"""
+    """Predict emotions for multiple texts."""
     try:
         # Ensure model is loaded
         ensure_model_loaded()
@@ -253,24 +251,24 @@ def predict_batch():
 
     except Exception:
         return create_error_response(
-            "Batch prediction processing failed. Please try again later."
+            "Batch prediction processing failed. Please try again later.",
         )
 
 
 @app.route("/emotions", methods=["GET"])
 def get_emotions():
-    """Get list of supported emotions"""
+    """Get list of supported emotions."""
     return jsonify(
         {
             "emotions": EMOTION_MAPPING,
             "count": len(EMOTION_MAPPING),
-        }
+        },
     )
 
 
 @app.route("/model_status", methods=["GET"])
 def model_status():
-    """Get detailed model status"""
+    """Get detailed model status."""
     return jsonify(
         {
             "model_loaded": model_loaded,
@@ -278,13 +276,13 @@ def model_status():
             "emotions": EMOTION_MAPPING if model_loaded else [],
             "device": "cpu",
             "timestamp": time.time(),
-        }
+        },
     )
 
 
 # Load model on startup
 def initialize_model():
-    """Initialize model before first request"""
+    """Initialize model before first request."""
     try:
         load_model()
     except Exception:

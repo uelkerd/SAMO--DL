@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """SAMO Emotion Detection API Demo.
 
-This demo showcases the emotion detection pipeline working with pre-trained
-models and provides a preview of the API interface for Web Dev integration.
+This demo showcases the emotion detection pipeline working with pre-trained models and
+provides a preview of the API interface for Web Dev integration.
 """
 
 import logging
@@ -283,7 +283,6 @@ async def analyze_emotion(
     Raises:
     ------
         HTTPException: If the model is not loaded or if processing fails
-
     """
     if model is None or tokenizer is None:
         raise HTTPException(
@@ -369,7 +368,6 @@ async def analyze_emotions_batch(
     Raises:
     ------
         HTTPException: If the model is not loaded or processing fails
-
     """
     if model is None or tokenizer is None:
         raise HTTPException(

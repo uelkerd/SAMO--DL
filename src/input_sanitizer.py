@@ -108,7 +108,6 @@ class InputSanitizer:
         Returns:
         -------
             Tuple of (sanitized_text, warnings)
-
         """
         warnings = []
 
@@ -160,7 +159,6 @@ class InputSanitizer:
         Returns:
         -------
             Tuple of (sanitized_data, warnings)
-
         """
         warnings = []
 
@@ -194,7 +192,6 @@ class InputSanitizer:
         Returns:
         -------
             Tuple of (sanitized_data, warnings)
-
         """
         warnings = []
         sanitized_data = {}
@@ -236,7 +233,6 @@ class InputSanitizer:
         Returns:
         -------
             Tuple of (sanitized_data, warnings)
-
         """
         warnings: List[str] = []
         sanitized_data: Dict[str, Any] = {}
@@ -294,7 +290,6 @@ class InputSanitizer:
         Returns:
         -------
             True if valid, False otherwise
-
         """
         if not self.config.enable_content_type_validation:
             return True
@@ -315,7 +310,6 @@ class InputSanitizer:
         Returns:
         -------
             Tuple of (sanitized_headers, warnings)
-
         """
         warnings = []
         sanitized_headers = {}
@@ -345,7 +339,6 @@ class InputSanitizer:
         Returns:
         -------
             List of detected anomalies
-
         """
         anomalies = []
 

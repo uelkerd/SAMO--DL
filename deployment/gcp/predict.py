@@ -23,7 +23,7 @@ class EmotionDetectionModel:
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                self.model_path
+                self.model_path,
             )
 
             # Move to GPU if available
@@ -35,8 +35,14 @@ class EmotionDetectionModel:
 
             # Get emotion labels from model config
             try:
-                if hasattr(self.model.config, 'id2label') and self.model.config.id2label:
-                    self.emotions = [self.model.config.id2label[i] for i in range(len(self.model.config.id2label))]
+                if (
+                    hasattr(self.model.config, "id2label")
+                    and self.model.config.id2label
+                ):
+                    self.emotions = [
+                        self.model.config.id2label[i]
+                        for i in range(len(self.model.config.id2label))
+                    ]
                     print(f"✅ Loaded emotion labels from model: {self.emotions}")
                 else:
                     raise AttributeError("Model config missing id2label")
@@ -44,8 +50,18 @@ class EmotionDetectionModel:
                 print(f"⚠️ Failed to load labels from model config: {label_error}")
                 # Fallback to static mapping
                 self.emotions = [
-                    "anxious", "calm", "content", "excited", "frustrated",
-                    "grateful", "happy", "hopeful", "overwhelmed", "proud", "sad", "tired"
+                    "anxious",
+                    "calm",
+                    "content",
+                    "excited",
+                    "frustrated",
+                    "grateful",
+                    "happy",
+                    "hopeful",
+                    "overwhelmed",
+                    "proud",
+                    "sad",
+                    "tired",
                 ]
                 print(f"✅ Using fallback emotion labels: {self.emotions}")
             print("✅ Model loaded successfully")
@@ -59,7 +75,11 @@ class EmotionDetectionModel:
         try:
             # Tokenize input
             inputs = self.tokenizer(
-                text, return_tensors="pt", truncation=True, padding=True, max_length=512
+                text,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
             )
 
             if torch.cuda.is_available():
@@ -121,7 +141,7 @@ def health_check():
             "status": "healthy",
             "model_version": "2.0",
             "model_type": "comprehensive_emotion_detection",
-        }
+        },
     )
 
 
@@ -168,7 +188,7 @@ def home():
                     "average_confidence": "83.9%",
                 },
             },
-        }
+        },
     )
 
 

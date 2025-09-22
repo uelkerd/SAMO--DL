@@ -40,7 +40,6 @@ class ModelValidator:
             allowed_model_types: List of allowed model types
             max_model_size_mb: Maximum model size in MB
             required_config_keys: Required configuration keys
-
         """
         self.allowed_model_types = allowed_model_types or [
             "BERTEmotionClassifier",
@@ -71,7 +70,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "model_type": type(model).__name__,
@@ -134,7 +132,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "config_keys": list(config.keys()),
@@ -192,7 +189,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "file_path": model_path,
@@ -275,7 +271,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "current_versions": {},
@@ -339,7 +334,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "forward_pass_time": 0,
@@ -405,7 +399,6 @@ class ModelValidator:
         Returns:
         -------
             Tuple of (is_valid, comprehensive_validation_info)
-
         """
         comprehensive_info: Dict[str, Any] = {
             "file_validation": {},

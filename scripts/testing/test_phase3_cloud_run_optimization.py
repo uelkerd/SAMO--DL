@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Phase 3 Cloud Run Optimization Test Suite
-Comprehensive testing for Cloud Run optimization components using enhanced test approach.
-"""
+"""Phase 3 Cloud Run Optimization Test Suite Comprehensive testing for Cloud Run
+optimization components using enhanced test approach."""
 
 import json
 import logging
@@ -34,9 +33,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
             self.cloud_run_dir = Path("../../deployment/cloud-run").resolve()
 
         # Ensure the cloud-run directory exists
-        assert self.cloud_run_dir.exists(), (
-            f"Cloud Run directory not found: {self.cloud_run_dir}"
-        )
+        assert (
+            self.cloud_run_dir.exists()
+        ), f"Cloud Run directory not found: {self.cloud_run_dir}"
 
         # Set up logging for tests
         logging.basicConfig(level=logging.INFO)
@@ -188,9 +187,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test production configuration
         with patch.dict(os.environ, {"ENVIRONMENT": "production"}):
             config = EnvironmentConfig()
-            assert config.environment == "production", (
-                "Should load production environment"
-            )
+            assert (
+                config.environment == "production"
+            ), "Should load production environment"
 
             # Test configuration validation
             config.validate_config()  # Should not raise exception for valid config
@@ -211,9 +210,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test development configuration
         with patch.dict(os.environ, {"ENVIRONMENT": "development"}):
             config = EnvironmentConfig()
-            assert config.environment == "development", (
-                "Should load development environment"
-            )
+            assert (
+                config.environment == "development"
+            ), "Should load development environment"
             config.validate_config()  # Should not raise exception for valid config
 
         # Test edge case: invalid environment
@@ -416,9 +415,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
                     if var in arg:
                         env_vars_found += 1
 
-        assert env_vars_found >= 2, (
-            f"Should have at least 2 health check environment variables, found {env_vars_found}"
-        )
+        assert (
+            env_vars_found >= 2
+        ), f"Should have at least 2 health check environment variables, found {env_vars_found}"
 
         print("✅ Health check integration tests passed")
 
@@ -534,9 +533,9 @@ class Phase3CloudRunOptimizationTest(unittest.TestCase):
         # Test request metrics
         request_metrics = metrics["requests"]
         assert "active" in request_metrics, "Should track active requests"
-        assert "total_processed" in request_metrics, (
-            "Should track total processed requests"
-        )
+        assert (
+            "total_processed" in request_metrics
+        ), "Should track total processed requests"
 
         print("✅ Performance metrics tests passed")
 

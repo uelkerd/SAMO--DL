@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class HealthMetrics:
-    """Health check metrics"""
+    """Health check metrics."""
 
     status: str
     response_time_ms: float
@@ -32,7 +32,7 @@ class HealthMetrics:
 
 
 class HealthMonitor:
-    """Comprehensive health monitoring for Cloud Run"""
+    """Comprehensive health monitoring for Cloud Run."""
 
     def __init__(self):
         self.start_time = datetime.now()
@@ -40,7 +40,7 @@ class HealthMonitor:
         self.active_requests = 0
         self.health_metrics: Dict[str, HealthMetrics] = {}
         self.shutdown_timeout = int(
-            os.getenv("GRACEFUL_SHUTDOWN_TIMEOUT", "30") or "30"
+            os.getenv("GRACEFUL_SHUTDOWN_TIMEOUT", "30") or "30",
         )
 
         # Register graceful shutdown handlers
@@ -48,11 +48,11 @@ class HealthMonitor:
         signal.signal(signal.SIGINT, self._graceful_shutdown)
 
         logger.info(
-            f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout"
+            f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout",
         )
 
     def _graceful_shutdown(self, signum, frame):
-        """Handle graceful shutdown"""
+        """Handle graceful shutdown."""
         logger.info(f"Received shutdown signal {signum}, starting graceful shutdown...")
         self.is_shutting_down = True
 
@@ -63,13 +63,13 @@ class HealthMonitor:
             and (time.time() - start_wait) < self.shutdown_timeout
         ):
             logger.info(
-                f"Waiting for {self.active_requests} active requests to complete..."
+                f"Waiting for {self.active_requests} active requests to complete...",
             )
             time.sleep(1)
 
         if self.active_requests > 0:
             logger.warning(
-                f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests"
+                f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests",
             )
         else:
             logger.info("Graceful shutdown completed successfully")
@@ -77,7 +77,7 @@ class HealthMonitor:
         sys.exit(0)
 
     def get_system_metrics(self) -> Dict[str, float]:
-        """Get current system resource usage"""
+        """Get current system resource usage."""
         try:
             process = psutil.Process()
             memory_info = process.memory_info()
@@ -99,7 +99,7 @@ class HealthMonitor:
 
     @staticmethod
     def check_model_health() -> Dict[str, Any]:
-        """Check if ML models are loaded and responding"""
+        """Check if ML models are loaded and responding."""
         try:
             # Import models (this will fail if models aren't loaded)
 
@@ -140,7 +140,7 @@ class HealthMonitor:
 
     @staticmethod
     def check_api_health() -> Dict[str, Any]:
-        """Check API endpoint health"""
+        """Check API endpoint health."""
         try:
             start_time = time.time()
 
@@ -173,7 +173,7 @@ class HealthMonitor:
             }
 
     def get_comprehensive_health(self) -> Dict[str, Any]:
-        """Get comprehensive health status"""
+        """Get comprehensive health status."""
         if self.is_shutting_down:
             return {
                 "status": "shutting_down",
@@ -240,12 +240,12 @@ class HealthMonitor:
         return health_data
 
     def request_started(self):
-        """Track request start"""
+        """Track request start."""
         with self.lock:
             self.active_requests += 1
 
     def request_completed(self):
-        """Track request completion"""
+        """Track request completion."""
         with self.lock:
             self.active_requests = max(0, self.active_requests - 1)
 
@@ -255,5 +255,5 @@ health_monitor = HealthMonitor()
 
 
 def get_health_monitor() -> HealthMonitor:
-    """Get the global health monitor instance"""
+    """Get the global health monitor instance."""
     return health_monitor

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Text Preprocessing Module for SAMO Deep Learning.
 
-This module provides comprehensive text preprocessing functionality
-for journal entries and other text data.
+This module provides comprehensive text preprocessing functionality for journal entries
+and other text data.
 """
 
 import string
@@ -36,7 +36,6 @@ class TextPreprocessor:
             lowercase: Whether to convert text to lowercase
             stemming: Whether to apply stemming
             lemmatization: Whether to apply lemmatization
-
         """
         self.remove_stopwords = remove_stopwords
         self.remove_punctuation = remove_punctuation
@@ -66,7 +65,6 @@ class TextPreprocessor:
         Returns:
         -------
             Preprocessed text
-
         """
         if not text or not isinstance(text, str):
             return ""
@@ -107,7 +105,6 @@ class TextPreprocessor:
         Returns:
         -------
             DataFrame with processed text column added
-
         """
         df = df.copy()
         df[output_column] = df[text_column].astype(str).apply(self.preprocess_text)
@@ -128,7 +125,6 @@ class TextPreprocessor:
         Returns:
         -------
             DataFrame with text features added
-
         """
         df = df.copy()
 
@@ -158,7 +154,6 @@ class JournalEntryPreprocessor:
         Args:
         ----
             text_preprocessor: Text preprocessor to use
-
         """
         self.text_preprocessor = text_preprocessor or TextPreprocessor()
 
@@ -179,7 +174,6 @@ class JournalEntryPreprocessor:
         Returns:
         -------
             DataFrame with processed entries
-
         """
         df = df.copy()
 

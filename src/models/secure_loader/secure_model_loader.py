@@ -49,7 +49,6 @@ class SecureModelLoader:
             cache_dir: Directory for model cache
             max_cache_size_mb: Maximum cache size in MB
             audit_log_file: Path to audit log file
-
         """
         self.enable_sandbox = enable_sandbox
         self.enable_caching = enable_caching
@@ -79,7 +78,6 @@ class SecureModelLoader:
         Returns
         -------
             Configured audit logger
-
         """
         audit_logger = logging.getLogger("secure_model_loader.audit")
         audit_logger.setLevel(logging.INFO)
@@ -101,7 +99,6 @@ class SecureModelLoader:
         ----
             event_type: Type of audit event
             details: Event details
-
         """
         audit_entry = {
             "timestamp": time.time(),
@@ -124,7 +121,6 @@ class SecureModelLoader:
         Returns:
         -------
             Cache key string
-
         """
         import hashlib
 
@@ -142,7 +138,6 @@ class SecureModelLoader:
         Returns:
         -------
             True if model is cached
-
         """
         if not self.enable_caching:
             return False
@@ -159,7 +154,6 @@ class SecureModelLoader:
         Returns:
         -------
             Cached model or None
-
         """
         if not self.enable_caching or cache_key not in self.model_cache:
             return None
@@ -175,7 +169,6 @@ class SecureModelLoader:
         ----
             cache_key: Cache key
             model: Model to cache
-
         """
         if not self.enable_caching:
             return
@@ -243,7 +236,6 @@ class SecureModelLoader:
         Returns:
         -------
             Tuple of (loaded_model, loading_info)
-
         """
         start_time = time.time()
         loading_info: Dict[str, Any] = {
@@ -404,7 +396,6 @@ class SecureModelLoader:
         Returns:
         -------
             Tuple of (is_valid, validation_info)
-
         """
         validation_info: Dict[str, Any] = {
             "model_path": model_path,
@@ -475,7 +466,6 @@ class SecureModelLoader:
         Returns
         -------
             Cache information dictionary
-
         """
         if not self.enable_caching:
             return {"enabled": False}

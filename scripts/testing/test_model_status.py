@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Test Model Status Endpoint
-Get detailed information about model loading status and any errors.
-"""
+"""Test Model Status Endpoint Get detailed information about model loading status and
+any errors."""
 
 import argparse
 import sys

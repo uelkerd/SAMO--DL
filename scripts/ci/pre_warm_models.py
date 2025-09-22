@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Pre-warm models for CI pipeline to avoid download delays during testing.
+
 This script downloads and caches commonly used models for faster CI execution.
 """
 

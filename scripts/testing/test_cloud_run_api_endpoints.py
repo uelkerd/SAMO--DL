@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Cloud Run API Endpoint Testing Script
-Tests the deployed SAMO Emotion Detection API for functionality, security, and performance.
-"""
+"""Cloud Run API Endpoint Testing Script Tests the deployed SAMO Emotion Detection API
+for functionality, security, and performance."""
 
 import argparse
 import json

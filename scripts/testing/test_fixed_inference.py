@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Fixed Inference Test Script for Emotion Detection Model
-Handles missing tokenizer and generic labels.
-"""
+"""Fixed Inference Test Script for Emotion Detection Model Handles missing tokenizer and
+generic labels."""
 
 import json
 from pathlib import Path

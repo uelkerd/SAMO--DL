@@ -37,9 +37,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         """Test Phase 4 automation script structure."""
         print("🔍 Testing Phase 4 automation script structure...")
 
-        assert self.vertex_ai_script.exists(), (
-            "Vertex AI automation script should exist"
-        )
+        assert (
+            self.vertex_ai_script.exists()
+        ), "Vertex AI automation script should exist"
 
         with open(self.vertex_ai_script) as f:
             content = f.read()
@@ -76,9 +76,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for dataclass import and usage
-        assert "from dataclasses import dataclass" in content, (
-            "Missing dataclass import"
-        )
+        assert (
+            "from dataclasses import dataclass" in content
+        ), "Missing dataclass import"
         assert "@dataclass" in content, "Missing dataclass decorator"
 
         # Check for required configuration fields
@@ -145,9 +145,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for version generation
-        assert "def generate_model_version" in content, (
-            "Missing version generation method"
-        )
+        assert (
+            "def generate_model_version" in content
+        ), "Missing version generation method"
         assert "datetime.now().strftime" in content, "Missing timestamp generation"
         assert "git rev-parse" in content, "Missing git commit hash"
 
@@ -164,12 +164,12 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for deployment package creation
-        assert "def create_deployment_package" in content, (
-            "Missing deployment package creation"
-        )
-        assert "deployment/vertex_ai/{version}" in content, (
-            "Missing versioned directory structure"
-        )
+        assert (
+            "def create_deployment_package" in content
+        ), "Missing deployment package creation"
+        assert (
+            "deployment/vertex_ai/{version}" in content
+        ), "Missing versioned directory structure"
         assert "Dockerfile" in content, "Missing Dockerfile creation"
         assert "version_metadata.json" in content, "Missing version metadata"
 
@@ -196,9 +196,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
 
         # Check for Docker operations
         assert "def build_and_push_image" in content, "Missing Docker image handling"
-        assert "gcloud auth configure-docker" in content, (
-            "Missing Docker authentication"
-        )
+        assert (
+            "gcloud auth configure-docker" in content
+        ), "Missing Docker authentication"
         assert "docker build" in content, "Missing Docker build"
         assert "docker push" in content, "Missing Docker push"
 
@@ -231,12 +231,12 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for endpoint deployment
-        assert "def deploy_model_to_endpoint" in content, (
-            "Missing endpoint deployment method"
-        )
-        assert "gcloud ai endpoints deploy-model" in content, (
-            "Missing endpoint deployment command"
-        )
+        assert (
+            "def deploy_model_to_endpoint" in content
+        ), "Missing endpoint deployment method"
+        assert (
+            "gcloud ai endpoints deploy-model" in content
+        ), "Missing endpoint deployment command"
         assert "--traffic-split" in content, "Missing traffic split"
         assert "--machine-type" in content, "Missing machine type"
         assert "--min-replica-count" in content, "Missing min replica count"
@@ -252,13 +252,13 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for monitoring setup
-        assert "def setup_monitoring_and_alerting" in content, (
-            "Missing monitoring setup method"
-        )
+        assert (
+            "def setup_monitoring_and_alerting" in content
+        ), "Missing monitoring setup method"
         assert "monitoring_policy.json" in content, "Missing monitoring policy"
-        assert "gcloud alpha monitoring policies create" in content, (
-            "Missing monitoring policy creation"
-        )
+        assert (
+            "gcloud alpha monitoring policies create" in content
+        ), "Missing monitoring policy creation"
 
         # Check for alert conditions
         assert "High Error Rate" in content, "Missing error rate monitoring"
@@ -293,9 +293,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         # Check for rollback functionality
         assert "def rollback_deployment" in content, "Missing rollback method"
         assert "deployment_history" in content, "Missing deployment history"
-        assert "gcloud ai endpoints deploy-model" in content, (
-            "Missing rollback deployment"
-        )
+        assert (
+            "gcloud ai endpoints deploy-model" in content
+        ), "Missing rollback deployment"
 
         print("✅ Rollback capabilities validation passed")
 
@@ -322,9 +322,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
             content = f.read()
 
         # Check for performance metrics
-        assert "def get_performance_metrics" in content, (
-            "Missing performance metrics method"
-        )
+        assert (
+            "def get_performance_metrics" in content
+        ), "Missing performance metrics method"
         assert "gcloud ai endpoints describe" in content, "Missing endpoint description"
         assert "gcloud ai models list" in content, "Missing model listing"
 
@@ -433,9 +433,9 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
 
         # Check for documentation
         assert '"""' in content, "Missing docstrings"
-        assert "Phase 4: Vertex AI Deployment Automation" in content, (
-            "Missing module docstring"
-        )
+        assert (
+            "Phase 4: Vertex AI Deployment Automation" in content
+        ), "Missing module docstring"
         assert "Enhanced Vertex AI deployment" in content, "Missing class docstring"
 
         # Check for logging
@@ -454,13 +454,13 @@ class Phase4VertexAIAutomationTest(unittest.TestCase):
         # Check for main function
         assert "def main():" in content, "Missing main function"
         assert 'if __name__ == "__main__":' in content, "Missing main guard"
-        assert "gcloud config get-value project" in content, (
-            "Missing project ID retrieval"
-        )
+        assert (
+            "gcloud config get-value project" in content
+        ), "Missing project ID retrieval"
         assert "DeploymentConfig(" in content, "Missing configuration creation"
-        assert "VertexAIPhase4Automation(" in content, (
-            "Missing automation instance creation"
-        )
+        assert (
+            "VertexAIPhase4Automation(" in content
+        ), "Missing automation instance creation"
         assert "run_full_deployment()" in content, "Missing deployment execution"
 
         print("✅ Main function validation passed")

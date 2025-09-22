@@ -12,7 +12,6 @@ def fix_file(file_path: str) -> None:
     Args:
     ----
         file_path: Path to the file to fix
-
     """
     with open(file_path, encoding="utf-8") as f:
         content = f.read()

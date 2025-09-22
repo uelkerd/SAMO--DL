@@ -1,8 +1,8 @@
 """Prisma database client integration for SAMO Deep Learning.
 
-This module provides a Python wrapper for Prisma database operations,
-enabling seamless interaction with the database schema through Node.js
-Prisma client. Supports CRUD operations and complex queries.
+This module provides a Python wrapper for Prisma database operations, enabling seamless
+interaction with the database schema through Node.js Prisma client. Supports CRUD
+operations and complex queries.
 """
 
 import json
@@ -21,7 +21,8 @@ It's a simple wrapper that allows Python code to execute Prisma commands.
 class PrismaClient:
     """A simple wrapper class for Prisma client operations.
 
-    This class allows executing Prisma operations from Python by running Node.js scripts.
+    This class allows executing Prisma operations from Python by running Node.js
+    scripts.
     """
 
     @staticmethod
@@ -39,7 +40,6 @@ class PrismaClient:
         Raises:
         ------
             Exception: If the script execution fails
-
         """
         with Path("temp_prisma_script.js").open("w") as f:
             f.write("""
@@ -97,7 +97,6 @@ main();
         Returns:
         -------
             Dict[str, Any]: Created user data
-
         """
         script = """
         return prisma.user.create({{
@@ -131,7 +130,6 @@ main();
         Returns:
         -------
             Dict[str, Any]: Created journal entry data
-
         """
         script = """
         return prisma.journalEntry.create({{
@@ -161,7 +159,6 @@ main();
         Returns:
         -------
             Optional[Dict[str, Any]]: User data or None if not found
-
         """
         script = """
         return prisma.user.findUnique({{
@@ -187,7 +184,6 @@ main();
         Returns:
         -------
             List[Dict[str, Any]]: List of journal entries
-
         """
         script = """
         return prisma.journalEntry.findMany({{

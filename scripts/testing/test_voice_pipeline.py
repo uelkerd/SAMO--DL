@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Test Voice Pipeline for SAMO.
 
-This script tests the complete voice-first pipeline including
-audio recording, transcription, and emotion detection.
+This script tests the complete voice-first pipeline including audio recording,
+transcription, and emotion detection.
 """
 
 import logging

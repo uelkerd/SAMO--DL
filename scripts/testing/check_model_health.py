@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Model Loading Health Check
-Check if the model is loading properly in the container.
-"""
+"""Model Loading Health Check Check if the model is loading properly in the
+container."""
 
 import sys
 

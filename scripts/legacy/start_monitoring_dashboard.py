@@ -44,7 +44,6 @@ def start_monitoring_system(config_path: str, port: int) -> None:
     ----
         config_path: Path to monitoring configuration
         port: Dashboard port
-
     """
     logger.info("🚀 Starting SAMO Model Monitoring System...")
 

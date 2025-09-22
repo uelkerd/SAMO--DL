@@ -54,7 +54,6 @@ def update_threshold(threshold: float = DEFAULT_THRESHOLD):
     Returns:
     -------
         bool: True if successful, False otherwise
-
     """
     if threshold < 0.0 or threshold > 1.0:
         logger.error("Invalid threshold: {threshold}. Must be between 0.0 and 1.0")

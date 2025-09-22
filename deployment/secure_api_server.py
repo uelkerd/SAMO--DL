@@ -149,7 +149,8 @@ def secure_endpoint(f):
         try:
             # Rate limiting
             allowed, reason, rate_limit_meta = rate_limiter.allow_request(
-                client_ip, user_agent,
+                client_ip,
+                user_agent,
             )
             if not allowed:
                 response_time = time.time() - start_time
@@ -174,7 +175,9 @@ def secure_endpoint(f):
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
                     update_metrics(
-                        response_time, success=False, error_type="invalid_content_type",
+                        response_time,
+                        success=False,
+                        error_type="invalid_content_type",
                     )
                     logger.warning(
                         f"Invalid content type: {content_type} from {client_ip}",
@@ -205,6 +208,7 @@ def secure_endpoint(f):
             logger.exception("Endpoint error occurred")
             # Return a generic error message to the user, do not expose exception details
             return jsonify({"error": "Internal server error"}), 500
+
     return decorated_function
 
 
@@ -292,10 +296,12 @@ class SecureEmotionDetectionModel:
             )
 
             self.tokenizer = AutoTokenizer.from_pretrained(
-                str(self.model_path), local_files_only=True,
+                str(self.model_path),
+                local_files_only=True,
             )
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                str(self.model_path), local_files_only=True,
+                str(self.model_path),
+                local_files_only=True,
             )
 
             # Move to GPU if available
@@ -388,7 +394,11 @@ class SecureEmotionDetectionModel:
                 "confidence": float(confidence),
                 "probabilities": {
                     # Align labels to logits index via id2label; fall back to label_i
-                    (self.model.config.id2label.get(str(i)) or self.model.config.id2label.get(i) or f"label_{i}"): float(p)
+                    (
+                        self.model.config.id2label.get(str(i))
+                        or self.model.config.id2label.get(i)
+                        or f"label_{i}"
+                    ): float(p)
                     for i, p in enumerate(all_probs)
                 },
                 "model_version": "2.0",
@@ -421,7 +431,8 @@ logger.info("🔒 Secure model will be created via factory function")
 def create_secure_model():
     """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
 
-    This avoids implicit global state and makes the creation path explicit and mockable in tests.
+    This avoids implicit global state and makes the creation path explicit and mockable
+    in tests.
     """
     if os.environ.get("TESTING") or os.environ.get("CI"):
 
@@ -451,8 +462,7 @@ def get_secure_model():
     """Return a cached secure model instance created via the factory.
 
     Using an LRU cache (size=1) avoids global mutable state and ensures a single
-    instance per process. Tests can clear the cache with
-    get_secure_model.cache_clear().
+    instance per process. Tests can clear the cache with get_secure_model.cache_clear().
     """
     return create_secure_model()
 
@@ -512,10 +522,10 @@ def _build_provider_info() -> dict:
 def get_admin_api_key() -> str | None:
     """Fetch the admin API key from the environment on each call.
 
-    This function intentionally does not cache the key to support dynamic
-    updates (e.g., during tests or runtime reconfiguration). Be aware this
-    per-request read may introduce race conditions if the environment variable
-    changes mid-request; callers should treat the value as ephemeral per call.
+    This function intentionally does not cache the key to support dynamic updates (e.g.,
+    during tests or runtime reconfiguration). Be aware this per-request read may
+    introduce race conditions if the environment variable changes mid-request; callers
+    should treat the value as ephemeral per call.
     """
     return os.environ.get("ADMIN_API_KEY")
 
@@ -587,8 +597,8 @@ def _validate_alignment_count_or_raise(
 def _validate_single_results_or_raise(results: Any) -> List[Dict[str, Any]]:
     """Validate single-input provider results shape and return the distribution.
 
-    Expects results to be List[List[Dict[str, Any]]], with len(results) == 1.
-    Raises _ClientError(502) on invalid shape.
+    Expects results to be List[List[Dict[str, Any]]], with len(results) == 1. Raises
+    _ClientError(502) on invalid shape.
     """
     if (
         (not isinstance(results, list))
@@ -679,7 +689,8 @@ def health_check():
                 "rate_limited_requests": metrics["rate_limited_requests"],
                 "sanitization_warnings": metrics["sanitization_warnings"],
                 "average_response_time_ms": round(
-                    metrics["average_response_time"] * 1000, 2,
+                    metrics["average_response_time"] * 1000,
+                    2,
                 ),
             },
         }
@@ -738,7 +749,9 @@ def predict():
         if not getattr(model_instance, "loaded", False):
             return jsonify({"error": "Secure model not loaded"}), 503
         threshold_raw = sanitized_data.get("confidence_threshold")
-        threshold = float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
+        threshold = (
+            float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
+        )
         result = model_instance.predict(
             sanitized_data["text"],
             confidence_threshold=threshold,
@@ -808,7 +821,9 @@ def predict_batch():
         if not getattr(model_instance, "loaded", False):
             return jsonify({"error": "Secure model not loaded"}), 503
         threshold_raw = sanitized_data.get("confidence_threshold")
-        threshold = float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
+        threshold = (
+            float(threshold_raw) if isinstance(threshold_raw, str) else threshold_raw
+        )
         for text in sanitized_data["texts"]:
             if text.strip():
                 result = model_instance.predict(
@@ -984,7 +999,8 @@ def nlp_emotion_batch():
                 "results": responses,
                 "count": len(responses),
                 "provider": os.environ.get(
-                    "EMOTION_PROVIDER", EMOTION_PROVIDER,
+                    "EMOTION_PROVIDER",
+                    EMOTION_PROVIDER,
                 ).lower(),
                 "provider_info": _build_provider_info(),
                 "batch_processing_time_ms": round(response_time * 1000, 2),
@@ -1032,11 +1048,13 @@ def get_metrics():
                     "security_violations": metrics["security_violations"],
                     "success_rate": f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
                     "average_response_time_ms": round(
-                        metrics["average_response_time"] * 1000, 2,
+                        metrics["average_response_time"] * 1000,
+                        2,
                     ),
                     "requests_per_minute": metrics["total_requests"]
                     / max(
-                        (datetime.now() - metrics["start_time"]).total_seconds() / 60, 1,
+                        (datetime.now() - metrics["start_time"]).total_seconds() / 60,
+                        1,
                     ),
                 },
                 "emotion_distribution": dict(metrics["emotion_distribution"]),
@@ -1083,7 +1101,9 @@ def add_to_whitelist():
         return jsonify({"message": f"Added {ip} to whitelist"})
     except Exception as e:
         logger.error(f"Whitelist error: {e!s}")
-        return jsonify({"error": "An internal error occurred. Please contact an administrator."}), 500
+        return jsonify(
+            {"error": "An internal error occurred. Please contact an administrator."}
+        ), 500
 
 
 @app.route("/", methods=["GET"])

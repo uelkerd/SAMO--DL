@@ -11,7 +11,6 @@ Returns
 -------
     0 if test passes
     1 if test fails
-
 """
 
 import logging

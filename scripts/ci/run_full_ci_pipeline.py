@@ -61,7 +61,6 @@ class CIPipelineRunner:
         Returns
         -------
             tuple: (test_results dict, total_tests, passed_tests)
-
         """
         test_results = {
             name: result

@@ -75,7 +75,7 @@ def display_mega_test_results():
         "work scenarios",
     )
     print(
-        "   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)"
+        "   ⚠️  Minor issues with: excited, grateful, hopeful (75% accuracy each)",
     )
     print()
 

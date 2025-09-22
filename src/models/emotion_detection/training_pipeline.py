@@ -70,7 +70,6 @@ class EmotionDetectionTrainer:
             early_stopping_patience: Patience for early stopping
             evaluation_strategy: When to evaluate ('epoch' or 'steps')
             device: Device for training ('cuda', 'cpu', or None for auto)
-
         """
         self.model_name = model_name
         self.cache_dir = cache_dir
@@ -128,7 +127,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             Dictionary with prepared datasets and metadata
-
         """
         logger.info("Preparing GoEmotions dataset...")
 
@@ -226,7 +224,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             class_weights: Class weights for imbalanced data handling
-
         """
         logger.info("Initializing BERT emotion detection model...")
 
@@ -295,7 +292,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             checkpoint_path: Path to the model checkpoint file
-
         """
         logger.info("Loading model from checkpoint: %s", checkpoint_path)
 
@@ -321,7 +317,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             Dictionary with training metrics
-
         """
         self.model.train()
 
@@ -370,7 +365,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             epoch: Current epoch number
-
         """
         if epoch in self.unfreeze_schedule:
             layers_to_unfreeze = 2  # Unfreeze 2 layers at a time
@@ -397,7 +391,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             float: Loss value for this batch
-
         """
         # Move data to device
         input_ids = batch["input_ids"].to(self.device)
@@ -450,7 +443,6 @@ class EmotionDetectionTrainer:
             labels: Ground truth labels
             logits: Model output logits (None for first call)
             loss: Computed loss (None for first call)
-
         """
         if not logger.isEnabledFor(logging.DEBUG):
             return
@@ -482,7 +474,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             Dictionary with epoch metrics
-
         """
         epoch_time = time.time() - start_time
         avg_loss = total_loss / num_batches
@@ -510,7 +501,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             labels: Ground truth labels tensor
-
         """
         logger.info("🔍 DEBUG: Data Distribution Analysis")
         logger.info("   Labels shape: %s", labels.shape)
@@ -541,7 +531,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             logits: Model output logits tensor
-
         """
         logger.info("🔍 DEBUG: Model Output Analysis")
         logger.info("   Logits shape: %s", logits.shape)
@@ -571,7 +560,6 @@ class EmotionDetectionTrainer:
             loss: Computed loss tensor
             logits: Model output logits
             labels: Ground truth labels
-
         """
         logger.info("🔍 DEBUG: Loss Analysis")
         logger.info("   Raw loss: %.8f", loss.item())
@@ -623,7 +611,6 @@ class EmotionDetectionTrainer:
         Args:
         ----
             clip_norm: Gradient norm value after clipping
-
         """
         if not isinstance(clip_norm, (int, float)):
             clip_val = float(clip_norm)
@@ -646,7 +633,6 @@ class EmotionDetectionTrainer:
             batch_idx: Current batch index
             num_batches: Total number of batches in epoch
             total_loss: Cumulative loss for current epoch
-
         """
         avg_loss = total_loss / (batch_idx + 1)
         current_lr = self.scheduler.get_last_lr()[0] if self.scheduler else 0.0
@@ -694,7 +680,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             Dictionary with early stopping metrics if stopping, None otherwise
-
         """
         if (batch_idx + 1) % val_frequency != 0:
             return None
@@ -721,7 +706,6 @@ class EmotionDetectionTrainer:
         Returns:
         -------
             Dictionary with validation metrics
-
         """
         logger.info("Validating model at epoch %d...", epoch)
 
@@ -769,7 +753,6 @@ class EmotionDetectionTrainer:
             epoch: Current epoch
             metrics: Validation metrics
             is_best: Whether this is the best model so far
-
         """
         checkpoint = {
             "epoch": epoch,
@@ -800,7 +783,6 @@ class EmotionDetectionTrainer:
         Returns
         -------
             Dictionary with training results and final metrics
-
         """
         logger.info("Starting emotion detection training...")
 
@@ -915,7 +897,6 @@ def train_emotion_detection_model(
     Returns:
     -------
         Dictionary containing training results and metrics
-
     """
     if dev_mode:
         logger.info("🚀 DEVELOPMENT MODE ENABLED: Fast training with reduced dataset")

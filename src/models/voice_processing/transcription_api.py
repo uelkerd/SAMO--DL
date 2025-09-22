@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 class TranscriptionAPI:
     """API layer for voice transcription services.
 
-    This class provides a simplified interface for the application to interact with
-    the Whisper transcription functionality, including error handling, performance
+    This class provides a simplified interface for the application to interact with the
+    Whisper transcription functionality, including error handling, performance
     monitoring, and proper resource management.
     """
 
@@ -53,7 +53,6 @@ class TranscriptionAPI:
             model_size: Whisper model size (tiny, base, small, medium, large)
             language: Default language for transcription (None for auto-detect)
             device: Compute device (cuda, cpu, None for auto-detect)
-
         """
         logger.info(f"Initializing TranscriptionAPI with model_size={model_size}")
 
@@ -100,7 +99,6 @@ class TranscriptionAPI:
         ------
             ValueError: If audio validation fails
             RuntimeError: If transcription fails
-
         """
         if not self.ready or self.transcriber is None:
             raise RuntimeError("TranscriptionAPI not initialized properly")
@@ -163,7 +161,6 @@ class TranscriptionAPI:
         Returns:
         -------
             List of dictionaries with transcription results
-
         """
         if not self.ready or self.transcriber is None:
             raise RuntimeError("TranscriptionAPI not initialized properly")
@@ -216,7 +213,6 @@ class TranscriptionAPI:
         Returns:
         -------
             Dictionary with WER evaluation metrics
-
         """
         try:
             result = self.transcribe(audio_path)
@@ -248,7 +244,6 @@ class TranscriptionAPI:
         Returns
         -------
             Dictionary with performance metrics
-
         """
         return {
             "total_requests": self.total_requests,
@@ -270,7 +265,6 @@ class TranscriptionAPI:
         Returns
         -------
             Dictionary with model information
-
         """
         if not self.ready or self.transcriber is None:
             return {"status": "not_initialized"}
@@ -294,6 +288,5 @@ def create_transcription_api(
     Returns:
     -------
         Configured TranscriptionAPI instance
-
     """
     return TranscriptionAPI(model_size=model_size, language=language, device=device)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal test to isolate the API setup issue"""
+"""Minimal test to isolate the API setup issue."""
 
 import os
 import sys

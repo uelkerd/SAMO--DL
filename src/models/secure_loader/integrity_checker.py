@@ -1,7 +1,7 @@
 """Model Integrity Checker for Secure Model Loading.
 
-This module provides integrity verification capabilities for model files,
-including checksums, digital signatures, and format validation.
+This module provides integrity verification capabilities for model files, including
+checksums, digital signatures, and format validation.
 """
 
 import hashlib
@@ -32,7 +32,6 @@ class IntegrityChecker:
         Args:
         ----
             trusted_checksums_file: Path to file containing trusted checksums
-
         """
         self.trusted_checksums_file = trusted_checksums_file
         self.trusted_checksums = self._load_trusted_checksums()
@@ -56,7 +55,6 @@ class IntegrityChecker:
         Returns
         -------
             Dictionary mapping file paths to expected checksums
-
         """
         if not self.trusted_checksums_file or not os.path.exists(
             self.trusted_checksums_file,
@@ -81,7 +79,6 @@ class IntegrityChecker:
         Returns:
         -------
             SHA-256 checksum as hex string
-
         """
         sha256_hash = hashlib.sha256()
 
@@ -104,7 +101,6 @@ class IntegrityChecker:
         Returns:
         -------
             True if file size is acceptable
-
         """
         try:
             file_size = os.path.getsize(file_path)
@@ -128,7 +124,6 @@ class IntegrityChecker:
         Returns:
         -------
             True if file extension is allowed
-
         """
         file_ext = Path(file_path).suffix.lower()
         if file_ext not in self.allowed_extensions:
@@ -146,7 +141,6 @@ class IntegrityChecker:
         Returns:
         -------
             Tuple of (is_safe, list_of_findings)
-
         """
         findings = []
 
@@ -181,7 +175,6 @@ class IntegrityChecker:
         Returns:
         -------
             True if checksum matches
-
         """
         try:
             actual_checksum = self.calculate_checksum(file_path)
@@ -210,7 +203,6 @@ class IntegrityChecker:
         Returns:
         -------
             True if model structure is valid
-
         """
         try:
             # Load model in a controlled environment
@@ -250,7 +242,6 @@ class IntegrityChecker:
         Returns:
         -------
             Tuple of (is_valid, validation_results)
-
         """
         results: Dict[str, Any] = {
             "file_path": file_path,

@@ -83,7 +83,7 @@ def rate_limit(f):
                     {
                         "error": "Rate limit exceeded",
                         "message": f"Maximum {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds",
-                    }
+                    },
                 ), 429
 
             # Add current request
@@ -112,7 +112,7 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None):
         # Update average response time
         if metrics["response_times"]:
             metrics["average_response_time"] = sum(metrics["response_times"]) / len(
-                metrics["response_times"]
+                metrics["response_times"],
             )
 
 
@@ -125,7 +125,7 @@ class EmotionDetectionModel:
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
             self.model = AutoModelForSequenceClassification.from_pretrained(
-                self.model_path
+                self.model_path,
             )
 
             # Move to GPU if available
@@ -162,7 +162,11 @@ class EmotionDetectionModel:
         try:
             # Tokenize input
             inputs = self.tokenizer(
-                text, return_tensors="pt", truncation=True, padding=True, max_length=512
+                text,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=512,
             )
 
             if torch.cuda.is_available():
@@ -188,7 +192,7 @@ class EmotionDetectionModel:
 
             prediction_time = time.time() - start_time
             logger.info(
-                f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})"
+                f"Prediction completed in {prediction_time:.3f}s: '{text[:50]}...' → {predicted_emotion} (conf: {confidence:.3f})",
             )
 
             # Create response
@@ -241,7 +245,8 @@ def health_check():
                 "successful_requests": metrics["successful_requests"],
                 "failed_requests": metrics["failed_requests"],
                 "average_response_time_ms": round(
-                    metrics["average_response_time"] * 1000, 2
+                    metrics["average_response_time"] * 1000,
+                    2,
                 ),
             },
         }
@@ -251,7 +256,7 @@ def health_check():
 
         return jsonify(response)
 
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="health_check_error")
         logger.exception("Health check failed")  # Logs stack trace
@@ -291,7 +296,7 @@ def predict():
         update_metrics(response_time, success=False, error_type="invalid_json")
         logger.error("Invalid JSON in request")
         return jsonify({"error": "Invalid JSON format"}), 400
-    except Exception as e:
+    except Exception:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="prediction_error")
         logger.exception("Prediction endpoint error")  # Logs stack trace
@@ -316,7 +321,9 @@ def predict_batch():
         if not isinstance(texts, list):
             response_time = time.time() - start_time
             update_metrics(
-                response_time, success=False, error_type="invalid_texts_format"
+                response_time,
+                success=False,
+                error_type="invalid_texts_format",
             )
             return jsonify({"error": "Texts must be a list"}), 400
 
@@ -334,7 +341,7 @@ def predict_batch():
                 "predictions": results,
                 "count": len(results),
                 "batch_processing_time_ms": round(response_time * 1000, 2),
-            }
+            },
         )
 
     except werkzeug.exceptions.BadRequest:
@@ -345,7 +352,9 @@ def predict_batch():
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(
-            response_time, success=False, error_type="batch_prediction_error"
+            response_time,
+            success=False,
+            error_type="batch_prediction_error",
         )
         logger.error(f"Batch prediction endpoint error: {e!s}")
         return jsonify({"error": "An internal error has occurred."}), 500
@@ -366,11 +375,13 @@ def get_metrics():
                     "failed_requests": metrics["failed_requests"],
                     "success_rate": f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
                     "average_response_time_ms": round(
-                        metrics["average_response_time"] * 1000, 2
+                        metrics["average_response_time"] * 1000,
+                        2,
                     ),
                     "requests_per_minute": metrics["total_requests"]
                     / max(
-                        (datetime.now() - metrics["start_time"]).total_seconds() / 60, 1
+                        (datetime.now() - metrics["start_time"]).total_seconds() / 60,
+                        1,
                     ),
                 },
                 "emotion_distribution": dict(metrics["emotion_distribution"]),
@@ -379,7 +390,7 @@ def get_metrics():
                     "window_seconds": RATE_LIMIT_WINDOW,
                     "max_requests": RATE_LIMIT_MAX_REQUESTS,
                 },
-            }
+            },
         )
 
 
@@ -435,7 +446,9 @@ def home():
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type="documentation_error")
         logger.error(f"Documentation endpoint error: {e!s}")
-        return jsonify({"error": "An internal server error occurred. Please try again later."}), 500
+        return jsonify(
+            {"error": "An internal server error occurred. Please try again later."}
+        ), 500
 
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
@@ -462,7 +475,7 @@ if __name__ == "__main__":
     logger.info('        -d \'{"text": "I am feeling happy today!"}\'')
     logger.info("")
     logger.info(
-        f"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds"
+        f"🔒 Rate limiting: {RATE_LIMIT_MAX_REQUESTS} requests per {RATE_LIMIT_WINDOW} seconds",
     )
     logger.info("📊 Monitoring: Comprehensive metrics and logging enabled")
     logger.info("")

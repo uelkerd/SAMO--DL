@@ -225,7 +225,12 @@ def train_expanded_model(train_data, val_data, label_encoder, epochs=5, batch_si
 
 
 def save_expanded_results(
-    training_history, best_f1, label_encoder, test_data, train_data=None, val_data=None
+    training_history,
+    best_f1,
+    label_encoder,
+    test_data,
+    train_data=None,
+    val_data=None,
 ):
     """Save training results."""
     print("💾 Saving results...")
@@ -312,7 +317,12 @@ def main():
 
     # Save results
     save_expanded_results(
-        training_history, best_f1, label_encoder, test_data, train_data, val_data
+        training_history,
+        best_f1,
+        label_encoder,
+        test_data,
+        train_data,
+        val_data,
     )
 
     print("\n🎉 Retraining completed!")

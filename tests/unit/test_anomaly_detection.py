@@ -172,9 +172,9 @@ class TestAnomalyDetection(unittest.TestCase):
             client_ip,
             legitimate_ua,
         )
-        assert not abuse_detected, (
-            "Legitimate user agent should not trigger abuse detection"
-        )
+        assert (
+            not abuse_detected
+        ), "Legitimate user agent should not trigger abuse detection"
 
     def test_false_positive_reduction(self):
         """Test that legitimate traffic doesn't trigger false positives."""
@@ -197,9 +197,9 @@ class TestAnomalyDetection(unittest.TestCase):
             client_ip,
             legitimate_ua,
         )
-        assert not abuse_detected, (
-            "Normal browsing pattern should not trigger abuse detection"
-        )
+        assert (
+            not abuse_detected
+        ), "Normal browsing pattern should not trigger abuse detection"
 
     @staticmethod
     def test_configuration_options():
@@ -278,9 +278,9 @@ class TestAnomalyDetection(unittest.TestCase):
 
         # Should complete within reasonable time (less than 1 second for 100 requests)
         processing_time = end_time - start_time
-        assert processing_time < 1.0, (
-            f"Anomaly detection too slow: {processing_time:.3f}s"
-        )
+        assert (
+            processing_time < 1.0
+        ), f"Anomaly detection too slow: {processing_time:.3f}s"
 
 
 if __name__ == "__main__":

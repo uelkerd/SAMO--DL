@@ -434,9 +434,7 @@ class CodeQualityAutoFixer:
 
         for result in results["results"]:
             if result.get("modified", False):
-                report += (
-                    f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
-                )
+                report += f"✅ {result['file']}: {len(result['fixes'])} fixes applied\n"
                 for fix in result["fixes"]:
                     report += f"   - {fix['type']}: {fix['description']}\n"
             elif "error" in result:

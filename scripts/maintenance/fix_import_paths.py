@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Fix import paths after repository reorganization.
+
 This script updates common import path issues in moved scripts.
 """
 

@@ -8,7 +8,7 @@ from inference import EmotionDetector
 
 
 def test_model():
-    """Test the emotion detection model"""
+    """Test the emotion detection model."""
     print("🧪 EMOTION DETECTION MODEL TESTING")
     print("=" * 50)
 
@@ -50,7 +50,7 @@ def test_model():
 
         print(f"{i:2d}. Text: {text}")
         print(
-            f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})"
+            f"    Predicted: {result['emotion']} (confidence: {result['confidence']:.3f})",
         )
 
         # Show prediction details
@@ -60,7 +60,7 @@ def test_model():
 
     print("🎉 Testing completed!")
     print(
-        f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}"
+        f"📊 Model confidence range: {min([detector.predict(text)['confidence'] for text in test_cases]):.3f} - {max([detector.predict(text)['confidence'] for text in test_cases]):.3f}",
     )
 
 

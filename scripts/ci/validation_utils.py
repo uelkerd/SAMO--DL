@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Reusable validation helpers for CI scripts.
 
-These helpers reduce boilerplate and provide clearer failure semantics
-using specific exception types.
+These helpers reduce boilerplate and provide clearer failure semantics using specific
+exception types.
 """
 
 from typing import Any, Iterable
@@ -14,7 +14,6 @@ def validate_metric_ranges(metrics: dict[str, Any], fields: Iterable[str]) -> No
     Raises
     ------
         ValueError: if any metric is missing or out of range.
-
     """
     for field in fields:
         if field not in metrics:
@@ -39,7 +38,6 @@ def validate_required_keys(
     Raises
     ------
         KeyError: if a required key is missing.
-
     """
     for key in keys:
         if key not in obj:
@@ -57,7 +55,6 @@ def validate_hasattrs(
     Raises
     ------
         AttributeError: if a required attribute is missing.
-
     """
     for attr in attrs:
         if not hasattr(instance, attr):

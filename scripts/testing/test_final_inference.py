@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Final Inference Test Script for Emotion Detection Model
-Uses public RoBERTa tokenizer to avoid authentication issues.
-"""
+"""Final Inference Test Script for Emotion Detection Model Uses public RoBERTa tokenizer
+to avoid authentication issues."""
 
 import json
 from pathlib import Path

@@ -39,7 +39,6 @@ class VertexAISetup:
         ----
             project_id: GCP project ID
             region: GCP region for Vertex AI resources
-
         """
         self.project_id = project_id
         self.region = region

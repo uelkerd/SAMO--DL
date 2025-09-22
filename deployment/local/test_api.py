@@ -58,9 +58,8 @@ def test_health_check():
                 if avg_ms is not None:
                     print(f"   Avg Response Time: {avg_ms}ms")
             return True
-        else:
-            print(f"❌ Health check failed: {response.status_code}")
-            return False
+        print(f"❌ Health check failed: {response.status_code}")
+        return False
     except requests.exceptions.RequestException as e:
         print(f"❌ Health check HTTP error: {e!s}")
         return False
@@ -87,9 +86,8 @@ def test_metrics_endpoint():
                 print("✅ Metrics endpoint working (JSON)")
                 print(f"   Keys: {list(data)[:5]}")
             return True
-        else:
-            print(f"❌ Metrics endpoint failed: {response.status_code}")
-            return False
+        print(f"❌ Metrics endpoint failed: {response.status_code}")
+        return False
     except requests.exceptions.RequestException as e:
         print(f"❌ Metrics endpoint HTTP error: {e!s}")
         return False
@@ -122,7 +120,7 @@ def test_single_predictions():
                 total_time = (end_time - start_time) * 1000
 
                 print(
-                    f"✅ Test {i}: '{text[:30]}...' → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)"
+                    f"✅ Test {i}: '{text[:30]}...' → {emotion} (conf: {confidence:.3f}, time: {prediction_time}ms)",
                 )
                 results.append(
                     {
@@ -131,7 +129,7 @@ def test_single_predictions():
                         "confidence": confidence,
                         "prediction_time_ms": prediction_time,
                         "total_time_ms": total_time,
-                    }
+                    },
                 )
             else:
                 print(f"❌ Test {i} failed: {response.status_code}")
@@ -191,9 +189,8 @@ def test_batch_predictions():
                 print(f"   {i}. '{text}' → {emotion} (conf: {confidence:.3f})")
 
             return True
-        else:
-            print(f"❌ Batch prediction failed: {response.status_code}")
-            return False
+        print(f"❌ Batch prediction failed: {response.status_code}")
+        return False
 
     except requests.exceptions.RequestException as e:
         print(f"❌ Batch prediction HTTP error: {e!s}")
@@ -235,15 +232,14 @@ def test_rate_limiting():
 
     print(f"   ✅ Rate limiting test completed in {end_time - start_time:.2f}s")
     print(
-        f"   📊 Successful: {successful}, Rate limited: {rate_limited}, Failed: {failed}"
+        f"   📊 Successful: {successful}, Rate limited: {rate_limited}, Failed: {failed}",
     )
 
     if rate_limited > 0:
         print(f"   ✅ Rate limiting is working (blocked {rate_limited} requests)")
         return True
-    else:
-        print("   ⚠️ No rate limiting detected (may need more requests)")
-        return True
+    print("   ⚠️ No rate limiting detected (may need more requests)")
+    return True
 
 
 def test_error_handling():
@@ -334,7 +330,11 @@ def test_performance():
         except requests.exceptions.RequestException as e:
             return {"status_code": 0, "response_time": 0, "error": f"HTTP error: {e!s}"}
         except ValueError as e:
-            return {"status_code": 0, "response_time": 0, "error": f"JSON parse error: {e!s}"}
+            return {
+                "status_code": 0,
+                "response_time": 0,
+                "error": f"JSON parse error: {e!s}",
+            }
 
     # Test with concurrent requests
     print("   Testing with 20 concurrent requests...")
@@ -351,7 +351,7 @@ def test_performance():
 
     if successful:
         avg_response_time = sum(r["response_time"] for r in successful) / len(
-            successful
+            successful,
         )
         min_response_time = min(r["response_time"] for r in successful)
         max_response_time = max(r["response_time"] for r in successful)
@@ -360,18 +360,16 @@ def test_performance():
         print(f"   📊 Successful requests: {len(successful)}/{len(results)}")
         print(f"   📊 Average response time: {avg_response_time:.1f}ms")
         print(
-            f"   📊 Response time range: {min_response_time:.1f}ms - {max_response_time:.1f}ms"
+            f"   📊 Response time range: {min_response_time:.1f}ms - {max_response_time:.1f}ms",
         )
 
         if avg_response_time < 1000:  # Less than 1 second
             print("   ✅ Performance is acceptable")
             return True
-        else:
-            print("   ⚠️ Performance may need optimization")
-            return True
-    else:
-        print("   ❌ No successful requests in performance test")
-        return False
+        print("   ⚠️ Performance may need optimization")
+        return True
+    print("   ❌ No successful requests in performance test")
+    return False
 
 
 def main():
@@ -423,9 +421,8 @@ def main():
         print("   ✅ Performance monitoring")
         print("   ✅ Batch processing")
         return 0
-    else:
-        print(f"❌ {total - passed} tests failed. Please check the implementation.")
-        return 1
+    print(f"❌ {total - passed} tests failed. Please check the implementation.")
+    return 1
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Dependency Usage Checker.
 
-This script checks if all dependencies listed in requirements.txt are actually
-used in the codebase to avoid unnecessary bloat.
+This script checks if all dependencies listed in requirements.txt are actually used in
+the codebase to avoid unnecessary bloat.
 """
 
 import re

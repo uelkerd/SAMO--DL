@@ -34,10 +34,14 @@ app.register_blueprint(docs_bp)
 
 # Prometheus metrics
 REQUEST_COUNT = Counter(
-    "emotion_api_requests_total", "Total requests", ["endpoint", "status"]
+    "emotion_api_requests_total",
+    "Total requests",
+    ["endpoint", "status"],
 )
 REQUEST_DURATION = Histogram(
-    "emotion_api_request_duration_seconds", "Request duration", ["endpoint"]
+    "emotion_api_request_duration_seconds",
+    "Request duration",
+    ["endpoint"],
 )
 MODEL_LOAD_TIME = Histogram("emotion_model_load_time_seconds", "Model load time")
 
@@ -80,7 +84,7 @@ def health_check():
         REQUEST_COUNT.labels(endpoint="/health", status="success").inc()
         return jsonify(health_data), 200
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Health check failed")
         REQUEST_COUNT.labels(endpoint="/health", status="error").inc()
         return jsonify({"status": "unhealthy"}), 500
@@ -107,7 +111,7 @@ def predict():
         if len(text) > MAX_TEXT_LENGTH:
             REQUEST_COUNT.labels(endpoint="/predict", status="error").inc()
             return jsonify(
-                {"error": f"Text too long (max {MAX_TEXT_LENGTH} characters)"}
+                {"error": f"Text too long (max {MAX_TEXT_LENGTH} characters)"},
             ), 400
 
         # Ensure model is loaded
@@ -123,7 +127,7 @@ def predict():
 
         return jsonify(result), 200
 
-    except Exception as e:
+    except Exception:
         logger.exception("❌ Prediction endpoint error")
         duration = time.time() - start_time
         REQUEST_DURATION.labels(endpoint="/predict").observe(duration)
@@ -156,7 +160,7 @@ def root():
             "model_type": "roberta_single_label",
             "emotions_supported": len(model_status.get("emotion_labels", [])),
             "emotions": model_status.get("emotion_labels", []),
-        }
+        },
     ), 200
 
 

@@ -32,7 +32,6 @@ try:
         Returns:
         -------
             str: Source code representation of the node
-
         """
         return astor.to_source(node)
 except ImportError:
@@ -50,7 +49,6 @@ except ImportError:
         Returns:
         -------
             str: Source code representation of the node (basic cases only)
-
         """
         # Simple fallback - this won't be perfect but will work for basic cases
         if isinstance(node, ast.Name):

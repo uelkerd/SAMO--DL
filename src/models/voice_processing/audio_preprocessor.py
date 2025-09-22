@@ -41,7 +41,6 @@ class AudioPreprocessor:
         Returns:
         -------
             tuple of (is_valid, error_message)
-
         """
         audio_path = Path(audio_path)
 
@@ -58,14 +57,18 @@ class AudioPreprocessor:
 
             duration = len(audio) / 1000.0  # Convert to seconds
             if duration > AudioPreprocessor.MAX_DURATION:
-                logger.warning(f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s for file {audio_path}")
+                logger.warning(
+                    f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s for file {audio_path}"
+                )
                 return (
                     False,
                     f"Audio too long: {duration:.1f}s > {AudioPreprocessor.MAX_DURATION}s",
                 )
 
             if duration < 0.1:  # Too short
-                logger.warning(f"Audio too short: {duration:.1f}s for file {audio_path}")
+                logger.warning(
+                    f"Audio too short: {duration:.1f}s for file {audio_path}"
+                )
                 return False, f"Audio too short: {duration:.1f}s"
 
             return True, "Valid audio file"
@@ -89,7 +92,6 @@ class AudioPreprocessor:
         Returns:
         -------
             tuple of (processed_audio_path, metadata)
-
         """
         audio_path = Path(audio_path)
 

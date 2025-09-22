@@ -1,8 +1,8 @@
 """Embedding generation and management for text processing.
 
-This module provides utilities for creating and managing text embeddings
-using various models including Word2Vec, GloVe, and transformer-based
-embeddings. Supports batch processing and caching for efficient computation.
+This module provides utilities for creating and managing text embeddings using various
+models including Word2Vec, GloVe, and transformer-based embeddings. Supports batch
+processing and caching for efficient computation.
 """
 
 import logging
@@ -37,7 +37,6 @@ class BaseEmbedder:
         Returns:
         -------
             Self for chaining
-
         """
         msg = "Subclasses must implement fit()"
         raise NotImplementedError(msg)
@@ -52,7 +51,6 @@ class BaseEmbedder:
         Returns:
         -------
             Array of embeddings
-
         """
         msg = "Subclasses must implement transform()"
         raise NotImplementedError(msg)
@@ -67,7 +65,6 @@ class BaseEmbedder:
         Returns:
         -------
             Array of embeddings
-
         """
         return self.fit(texts).transform(texts)
 
@@ -90,7 +87,6 @@ class TfidfEmbedder(BaseEmbedder):
             min_df: Minimum document frequency for terms
             max_df: Maximum document frequency for terms
             ngram_range: Range of n-grams to consider
-
         """
         super().__init__()
         self.max_features = max_features
@@ -114,7 +110,6 @@ class TfidfEmbedder(BaseEmbedder):
         Returns:
         -------
             Self for chaining
-
         """
         logger.info(
             "Fitting TF-IDF vectorizer on {len(texts)} texts with "
@@ -138,7 +133,6 @@ class TfidfEmbedder(BaseEmbedder):
         Returns:
         -------
             Array of TF-IDF embeddings
-
         """
         if self.model is None:
             msg = "Model has not been fit yet"
@@ -169,7 +163,6 @@ class Word2VecEmbedder(BaseEmbedder):
             workers: Number of threads to run in parallel
             sg: Training algorithm: 1 for skip-gram, 0 for CBOW
             epochs: Number of iterations over the corpus
-
         """
         super().__init__()
         self.vector_size = vector_size
@@ -190,7 +183,6 @@ class Word2VecEmbedder(BaseEmbedder):
         Returns:
         -------
             List of tokenized texts
-
         """
         return [simple_preprocess(text) for text in texts]
 
@@ -204,7 +196,6 @@ class Word2VecEmbedder(BaseEmbedder):
         Returns:
         -------
             Self for chaining
-
         """
         logger.info(
             "Preprocessing {len(texts)} texts for Word2Vec",
@@ -242,7 +233,6 @@ class Word2VecEmbedder(BaseEmbedder):
         Returns:
         -------
             Array of averaged Word2Vec embeddings
-
         """
         if self.model is None:
             msg = "Model has not been fit yet"
@@ -278,7 +268,6 @@ class FastTextEmbedder(Word2VecEmbedder):
         Returns:
         -------
             Self for chaining
-
         """
         logger.info(
             "Preprocessing {len(texts)} texts for FastText",
@@ -316,7 +305,6 @@ class EmbeddingPipeline:
         Args:
         ----
             embedder: Text embedder to use
-
         """
         self.embedder = embedder
 
@@ -337,7 +325,6 @@ class EmbeddingPipeline:
         Returns:
         -------
             DataFrame with text IDs and embeddings
-
         """
         if text_column not in df.columns:
             msg = "Text column '{text_column}' not found in DataFrame"
@@ -374,7 +361,6 @@ class EmbeddingPipeline:
         ----
             embeddings_df: DataFrame containing entry IDs and embeddings
             output_path: Path to save the CSV file
-
         """
         embeddings_df.to_csv(output_path, index=False)
         logger.info(

@@ -1,8 +1,8 @@
 """Data validation utilities for input sanitization and quality checks.
 
-This module provides comprehensive validation functions for text inputs,
-emotion labels, and data quality assessment. Includes sanitization,
-format validation, and content filtering for security and accuracy.
+This module provides comprehensive validation functions for text inputs, emotion labels,
+and data quality assessment. Includes sanitization, format validation, and content
+filtering for security and accuracy.
 """
 
 import logging
@@ -38,7 +38,6 @@ class DataValidator:
         Returns:
         -------
             Dictionary with column names and percentage of missing values
-
         """
         if required_columns is None:
             required_columns = ["user_id", "content"]
@@ -75,7 +74,6 @@ class DataValidator:
         Returns:
         -------
             Dictionary with column names and whether they match expected types
-
         """
         type_check_results = {}
 
@@ -129,7 +127,6 @@ class DataValidator:
         Returns:
         -------
             DataFrame with text quality metrics
-
         """
         if text_column not in df.columns:
             logger.error(
@@ -183,7 +180,6 @@ class DataValidator:
         Returns:
         -------
             Dictionary with validation results including is_valid, validated_df, missing_values, data_types, and text_quality
-
         """
         if required_columns is None:
             required_columns = ["user_id", "content"]
@@ -256,7 +252,6 @@ def validate_text_input(
     Returns:
     -------
         Dictionary with is_valid and error keys
-
     """
     if input_text is None:
         return {"is_valid": False, "error": "Input cannot be None"}

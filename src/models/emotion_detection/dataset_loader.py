@@ -49,7 +49,6 @@ class GoEmotionsDataset(Dataset):
             labels: List of label lists (multi-label)
             tokenizer: BERT tokenizer
             max_length: Maximum sequence length
-
         """
         self.texts = texts
         self.labels = labels
@@ -96,7 +95,6 @@ class GoEmotionsPreprocessor:
         ----
             model_name: Hugging Face model name for tokenizer
             max_length: Maximum sequence length for BERT processing
-
         """
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.max_length = max_length
@@ -116,7 +114,6 @@ class GoEmotionsPreprocessor:
         Returns:
         -------
             Cleaned text preserving emotional context
-
         """
         if not isinstance(text, str):
             return ""
@@ -138,7 +135,6 @@ class GoEmotionsPreprocessor:
         Returns:
         -------
             Dictionary with tokenized inputs
-
         """
         # Clean texts first
         cleaned_texts = [self.clean_text(text) for text in texts]
@@ -175,7 +171,6 @@ class GoEmotionsDataLoader:
             test_size: Fraction of data for testing
             val_size: Fraction of data for validation
             random_state: Random seed for reproducibility
-
         """
         self.cache_dir = cache_dir
         self.model_name = model_name
@@ -210,7 +205,6 @@ class GoEmotionsDataLoader:
         Returns
         -------
             Dictionary with dataset statistics
-
         """
         if self.dataset is None:
             self.download_dataset()
@@ -251,7 +245,6 @@ class GoEmotionsDataLoader:
         Returns
         -------
             Array of class weights for each emotion
-
         """
         if self.dataset is None:
             self.download_dataset()
@@ -287,7 +280,6 @@ class GoEmotionsDataLoader:
         Returns
         -------
             Tuple of (train, validation, test) datasets
-
         """
         if self.dataset is None:
             self.download_dataset()
@@ -329,7 +321,6 @@ class GoEmotionsDataLoader:
         Returns:
         -------
             Dictionary with prepared datasets and metadata
-
         """
         if self.dataset is None or force_download:
             self.download_dataset()
@@ -367,7 +358,6 @@ def create_goemotions_loader(
     Returns:
     -------
         Configured GoEmotionsDataLoader instance
-
     """
     return GoEmotionsDataLoader(cache_dir=cache_dir, model_name=model_name)
 

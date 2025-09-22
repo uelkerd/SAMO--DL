@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Fix Model Loading Issues
-Comprehensive fix for Cloud Run deployment model loading problems.
-"""
+"""Fix Model Loading Issues Comprehensive fix for Cloud Run deployment model loading
+problems."""
 
 import os
 import sys

@@ -225,9 +225,9 @@ class VertexAIPhase4Automation:
                 check=True,
             )
             enabled_services = [line.strip() for line in result.stdout.splitlines()]
-            return (
-                result.returncode == 0
-                and any(service == "artifactregistry.googleapis.com" for service in enabled_services)
+            return result.returncode == 0 and any(
+                service == "artifactregistry.googleapis.com"
+                for service in enabled_services
             )
         except Exception:
             return False

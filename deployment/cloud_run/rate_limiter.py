@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rate Limiter for Flask API"""
+"""Rate Limiter for Flask API."""
 
 import threading
 import time
@@ -14,12 +14,12 @@ class RateLimiter:
     def __init__(self, requests_per_minute: int = 100):
         self.requests_per_minute = requests_per_minute
         self.requests: Dict[str, deque] = defaultdict(
-            lambda: deque(maxlen=requests_per_minute)
+            lambda: deque(maxlen=requests_per_minute),
         )
         self.lock = threading.Lock()
 
     def is_allowed(self, client_id: str) -> bool:
-        """Check if request is allowed"""
+        """Check if request is allowed."""
         current_time = time.time()
 
         with self.lock:
@@ -39,7 +39,7 @@ class RateLimiter:
 
     @staticmethod
     def get_client_id(request) -> str:
-        """Get client identifier"""
+        """Get client identifier."""
         # Try API key first
         api_key = request.headers.get("X-API-Key")
         if api_key:
@@ -50,7 +50,7 @@ class RateLimiter:
 
 
 def rate_limit(requests_per_minute: int = 100):
-    """Rate limiting decorator"""
+    """Rate limiting decorator."""
     limiter = RateLimiter(requests_per_minute)
 
     def decorator(f):
@@ -63,7 +63,7 @@ def rate_limit(requests_per_minute: int = 100):
                     {
                         "error": "Rate limit exceeded",
                         "retry_after": 60,
-                    }
+                    },
                 ), 429
 
             return f(*args, **kwargs)

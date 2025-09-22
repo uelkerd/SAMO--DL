@@ -103,7 +103,6 @@ def test_conda_environment_setup():
 
 def test_critical_fixes():
     """Test that critical CircleCI fixes are applied using YAML parsing."""
-
     print("🔍 Testing critical CircleCI fixes...")
 
     config_path = Path(".circleci/config.yml")
@@ -195,7 +194,8 @@ def test_critical_fixes():
 
 
 def test_pipeline_structure():
-    """Test that the pipeline structure is correct, including handling malformed or incomplete configs."""
+    """Test that the pipeline structure is correct, including handling malformed or
+    incomplete configs."""
     print("🔍 Testing pipeline structure...")
 
     config_path = Path(".circleci/config.yml")

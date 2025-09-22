@@ -94,7 +94,6 @@ class AudioPreprocessor:
         Returns:
         -------
             Tuple of (is_valid, error_message)
-
         """
         audio_path = Path(audio_path)
 
@@ -138,7 +137,6 @@ class AudioPreprocessor:
         Returns:
         -------
             Tuple of (processed_audio_path, metadata)
-
         """
         audio_path = Path(audio_path)
 
@@ -205,7 +203,6 @@ class WhisperTranscriber:
         ----
             config: Transcription configuration
             model_size: Override model size from config
-
         """
         self.config = config or TranscriptionConfig()
         if model_size:
@@ -255,7 +252,6 @@ class WhisperTranscriber:
         Returns:
         -------
             TranscriptionResult with detailed information
-
         """
         start_time = time.time()
 
@@ -347,7 +343,6 @@ class WhisperTranscriber:
         Returns:
         -------
             List of TranscriptionResult objects
-
         """
         logger.info(f"Starting batch transcription of {len(audio_paths)} files...")
 
@@ -403,7 +398,6 @@ class WhisperTranscriber:
         Returns:
         -------
             Average confidence score (0.0 to 1.0)
-
         """
         if not segments:
             return 0.0
@@ -432,7 +426,6 @@ class WhisperTranscriber:
         Returns:
         -------
             Quality assessment: excellent, good, fair, poor
-
         """
         compression_ratio = result.get("compression_ratio", 2.0)
         avg_logprob = result.get("avg_logprob", -0.5)
@@ -492,7 +485,6 @@ def create_whisper_transcriber(
     Returns:
     -------
         Configured WhisperTranscriber instance
-
     """
     config = TranscriptionConfig(
         model_size=model_size,

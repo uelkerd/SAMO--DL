@@ -93,7 +93,6 @@ def apply_dynamic_quantization(
     Returns:
     -------
         Dictionary with optimization metrics
-
     """
     logger.info("Applying dynamic quantization...")
 
@@ -156,7 +155,6 @@ def convert_to_onnx(
     Returns:
     -------
         Path to saved ONNX model
-
     """
     logger.info("Converting model to ONNX format...")
 
@@ -236,7 +234,6 @@ def benchmark_models(
     Returns:
     -------
         Dictionary with benchmark results
-
     """
     if batch_sizes is None:
         batch_sizes = [1, 4, 16]
@@ -367,7 +364,6 @@ def get_model_size_mb(model_path: Union[str, Path]) -> float:
     Returns:
     -------
         Model size in MB
-
     """
     path = Path(model_path)
     return path.stat().st_size / (1024 * 1024)
@@ -383,7 +379,6 @@ def verify_gpu_compatibility(model: torch.nn.Module) -> bool:
     Returns:
     -------
         True if compatible with both CPU and GPU, False otherwise
-
     """
     logger.info("Verifying GPU compatibility...")
 
@@ -442,7 +437,6 @@ def optimize_model(
     Returns:
     -------
         Dictionary with optimization results
-
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

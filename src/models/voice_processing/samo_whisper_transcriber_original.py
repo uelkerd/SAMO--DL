@@ -97,7 +97,8 @@ class SAMOWhisperConfig:
             transcription_config.get("condition_on_previous_text", True),
         )
         config_fp16 = whisper_config.get(
-            "fp16", transcription_config.get("fp16", False)
+            "fp16",
+            transcription_config.get("fp16", False),
         )
         self.fp16 = config_fp16 and torch.cuda.is_available()
         self.compression_ratio_threshold = whisper_config.get(
@@ -308,7 +309,6 @@ class SAMOWhisperTranscriber:
                 Returns:
                 -------
                     bool: True if model is corrupted or missing, False otherwise
-
                 """
                 model_file = os.path.join(cache_dir, f"{model_size}.pt")
                 if not os.path.isfile(model_file):

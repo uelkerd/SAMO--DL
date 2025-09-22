@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Evaluate Whisper model performance using LibriSpeech test set.
 
-This script downloads a portion of the LibriSpeech test-clean dataset
-and evaluates the Word Error Rate (WER) of the Whisper transcription model.
+This script downloads a portion of the LibriSpeech test-clean dataset and evaluates the
+Word Error Rate (WER) of the Whisper transcription model.
 """
 
 import argparse
@@ -50,7 +50,6 @@ def download_librispeech_sample(
     Returns:
     -------
         List of dicts with audio path and reference text
-
     """
     logger.info(f"Loading LibriSpeech test-clean (max_samples={max_samples})...")
 
@@ -104,7 +103,6 @@ def evaluate_wer(api: TranscriptionAPI, samples: list[dict], model_size: str) ->
     Returns:
     -------
         Dict with WER metrics and timing info
-
     """
     logger.info(f"Evaluating WER on {len(samples)} samples with {model_size} model...")
 

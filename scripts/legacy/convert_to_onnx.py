@@ -11,7 +11,6 @@ Arguments:
 ---------
     --input_model: Path to input model (default: models/checkpoints/bert_emotion_classifier_quantized.pt)
     --output_model: Path to save ONNX model (default: models/checkpoints/bert_emotion_classifier.onnx)
-
 """
 
 import argparse
@@ -49,7 +48,6 @@ def convert_to_onnx(input_model: str, output_model: str) -> bool:
     Returns:
     -------
         bool: True if successful, False otherwise
-
     """
     try:
         device = torch.device("cpu")  # ONNX conversion requires CPU

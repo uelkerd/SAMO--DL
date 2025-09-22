@@ -1,10 +1,10 @@
 """Feature engineering utilities for text and emotion analysis.
 
-This module provides comprehensive feature extraction and engineering
-capabilities including text statistics, sentiment analysis, topic modeling,
-and linguistic features. Supports dimensionality reduction and feature
-selection for machine learning pipelines.
+This module provides comprehensive feature extraction and engineering capabilities
+including text statistics, sentiment analysis, topic modeling, and linguistic features.
+Supports dimensionality reduction and feature selection for machine learning pipelines.
 """
+
 # Create sentiment category based on compound score
 # Ensure NLTK resources are downloaded
 # Ensure text column is string type
@@ -75,7 +75,6 @@ class FeatureEngineer:
         Returns:
         -------
             DataFrame with basic features added
-
         """
         df = df.copy()
 
@@ -128,7 +127,6 @@ class FeatureEngineer:
         Returns:
         -------
             DataFrame with sentiment features added
-
         """
         if self.sentiment_analyzer is None:
             logger.warning(
@@ -176,7 +174,6 @@ class FeatureEngineer:
         Returns:
         -------
             DataFrame with topic features added
-
         """
         df = df.copy()
 
@@ -231,7 +228,6 @@ class FeatureEngineer:
         Returns:
         -------
             DataFrame with time features added
-
         """
         df = df.copy()
 
@@ -287,7 +283,6 @@ class FeatureEngineer:
         Returns:
         -------
             DataFrame with all features added
-
         """
         logger.info(
             "Extracting all features for {len(df)} journal entries",

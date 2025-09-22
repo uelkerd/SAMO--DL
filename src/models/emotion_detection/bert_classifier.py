@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """BERT-based Emotion Classifier for SAMO Deep Learning.
 
-This module provides a BERT-based multi-label emotion classification model
-trained on the GoEmotions dataset for journal entry analysis.
+This module provides a BERT-based multi-label emotion classification model trained on
+the GoEmotions dataset for journal entry analysis.
 """
 
 import logging
@@ -58,7 +58,6 @@ class BERTEmotionClassifier(nn.Module):
             freeze_bert_layers: Number of BERT layers to freeze initially
             temperature: Temperature scaling parameter for probability calibration
             class_weights: Optional class weights for imbalanced data
-
         """
         super().__init__()
 
@@ -112,7 +111,6 @@ class BERTEmotionClassifier(nn.Module):
         Args:
         ----
             num_layers: Number of BERT layers to freeze
-
         """
         if num_layers <= 0:
             return
@@ -134,7 +132,6 @@ class BERTEmotionClassifier(nn.Module):
         Args:
         ----
             num_layers: Number of BERT layers to unfreeze
-
         """
         if num_layers <= 0:
             return
@@ -167,7 +164,6 @@ class BERTEmotionClassifier(nn.Module):
         Returns:
         -------
             Logits for emotion classification
-
         """
         # Get BERT outputs
         bert_outputs = self.bert(
@@ -191,7 +187,6 @@ class BERTEmotionClassifier(nn.Module):
         Args:
         ----
             temperature: Temperature value for scaling
-
         """
         self.temperature.data.fill_(temperature)  # type: ignore
         logger.info(f"Set temperature to {temperature}")
@@ -217,7 +212,6 @@ class BERTEmotionClassifier(nn.Module):
         Returns:
         -------
             Dictionary with predictions, probabilities, and emotion names, or list of predictions for testing
-
         """
         # Handle direct input_ids/attention_mask for testing
         if input_ids is not None and attention_mask is not None:
@@ -302,7 +296,6 @@ class WeightedBCELoss(nn.Module):
         ----
             class_weights: Class weights for balancing loss
             reduction: Loss reduction method
-
         """
         super().__init__()
         self.class_weights = class_weights
@@ -319,7 +312,6 @@ class WeightedBCELoss(nn.Module):
         Returns:
         -------
             Weighted BCE loss
-
         """
         # Apply sigmoid to get probabilities
         probabilities = torch.sigmoid(logits)
@@ -363,7 +355,6 @@ class EmotionDataset(Dataset):
             labels: List of label lists (multi-label)
             tokenizer: BERT tokenizer
             max_length: Maximum sequence length
-
         """
         self.texts = texts
         self.labels = labels
@@ -384,7 +375,6 @@ class EmotionDataset(Dataset):
         Returns:
         -------
             Dictionary with tokenized inputs and labels
-
         """
         text = self.texts[idx]
         labels = self.labels[idx]
@@ -424,7 +414,6 @@ def create_bert_emotion_classifier(
     Returns:
     -------
         Tuple of (model, loss_function)
-
     """
     model = BERTEmotionClassifier(
         model_name=model_name,
@@ -458,7 +447,6 @@ def evaluate_emotion_classifier(
     Returns:
     -------
         Dictionary with evaluation metrics
-
     """
     model.eval()
     all_predictions = []

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Centralized Test Configuration
-Provides consistent configuration for all testing scripts.
-"""
+"""Centralized Test Configuration Provides consistent configuration for all testing
+scripts."""
 
 import argparse
 import os

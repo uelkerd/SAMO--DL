@@ -1,7 +1,7 @@
 """SAMO Whisper Transcription Results Module.
 
-This module defines the data structures for transcription results
-and provides utilities for result processing and analysis.
+This module defines the data structures for transcription results and provides utilities
+for result processing and analysis.
 """
 
 import logging

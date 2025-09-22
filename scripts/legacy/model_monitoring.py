@@ -102,7 +102,6 @@ class PerformanceTracker:
         Args:
         ----
             window_size: Size of sliding window for metrics
-
         """
         self.window_size = window_size
         self.metrics_history = deque(maxlen=window_size)
@@ -115,7 +114,6 @@ class PerformanceTracker:
         Args:
         ----
             metrics: Model performance metrics
-
         """
         self.metrics_history.append(metrics)
 
@@ -129,7 +127,6 @@ class PerformanceTracker:
         Returns
         -------
             Dictionary with current performance metrics
-
         """
         if not self.metrics_history:
             return {}
@@ -150,7 +147,6 @@ class PerformanceTracker:
         Returns
         -------
             Alert if degradation detected, None otherwise
-
         """
         if not self.metrics_history or self.baseline_metrics is None:
             return None
@@ -197,7 +193,6 @@ class PerformanceTracker:
         Returns
         -------
             Dictionary with trend analysis
-
         """
         if len(self.metrics_history) < 10:
             return {"insufficient_data": True}
@@ -231,7 +226,6 @@ class DataDriftDetector:
         ----
             reference_data: Reference dataset for drift detection
             drift_threshold: Threshold for drift detection
-
         """
         self.reference_data = reference_data
         self.drift_threshold = drift_threshold
@@ -243,7 +237,6 @@ class DataDriftDetector:
         Returns
         -------
             Dictionary with feature statistics
-
         """
         stats_dict = {}
 
@@ -268,7 +261,6 @@ class DataDriftDetector:
         Returns:
         -------
             Drift metrics
-
         """
         drift_scores = {}
         affected_features = []
@@ -325,7 +317,6 @@ class DataDriftDetector:
         Returns:
         -------
             Drift score
-
         """
         mean_diff = abs(current_mean - ref_mean)
         std_diff = abs(current_std - ref_std)
@@ -345,7 +336,6 @@ class ModelHealthMonitor:
         Args:
         ----
             config_path: Path to monitoring configuration
-
         """
         self.config = self._load_config(config_path)
         self.performance_tracker = PerformanceTracker(
@@ -371,7 +361,6 @@ class ModelHealthMonitor:
         Returns:
         -------
             Configuration dictionary
-
         """
         config_file = Path(config_path)
         if config_file.exists():
@@ -475,7 +464,6 @@ class ModelHealthMonitor:
         Returns
         -------
             Model metrics if collection successful, None otherwise
-
         """
         if not self.model:
             return None
@@ -541,7 +529,6 @@ class ModelHealthMonitor:
         Returns
         -------
             Memory usage in MB
-
         """
         try:
             process = psutil.Process()
@@ -556,7 +543,6 @@ class ModelHealthMonitor:
         Returns
         -------
             GPU utilization percentage if available, None otherwise
-
         """
         try:
             if torch.cuda.is_available():
@@ -572,7 +558,6 @@ class ModelHealthMonitor:
         Returns
         -------
             Drift metrics
-
         """
         return DriftMetrics(
             timestamp=datetime.now(),
@@ -589,7 +574,6 @@ class ModelHealthMonitor:
         Args:
         ----
             alert: Alert to handle
-
         """
         logger.warning("ALERT [{alert.severity}]: {alert.message}")
 
@@ -624,7 +608,6 @@ class ModelHealthMonitor:
         Args:
         ----
             alert: Alert to save
-
         """
         try:
             alerts_dir = Path("logs/alerts")
@@ -645,7 +628,6 @@ class ModelHealthMonitor:
         Returns
         -------
             Dictionary with health status
-
         """
         current_performance = self.performance_tracker.get_current_performance()
         trend_analysis = self.performance_tracker.get_trend_analysis()
@@ -672,7 +654,6 @@ class ModelHealthMonitor:
         Returns
         -------
             Dictionary with dashboard data
-
         """
         recent_metrics = list(self.performance_tracker.metrics_history)[-50:]
 
@@ -693,7 +674,6 @@ def create_monitoring_config(output_path: str = DEFAULT_CONFIG_PATH) -> None:
     Args:
     ----
         output_path: Path to save configuration
-
     """
     config = {
         "model_path": "models/checkpoints/bert_emotion_classifier_final.pt",

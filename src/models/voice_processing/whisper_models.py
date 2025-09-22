@@ -1,7 +1,7 @@
 """SAMO Whisper Model Management Module.
 
-This module handles Whisper model loading, caching, and management
-with robust error handling and cache corruption detection.
+This module handles Whisper model loading, caching, and management with robust error
+handling and cache corruption detection.
 """
 
 import logging

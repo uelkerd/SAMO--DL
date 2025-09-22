@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Standalone test for SAMO Whisper Transcription Model
+"""Standalone test for SAMO Whisper Transcription Model.
 
-This script tests the Whisper transcription model independently
-to ensure it works correctly before integration.
+This script tests the Whisper transcription model independently to ensure it works
+correctly before integration.
 """
 
 import logging
@@ -50,7 +50,10 @@ def test_audio_files():
 
 
 def test_single_transcription(
-    transcriber, audio_file, file_num, expected_language=None
+    transcriber,
+    audio_file,
+    file_num,
+    expected_language=None,
 ):
     """Test transcription of a single audio file."""
     print(f"\n   Testing file {file_num}: {audio_file}")
@@ -86,7 +89,7 @@ def test_batch_transcription(transcriber, available_audio):
         results = transcriber.transcribe_batch(available_audio)
         successful = sum(bool(r.text.strip()) for r in results)
         print(
-            f"   ✅ Batch transcription complete: {successful}/{len(results)} successful"
+            f"   ✅ Batch transcription complete: {successful}/{len(results)} successful",
         )
 
         total_duration = sum(r.duration for r in results)
@@ -169,7 +172,7 @@ def test_multilingual_language_detection(transcriber):
                 print(f"   Detected language: {detected_language}")
                 print(f"   Confidence: {confidence:.3f}")
                 print(
-                    f"   Text preview: {result.text[:100]}{'...' if len(result.text) > 100 else ''}"
+                    f"   Text preview: {result.text[:100]}{'...' if len(result.text) > 100 else ''}",
                 )
 
                 if detected_language == expected_language:
@@ -177,7 +180,7 @@ def test_multilingual_language_detection(transcriber):
                     successful_detections += 1
                 else:
                     print(
-                        f"   ❌ Language detection incorrect: expected {expected_language}, got {detected_language}"
+                        f"   ❌ Language detection incorrect: expected {expected_language}, got {detected_language}",
                     )
 
             except Exception as e:
@@ -188,7 +191,7 @@ def test_multilingual_language_detection(transcriber):
     if total_tests > 0:
         accuracy = (successful_detections / total_tests) * 100
         print(
-            f"\n   Language detection accuracy: {successful_detections}/{total_tests} ({accuracy:.1f}%)"
+            f"\n   Language detection accuracy: {successful_detections}/{total_tests} ({accuracy:.1f}%)",
         )
 
         if accuracy >= 90:
@@ -211,7 +214,7 @@ def test_samo_whisper_transcriber():
         # Initialize transcriber
         print("1. Initializing SAMO Whisper Transcriber...")
         transcriber = create_samo_whisper_transcriber(
-            "configs/samo_whisper_config.yaml"
+            "configs/samo_whisper_config.yaml",
         )
         print("✅ Transcriber initialized successfully")
 
@@ -242,11 +245,12 @@ def test_samo_whisper_transcriber():
         else:
             # Test transcription with available audio
             print(
-                f"\n4. Testing transcription with {len(available_audio)} audio file(s)..."
+                f"\n4. Testing transcription with {len(available_audio)} audio file(s)...",
             )
 
             for i, audio_file in enumerate(
-                available_audio, 1
+                available_audio,
+                1,
             ):  # Test all available files
                 test_single_transcription(transcriber, audio_file, i)
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Quick fix for CUDA device-side assert errors caused by label mismatches.
+
 Run this before your training to fix the label encoding issues.
 """
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Unified AI API for SAMO Deep Learning.
 
-This module provides a unified FastAPI interface for all AI models
-in the SAMO Deep Learning pipeline.
+This module provides a unified FastAPI interface for all AI models in the SAMO Deep
+Learning pipeline.
 """
 
 from __future__ import annotations
@@ -49,8 +49,8 @@ REQUEST_LATENCY = None
 def normalize_emotion_results(raw: Any) -> dict:
     """Normalize various emotion detector return shapes to a consistent dict.
 
-    Supports dicts (possibly with MagicMock values) and objects with attributes.
-    Returns a structure matching EmotionAnalysis fields.
+    Supports dicts (possibly with MagicMock values) and objects with attributes. Returns
+    a structure matching EmotionAnalysis fields.
     """
     try:
         if isinstance(raw, dict):
@@ -105,8 +105,8 @@ def normalize_emotion_results(raw: Any) -> dict:
 
 
 def _run_emotion_predict(text: str, threshold: float = 0.5) -> dict:
-    """Run emotion prediction using available detector, adapting outputs to a
-    common schema.
+    """Run emotion prediction using available detector, adapting outputs to a common
+    schema.
 
     Returns a dict with keys: emotions (label->prob), primary_emotion,
     confidence, emotional_intensity.
@@ -470,8 +470,8 @@ def _ensure_summarizer_loaded() -> None:
 def _get_request_scoped_summarizer(model: str):
     """Return summarizer for requested model.
 
-    If the requested model differs, attempt to create a request-scoped instance.
-    On failure, raise ValueError/RuntimeError instead of HTTPException.
+    If the requested model differs, attempt to create a request-scoped instance. On
+    failure, raise ValueError/RuntimeError instead of HTTPException.
     """
     if hasattr(text_summarizer, "model_name") and text_summarizer.model_name != model:
         try:
@@ -2053,7 +2053,7 @@ def main():
         from fastapi.websockets import WebSocketDisconnect
         from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
         from pydantic import BaseModel, Field
-        
+
         from api_rate_limiter import add_rate_limiting
         from security.jwt_manager import JWTManager, TokenPayload, TokenResponse
     except ImportError as e:
@@ -2061,14 +2061,14 @@ def main():
             f"Required dependencies not found: {e}. "
             "Please install the project dependencies with: pip install -e ."
         ) from e
-    
+
     # Now that we have the imports, we can set up the global variables
     global app, REQUEST_COUNT, REQUEST_LATENCY, app_start_time, jwt_manager, security, websocket_manager
     global UserLogin, UserRegister, UserProfile, emotion_detector, text_summarizer, voice_transcriber
-    
+
     # Initialize global variables
     app_start_time = time.time()
-    
+
     # Metrics
     REQUEST_COUNT = Counter(
         "samo_requests_total",
@@ -2080,14 +2080,14 @@ def main():
         "Request latency (s)",
         ["endpoint", "method"],
     )
-    
+
     # JWT Authentication
     jwt_manager = JWTManager()
     security = HTTPBearer()
-    
+
     # Global WebSocket manager
     websocket_manager = WebSocketConnectionManager()
-    
+
     # Authentication models
     class UserLogin(BaseModel):
         """User login request model."""
@@ -2115,12 +2115,12 @@ def main():
             description="User permissions",
         )
         created_at: str = Field(description="Account creation date")
-    
+
     # Set global references
     globals()['UserLogin'] = UserLogin
     globals()['UserRegister'] = UserRegister
     globals()['UserProfile'] = UserProfile
-    
+
     # Authentication dependency
     async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -2513,7 +2513,7 @@ def main():
 
     # Now define all the endpoints...
     # (This is a very large function, so I'll continue with the endpoint definitions)
-    
+
     # Start the server
     uvicorn.run(app, host="0.0.0.0", port=8000)
 

@@ -16,7 +16,6 @@ Arguments:
     --output_model: Path to save the final model (default: models/checkpoints/bert_emotion_classifier_final.pt)
     --epochs: Number of training epochs (default: 5)
     --batch_size: Training batch size (default: 16)
-
 """
 
 import argparse
@@ -65,7 +64,6 @@ class FocalLoss(nn.Module):
         ----
             gamma: Focusing parameter (>= 0). Higher values focus more on hard examples.
             alpha: Optional class weights. If provided, should be a tensor of shape (num_classes,).
-
         """
         super().__init__()
         self.gamma = gamma
@@ -82,7 +80,6 @@ class FocalLoss(nn.Module):
         Returns:
         -------
             Focal loss value
-
         """
         probs = torch.sigmoid(inputs)
 
@@ -118,7 +115,6 @@ class EnsembleModel(nn.Module):
             weights: Optional weights for each model (default: equal weights)
             temperature: Temperature for softmax scaling
             threshold: Classification threshold
-
         """
         super().__init__()
         self.models = nn.ModuleList(models)
@@ -136,7 +132,6 @@ class EnsembleModel(nn.Module):
         Returns:
         -------
             Ensemble predictions
-
         """
         predictions = []
         for model in self.models:
@@ -155,7 +150,6 @@ class EnsembleModel(nn.Module):
         Args:
         ----
             temperature: New temperature value
-
         """
         self.temperature = temperature
 
@@ -174,7 +168,6 @@ def create_augmented_dataset(
     Returns:
     -------
         Augmented dataset
-
     """
     logger.info("Creating augmented dataset with back-translation...")
 
@@ -199,7 +192,6 @@ def train_final_model(
     Returns:
     -------
         Training metrics
-
     """
     logger.info(
         f"Training final model for {epochs} epochs with batch size {batch_size}",
@@ -300,7 +292,6 @@ def create_ensemble_model(model_path: str, device: torch.device) -> EnsembleMode
     Returns:
     -------
         Ensemble model
-
     """
     logger.info("Creating ensemble model...")
 
@@ -337,7 +328,6 @@ def evaluate_ensemble(
     Returns:
     -------
         Evaluation metrics
-
     """
     logger.info("Evaluating ensemble model...")
 
@@ -390,7 +380,6 @@ def save_ensemble_model(
         ensemble: Ensemble model to save
         metrics: Model performance metrics
         output_path: Path to save the model
-
     """
     logger.info(f"Saving ensemble model to {output_path}")
 

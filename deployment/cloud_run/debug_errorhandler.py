@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Debug script to investigate the errorhandler issue"""
+"""Debug script to investigate the errorhandler issue."""
 
 import os
 import sys

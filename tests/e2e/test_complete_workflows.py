@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """End-to-end tests for complete user workflows.
+
 Tests full system integration, data flow, and user scenarios.
 """
 

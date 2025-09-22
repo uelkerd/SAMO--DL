@@ -1,7 +1,7 @@
 """SAMO Whisper Audio Preprocessing Module.
 
-This module handles audio preprocessing for optimal Whisper performance,
-including format validation, resampling, normalization, and quality assessment.
+This module handles audio preprocessing for optimal Whisper performance, including
+format validation, resampling, normalization, and quality assessment.
 """
 
 import logging
