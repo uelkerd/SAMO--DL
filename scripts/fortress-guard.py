@@ -19,7 +19,7 @@ def check_file_limit():
             print("🏰 Fortress Rule: Keep PRs micro-sized")
             print("📋 Split your changes into smaller commits")
             return False
-    except:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
     return True
 
