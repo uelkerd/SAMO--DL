@@ -31,6 +31,26 @@ def _is_valid_sha(sha):
     return bool(re.match(r'^[a-fA-F0-9]+$', sha))
 
 
+def _run_git_diff_staged():
+    """Run git diff on staged files - safe static command."""
+    return subprocess.run(
+        ['/usr/bin/git', 'diff', '--cached', '--name-only'],
+        capture_output=True,
+        text=True,
+        check=False
+    )
+
+
+def _run_git_diff_commits(base_sha, head_sha):
+    """Run git diff between commits - with validated SHAs."""
+    return subprocess.run(
+        ['/usr/bin/git', 'diff', '--name-only', f'{base_sha}..{head_sha}'],
+        capture_output=True,
+        text=True,
+        check=False
+    )
+
+
 def check_file_limit(base_sha=None, head_sha=None, max_files=None):
     """
     Check if the number of changed files exceeds the limit.
@@ -59,26 +79,18 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
         print("Error: MAX_FILES must be at least 1", file=sys.stderr)
         return False
 
-    # Build git diff command
-    if base_sha and head_sha:
-        # Validate SHA format (basic validation for security)
-        if not _is_valid_sha(base_sha) or not _is_valid_sha(head_sha):
-            print("Error: Invalid SHA format provided", file=sys.stderr)
-            return False
-        # Compare specific commits
-        cmd = ['/usr/bin/git', 'diff', '--name-only', f'{base_sha}..{head_sha}']
-    else:
-        # Use staged files (default behavior)
-        cmd = ['/usr/bin/git', 'diff', '--cached', '--name-only']
-
-    # Run git diff command and handle results
+    # Run git diff command with security validation
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False  # Don't raise exception on non-zero exit
-        )
+        if base_sha and head_sha:
+            # Validate SHA format (basic validation for security)
+            if not _is_valid_sha(base_sha) or not _is_valid_sha(head_sha):
+                print("Error: Invalid SHA format provided", file=sys.stderr)
+                return False
+            # Compare specific commits - using validated SHAs only
+            result = _run_git_diff_commits(base_sha, head_sha)
+        else:
+            # Use staged files (default behavior) - static command
+            result = _run_git_diff_staged()
 
         # Check for git errors
         if result.returncode != 0:
