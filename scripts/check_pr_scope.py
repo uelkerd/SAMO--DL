@@ -166,15 +166,17 @@ def _check_single_commit(sha: str) -> bool:
 
     print(f"🔎 Checking commit {sha[:8]}: {commit_msg}")
 
-    # Check for single-purpose keywords
+    # Check for single-purpose keywords (handle scoped commits like feat(scope):)
     has_single_purpose = any(
-        commit_msg.startswith(keyword) for keyword in SINGLE_PURPOSE_KEYWORDS
+        commit_msg.startswith(keyword) or
+        commit_msg.startswith(keyword.replace(':', '('))
+        for keyword in SINGLE_PURPOSE_KEYWORDS
     )
 
     if not has_single_purpose:
         print(
             f"❌ Commit {sha[:8]} message must start with "
-            f"feat:, fix:, chore:, refactor:, docs:, or test:",
+            f"feat:, fix:, chore:, refactor:, docs:, test:, or security:",
         )
         print(f"   Message: {commit_msg}")
         return False
