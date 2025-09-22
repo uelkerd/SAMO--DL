@@ -408,7 +408,8 @@ def _check_mixed_concerns_display(files: List[str], strict_mode: bool) -> bool:
             "   Acceptable combinations include: code+tests, code+tests+config, etc.",
         )
         return not strict_mode
-    elif len(file_types) > MAX_FILE_TYPES_FOR_WARNING:
+
+    if len(file_types) > MAX_FILE_TYPES_FOR_WARNING:
         # Show info about acceptable combinations but don't fail
         print(f"ℹ️  Multiple file types detected: {', '.join(sorted(file_types))}")
         print("   This combination is acceptable for a single PR")
