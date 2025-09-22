@@ -5,6 +5,7 @@ import sys
 import subprocess
 import os
 import argparse
+from pathlib import Path
 
 
 def check_file_limit(base_sha=None, head_sha=None, max_files=None):
@@ -43,7 +44,7 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
         # Use staged files (default behavior)
         cmd = ['/usr/bin/git', 'diff', '--cached', '--name-only']
 
-    # Run git diff command
+    # Run git diff command and handle results
     try:
         result = subprocess.run(
             cmd,
@@ -62,10 +63,9 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
                 print(f"Git error: {result.stderr.strip()}", file=sys.stderr)
             return False
 
-        # Parse file list
+        # Parse file list and check count
         files = [f.strip() for f in result.stdout.split('\n') if f.strip()]
 
-        # Check file count
         if len(files) > max_files:
             print(
                 f"🚨 FORTRESS BREACH: {len(files)} files changed (max: {max_files})",
@@ -87,21 +87,22 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
         )
         return True
 
-    except (OSError, subprocess.SubprocessError) as e:
-        print(f"Error: Failed to run git diff: {e}", file=sys.stderr)
-        return False
     except Exception as e:
-        print(f"Error: Unexpected error in file limit check: {e}", file=sys.stderr)
+        # Handle all exceptions in one place
+        if isinstance(e, (OSError, subprocess.SubprocessError)):
+            print(f"Error: Failed to run git diff: {e}", file=sys.stderr)
+        else:
+            print(f"Error: Unexpected error in file limit check: {e}", file=sys.stderr)
         return False
 
 
 def check_quarantine_violations():
     """Block modifications to quarantined files"""
-    if not os.path.exists('LEGACY_TRACKING.md'):
+    if not Path('LEGACY_TRACKING.md').exists():
         return True
 
     try:
-        with open('LEGACY_TRACKING.md', 'r', encoding='utf-8') as f:
+        with open('LEGACY_TRACKING.md', encoding='utf-8') as f:
             content = f.read()
 
         # Extract quarantined files (lines with #legacy-quarantined tag)
