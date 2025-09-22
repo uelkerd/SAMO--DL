@@ -38,7 +38,8 @@ FILE_TYPE_PATTERNS: Dict[str, Dict[str, List[str]]] = {
         "keywords": ["api", "endpoint"],
     },
     "ml": {
-        "keywords": ["model", "ml", "ai"],
+        "keywords": ["model", "machine_learning", "ai"],
+        "patterns": [r"\bml\b"],  # Use word boundary for "ml" to avoid matching "html"
     },
 }
 

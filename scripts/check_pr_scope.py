@@ -279,8 +279,21 @@ def _check_exact_files(
 
 def _check_keywords(patterns: Dict[str, List[str]], file_lower: str) -> bool:
     """Check if file matches keyword patterns."""
-    return ("keywords" in patterns and
-            any(keyword in file_lower for keyword in patterns["keywords"]))
+    if "keywords" not in patterns:
+        return False
+
+    # Check for exact keyword matches
+    for keyword in patterns["keywords"]:
+        if keyword in file_lower:
+            return True
+
+    # Check for regex patterns if they exist
+    if "patterns" in patterns:
+        for pattern in patterns["patterns"]:
+            if re.search(pattern, file_lower):
+                return True
+
+    return False
 
 
 def _check_patterns(
@@ -416,9 +429,9 @@ def _check_branch_and_commits(args) -> bool:
 def _get_git_stats_for_check(args) -> Tuple[int, int, List[str]]:
     """Get git statistics for the given arguments."""
     print("\n📊 Checking size limits...")
-    # Determine base for git stats - use or operator for cleaner code
-    base_for_stats = args.base or f"{args.branch}~1"
-    head_for_stats = args.head or args.branch
+    # Determine base for git stats - use full range for multi-commit PRs
+    base_for_stats = args.base or args.branch
+    head_for_stats = args.head or "HEAD"
     num_files, lines_changed, files = get_git_stats(base_for_stats, head_for_stats)
 
     print(f"   Files changed: {num_files}")
