@@ -27,7 +27,7 @@ def scan_violations():
                 file_path = item.get('filename', '')
                 code = item.get('code', '')
                 violations[file_path].append(f"ruff:{code}")
-    except Exception as e:
+    except (subprocess.CalledProcessError, FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Warning: Could not run ruff scan: {e}")
 
     # Run bandit scan
@@ -43,7 +43,7 @@ def scan_violations():
                 file_path = item.get('filename', '')
                 test_id = item.get('test_id', '')
                 violations[file_path].append(f"bandit:{test_id}")
-    except Exception as e:
+    except (subprocess.CalledProcessError, FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Warning: Could not run bandit scan: {e}")
 
     return dict(violations)
@@ -59,9 +59,9 @@ def update_tracking_file(violations_data):
         content = f.read()
 
     # Generate quarantined section
-    quarantined_section = "## 🔴 QUARANTINED FILES (Auto-populated)\n"
-    quarantined_section += (
-        "<!-- Auto-updated by scripts/update-legacy-tracking.py -->\n"
+    quarantined_section = (
+        "## 🔴 QUARANTINED FILES (Auto-populated)\n"
+        + "<!-- Auto-updated by scripts/update-legacy-tracking.py -->\n"
     )
 
     for file_path, violation_list in sorted(violations_data.items()):

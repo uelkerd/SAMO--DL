@@ -20,8 +20,9 @@ def check_file_limit():
             print("🏰 Fortress Rule: Keep PRs micro-sized")
             print("📋 Split your changes into smaller commits")
             return False
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
+    except (subprocess.CalledProcessError, OSError) as e:
+        print(f"Error running git diff: {e}", file=sys.stderr)
+        return False
     return True
 
 
@@ -53,8 +54,9 @@ def check_quarantine_violations():
             result.stdout.strip().split('\n') if result.stdout.strip() else []
         )
 
-        violations = [f for f in staged_files if f in quarantined]
-        if violations:
+        # Normalize file paths for comparison
+        normalized_quarantined = {os.path.normpath(path) for path in quarantined}
+        if violations := [f for f in staged_files if os.path.normpath(f) in normalized_quarantined]:
             print("🚨 QUARANTINED FILE VIOLATION:")
             for f in violations:
                 print(f"   🔴 {f}")
