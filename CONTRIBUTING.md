@@ -2,7 +2,8 @@
 
 ## 🎯 Welcome Contributors!
 
-Thank you for your interest in contributing to the SAMO-DL project! This guide will help you get started and ensure your contributions align with our project standards.
+Thank you for your interest in contributing to the SAMO-DL project! This guide will help
+you get started and ensure your contributions align with our project standards.
 
 ## 📋 Table of Contents
 
@@ -28,6 +29,7 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
 ### Quick Start
 
 1. **Fork the repository**
+
    ```bash
    # Fork on GitHub, then clone your fork
    git clone https://github.com/YOUR_USERNAME/SAMO--DL.git
@@ -35,22 +37,28 @@ Thank you for your interest in contributing to the SAMO-DL project! This guide w
    ```
 
 2. **Set up development environment**
+
    ```bash
    # Create virtual environment
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
+   # Install development tools (formatters/linters/test plugins)
+   pip install -r requirements-dev.txt
+   # Enable git hooks
+   pre-commit install
    ```
 
 3. **Run tests**
+
    ```bash
    # Run all tests
    pytest
-   
+
    # Run with coverage
-   pytest --cov=.
+   pytest --cov=src
    ```
 
 ## 🛠️ Development Setup
@@ -75,7 +83,7 @@ LOG_LEVEL=DEBUG
 docker build -f deployment/cloud-run/Dockerfile -t samo-dl-dev .
 
 # Run with development settings
-docker run -p 8080:8080 \
+docker run --rm --name samo-dl-dev -p 8080:8080 \
   -e ENVIRONMENT=development \
   -e DATABASE_URL=postgresql://user:pass@host:5432/db \
   samo-dl-dev
@@ -101,22 +109,28 @@ alembic upgrade head
 We follow **PEP 8** with some modifications:
 
 ```python
+from typing import TypedDict
+
+class EmotionPrediction(TypedDict):
+    emotion: str
+    confidence: float
+
 # ✅ Good
-def predict_emotion(text: str) -> Dict[str, Any]:
+def predict_emotion(text: str) -> EmotionPrediction:
     """Predict emotion from text input.
-    
+
     Args:
         text: Input text to analyze
-        
+
     Returns:
         Dictionary containing emotion prediction and confidence
-        
+
     Raises:
         ValueError: If text is empty or invalid
     """
     if not text or not isinstance(text, str):
         raise ValueError("Text must be a non-empty string")
-    
+
     # Implementation here
     return {"emotion": "happy", "confidence": 0.95}
 
@@ -129,7 +143,19 @@ def predict_emotion(text):
 
 ### Code Formatting
 
-We use **Black** for code formatting and **Ruff** for linting:
+We use **Black** for code formatting, **Ruff** for linting, and **Prettier** for
+markdown formatting:
+
+**Configuration** (pyproject.toml):
+
+```toml
+[tool.ruff]
+lint.select = ["E", "F", "I", "D"]
+lint.pydocstyle.convention = "google"
+```
+
+**Pre-commit hooks** automatically format markdown files with Prettier (88-character
+line width, prose wrapping).
 
 ```bash
 # Format code
@@ -169,28 +195,28 @@ Use Google-style docstrings:
 ```python
 def process_text(text: str, max_length: int = 512) -> str:
     """Process and clean input text.
-    
+
     Args:
         text: Raw input text
         max_length: Maximum allowed text length
-        
+
     Returns:
         Processed and cleaned text
-        
+
     Raises:
         ValueError: If text exceeds maximum length
         TypeError: If text is not a string
-        
+
     Example:
         >>> process_text("Hello, world!", max_length=10)
         "Hello, wor"
     """
     if not isinstance(text, str):
         raise TypeError("Text must be a string")
-    
+
     if len(text) > max_length:
         text = text[:max_length]
-    
+
     return text.strip()
 ```
 
@@ -230,28 +256,33 @@ tests/
 import pytest
 from src.emotion_detector import EmotionDetector
 
+class StubEmotionDetector(EmotionDetector):
+    """Stub implementation for testing."""
+    def predict(self, text):
+        return {"emotion": "happy", "confidence": 0.99, "text": text}
+
 class TestEmotionDetector:
     """Test cases for EmotionDetector class."""
-    
+
     @pytest.fixture
     def detector(self):
         """Create EmotionDetector instance for testing."""
-        return EmotionDetector()
-    
+        return StubEmotionDetector()
+
     def test_predict_happy_text(self, detector):
         """Test emotion prediction for happy text."""
         text = "I'm feeling really happy today!"
         result = detector.predict(text)
-        
+
         assert result["emotion"] == "happy"
-        assert result["confidence"] > 0.8
+        assert result["confidence"] == 0.99  # Fixed value for testing
         assert "text" in result
-    
+
     def test_predict_empty_text(self, detector):
         """Test emotion prediction with empty text."""
         with pytest.raises(ValueError, match="Text cannot be empty"):
             detector.predict("")
-    
+
     def test_predict_invalid_input(self, detector):
         """Test emotion prediction with invalid input."""
         with pytest.raises(TypeError, match="Text must be a string"):
@@ -273,7 +304,7 @@ pytest --cov=src --cov-report=html
 # Run integration tests only
 pytest tests/integration/
 
-# Run tests in parallel
+# Run tests in parallel (requires pytest-xdist)
 pytest -n auto
 ```
 
@@ -286,7 +317,7 @@ We aim for **90%+ test coverage**:
 pytest --cov=src --cov-report=term-missing
 
 # View HTML coverage report
-open htmlcov/index.html
+python -m webbrowser htmlcov/index.html
 ```
 
 ## 🔄 Pull Request Process
@@ -323,6 +354,7 @@ git commit -m "test(emotion): add comprehensive test coverage"
 ```
 
 **Commit Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -346,20 +378,24 @@ Use our PR template:
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -372,6 +408,7 @@ Brief description of changes
 ### For Contributors
 
 **Before submitting PR:**
+
 - [ ] Self-review your code
 - [ ] Ensure all tests pass
 - [ ] Update documentation
@@ -379,6 +416,7 @@ Brief description of changes
 - [ ] Follow naming conventions
 
 **During review:**
+
 - Respond to feedback promptly
 - Be open to suggestions
 - Explain your reasoning when needed
@@ -387,6 +425,7 @@ Brief description of changes
 ### For Reviewers
 
 **Review checklist:**
+
 - [ ] Code follows project standards
 - [ ] Tests are comprehensive
 - [ ] Documentation is updated
@@ -395,6 +434,7 @@ Brief description of changes
 - [ ] Error handling is appropriate
 
 **Review comments:**
+
 - Be constructive and specific
 - Suggest alternatives when possible
 - Focus on code quality and maintainability
@@ -405,6 +445,7 @@ Brief description of changes
 ### Security Best Practices
 
 1. **Input Validation**
+
    ```python
    # ✅ Good
    def validate_text(text: str) -> str:
@@ -416,21 +457,25 @@ Brief description of changes
    ```
 
 2. **Secrets Management**
+
    ```python
    # ✅ Good - Use environment variables
    import os
    api_key = os.getenv('API_KEY')
-   
+   if not api_key:
+       raise RuntimeError("API_KEY is not set")
+
    # ❌ Bad - Hardcoded secrets
    api_key = "your-api-key-here"  # Never commit real API keys
    ```
 
 3. **SQL Injection Prevention**
+
    ```python
    # ✅ Good - Use parameterized queries
    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-   
-   # ❌ Bad - String concatenation
+
+   # ❌ Bad - String concatenation (vulnerable to SQL injection; do NOT use)
    cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
    ```
 
@@ -445,9 +490,31 @@ Brief description of changes
 - [ ] Error messages don't leak information
 - [ ] Dependencies are up-to-date
 
+### Automated Security Scanning
+
+Run these tools locally and in CI:
+
+```bash
+# Dependency audit
+pip-audit
+
+# Static analysis
+bandit -q -r src
+
+# Secret scanning
+gitleaks detect --no-git
+
+# Container scanning (if shipping images)
+trivy image your-image:tag
+
+# SBOM generation
+syft packages your-image:tag
+```
+
 ### Reporting Security Issues
 
 **For security vulnerabilities:**
+
 1. **DO NOT** create a public issue
 2. Email: security@samo-project.com
 3. Include detailed description and reproduction steps
@@ -499,6 +566,7 @@ Brief description of changes
 ### Issue Templates
 
 Use our issue templates:
+
 - **Bug Report**: For reporting bugs
 - **Feature Request**: For requesting new features
 - **Documentation**: For documentation issues
@@ -508,6 +576,7 @@ Use our issue templates:
 ### Contributors
 
 We recognize contributors in several ways:
+
 - **Contributors list** in README
 - **Release notes** for significant contributions
 - **Special thanks** for major features
@@ -521,10 +590,11 @@ We recognize contributors in several ways:
 
 ## 📄 License
 
-By contributing to SAMO-DL, you agree that your contributions will be licensed under the MIT License.
+By contributing to SAMO-DL, you agree that your contributions will be licensed under the
+MIT License.
 
 ---
 
 **Thank you for contributing to SAMO-DL!** 🚀
 
-Your contributions help make this project better for everyone in the community. 
+Your contributions help make this project better for everyone in the community.

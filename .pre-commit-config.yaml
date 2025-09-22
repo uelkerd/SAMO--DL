@@ -66,6 +66,15 @@ repos:
         name: "Shell script linting (all shell scripts)"
         files: \.(sh|bash)$
 
+  # Markdown formatting with Prettier
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: "Prettier markdown formatting (all markdown files)"
+        files: \.md$
+        args: [--prose-wrap=always, --print-width=88]
+
   # Quality tools - ONLY for quality_enforced/
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.8
