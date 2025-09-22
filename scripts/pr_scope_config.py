@@ -62,7 +62,9 @@ MAX_FILE_TYPES_FOR_MIXED_CONCERNS = 4
 MAX_FILE_TYPES_FOR_WARNING = 2
 
 # Branch naming pattern
-BRANCH_NAME_PATTERN = r"^(feat|fix|chore|refactor|docs|test|security)/[a-z]+(?:-[a-z]+)*$"
+BRANCH_NAME_PATTERN = (
+    r"^(feat|fix|chore|refactor|docs|test|security)/[a-z]+(?:-[a-z]+)*$"
+)
 
 # Commit message patterns
 SINGLE_PURPOSE_KEYWORDS = [
