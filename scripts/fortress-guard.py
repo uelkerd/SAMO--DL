@@ -5,7 +5,30 @@ import sys
 import subprocess
 import os
 import argparse
+import re
 from pathlib import Path
+
+
+def _is_valid_sha(sha):
+    """
+    Validate that a string looks like a valid git SHA.
+
+    Args:
+        sha: String to validate
+
+    Returns:
+        bool: True if valid SHA format, False otherwise
+    """
+    if not isinstance(sha, str):
+        return False
+
+    # Git SHAs are 40 characters long and contain only hex characters
+    # Allow short SHAs (7+ characters) for convenience
+    if len(sha) < 7 or len(sha) > 40:
+        return False
+
+    # Only allow alphanumeric characters (hex)
+    return bool(re.match(r'^[a-fA-F0-9]+$', sha))
 
 
 def check_file_limit(base_sha=None, head_sha=None, max_files=None):
@@ -38,6 +61,10 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
 
     # Build git diff command
     if base_sha and head_sha:
+        # Validate SHA format (basic validation for security)
+        if not _is_valid_sha(base_sha) or not _is_valid_sha(head_sha):
+            print("Error: Invalid SHA format provided", file=sys.stderr)
+            return False
         # Compare specific commits
         cmd = ['/usr/bin/git', 'diff', '--name-only', f'{base_sha}..{head_sha}']
     else:
