@@ -1,26 +1,47 @@
 # SAMO-DL Commit Message Template
 #
-# Format: <type>(<scope>): <subject>
+# Quick setup:
+#   git config commit.template .gitmessage.txt
+#   # To make it global: git config --global commit.template "$(pwd)/.gitmessage.txt"
+#
+# Format: <type>(<scope>)!: <subject>
+# (scope is optional; add "!" for breaking changes)
+# Body: explain what and why, wrapped at ~72 chars per line
+# Footer: references and BREAKING CHANGE notes
 #
 # Types:
 #   feat:     A new feature
 #   fix:      A bug fix
-#   docs:     Documentation changes
-#   style:    Code style changes (formatting, etc.)
-#   refactor: Code refactoring
-#   test:     Adding or updating tests
-#   chore:    Maintenance tasks
+#   docs:     Documentation only changes
+#   style:    Formatting, whitespace, missing semicolons, no code change
+#   refactor: Code change that neither fixes a bug nor adds a feature
+#   perf:     A code change that improves performance
+#   test:     Adding missing tests or correcting existing tests
+#   build:    Changes to build system or external dependencies
+#   ci:       Changes to CI configuration files and scripts
+#   chore:    Other changes that don't modify src or test files
+#   revert:   Reverts a previous commit
 #
 # Rules:
 #   - ONE purpose per commit (no "and", "also", "plus")
-#   - Subject line < 50 characters
+#   - Subject line ≤ 50 characters
 #   - Use imperative mood ("Add" not "Added")
 #   - No period at end of subject line
+#   - Wrap body at ~72 characters per line
+#   - Reference issues/PRs in footer (e.g., "Closes #123")
+#   - Use "BREAKING CHANGE: ..." in footer for breaking changes
 #
 # Examples:
-#   feat(auth): add user authentication system
-#   fix(models): resolve memory leak in model loading
-#   chore(deps): update dependency versions
-#   refactor(limiter): simplify rate limiter logic
-#   docs(api): update API documentation
-#   test(validation): add unit tests for validation functions
+#   feat(auth): add login with email magic links
+#   fix(loader): resolve memory leak in model loading
+#   perf(infer): cache tokenizer to reduce setup time
+#   refactor(rate-limit): simplify token bucket logic
+#   docs(api): update inference usage examples
+#   style: run formatter across repo
+#   build: bump torch to 2.4.x
+#   ci: parallelize test matrix
+#   revert: revert "feat(auth): add magic links"
+#   feat(core)!: switch default precision to bfloat16
+#   BREAKING CHANGE: default precision is now bfloat16; set
+#   SAMO_PRECISION=float32 to keep previous behavior.
+#   Closes #174
