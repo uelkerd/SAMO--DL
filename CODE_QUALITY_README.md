@@ -22,7 +22,7 @@ This document outlines the **strict rules** and **automated enforcement** design
 max_files_changed: 50     # HARD STOP at 50 files
 max_lines_changed: 1500   # HARD STOP at 1500 lines
 max_commits_per_pr: 5     # HARD STOP at 5 commits
-branch_lifetime: 48h      # FORCE merge or close after 48h
+branch_lifetime: 72h      # FORCE merge or close after 72h (extensions available for complex changes)
 ```
 
 ### **Single Purpose Rule**
@@ -35,7 +35,7 @@ branch_lifetime: 48h      # FORCE merge or close after 48h
 ## 🛠️ AUTOMATED ENFORCEMENT
 
 ### **1. Pre-Commit Hook**
-The `.git/hooks/pre-commit` script automatically:
+The `pre-commit` framework, configured in `.pre-commit-config.yaml`, automatically runs scripts that:
 - Validates branch naming (`feat/add-auth`, `fix/memory-leak`)
 - Checks commit message format (`feat: add user auth`)
 - Prevents commits with mixed concerns
@@ -86,7 +86,7 @@ test/short-description      # Test additions
 - ✅ `fix/validate-input`
 - ✅ `chore/update-deps`
 - ✅ `refactor/simplify-logic`
-- ❌ `feature/add-auth-and-fix-bugs` *(multiple concerns)*
+- ❌ `feat/add-auth-and-fix-bugs` *(multiple concerns)*
 - ❌ `fix-stuff` *(too vague)*
 
 ### **Commit Message Format**
@@ -106,9 +106,7 @@ refactor: simplify rate limiter logic
 ## 🏗️ CODE QUALITY TOOLS
 
 ### **Automated Tools**
-- **Black**: Code formatting (88 char lines)
-- **isort**: Import sorting
-- **flake8**: Linting and style
+- **Ruff**: Ultra-fast code formatting, linting, and import sorting (replaces Black, isort, flake8)
 - **pylint**: Advanced code analysis
 - **mypy**: Type checking
 - **bandit**: Security scanning
@@ -151,7 +149,7 @@ auto_close_after: 8h
 - Any PR > 50 files
 - Any branch > 48 hours old
 - Any PR title with "and", "also", "plus"
-- Any description > 2 sentences
+- Any PR summary > 2 sentences (detailed descriptions in body are encouraged)
 
 ## 🎯 WHY THIS WORKS
 
