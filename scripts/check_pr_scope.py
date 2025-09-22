@@ -66,14 +66,19 @@ def run_command(cmd: List[str]) -> Tuple[str, str, int]:
     """
     # Validate that we're only running git commands for security
     if not cmd or cmd[0] != "git":
-        raise ValueError(f"Only git commands are allowed, got: {cmd[0] if cmd else 'empty'}")
+        raise ValueError(
+            f"Only git commands are allowed, got: {cmd[0] if cmd else 'empty'}"
+        )
 
     # Additional validation: only allow specific git subcommands
     allowed_git_commands = {
         "diff", "log", "rev-list", "branch", "show"
     }
     if len(cmd) > 1 and cmd[1] not in allowed_git_commands:
-        raise ValueError(f"Git subcommand '{cmd[1]}' not allowed. Allowed: {allowed_git_commands}")
+        raise ValueError(
+            f"Git subcommand '{cmd[1]}' not allowed. "
+            f"Allowed: {allowed_git_commands}"
+        )
 
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
@@ -166,7 +171,8 @@ def _check_single_commit(sha: str) -> bool:
 
     if not has_single_purpose:
         print(
-            f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:",
+            f"❌ Commit {sha[:8]} message must start with "
+            f"feat:, fix:, chore:, refactor:, docs:, or test:",
         )
         print(f"   Message: {commit_msg}")
         return False
@@ -174,7 +180,8 @@ def _check_single_commit(sha: str) -> bool:
     # Check for mixing concerns (contains 'and', 'also', 'plus')
     if any(indicator in commit_msg.lower() for indicator in MIXING_INDICATORS):
         print(
-            f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)",
+            f"❌ Commit {sha[:8]} message indicates multiple concerns "
+            f"(contains 'and', 'also', etc.)",
         )
         print(f"   Message: {commit_msg}")
         return False
@@ -223,44 +230,62 @@ def check_branch_name_quality() -> bool:
     return True
 
 
-def _check_extensions(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_extensions(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches extension patterns."""
     return "extensions" in patterns and any(file_path.endswith(ext) for ext in patterns["extensions"])
 
 
-def _check_directories(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_directories(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches directory patterns."""
     return "directories" in patterns and any(file_path.startswith(dir_path) for dir_path in patterns["directories"])
 
 
-def _check_suffixes(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_suffixes(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches suffix patterns."""
     return "suffixes" in patterns and any(file_path.endswith(suffix) for suffix in patterns["suffixes"])
 
 
-def _check_prefixes(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_prefixes(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches prefix patterns."""
     return "prefixes" in patterns and any(file_path.startswith(prefix) for prefix in patterns["prefixes"])
 
 
-def _check_patterns_regex(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_patterns_regex(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches regex patterns."""
     if "patterns" not in patterns:
         return False
-    return any(re.search(pattern, file_path, re.IGNORECASE) for pattern in patterns["patterns"])
+    return any(
+        re.search(pattern, file_path, re.IGNORECASE)
+        for pattern in patterns["patterns"]
+    )
 
 
-def _check_exact_files(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+def _check_exact_files(
+    file_path: str, patterns: Dict[str, List[str]]
+) -> bool:
     """Check if file matches exact file patterns."""
     return "exact_files" in patterns and file_path in patterns["exact_files"]
 
 
 def _check_keywords(patterns: Dict[str, List[str]], file_lower: str) -> bool:
     """Check if file matches keyword patterns."""
-    return "keywords" in patterns and any(keyword in file_lower for keyword in patterns["keywords"])
+    return ("keywords" in patterns and
+            any(keyword in file_lower for keyword in patterns["keywords"]))
 
 
-def _check_patterns(file_path: str, patterns: Dict[str, List[str]], file_lower: str) -> bool:
+def _check_patterns(
+    file_path: str, patterns: Dict[str, List[str]], file_lower: str
+) -> bool:
     """Check if file matches any pattern in the given patterns dict."""
     return (
         _check_extensions(file_path, patterns) or
@@ -286,7 +311,8 @@ def detect_file_types(file_path: str) -> Set[str]:
 
     # Then check other categories (not mutually exclusive)
     for file_type, patterns in FILE_TYPE_PATTERNS.items():
-        if file_type in ["code", "docs"]:  # Skip already handled extension-based categories
+        # Skip already handled extension-based categories
+        if file_type in ["code", "docs"]:
             continue
         if _check_patterns(file_path, patterns, file_lower):
             detected_types.add(file_type)
@@ -304,10 +330,12 @@ def check_mixed_concerns(files: List[str]) -> Tuple[bool, Set[str]]:
         detected_types = detect_file_types(file)
         file_types.update(detected_types)
 
-    # Flag as mixed concerns only if we have more than MAX_FILE_TYPES_FOR_MIXED_CONCERNS types OR
-    # if we have an unusual combination that's not in acceptable list
-    is_mixed_concerns = len(file_types) > MAX_FILE_TYPES_FOR_MIXED_CONCERNS or (
-        len(file_types) > MAX_FILE_TYPES_FOR_WARNING and file_types not in ACCEPTABLE_COMBINATIONS
+    # Flag as mixed concerns only if we have more than MAX_FILE_TYPES_FOR_MIXED_CONCERNS
+    # types OR if we have an unusual combination that's not in acceptable list
+    is_mixed_concerns = (
+        len(file_types) > MAX_FILE_TYPES_FOR_MIXED_CONCERNS or
+        (len(file_types) > MAX_FILE_TYPES_FOR_WARNING and
+         file_types not in ACCEPTABLE_COMBINATIONS)
     )
 
     return is_mixed_concerns, file_types
@@ -318,12 +346,18 @@ def check_size_limits(num_files: int, lines_changed: int, strict_mode: bool) -> 
     all_passed = True
 
     if num_files > MAX_FILES_CHANGED:
-        print(f"❌ Too many files changed! Max {MAX_FILES_CHANGED} allowed, got {num_files}")
+        print(
+            f"❌ Too many files changed! Max {MAX_FILES_CHANGED} allowed, "
+            f"got {num_files}"
+        )
         if strict_mode:
             all_passed = False
 
     if lines_changed > MAX_LINES_CHANGED:
-        print(f"❌ Too many lines changed! Max {MAX_LINES_CHANGED} allowed, got {lines_changed}")
+        print(
+            f"❌ Too many lines changed! Max {MAX_LINES_CHANGED} allowed, "
+            f"got {lines_changed}"
+        )
         if strict_mode:
             all_passed = False
 
