@@ -44,7 +44,7 @@ def scan_violations():
 
     return dict(violations)
 
-def update_tracking_file(violations):
+def update_tracking_file(violations_data):
     """Update LEGACY_TRACKING.md with current violations"""
     if not os.path.exists('LEGACY_TRACKING.md'):
         print("LEGACY_TRACKING.md not found, skipping update")
@@ -57,7 +57,7 @@ def update_tracking_file(violations):
     quarantined_section = "## 🔴 QUARANTINED FILES (Auto-populated)\n"
     quarantined_section += "<!-- Auto-updated by scripts/update-legacy-tracking.py -->\n"
 
-    for file_path, violation_list in sorted(violations.items()):
+    for file_path, violation_list in sorted(violations_data.items()):
         if file_path.startswith('src/quality_enforced/'):
             continue  # Skip fortress files
         count = len(violation_list)
@@ -70,8 +70,12 @@ def update_tracking_file(violations):
     with open('LEGACY_TRACKING.md', 'w') as f:
         f.write(new_content)
 
-    print(f"✅ Updated LEGACY_TRACKING.md with {len(violations)} quarantined files")
+    print(f"✅ Updated LEGACY_TRACKING.md with {len(violations_data)} quarantined files")
 
-if __name__ == "__main__":
+def main():
+    """Main function to scan violations and update tracking file"""
     violations = scan_violations()
     update_tracking_file(violations)
+
+if __name__ == "__main__":
+    main()
