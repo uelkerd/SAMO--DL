@@ -15,8 +15,10 @@ FILE_TYPE_PATTERNS: Dict[str, Dict[str, List[str]]] = {
         "extensions": [".md", ".rst", ".txt", ".adoc"],
     },
     "tests": {
-        "directories": ["tests/"],
+        "directories": ["tests/", "test/"],
         "suffixes": ["_test.py", "_test.js", "_test.ts", "_test.java", "_test.cpp", "_test.c", "_test.h"],
+        "prefixes": ["test_"],
+        "patterns": [r"(^|/)(test_.*|.*_test\.(py|js|ts|java|cpp|c|h))$"],
     },
     "config": {
         "directories": ["config/"],

@@ -200,6 +200,18 @@ def _check_suffixes(file_path: str, patterns: Dict[str, List[str]]) -> bool:
     return "suffixes" in patterns and any(file_path.endswith(suffix) for suffix in patterns["suffixes"])
 
 
+def _check_prefixes(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches prefix patterns."""
+    return "prefixes" in patterns and any(file_path.startswith(prefix) for prefix in patterns["prefixes"])
+
+
+def _check_patterns_regex(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches regex patterns."""
+    if "patterns" not in patterns:
+        return False
+    return any(re.search(pattern, file_path, re.IGNORECASE) for pattern in patterns["patterns"])
+
+
 def _check_exact_files(file_path: str, patterns: Dict[str, List[str]]) -> bool:
     """Check if file matches exact file patterns."""
     return "exact_files" in patterns and file_path in patterns["exact_files"]
@@ -216,20 +228,32 @@ def _check_patterns(file_path: str, patterns: Dict[str, List[str]], file_lower: 
         _check_extensions(file_path, patterns) or
         _check_directories(file_path, patterns) or
         _check_suffixes(file_path, patterns) or
+        _check_prefixes(file_path, patterns) or
+        _check_patterns_regex(file_path, patterns) or
         _check_exact_files(file_path, patterns) or
         _check_keywords(file_path, patterns, file_lower)
     )
 
 
-def detect_file_type(file_path: str) -> Optional[str]:
-    """Detect file type based on path and extension using precise matching."""
+def detect_file_types(file_path: str) -> Set[str]:
+    """Detect all applicable file types for a given file path."""
     file_lower = file_path.lower()
+    detected_types = set()
 
+    # First, check extension-based categories (mutually exclusive)
+    if file_path.endswith((".py", ".js", ".ts", ".java", ".cpp", ".c", ".h")):
+        detected_types.add("code")
+    elif file_path.endswith((".md", ".rst", ".txt", ".adoc")):
+        detected_types.add("docs")
+
+    # Then check other categories (not mutually exclusive)
     for file_type, patterns in FILE_TYPE_PATTERNS.items():
+        if file_type in ["code", "docs"]:  # Skip already handled extension-based categories
+            continue
         if _check_patterns(file_path, patterns, file_lower):
-            return file_type
+            detected_types.add(file_type)
 
-    return None
+    return detected_types
 
 
 def check_mixed_concerns(files: List[str]) -> Tuple[bool, Set[str]]:
@@ -239,9 +263,8 @@ def check_mixed_concerns(files: List[str]) -> Tuple[bool, Set[str]]:
 
     file_types = set()
     for file in files:
-        file_type = detect_file_type(file)
-        if file_type:
-            file_types.add(file_type)
+        detected_types = detect_file_types(file)
+        file_types.update(detected_types)
 
     # Flag as mixed concerns only if we have more than MAX_FILE_TYPES_FOR_MIXED_CONCERNS types OR
     # if we have an unusual combination that's not in acceptable list
