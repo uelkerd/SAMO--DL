@@ -22,11 +22,10 @@ This document outlines the **strict rules** and **automated enforcement** design
 max_files_changed: 50     # HARD STOP at 50 files
 max_lines_changed: 1500   # HARD STOP at 1500 lines
 max_commits_per_pr: 5     # HARD STOP at 5 commits
-branch_lifetime: 72h      # FORCE merge or close after 72h (extensions available for complex changes)
+branch_lifetime: 72h      # Auto-close or require split after 72h (extensions available for complex changes)
 ```
 
-### **Single Purpose Rule**
-**EVERY PR MUST HAVE EXACTLY ONE SENTENCE DESCRIBING ITS PURPOSE**
+#### Requirement: PR purpose must be exactly one sentence
 - ✅ "Add user authentication system"
 - ✅ "Fix memory leak in model loading"
 - ❌ "Improve model architecture and fix bugs" *(TWO THINGS!)*
@@ -34,12 +33,12 @@ branch_lifetime: 72h      # FORCE merge or close after 72h (extensions available
 
 ## 🛠️ AUTOMATED ENFORCEMENT
 
-### **1. Pre-Commit Hook**
-The `pre-commit` framework, configured in `.pre-commit-config.yaml`, automatically runs scripts that:
-- Validates branch naming (`feat/add-auth`, `fix/memory-leak`)
-- Checks commit message format (`feat: add user auth`)
-- Prevents commits with mixed concerns
-- Runs before every commit
+### **1. Local Hooks (pre-commit + commit-msg)**
+Use the pre-commit framework (versioned via `.pre-commit-config.yaml`) to run format/lint/type/security checks on staged files. Enforce commit message format via a `commit-msg` hook (e.g., Commitizen).
+
+**Notes:**
+- Branch naming and "single purpose" are enforced in CI (see PR Scope Checker), not locally.
+- Hooks run automatically once installed (`pre-commit install` and `pre-commit install --hook-type commit-msg`).
 
 ### **2. PR Scope Checker**
 ```bash
@@ -61,7 +60,7 @@ GitHub Actions automatically:
 ## 📋 DEVELOPMENT WORKFLOW
 
 ### **Before Creating a Branch**
-```bash
+```md
 # Answer these questions:
 1. Can I describe this in ONE sentence?
 2. Will this affect < 50 files?
@@ -73,7 +72,7 @@ GitHub Actions automatically:
 ```
 
 ### **Branch Naming Convention**
-```
+```text
 feat/short-description      # New features
 fix/short-description       # Bug fixes
 chore/short-description     # Build/tooling changes
@@ -91,13 +90,13 @@ test/short-description      # Test additions
 - ❌ `fix-stuff` *(too vague)*
 
 ### **Commit Message Format**
-```
+```gitcommit
 <type>(<scope>): <subject>
 
 <body - optional>
 ```
 **Examples:**
-```
+```gitcommit
 feat: add JWT token authentication
 fix: resolve memory leak in model loading
 chore: update Python dependencies
@@ -137,6 +136,8 @@ required_approvers: 2
 max_override_per_week: 1
 auto_close_after: 8h
 ```
+
+> **Note:** Overrides require label + 2 approvers + admin "bypass PR requirements" permission, or a temporary policy change. GitHub cannot bypass required checks by workflow alone.
 
 ## 📊 SUCCESS METRICS
 
@@ -186,7 +187,7 @@ auto_close_after: 8h
 **Questions?** Ask in the development channel.
 
 **Found a violation?** Use the PR comment template:
-```
+```md
 🚨 **SCOPE VIOLATION DETECTED**
 This PR exceeds our size limits:
 - Files: [count]/50 max
@@ -200,7 +201,8 @@ Please split into focused micro-PRs.
 
 ## 🎉 CONCLUSION
 
-**Small PRs = Fast reviews = Quick merges = Happy developers = Successful project**
+### Summary
+Small PRs = Fast reviews = Quick merges = Happy developers = Successful project
 
 **NO EXCEPTIONS. NO EXCUSES. NO "JUST THIS ONCE".**
 
