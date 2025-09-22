@@ -19,18 +19,37 @@ import subprocess
 import sys
 from typing import Dict, List, Optional, Set, Tuple
 
-from pr_scope_config import (
-    ACCEPTABLE_COMBINATIONS,
-    BRANCH_NAME_PATTERN,
-    FILE_TYPE_PATTERNS,
-    MAX_FILES_CHANGED,
-    MAX_FILES_TO_DISPLAY,
-    MAX_FILE_TYPES_FOR_MIXED_CONCERNS,
-    MAX_FILE_TYPES_FOR_WARNING,
-    MAX_LINES_CHANGED,
-    MIXING_INDICATORS,
-    SINGLE_PURPOSE_KEYWORDS,
-)
+try:
+    from pr_scope_config import (
+        ACCEPTABLE_COMBINATIONS,
+        BRANCH_NAME_PATTERN,
+        FILE_TYPE_PATTERNS,
+        MAX_FILES_CHANGED,
+        MAX_FILES_TO_DISPLAY,
+        MAX_FILE_TYPES_FOR_MIXED_CONCERNS,
+        MAX_FILE_TYPES_FOR_WARNING,
+        MAX_LINES_CHANGED,
+        MIXING_INDICATORS,
+        SINGLE_PURPOSE_KEYWORDS,
+    )
+except ImportError:
+    # Fallback for when running from different directory
+    import os
+    import sys
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, script_dir)
+    from pr_scope_config import (
+        ACCEPTABLE_COMBINATIONS,
+        BRANCH_NAME_PATTERN,
+        FILE_TYPE_PATTERNS,
+        MAX_FILES_CHANGED,
+        MAX_FILES_TO_DISPLAY,
+        MAX_FILE_TYPES_FOR_MIXED_CONCERNS,
+        MAX_FILE_TYPES_FOR_WARNING,
+        MAX_LINES_CHANGED,
+        MIXING_INDICATORS,
+        SINGLE_PURPOSE_KEYWORDS,
+    )
 
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
