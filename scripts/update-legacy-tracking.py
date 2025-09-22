@@ -72,6 +72,7 @@ def update_tracking_file(violations_data):
 
     print(f"✅ Updated LEGACY_TRACKING.md with {len(violations_data)} quarantined files")
 
+
 def main():
     """Main function to scan violations and update tracking file"""
     violations = scan_violations()

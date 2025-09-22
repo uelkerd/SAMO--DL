@@ -62,6 +62,7 @@ def check_quarantine_violations():
 
     return True
 
+
 if __name__ == "__main__":
     success = True
 
