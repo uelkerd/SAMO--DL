@@ -1,218 +1,101 @@
-# Comprehensive Code Quality Prevention System for SAMO-DL
-# This configuration prevents ALL recurring DeepSource issues from ever happening again
+# FORTRESS MODE: Code Quality Enforcement for New Code Only
+# Prevents monster PRs and enforces quality only on src/quality_enforced/
 #
-# TODO: Re-enable all disabled hooks once configuration issues are resolved
-# Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-#
-# Disabled hooks and their status:
-# ✅ Bandit: RE-ENABLED - Split into targeted hooks: changed files + tests (B101 skipped)
-# ✅ Safety: RE-ENABLED - Local hook with safety package, runs on push, scans all deps
-# ✅ Docformatter: RE-ENABLED - Local hook with docformatter package for reliability
-# ✅ Flynt: RE-ENABLED - Fully configured with always_run and pass_filenames for consistency
-# - Local hooks: Configuration format issues (exclude field format) - FIXED: Updated to single-line format
-#
-# IMPROVEMENTS IMPLEMENTED:
-# ✅ Global exclude pattern implemented - all hooks now inherit from top-level exclude
-# ✅ Individual exclude patterns removed from active hooks (black, isort, ruff, mypy)
-# ✅ Bandit split into targeted hooks: changed files (all rules) + tests (B101 skipped)
-# ✅ Safety implemented as local hook with safety package, optimized for push-only execution
-# ✅ Docformatter implemented as local hook with docformatter package for reliability
-# ✅ Flynt configuration made consistent with Bandit (always_run, pass_filenames)
-# ✅ Global exclude pattern enhanced to cover ALL test artifacts and build directories
-# ✅ Configuration is now much more maintainable and follows best practices
-# ✅ All code review comments addressed and resolved
-#
-# Next steps:
-# 1. Test Safety hook with local implementation
-# 2. Test Docformatter hook with system language configuration
-# 3. Test and re-enable local hooks
-# 4. Update this TODO section as hooks are re-enabled
-#
-# Global exclude pattern - applies to all hooks unless overridden
-# Uses anchored regex with extended mode for readability and accuracy
-# Comprehensive coverage: git, venvs, caches, builds, artifacts, docs, samples, test artifacts
-exclude: |
-  (?x)^(
-      \.git|
-      \.venv|
-      \.env|
-      __pycache__|
-      \.pytest_cache|
-      \.mypy_cache|
-      \.ruff_cache|
-      build|
-      dist|
-      \.eggs|
-      \.tox|
-      \.coverage|
-      htmlcov|
-      \.cache|
-      \.logs|
-      results|
-      samples|
-      notebooks|
-      website|
-      docs/diagrams|
-      \.DS_Store|
-      artifacts|
-      \.benchmarks|
-      \.kilocode|
-      \.vscode|
-      deprecated|
-      test_reports|
-      test_report\.txt|
-      \.pytest_cache|
-      \.mypy_cache|
-      \.ruff_cache|
-      \.coverage|
-      coverage\.xml|
-      \.coveragerc|
-      \.gitignore-pages|
-      \.nojekyll|
-      \.deepsource\.toml|
-      \.pre-commit-exclude-patterns\.yaml|
-      trivy-results-.*\.json|
-      vulnerabilities-.*\.json
-  )$
+# APPROACH:
+# - Basic quality checks (whitespace, syntax, etc.) run on ALL files
+# - Advanced quality tools (ruff, mypy, bandit) run ONLY on src/quality_enforced/
+# - Configuration files, scripts, and docs get basic checks but not strict linting
 
 repos:
-  # Basic pre-commit hooks (run first)
+  # Circuit breaker - Kill monster PRs
+  - repo: local
+    hooks:
+      - id: fortress-guard
+        name: "🏰 Fortress Guard - Max 5 files per PR"
+        entry: python scripts/fortress-guard.py
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  # Basic pre-commit hooks (run on all files)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        name: "Trim trailing whitespace (all files)"
       - id: end-of-file-fixer
+        name: "Ensure files end with newline (all files)"
       - id: check-yaml
+        name: "Check YAML syntax (all files)"
+        files: \.(yaml|yml)$
       - id: check-json
+        name: "Check JSON syntax (all files)"
+        files: \.json$
       - id: check-merge-conflict
+        name: "Check for merge conflict markers (all files)"
       - id: check-case-conflict
+        name: "Check for case conflicts (all files)"
       - id: check-docstring-first
+        name: "Check docstring placement (Python files)"
+        files: \.py$
       - id: check-executables-have-shebangs
+        name: "Check executable files have shebangs (all files)"
       - id: debug-statements
+        name: "Check for debug statements (Python files)"
+        files: \.py$
       - id: name-tests-test
+        name: "Check test file naming (all files)"
       - id: requirements-txt-fixer
+        name: "Fix requirements.txt (all files)"
+        files: requirements.*\.txt$
       - id: fix-byte-order-marker
+        name: "Fix byte order markers (all files)"
       - id: mixed-line-ending
+        name: "Fix mixed line endings (all files)"
       - id: check-ast
+        name: "Check Python AST (Python files)"
+        files: \.py$
+      - id: check-added-large-files
+        name: "Check for large files (all files)"
 
-  # Python formatting and linting (in order)
-  - repo: https://github.com/psf/black
-    rev: 24.2.0
+  # Shell script quality (run on all shell scripts)
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
     hooks:
-      - id: black
-        language_version: python3
-        args: [--line-length=88, --target-version=py38]
-        types: [python]
+      - id: shellcheck
+        name: "Shell script linting (all shell scripts)"
+        files: \.(sh|bash)$
 
-  # Import sorting and organization
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile=black, --line-length=88, --py=38]
-        types: [python]
-
-  # Python linting with Ruff (super fast)
+  # Quality tools - ONLY for quality_enforced/
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.6.8
     hooks:
       - id: ruff
+        name: "Ruff linting (fortress zone only)"
         args: [--fix, --exit-non-zero-on-fix]
-        types: [python]
+        files: ^src/quality_enforced/.*\.py$
+      - id: ruff-format
+        name: "Ruff formatting (fortress zone only)"
+        files: ^src/quality_enforced/.*\.py$
 
-  # Type checking with MyPy
+  # Type checking with MyPy (fortress zone only)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.17.1
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports, --python-version=3.8]
-        types: [python]
+        name: "MyPy type checking (fortress zone only)"
+        args: [--ignore-missing-imports, --python-version=3.9]
+        files: ^src/quality_enforced/.*\.py$
+        additional_dependencies: [types-requests, types-PyYAML]
 
-  # Security scanning with Bandit (optimized for performance)
-  # Split into targeted hooks: changed files (all rules) + tests (B101 skipped)
+  # Security scanning with Bandit (fortress zone only)
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.7.6
     hooks:
       - id: bandit
-        name: bandit (changed files)
-        # Scan only changed Python files, enforce all rules
-        types: [python]
-        exclude: '^(tests/|.*_test\.py$)'
-
-      - id: bandit
-        name: bandit (tests, B101 skipped)
-        # Scan test files with B101 (assert_used) disabled
-        args: [-s, B101]
-        types: [python]
-        files: '^(tests/|.*_test\.py$)'
-
-  # Security vulnerability scanning with Safety (local hook)
-  # Local hook with safety package for reliability and control
-  # Runs on push to avoid blocking commits, scans all dependency files
-  - repo: local
-    hooks:
-      - id: safety-scan
-        name: Safety (dependency vulnerability scan)
-        entry: safety
-        language: python
-        additional_dependencies: [safety==3.6.0]
-        args: [scan, --full-report, --target, .]
-        pass_filenames: false
-        stages: [push]
-        # Optional: Add policy file for custom rules
-        # args: [scan, --full-report, --policy-file, .safety-policy.yml]
-        # env:
-        #   - SAFETY_API_KEY  # if using the commercial DB
-
-  # Documentation formatting with Docformatter (local hook)
-  # Local hook with docformatter package to avoid external repository compatibility issues
-  - repo: local
-    hooks:
-      - id: docformatter
-        name: Docformatter (docstring formatting)
-        entry: docformatter
-        language: python
-        additional_dependencies: [docformatter==1.7.3]
-        args: [--in-place, --wrap-summaries=88, --wrap-descriptions=88]
-        types: [python]
-
-  # String formatting with flynt
-  # Configuration consistent with Bandit hooks for maintainability
-  - repo: https://github.com/ikamensh/flynt
-    rev: "0.78"
-    hooks:
-      - id: flynt
-        args: [--line-length=88, .]
-        types: [python]
-        pass_filenames: false
-        always_run: true
-
-  # Custom SAMO-DL code quality enforcer
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: local
-  #   hooks:
-  #     - id: samo-code-quality-enforcer
-  #       name: SAMO-DL Code Quality Enforcer
-  #       entry: python scripts/maintenance/code_quality_enforcer.py
-  #       language: python
-  #       types: [python]
-  #       pass_filenames: false
-  #       always_run: true
-
-  # Auto-fix common code quality issues
-  # TODO: Re-enable once configuration issues are resolved
-  # Issue: https://github.com/uelkerd/SAMO--DL/issues/106
-  # - repo: local
-  #   hooks:
-  #     - id: samo-auto-fix-code-quality
-  #       name: SAMO-DL Auto-Fix Code Quality
-  #       entry: python scripts/maintenance/auto_fix_code_quality.py
-  #       language: python
-  #       types: [python]
-  #       pass_filenames: false
-  #       always_run: true
+        name: "Bandit security scan (fortress zone only)"
+        files: ^src/quality_enforced/.*\.py$
 
 # Global configuration
 default_language_version:
-  python: python3.8
+  python: python3.9

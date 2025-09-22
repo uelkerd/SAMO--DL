@@ -1,0 +1,51 @@
+name: Fortress Legacy Tracker
+on:
+  push:
+    branches: [main, feat/fortress]
+  pull_request:
+
+jobs:
+  update-tracking:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install quality tools
+        run: |
+          pip install "ruff==0.6.8" "bandit==1.7.6"
+
+      - name: Update legacy tracking
+        run: |
+          python scripts/update-legacy-tracking.py
+
+      - name: Show tracking status (PR mode)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Running in pull request mode - tracking data updated but not committed"
+          echo "Changes will be committed automatically when merged to main"
+
+      - name: Commit updates (if any)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Fortress Tracker"
+          git add LEGACY_TRACKING.md
+          if ! git diff --staged --quiet; then
+            git commit -m "auto: update legacy tracking data"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Check fortress violations
+        run: |
+          python scripts/fortress-guard.py
