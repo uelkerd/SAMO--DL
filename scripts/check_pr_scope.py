@@ -34,8 +34,6 @@ try:
     )
 except ImportError:
     # Fallback for when running from different directory
-    import os
-    import sys
     script_dir = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, script_dir)
     from pr_scope_config import (
