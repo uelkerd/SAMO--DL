@@ -47,7 +47,9 @@ def check_quarantine_violations():
             ['git', 'diff', '--cached', '--name-only'],
             capture_output=True, text=True,
             check=True)
-        staged_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
+        staged_files = (
+            result.stdout.strip().split('\n') if result.stdout.strip() else []
+        )
 
         violations = [f for f in staged_files if f in quarantined]
         if violations:

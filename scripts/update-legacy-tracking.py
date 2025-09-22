@@ -61,10 +61,14 @@ def update_tracking_file(violations_data):
         if file_path.startswith('src/quality_enforced/'):
             continue  # Skip fortress files
         count = len(violation_list)
-        quarantined_section += f"- [ ] {file_path} ({count} violations) #legacy-quarantined\n"
+        quarantined_section += (
+            f"- [ ] {file_path} ({count} violations) #legacy-quarantined\n"
+        )
 
     # Replace the quarantined section
-    pattern = r'## 🔴 QUARANTINED FILES \(Auto-populated\).*?(?=## |\Z)'
+    pattern = (
+        r'## 🔴 QUARANTINED FILES \(Auto-populated\).*?(?=## |\Z)'
+    )
     new_content = re.sub(pattern, quarantined_section, content, flags=re.DOTALL)
 
     with open('LEGACY_TRACKING.md', 'w') as f:
