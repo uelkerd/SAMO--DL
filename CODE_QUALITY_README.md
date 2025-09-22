@@ -45,6 +45,7 @@ The `pre-commit` framework, configured in `.pre-commit-config.yaml`, automatical
 ```bash
 python scripts/check_pr_scope.py --strict
 ```
+> **Note:** The PR scope checker script is available in the repository and actively maintained.
 Validates:
 - File count ≤ 50
 - Line changes ≤ 1500
@@ -170,6 +171,7 @@ auto_close_after: 8h
 ### **Immediate Actions**
 1. **Install pre-commit hooks**: `pre-commit install`
 2. **Set commit template**: `git config commit.template .gitmessage.txt`
+   > **Note:** The `.gitmessage.txt` file is included in the repository with a comprehensive commit message template following Conventional Commits standards.
 3. **Run scope checker**: `python scripts/check_pr_scope.py`
 4. **Review existing PRs**: Close any that violate rules
 
