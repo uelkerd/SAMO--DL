@@ -31,10 +31,9 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         config: |
-          {
-            "name": "Default setup",
-            "queries": ["security-and-quality"]
-          }
+          name: Default setup
+          queries:
+            - security-and-quality
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
