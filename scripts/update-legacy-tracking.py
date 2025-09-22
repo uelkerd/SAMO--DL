@@ -16,7 +16,7 @@ def scan_violations():
     try:
         result = subprocess.run(
             [
-                '/Users/minervae/.pyenv/shims/ruff', 
+                '/Users/minervae/.pyenv/shims/ruff',
                 'check', '.', '--output-format', 'json'
             ],
             capture_output=True, text=True, cwd='.',
@@ -28,8 +28,8 @@ def scan_violations():
                 code = item.get('code', '')
                 violations[file_path].append(f"ruff:{code}")
     except (
-        subprocess.CalledProcessError, 
-        FileNotFoundError, 
+        subprocess.CalledProcessError,
+        FileNotFoundError,
         json.JSONDecodeError
     ) as e:
         print(f"Warning: Could not run ruff scan: {e}")
@@ -47,8 +47,8 @@ def scan_violations():
                 test_id = item.get('test_id', '')
                 violations[file_path].append(f"bandit:{test_id}")
     except (
-        subprocess.CalledProcessError, 
-        FileNotFoundError, 
+        subprocess.CalledProcessError,
+        FileNotFoundError,
         json.JSONDecodeError
     ) as e:
         print(f"Warning: Could not run bandit scan: {e}")
