@@ -11,15 +11,32 @@ Usage:
     python scripts/check_pr_scope.py [--branch <branch>] [--strict]
 """
 
+import argparse
 import os
 import re
+import shlex
 import subprocess
 import sys
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
+
+from pr_scope_config import (
+    ACCEPTABLE_COMBINATIONS,
+    BRANCH_NAME_PATTERN,
+    FILE_TYPE_PATTERNS,
+    MAX_FILES_CHANGED,
+    MAX_FILES_TO_DISPLAY,
+    MAX_FILE_TYPES_FOR_MIXED_CONCERNS,
+    MAX_FILE_TYPES_FOR_WARNING,
+    MAX_LINES_CHANGED,
+    MIXING_INDICATORS,
+    SINGLE_PURPOSE_KEYWORDS,
+)
 
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
     """Run command and return (stdout, stderr, returncode)."""
+    # Security: Use shlex.escape for any user input, but since cmd is a list of strings
+    # and we control all the commands, this is safe. The commands are hardcoded.
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
@@ -44,19 +61,88 @@ def get_git_stats(
     # Get lines changed using shortstat
     stdout, stderr, code = run_command(["git", "diff", "--shortstat", range_spec])
     lines_changed = 0
-    if code == 0 and stdout:
+    if code != 0:
+        print(f"❌ Git diff --shortstat error: {stderr}")
+    elif stdout:
         # Parse shortstat format like "1 file changed, 10 insertions(+), 2 deletions(-)"
         shortstat = stdout.strip()
         if shortstat:
-            parts = shortstat.split(",")
-            for part in parts:
-                part = part.strip()
-                if "insertions" in part or "deletions" in part:
-                    nums = "".join(c for c in part if c.isdigit())
-                    if nums:
-                        lines_changed += int(nums)
+            insertions = 0
+            deletions = 0
+            ins_match = re.search(r"(\d+)\s+insertions?\(\+\)", shortstat)
+            del_match = re.search(r"(\d+)\s+deletions?\(-\)", shortstat)
+            if ins_match:
+                insertions = int(ins_match.group(1))
+            if del_match:
+                deletions = int(del_match.group(1))
+            lines_changed = insertions + deletions
 
     return num_files, lines_changed, files
+
+
+def _determine_commit_range(base: Optional[str], head: Optional[str]) -> str:
+    """Determine the commit range to check."""
+    if base and head:
+        return f"{base}..{head}"
+
+    # Try to determine range from environment or git context
+    # Check for common CI environment variables
+    if os.environ.get("GITHUB_BASE_REF") and os.environ.get("GITHUB_HEAD_REF"):
+        base_ref = os.environ["GITHUB_BASE_REF"]
+        head_ref = os.environ["GITHUB_HEAD_REF"]
+        return f"origin/{base_ref}..origin/{head_ref}"
+
+    # Fallback to HEAD^..HEAD for single commit
+    return "HEAD^..HEAD"
+
+
+def _get_commit_shas(commit_range: str) -> List[str]:
+    """Get all non-merge commit SHAs in the range."""
+    stdout, stderr, code = run_command(["git", "rev-list", "--no-merges", commit_range])
+    if code != 0:
+        print(f"❌ Git rev-list error: {stderr}")
+        return []
+
+    return [sha.strip() for sha in stdout.split("\n") if sha.strip()]
+
+
+def _check_single_commit(sha: str) -> bool:
+    """Check a single commit message for quality."""
+    # Get the oneline commit message
+    stdout, stderr, code = run_command(["git", "log", "-1", "--format=%s", sha])
+    if code != 0:
+        print(f"❌ Failed to get commit message for {sha}: {stderr}")
+        return False
+
+    commit_msg = stdout.strip()
+    if not commit_msg:
+        print(f"❌ Empty commit message for {sha}")
+        return False
+
+    print(f"🔎 Checking commit {sha[:8]}: {commit_msg}")
+
+    # Check for single-purpose keywords
+    has_single_purpose = any(
+        commit_msg.startswith(keyword) for keyword in SINGLE_PURPOSE_KEYWORDS
+    )
+
+    if not has_single_purpose:
+        print(
+            f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:",
+        )
+        print(f"   Message: {commit_msg}")
+        return False
+
+    # Check for mixing concerns (contains 'and', 'also', 'plus')
+    if any(indicator in commit_msg.lower() for indicator in MIXING_INDICATORS):
+        print(
+            f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)",
+        )
+        print(f"   Message: {commit_msg}")
+        return False
+
+    print(f"✅ Commit {sha[:8]} passed quality checks")
+    return True
 
 
 def check_commit_message_quality(
@@ -64,87 +150,17 @@ def check_commit_message_quality(
     head: Optional[str] = None,
 ) -> bool:
     """Check if commit messages follow single-purpose rules for all commits in range."""
-    # Determine commit range
-    if base and head:
-        commit_range = f"{base}..{head}"
-    # Try to determine range from environment or git context
-    # Check for common CI environment variables
-    elif os.environ.get("GITHUB_BASE_REF") and os.environ.get("GITHUB_HEAD_REF"):
-        base_ref = os.environ["GITHUB_BASE_REF"]
-        head_ref = os.environ["GITHUB_HEAD_REF"]
-        commit_range = f"origin/{base_ref}..origin/{head_ref}"
-    else:
-        # Fallback to HEAD^..HEAD for single commit
-        commit_range = "HEAD^..HEAD"
-
+    commit_range = _determine_commit_range(base, head)
     print(f"🔍 Checking commit messages in range: {commit_range}")
 
-    # Get all non-merge commit SHAs in the range
-    stdout, stderr, code = run_command(["git", "rev-list", "--no-merges", commit_range])
-    if code != 0:
-        print(f"❌ Git rev-list error: {stderr}")
-        return False
-
-    commit_shas = [sha.strip() for sha in stdout.split("\n") if sha.strip()]
-
+    commit_shas = _get_commit_shas(commit_range)
     if not commit_shas:
         print("ℹ️  No non-merge commits found in range")
         return True
 
     print(f"📝 Found {len(commit_shas)} commit(s) to check")
 
-    all_passed = True
-
-    for sha in commit_shas:
-        # Get the oneline commit message
-        stdout, stderr, code = run_command(["git", "log", "-1", "--format=%s", sha])
-        if code != 0:
-            print(f"❌ Failed to get commit message for {sha}: {stderr}")
-            all_passed = False
-            continue
-
-        commit_msg = stdout.strip()
-        if not commit_msg:
-            print(f"❌ Empty commit message for {sha}")
-            all_passed = False
-            continue
-
-        print(f"🔎 Checking commit {sha[:8]}: {commit_msg}")
-
-        # Check for single-purpose keywords
-        single_purpose_keywords = [
-            "feat:",
-            "fix:",
-            "chore:",
-            "refactor:",
-            "docs:",
-            "test:",
-        ]
-        has_single_purpose = any(
-            commit_msg.startswith(keyword) for keyword in single_purpose_keywords
-        )
-
-        if not has_single_purpose:
-            print(
-                f"❌ Commit {sha[:8]} message must start with feat:, fix:, chore:, refactor:, docs:, or test:",
-            )
-            print(f"   Message: {commit_msg}")
-            all_passed = False
-            continue
-
-        # Check for mixing concerns (contains 'and', 'also', 'plus')
-        mixing_indicators = [" and ", " also ", " plus ", " & ", " in addition "]
-        if any(indicator in commit_msg.lower() for indicator in mixing_indicators):
-            print(
-                f"❌ Commit {sha[:8]} message indicates multiple concerns (contains 'and', 'also', etc.)",
-            )
-            print(f"   Message: {commit_msg}")
-            all_passed = False
-            continue
-
-        print(f"✅ Commit {sha[:8]} passed quality checks")
-
-    return all_passed
+    return all(_check_single_commit(sha) for sha in commit_shas)
 
 
 def check_branch_name_quality() -> bool:
@@ -160,8 +176,7 @@ def check_branch_name_quality() -> bool:
         return False
 
     # Check naming pattern: type/short-description
-    pattern = r"^(feat|fix|chore|refactor|docs|test)/[a-z]+(?:-[a-z]+)*$"
-    if not re.match(pattern, branch_name):
+    if not re.match(BRANCH_NAME_PATTERN, branch_name):
         print("❌ Branch name must follow pattern: type/short-description")
         print(f"   Current: {branch_name}")
         print("   Examples: feat/add-user-auth, fix/validate-input, chore/update-deps")
@@ -170,10 +185,105 @@ def check_branch_name_quality() -> bool:
     return True
 
 
-def main():
-    """Main function."""
-    import argparse
+def _check_extensions(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches extension patterns."""
+    return "extensions" in patterns and any(file_path.endswith(ext) for ext in patterns["extensions"])
 
+
+def _check_directories(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches directory patterns."""
+    return "directories" in patterns and any(file_path.startswith(dir_path) for dir_path in patterns["directories"])
+
+
+def _check_suffixes(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches suffix patterns."""
+    return "suffixes" in patterns and any(file_path.endswith(suffix) for suffix in patterns["suffixes"])
+
+
+def _check_exact_files(file_path: str, patterns: Dict[str, List[str]]) -> bool:
+    """Check if file matches exact file patterns."""
+    return "exact_files" in patterns and file_path in patterns["exact_files"]
+
+
+def _check_keywords(file_path: str, patterns: Dict[str, List[str]], file_lower: str) -> bool:
+    """Check if file matches keyword patterns."""
+    return "keywords" in patterns and any(keyword in file_lower for keyword in patterns["keywords"])
+
+
+def _check_patterns(file_path: str, patterns: Dict[str, List[str]], file_lower: str) -> bool:
+    """Check if file matches any pattern in the given patterns dict."""
+    return (
+        _check_extensions(file_path, patterns) or
+        _check_directories(file_path, patterns) or
+        _check_suffixes(file_path, patterns) or
+        _check_exact_files(file_path, patterns) or
+        _check_keywords(file_path, patterns, file_lower)
+    )
+
+
+def detect_file_type(file_path: str) -> Optional[str]:
+    """Detect file type based on path and extension using precise matching."""
+    file_lower = file_path.lower()
+
+    for file_type, patterns in FILE_TYPE_PATTERNS.items():
+        if _check_patterns(file_path, patterns, file_lower):
+            return file_type
+
+    return None
+
+
+def check_mixed_concerns(files: List[str]) -> Tuple[bool, Set[str]]:
+    """Check for mixed concerns in changed files."""
+    if not files:
+        return False, set()
+
+    file_types = set()
+    for file in files:
+        file_type = detect_file_type(file)
+        if file_type:
+            file_types.add(file_type)
+
+    # Flag as mixed concerns only if we have more than MAX_FILE_TYPES_FOR_MIXED_CONCERNS types OR
+    # if we have an unusual combination that's not in acceptable list
+    is_mixed_concerns = len(file_types) > MAX_FILE_TYPES_FOR_MIXED_CONCERNS or (
+        len(file_types) > MAX_FILE_TYPES_FOR_WARNING and file_types not in ACCEPTABLE_COMBINATIONS
+    )
+
+    return is_mixed_concerns, file_types
+
+
+def check_size_limits(num_files: int, lines_changed: int, strict_mode: bool) -> bool:
+    """Check if PR size is within limits."""
+    all_passed = True
+
+    if num_files > MAX_FILES_CHANGED:
+        print(f"❌ Too many files changed! Max {MAX_FILES_CHANGED} allowed, got {num_files}")
+        if strict_mode:
+            all_passed = False
+
+    if lines_changed > MAX_LINES_CHANGED:
+        print(f"❌ Too many lines changed! Max {MAX_LINES_CHANGED} allowed, got {lines_changed}")
+        if strict_mode:
+            all_passed = False
+
+    return all_passed
+
+
+def display_changed_files(files: List[str]) -> None:
+    """Display list of changed files."""
+    if not files:
+        return
+
+    print("\n📁 Files changed:")
+    for file in files[:MAX_FILES_TO_DISPLAY]:  # Show first MAX_FILES_TO_DISPLAY
+        if file.strip():
+            print(f"   - {file}")
+    if len(files) > MAX_FILES_TO_DISPLAY:
+        print(f"   ... and {len(files) - MAX_FILES_TO_DISPLAY} more")
+
+
+def parse_arguments():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Check PR scope compliance")
     parser.add_argument(
         "--branch",
@@ -193,119 +303,104 @@ def main():
         action="store_true",
         help="Strict mode - fail on any warning",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    print("🔍 Checking PR Scope Compliance")
-    print("=" * 50)
 
-    all_passed = True
-
-    # Check branch name
+def _check_branch_and_commits(args) -> bool:
+    """Check branch name and commit messages."""
     print("📋 Checking branch name...")
-    if not check_branch_name_quality():
-        all_passed = False
+    branch_ok = check_branch_name_quality()
 
-    # Check commit message
     print("\n📝 Checking commit message...")
-    if not check_commit_message_quality(args.base, args.head):
-        all_passed = False
+    commit_ok = check_commit_message_quality(args.base, args.head)
 
-    # Check file and line limits
+    return branch_ok and commit_ok
+
+
+def _get_git_stats_for_check(args) -> Tuple[int, int, List[str]]:
+    """Get git statistics for the given arguments."""
     print("\n📊 Checking size limits...")
-    # Determine base for git stats
-    base_for_stats = args.base if args.base else f"{args.branch}~1"
-    head_for_stats = args.head if args.head else args.branch
+    # Determine base for git stats - use or operator for cleaner code
+    base_for_stats = args.base or f"{args.branch}~1"
+    head_for_stats = args.head or args.branch
     num_files, lines_changed, files = get_git_stats(base_for_stats, head_for_stats)
 
     print(f"   Files changed: {num_files}")
     print(f"   Lines changed: {lines_changed}")
 
-    if num_files > 50:
-        print(f"❌ Too many files changed! Max 50 allowed, got {num_files}")
-        if args.strict:
-            all_passed = False
+    return num_files, lines_changed, files
 
-    if lines_changed > 1500:
-        print(f"❌ Too many lines changed! Max 1500 allowed, got {lines_changed}")
-        if args.strict:
-            all_passed = False
 
-    # List changed files
-    if files:
-        print("\n📁 Files changed:")
-        for file in files[:10]:  # Show first 10
-            if file.strip():
-                print(f"   - {file}")
-        if len(files) > 10:
-            print(f"   ... and {len(files) - 10} more")
-
-    # Check for mixed concerns (improved logic to reduce false positives)
+def _check_mixed_concerns_display(files: List[str], strict_mode: bool) -> bool:
+    """Check and display mixed concerns information."""
     print("\n🎯 Checking for mixed concerns...")
-    if files:
-        file_types = set()
+    if not files:
+        return True
 
-        for file in files:
-            if file.endswith((".py", ".js", ".ts", ".java", ".cpp", ".c", ".h")):
-                file_types.add("code")
-            elif file.endswith((".md", ".rst", ".txt", ".adoc")):
-                file_types.add("docs")
-            elif "test" in file.lower() or file.startswith("tests/"):
-                file_types.add("tests")
-            elif "config" in file.lower() or file.endswith(
-                (".yml", ".yaml", ".json", ".toml", ".cfg"),
-            ):
-                file_types.add("config")
-            elif "docker" in file.lower() or "Dockerfile" in file:
-                file_types.add("docker")
-            elif "api" in file.lower() or "endpoint" in file.lower():
-                file_types.add("api")
-            elif (
-                "model" in file.lower() or "ml" in file.lower() or "ai" in file.lower()
-            ):
-                file_types.add("ml")
+    is_mixed_concerns, file_types = check_mixed_concerns(files)
 
-        # Allow reasonable combinations that are commonly acceptable
-        acceptable_combinations = [
-            {"code", "tests"},  # Feature + tests
-            {"code", "tests", "config"},  # Feature + tests + config
-            {"code", "tests", "docs"},  # Feature + tests + docs
-            {"code", "tests", "config", "docs"},  # Feature + tests + config + docs
-            {"code", "config"},  # Code changes with config
-            {"code", "docs"},  # Code changes with docs
-            {"config", "docs"},  # Config changes with docs
-            {"tests", "config"},  # Tests with config
-        ]
-
-        # Flag as mixed concerns only if we have more than 4 types OR
-        # if we have an unusual combination that's not in acceptable list
-        is_mixed_concerns = len(file_types) > 4 or (
-            len(file_types) > 2 and file_types not in acceptable_combinations
+    if is_mixed_concerns:
+        print(f"⚠️  Mixed concerns detected: {', '.join(sorted(file_types))}")
+        print("   Consider splitting into separate PRs")
+        print(
+            "   Acceptable combinations include: code+tests, code+tests+config, etc.",
         )
+        return not strict_mode
+    elif len(file_types) > MAX_FILE_TYPES_FOR_WARNING:
+        # Show info about acceptable combinations but don't fail
+        print(f"ℹ️  Multiple file types detected: {', '.join(sorted(file_types))}")
+        print("   This combination is acceptable for a single PR")
 
-        if is_mixed_concerns:
-            print(f"⚠️  Mixed concerns detected: {', '.join(sorted(file_types))}")
-            print("   Consider splitting into separate PRs")
-            print(
-                "   Acceptable combinations include: code+tests, code+tests+config, etc.",
-            )
-            if args.strict:
-                all_passed = False
-        elif len(file_types) > 2:
-            # Show info about acceptable combinations but don't fail
-            print(f"ℹ️  Multiple file types detected: {', '.join(sorted(file_types))}")
-            print("   This combination is acceptable for a single PR")
+    return True
 
+
+def _check_size_and_concerns(args) -> bool:
+    """Check file size limits and mixed concerns."""
+    num_files, lines_changed, files = _get_git_stats_for_check(args)
+
+    # Check size limits
+    size_ok = check_size_limits(num_files, lines_changed, args.strict)
+
+    # Display changed files
+    display_changed_files(files)
+
+    # Check for mixed concerns
+    concerns_ok = _check_mixed_concerns_display(files, args.strict)
+
+    return size_ok and concerns_ok
+
+
+def run_scope_checks(args) -> bool:
+    """Run all scope checks and return overall result."""
+    branch_commit_ok = _check_branch_and_commits(args)
+    size_concerns_ok = _check_size_and_concerns(args)
+
+    return branch_commit_ok and size_concerns_ok
+
+
+def print_final_result(all_passed: bool) -> int:
+    """Print final result and return exit code."""
     print("\n" + "=" * 50)
     if all_passed:
         print("✅ PR Scope Check PASSED")
         return 0
     print("❌ PR Scope Check FAILED")
     print("\n💡 Remember the rules:")
-    print("   • Max 50 files changed")
-    print("   • Max 1500 lines changed")
+    print(f"   • Max {MAX_FILES_CHANGED} files changed")
+    print(f"   • Max {MAX_LINES_CHANGED} lines changed")
     print("   • ONE purpose per PR")
     print("   • Single concern (no mixing API + tests + docs)")
     return 1
+
+
+def main():
+    """Main function."""
+    print("🔍 Checking PR Scope Compliance")
+    print("=" * 50)
+
+    args = parse_arguments()
+    all_passed = run_scope_checks(args)
+    return print_final_result(all_passed)
 
 
 if __name__ == "__main__":

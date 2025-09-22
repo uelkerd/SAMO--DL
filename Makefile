@@ -1,5 +1,5 @@
 # SAMO-DL Makefile - Minimal Code Quality Edition
-.PHONY: help format lint test quality-check clean
+.PHONY: help format lint test quality-check clean check-scope pre-commit-install
 
 help: ## Show this help message
 	@echo "SAMO-DL Code Quality Commands"
@@ -10,7 +10,7 @@ format: ## Format code with ruff
 	ruff format src/ tests/ scripts/
 
 lint: ## Run comprehensive linting with ruff and pylint
-	ruff check --fix src/ tests/ scripts/
+	ruff check src/ tests/ scripts/
 	pylint --rcfile=pyproject.toml src/ tests/ scripts/
 
 test: ## Run tests with coverage
@@ -21,7 +21,7 @@ quality-check: ## Run all quality checks (matches pre-commit)
 	ruff check --diff src/ tests/ scripts/
 	ruff format --check src/ tests/ scripts/
 	pylint --rcfile=pyproject.toml src/ tests/ scripts/
-	mypy src/ scripts/training/ scripts/database/
+	mypy src/ tests/ scripts/
 	bandit -r src/ -c pyproject.toml
 	bandit -r tests/ -c pyproject.toml -s B101
 	safety scan --json --output safety-report.json
