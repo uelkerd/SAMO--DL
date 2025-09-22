@@ -53,9 +53,31 @@ except ImportError:
 
 
 def run_command(cmd: List[str]) -> Tuple[str, str, int]:
-    """Run command and return (stdout, stderr, returncode)."""
-    # Security: Use shlex.escape for any user input, but since cmd is a list of strings
-    # and we control all the commands, this is safe. The commands are hardcoded.
+    """Run command and return (stdout, stderr, returncode).
+
+    Security Note: This function is safe because:
+    1. All commands are hardcoded in the script (git commands only)
+    2. No user input is directly passed to subprocess
+    3. Commands are passed as a list of strings, not shell strings
+    4. All git commands used are read-only operations
+
+    Args:
+        cmd: List of command arguments (e.g., ["git", "diff", "--name-only"])
+
+    Returns:
+        Tuple of (stdout, stderr, returncode)
+    """
+    # Validate that we're only running git commands for security
+    if not cmd or cmd[0] != "git":
+        raise ValueError(f"Only git commands are allowed, got: {cmd[0] if cmd else 'empty'}")
+
+    # Additional validation: only allow specific git subcommands
+    allowed_git_commands = {
+        "diff", "log", "rev-list", "branch", "show"
+    }
+    if len(cmd) > 1 and cmd[1] not in allowed_git_commands:
+        raise ValueError(f"Git subcommand '{cmd[1]}' not allowed. Allowed: {allowed_git_commands}")
+
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
