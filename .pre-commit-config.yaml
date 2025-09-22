@@ -79,7 +79,7 @@ repos:
 
   # Type checking with MyPy (fortress zone only)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.17.1
     hooks:
       - id: mypy
         name: "MyPy type checking (fortress zone only)"

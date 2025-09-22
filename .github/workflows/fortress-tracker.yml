@@ -7,7 +7,7 @@ on:
 jobs:
   update-tracking:
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +33,8 @@ jobs:
 
       - name: Commit updates (if any)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        permissions:
+          contents: write
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Fortress Tracker"
