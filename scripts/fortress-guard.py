@@ -44,7 +44,7 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
     try:
         result = subprocess.run(
             cmd,
-            capture_output=True, 
+            capture_output=True,
             text=True,
             check=False  # Don't raise exception on non-zero exit
         )
@@ -122,6 +122,9 @@ def check_quarantine_violations():
             print("🏰 These files are in quarantine until migration", file=sys.stderr)
             return False
 
+        # No violations found
+        return True
+
     except Exception as e:
         print(f"Error: Could not check quarantine: {e}", file=sys.stderr)
         # Fail-closed by default, but allow fail-open via environment variable
@@ -135,25 +138,26 @@ def main():
         description="Fortress Guard - Prevent monster PRs and quarantine violations"
     )
     parser.add_argument(
-        '--base', 
+        '--base',
         help='Base commit SHA for comparison (requires --head)'
     )
     parser.add_argument(
-        '--head', 
+        '--head',
         help='Head commit SHA for comparison (requires --base)'
     )
     parser.add_argument(
-        '--max-files', 
-        type=int, 
+        '--max-files',
+        type=int,
         help='Maximum allowed files (overrides MAX_FILES env var)'
     )
     parser.add_argument(
-        '--skip-quarantine', 
-        action='store_true', 
+        '--skip-quarantine',
+        action='store_true',
         help='Skip quarantine file checks'
     )
 
-    args = parser.parse_args()
+    # Parse known args to allow pre-commit to pass filenames
+    args, unknown = parser.parse_known_args()
 
     # Validate arguments
     if (args.base and not args.head) or (args.head and not args.base):
