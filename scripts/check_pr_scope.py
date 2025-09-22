@@ -80,6 +80,8 @@ def run_command(cmd: List[str]) -> Tuple[str, str, int]:
             f"Allowed: {allowed_git_commands}"
         )
 
+    # Security: cmd is validated above and contains only hardcoded git commands
+    # No user input reaches this point, preventing command injection
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
