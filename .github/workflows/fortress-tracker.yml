@@ -25,12 +25,24 @@ jobs:
         run: |
           python scripts/update-legacy-tracking.py
 
+      - name: Show tracking status (PR mode)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Running in pull request mode - tracking data updated but not committed"
+          echo "Changes will be committed automatically when merged to main"
+
       - name: Commit updates (if any)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Fortress Tracker"
           git add LEGACY_TRACKING.md
-          git diff --staged --quiet || git commit -m "auto: update legacy tracking data"
+          if ! git diff --staged --quiet; then
+            git commit -m "auto: update legacy tracking data"
+            git push
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Check fortress violations
         run: |
