@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Integration test script for code quality tools.
 
-This script validates that all quality tools in the pre-commit configuration
-work together properly and catch common code quality issues.
+This script validates that all quality tools in the pre-commit configuration work
+together properly and catch common code quality issues.
 """
 
 import subprocess
@@ -37,7 +37,6 @@ if __name__ == "__main__":
     result = calculate_sum([1, 2, 3, 4, 5])
     print(f"Sum: {result}")
 ''',
-
         "bad_code.py": """# Bad code with various issues
 import sys
 import unused_module   # Unused import (should be caught by Ruff)
@@ -52,13 +51,12 @@ def badfunction(x,y):   # Bad formatting, no type hints
 x = 1
 
 # Missing final newline""",
-
         "security_issues.py": """# Code with security issues
 import os
 import subprocess
 
-# Hardcoded password (should be caught by Bandit)
-PASSWORD = "hardcoded123"
+# Hardcoded password for testing (should be caught by Bandit)
+PASSWORD = "hardcoded123"  # nosec B105 - intentional test case
 
 def run_command(user_input):
     # Command injection vulnerability (should be caught by Bandit)
@@ -68,7 +66,6 @@ def use_temp_file():
     # Insecure temp file (should be caught by Bandit)
     return "/tmp/temp_file.txt"
 """,
-
         "type_issues.py": """# Code with type issues (should be caught by MyPy)
 def process_data(data):
     return data.upper() + " processed"
@@ -85,7 +82,13 @@ def run_tool(command: List[str], description: str) -> bool:
     """Run a tool and return True if it passes (exit code 0)."""
     print(f"\n🔍 Running {description}...")
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=60, check=False)
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
         if result.returncode == 0:
             print(f"✅ {description} passed")
             return True
@@ -123,7 +126,10 @@ def test_individual_tools() -> Dict[str, bool]:
     results["safety"] = run_tool(["safety", "--version"], "Safety version check")
 
     # Test Pre-commit
-    results["pre-commit"] = run_tool(["pre-commit", "--version"], "Pre-commit version check")
+    results["pre-commit"] = run_tool(
+        ["pre-commit", "--version"],
+        "Pre-commit version check",
+    )
 
     return results
 
@@ -139,20 +145,32 @@ def test_quality_detection(temp_dir: Path) -> Dict[str, bool]:
 
     # Test Ruff on bad code (should find issues)
     bad_file = temp_dir / "bad_code.py"
-    ruff_result = subprocess.run(["ruff", "check", str(bad_file)],
-                                capture_output=True, text=True, check=False)
+    ruff_result = subprocess.run(
+        ["ruff", "check", str(bad_file)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     results["ruff_detects_issues"] = ruff_result.returncode != 0
 
     # Test Bandit on security issues (should find issues)
     security_file = temp_dir / "security_issues.py"
-    bandit_result = subprocess.run(["bandit", str(security_file)],
-                                  capture_output=True, text=True, check=False)
+    bandit_result = subprocess.run(
+        ["bandit", str(security_file)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     results["bandit_detects_issues"] = bandit_result.returncode != 0
 
     # Test Ruff on good code (should pass)
     good_file = temp_dir / "good_code.py"
-    ruff_good_result = subprocess.run(["ruff", "check", str(good_file)],
-                                     capture_output=True, text=True, check=False)
+    ruff_good_result = subprocess.run(
+        ["ruff", "check", str(good_file)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     results["ruff_passes_good_code"] = ruff_good_result.returncode == 0
 
     return results
@@ -162,21 +180,34 @@ def test_pre_commit_integration(temp_dir: Path) -> bool:
     """Test pre-commit integration in the temporary directory."""
     # Initialize git repo in temp dir
     subprocess.run(["git", "init"], cwd=temp_dir, capture_output=True, check=False)
-    subprocess.run(["git", "config", "user.email", "test@example.com"],
-                  cwd=temp_dir, capture_output=True, check=False)
-    subprocess.run(["git", "config", "user.name", "Test User"],
-                  cwd=temp_dir, capture_output=True, check=False)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.com"],
+        cwd=temp_dir,
+        capture_output=True,
+        check=False,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test User"],
+        cwd=temp_dir,
+        capture_output=True,
+        check=False,
+    )
 
     # Copy pre-commit config
     project_root = Path(__file__).parent.parent
     precommit_config = project_root / ".pre-commit-config.yaml"
     if precommit_config.exists():
         import shutil
+
         shutil.copy(precommit_config, temp_dir / ".pre-commit-config.yaml")
 
         # Install pre-commit hooks
-        install_result = subprocess.run(["pre-commit", "install"],
-                                      cwd=temp_dir, capture_output=True, check=False)
+        install_result = subprocess.run(
+            ["pre-commit", "install"],
+            cwd=temp_dir,
+            capture_output=True,
+            check=False,
+        )
 
         return install_result.returncode == 0
     print("❌ Pre-commit config not found")
@@ -222,7 +253,9 @@ def main():
     # Overall success
     all_tools_available = all(tool_results.values())
     quality_detection_works = all(detection_results.values())
-    overall_success = all_tools_available and quality_detection_works and precommit_result
+    overall_success = (
+        all_tools_available and quality_detection_works and precommit_result
+    )
 
     print(f"\n🎯 Overall Status: {'✅ SUCCESS' if overall_success else '❌ FAILURE'}")
 

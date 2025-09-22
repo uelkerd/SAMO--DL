@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test script to verify the server starts and responds correctly"""
+"""Test script to verify the server starts and responds correctly."""
 
 import os
 import time
@@ -7,7 +7,7 @@ import time
 import requests
 
 # Set required environment variables
-os.environ["ADMIN_API_KEY"] = "test-key-123"
+os.environ["ADMIN_API_KEY"] = "test-key-123"  # nosec B105 - test API key
 os.environ["MAX_INPUT_LENGTH"] = "512"
 os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
 os.environ["MODEL_PATH"] = "/app/model"
@@ -54,7 +54,7 @@ try:
     try:
         response = requests.get(f"{base_url}/docs", timeout=5)
         print(
-            f"✅ Docs endpoint: {response.status_code} - Content length: {len(response.text)}"
+            f"✅ Docs endpoint: {response.status_code} - Content length: {len(response.text)}",
         )
     except Exception as e:
         print(f"❌ Docs endpoint failed: {e}")

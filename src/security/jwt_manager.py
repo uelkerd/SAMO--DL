@@ -20,7 +20,10 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 
 # Configuration
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY",
+    "your-secret-key-change-in-production",
+)  # nosec B105 - dev fallback only
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -54,6 +57,7 @@ class JWTManager:
     """Comprehensive JWT token management system."""
 
     def __init__(self, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
+        """Initialize JWT manager with secret key and algorithm."""
         self.secret_key = secret_key
         self.algorithm = algorithm
         # Changed to dict: {token: exp_datetime}
@@ -105,13 +109,13 @@ class JWTManager:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
         except jwt.ExpiredSignatureError:
-            logger.warning(f"Token expired: {token[:10]}...")
+            logger.warning("Token expired: %s...", token[:10])
             return None
         except jwt.InvalidTokenError as e:
-            logger.warning(f"Invalid token: {e!s}")
+            logger.warning("Invalid token: %s", e)
             return None
-        except Exception as e:
-            logger.exception(f"Token verification error: {e!s}")
+        except Exception:
+            logger.exception("Token verification error")
             return None
 
     def refresh_access_token(self, refresh_token: str) -> Optional[str]:

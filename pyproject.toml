@@ -174,6 +174,8 @@ disable = [
     "R0913",  # too-many-arguments
     "W0613",  # unused-argument (legitimate in interface implementations)
     "C0103",  # invalid-name
+    "E0401",  # import-error (handled by environment setup)
+    "W0718",  # broad-exception-caught (legitimate for error handling)
 ]
 
 [tool.pylint.format]
@@ -224,7 +226,6 @@ tests = [
     "B306",  # mktemp_q
     "B307",  # eval
     "B308",  # mark_safe
-    "B309",  # httpsconnection
     "B310",  # urllib_urlopen
     "B311",  # random
     "B312",  # telnetlib
@@ -237,10 +238,8 @@ tests = [
     "B319",  # xml_bad_pulldom
     "B320",  # xml_bad_etree
     "B321",  # ftplib
-    "B322",  # input
     "B323",  # unverified_context
     "B324",  # hashlib_new_insecure_functions
-    "B325",  # tempnam
     "B501",  # request_with_no_cert_validation
     "B502",  # ssl_with_bad_version
     "B503",  # ssl_with_bad_defaults

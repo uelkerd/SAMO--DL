@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Detailed test to capture Swagger docs 500 error"""
+"""Detailed test to capture Swagger docs 500 error."""
 
 import os
 import traceback
@@ -7,7 +7,7 @@ import traceback
 import requests
 
 # Set required environment variables
-os.environ["ADMIN_API_KEY"] = "test-key-123"
+os.environ["ADMIN_API_KEY"] = "test-key-123"  # nosec B105 - test API key
 os.environ["MAX_INPUT_LENGTH"] = "512"
 os.environ["RATE_LIMIT_PER_MINUTE"] = "100"
 os.environ["MODEL_PATH"] = "/app/model"

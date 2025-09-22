@@ -384,3 +384,4 @@ coverage.xml
 # Large generated reports
 bandit-report.json
 ci_pipeline.log
+notebooks/
