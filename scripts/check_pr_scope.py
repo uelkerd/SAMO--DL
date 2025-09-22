@@ -256,7 +256,7 @@ def _check_exact_files(file_path: str, patterns: Dict[str, List[str]]) -> bool:
     return "exact_files" in patterns and file_path in patterns["exact_files"]
 
 
-def _check_keywords(file_path: str, patterns: Dict[str, List[str]], file_lower: str) -> bool:
+def _check_keywords(patterns: Dict[str, List[str]], file_lower: str) -> bool:
     """Check if file matches keyword patterns."""
     return "keywords" in patterns and any(keyword in file_lower for keyword in patterns["keywords"])
 
@@ -270,7 +270,7 @@ def _check_patterns(file_path: str, patterns: Dict[str, List[str]], file_lower: 
         _check_prefixes(file_path, patterns) or
         _check_patterns_regex(file_path, patterns) or
         _check_exact_files(file_path, patterns) or
-        _check_keywords(file_path, patterns, file_lower)
+        _check_keywords(patterns, file_lower)
     )
 
 
