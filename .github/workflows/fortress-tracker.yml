@@ -1,0 +1,35 @@
+name: Fortress Legacy Tracker
+on:
+  push:
+    branches: [main, feat/fortress]
+  pull_request:
+
+jobs:
+  update-tracking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install quality tools
+        run: |
+          pip install ruff bandit
+
+      - name: Update legacy tracking
+        run: |
+          python scripts/update-legacy-tracking.py
+
+      - name: Commit updates (if any)
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Fortress Tracker"
+          git add LEGACY_TRACKING.md
+          git diff --staged --quiet || git commit -m "auto: update legacy tracking data"
+
+      - name: Check fortress violations
+        run: |
+          python scripts/fortress-guard.py
