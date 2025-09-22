@@ -131,6 +131,9 @@ def check_quarantine_violations():
         fail_open = os.getenv('FORTRESS_FAIL_OPEN', '').lower() in ('1', 'true', 'yes')
         return bool(fail_open)
 
+    # This should never be reached, but explicit return for linter
+    return True
+
 
 def main():
     """Main function with command line argument parsing"""
