@@ -84,5 +84,6 @@ def main():
     violations = scan_violations()
     update_tracking_file(violations)
 
+
 if __name__ == "__main__":
     main()
