@@ -39,7 +39,8 @@ def check_quarantine_violations():
         quarantined = []
         for line in content.split('\n'):
             if line.startswith('- [ ]') and '#legacy-quarantined' in line:
-                # Extract file path from markdown: "- [ ] path/to/file.py (...) #legacy-quarantined"
+                # Extract file path from markdown:
+                # "- [ ] path/to/file.py (...) #legacy-quarantined"
                 parts = line.split(']', 1)
                 if len(parts) > 1:
                     file_path = parts[1].split('(')[0].strip()
