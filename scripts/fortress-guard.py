@@ -10,12 +10,12 @@ import argparse
 def check_file_limit(base_sha=None, head_sha=None, max_files=None):
     """
     Check if the number of changed files exceeds the limit.
-    
+
     Args:
         base_sha: Base commit SHA (optional)
-        head_sha: Head commit SHA (optional) 
+        head_sha: Head commit SHA (optional)
         max_files: Maximum allowed files (optional, defaults to env var or 5)
-    
+
     Returns:
         bool: True if within limits, False if exceeded or on error
     """
@@ -26,12 +26,12 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
         except ValueError:
             print("Error: MAX_FILES environment variable must be a valid integer", file=sys.stderr)
             return False
-    
+
     # Validate max_files
     if max_files < 1:
         print("Error: MAX_FILES must be at least 1", file=sys.stderr)
         return False
-    
+
     # Build git diff command
     if base_sha and head_sha:
         # Compare specific commits
@@ -39,7 +39,7 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
     else:
         # Use staged files (default behavior)
         cmd = ['/usr/bin/git', 'diff', '--cached', '--name-only']
-    
+
     # Run git diff command
     try:
         result = subprocess.run(
@@ -48,17 +48,17 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
             text=True,
             check=False  # Don't raise exception on non-zero exit
         )
-        
+
         # Check for git errors
         if result.returncode != 0:
             print(f"Error: git diff failed with return code {result.returncode}", file=sys.stderr)
             if result.stderr:
                 print(f"Git error: {result.stderr.strip()}", file=sys.stderr)
             return False
-        
+
         # Parse file list
         files = [f.strip() for f in result.stdout.split('\n') if f.strip()]
-        
+
         # Check file count
         if len(files) > max_files:
             print(f"🚨 FORTRESS BREACH: {len(files)} files changed (max: {max_files})", file=sys.stderr)
@@ -67,11 +67,11 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
             if base_sha and head_sha:
                 print(f"📊 Comparing commits: {base_sha[:8]}..{head_sha[:8]}", file=sys.stderr)
             return False
-        
+
         # Success
         print(f"✅ File count check passed: {len(files)}/{max_files} files", file=sys.stderr)
         return True
-        
+
     except (OSError, subprocess.SubprocessError) as e:
         print(f"Error: Failed to run git diff: {e}", file=sys.stderr)
         return False
@@ -126,7 +126,7 @@ def check_quarantine_violations():
         print(f"Error: Could not check quarantine: {e}", file=sys.stderr)
         # Fail-closed by default, but allow fail-open via environment variable
         fail_open = os.getenv('FORTRESS_FAIL_OPEN', '').lower() in ('1', 'true', 'yes')
-        return True if fail_open else False
+        return bool(fail_open)
 
 
 def main():
@@ -152,24 +152,24 @@ def main():
         action='store_true', 
         help='Skip quarantine file checks'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Validate arguments
     if (args.base and not args.head) or (args.head and not args.base):
         print("Error: --base and --head must be provided together", file=sys.stderr)
         sys.exit(1)
-    
+
     success = True
-    
+
     # Check file limit
     if not check_file_limit(args.base, args.head, args.max_files):
         success = False
-    
+
     # Check quarantine violations (unless skipped)
     if not args.skip_quarantine and not check_quarantine_violations():
         success = False
-    
+
     sys.exit(0 if success else 1)
 
 
