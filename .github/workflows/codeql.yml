@@ -33,7 +33,7 @@ jobs:
         config: |
           name: Default setup
           queries:
-            - security-and-quality
+            - uses: security-and-quality
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
