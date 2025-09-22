@@ -10,7 +10,7 @@
 - [ ] src/models/old_model.py (5 violations) #legacy-quarantined
 - [ ] scripts/test_script.py (2 violations) #legacy-quarantined
 ## 🟡 MIGRATION CANDIDATES
-*Files ready for migration to fortress (manually curated)*
+Files ready for migration to fortress (manually curated)
 
 ## 🟢 QUALITY ENFORCED
 - [x] src/quality_enforced/ (protected zone)

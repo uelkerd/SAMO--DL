@@ -21,7 +21,7 @@ jobs:
 
       - name: Install quality tools
         run: |
-          pip install ruff bandit
+          pip install "ruff==0.6.8" "bandit==1.7.6"
 
       - name: Update legacy tracking
         run: |

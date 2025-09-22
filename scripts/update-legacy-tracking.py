@@ -12,12 +12,12 @@ def scan_violations():
     """Run quality tools on entire codebase, collect violations per file"""
     violations = defaultdict(list)
 
-    # Run ruff on all Python files
+    # Run ruff on Python files (exclude common non-source directories)
     try:
         result = subprocess.run(
             [
                 '/Users/minervae/.pyenv/shims/ruff',
-                'check', '.', '--output-format', 'json'
+                'check', 'src/', 'scripts/', 'tests/', '--output-format', 'json'
             ],
             capture_output=True, text=True, cwd='.',
             check=True)
@@ -34,10 +34,10 @@ def scan_violations():
     ) as e:
         print(f"Warning: Could not run ruff scan: {e}")
 
-    # Run bandit scan
+    # Run bandit scan on source directories
     try:
         result = subprocess.run(
-            ['/Users/minervae/.pyenv/shims/bandit', '-r', '.', '-f', 'json'],
+            ['/Users/minervae/.pyenv/shims/bandit', '-r', 'src/', 'scripts/', 'tests/', '-f', 'json'],
             capture_output=True, text=True,
             check=True)
         if result.stdout:
@@ -88,7 +88,8 @@ def update_tracking_file(violations_data):
     with open('LEGACY_TRACKING.md', 'w') as f:
         f.write(new_content)
 
-    print(f"✅ Updated LEGACY_TRACKING.md with {len(violations_data)} quarantined files")
+    effective = {k: v for k, v in violations_data.items() if not k.startswith('src/quality_enforced/')}
+    print(f"✅ Updated LEGACY_TRACKING.md with {len(effective)} quarantined files")
 
 
 def main():

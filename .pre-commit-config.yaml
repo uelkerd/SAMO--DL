@@ -13,7 +13,8 @@ repos:
       - id: fortress-guard
         name: "🏰 Fortress Guard - Max 5 files per PR"
         entry: python scripts/fortress-guard.py
-        language: system
+        language: python
+        pass_filenames: false
         always_run: true
 
   # Basic pre-commit hooks (run on all files)
