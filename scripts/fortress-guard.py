@@ -24,7 +24,10 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
         try:
             max_files = int(os.getenv('MAX_FILES', '5'))
         except ValueError:
-            print("Error: MAX_FILES environment variable must be a valid integer", file=sys.stderr)
+            print(
+                "Error: MAX_FILES environment variable must be a valid integer",
+                file=sys.stderr
+            )
             return False
 
     # Validate max_files
@@ -51,7 +54,10 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
 
         # Check for git errors
         if result.returncode != 0:
-            print(f"Error: git diff failed with return code {result.returncode}", file=sys.stderr)
+            print(
+                f"Error: git diff failed with return code {result.returncode}",
+                file=sys.stderr
+            )
             if result.stderr:
                 print(f"Git error: {result.stderr.strip()}", file=sys.stderr)
             return False
@@ -61,15 +67,24 @@ def check_file_limit(base_sha=None, head_sha=None, max_files=None):
 
         # Check file count
         if len(files) > max_files:
-            print(f"🚨 FORTRESS BREACH: {len(files)} files changed (max: {max_files})", file=sys.stderr)
+            print(
+                f"🚨 FORTRESS BREACH: {len(files)} files changed (max: {max_files})",
+                file=sys.stderr
+            )
             print("🏰 Fortress Rule: Keep PRs micro-sized", file=sys.stderr)
             print("📋 Split your changes into smaller commits", file=sys.stderr)
             if base_sha and head_sha:
-                print(f"📊 Comparing commits: {base_sha[:8]}..{head_sha[:8]}", file=sys.stderr)
+                print(
+                    f"📊 Comparing commits: {base_sha[:8]}..{head_sha[:8]}",
+                    file=sys.stderr
+                )
             return False
 
         # Success
-        print(f"✅ File count check passed: {len(files)}/{max_files} files", file=sys.stderr)
+        print(
+            f"✅ File count check passed: {len(files)}/{max_files} files",
+            file=sys.stderr
+        )
         return True
 
     except (OSError, subprocess.SubprocessError) as e:
