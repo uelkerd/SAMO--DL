@@ -309,7 +309,7 @@ class CIPipelineRunner:
         import time
 
         start_time = time.time()
-        model = BERTEmotionClassifier()
+        _ = BERTEmotionClassifier()  # Instantiate model to measure loading time
         loading_time = time.time() - start_time
 
         logger.info(f"✅ Model loading time: {loading_time:.2f}s")
