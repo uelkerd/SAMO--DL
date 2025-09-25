@@ -161,6 +161,11 @@ class TokenBucketRateLimiter:
     - Concurrent request limiting
     - Automatic blocking of abusive clients
     - Request fingerprinting for advanced detection
+
+    Note:
+    - This is an in-memory limiter that works per-process only
+    - For multi-worker deployments, consider Redis/memcached for shared state
+    - Monitor blocked/429 counts and bucket utilization for operational insights
     """
 
     def __init__(self, config: RateLimitConfig):
@@ -220,7 +225,7 @@ class TokenBucketRateLimiter:
                 return False
             return True
         except ValueError:
-            logger.error("Invalid IP address: %s", client_ip)
+            logger.warning("Invalid IP address: %s", client_ip)
             return False
 
     def _is_client_blocked(self, client_key: str) -> bool:
