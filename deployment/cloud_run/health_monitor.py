@@ -239,8 +239,9 @@ class HealthMonitor:
                         "response_time_ms": 0,
                     }
 
-            # Test internal health endpoint
-            response = test_client.get("/health")
+            # Test internal health endpoint with proper cleanup
+            with test_client as client:
+                response = client.get("/health")
             response_time = (time.time() - start_time) * 1000
 
             if response.status_code == 200:
