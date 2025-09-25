@@ -127,7 +127,7 @@ class CIPipelineRunner:
                 logger.info(f"✅ {package} available")
             except ImportError:
                 missing_packages.append(package)
-                logger.exception(f"❌ {package} missing")
+                logger.error(f"❌ {package} missing")
 
         if missing_packages:
             logger.error(f"❌ Missing packages: {missing_packages}")
@@ -144,7 +144,8 @@ class CIPipelineRunner:
             # Use the correct Python interpreter
             python_executable = sys.executable
 
-            # Run the script
+            # Run the script - script_path is controlled internally by self.ci_scripts
+            # No command injection risk as paths are static and predefined
             result = subprocess.run(
                 [python_executable, script_path],
                 check=False,
@@ -161,7 +162,7 @@ class CIPipelineRunner:
             return False, result.stderr
 
         except subprocess.TimeoutExpired:
-            logger.exception(f"⏰ {script_path} TIMEOUT")
+            logger.error(f"⏰ {script_path} TIMEOUT")
             return False, "Script timed out after 5 minutes"
         except Exception as e:
             logger.exception(f"💥 {script_path} ERROR: {e}")
@@ -172,6 +173,7 @@ class CIPipelineRunner:
         logger.info("🧪 Running unit tests...")
 
         try:
+            # Static command - no injection risk, all arguments are literals
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/unit/", "-v"],
                 check=False,
@@ -190,7 +192,7 @@ class CIPipelineRunner:
             return False
 
         except subprocess.TimeoutExpired:
-            logger.exception("⏰ Unit tests TIMEOUT")
+            logger.error("⏰ Unit tests TIMEOUT")
             return False
         except Exception as e:
             logger.exception(f"💥 Unit tests ERROR: {e}")
@@ -201,6 +203,7 @@ class CIPipelineRunner:
         logger.info("🎯 Running E2E tests...")
 
         try:
+            # Static command - no injection risk, all arguments are literals
             result = subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/e2e/", "-v"],
                 check=False,
