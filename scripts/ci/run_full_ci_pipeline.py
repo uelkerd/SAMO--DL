@@ -134,7 +134,7 @@ class CIPipelineRunner:
         else:
             logger.info("💻 Running in local environment")
 
-        logger.info(f"📊 Environment: {env_info}")
+        logger.info("📊 Environment: %s", env_info)
         return env_info
 
     def validate_dependencies(self) -> bool:
@@ -156,13 +156,13 @@ class CIPipelineRunner:
         for package in required_packages:
             try:
                 __import__(package)
-                logger.info(f"✅ {package} available")
+                logger.info("✅ %s available", package)
             except ImportError:
                 missing_packages.append(package)
-                logger.error(f"❌ {package} missing")
+                logger.error("❌ %s missing", package)
 
         if missing_packages:
-            logger.error(f"❌ Missing packages: {missing_packages}")
+            logger.error("❌ Missing packages: %s", missing_packages)
             return False
 
         logger.info("✅ All dependencies validated")
@@ -170,7 +170,7 @@ class CIPipelineRunner:
 
     def run_ci_script(self, script_path: str) -> Tuple[bool, str]:
         """Run a single CI script and return success status and output."""
-        logger.info(f"🚀 Running {script_path}...")
+        logger.info("🚀 Running %s...", script_path)
 
         try:
             # Use the correct Python interpreter
@@ -184,19 +184,19 @@ class CIPipelineRunner:
             )
 
             if result.returncode == 0:
-                logger.info(f"✅ {script_path} PASSED")
+                logger.info("✅ %s PASSED", script_path)
                 return True, result.stdout
             else:
-                logger.error(f"❌ {script_path} FAILED")
-                logger.error(f"Error output: {result.stderr}")
-                logger.error(f"Standard output: {result.stdout}")
+                logger.error("❌ %s FAILED", script_path)
+                logger.error("Error output: %s", result.stderr)
+                logger.error("Standard output: %s", result.stdout)
                 return False, result.stderr
 
         except subprocess.TimeoutExpired:
-            logger.error(f"⏰ {script_path} TIMEOUT")
+            logger.error("⏰ %s TIMEOUT", script_path)
             return False, "Script timed out after 5 minutes"
         except Exception as e:
-            logger.exception(f"💥 {script_path} ERROR: {e}")
+            logger.exception("💥 %s ERROR: %s", script_path, e)
             return False, str(e)
 
     def run_unit_tests(self) -> bool:
@@ -215,16 +215,16 @@ class CIPipelineRunner:
                 return True
             else:
                 logger.error("❌ Unit tests FAILED")
-                logger.error(f"Return code: {result.returncode}")
-                logger.error(f"Error output: {result.stderr}")
-                logger.error(f"Standard output: {result.stdout}")
+                logger.error("Return code: %s", result.returncode)
+                logger.error("Error output: %s", result.stderr)
+                logger.error("Standard output: %s", result.stdout)
                 return False
 
         except subprocess.TimeoutExpired:
             logger.error("⏰ Unit tests TIMEOUT")
             return False
         except Exception as e:
-            logger.exception(f"💥 Unit tests ERROR: {e}")
+            logger.exception("💥 Unit tests ERROR: %s", e)
             return False
 
     def run_e2e_tests(self) -> bool:
@@ -243,12 +243,12 @@ class CIPipelineRunner:
                 return True
             else:
                 logger.error("❌ E2E tests FAILED")
-                logger.error(f"Error output: {result.stderr}")
-                logger.error(f"Standard output: {result.stdout}")
+                logger.error("Error output: %s", result.stderr)
+                logger.error("Standard output: %s", result.stdout)
                 return False
 
         except Exception as e:
-            logger.exception(f"💥 E2E tests ERROR: {e}")
+            logger.exception("💥 E2E tests ERROR: %s", e)
             return False
 
     @staticmethod
@@ -273,11 +273,11 @@ class CIPipelineRunner:
             with torch.no_grad():
                 output = model(dummy_input, torch.ones_like(dummy_input))
 
-            logger.info(f"✅ GPU forward pass successful, output shape: {output.shape}")
+            logger.info("✅ GPU forward pass successful, output shape: %s", output.shape)
             return True
 
         except Exception as e:
-            logger.exception(f"❌ GPU model forward pass failed: {e}")
+            logger.exception("❌ GPU model forward pass failed: %s", e)
             return False
 
     def test_gpu_compatibility(self) -> bool:
@@ -291,13 +291,13 @@ class CIPipelineRunner:
                 logger.info("ℹ️ No GPU available, skipping GPU tests")
                 return True
 
-            logger.info(f"🎮 GPU detected: {torch.cuda.get_device_name(0)}")
+            logger.info("🎮 GPU detected: %s", torch.cuda.get_device_name(0))
 
             # Test GPU model loading and forward pass
             return self._test_gpu_model_forward_pass()
 
         except Exception as e:
-            logger.exception(f"❌ GPU compatibility test failed: {e}")
+            logger.exception("❌ GPU compatibility test failed: %s", e)
             return False
 
     @staticmethod
@@ -313,7 +313,7 @@ class CIPipelineRunner:
         _ = BERTEmotionClassifier()  # Instantiate model to measure loading time
         loading_time = time.time() - start_time
 
-        logger.info(f"✅ Model loading time: {loading_time:.2f}s")
+        logger.info("✅ Model loading time: %.2fs", loading_time)
         return loading_time
 
     @staticmethod
@@ -338,7 +338,7 @@ class CIPipelineRunner:
             model(dummy_input, torch.ones_like(dummy_input))
         inference_time = time.time() - start_time
 
-        logger.info(f"✅ Inference time: {inference_time:.2f}s")
+        logger.info("✅ Inference time: %.2fs", inference_time)
         return inference_time
 
     @staticmethod
@@ -363,7 +363,8 @@ class CIPipelineRunner:
             return True
 
         logger.error(
-            f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s",
+            "❌ Performance too slow - loading: %.2fs, inference: %.2fs",
+            loading_time, inference_time
         )
         return False
 
@@ -385,7 +386,7 @@ class CIPipelineRunner:
             return self._validate_performance_thresholds(loading_time, inference_time)
 
         except Exception as e:
-            logger.exception(f"❌ Performance benchmark failed: {e}")
+            logger.exception("❌ Performance benchmark failed: %s", e)
             return False
 
     def run_pipeline_and_exit(self) -> None:
@@ -422,7 +423,7 @@ class CIPipelineRunner:
             logger.info("⏹️ CI Pipeline interrupted by user")
             sys.exit(1)
         except Exception as e:
-            logger.exception(f"💥 CI Pipeline crashed: {e}")
+            logger.exception("💥 CI Pipeline crashed: %s", e)
             sys.exit(1)
 
     def run_full_pipeline(self) -> Dict[str, bool]:
@@ -444,7 +445,7 @@ class CIPipelineRunner:
             self.results[script_name] = success
 
             if not success:
-                logger.error(f"❌ {script_name} failed, but continuing...")
+                logger.error("❌ %s failed, but continuing...", script_name)
 
         # Run unit tests
         self.results["unit_tests"] = self.run_unit_tests()
