@@ -271,9 +271,6 @@ class TokenBucketRateLimiter:
             "uptimerobot",
         ]
         low_risk_patterns = [
-            "bot",
-            "crawler",
-            "spider",
             "indexer",
             "feed",
             "rss",
@@ -475,13 +472,19 @@ class TokenBucketRateLimiter:
                 )
             self._refill_bucket(client_key)
             if self.buckets[client_key] < 0.999999:
+                tokens = self.buckets[client_key]
+                rpm = max(self.config.requests_per_minute, 1)
+                deficit = max(1.0 - tokens, 0.0)
+                # Calculate seconds until next token is available
+                retry_after = max(1, int((deficit * 60.0) / rpm))
                 return (
                     False,
                     "Rate limit exceeded",
                     {
                         "client_key": client_key,
-                        "tokens": self.buckets[client_key],
+                        "tokens": tokens,
                         "rate_limit": self.config.requests_per_minute,
+                        "retry_after": retry_after,
                     },
                 )
             self.buckets[client_key] -= 1.0
