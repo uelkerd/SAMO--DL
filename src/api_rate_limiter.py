@@ -346,7 +346,7 @@ class TokenBucketRateLimiter:
         current_time: float,
     ) -> int:
         """Score sustained high request volume over the last minute."""
-        minute_count = sum(1 for t in recent_history if current_time - t <= 60.0)
+        minute_count = sum(bool(current_time - t <= 60.0) for t in recent_history)
         return 2 if minute_count > 50 else 0
 
     def _detect_abuse(
@@ -505,6 +505,9 @@ class TokenBucketRateLimiter:
 
     def add_to_blacklist(self, ip: str) -> None:
         """Add IP to blacklist (thread-safe)."""
+        if not self._is_valid_ip(ip):
+            logger.error(f"Invalid IP address format: {ip}. Not adding to blacklist.")
+            return
         with self.lock:
             if self.config.blacklisted_ips is not None:
                 self.config.blacklisted_ips.add(ip)
@@ -521,6 +524,9 @@ class TokenBucketRateLimiter:
 
     def add_to_whitelist(self, ip: str) -> None:
         """Add IP to whitelist (thread-safe)."""
+        if not self._is_valid_ip(ip):
+            logger.warning(f"Attempted to add invalid IP {ip} to whitelist")
+            return
         with self.lock:
             if self.config.whitelisted_ips is not None:
                 self.config.whitelisted_ips.add(ip)
@@ -532,6 +538,14 @@ class TokenBucketRateLimiter:
             if self.config.whitelisted_ips is not None:
                 self.config.whitelisted_ips.discard(ip)
                 logger.info(f"Removed {ip} from whitelist")
+
+    def _is_valid_ip(self, ip: str) -> bool:
+        """Validate IP address format."""
+        try:
+            ipaddress.ip_address(ip)
+            return True
+        except ValueError:
+            return False
 
     def _cleanup_client_data(self, ip: str) -> None:
         """Clean up client data for a specific IP."""
