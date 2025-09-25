@@ -79,8 +79,12 @@ class HealthMonitor:
             logger.info("Signal handlers registered successfully")
         except ValueError as e:
             # Fallback for non-main thread environments
-            logger.warning(f"Could not register signal handlers (likely not in main thread): {e}")
-            logger.warning("Graceful shutdown may not work in this environment")
+            logger.warning(
+                f"Could not register signal handlers (likely not in main thread): {e}"
+            )
+            logger.warning(
+                "Graceful shutdown may not work in this environment"
+            )
 
         logger.info(
             f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout",
@@ -104,7 +108,8 @@ class HealthMonitor:
 
         if self.active_requests > 0:
             logger.warning(
-                f"Force shutdown after {self.shutdown_timeout}s timeout with {self.active_requests} active requests",
+                f"Force shutdown after {self.shutdown_timeout}s timeout with "
+                f"{self.active_requests} active requests",
             )
         else:
             logger.info("Graceful shutdown completed successfully")
@@ -145,7 +150,8 @@ class HealthMonitor:
             # Check if cache is still valid
             current_time = time.time()
             if (self._model_import_cache_timestamp is None or
-                    current_time - self._model_import_cache_timestamp > self._model_cache_ttl):
+                    current_time - self._model_import_cache_timestamp >
+                    self._model_cache_ttl):
                 # Cache expired or doesn't exist, refresh it
                 self._refresh_model_import_cache()
                 self._model_import_cache_timestamp = current_time
@@ -220,7 +226,9 @@ class HealthMonitor:
                 if test_client is None:
                     return {
                         "status": "unhealthy",
-                        "error": "Could not create FastAPI test client for health check",
+                        "error": (
+                            "Could not create FastAPI test client for health check"
+                        ),
                         "response_time_ms": 0,
                     }
 
