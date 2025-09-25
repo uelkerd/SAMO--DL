@@ -1,10 +1,10 @@
-name: "CodeQL Analysis"
+name: "CodeQL"
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
   schedule:
     - cron: '32 18 * * 6'
 
@@ -16,54 +16,23 @@ jobs:
       actions: read
       contents: read
       security-events: write
+
     strategy:
       fail-fast: false
       matrix:
         language: [ 'python' ]
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
 
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=${{ github.workspace }}/src" >> $GITHUB_ENV
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
 
-      - name: Set environment variables
-        run: |
-          echo "PYTHONPATH=${{ github.workspace }}/src" >> $GITHUB_ENV
-          echo "PYTHONPATH=${{ github.workspace }}/src" >> $GITHUB_PATH
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Install ML dependencies for CodeQL analysis
-          if [ -f dependencies/requirements-ml.txt ]; then
-            pip install -r dependencies/requirements-ml.txt
-          fi
-          # Install additional web framework dependencies
-          pip install flask fastapi pydantic werkzeug prometheus_client pyyaml
-          # Install project dependencies if available
-          if [ -f dependencies/requirements.txt ]; then
-            pip install -r dependencies/requirements.txt
-          elif [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{matrix.language}}"
-        env:
-          PYTHONPATH: ${{ github.workspace }}/src
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
