@@ -30,10 +30,6 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        config: |
-          name: Default setup
-          queries:
-            - uses: security-and-quality
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
