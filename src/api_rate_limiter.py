@@ -560,7 +560,8 @@ class TokenBucketRateLimiter:
                 self.config.whitelisted_ips.discard(ip)
                 logger.info("Removed %s from whitelist", ip)
 
-    def _is_valid_ip(self, ip: str) -> bool:
+    @staticmethod
+    def _is_valid_ip(ip: str) -> bool:
         """Validate IP address format."""
         try:
             ipaddress.ip_address(ip)
