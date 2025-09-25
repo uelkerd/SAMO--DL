@@ -45,6 +45,8 @@ class RateLimitConfig:
     suspicious_user_agent_score_threshold: int = 3  # Score threshold for suspicious UAs
     request_pattern_score_threshold: int = 5  # Score threshold for suspicious patterns
     anomaly_detection_window: float = 300.0  # 5 minutes for pattern analysis
+    # Request history capacity - must be >= sustained_rate_threshold
+    request_history_size: int = 250  # Default capacity with buffer above threshold
 
 
 # -------- Path exclusion helpers --------
@@ -174,7 +176,14 @@ class TokenBucketRateLimiter:
         self.last_refill: Dict[str, float] = defaultdict(lambda: time.time())
         self.blocked_clients: Dict[str, float] = {}
         self.concurrent_requests: Dict[str, int] = defaultdict(int)
-        self.request_history: Dict[str, Deque] = defaultdict(lambda: deque(maxlen=100))
+        # Ensure request history can handle the sustained rate threshold
+        history_size = max(
+            self.config.request_history_size,
+            self.config.sustained_rate_threshold + 50  # Buffer above threshold
+        )
+        self.request_history: Dict[str, Deque[float]] = defaultdict(
+            lambda: deque(maxlen=history_size)
+        )
         self.ip_to_keys: Dict[str, Set[str]] = defaultdict(set)  # Map IP to client keys
         self.lock = threading.RLock()
 
