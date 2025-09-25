@@ -72,7 +72,8 @@ class HealthMonitor:
 
         # Register graceful shutdown handlers
         # Note: Signal handling should be initialized in the main thread
-        # In multi-threaded environments or non-main threads, this may not work as expected
+        # In multi-threaded environments or non-main threads, this may not
+        # work as expected
         try:
             signal.signal(signal.SIGTERM, self._graceful_shutdown)
             signal.signal(signal.SIGINT, self._graceful_shutdown)
