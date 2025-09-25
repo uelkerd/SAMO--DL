@@ -306,8 +306,6 @@ class CIPipelineRunner:
         float
             Loading time in seconds
         """
-        import time
-
         start_time = time.time()
         _ = BERTEmotionClassifier()  # Instantiate model to measure loading time
         loading_time = time.time() - start_time
@@ -328,7 +326,6 @@ class CIPipelineRunner:
         float
             Inference time in seconds
         """
-        import time
         import torch
 
         start_time = time.time()
