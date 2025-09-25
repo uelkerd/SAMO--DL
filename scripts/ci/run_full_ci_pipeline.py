@@ -275,7 +275,9 @@ class CIPipelineRunner:
             with torch.no_grad():
                 output = model(dummy_input, torch.ones_like(dummy_input))
 
-            logger.info("✅ GPU forward pass successful, output shape: %s", output.shape)
+            logger.info(
+                "✅ GPU forward pass successful, output shape: %s", output.shape
+            )
             return True
 
         except Exception as e:
