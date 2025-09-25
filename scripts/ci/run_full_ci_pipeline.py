@@ -185,10 +185,11 @@ class CIPipelineRunner:
             if result.returncode == 0:
                 logger.info(f"✅ {script_path} PASSED")
                 return True, result.stdout
-            logger.error(f"❌ {script_path} FAILED")
-            logger.error(f"Error output: {result.stderr}")
-            logger.error(f"Standard output: {result.stdout}")
-            return False, result.stderr
+            else:
+                logger.error(f"❌ {script_path} FAILED")
+                logger.error(f"Error output: {result.stderr}")
+                logger.error(f"Standard output: {result.stdout}")
+                return False, result.stderr
 
         except subprocess.TimeoutExpired:
             logger.error(f"⏰ {script_path} TIMEOUT")
@@ -211,11 +212,12 @@ class CIPipelineRunner:
             if result.returncode == 0:
                 logger.info("✅ Unit tests PASSED")
                 return True
-            logger.error("❌ Unit tests FAILED")
-            logger.error(f"Return code: {result.returncode}")
-            logger.error(f"Error output: {result.stderr}")
-            logger.error(f"Standard output: {result.stdout}")
-            return False
+            else:
+                logger.error("❌ Unit tests FAILED")
+                logger.error(f"Return code: {result.returncode}")
+                logger.error(f"Error output: {result.stderr}")
+                logger.error(f"Standard output: {result.stdout}")
+                return False
 
         except subprocess.TimeoutExpired:
             logger.error("⏰ Unit tests TIMEOUT")
@@ -238,10 +240,11 @@ class CIPipelineRunner:
             if result.returncode == 0:
                 logger.info("✅ E2E tests PASSED")
                 return True
-            logger.error("❌ E2E tests FAILED")
-            logger.error(f"Error output: {result.stderr}")
-            logger.error(f"Standard output: {result.stdout}")
-            return False
+            else:
+                logger.error("❌ E2E tests FAILED")
+                logger.error(f"Error output: {result.stderr}")
+                logger.error(f"Standard output: {result.stdout}")
+                return False
 
         except Exception as e:
             logger.exception(f"💥 E2E tests ERROR: {e}")
