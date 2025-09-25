@@ -22,10 +22,18 @@ from typing import Dict, Tuple
 # Use shared truthy parsing
 try:
     from src.common.env import is_truthy
-except Exception:  # Fallback to local helper if import path not available
+except ImportError:  # Fallback to local helper if import path not available
 
     def is_truthy(value: str | None) -> bool:
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
+
+# Add src to path for local imports and import BERT classifier
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+try:
+    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+except ImportError:
+    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 
 # Configure logging
@@ -54,6 +62,29 @@ class CIPipelineRunner:
             "scripts/ci/model_calibration_test.py",
             "scripts/ci/onnx_conversion_test.py",
         ]
+
+    def _run_subprocess_command(self, command: list, timeout: int) -> subprocess.CompletedProcess:
+        """Run a subprocess command with standardized parameters.
+
+        Parameters
+        ----------
+        command : list
+            The command to run as a list of strings
+        timeout : int
+            Timeout in seconds
+
+        Returns
+        -------
+        subprocess.CompletedProcess
+            The completed process result
+        """
+        return subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
 
     def _get_test_stats(self) -> tuple[dict, int, int]:
         """Calculate statistics on test results.
@@ -146,11 +177,8 @@ class CIPipelineRunner:
 
             # Run the script - script_path is controlled internally by self.ci_scripts
             # No command injection risk as paths are static and predefined
-            result = subprocess.run(
+            result = self._run_subprocess_command(
                 [python_executable, script_path],
-                check=False,
-                capture_output=True,
-                text=True,
                 timeout=300,  # 5 minute timeout
             )
 
@@ -159,6 +187,7 @@ class CIPipelineRunner:
                 return True, result.stdout
             logger.error(f"❌ {script_path} FAILED")
             logger.error(f"Error output: {result.stderr}")
+            logger.error(f"Standard output: {result.stdout}")
             return False, result.stderr
 
         except subprocess.TimeoutExpired:
@@ -174,11 +203,8 @@ class CIPipelineRunner:
 
         try:
             # Static command - no injection risk, all arguments are literals
-            result = subprocess.run(
+            result = self._run_subprocess_command(
                 [sys.executable, "-m", "pytest", "tests/unit/", "-v"],
-                check=False,
-                capture_output=True,
-                text=True,
                 timeout=1200,  # 20 minute timeout (increased from 10)
             )
 
@@ -204,11 +230,8 @@ class CIPipelineRunner:
 
         try:
             # Static command - no injection risk, all arguments are literals
-            result = subprocess.run(
+            result = self._run_subprocess_command(
                 [sys.executable, "-m", "pytest", "tests/e2e/", "-v"],
-                check=False,
-                capture_output=True,
-                text=True,
                 timeout=900,  # 15 minute timeout
             )
 
@@ -217,10 +240,39 @@ class CIPipelineRunner:
                 return True
             logger.error("❌ E2E tests FAILED")
             logger.error(f"Error output: {result.stderr}")
+            logger.error(f"Standard output: {result.stdout}")
             return False
 
         except Exception as e:
             logger.exception(f"💥 E2E tests ERROR: {e}")
+            return False
+
+    def _test_gpu_model_forward_pass(self) -> bool:
+        """Test GPU model forward pass with BERT classifier.
+
+        Returns
+        -------
+        bool
+            True if GPU forward pass succeeds, False otherwise
+        """
+        try:
+            import torch
+
+            device = torch.device("cuda")
+
+            # Use the module-level BERT classifier import
+            model = BERTEmotionClassifier().to(device)
+
+            # Test forward pass
+            dummy_input = torch.randint(0, 1000, (2, 512)).to(device)
+            with torch.no_grad():
+                output = model(dummy_input, torch.ones_like(dummy_input))
+
+            logger.info(f"✅ GPU forward pass successful, output shape: {output.shape}")
+            return True
+
+        except Exception as e:
+            logger.exception(f"❌ GPU model forward pass failed: {e}")
             return False
 
     def test_gpu_compatibility(self) -> bool:
@@ -236,93 +288,134 @@ class CIPipelineRunner:
 
             logger.info(f"🎮 GPU detected: {torch.cuda.get_device_name(0)}")
 
-            # Test GPU model loading
-            device = torch.device("cuda")
-
-            # Add src to path for imports
-            import sys
-
-            sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-            # Test BERT on GPU
-            try:
-                from models.emotion_detection.bert_classifier import (
-                    BERTEmotionClassifier,
-                )
-            except ImportError:
-                from src.models.emotion_detection.bert_classifier import (
-                    BERTEmotionClassifier,
-                )
-            model = BERTEmotionClassifier().to(device)
-
-            # Test forward pass
-            import torch
-
-            dummy_input = torch.randint(0, 1000, (2, 512)).to(device)
-            with torch.no_grad():
-                output = model(dummy_input, torch.ones_like(dummy_input))
-
-            logger.info(f"✅ GPU forward pass successful, output shape: {output.shape}")
-            return True
+            # Test GPU model loading and forward pass
+            return self._test_gpu_model_forward_pass()
 
         except Exception as e:
             logger.exception(f"❌ GPU compatibility test failed: {e}")
             return False
+
+    def _measure_model_loading_time(self) -> float:
+        """Measure BERT model loading time.
+
+        Returns
+        -------
+        float
+            Loading time in seconds
+        """
+        import time
+
+        start_time = time.time()
+        model = BERTEmotionClassifier()
+        loading_time = time.time() - start_time
+
+        logger.info(f"✅ Model loading time: {loading_time:.2f}s")
+        return loading_time
+
+    def _measure_inference_time(self, model) -> float:
+        """Measure model inference time.
+
+        Parameters
+        ----------
+        model : torch.nn.Module
+            The model to test inference on
+
+        Returns
+        -------
+        float
+            Inference time in seconds
+        """
+        import time
+        import torch
+
+        start_time = time.time()
+        dummy_input = torch.randint(0, 1000, (1, 512))
+        with torch.no_grad():
+            model(dummy_input, torch.ones_like(dummy_input))
+        inference_time = time.time() - start_time
+
+        logger.info(f"✅ Inference time: {inference_time:.2f}s")
+        return inference_time
+
+    def _validate_performance_thresholds(self, loading_time: float, inference_time: float) -> bool:
+        """Validate that performance times are within acceptable thresholds.
+
+        Parameters
+        ----------
+        loading_time : float
+            Model loading time in seconds
+        inference_time : float
+            Inference time in seconds
+
+        Returns
+        -------
+        bool
+            True if performance is acceptable, False otherwise
+        """
+        # Increased threshold for CPU environments
+        if loading_time < 10.0 and inference_time < 5.0:
+            logger.info("✅ Performance benchmarks passed")
+            return True
+
+        logger.error(
+            f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s",
+        )
+        return False
 
     def run_performance_benchmarks(self) -> bool:
         """Run performance benchmarks."""
         logger.info("⚡ Running performance benchmarks...")
 
         try:
-            # Simple performance test - model loading speed
-            import time
+            # Measure model loading time
+            loading_time = self._measure_model_loading_time()
 
-            import torch
-
-            # Test BERT model loading speed
-            start_time = time.time()
-
-            # Add src to path
-            import sys
-
-            sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-            try:
-                from models.emotion_detection.bert_classifier import (
-                    BERTEmotionClassifier,
-                )
-            except ImportError:
-                from src.models.emotion_detection.bert_classifier import (
-                    BERTEmotionClassifier,
-                )
-
+            # Import model again for inference test (avoid reusing loaded model)
             model = BERTEmotionClassifier()
-            loading_time = time.time() - start_time
 
-            # Test inference speed
-            start_time = time.time()
-            dummy_input = torch.randint(0, 1000, (1, 512))
-            with torch.no_grad():
-                model(dummy_input, torch.ones_like(dummy_input))
-            inference_time = time.time() - start_time
+            # Measure inference time
+            inference_time = self._measure_inference_time(model)
 
-            logger.info(f"✅ Model loading time: {loading_time:.2f}s")
-            logger.info(f"✅ Inference time: {inference_time:.2f}s")
-
-            # Check if times are reasonable
-            if (
-                loading_time < 10.0 and inference_time < 5.0
-            ):  # Increased threshold for CPU environments
-                logger.info("✅ Performance benchmarks passed")
-                return True
-            logger.error(
-                f"❌ Performance too slow - loading: {loading_time:.2f}s, inference: {inference_time:.2f}s",
-            )
-            return False
+            # Validate performance thresholds
+            return self._validate_performance_thresholds(loading_time, inference_time)
 
         except Exception as e:
             logger.exception(f"❌ Performance benchmark failed: {e}")
             return False
+
+    def run_pipeline_and_exit(self) -> None:
+        """Run the CI pipeline and exit with appropriate code.
+
+        This method handles the complete pipeline execution flow including:
+        - Running all tests
+        - Generating reports
+        - Writing CI artifacts
+        - Exiting with proper status codes
+        """
+        try:
+            _ = self.run_full_pipeline()
+            report = self.generate_report()
+
+            print(report)
+            # Only write report to file in CI so it can be uploaded as an artifact
+            write_ci_report_if_needed(report)
+
+            # Exit with appropriate code
+            _, total_tests, passed_tests = self._get_test_stats()
+
+            if passed_tests == total_tests:
+                logger.info("🎉 CI Pipeline completed successfully!")
+                sys.exit(0)
+            else:
+                logger.error("❌ CI Pipeline failed!")
+                sys.exit(1)
+
+        except KeyboardInterrupt:
+            logger.info("⏹️ CI Pipeline interrupted by user")
+            sys.exit(1)
+        except Exception as e:
+            logger.exception(f"💥 CI Pipeline crashed: {e}")
+            sys.exit(1)
 
     def run_full_pipeline(self) -> Dict[str, bool]:
         """Run the complete CI pipeline."""
@@ -419,31 +512,7 @@ def write_ci_report_if_needed(report: str) -> None:
 def main():
     """Main function to run the CI pipeline."""
     runner = CIPipelineRunner()
-
-    try:
-        _ = runner.run_full_pipeline()
-        report = runner.generate_report()
-
-        print(report)
-        # Only write report to file in CI so it can be uploaded as an artifact
-        write_ci_report_if_needed(report)
-
-        # Exit with appropriate code
-        _, total_tests, passed_tests = runner._get_test_stats()
-
-        if passed_tests == total_tests:
-            logger.info("🎉 CI Pipeline completed successfully!")
-            sys.exit(0)
-        else:
-            logger.error("❌ CI Pipeline failed!")
-            sys.exit(1)
-
-    except KeyboardInterrupt:
-        logger.info("⏹️ CI Pipeline interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.exception(f"💥 CI Pipeline crashed: {e}")
-        sys.exit(1)
+    runner.run_pipeline_and_exit()
 
 
 if __name__ == "__main__":
