@@ -265,75 +265,74 @@ class HealthMonitor:
 
     def get_comprehensive_health(self) -> Dict[str, Any]:
         """Get comprehensive health status."""
+        # Capture current time once for consistency
+        now = datetime.now()
+
+        # Snapshot shutdown/active requests under lock
         with self.lock:
-            # Capture current time once for consistency
-            now = datetime.now()
+            is_shutdown = self.is_shutting_down
+            active = self.active_requests
 
-            if self.is_shutting_down:
-                return {
-                    "status": "shutting_down",
-                    "message": "Service is shutting down gracefully",
-                    "active_requests": self.active_requests,
-                    "timestamp": now.isoformat(),
-                }
-
-            # Get system metrics
-            system_metrics = self.get_system_metrics()
-
-            # Check model health
-            model_health = self.check_model_health()
-
-            # Check API health
-            api_health = self.check_api_health()
-
-            # Determine overall health
-            overall_status = "healthy"
-            if model_health["status"] != "healthy" or api_health["status"] != "healthy":
-                overall_status = "unhealthy"
-
-            # Check resource thresholds (only if not already unhealthy)
-            if overall_status == "healthy":
-                if system_metrics["memory_usage_mb"] > self.MEMORY_THRESHOLD_MB:
-                    overall_status = "degraded"
-
-                if system_metrics["cpu_usage_percent"] > self.CPU_THRESHOLD_PERCENT:
-                    overall_status = "degraded"
-
-            health_data = {
-                "status": overall_status,
+        if is_shutdown:
+            return {
+                "status": "shutting_down",
+                "message": "Service is shutting down gracefully",
+                "active_requests": active,
                 "timestamp": now.isoformat(),
-                "uptime_seconds": system_metrics["uptime_seconds"],
-                "system": {
-                    "memory_usage_mb": round(system_metrics["memory_usage_mb"], 2),
-                    "cpu_usage_percent": round(system_metrics["cpu_usage_percent"], 2),
-                    "memory_percent": round(system_metrics["memory_percent"], 2),
-                },
-                "models": model_health,
-                "api": api_health,
-                "requests": {
-                    "active": self.active_requests,
-                    "historical_metrics_count": len(self.health_metrics),
-                },
             }
 
-            # Store metrics for trend analysis
-            # Use microseconds to prevent timestamp collisions
+        # Run expensive checks outside the lock to avoid deadlocks
+        system_metrics = self.get_system_metrics()
+        model_health = self.check_model_health()
+        api_health = self.check_api_health()
+
+        # Determine overall health
+        overall_status = "healthy"
+        if model_health["status"] != "healthy" or api_health["status"] != "healthy":
+            overall_status = "unhealthy"
+
+        # Check resource thresholds (only if not already unhealthy)
+        if overall_status == "healthy":
+            if system_metrics["memory_usage_mb"] > self.MEMORY_THRESHOLD_MB:
+                overall_status = "degraded"
+
+            if system_metrics["cpu_usage_percent"] > self.CPU_THRESHOLD_PERCENT:
+                overall_status = "degraded"
+
+        health_data = {
+            "status": overall_status,
+            "timestamp": now.isoformat(),
+            "uptime_seconds": system_metrics["uptime_seconds"],
+            "system": {
+                "memory_usage_mb": round(system_metrics["memory_usage_mb"], 2),
+                "cpu_usage_percent": round(system_metrics["cpu_usage_percent"], 2),
+                "memory_percent": round(system_metrics["memory_percent"], 2),
+            },
+            "models": model_health,
+            "api": api_health,
+            "requests": {
+                "active": active,
+                # Historical count will be updated under lock below
+                "historical_metrics_count": len(self.health_metrics),
+            },
+        }
+
+        # Store metrics under lock
+        with self.lock:
             timestamp_key = now.isoformat(timespec="microseconds")
             self.health_metrics[timestamp_key] = HealthMetrics(
                 status=overall_status,
                 response_time_ms=api_health.get("response_time_ms", 0),
                 memory_usage_mb=system_metrics["memory_usage_mb"],
                 cpu_usage_percent=system_metrics["cpu_usage_percent"],
-                active_requests=self.active_requests,
+                active_requests=active,
                 timestamp=now,
                 error_message=model_health.get("error") or api_health.get("error"),
             )
-
-            # Keep only last MAX_METRICS_COUNT metrics using OrderedDict's popitem
             if len(self.health_metrics) > self.MAX_METRICS_COUNT:
                 self.health_metrics.popitem(last=False)
 
-            return health_data
+        return health_data
 
     def request_started(self):
         """Track request start."""
