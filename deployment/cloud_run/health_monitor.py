@@ -145,7 +145,7 @@ class HealthMonitor:
             # Check if cache is still valid
             current_time = time.time()
             if (self._model_import_cache_timestamp is None or
-                current_time - self._model_import_cache_timestamp > self._model_cache_ttl):
+                    current_time - self._model_import_cache_timestamp > self._model_cache_ttl):
                 # Cache expired or doesn't exist, refresh it
                 self._refresh_model_import_cache()
                 self._model_import_cache_timestamp = current_time
