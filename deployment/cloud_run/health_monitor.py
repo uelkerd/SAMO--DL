@@ -95,7 +95,9 @@ class HealthMonitor:
 
     def _graceful_shutdown(self, signum, frame):
         """Handle graceful shutdown."""
-        logger.info("Received shutdown signal %s, starting graceful shutdown...", signum)
+        logger.info(
+            "Received shutdown signal %s, starting graceful shutdown...", signum
+        )
         self.is_shutting_down = True
 
         # Wait for active requests to complete
