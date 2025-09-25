@@ -81,19 +81,21 @@ class HealthMonitor:
         except ValueError as e:
             # Fallback for non-main thread environments
             logger.warning(
-                f"Could not register signal handlers (likely not in main thread): {e}"
+                "Could not register signal handlers (likely not in main thread): %s",
+                e,
             )
             logger.warning(
                 "Graceful shutdown may not work in this environment"
             )
 
         logger.info(
-            f"Health monitor initialized with {self.shutdown_timeout}s shutdown timeout",
+            "Health monitor initialized with %ss shutdown timeout",
+            self.shutdown_timeout,
         )
 
     def _graceful_shutdown(self, signum, frame):
         """Handle graceful shutdown."""
-        logger.info(f"Received shutdown signal {signum}, starting graceful shutdown...")
+        logger.info("Received shutdown signal %s, starting graceful shutdown...", signum)
         self.is_shutting_down = True
 
         # Wait for active requests to complete
@@ -103,14 +105,16 @@ class HealthMonitor:
             and (time.time() - start_wait) < self.shutdown_timeout
         ):
             logger.info(
-                f"Waiting for {self.active_requests} active requests to complete...",
+                "Waiting for %s active requests to complete...",
+                self.active_requests,
             )
             time.sleep(1)
 
         if self.active_requests > 0:
             logger.warning(
-                f"Force shutdown after {self.shutdown_timeout}s timeout with "
-                f"{self.active_requests} active requests",
+                "Force shutdown after %ss timeout with %s active requests",
+                self.shutdown_timeout,
+                self.active_requests,
             )
         else:
             logger.info("Graceful shutdown completed successfully")
@@ -134,7 +138,7 @@ class HealthMonitor:
                 "uptime_seconds": (datetime.now() - self.start_time).total_seconds(),
             }
         except Exception as e:
-            logger.error(f"Error getting system metrics: {e}")
+            logger.error("Error getting system metrics: %s", e)
             return {
                 "memory_usage_mb": 0.0,
                 "cpu_usage_percent": 0.0,
@@ -189,7 +193,7 @@ class HealthMonitor:
                 module = importlib.import_module(module_name)
                 self._model_import_cache[module_name] = module
             except ImportError as e:
-                logger.warning(f"Model module {module_name} not available: {e}")
+                logger.warning("Model module %s not available: %s", module_name, e)
                 # Don't fail the entire cache refresh for one module
 
     def _get_test_client(self):
@@ -206,7 +210,7 @@ class HealthMonitor:
                 self._test_client_class = TestClient
             except ImportError as e:
                 self._flask_app_import_error = e
-                logger.warning(f"Could not import FastAPI app: {e}")
+                logger.warning("Could not import FastAPI app: %s", e)
                 return None
 
         return self._test_client_class(self._flask_app)
