@@ -64,7 +64,9 @@ class CIPipelineRunner:
         ]
 
     @staticmethod
-    def _run_subprocess_command(command: list, timeout: int) -> subprocess.CompletedProcess:
+    def _run_subprocess_command(
+        command: list, timeout: int
+    ) -> subprocess.CompletedProcess:
         """Run a subprocess command with standardized parameters.
 
         Parameters
@@ -342,7 +344,9 @@ class CIPipelineRunner:
         return inference_time
 
     @staticmethod
-    def _validate_performance_thresholds(loading_time: float, inference_time: float) -> bool:
+    def _validate_performance_thresholds(
+        loading_time: float, inference_time: float
+    ) -> bool:
         """Validate that performance times are within acceptable thresholds.
 
         Parameters
@@ -364,7 +368,8 @@ class CIPipelineRunner:
 
         logger.error(
             "❌ Performance too slow - loading: %.2fs, inference: %.2fs",
-            loading_time, inference_time
+            loading_time,
+            inference_time,
         )
         return False
 
@@ -502,7 +507,9 @@ class CIPipelineRunner:
 """
 
         if total_tests == 0:
-            report += "⚠️ No boolean tests were executed. Treating pipeline as failed.\n"
+            report += (
+                "⚠️ No boolean tests were executed. Treating pipeline as failed.\n"
+            )
         elif passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
