@@ -17,14 +17,14 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 # Use shared truthy parsing
 try:
     from src.common.env import is_truthy
 except ImportError:  # Fallback to local helper if import path not available
 
-    def is_truthy(value: str | None) -> bool:
+    def is_truthy(value: Optional[str]) -> bool:
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
 
 # Add src to path for local imports and import BERT classifier
