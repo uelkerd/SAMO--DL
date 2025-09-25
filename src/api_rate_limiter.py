@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
-"""
-🔒 API Rate Limiter
+"""🔒 API Rate Limiter.
 ==================
 Token bucket algorithm for API rate limiting.
 Includes security features.
 """
 
-import time
-import threading
-from collections import defaultdict, deque
-from typing import Dict, Deque, Optional, Tuple, Set
-import logging
 import hashlib
 import ipaddress
+import logging
+import threading
+import time
+from collections import defaultdict, deque
 from dataclasses import dataclass
+from typing import Deque, Dict, Optional, Set, Tuple
+
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class RateLimitConfig:
     """Rate limiting configuration."""
+
     requests_per_minute: int = 60
     burst_size: int = 10
     window_size_seconds: int = 60
@@ -28,22 +30,27 @@ class RateLimitConfig:
     max_concurrent_requests: int = 5
     enable_ip_whitelist: bool = False
     enable_ip_blacklist: bool = False
-    whitelisted_ips: set = None
-    blacklisted_ips: set = None
+    whitelisted_ips: Optional[Set[str]] = None
+    blacklisted_ips: Optional[Set[str]] = None
     # Abuse detection thresholds
     rapid_fire_threshold: int = 10  # Max requests per second
     sustained_rate_threshold: int = 200  # Max requests per minute
     rapid_fire_window: float = 1.0  # Time window for rapid-fire detection (seconds)
-    sustained_rate_window: float = 60.0  # Time window for sustained rate detection (seconds)
+    sustained_rate_window: float = (
+        60.0  # Time window for sustained rate detection (seconds)
+    )
     # Enhanced anomaly detection
     enable_user_agent_analysis: bool = True
     enable_request_pattern_analysis: bool = True
     suspicious_user_agent_score_threshold: int = 3  # Score threshold for suspicious UAs
     request_pattern_score_threshold: int = 5  # Score threshold for suspicious patterns
     anomaly_detection_window: float = 300.0  # 5 minutes for pattern analysis
+    # Request history capacity - must be >= sustained_rate_threshold
+    request_history_size: int = 250  # Default capacity with buffer above threshold
 
 
 # -------- Path exclusion helpers --------
+
 
 def _normalize_path(path: str) -> str:
     """Normalize path for matching.
@@ -63,8 +70,8 @@ def _normalize_path(path: str) -> str:
 def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
     """Build normalized exclusions set.
 
-    Merges default exclusions with any provided paths and normalizes each
-    entry (lowercase, leading slash, no trailing slash).
+    Merges default exclusions with any provided paths and normalizes each entry
+    (lowercase, leading slash, no trailing slash).
     """
     default_exclusions: Set[str] = {
         "/health",
@@ -74,8 +81,7 @@ def _build_exclusions(excluded_paths: Optional[Set[str]]) -> Set[str]:
         "/openapi.json",
     }
     return {
-        _normalize_path(p)
-        for p in (default_exclusions | (excluded_paths or set()))
+        _normalize_path(p) for p in (default_exclusions | (excluded_paths or set()))
     }
 
 
@@ -96,8 +102,8 @@ def _is_excluded_path(request_path: str, normalized_exclusions: Set[str]) -> boo
 class _RateLimitMiddleware(BaseHTTPMiddleware):
     """Starlette middleware for token-bucket rate limiting.
 
-    Applies rate limits using a shared limiter instance while respecting
-    normalized path exclusions and test user-agents.
+    Applies rate limits using a shared limiter instance while respecting normalized path
+    exclusions and test user-agents.
     """
 
     def __init__(
@@ -129,6 +135,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
         allowed, reason, meta = self._limiter.allow_request(client_ip, user_agent)
         if not allowed:
             from fastapi.responses import JSONResponse
+
             return JSONResponse(
                 status_code=429,
                 content={
@@ -147,8 +154,7 @@ class _RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 class TokenBucketRateLimiter:
-    """
-    Token bucket rate limiter with security enhancements.
+    """Token bucket rate limiter with security enhancements.
 
     Features:
     - Token bucket algorithm for smooth rate limiting
@@ -157,6 +163,11 @@ class TokenBucketRateLimiter:
     - Concurrent request limiting
     - Automatic blocking of abusive clients
     - Request fingerprinting for advanced detection
+
+    Note:
+    - This is an in-memory limiter that works per-process only
+    - For multi-worker deployments, consider Redis/memcached for shared state
+    - Monitor blocked/429 counts and bucket utilization for operational insights
     """
 
     def __init__(self, config: RateLimitConfig):
@@ -165,7 +176,15 @@ class TokenBucketRateLimiter:
         self.last_refill: Dict[str, float] = defaultdict(lambda: time.time())
         self.blocked_clients: Dict[str, float] = {}
         self.concurrent_requests: Dict[str, int] = defaultdict(int)
-        self.request_history: Dict[str, Deque] = defaultdict(lambda: deque(maxlen=100))
+        # Ensure request history can handle the sustained rate threshold
+        history_size = max(
+            self.config.request_history_size,
+            self.config.sustained_rate_threshold + 50  # Buffer above threshold
+        )
+        self.request_history: Dict[str, Deque[float]] = defaultdict(
+            lambda: deque(maxlen=history_size)
+        )
+        self.ip_to_keys: Dict[str, Set[str]] = defaultdict(set)  # Map IP to client keys
         self.lock = threading.RLock()
 
         # Initialize whitelist/blacklist
@@ -174,10 +193,17 @@ class TokenBucketRateLimiter:
         if config.blacklisted_ips is None:
             config.blacklisted_ips = set()
 
+        # Type assertions for mypy
+        assert config.whitelisted_ips is not None
+        assert config.blacklisted_ips is not None
+
     def _get_client_key(self, client_ip: str, user_agent: str = "") -> str:
         """Generate a unique client key for rate limiting."""
         fingerprint = f"{client_ip}:{user_agent}"
-        return hashlib.sha256(fingerprint.encode()).hexdigest()
+        client_key = hashlib.sha256(fingerprint.encode()).hexdigest()
+        # Track this IP-to-key mapping for cleanup purposes
+        self.ip_to_keys[client_ip].add(client_key)
+        return client_key
 
     def _is_ip_allowed(self, client_ip: str) -> bool:
         """Check if IP is allowed based on whitelist/blacklist."""
@@ -188,23 +214,27 @@ class TokenBucketRateLimiter:
             ipaddress.ip_address(client_ip)
             if (
                 self.config.enable_ip_blacklist
+                and self.config.blacklisted_ips is not None
                 and client_ip in self.config.blacklisted_ips
             ):
                 logger.warning(
-                    "Blocked request from blacklisted IP: %s", client_ip
+                    "Blocked request from blacklisted IP: %s",
+                    client_ip,
                 )
                 return False
             if (
                 self.config.enable_ip_whitelist
+                and self.config.whitelisted_ips is not None
                 and client_ip not in self.config.whitelisted_ips
             ):
                 logger.warning(
-                    "Blocked request from non-whitelisted IP: %s", client_ip
+                    "Blocked request from non-whitelisted IP: %s",
+                    client_ip,
                 )
                 return False
             return True
         except ValueError:
-            logger.error("Invalid IP address: %s", client_ip)
+            logger.warning("Invalid IP address: %s", client_ip)
             return False
 
     def _is_client_blocked(self, client_key: str) -> bool:
@@ -217,23 +247,50 @@ class TokenBucketRateLimiter:
         return False
 
     def _analyze_user_agent(self, user_agent: str) -> int:
-        """Analyze user agent for suspicious patterns. Returns score (0-10)."""
+        """Analyze user agent for suspicious patterns.
+
+        Returns score (0-10).
+        """
         if not user_agent:
             return 0
         ua_lower = user_agent.lower()
 
         high_risk_patterns = [
-            'sqlmap', 'nikto', 'nmap', 'scanner', 'crawler', 'spider',
-            'bot', 'automation', 'script', 'python-requests', 'curl',
-            'wget', 'httrack', 'grabber', 'harvester'
+            "sqlmap",
+            "nikto",
+            "nmap",
+            "scanner",
+            "crawler",
+            "spider",
+            "bot",
+            "automation",
+            "script",
+            "python-requests",
+            "curl",
+            "wget",
+            "httrack",
+            "grabber",
+            "harvester",
         ]
         medium_risk_patterns = [
-            'headless', 'phantom', 'selenium', 'webdriver', 'automated',
-            'testing', 'monitoring', 'healthcheck', 'pingdom', 'uptimerobot'
+            "headless",
+            "phantom",
+            "selenium",
+            "webdriver",
+            "automated",
+            "testing",
+            "monitoring",
+            "healthcheck",
+            "pingdom",
+            "uptimerobot",
         ]
         low_risk_patterns = [
-            'bot', 'crawler', 'spider', 'indexer', 'feed', 'rss',
-            'aggregator', 'monitor', 'checker'
+            "indexer",
+            "feed",
+            "rss",
+            "aggregator",
+            "monitor",
+            "checker",
         ]
 
         score = (
@@ -242,16 +299,18 @@ class TokenBucketRateLimiter:
             + 1 * sum(1 for p in low_risk_patterns if p in ua_lower)
         )
 
-        if (
-            any(p in ua_lower for p in ["bot", "crawler"]) and
-            any(p in ua_lower for p in ["python", "curl", "wget"])
+        if any(p in ua_lower for p in ["bot", "crawler"]) and any(
+            p in ua_lower for p in ["python", "curl", "wget"]
         ):
             score += 2
 
         return min(score, 10)
 
     def _analyze_request_patterns(self, client_key: str, client_ip: str) -> int:
-        """Analyze request patterns for suspicious behavior. Returns score (0-10)."""
+        """Analyze request patterns for suspicious behavior.
+
+        Returns score (0-10).
+        """
         # Delegate to helper calculators to reduce complexity and improve readability
         history = self.request_history[client_key]
         current_time = time.time()
@@ -298,12 +357,11 @@ class TokenBucketRateLimiter:
 
     @staticmethod
     def _calculate_sustained_volume_score(
-        recent_history: list, current_time: float
+        recent_history: list,
+        current_time: float,
     ) -> int:
         """Score sustained high request volume over the last minute."""
-        minute_count = sum(
-            1 for t in recent_history if current_time - t <= 60.0
-        )
+        minute_count = sum(bool(current_time - t <= 60.0) for t in recent_history)
         return 2 if minute_count > 50 else 0
 
     def _detect_abuse(
@@ -318,23 +376,25 @@ class TokenBucketRateLimiter:
         while history and current_time - history[0] > 3600:
             history.popleft()
         recent_requests = [
-            t for t in history
-            if current_time - t <= self.config.rapid_fire_window
+            t for t in history if current_time - t <= self.config.rapid_fire_window
         ]
         if len(recent_requests) > self.config.rapid_fire_threshold:
             logger.warning(
                 "Rate-based abuse detected: %d requests in %ss from %s",
-                len(recent_requests), self.config.rapid_fire_window, client_ip,
+                len(recent_requests),
+                self.config.rapid_fire_window,
+                client_ip,
             )
             return True
         minute_requests = [
-            t for t in history
-            if current_time - t <= self.config.sustained_rate_window
+            t for t in history if current_time - t <= self.config.sustained_rate_window
         ]
         if len(minute_requests) > self.config.sustained_rate_threshold:
             logger.warning(
                 "Rate-based abuse detected: %d requests in %ss from %s",
-                len(minute_requests), self.config.sustained_rate_window, client_ip,
+                len(minute_requests),
+                self.config.sustained_rate_window,
+                client_ip,
             )
             return True
         if self.config.enable_user_agent_analysis:
@@ -374,10 +434,10 @@ class TokenBucketRateLimiter:
         client_ip: str,
         user_agent: str = "",
     ) -> Tuple[bool, str, dict]:
-        """
-        Check if request should be allowed.
+        """Check if request should be allowed.
 
-        Returns:
+        Returns
+        -------
             Tuple of (allowed, reason, metadata)
         """
         with self.lock:
@@ -385,19 +445,27 @@ class TokenBucketRateLimiter:
                 return False, "IP not allowed", {"ip": client_ip}
             client_key = self._get_client_key(client_ip, user_agent)
             if self._is_client_blocked(client_key):
-                return False, "Client blocked", {
-                    "client_key": client_key,
-                    "ip": client_ip,
-                }
+                return (
+                    False,
+                    "Client blocked",
+                    {
+                        "client_key": client_key,
+                        "ip": client_ip,
+                    },
+                )
             if (
                 self.concurrent_requests[client_key]
                 >= self.config.max_concurrent_requests
             ):
-                return False, "Too many concurrent requests", {
-                    "client_key": client_key,
-                    "concurrent": self.concurrent_requests[client_key],
-                    "max": self.config.max_concurrent_requests,
-                }
+                return (
+                    False,
+                    "Too many concurrent requests",
+                    {
+                        "client_key": client_key,
+                        "concurrent": self.concurrent_requests[client_key],
+                        "max": self.config.max_concurrent_requests,
+                    },
+                )
             if self._detect_abuse(client_key, client_ip, user_agent):
                 self.blocked_clients[client_key] = (
                     time.time() + self.config.block_duration_seconds
@@ -408,25 +476,43 @@ class TokenBucketRateLimiter:
                     client_ip,
                     self.config.block_duration_seconds,
                 )
-                return False, "Abuse detected", {
-                    "client_key": client_key,
-                    "ip": client_ip,
-                }
+                return (
+                    False,
+                    "Abuse detected",
+                    {
+                        "client_key": client_key,
+                        "ip": client_ip,
+                    },
+                )
             self._refill_bucket(client_key)
             if self.buckets[client_key] < 0.999999:
-                return False, "Rate limit exceeded", {
-                    "client_key": client_key,
-                    "tokens": self.buckets[client_key],
-                    "rate_limit": self.config.requests_per_minute,
-                }
+                tokens = self.buckets[client_key]
+                rpm = max(self.config.requests_per_minute, 1)
+                deficit = max(1.0 - tokens, 0.0)
+                # Calculate seconds until next token is available
+                retry_after = max(1, int((deficit * 60.0) / rpm))
+                return (
+                    False,
+                    "Rate limit exceeded",
+                    {
+                        "client_key": client_key,
+                        "tokens": tokens,
+                        "rate_limit": self.config.requests_per_minute,
+                        "retry_after": retry_after,
+                    },
+                )
             self.buckets[client_key] -= 1.0
             self.request_history[client_key].append(time.time())
             self.concurrent_requests[client_key] += 1
-            return True, "Request allowed", {
-                "client_key": client_key,
-                "tokens_remaining": self.buckets[client_key],
-                "concurrent_requests": self.concurrent_requests[client_key],
-            }
+            return (
+                True,
+                "Request allowed",
+                {
+                    "client_key": client_key,
+                    "tokens_remaining": self.buckets[client_key],
+                    "concurrent_requests": self.concurrent_requests[client_key],
+                },
+            )
 
     def release_request(self, client_ip: str, user_agent: str = ""):
         """Release a concurrent request slot."""
@@ -434,8 +520,70 @@ class TokenBucketRateLimiter:
             client_key = self._get_client_key(client_ip, user_agent)
             if client_key in self.concurrent_requests:
                 self.concurrent_requests[client_key] = max(
-                    0, self.concurrent_requests[client_key] - 1
+                    0,
+                    self.concurrent_requests[client_key] - 1,
                 )
+
+    def add_to_blacklist(self, ip: str) -> None:
+        """Add IP to blacklist (thread-safe)."""
+        if not self._is_valid_ip(ip):
+            logger.error("Invalid IP address format: %s. Not adding to blacklist.", ip)
+            return
+        with self.lock:
+            if self.config.blacklisted_ips is not None:
+                self.config.blacklisted_ips.add(ip)
+                # Clean up any existing client data for this IP
+                self._cleanup_client_data(ip)
+                logger.info("Added %s to blacklist", ip)
+
+    def remove_from_blacklist(self, ip: str) -> None:
+        """Remove IP from blacklist (thread-safe)."""
+        with self.lock:
+            if self.config.blacklisted_ips is not None:
+                self.config.blacklisted_ips.discard(ip)
+                logger.info("Removed %s from blacklist", ip)
+
+    def add_to_whitelist(self, ip: str) -> None:
+        """Add IP to whitelist (thread-safe)."""
+        if not self._is_valid_ip(ip):
+            logger.warning("Attempted to add invalid IP %s to whitelist", ip)
+            return
+        with self.lock:
+            if self.config.whitelisted_ips is not None:
+                self.config.whitelisted_ips.add(ip)
+                logger.info("Added %s to whitelist", ip)
+
+    def remove_from_whitelist(self, ip: str) -> None:
+        """Remove IP from whitelist (thread-safe)."""
+        with self.lock:
+            if self.config.whitelisted_ips is not None:
+                self.config.whitelisted_ips.discard(ip)
+                logger.info("Removed %s from whitelist", ip)
+
+    @staticmethod
+    def _is_valid_ip(ip: str) -> bool:
+        """Validate IP address format."""
+        try:
+            ipaddress.ip_address(ip)
+            return True
+        except ValueError:
+            return False
+
+    def _cleanup_client_data(self, ip: str) -> None:
+        """Clean up client data for a specific IP."""
+        # Get all client keys associated with this IP
+        keys_to_remove = self.ip_to_keys.get(ip, set()).copy()
+
+        # Remove from all data structures
+        for key in keys_to_remove:
+            self.buckets.pop(key, None)
+            self.last_refill.pop(key, None)
+            self.blocked_clients.pop(key, None)
+            self.concurrent_requests.pop(key, None)
+            self.request_history.pop(key, None)
+
+        # Clear the IP-to-keys mapping for this IP
+        self.ip_to_keys.pop(ip, None)
 
     def get_stats(self) -> Dict:
         """Get rate limiter statistics."""
@@ -445,7 +593,7 @@ class TokenBucketRateLimiter:
                 "blocked_clients": len(self.blocked_clients),
                 "concurrent_requests": sum(self.concurrent_requests.values()),
                 "total_clients": len(
-                    set(self.buckets.keys()) | set(self.concurrent_requests.keys())
+                    set(self.buckets.keys()) | set(self.concurrent_requests.keys()),
                 ),
                 "config": {
                     "requests_per_minute": self.config.requests_per_minute,
