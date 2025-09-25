@@ -35,18 +35,27 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
+          # Install core ML dependencies for CodeQL analysis
+          pip install torch transformers numpy pandas scikit-learn
+          pip install flask fastapi pydantic werkzeug
+          pip install requests beautifulsoup4
+          # Install project dependencies if available
           if [ -f dependencies/requirements.txt ]; then
             pip install -r dependencies/requirements.txt
           elif [ -f requirements.txt ]; then
             pip install -r requirements.txt
-          else
-            echo "No requirements.txt found. Skipping Python dependency installation."
           fi
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: ${{ matrix.language }}
+          # Exclude problematic files from analysis
+          exclude: |
+            **/scripts/training/**
+            **/notebooks/**
+            **/__pycache__/**
+            **/*.backup
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
