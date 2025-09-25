@@ -63,7 +63,8 @@ class CIPipelineRunner:
             "scripts/ci/onnx_conversion_test.py",
         ]
 
-    def _run_subprocess_command(self, command: list, timeout: int) -> subprocess.CompletedProcess:
+    @staticmethod
+    def _run_subprocess_command(command: list, timeout: int) -> subprocess.CompletedProcess:
         """Run a subprocess command with standardized parameters.
 
         Parameters
@@ -250,7 +251,8 @@ class CIPipelineRunner:
             logger.exception(f"💥 E2E tests ERROR: {e}")
             return False
 
-    def _test_gpu_model_forward_pass(self) -> bool:
+    @staticmethod
+    def _test_gpu_model_forward_pass() -> bool:
         """Test GPU model forward pass with BERT classifier.
 
         Returns
@@ -298,7 +300,8 @@ class CIPipelineRunner:
             logger.exception(f"❌ GPU compatibility test failed: {e}")
             return False
 
-    def _measure_model_loading_time(self) -> float:
+    @staticmethod
+    def _measure_model_loading_time() -> float:
         """Measure BERT model loading time.
 
         Returns
@@ -313,7 +316,8 @@ class CIPipelineRunner:
         logger.info(f"✅ Model loading time: {loading_time:.2f}s")
         return loading_time
 
-    def _measure_inference_time(self, model) -> float:
+    @staticmethod
+    def _measure_inference_time(model) -> float:
         """Measure model inference time.
 
         Parameters
@@ -337,7 +341,8 @@ class CIPipelineRunner:
         logger.info(f"✅ Inference time: {inference_time:.2f}s")
         return inference_time
 
-    def _validate_performance_thresholds(self, loading_time: float, inference_time: float) -> bool:
+    @staticmethod
+    def _validate_performance_thresholds(loading_time: float, inference_time: float) -> bool:
         """Validate that performance times are within acceptable thresholds.
 
         Parameters
