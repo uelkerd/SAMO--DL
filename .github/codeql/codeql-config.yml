@@ -1,6 +1,0 @@
-name: "SAMO CodeQL Config"
-paths-ignore:
-  - scripts/training/**
-  - notebooks/**
-  - '**/__pycache__/**'
-  - '**/*.backup'
