@@ -403,7 +403,10 @@ class CIPipelineRunner:
             # Exit with appropriate code
             _, total_tests, passed_tests = self._get_test_stats()
 
-            if passed_tests == total_tests:
+            if total_tests == 0:
+                logger.error("❌ CI Pipeline failed - no boolean tests were executed!")
+                sys.exit(1)
+            elif passed_tests == total_tests:
                 logger.info("🎉 CI Pipeline completed successfully!")
                 sys.exit(0)
             else:
@@ -460,9 +463,11 @@ class CIPipelineRunner:
         # Only count boolean results as actual tests
         test_results, total_tests, passed_tests = self._get_test_stats()
 
-        # Guard against division by zero when no boolean tests were collected
-        safe_total = total_tests if total_tests > 0 else 1
-        success_rate = (passed_tests / safe_total) * 100.0
+        # Handle case where no boolean tests were collected
+        if total_tests == 0:
+            success_rate = 0.0
+        else:
+            success_rate = (passed_tests / total_tests) * 100.0
 
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
@@ -490,7 +495,9 @@ class CIPipelineRunner:
 🎯 RECOMMENDATIONS:
 """
 
-        if passed_tests == total_tests:
+        if total_tests == 0:
+            report += "⚠️ No boolean tests were executed. Treating pipeline as failed.\n"
+        elif passed_tests == total_tests:
             report += "🎉 All tests passed! Pipeline is ready for deployment.\n"
         else:
             failed_test_names = [
