@@ -220,7 +220,7 @@ class TokenBucketRateLimiter:
                 return False
             return True
         except ValueError:
-            logger.exception("Invalid IP address: %s", client_ip)
+            logger.error("Invalid IP address: %s", client_ip)
             return False
 
     def _is_client_blocked(self, client_key: str) -> bool:
