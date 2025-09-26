@@ -13,6 +13,7 @@ Designed to work in both local and Colab environments.
 
 import logging
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -76,13 +77,16 @@ class CIPipelineRunner:
             The completed process result
         """
         # Security: All command arguments are statically defined or controlled internally
-        # No user input reaches this function that could cause command injection
+        # No user input reaches this function that could cause command injection.
+        # Using shlex.quote as additional security measure for any potentially dynamic parts.
+        quoted_command = [shlex.quote(str(arg)) for arg in command]
         return subprocess.run(
-            command,
+            quoted_command,
             check=False,
             capture_output=True,
             text=True,
             timeout=timeout,
+            shell=False,  # Explicitly disable shell to prevent injection
         )
 
     def _get_test_stats(self) -> tuple[dict, int, int]:
@@ -427,6 +431,18 @@ class CIPipelineRunner:
             logger.error("❌ CI Pipeline failed!")
             return 1
 
+    def _execute_pipeline_and_generate_report(self) -> str:
+        """Execute the full CI pipeline and generate a report.
+
+        Returns
+        -------
+        str
+            The generated CI report
+        """
+        _ = self.run_full_pipeline()
+        report = self.generate_report()
+        return report
+
     def run_pipeline_and_exit(self) -> None:
         """Run the CI pipeline and exit with appropriate code.
 
@@ -437,8 +453,7 @@ class CIPipelineRunner:
         - Exiting with proper status codes
         """
         try:
-            _ = self.run_full_pipeline()
-            report = self.generate_report()
+            report = self._execute_pipeline_and_generate_report()
 
             print(report)
             # Only write report to file in CI so it can be uploaded as an artifact
