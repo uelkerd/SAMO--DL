@@ -19,21 +19,15 @@ import time
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+# Add src to path for local imports and import BERT classifier
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
 # Use shared truthy parsing
 try:
     from src.common.env import is_truthy
 except ImportError:  # Fallback to local helper if import path not available
-
     def is_truthy(value: Optional[str]) -> bool:
         return bool(value) and value.strip().lower() in {"1", "true", "yes"}
-
-# Add src to path for local imports and import BERT classifier
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-try:
-    from models.emotion_detection.bert_classifier import BERTEmotionClassifier
-except ImportError:
-    from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
 
 
 # Configure logging
@@ -81,6 +75,8 @@ class CIPipelineRunner:
         subprocess.CompletedProcess
             The completed process result
         """
+        # Security: All command arguments are statically defined or controlled internally
+        # No user input reaches this function that could cause command injection
         return subprocess.run(
             command,
             check=False,
@@ -267,7 +263,12 @@ class CIPipelineRunner:
 
             device = torch.device("cuda")
 
-            # Use the module-level BERT classifier import
+            # Import BERT classifier locally to avoid module-level dependencies
+            try:
+                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+            except ImportError:
+                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
             model = BERTEmotionClassifier().to(device)
 
             # Test forward pass
@@ -313,6 +314,12 @@ class CIPipelineRunner:
         float
             Loading time in seconds
         """
+        # Import BERT classifier locally to avoid module-level dependencies
+        try:
+            from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+        except ImportError:
+            from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
+
         start_time = time.time()
         _ = BERTEmotionClassifier()  # Instantiate model to measure loading time
         loading_time = time.time() - start_time
@@ -384,6 +391,10 @@ class CIPipelineRunner:
             loading_time = self._measure_model_loading_time()
 
             # Import model again for inference test (avoid reusing loaded model)
+            try:
+                from models.emotion_detection.bert_classifier import BERTEmotionClassifier
+            except ImportError:
+                from src.models.emotion_detection.bert_classifier import BERTEmotionClassifier
             model = BERTEmotionClassifier()
 
             # Measure inference time
@@ -395,6 +406,26 @@ class CIPipelineRunner:
         except Exception as e:
             logger.exception("❌ Performance benchmark failed: %s", e)
             return False
+
+    def _determine_exit_code(self) -> int:
+        """Determine the appropriate exit code based on test results.
+
+        Returns
+        -------
+        int
+            Exit code: 0 for success, 1 for failure
+        """
+        _, total_tests, passed_tests = self._get_test_stats()
+
+        if total_tests == 0:
+            logger.error("❌ CI Pipeline failed - no boolean tests were executed!")
+            return 1
+        elif passed_tests == total_tests:
+            logger.info("🎉 CI Pipeline completed successfully!")
+            return 0
+        else:
+            logger.error("❌ CI Pipeline failed!")
+            return 1
 
     def run_pipeline_and_exit(self) -> None:
         """Run the CI pipeline and exit with appropriate code.
@@ -414,21 +445,12 @@ class CIPipelineRunner:
             write_ci_report_if_needed(report)
 
             # Exit with appropriate code
-            _, total_tests, passed_tests = self._get_test_stats()
-
-            if total_tests == 0:
-                logger.error("❌ CI Pipeline failed - no boolean tests were executed!")
-                sys.exit(1)
-            elif passed_tests == total_tests:
-                logger.info("🎉 CI Pipeline completed successfully!")
-                sys.exit(0)
-            else:
-                logger.error("❌ CI Pipeline failed!")
-                sys.exit(1)
+            exit_code = self._determine_exit_code()
+            sys.exit(exit_code)
 
         except KeyboardInterrupt:
             logger.info("⏹️ CI Pipeline interrupted by user")
-            sys.exit(1)
+            sys.exit(130)
         except Exception as e:
             logger.exception("💥 CI Pipeline crashed: %s", e)
             sys.exit(1)
@@ -477,10 +499,9 @@ class CIPipelineRunner:
         test_results, total_tests, passed_tests = self._get_test_stats()
 
         # Handle case where no boolean tests were collected
-        if total_tests == 0:
-            success_rate = 0.0
-        else:
-            success_rate = (passed_tests / total_tests) * 100.0
+        success_rate = (
+            0.0 if total_tests == 0 else (passed_tests / total_tests) * 100.0
+        )
 
         report = f"""
 🎯 COMPREHENSIVE CI PIPELINE REPORT
@@ -532,7 +553,10 @@ def write_ci_report_if_needed(report: str) -> None:
 
 
 def main():
-    """Main function to run the CI pipeline."""
+    """Main function to run the CI pipeline.
+
+    Error handling is delegated to the runner's `run_pipeline_and_exit()` method.
+    """
     runner = CIPipelineRunner()
     runner.run_pipeline_and_exit()
 
