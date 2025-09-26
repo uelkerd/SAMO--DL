@@ -92,16 +92,6 @@ body {
 }
 
 /* Loading states and UX improvements */
-.loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: var(--primary-color);
-  animation: spin 1s ease-in-out infinite;
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -501,8 +491,10 @@ body {
 .spinner-border {
   width: 3rem;
   height: 3rem;
-  border-color: var(--primary-color);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
 }
 
 .metrics-grid {
