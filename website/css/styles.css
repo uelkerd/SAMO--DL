@@ -182,6 +182,14 @@ body {
   border-color: var(--primary-color);
 }
 
+.feature-card.active {
+  background: var(--primary-gradient);
+  border-color: var(--accent-color);
+  color: white;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: var(--shadow-glow);
+}
+
 .feature-card.border-success {
   border-color: rgba(16, 185, 129, 0.5);
 }
@@ -189,6 +197,15 @@ body {
 .feature-card.border-success:hover {
   border-color: #10b981;
   box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+}
+
+/* Glass card variant */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-glass);
 }
 
 /* Stats cards */
@@ -357,6 +374,176 @@ body {
   }
 }
 
+/* Demo section */
+.demo-section {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 100px 0;
+}
+
+/* Progress bars */
+.progress {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  height: 8px;
+}
+
+.progress-bar {
+  background: var(--primary-gradient);
+  border-radius: 10px;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(1deg); }
+  66% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Alert messages */
+.alert {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  color: #e2e8f0;
+}
+
+/* Background utilities */
+.bg-light {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.bg-primary {
+  background: var(--primary-gradient);
+}
+
+/* Demo components */
+.demo-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  box-shadow: var(--shadow-glass);
+  padding: 50px;
+  margin: -80px 0 50px 0;
+  position: relative;
+  z-index: 10;
+  color: #e2e8f0;
+}
+
+.demo-tab {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 15px 25px;
+  margin: 5px;
+  transition: var(--transition-bounce);
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.demo-tab.active {
+  background: var(--primary-gradient);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: var(--shadow-glow);
+}
+
+.demo-tab:hover {
+  background: var(--accent-gradient);
+  color: white;
+  transform: scale(1.02);
+}
+
+.result-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  border-left: 4px solid var(--primary-color);
+  color: #e2e8f0;
+}
+
+.emotional-context-card {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.emotional-context-card .badge {
+  background: var(--primary-gradient);
+}
+
+.loading-spinner {
+  display: none;
+  text-align: center;
+  padding: 30px;
+  color: #e2e8f0;
+}
+
+.loading-spinner.show {
+  display: block;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-color: var(--primary-color);
+  border-right-color: transparent;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
+}
+
+.metric-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: var(--shadow-glass);
+  transition: var(--transition-smooth);
+  color: #e2e8f0;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-glow);
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-label {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
 /* Links */
 a {
   color: var(--accent-color);
@@ -386,6 +573,18 @@ a:hover {
   }
 
   .hero-section {
-    padding: 60px 0;
+    padding: 80px 0;
+  }
+
+  .integration-card {
+    padding: 25px;
+    margin-bottom: 20px;
+  }
+
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    margin-bottom: 20px;
   }
 }
