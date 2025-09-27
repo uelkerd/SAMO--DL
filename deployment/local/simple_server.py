@@ -75,6 +75,14 @@ def serve_file(filename):
         # Security check: ensure file is within website directory
         file_path.resolve().relative_to(WEBSITE_DIR.resolve())
 
+        # Restrict serving symlinks for security
+        if file_path.is_symlink():
+            return jsonify({
+                "error": "Symlinks are not allowed",
+                "file": filename,
+                "path": str(file_path)
+            }), 403
+
         if file_path.is_file():
             return send_file(file_path)
         else:
@@ -146,7 +154,7 @@ def validate_environment():
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="SAMO Local Development Server")
-    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", 8000)),
+    parser.add_argument("--port", type=int, default=None,
                        help="Port to run the server on (default: 8000)")
     parser.add_argument("--host", default="127.0.0.1",
                        help="Host to bind to (default: 127.0.0.1)")
@@ -154,6 +162,15 @@ def main():
                        help="Enable debug mode")
 
     args = parser.parse_args()
+
+    # Handle PORT environment variable with graceful error handling
+    if args.port is None:
+        port_env = os.getenv("PORT", "8000")
+        try:
+            args.port = int(port_env)
+        except ValueError:
+            print(f"❌ Invalid PORT value: {port_env!r}. Please provide an integer.")
+            sys.exit(1)
 
     print("🚀 SAMO Local Development Server")
     print("=" * 40)
@@ -164,7 +181,7 @@ def main():
 
     print(f"📁 Serving files from: {WEBSITE_DIR}")
     print(f"🌐 Server URL: http://{args.host}:{args.port}")
-    print(f"🔗 Direct links:")
+    print("🔗 Direct links:")
     print(f"   • Main page: http://{args.host}:{args.port}/")
 
     # List available HTML files

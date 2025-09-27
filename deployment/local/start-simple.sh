@@ -50,12 +50,24 @@ echo "✅ Dependencies installed successfully"
 # Get port from environment or use default
 PORT="${PORT:-8000}"
 
-# Check if port is available
+# Check if port is available (tries netstat, lsof, or ss; may not be universally reliable)
 if command -v netstat >/dev/null 2>&1; then
     if netstat -an | grep -q ":$PORT "; then
         echo "⚠️  Warning: Port $PORT appears to be in use"
         echo "You can set a different port with: PORT=8001 $0"
     fi
+elif command -v lsof >/dev/null 2>&1; then
+    if lsof -iTCP:"$PORT" -sTCP:LISTEN -Pn | grep -q LISTEN; then
+        echo "⚠️  Warning: Port $PORT appears to be in use"
+        echo "You can set a different port with: PORT=8001 $0"
+    fi
+elif command -v ss >/dev/null 2>&1; then
+    if ss -ltn | grep -q ":$PORT "; then
+        echo "⚠️  Warning: Port $PORT appears to be in use"
+        echo "You can set a different port with: PORT=8001 $0"
+    fi
+else
+    echo "ℹ️  Port availability check skipped: no suitable tool (netstat, lsof, ss) found."
 fi
 
 echo "🌐 Starting simple development server..."
