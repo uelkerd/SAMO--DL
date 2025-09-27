@@ -1,0 +1,332 @@
+/* Progress Steps and Pipelines */
+.progress-step {
+    display: flex;
+    align-items: center;
+}
+
+/* Vertical Progress Pipeline */
+.progress-pipeline-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; /* Reduced from 20px for tighter spacing */
+    padding: 25px 15px; /* Reduced padding */
+    background: var(--glass-bg);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 450px; /* Reduced height */
+    justify-content: center;
+    width: 100%;
+}
+
+.progress-step-vertical {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: 16px 20px; /* Increased padding for better touch targets */
+    border-radius: 15px;
+    transition: var(--transition-smooth);
+    min-width: 160px; /* Increased width */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 4px; /* Reduced margin */
+    width: 100%; /* Full width for better appearance */
+}
+
+.progress-step-vertical .step-icon-small {
+    width: 24px !important; /* Increased from 18px */
+    height: 24px !important; /* Increased from 18px */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px; /* Increased margin */
+    margin-bottom: 0;
+    font-size: 0.8rem !important; /* Increased from 0.6rem */
+    transition: var(--transition-smooth);
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.progress-step-vertical .step-label {
+    font-size: 0.9rem; /* Increased from 0.7rem */
+    font-weight: 600;
+    color: #e2e8f0;
+    transition: var(--transition-smooth);
+    text-align: left; /* Changed from center to left for better alignment */
+    flex: 1; /* Take remaining space */
+}
+
+.progress-step-vertical.active .step-icon-small {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    box-shadow: var(--shadow-glow);
+}
+
+.progress-step-vertical.completed .step-icon-small {
+    background: var(--success-color) !important;
+    color: white !important;
+}
+
+.progress-step-vertical.error .step-icon-small {
+    background: var(--error-color) !important;
+    color: white !important;
+}
+
+.pipeline-arrow-vertical {
+    font-size: 1.2rem; /* Slightly smaller */
+    color: #94a3b8; /* Better color */
+    margin: 2px 0; /* Reduced margin */
+    opacity: 0.7; /* Subtle appearance */
+    transition: var(--transition-smooth);
+}
+
+.progress-step.completed {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.progress-step.active {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.step-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 14px;
+}
+
+.step-icon.completed {
+    background: #10b981;
+    color: white;
+}
+
+.step-icon.active {
+    background: white;
+    color: var(--primary-color);
+}
+
+.step-icon.pending {
+    background: rgba(139, 92, 246, 0.2);
+    color: #94a3b8;
+}
+
+/* Progress Pipeline - New Compact Horizontal Design */
+.progress-pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    border-radius: 15px;
+    border: 1px solid var(--glass-border);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Horizontal Progress Pipeline for Title Flow */
+.progress-pipeline-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 25px;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    backdrop-filter: blur(5px);
+    box-shadow: none;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.progress-pipeline-horizontal:hover {
+    opacity: 1;
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.progress-step-horizontal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 60px;
+    transition: var(--transition-smooth);
+}
+
+.progress-step-horizontal .step-icon-small {
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    font-size: 0.7rem !important;
+    transition: var(--transition-smooth);
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+}
+
+.progress-step-horizontal .step-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    transition: var(--transition-smooth);
+}
+
+.progress-step-horizontal.active .step-icon-small {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.progress-step-horizontal.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.progress-step-horizontal.completed .step-icon-small {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.progress-step-horizontal.completed .step-label {
+    color: #10b981;
+}
+
+.pipeline-arrow {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: normal;
+    user-select: none;
+    opacity: 0.6;
+}
+
+/* Enhanced Loading Step Styles */
+.process-step {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.process-step.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: scale(1.02);
+}
+
+.process-step.completed {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.step-text {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.step-status {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.process-step.active .step-status {
+    color: #a855f7;
+}
+
+.process-step.completed .step-status {
+    color: #10b981;
+}
+
+/* Processing Information Icons */
+.processing-info i {
+    font-size: 1.5rem !important;
+    margin-bottom: 8px;
+}
+
+/* Responsive Design for Progress Pipeline */
+@media (max-width: 768px) {
+    .progress-pipeline {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 2rem 1rem;
+    }
+
+    .pipeline-arrow {
+        transform: rotate(90deg);
+        font-size: 1.5rem;
+    }
+
+    .progress-step-horizontal {
+        min-width: 100px;
+    }
+
+    .step-label {
+        font-size: 0.8rem;
+    }
+
+    .progress-pipeline-horizontal {
+        gap: 0.25rem;
+        padding: 0.4rem 0.6rem;
+        justify-content: center;
+    }
+
+    .progress-step-horizontal {
+        min-width: 40px;
+    }
+
+    .progress-step-horizontal .step-icon-small {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.6rem !important;
+    }
+
+    .progress-step-horizontal .step-label {
+        font-size: 0.5rem;
+    }
+
+    .pipeline-arrow {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .progress-pipeline-horizontal {
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .progress-pipeline-horizontal .step-label {
+        font-size: 0.7rem;
+    }
+
+    #processingInfoSidebar {
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .progress-pipeline-horizontal {
+        padding: 0.5rem;
+    }
+}

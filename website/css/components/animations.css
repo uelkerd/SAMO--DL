@@ -1,0 +1,89 @@
+/* Animations and Transitions */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(1deg); }
+    66% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+@keyframes slideInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes audioPulse {
+    0% { height: 20px; }
+    100% { height: 40px; }
+}
+
+.floating-card {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Result sections */
+.result-section-hidden {
+    display: none !important;
+}
+
+.result-section-visible {
+    display: block;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.result-section {
+    display: none;
+}
+
+.result-section.show {
+    display: block;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading States */
+.loading-spinner {
+    display: none;
+    color: #e2e8f0;
+}
+
+.loading-spinner.show {
+    display: block;
+}
+
+/* Dynamic Layout States */
+#inputLayout {
+    transition: all 0.5s ease-in-out;
+}
+
+#resultsLayout {
+    transition: all 0.5s ease-in-out;
+}
+
+#titleWithFlow {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Enhanced transitions for responsive changes */
+@media (prefers-reduced-motion: no-preference) {
+    #titleWithFlow,
+    #inputLayout,
+    #resultsLayout {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
