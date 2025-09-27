@@ -53,18 +53,14 @@ print_status "  Repository: ${REPOSITORY}"
 
 # Step 1: Tag the local image for Artifact Registry
 print_status "Step 1: Tagging local image for Artifact Registry..."
-docker tag "samo-emotion-secure:test" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
+if ! docker tag "samo-emotion-secure:test" "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"; then
     print_error "Docker tag failed!"
     exit 1
 fi
 
 # Step 2: Push to Artifact Registry
 print_status "Step 2: Pushing image to Artifact Registry..."
-docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
+if ! docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"; then
     print_error "Docker push failed!"
     exit 1
 fi
@@ -72,7 +68,7 @@ fi
 # Step 3: Deploy to Cloud Run with secure settings
 print_status "Step 3: Deploying to Cloud Run with secure settings..."
 
-gcloud run deploy "${SERVICE_NAME}" \
+if ! gcloud run deploy "${SERVICE_NAME}" \
     --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest" \
     --region="${REGION}" \
     --platform=managed \
@@ -88,9 +84,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
     --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
     --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}"
-
-if [ $? -ne 0 ]; then
+    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"; then
     print_error "Cloud Run deployment failed!"
     exit 1
 fi
@@ -167,4 +162,4 @@ echo "  - Service: ${SERVICE_NAME}"
 echo "  - Region: ${REGION}"
 echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 echo "  - Security: Enhanced with input sanitization, rate limiting, and security headers"
-echo "  - Status: ✅ SECURE & PRODUCTION READY" 
+echo "  - Status: ✅ SECURE & PRODUCTION READY"

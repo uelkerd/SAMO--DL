@@ -53,9 +53,7 @@ print_status "  Repository: ${REPOSITORY}"
 
 # Step 1: Build production Docker image
 print_status "Step 1: Building production Docker image..."
-docker build -f deployment/docker/Dockerfile.production -t "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" .
-
-if [ $? -ne 0 ]; then
+if ! docker build -f deployment/docker/Dockerfile.production -t "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" .; then
     print_error "Docker build failed!"
     exit 1
 fi
@@ -66,9 +64,7 @@ docker tag "gcr.io/${PROJECT_ID}/${IMAGE_NAME}:latest" "${REGION}-docker.pkg.dev
 
 # Step 3: Push to Artifact Registry
 print_status "Step 3: Pushing image to Artifact Registry..."
-docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
-
-if [ $? -ne 0 ]; then
+if ! docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"; then
     print_error "Docker push failed!"
     exit 1
 fi
@@ -76,7 +72,7 @@ fi
 # Step 4: Deploy to Cloud Run with production settings
 print_status "Step 4: Deploying to Cloud Run with production settings..."
 
-gcloud run deploy "${SERVICE_NAME}" \
+if ! gcloud run deploy "${SERVICE_NAME}" \
     --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest" \
     --region="${REGION}" \
     --platform=managed \
@@ -88,9 +84,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --min-instances=1 \
     --concurrency=80 \
     --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512"
-
-if [ $? -ne 0 ]; then
+    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"; then
     print_error "Cloud Run deployment failed!"
     exit 1
 fi
@@ -154,4 +149,4 @@ echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NA
 echo "  - Server: Gunicorn WSGI (production-ready)"
 echo "  - Workers: 2 (configurable via GUNICORN_WORKERS)"
 echo "  - Max Length: 512 characters (configurable via MAX_LENGTH)"
-echo "  - Status: ✅ PRODUCTION READY" 
+echo "  - Status: ✅ PRODUCTION READY"
