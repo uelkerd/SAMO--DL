@@ -434,28 +434,25 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
         console.error('❌ Failed to initialize API client:', error);
     }
-});
 
-// Smooth scrolling for in-page navigation links
-// Only applies to anchors within the main navigation to avoid interfering with external or footer anchors
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        // Only handle if the link is for the current page
-        if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
-            e.preventDefault();
-            const href = this.getAttribute('href');
-            if (!href) return;
-            const target = document.querySelector(href);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+    // Smooth scrolling for in-page navigation links
+    document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            // Only handle if the link is for the current page
+            if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (!href) return;
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             }
-        }
+        });
     });
-  });
 });
 
 // Essential Demo Functions (restored from simple-demo-functions.js)
@@ -751,21 +748,6 @@ async function testWithRealAPI() {
 
             chartContainer.appendChild(loadingDiv);
 
-            // Update progress messages
-            setTimeout(() => {
-                const msg = document.getElementById('emotionLoadingMessage');
-                if (msg) msg.textContent = 'Loading DeBERTa v3 Large model (this may take a moment)...';
-            }, 3000);
-
-            setTimeout(() => {
-                const msg = document.getElementById('emotionLoadingMessage');
-                if (msg) msg.textContent = 'Processing your text with AI emotion analysis...';
-            }, 8000);
-
-            setTimeout(() => {
-                const msg = document.getElementById('emotionLoadingMessage');
-                if (msg) msg.textContent = 'Almost done - finalizing emotion detection results...';
-            }, 20000);
         }
 
         updateElement('primaryEmotion', 'Loading...');
@@ -888,8 +870,8 @@ async function callSummarizationAPI(text) {
     addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
-        // Create API client instance for proper timeout and error handling
-        const apiClient = new SAMOAPIClient();
+        // Use global API client instance
+        const apiClient = window.apiClient;
         console.log('📝 API Base URL:', apiClient.baseURL);
         console.log('📝 Summarization endpoint:', apiClient.endpoints.SUMMARIZE);
         console.log('📝 Full API URL:', `${apiClient.baseURL}${apiClient.endpoints.SUMMARIZE}`);
@@ -1304,17 +1286,19 @@ function clearAllResultContent() {
     console.log('✅ All result content cleared');
 }
 
-// Make functions globally available
-window.generateSampleText = generateSampleText;
-window.processText = processText;
-window.testWithRealAPI = testWithRealAPI;
-window.callSummarizationAPI = callSummarizationAPI;
-window.updateElement = updateElement;
-window.showResultsSections = showResultsSections;
-window.addToProgressConsole = addToProgressConsole;
-window.clearProgressConsole = clearProgressConsole;
-window.createEmotionChart = createEmotionChart;
-window.resetToInputScreen = resetToInputScreen;
-window.clearAllResultContent = clearAllResultContent;
-window.manageApiKey = manageApiKey;
-window.clearAll = clearAllResultContent; // Alias for clearAll function
+// Make functions globally available under a namespace to avoid pollution
+window.SamoDemo = {
+    generateSampleText,
+    processText,
+    testWithRealAPI,
+    callSummarizationAPI,
+    updateElement,
+    showResultsSections,
+    addToProgressConsole,
+    clearProgressConsole,
+    createEmotionChart,
+    resetToInputScreen,
+    clearAllResultContent,
+    manageApiKey,
+    clearAll: clearAllResultContent, // Alias for clearAll function
+};

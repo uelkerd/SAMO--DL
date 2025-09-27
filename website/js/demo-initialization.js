@@ -6,7 +6,8 @@
 // Debug: Check if everything is loaded correctly
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Main demo loaded');
-    console.log('processText available:', typeof window.processText === 'function');
+    console.log('SamoDemo available:', typeof window.SamoDemo === 'object');
+    console.log('processText available:', typeof window.SamoDemo?.processText === 'function');
     console.log('textInput element found:', !!document.getElementById('textInput'));
     console.log('processBtn element found:', !!document.getElementById('processBtn'));
 
@@ -19,14 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Use enhanced state management processing
             if (typeof processTextWithStateManagement === 'function') {
                 processTextWithStateManagement();
-            } else if (typeof window.processText === 'function') {
+            } else if (typeof window.SamoDemo?.processText === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.showProcessingState) {
                     window.LayoutManager.showProcessingState();
                 }
-                window.processText(true);  // Skip state check since showProcessingState() handles it
+                window.SamoDemo.processText(true);  // Skip state check since showProcessingState() handles it
             } else {
                 console.error('❌ processText function not available');
+                alert('Error: Core demo functionality is missing. Please reload the page.');
             }
         });
     } else {
@@ -39,15 +41,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Generate button found, adding click listener');
         generateBtn.addEventListener('click', function() {
             console.log('🔘 Generate button clicked!');
-            console.log('🔍 generateSampleText type:', typeof window.generateSampleText);
-            console.log('🔍 generateSampleText function:', window.generateSampleText);
+            console.log('🔍 generateSampleText type:', typeof window.SamoDemo?.generateSampleText);
+            console.log('🔍 generateSampleText function:', window.SamoDemo?.generateSampleText);
 
-            if (typeof window.generateSampleText === 'function') {
+            if (typeof window.SamoDemo?.generateSampleText === 'function') {
                 console.log('✅ Calling generateSampleText...');
-                window.generateSampleText();
+                window.SamoDemo.generateSampleText();
             } else {
                 console.error('❌ generateSampleText function not available');
-                console.log('🔍 Available functions:', Object.keys(window).filter(key => key.includes('generate')));
+                console.log('🔍 Available functions:', Object.keys(window.SamoDemo || {}).filter(key => key.includes('generate')));
+                alert('Error: Sample text generation is not available. Please reload the page.');
             }
         });
     } else {
@@ -60,10 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ API Key button found, adding click listener');
         apiKeyBtn.addEventListener('click', function() {
             console.log('🔘 API Key button clicked!');
-            if (typeof window.manageApiKey === 'function') {
-                window.manageApiKey();
+            if (typeof window.SamoDemo?.manageApiKey === 'function') {
+                window.SamoDemo.manageApiKey();
             } else {
                 console.error('❌ manageApiKey function not available');
+                alert('Error: API key management is not available. Please reload the page.');
             }
         });
 
@@ -84,14 +88,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Use enhanced state management clearing
             if (typeof clearAllWithStateManagement === 'function') {
                 clearAllWithStateManagement();
-            } else if (typeof window.clearAll === 'function') {
+            } else if (typeof window.SamoDemo?.clearAll === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.resetToInitialState) {
                     window.LayoutManager.resetToInitialState();
                 }
-                window.clearAll();
+                window.SamoDemo.clearAll();
             } else {
                 console.error('❌ clearAll function not available');
+                alert('Error: Clear functionality is not available. Please reload the page.');
             }
         });
     } else {
