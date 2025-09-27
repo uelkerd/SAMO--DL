@@ -116,11 +116,11 @@ def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="SAMO Local Development Server")
     parser.add_argument("--port", type=int, default=None,
-                       help="Port to run the server on (default: 8000)")
+                        help="Port to run the server on (default: 8000)")
     parser.add_argument("--host", default="127.0.0.1",
-                       help="Host to bind to (default: 127.0.0.1)")
+                        help="Host to bind to (default: 127.0.0.1)")
     parser.add_argument("--debug", action="store_true",
-                       help="Enable debug mode")
+                        help="Enable debug mode")
 
     args = parser.parse_args()
 
