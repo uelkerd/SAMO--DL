@@ -264,7 +264,7 @@
                 <div class="col-lg-8 mx-auto">
                     <h2 class="display-5 fw-bold mb-3">🟢 Live API Endpoints</h2>
                     <p class="lead text-light">
-                        Production endpoints are live at: <code>https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app</code>
+                        Production endpoints are live at: <code id="api-endpoint-display">Loading...</code>
                     </p>
                 </div>
             </div>
@@ -406,11 +406,18 @@
 
     <!-- Demo Script -->
     <script>
-        // Configure API Base URL for display
-        const API_BASE_URL = 'https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app';
+        // Configure API Base URL for display (loaded from config.js)
+        let API_BASE_URL = '';
         document.addEventListener('DOMContentLoaded', () => {
-            const el = document.getElementById('api-base-url');
-            if (el) el.textContent = API_BASE_URL;
+            // Use config if available, otherwise fallback
+            API_BASE_URL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://api.example.com';
+
+            // Update API URL display elements
+            const apiUrlEl = document.getElementById('api-base-url');
+            if (apiUrlEl) apiUrlEl.textContent = API_BASE_URL;
+
+            const apiEndpointEl = document.getElementById('api-endpoint-display');
+            if (apiEndpointEl) apiEndpointEl.textContent = API_BASE_URL;
         });
 
 
