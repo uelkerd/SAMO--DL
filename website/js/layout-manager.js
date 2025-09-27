@@ -411,10 +411,11 @@ window.processTextWithStateManagement = function() {
         const originalFunc = processText;
         const maybe = processText(true);  // Skip state check since we handle it here
         const onDone = () => {
+            // Minimal delay to ensure smooth UI transition after processing completes
             setTimeout(() => {
                 LayoutManager.showResultsState();
                 LayoutManager.updateProgressStep(4, 'completed');
-            }, 1000);
+            }, 50); // Reduced from 1000ms to 50ms for better perceived performance
         };
         if (maybe && typeof maybe.then === 'function') {
             maybe.then(onDone).catch((error) => {
