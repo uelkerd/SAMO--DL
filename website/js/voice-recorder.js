@@ -231,24 +231,48 @@ class VoiceRecorder {
         }
     }
 
+    /**
+     * Extract transcription text from API response
+     * Handles multiple possible response formats for backward compatibility
+     */
+    extractTranscriptionText(result) {
+        // Standardize transcription text extraction with clear priority
+        if (typeof result === 'string') {
+            return result;
+        }
+
+        // Preferred format: result.transcription.text (standardized API response)
+        if (result?.transcription?.text) {
+            return result.transcription.text;
+        }
+
+        // Alternative formats for backward compatibility
+        if (result?.text) {
+            console.warn('⚠️ Using deprecated result.text format - consider updating API to use result.transcription.text');
+            return result.text;
+        }
+
+        if (result?.transcription && typeof result.transcription === 'string') {
+            console.warn('⚠️ Using deprecated result.transcription format - consider updating API to use result.transcription.text');
+            return result.transcription;
+        }
+
+        console.error('❌ Unable to extract transcription text from response:', result);
+        return null;
+    }
+
     displayTranscriptionResults(result) {
         try {
             // Update text input with transcribed text
             const textInput = document.getElementById('textInput');
             if (textInput) {
-                let tx = '';
-                if (typeof result === 'string') {
-                    tx = result;
-                } else if (result?.text) {
-                    tx = result.text;
-                } else if (result?.transcription && typeof result.transcription === 'string') {
-                    tx = result.transcription;
-                } else if (result?.transcription?.text) {
-                    tx = result.transcription.text;
-                }
-                if (tx) {
-                    textInput.value = tx;
+                const transcriptionText = this.extractTranscriptionText(result);
+                if (transcriptionText) {
+                    textInput.value = transcriptionText;
                     console.log('📝 Transcribed text inserted into input');
+                } else {
+                    console.error('❌ No transcription text found in result');
+                    this.showError('Failed to extract transcription text');
                 }
             }
 
@@ -359,49 +383,20 @@ class VoiceRecorder {
     }
 
     showSuccess(message) {
-        this.showMessage(message, 'success');
+        if (window.NotificationManager) {
+            window.NotificationManager.success(message);
+        } else {
+            console.warn('⚠️ NotificationManager not available, falling back to console');
+            console.log('✅', message);
+        }
     }
 
     showError(message) {
-        this.showMessage(message, 'error');
-    }
-
-    showMessage(message, type = 'info') {
-        // Create a simple toast notification
-        const toast = document.createElement('div');
-        toast.className = `toast-notification toast-${type}`;
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-
-        // Set background color based on type
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            info: '#17a2b8'
-        };
-        toast.style.backgroundColor = colors[type] || colors.info;
-
-        document.body.appendChild(toast);
-
-        // Animate in
-        setTimeout(() => toast.style.opacity = '1', 100);
-
-        // Remove after delay
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
+        if (window.NotificationManager) {
+            window.NotificationManager.error(message);
+        } else {
+            console.error('❌', message);
+        }
     }
 
     handleRecordingError(error) {
