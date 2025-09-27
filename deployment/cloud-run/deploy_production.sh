@@ -76,7 +76,7 @@ fi
 # Step 4: Deploy to Cloud Run with production settings
 print_status "Step 4: Deploying to Cloud Run with production settings..."
 
-gcloud run deploy "${SERVICE_NAME}" \
+if ! gcloud run deploy "${SERVICE_NAME}" \
     --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest" \
     --region="${REGION}" \
     --platform=managed \
@@ -88,9 +88,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --min-instances=1 \
     --concurrency=80 \
     --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512"
-
-if [ $? -ne 0 ]; then
+    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"; then
     print_error "Cloud Run deployment failed!"
     exit 1
 fi

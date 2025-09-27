@@ -72,7 +72,7 @@ fi
 # Step 3: Deploy to Cloud Run with secure settings
 print_status "Step 3: Deploying to Cloud Run with secure settings..."
 
-gcloud run deploy "${SERVICE_NAME}" \
+if ! gcloud run deploy "${SERVICE_NAME}" \
     --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest" \
     --region="${REGION}" \
     --platform=managed \
@@ -88,9 +88,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
     --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
     --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}"
-
-if [ $? -ne 0 ]; then
+    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"; then
     print_error "Cloud Run deployment failed!"
     exit 1
 fi
