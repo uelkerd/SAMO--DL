@@ -53,50 +53,11 @@ else:
     print("🔓 Development CORS: All origins allowed")
 
 
-@app.route('/')
-def serve_index():
-    """Serve the main index.html file."""
-    try:
-        return send_file(WEBSITE_DIR / "index.html")
-    except FileNotFoundError:
-        return jsonify({
-            "error": "Website files not found",
-            "path": str(WEBSITE_DIR),
-            "message": "Make sure you're running this from the project root"
-        }), 404
-
-
+@app.route('/', defaults={'filename': 'index.html'})
 @app.route('/<path:filename>')
 def serve_file(filename):
     """Serve static files from the website directory."""
-    try:
-        file_path = WEBSITE_DIR / filename
-
-        # Security check: ensure file is within website directory
-        file_path.resolve().relative_to(WEBSITE_DIR.resolve())
-
-        # Restrict serving symlinks for security
-        if file_path.is_symlink():
-            return jsonify({
-                "error": "Symlinks are not allowed",
-                "file": filename,
-                "path": str(file_path)
-            }), 403
-
-        if file_path.is_file():
-            return send_file(file_path)
-        else:
-            return jsonify({
-                "error": "File not found",
-                "file": filename,
-                "path": str(file_path)
-            }), 404
-
-    except (FileNotFoundError, ValueError):
-        return jsonify({
-            "error": "File not found or access denied",
-            "file": filename
-        }), 404
+    return send_from_directory(WEBSITE_DIR, filename)
 
 
 @app.route('/health')
