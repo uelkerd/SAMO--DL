@@ -153,6 +153,8 @@ class VoiceRecorder {
      * Helper to get file extension from MIME type
      */
     getExtensionFromMimeType(mimeType) {
+        // Strip codec parameters to get base MIME type (e.g., "audio/webm;codecs=opus" -> "audio/webm")
+        const baseType = String(mimeType || '').split(';', 1)[0].toLowerCase();
         const mimeToExt = {
             'audio/webm': 'webm',
             'audio/mp4': 'mp4',
@@ -160,7 +162,7 @@ class VoiceRecorder {
             'audio/mpeg': 'mp3',
             'audio/ogg': 'ogg'
         };
-        return mimeToExt[mimeType] || 'audio';
+        return mimeToExt[baseType] || 'audio';
     }
 
     async processRecordedAudio(audioBlob) {
