@@ -65,6 +65,12 @@ class VoiceRecorder {
     }
 
     async startRecording() {
+        // Ignore if a recording is already in progress
+        if (this.isRecording) {
+            console.warn('Recording already in progress');
+            return;
+        }
+
         try {
             // Request microphone access
             this.stream = await navigator.mediaDevices.getUserMedia({
