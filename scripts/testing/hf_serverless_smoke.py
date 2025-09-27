@@ -7,7 +7,11 @@ from typing import List, Tuple
 
 import requests
 
-HF_REPO = os.getenv("HF_REPO", "duelker/samo-goemotions-deberta-v3-large")
+# Add src to path to import constants
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from src.constants import DEFAULT_EMOTION_MODEL_ID
+
+HF_REPO = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
 
 API_URL = f"https://api-inference.huggingface.co/models/{HF_REPO}"
