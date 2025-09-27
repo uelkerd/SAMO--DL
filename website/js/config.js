@@ -65,7 +65,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 
     // Use local unified API server (has the correct /analyze/emotion endpoints)
     // This server has the exact endpoints the frontend expects
-    window.SAMO_CONFIG.API.BASE_URL = 'http://localhost:8002';
+    window.SAMO_CONFIG.API.BASE_URL = 'https://localhost:8002';
     window.SAMO_CONFIG.API.ENDPOINTS = {
         EMOTION: '/analyze/emotion',
         SUMMARIZE: '/analyze/summarize',

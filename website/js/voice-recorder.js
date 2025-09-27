@@ -145,13 +145,28 @@ class VoiceRecorder {
         }
     }
 
+    /**
+     * Helper to get file extension from MIME type
+     */
+    getExtensionFromMimeType(mimeType) {
+        const mimeToExt = {
+            'audio/webm': 'webm',
+            'audio/mp4': 'mp4',
+            'audio/wav': 'wav',
+            'audio/mpeg': 'mp3',
+            'audio/ogg': 'ogg'
+        };
+        return mimeToExt[mimeType] || 'audio';
+    }
+
     async processRecordedAudio(audioBlob) {
         try {
             // Show processing state
             this.showProcessingState();
 
-            // Create a File object from the blob
-            const audioFile = new File([audioBlob], 'recording.webm', {
+            // Create a File object from the blob with correct extension
+            const extension = this.getExtensionFromMimeType(audioBlob.type);
+            const audioFile = new File([audioBlob], `recording.${extension}`, {
                 type: audioBlob.type
             });
 
@@ -245,7 +260,8 @@ class VoiceRecorder {
                 } else {
                     // Fallback: directly update UI elements if displayAnalysisResults is not defined
                     if (result.emotion_analysis && document.getElementById('emotionAnalysis')) {
-                        document.getElementById('emotionAnalysis').textContent = JSON.stringify(result.emotion_analysis);
+                        // Pretty-print JSON for better readability
+                        document.getElementById('emotionAnalysis').textContent = JSON.stringify(result.emotion_analysis, null, 2);
                     }
                     if (result.summary && document.getElementById('summary')) {
                         document.getElementById('summary').textContent = result.summary;
