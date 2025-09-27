@@ -5,7 +5,6 @@ import tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
 import sys
-import os
 
 # Add src to path to import constants
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
