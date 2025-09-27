@@ -109,15 +109,11 @@ const LayoutManager = {
 
         // Check if processing is allowed
         if (!this.startProcessing()) {
-            console.warn('⚠️ Cannot start processing - operation already in progress');
-            // Try emergency reset and retry once
-            console.warn('🔄 Attempting emergency reset and retry...');
-            this.emergencyReset();
-            if (!this.startProcessing()) {
-                console.error('❌ Emergency reset failed - processing still blocked');
-                return false;
-            }
-            console.log('✅ Emergency reset successful - processing can proceed');
+            console.error('❌ Cannot start processing - operation already in progress');
+            console.error('💡 Suggestion: Check if previous processing completed or call resetToInitialState()');
+            console.error('🔍 Current state:', this.currentState);
+            console.error('🔍 Active requests:', this.activeRequests.size);
+            return false; // Fail fast to expose underlying issues
         }
 
         this.currentState = 'processing';
@@ -223,8 +219,7 @@ const LayoutManager = {
         const inputLayout = document.getElementById('inputLayout');
         if (inputLayout) {
             console.log('🔄 LayoutManager: Showing input layout');
-            inputLayout.classList.remove('d-none');
-            inputLayout.style.display = 'block'; // Force display
+            inputLayout.classList.remove('d-none'); // Remove Bootstrap's hide class
             inputLayout.style.opacity = '1';
             inputLayout.style.transform = 'translateY(0)';
             console.log('✅ LayoutManager: Input layout should be visible');
