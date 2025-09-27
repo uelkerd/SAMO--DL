@@ -17,8 +17,8 @@ WORKDIR /app
 # Install minimal system dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
+    ca-certificates=20230311 \
+    curl=7.88.1-10+deb12u5 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
