@@ -2,10 +2,9 @@
 # pip install -U transformers datasets scikit-learn torch tqdm huggingface_hub
 
 # Add src to path to import constants
+import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-
-import os
 import numpy as np
 import torch
 from datasets import load_dataset

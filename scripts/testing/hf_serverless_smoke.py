@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # Add src to path to import constants
+import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-
-import os
 import json
 import time
 from typing import List, Tuple

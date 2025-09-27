@@ -2,10 +2,9 @@
 # pip install -U transformers huggingface_hub
 
 # Add src to path to import constants
+import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-
-import os
 import tempfile
 from huggingface_hub import HfApi, HfFolder
 from transformers import AutoConfig
