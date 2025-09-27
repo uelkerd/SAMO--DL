@@ -17,7 +17,8 @@ const LayoutManager = {
         updateElement: null, // Function to update element content
         textInput: null, // DOM element reference
         resultsLayout: null, // DOM element reference
-        inputLayout: null // DOM element reference
+        inputLayout: null, // DOM element reference
+        inlineMessages: null // Selector for inline messages
     },
 
     // Initialize with dependencies (dependency injection)
@@ -30,6 +31,7 @@ const LayoutManager = {
         this.dependencies.textInput = dependencies.textInput || document.getElementById('textInput');
         this.dependencies.resultsLayout = dependencies.resultsLayout || document.getElementById('resultsLayout');
         this.dependencies.inputLayout = dependencies.inputLayout || document.getElementById('inputLayout');
+        this.dependencies.inlineMessages = dependencies.inlineMessages || '.inline-message';
 
         console.log('✅ LayoutManager: Dependencies initialized');
     },
@@ -214,8 +216,8 @@ const LayoutManager = {
             this.dependencies.textInput.value = '';
         }
 
-        // Clear any inline messages
-        const existingMessages = document.querySelectorAll('.inline-message');
+        // Clear any inline messages (using injected dependency)
+        const existingMessages = document.querySelectorAll(this.dependencies.inlineMessages);
         existingMessages.forEach(msg => msg.remove());
 
         // Reset Processing Information values (using injected dependency)
