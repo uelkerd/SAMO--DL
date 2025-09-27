@@ -77,7 +77,7 @@ def health_check():
 
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found(_error):
     """Custom 404 handler."""
     return jsonify({
         "error": "Not found",
@@ -87,7 +87,7 @@ def not_found(error):
 
 
 @app.errorhandler(500)
-def server_error(error):
+def server_error(_error):
     """Custom 500 handler."""
     return jsonify({
         "error": "Internal server error",
