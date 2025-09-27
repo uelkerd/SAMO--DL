@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import torch
 from tqdm import tqdm
@@ -7,7 +8,11 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
 from scipy.optimize import linear_sum_assignment
 
-MODEL_ID = os.getenv("MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
+# Add src to path to import constants
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from src.constants import DEFAULT_EMOTION_MODEL_ID
+
+MODEL_ID = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
