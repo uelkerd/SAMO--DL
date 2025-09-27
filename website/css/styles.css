@@ -418,19 +418,7 @@ body {
   background: var(--primary-gradient);
 }
 
-/* Demo components */
-.demo-container {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 30px;
-  box-shadow: var(--shadow-glass);
-  padding: 50px;
-  margin: -80px 0 50px 0;
-  position: relative;
-  z-index: 10;
-  color: #e2e8f0;
-}
+/* Demo components - consolidated in components/containers.css */
 
 .demo-tab {
   background: var(--glass-bg);

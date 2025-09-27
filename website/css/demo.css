@@ -1,16 +1,4 @@
-/* Demo-specific styles */
-.demo-container {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 30px;
-    box-shadow: var(--shadow-glass);
-    padding: 50px;
-    margin: -80px 0 50px 0;
-    position: relative;
-    z-index: 10;
-    color: #e2e8f0;
-}
+/* Demo-specific styles - .demo-container consolidated in components/containers.css */
 
 .emotion-card {
     background: var(--glass-bg);
@@ -79,14 +67,4 @@
     background-clip: text;
 }
 
-/* Responsive enhancements */
-@media (max-width: 768px) {
-    .demo-container {
-        padding: 30px 20px;
-        margin: -50px 15px 30px 15px;
-    }
-
-    .hero-section {
-        padding: 80px 0;
-    }
-}
+/* Responsive enhancements - .demo-container responsive styles moved to components/containers.css */
