@@ -88,7 +88,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --set-env-vars="ENABLE_SECURITY=true,ENABLE_RATE_LIMITING=true" \
     --set-env-vars="ENABLE_INPUT_SANITIZATION=true,MAX_LENGTH=512" \
     --set-env-vars="EMOTION_PROVIDER=hf,EMOTION_LOCAL_ONLY=1" \
-    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}"
+    --set-env-vars="EMOTION_MODEL_DIR=${EMOTION_MODEL_DIR:-/models/emotion-english-distilroberta-base}" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"
@@ -167,4 +168,4 @@ echo "  - Service: ${SERVICE_NAME}"
 echo "  - Region: ${REGION}"
 echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NAME}:latest"
 echo "  - Security: Enhanced with input sanitization, rate limiting, and security headers"
-echo "  - Status: ✅ SECURE & PRODUCTION READY" 
+echo "  - Status: ✅ SECURE & PRODUCTION READY"

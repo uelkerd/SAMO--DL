@@ -88,7 +88,8 @@ gcloud run deploy "${SERVICE_NAME}" \
     --min-instances=1 \
     --concurrency=80 \
     --timeout=300 \
-    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512"
+    --set-env-vars="FLASK_ENV=production,ENVIRONMENT=production,GUNICORN_WORKERS=2,MAX_LENGTH=512" \
+    --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"
 
 if [ $? -ne 0 ]; then
     print_error "Cloud Run deployment failed!"
@@ -154,4 +155,4 @@ echo "  - Image: ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE_NA
 echo "  - Server: Gunicorn WSGI (production-ready)"
 echo "  - Workers: 2 (configurable via GUNICORN_WORKERS)"
 echo "  - Max Length: 512 characters (configurable via MAX_LENGTH)"
-echo "  - Status: ✅ PRODUCTION READY" 
+echo "  - Status: ✅ PRODUCTION READY"
