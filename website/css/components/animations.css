@@ -74,3 +74,23 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
+
+/* Honor reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    #titleWithFlow,
+    #inputLayout,
+    #resultsLayout {
+        transition: none !important;
+    }
+
+    /* Disable floating animations */
+    .floating-card {
+        animation: none !important;
+    }
+
+    /* Disable result section animations */
+    .result-section-visible,
+    .result-section.show {
+        animation: none !important;
+    }
+}
