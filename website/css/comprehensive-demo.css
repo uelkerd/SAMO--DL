@@ -1,0 +1,52 @@
+/* Comprehensive Demo Specific Styles */
+
+/* Material Icons sizing classes */
+.material-icons-2rem {
+    font-size: 2rem;
+}
+
+.material-icons-1-2rem {
+    font-size: 1.2rem;
+}
+
+.material-icons-1rem {
+    font-size: 1rem;
+}
+
+.material-icons-0-9rem {
+    font-size: 0.9rem;
+}
+
+/* Hidden elements */
+.hidden-element {
+    display: none;
+}
+
+/* Recording timer badge */
+.recording-timer {
+    display: none;
+}
+
+/* Audio visualizer */
+.audio-visualizer {
+    display: none;
+}
+
+/* Spinner sizing */
+.spinner-large {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Progress console */
+.progress-console {
+    height: 150px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+/* Progress console row */
+.progress-console-row {
+    display: none;
+}
