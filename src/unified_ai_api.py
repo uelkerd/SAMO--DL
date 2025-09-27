@@ -401,9 +401,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
             try:
                 from src.models.emotion_detection.hf_loader import \
                     load_emotion_model_multi_source
-                hf_model_id = os.getenv(
-                    "EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large"
-                )
+                from .constants import DEFAULT_EMOTION_MODEL_ID
+                hf_model_id = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
