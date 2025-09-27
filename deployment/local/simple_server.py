@@ -28,7 +28,8 @@ except ImportError:
     sys.exit(1)
 
 # Get the project root directory (two levels up from this script)
-# Script is at deployment/local/simple_server.py, so we go up 2 levels to get to project root
+# Script is at deployment/local/simple_server.py, so we go up 2 levels
+# to get to project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WEBSITE_DIR = PROJECT_ROOT / "website"
 
