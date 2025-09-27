@@ -6,20 +6,25 @@
 [![CodeScene System Mastery](https://codescene.io/projects/70411/status-badges/system-mastery)](https://codescene.io/projects/70411)
 [![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/70411)
 
-
 # SAMO Deep Learning Track
+
 ## Production-Grade Emotion Detection System for Voice-First Journaling
 
-> **SAMO** is an AI-powered journaling companion that transforms voice conversations into emotionally-aware insights. This repository contains the complete Deep Learning infrastructure powering real-time emotion detection and text summarization in production.
+> **SAMO** is an AI-powered journaling companion that transforms voice conversations
+> into emotionally-aware insights. This repository contains the complete Deep Learning
+> infrastructure powering real-time emotion detection and text summarization in
+> production.
 
 ## 🎯 Project Context & Scope
 
-**Role**: Sole Deep Learning Engineer (originally 2-person team, now independent ownership)  
-**Responsibility**: End-to-end ML pipeline from research to production deployment  
+**Role**: Sole Deep Learning Engineer (originally 2-person team, now independent
+ownership) **Responsibility**: End-to-end ML pipeline from research to production
+deployment
 
 ### Architecture Overview
 
 #### Voice Processing Pipeline
+
 ```text
 Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → Emotional Insights
      ↓              ↓                ↓                    ↓                  ↓
@@ -27,6 +32,7 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 ```
 
 #### System Architecture
+
 <div align="center">
   <a href="docs/diagrams/Diagram02.svg">
     <img
@@ -40,29 +46,33 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 ## 🚀 Production Achievements
 
-| Metric | Challenge | Solution | Result |
-|--------|-----------|----------|---------|
-| **Model Accuracy** | Initial F1: 5.20% | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+779%) |
-| **Inference Speed** | PyTorch: ~300ms | ONNX optimization + quantization | **<500ms** (2.3x speedup) |
-| **Model Size** | Original: 500MB | Dynamic quantization + compression | **150MB** (75% reduction) |
-| **Production Uptime** | Research prototype | Docker + GCP + monitoring | **>99.5% availability** |
+| Metric                | Challenge          | Solution                                          | Result                    |
+| --------------------- | ------------------ | ------------------------------------------------- | ------------------------- |
+| **Model Accuracy**    | Initial F1: 5.20%  | Asymmetric loss + data augmentation + calibration | **45.70% F1** (+779%)     |
+| **Inference Speed**   | PyTorch: ~300ms    | ONNX optimization + quantization                  | **<500ms** (2.3x speedup) |
+| **Model Size**        | Original: 500MB    | Dynamic quantization + compression                | **150MB** (75% reduction) |
+| **Production Uptime** | Research prototype | Docker + GCP + monitoring                         | **>99.5% availability**   |
 
 ## 🧠 Technical Innovation
 
 ### Core ML Systems
 
 **1. Emotion Detection Pipeline**
+
 - **Model**: Fine-tuned DistilRoBERTa (66M parameters) on GoEmotions dataset
-- **Innovation**: Implemented focal loss for severe class imbalance (27 emotion categories)
+- **Innovation**: Implemented focal loss for severe class imbalance (27 emotion
+  categories)
 - **Optimization**: ONNX Runtime deployment with dynamic quantization
 - **Performance**: 90.70% F1 score, 100-600ms inference time
 
-**2. Text Summarization Engine** 
+**2. Text Summarization Engine**
+
 - **Architecture**: T5-based transformer (60.5M parameters)
 - **Purpose**: Extract emotional core from journal conversations
 - **Integration**: Seamless pipeline with emotion detection API
 
 **3. Voice Processing Integration**
+
 - **Model**: OpenAI Whisper for speech-to-text (<10% WER)
 - **Pipeline**: End-to-end voice journaling with emotional analysis
 - **Formats**: Multi-format audio support with real-time processing
@@ -70,12 +80,14 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 ### Production Engineering
 
 **MLOps Infrastructure**
+
 - **Deployment**: Dockerized microservices on Google Cloud Run
-- **Monitoring**: Prometheus metrics + custom model drift detection  
+- **Monitoring**: Prometheus metrics + custom model drift detection
 - **Security**: Rate limiting, input validation, comprehensive error handling
 - **Testing**: Complete test suite (Unit, Integration, E2E, Performance)
 
 **Performance Optimization**
+
 - **Model Compression**: Dynamic quantization reducing inference memory by 4x
 - **Runtime Optimization**: ONNX conversion for production deployment
 - **Scalability**: Auto-scaling microservices architecture
@@ -83,14 +95,15 @@ Voice Input → Whisper STT → DistilRoBERTa Emotion → T5 Summarization → E
 
 ## 🔧 Technical Stack
 
-**ML Frameworks**: PyTorch, Transformers (Hugging Face), ONNX Runtime  
-**Model Architecture**: DistilRoBERTa, T5, Transformer-based NLP  
-**Production**: Docker, Kubernetes, Google Cloud Platform, Flask APIs  
-**MLOps**: Model monitoring, automated retraining, drift detection, CI/CD  
+**ML Frameworks**: PyTorch, Transformers (Hugging Face), ONNX Runtime **Model
+Architecture**: DistilRoBERTa, T5, Transformer-based NLP **Production**: Docker,
+Kubernetes, Google Cloud Platform, Flask APIs **MLOps**: Model monitoring, automated
+retraining, drift detection, CI/CD
 
 ## 📊 Live Production System
 
 ### API Endpoints
+
 ```bash
 # Production emotion detection
 curl -X POST https://samo-emotion-api-[...].run.app/predict \
@@ -108,8 +121,9 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 ```
 
 ### System Health
+
 - **Uptime**: >99.5% production availability
-- **Latency**: 95th percentile under 500ms  
+- **Latency**: 95th percentile under 500ms
 - **Throughput**: 1000+ requests/minute capacity
 - **Error Rate**: <0.1% system errors
 
@@ -126,7 +140,7 @@ SAMO--DL/
 │   └── local/                # Development environment
 ├── scripts/
 │   ├── testing/              # Comprehensive test suite
-│   ├── deployment/           # Deployment automation  
+│   ├── deployment/           # Deployment automation
 │   └── optimization/         # Model optimization tools
 ├── docs/
 │   ├── api/                  # API documentation
@@ -134,23 +148,29 @@ SAMO--DL/
 │   └── architecture/         # System design documentation
 └── models/
     ├── emotion_detection/    # Fine-tuned emotion models
-    ├── summarization/        # T5 summarization models  
+    ├── summarization/        # T5 summarization models
     └── optimization/         # ONNX optimized models
 ```
 
 ## 🧠 Training Repository
 
-**Main Training Files**: All model training, experimentation, and optimization work is conducted in the dedicated [goemotions-deberta](https://github.com/uelkerd/goemotions-deberta) repository, located at `notebooks/goemotions-deberta/`.
+**Main Training Files**: All model training, experimentation, and optimization work is
+conducted in the dedicated
+[goemotions-deberta](https://github.com/uelkerd/goemotions-deberta) repository, located
+at `notebooks/goemotions-deberta/`.
 
 ### Repository Contents
+
 - **📓 Complete training notebooks** for emotion detection model development
-- **🔧 Performance optimization scripts** for model fine-tuning and hyperparameter tuning
+- **🔧 Performance optimization scripts** for model fine-tuning and hyperparameter
+  tuning
 - **🧪 Comprehensive testing frameworks** for model validation and evaluation
 - **📊 Scientific loss comparison tools** for model improvement and analysis
 - **🤖 DeBERTa-v3-large implementation** for multi-label emotion classification
 - **📈 Model monitoring and tracking** for training progress and performance metrics
 
 ### Quick Access
+
 ```bash
 # Navigate to training repository
 cd notebooks/goemotions-deberta/
@@ -163,17 +183,22 @@ python scripts/training/your_experiment.py
 ```
 
 ### Integration with Production
+
 The training repository is automatically initialized as a git submodule, ensuring:
+
 - **Version Control**: Track specific commits of training code
 - **Easy Updates**: Pull latest training improvements when ready
 - **Clean Separation**: Maintain boundaries between research and production code
 - **CI/CD Integration**: Training code is automatically available in CI pipelines
 
-> **Note**: This dedicated repository maintains clean separation between research/experimentation and production deployment code, while providing seamless integration through git submodules.
+> **Note**: This dedicated repository maintains clean separation between
+> research/experimentation and production deployment code, while providing seamless
+> integration through git submodules.
 
 ## 🛠️ Development Workflow
 
 ### Model Training (Google Colab)
+
 ```python
 # Fine-tuning DistilRoBERTa for emotion detection
 trainer = EmotionTrainer(
@@ -186,8 +211,8 @@ trainer = EmotionTrainer(
 trainer.train()  # Achieved 90.70% F1 score
 ```
 
-
 ### Production Deployment
+
 ```bash
 # Deploy optimized model to Google Cloud Run
 gcloud run deploy samo-emotion-api \
@@ -200,6 +225,7 @@ gcloud run deploy samo-emotion-api \
 ```
 
 ### Performance Monitoring
+
 ```python
 # Real-time model performance tracking
 from prometheus_client import Counter, Histogram
@@ -216,21 +242,25 @@ def predict_emotion(text):
 ## 🎯 Key Challenges Solved
 
 ### 1. **Severe Class Imbalance** (27 emotions)
+
 - **Problem**: Standard cross-entropy loss yielding 5.20% F1 score
 - **Solution**: Implemented focal loss + strategic data augmentation
 - **Result**: 90.70% F1 score (+1,630% improvement)
 
 ### 2. **Production Latency Requirements**
+
 - **Problem**: PyTorch inference too slow for real-time use (>1s)
 - **Solution**: ONNX optimization + dynamic quantization
 - **Result**: <500ms response time (2.3x speedup)
 
 ### 3. **Memory Efficiency for Scaling**
+
 - **Problem**: 500MB model size limiting concurrent users
 - **Solution**: Model compression + efficient batching
 - **Result**: 75% size reduction, 4x memory efficiency
 
 ### 4. **Production Reliability**
+
 - **Problem**: Research prototype → production system
 - **Solution**: Comprehensive MLOps infrastructure
 - **Result**: >99.5% uptime with automated monitoring
@@ -238,17 +268,20 @@ def predict_emotion(text):
 ## 📈 Impact & Metrics
 
 **Model Performance**
+
 - Emotion detection accuracy: **90.70% F1 score**
-- Voice transcription: **<10% Word Error Rate**  
+- Voice transcription: **<10% Word Error Rate**
 - Summarization quality: **>4.0/5.0 human evaluation**
 
-**System Performance**  
+**System Performance**
+
 - Average response time: **287ms**
 - 95th percentile latency: **<500ms**
 - Production uptime: **>99.5%**
 - Error rate: **<0.1%**
 
 **Engineering Impact**
+
 - Model size optimization: **75% reduction**
 - Inference speedup: **2.3x faster**
 - Memory efficiency: **4x improvement**
@@ -257,6 +290,7 @@ def predict_emotion(text):
 ## 🔬 Research & Experimentation
 
 ### Model Architecture Experiments
+
 - **Baseline**: BERT-base (F1: 5.20%)
 - **Optimization 1**: Focal loss implementation (+15% F1)
 - **Optimization 2**: Data augmentation pipeline (+25% F1)
@@ -264,6 +298,7 @@ def predict_emotion(text):
 - **Final**: DistilRoBERTa + ensemble (F1: 90.70%)
 
 ### Production Optimization Journey
+
 - **Phase 1**: PyTorch prototype (300ms inference)
 - **Phase 2**: ONNX conversion (130ms inference, 2.3x speedup)
 - **Phase 3**: Dynamic quantization (75% size reduction)
@@ -272,6 +307,7 @@ def predict_emotion(text):
 ## 🚀 Getting Started
 
 ### Quick Test (Production API)
+
 ```bash
 # Test emotion detection
 curl -X POST https://samo-emotion-api-[...].run.app/predict \
@@ -280,6 +316,21 @@ curl -X POST https://samo-emotion-api-[...].run.app/predict \
 ```
 
 ### Local Development
+
+#### Website Development Server
+
+```bash
+git clone https://github.com/uelkerd/SAMO--DL.git
+cd SAMO--DL/deployment/local
+./start-simple.sh
+# Or with custom port: PORT=8001 ./start-simple.sh
+```
+
+This starts a Flask development server with CORS enabled that serves the website files
+for local testing against production APIs.
+
+#### API Development
+
 ```bash
 git clone https://github.com/uelkerd/SAMO--DL.git
 cd SAMO--DL
@@ -288,6 +339,7 @@ python deployment/local/api_server.py
 ```
 
 ### Model Training
+
 ```bash
 # Access main training repository (see Training Repository section above)
 cd notebooks/goemotions-deberta/
@@ -295,8 +347,6 @@ cd notebooks/goemotions-deberta/
 # Follow notebooks/ directory for complete training experiments
 # Experiment with hyperparameters and architectures
 ```
-
-
 
 ## 📅 Project Roadmap
 
@@ -314,12 +364,14 @@ cd notebooks/goemotions-deberta/
 ## 🎯 Future Enhancements
 
 **Model Improvements**
+
 - [ ] Expand to 105+ fine-grained emotions
 - [ ] Multi-language support (German, Spanish, French)
 - [ ] Temporal emotion pattern detection
 - [ ] Cross-cultural emotion adaptation
 
 **Production Features**
+
 - [ ] A/B testing framework for model comparison
 - [ ] Automated model retraining pipeline
 - [ ] Real-time model drift detection
@@ -328,6 +380,7 @@ cd notebooks/goemotions-deberta/
 ## 🤝 Integration Examples
 
 **Backend Integration (Python)**
+
 ```python
 import requests
 
@@ -340,35 +393,38 @@ def analyze_emotion(text: str) -> dict:
 ```
 
 **Frontend Integration (JavaScript)**
+
 ```javascript
 async function detectEmotion(text) {
-    const response = await fetch('/api/predict', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text})
-    });
-    return await response.json();
+  const response = await fetch("/api/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  return await response.json();
 }
 ```
-
 
 ---
 
 ## Support & Resources
 
 ### Documentation
+
 - [API Documentation](docs/api/API_DOCUMENTATION.md)
 - [Integration Guide](docs/guides/INTEGRATION_GUIDE.md)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 
 ### Examples
+
 - [Python Integration](examples/python_integration.py)
 - [JavaScript Integration](examples/javascript_integration.js)
 - [React Component](examples/ReactEmotionDetector.jsx)
 - [Vue Component](examples/VueEmotionDetector.vue)
 
 ### Testing
+
 - [API Test Suite](scripts/testing/)
 - [Performance Benchmarks](scripts/testing/benchmarks.py)
 - [Integration Tests](scripts/testing/integration_tests.py)
@@ -378,6 +434,7 @@ async function detectEmotion(text) {
 ## Project Success
 
 ### Achievements
+
 - **Production Deployment**: Live API with 99.9% uptime
 - **Performance Optimization**: 2.3x speedup with ONNX
 - **Enterprise Security**: Comprehensive security features
@@ -385,6 +442,7 @@ async function detectEmotion(text) {
 - **Documentation**: Complete guides and examples
 
 ### Impact
+
 - **Model Performance**: 5.20% → >90% F1 score (+1,630% improvement)
 - **System Performance**: 2.3x faster inference
 - **Resource Efficiency**: 4x less memory usage

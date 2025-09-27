@@ -1,0 +1,15 @@
+# Minimal dependencies for SAMO Local Development Server
+# These are the only dependencies needed to run the simple web server
+
+# Web server framework
+Flask==2.3.3
+
+# CORS support for cross-origin requests
+Flask-Cors==4.0.0
+
+# Dependencies automatically installed with Flask:
+# - Werkzeug>=2.3.7
+# - Jinja2>=3.1.2
+# - itsdangerous>=2.1.2
+# - click>=8.1.3
+# - blinker>=1.6.2
