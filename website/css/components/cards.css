@@ -1,0 +1,135 @@
+/* Feature Cards - Consolidated */
+.feature-card {
+    background: linear-gradient(135deg,
+        rgba(139, 92, 246, 0.15) 0%,
+        rgba(168, 85, 247, 0.12) 50%,
+        rgba(192, 132, 252, 0.1) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 20px;
+    box-shadow: var(--shadow-glass);
+    transition: var(--transition-bounce);
+    color: #e2e8f0;
+    height: 100%;
+    padding: 2rem; /* Increased padding for better background-to-text ratio */
+    min-height: 140px; /* Ensure minimum height for prominence */
+    position: relative;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+}
+
+.feature-card.active {
+    background: var(--primary-gradient);
+    border-color: var(--accent-color);
+    color: white;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Add subtle glow effect to feature cards */
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+        rgba(139, 92, 246, 0.05),
+        rgba(168, 85, 247, 0.03),
+        rgba(192, 132, 252, 0.02));
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+/* Feature card text improvements */
+.feature-card .text-muted {
+    color: #cbd5e1 !important;
+}
+
+.feature-card h5, .feature-card h6 {
+    color: #f1f5f9 !important;
+}
+
+.feature-card small {
+    color: #cbd5e1 !important;
+}
+
+/* Ensure icons are visible in results */
+.feature-card h5 i {
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+/* Processing Information Compact Styles */
+#processingInfoSidebar .feature-card {
+    min-height: auto;
+}
+
+#processingInfoSidebar .bg-dark {
+    transition: all 0.2s ease;
+}
+
+#processingInfoSidebar .bg-dark:hover {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    transform: translateX(2px);
+}
+
+/* Model Detail Cards */
+.model-detail-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.model-detail-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.model-detail-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.model-detail-value {
+    font-size: 1.1rem;
+    color: #f1f5f9;
+    font-weight: 700;
+}
+
+.model-detail-text {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #processingInfoSidebar .feature-card {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .feature-card {
+        padding: 1rem !important;
+        margin-bottom: 1rem;
+    }
+}

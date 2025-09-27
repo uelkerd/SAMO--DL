@@ -5,7 +5,7 @@ import tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
 
-MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
+MODEL_ID = os.getenv("MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
 
 # Get token from environment or local storage
 TOKEN = os.getenv("HF_TOKEN")
