@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize debug section (hidden by default, can be shown by adding ?showDebug=1 to URL)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('showDebug') === '1') {
-        LayoutManager.toggleDebugSection(true);
+        window.LayoutManager?.toggleDebugSection?.(true);
     }
 
     // Safety reset to ensure clean processing state
