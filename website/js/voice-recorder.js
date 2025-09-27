@@ -168,7 +168,9 @@ class VoiceRecorder {
     async processRecordedAudio(audioBlob) {
         try {
             // Show processing state
-            this.showProcessingState();
+            if (!this.showProcessingState()) {
+                return;
+            }
 
             // Create a File object from the blob with correct extension
             const extension = this.getExtensionFromMimeType(audioBlob.type);
@@ -200,7 +202,7 @@ class VoiceRecorder {
 
             // Provide specific error messages based on error type
             let userMessage = 'Transcription failed';
-            if (error.message.includes('API client not available')) {
+            if (/API client/i.test(error.message)) {
                 userMessage = 'Voice service unavailable. Please refresh the page and try again.';
             } else if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
                 userMessage = 'Network error. Please check your connection and try again.';
