@@ -79,10 +79,14 @@ def health_check():
 @app.errorhandler(404)
 def not_found(_error):
     """Custom 404 handler."""
+    available_files = []
+    if WEBSITE_DIR.exists():
+        available_files = [f.name for f in WEBSITE_DIR.glob("*.html")]
+
     return jsonify({
         "error": "Not found",
         "message": "The requested resource was not found on this server",
-        "available_files": [f.name for f in WEBSITE_DIR.glob("*.html")] if WEBSITE_DIR.exists() else []
+        "available_files": available_files
     }), 404
 
 
@@ -149,7 +153,8 @@ def main():
     html_files = list(WEBSITE_DIR.glob("*.html"))
     for html_file in html_files:
         if html_file.name != "index.html":
-            print(f"   • {html_file.stem.title()}: http://{args.host}:{args.port}/{html_file.name}")
+            url = f"http://{args.host}:{args.port}/{html_file.name}"
+            print(f"   • {html_file.stem.title()}: {url}")
 
     print(f"🏥 Health check: http://{args.host}:{args.port}/health")
     print("\nPress Ctrl+C to stop the server")
