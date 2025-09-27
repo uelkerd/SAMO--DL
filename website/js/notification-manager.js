@@ -138,7 +138,7 @@ class NotificationManager {
             position: relative;
             padding: 12px 20px;
             border-radius: 6px;
-            color: white;
+            color: ${type === 'warning' ? '#212529' : 'white'};
             font-weight: 500;
             opacity: 0;
             transform: translateY(-20px);
