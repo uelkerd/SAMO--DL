@@ -780,9 +780,9 @@ async function testWithRealAPI() {
         addToProgressConsole('🧠 Initializing DeBERTa v3 Large emotion model...', 'processing');
         console.log('🔥 Calling emotion API...');
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
-        // Create API client instance for proper timeout and error handling
-        const apiClient = new SAMOAPIClient();
-        const data = await apiClient.makeRequest(apiClient.endpoints.EMOTION, { text: testText }, 'POST');
+        // Reuse global client; leverage high-level API with built-in fallbacks
+        const apiClient = window.apiClient || (window.apiClient = new SAMOAPIClient());
+        const data = await apiClient.detectEmotions(testText);
 
         addToProgressConsole('✅ Emotion analysis API response received', 'success');
         console.log('✅ Real API response:', data);
