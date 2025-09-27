@@ -38,7 +38,7 @@ describe('SAMO Configuration', () => {
     it('should redact sensitive patterns', () => {
       const testObj = {
         api_key: 'secret123',
-        API_KEY: 'another_secret',
+        API_KEY: 'another_secret', // skipcq: SCT-A000 - test data for redaction testing
         token: 'token_value',
         normal_field: 'normal_value',
         nested: {
