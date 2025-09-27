@@ -4,13 +4,16 @@
  */
 
 class VoiceRecorder {
-    constructor() {
+    constructor(apiClient = null) {
         this.mediaRecorder = null;
         this.audioChunks = [];
         this.isRecording = false;
         this.stream = null;
         this.recordingStartTime = null;
         this.recordingTimer = null;
+
+        // Dependencies (injected)
+        this.apiClient = apiClient;
 
         // UI Elements
         this.recordBtn = null;
@@ -170,21 +173,10 @@ class VoiceRecorder {
                 type: audioBlob.type
             });
 
-            // Get or create API client
-            let apiClient = window.apiClient;
+            // Use injected API client (dependency injection)
+            const apiClient = this.apiClient;
             if (!apiClient) {
-                console.log('⚠️ Global API client not available, creating new instance...');
-                try {
-                    // Try to create a new SAMOAPIClient instance
-                    if (typeof SAMOAPIClient !== 'undefined') {
-                        apiClient = new SAMOAPIClient();
-                        console.log('✅ Created new API client instance');
-                    } else {
-                        throw new Error('SAMOAPIClient class not available');
-                    }
-                } catch (createError) {
-                    throw new Error(`Unable to create API client: ${createError.message}`);
-                }
+                throw new Error('API client not provided. VoiceRecorder requires an apiClient dependency.');
             }
 
             // Use API client to transcribe
@@ -445,6 +437,37 @@ window.voiceRecorder = null;
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎙️ Initializing voice recorder...');
-    window.voiceRecorder = new VoiceRecorder();
-    await window.voiceRecorder.init();
+
+    // Wait for API client to be available (with timeout)
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds at 100ms intervals
+
+    const waitForApiClient = () => {
+        return new Promise((resolve, reject) => {
+            const checkClient = () => {
+                if (window.apiClient) {
+                    resolve(window.apiClient);
+                } else if (attempts >= maxAttempts) {
+                    reject(new Error('API client not available within timeout'));
+                } else {
+                    attempts++;
+                    setTimeout(checkClient, 100);
+                }
+            };
+            checkClient();
+        });
+    };
+
+    try {
+        const apiClient = await waitForApiClient();
+        window.voiceRecorder = new VoiceRecorder(apiClient);
+        await window.voiceRecorder.init();
+        console.log('✅ Voice recorder initialized with API client');
+    } catch (error) {
+        console.error('❌ Failed to initialize voice recorder:', error);
+        // Fallback: create without API client (will show clear error if transcription attempted)
+        window.voiceRecorder = new VoiceRecorder(null);
+        await window.voiceRecorder.init();
+        console.warn('⚠️ Voice recorder initialized without API client - transcription will fail');
+    }
 });

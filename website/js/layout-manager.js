@@ -11,6 +11,29 @@ const LayoutManager = {
     processingStartTime: null, // Track when processing started
     maxProcessingTime: 120000, // Maximum processing time (2 minutes) before auto-reset
 
+    // Dependencies (injected for testability and loose coupling)
+    dependencies: {
+        clearAllResultContent: null, // Function to clear result content
+        updateElement: null, // Function to update element content
+        textInput: null, // DOM element reference
+        resultsLayout: null, // DOM element reference
+        inputLayout: null // DOM element reference
+    },
+
+    // Initialize with dependencies (dependency injection)
+    init(dependencies = {}) {
+        console.log('🔧 LayoutManager: Initializing with dependencies...');
+
+        // Set up dependencies with fallbacks to global scope for backward compatibility
+        this.dependencies.clearAllResultContent = dependencies.clearAllResultContent || (typeof clearAllResultContent === 'function' ? clearAllResultContent : null);
+        this.dependencies.updateElement = dependencies.updateElement || (typeof updateElement === 'function' ? updateElement : null);
+        this.dependencies.textInput = dependencies.textInput || document.getElementById('textInput');
+        this.dependencies.resultsLayout = dependencies.resultsLayout || document.getElementById('resultsLayout');
+        this.dependencies.inputLayout = dependencies.inputLayout || document.getElementById('inputLayout');
+
+        console.log('✅ LayoutManager: Dependencies initialized');
+    },
+
     // Safety reset to ensure clean state on page load
     resetProcessingState() {
         console.log('🔄 Safety reset: clearing processing state...');
@@ -182,46 +205,43 @@ const LayoutManager = {
         console.log('🔧 Processing state forcibly reset');
 
         // IMMEDIATELY clear all result content to prevent remnants
-        if (typeof clearAllResultContent === 'function') {
-            clearAllResultContent();
+        if (this.dependencies.clearAllResultContent) {
+            this.dependencies.clearAllResultContent();
         }
 
-        // Clear text input
-        const textInput = document.getElementById('textInput');
-        if (textInput) {
-            textInput.value = '';
+        // Clear text input (using injected dependency)
+        if (this.dependencies.textInput) {
+            this.dependencies.textInput.value = '';
         }
 
         // Clear any inline messages
         const existingMessages = document.querySelectorAll('.inline-message');
         existingMessages.forEach(msg => msg.remove());
 
-        // Reset Processing Information values
-        if (typeof updateElement === 'function') {
-            updateElement('totalTimeCompact', '-');
-            updateElement('processingStatusCompact', 'Ready');
-            updateElement('modelsUsedCompact', '-');
-            updateElement('avgConfidenceCompact', '-');
+        // Reset Processing Information values (using injected dependency)
+        if (this.dependencies.updateElement) {
+            this.dependencies.updateElement('totalTimeCompact', '-');
+            this.dependencies.updateElement('processingStatusCompact', 'Ready');
+            this.dependencies.updateElement('modelsUsedCompact', '-');
+            this.dependencies.updateElement('avgConfidenceCompact', '-');
         }
 
-        // Hide results layout
-        const resultsLayout = document.getElementById('resultsLayout');
-        if (resultsLayout) {
-            resultsLayout.style.opacity = '0';
-            resultsLayout.style.transform = 'translateY(20px)';
+        // Hide results layout (using injected dependency)
+        if (this.dependencies.resultsLayout) {
+            this.dependencies.resultsLayout.style.opacity = '0';
+            this.dependencies.resultsLayout.style.transform = 'translateY(20px)';
 
             setTimeout(() => {
-                resultsLayout.classList.add('d-none');
+                this.dependencies.resultsLayout.classList.add('d-none');
             }, 300);
         }
 
-        // Show input layout immediately
-        const inputLayout = document.getElementById('inputLayout');
-        if (inputLayout) {
+        // Show input layout immediately (using injected dependency)
+        if (this.dependencies.inputLayout) {
             console.log('🔄 LayoutManager: Showing input layout');
-            inputLayout.classList.remove('d-none'); // Remove Bootstrap's hide class
-            inputLayout.style.opacity = '1';
-            inputLayout.style.transform = 'translateY(0)';
+            this.dependencies.inputLayout.classList.remove('d-none'); // Remove Bootstrap's hide class
+            this.dependencies.inputLayout.style.opacity = '1';
+            this.dependencies.inputLayout.style.transform = 'translateY(0)';
             console.log('✅ LayoutManager: Input layout should be visible');
         } else {
             console.error('❌ LayoutManager: inputLayout element not found');
@@ -236,10 +256,9 @@ const LayoutManager = {
 
     // Show loading state in results area
     showLoadingState() {
-        const resultsLayout = document.getElementById('resultsLayout');
-        if (resultsLayout) {
-            resultsLayout.classList.remove('d-none');
-            resultsLayout.style.opacity = '1';
+        if (this.dependencies.resultsLayout) {
+            this.dependencies.resultsLayout.classList.remove('d-none');
+            this.dependencies.resultsLayout.style.opacity = '1';
 
             // Show only loading spinner initially
             const loadingSection = document.getElementById('loadingSection');
@@ -435,6 +454,13 @@ window.clearAllWithStateManagement = function() {
         clearAll();
     }
 };
+
+// Initialize LayoutManager when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏗️ Initializing LayoutManager...');
+    LayoutManager.init(); // Initialize with default dependencies (falls back to global scope)
+    console.log('✅ LayoutManager initialized');
+});
 
 // Make LayoutManager globally available
 window.LayoutManager = LayoutManager;
