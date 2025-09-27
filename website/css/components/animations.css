@@ -66,19 +66,6 @@
     display: block;
 }
 
-/* Dynamic Layout States */
-#inputLayout {
-    transition: all 0.5s ease-in-out;
-}
-
-#resultsLayout {
-    transition: all 0.5s ease-in-out;
-}
-
-#titleWithFlow {
-    transition: all 0.3s ease-in-out;
-}
-
 /* Enhanced transitions for responsive changes */
 @media (prefers-reduced-motion: no-preference) {
     #titleWithFlow,

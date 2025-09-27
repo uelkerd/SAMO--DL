@@ -1,18 +1,19 @@
 /* Form Controls and Input Styling */
-#textInput {
-    min-height: 240px !important;
+/* Scoped text input styling to demo container for higher specificity */
+.demo-container #textInput {
+    min-height: 240px;
     font-size: 16px;
     line-height: 1.5;
     resize: vertical;
     padding: 1.5rem; /* Increased padding for better appearance */
-    background-color: rgba(255, 255, 255, 0.12) !important; /* More prominent background */
-    border: 2px solid rgba(139, 92, 246, 0.3) !important; /* Thicker border */
+    background-color: rgba(255, 255, 255, 0.12); /* More prominent background */
+    border: 2px solid rgba(139, 92, 246, 0.3); /* Thicker border */
 }
 
-#textInput:focus {
-    background-color: rgba(255, 255, 255, 0.18) !important;
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25) !important;
+.demo-container #textInput:focus {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25);
     transform: scale(1.01); /* Subtle scale on focus */
 }
 

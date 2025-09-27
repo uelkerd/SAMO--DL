@@ -8,7 +8,6 @@ for improved maintainability and performance.
 ### Main Files
 
 - `main.css` - Main entry point that imports all component stylesheets
-- `comprehensive-demo.css` - Original monolithic file (kept for reference)
 
 ### Component Files (`components/` directory)
 
