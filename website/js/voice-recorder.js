@@ -166,9 +166,11 @@ class VoiceRecorder {
     }
 
     async processRecordedAudio(audioBlob) {
+        let processingShown = false;
         try {
             // Show processing state
-            if (!this.showProcessingState()) {
+            processingShown = this.showProcessingState() === true;
+            if (!processingShown) {
                 return;
             }
 
@@ -224,7 +226,9 @@ class VoiceRecorder {
                 console.log('🔧 Processing state reset due to transcription error');
             }
         } finally {
-            this.hideProcessingState();
+            if (processingShown) {
+                this.hideProcessingState();
+            }
         }
     }
 
@@ -362,8 +366,9 @@ class VoiceRecorder {
     showProcessingState() {
         // Use existing layout manager if available
         if (window.LayoutManager && typeof window.LayoutManager.showProcessingState === 'function') {
-            // Check if processing is allowed first
-            if (!window.LayoutManager.canStartProcessing()) {
+            // Check if processing is allowed first (if available)
+            if (typeof window.LayoutManager.canStartProcessing === 'function' &&
+                !window.LayoutManager.canStartProcessing()) {
                 console.warn('⚠️ Cannot show processing state - operation already in progress');
                 return false;
             }
