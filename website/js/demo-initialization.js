@@ -5,6 +5,9 @@
 
 // Debug: Check if everything is loaded correctly
 document.addEventListener('DOMContentLoaded', function() {
+    if (window.__demoInitDone) return;
+    window.__demoInitDone = true;
+
     console.log('🚀 Main demo loaded');
     console.log('SamoDemo available:', typeof window.SamoDemo === 'object');
     console.log('processText available:', typeof window.SamoDemo?.processText === 'function');
@@ -18,8 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
         processBtn.addEventListener('click', function() {
             console.log('🔘 Process button clicked!');
             // Use enhanced state management processing
-            if (typeof processTextWithStateManagement === 'function') {
-                processTextWithStateManagement();
+            if (typeof window.processTextWithStateManagement === 'function') {
+                window.processTextWithStateManagement();
             } else if (typeof window.SamoDemo?.processText === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.showProcessingState) {
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.SamoDemo.generateSampleText();
             } else {
                 console.error('❌ generateSampleText function not available');
-                console.log('🔍 Available functions:', Object.keys(window.SamoDemo || {}).filter(key => key.includes('generate')));
+                console.log('🔍 generateSampleText present:', typeof window.SamoDemo?.generateSampleText === 'function');
                 alert('Error: Sample text generation is not available. Please reload the page.');
             }
         });
@@ -72,8 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Update button status on page load
-        if (typeof updateApiKeyButtonStatus === 'function') {
-            updateApiKeyButtonStatus();
+        if (typeof window.updateApiKeyButtonStatus === 'function') {
+            window.updateApiKeyButtonStatus();
         }
     } else {
         console.error('❌ API Key button not found');
@@ -86,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
         clearBtn.addEventListener('click', function() {
             console.log('🔘 Clear button clicked!');
             // Use enhanced state management clearing
-            if (typeof clearAllWithStateManagement === 'function') {
-                clearAllWithStateManagement();
+            if (typeof window.clearAllWithStateManagement === 'function') {
+                window.clearAllWithStateManagement();
             } else if (typeof window.SamoDemo?.clearAll === 'function') {
                 // Fallback to original function
                 if (window.LayoutManager?.resetToInitialState) {
@@ -120,10 +123,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize Bootstrap tooltips if Bootstrap is loaded
-    let tooltipList = [];
     if (window.bootstrap) {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
         console.log('✅ Bootstrap tooltips initialized:', tooltipList.length);

@@ -76,7 +76,7 @@ class SAMOAPIClient {
 
         const config = {
             method,
-            headers: {}
+            headers: { 'Accept': 'application/json' }
         };
         const controller = new AbortController();
         let abortReason = null; // Track abort reason
@@ -172,7 +172,8 @@ class SAMOAPIClient {
             return await response.json();
         } catch (error) {
             // Handle network errors with retry
-            if ((error.name === 'AbortError' || abortReason === 'timeout' || error.message.includes('timeout') || error.message.includes('network')) && attemptsLeft > 1) {
+            const msg = String(error?.message || '').toLowerCase();
+            if ((error.name === 'AbortError' || abortReason === 'timeout' || msg.includes('timeout') || msg.includes('network') || msg.includes('failed to fetch')) && attemptsLeft > 1) {
                 const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000;
                 console.warn(`Network error, retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`, error.message);
 
@@ -244,7 +245,6 @@ class SAMOAPIClient {
     getMockSummaryResponse(text) {
         // Improved mock summarization response for demo purposes
         const words = text.split(' ');
-        const summaryLength = Math.max(15, Math.floor(words.length * 0.4));
 
         // Create a more intelligent summary by taking key sentences
         const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
@@ -255,7 +255,7 @@ class SAMOAPIClient {
             summary = sentences[0].trim() + '. ' + sentences[sentences.length - 1].trim() + '.';
         } else {
             // Fallback to word truncation
-            summary = words.slice(0, summaryLength).join(' ') + '...';
+            summary = words.slice(0, Math.max(15, Math.floor(words.length * 0.4))).join(' ') + '...';
         }
 
         // Ensure summary is not too long
@@ -429,8 +429,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize global API client
     try {
-        window.apiClient = new SAMOAPIClient();
-        console.log('✅ Global API client initialized');
+        if (!window.apiClient) {
+            window.apiClient = new SAMOAPIClient();
+            console.log('✅ Global API client initialized');
+        } else {
+            console.log('ℹ️ Global API client already initialized');
+        }
     } catch (error) {
         console.error('❌ Failed to initialize API client:', error);
     }
@@ -671,6 +675,17 @@ function manageApiKey() {
     }
 }
 
+// Reflect API key state on the button, if present
+function updateApiKeyButtonStatus() {
+    const btn = document.getElementById('apiKeyBtn');
+    if (!btn) return;
+    const hasKey = !!(sessionStorage.getItem('openai_api_key') || localStorage.getItem('openai_api_key'));
+    btn.textContent = hasKey ? 'Change API Key' : 'Manage API Key';
+    btn.classList.toggle('btn-success', hasKey);
+    btn.classList.toggle('btn-outline-secondary', !hasKey);
+}
+window.updateApiKeyButtonStatus = updateApiKeyButtonStatus;
+
 // Essential Processing Functions (restored from simple-demo-functions.js)
 
 async function processText(skipStateCheck = false) {
@@ -870,13 +885,8 @@ async function callSummarizationAPI(text) {
     addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
-        // Use global API client instance
-        const apiClient = window.apiClient;
-        console.log('📝 API Base URL:', apiClient.baseURL);
-        console.log('📝 Summarization endpoint:', apiClient.endpoints.SUMMARIZE);
-        console.log('📝 Full API URL:', `${apiClient.baseURL}${apiClient.endpoints.SUMMARIZE}`);
-
-        const data = await apiClient.makeRequest(apiClient.endpoints.SUMMARIZE, { text: text }, 'POST');
+        const apiClient = window.apiClient || (window.apiClient = new SAMOAPIClient());
+        const data = await apiClient.summarizeText(text);
 
         addToProgressConsole('✅ Summarization API response received', 'success');
         console.log('✅ Summarization API response (full):', JSON.stringify(data, null, 2));
