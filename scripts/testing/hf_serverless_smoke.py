@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
+# Add src to path to import constants
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+
 import os
 import json
-import sys
 import time
 from typing import List, Tuple
 
-# Add src to path to import constants
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from src.constants import DEFAULT_EMOTION_MODEL_ID
-
 import requests
 
 HF_REPO = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)

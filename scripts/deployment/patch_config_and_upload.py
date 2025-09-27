@@ -1,13 +1,15 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
-import os
+
+# Add src to path to import constants
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+
+import os
 import tempfile
 from huggingface_hub import HfApi, HfFolder
 from transformers import AutoConfig
 
-# Add src to path to import constants
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from src.constants import DEFAULT_EMOTION_MODEL_ID
 
 MODEL_ID = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
