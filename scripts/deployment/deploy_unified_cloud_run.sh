@@ -30,8 +30,8 @@ gcloud run deploy "${SERVICE}" \
   --memory=2Gi \
   --cpu=2 \
   --timeout=600 \
-  --min-instances=0
+  --min-instances=0 \
+  --set-env-vars="EMOTION_MODEL_ID=duelker/samo-goemotions-deberta-v3-large"
 
 echo "Deployment triggered. Service URL:"
 gcloud run services describe "${SERVICE}" --project "${PROJECT_ID}" --region "${REGION}" --platform managed --format='value(status.url)'
-
