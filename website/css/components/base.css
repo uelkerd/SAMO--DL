@@ -1,0 +1,77 @@
+/* Base Styles and Typography */
+body.comprehensive-demo {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: #e2e8f0;
+    background: var(--dark-gradient);
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding-top: 80px; /* Account for fixed navbar */
+}
+
+/* Disable background-attachment: fixed on mobile devices for performance */
+@media (max-width: 768px) {
+    body.comprehensive-demo {
+        background-attachment: scroll;
+    }
+}
+
+/* Material Icons styling */
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    vertical-align: middle;
+}
+
+/* Info icon styling */
+.info-icon {
+    font-size: 16px !important;
+    color: #6b7280;
+    margin-left: 6px;
+    cursor: help;
+    opacity: 0.7;
+    transition: var(--transition-smooth);
+    vertical-align: middle;
+}
+
+.info-icon:hover {
+    color: var(--primary-color);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Text Effects */
+.gradient-text {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+    .hero-section::before {
+        animation: none !important;
+    }
+    .floating-card {
+        animation: none !important;
+    }
+    .audio-bar {
+        animation: none !important;
+    }
+}
