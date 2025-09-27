@@ -178,7 +178,7 @@ body.comprehensive-demo {
     display: none !important;
 }
 
-.result-section-visible {
+.comprehensive-demo .result-section-visible {
     display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -315,7 +315,7 @@ body.comprehensive-demo {
     margin-bottom: 8px;
 }
 
-.result-section.show {
+.comprehensive-demo .result-section.show {
     display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -805,7 +805,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.error-message.show {
+.comprehensive-demo .error-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
@@ -822,7 +822,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.success-message.show {
+.comprehensive-demo .success-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
