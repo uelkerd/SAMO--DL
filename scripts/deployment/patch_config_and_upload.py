@@ -4,8 +4,14 @@ import os
 import tempfile
 from transformers import AutoConfig
 from huggingface_hub import HfApi, HfFolder
+import sys
+import os
 
-MODEL_ID = os.getenv("MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
+# Add src to path to import constants
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from src.constants import DEFAULT_EMOTION_MODEL_ID
+
+MODEL_ID = os.getenv("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
 
 # Get token from environment or local storage
 TOKEN = os.getenv("HF_TOKEN")

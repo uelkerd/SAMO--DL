@@ -3,6 +3,7 @@ import os
 import sys
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from src.constants import DEFAULT_EMOTION_MODEL_ID
 
 try:
     from huggingface_hub import login  # type: ignore
@@ -11,9 +12,7 @@ except Exception:  # pragma: no cover
 
 
 def main() -> int:
-    model_id = os.environ.get(
-        "EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large"
-    )
+    model_id = os.environ.get("EMOTION_MODEL_ID", DEFAULT_EMOTION_MODEL_ID)
     token = os.environ.get("HF_TOKEN")
 
     if token and login is not None:
