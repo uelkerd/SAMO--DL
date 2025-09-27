@@ -12,33 +12,35 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="css/styles.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-brain text-primary me-2"></i>
+            <a class="navbar-brand fw-bold" href="#" aria-label="SAMO-DL Home">
+                <i class="fas fa-brain text-primary me-2" aria-hidden="true"></i>
                 SAMO-DL
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#features">Features</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="comprehensive-demo.html">Emotion Demo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#docs">Documentation</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary ms-2" href="comprehensive-demo.html">Try Demo</a>
-                        </li>
-                    </ul>
+                <ul class="navbar-nav ms-auto" role="menubar">
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="#features" role="menuitem">Features</a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="comprehensive-demo.html" role="menuitem">Emotion Demo</a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="#docs" role="menuitem">Documentation</a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="btn btn-primary ms-2" href="comprehensive-demo.html" role="menuitem">Try Demo</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -58,15 +60,15 @@
                     </p>
                                         <div class="d-flex gap-3">
                         <a href="comprehensive-demo.html" class="btn btn-light btn-lg">
-                            <i class="fas fa-heart me-2"></i>
+                            <i class="fas fa-heart me-2" aria-hidden="true"></i>
                             Emotion Demo
                         </a>
                         <a href="comprehensive-demo.html" class="btn btn-light btn-lg">
-                            <i class="fas fa-rocket me-2"></i>
+                            <i class="fas fa-rocket me-2" aria-hidden="true"></i>
                             All Features
                         </a>
                         <a href="#integration" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-code me-2"></i>
+                            <i class="fas fa-code me-2" aria-hidden="true"></i>
                             View Code
                         </a>
                     </div>
@@ -435,8 +437,8 @@
 from typing import BinaryIO, IO
 
 class SAMO_API_Client:
-    def __init__(self, base_url="https://api.example.com"):
-        # Replace 'https://api.example.com' with your actual deployment URL
+    def __init__(self, base_url="https://your-api-domain.com"):
+        # Replace 'https://your-api-domain.com' with your actual deployment URL
         self.base_url = base_url
         self.session = requests.Session()
 
@@ -510,11 +512,13 @@ console.log(analysis.emotion_analysis?.emotions);</code></pre>
 <pre><code>import pandas as pd
 import requests
 
+API_BASE_URL = "https://api.example.com"
+
 def analyze_dataset(texts: list) -> pd.DataFrame:
     results = []
     for text in texts:
         analysis = requests.post(
-            `${API_BASE_URL}/analyze/journal`,
+            f"{API_BASE_URL}/analyze/journal",
             json={"text": text, "generate_summary": False}
         ).json()
         results.append({
@@ -776,14 +780,19 @@ const analyzeUserFeedback = async (feedback) => {
 
     <!-- Demo Script -->
     <script>
-        // Configure API Base URL for display (replace with your actual deployment URL)
+        // Configure API Base URL for display (loaded from config.js)
         // Load API configuration from config.js
         let API_BASE_URL = '';
         document.addEventListener('DOMContentLoaded', () => {
-            // Use config if available, otherwise fallback
-            API_BASE_URL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://api.example.com';
+            // Use config if available, otherwise fallback with warning
+            API_BASE_URL = window.SAMO_CONFIG?.API?.BASE_URL || 'https://your-api-domain.com';
             const el = document.getElementById('api-base-url');
             if (el) el.textContent = API_BASE_URL;
+
+            // Warn if config is not loaded
+            if (!window.SAMO_CONFIG) {
+                console.warn('SAMO-DL config.js not loaded. Using fallback API URL. Please ensure js/config.js is available.');
+            }
         });
 
         async function analyzeEmotion() {

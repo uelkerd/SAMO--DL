@@ -407,6 +407,11 @@ I feel a bit sad about the changes."></textarea>
         let AUTH_TOKEN = null;
         let CHAT_WS = null;
 
+        // Warn if config is not loaded
+        if (!window.SAMO_CONFIG) {
+            console.warn('SAMO-DL config.js not loaded. Using fallback API URL. Please ensure js/config.js is available.');
+        }
+
         // Chart Management - Better pattern than global window storage
         const ChartManager = {
             charts: new Map(),
