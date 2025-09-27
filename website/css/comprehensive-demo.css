@@ -43,8 +43,8 @@
 }
 
 /* Info icon styling */
-.info-icon {
-    font-size: 16px !important;
+.comprehensive-demo .info-icon {
+    font-size: 16px;
     color: #6b7280;
     margin-left: 6px;
     cursor: help;
@@ -178,14 +178,14 @@ body.comprehensive-demo {
     display: none !important;
 }
 
-.result-section-visible {
+.comprehensive-demo .result-section-visible {
     display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure all text is visible - scoped to comprehensive demo */
 .comprehensive-demo .text-muted {
-    color: #cbd5e1 !important;
+    color: #cbd5e1;
 }
 
 /* Scoped to demo container only */
@@ -194,16 +194,16 @@ body.comprehensive-demo {
 }
 
 /* Feature card text improvements */
-.feature-card .text-muted {
-    color: #cbd5e1 !important;
+.comprehensive-demo .feature-card .text-muted {
+    color: #cbd5e1;
 }
 
-.feature-card h5, .feature-card h6 {
-    color: #f1f5f9 !important;
+.comprehensive-demo .feature-card h5, .comprehensive-demo .feature-card h6 {
+    color: #f1f5f9;
 }
 
-.feature-card small {
-    color: #cbd5e1 !important;
+.comprehensive-demo .feature-card small {
+    color: #cbd5e1;
 }
 
 /* Scoped form controls to demo container */
@@ -221,7 +221,7 @@ body.comprehensive-demo {
 }
 
 .comprehensive-demo .form-control::placeholder {
-    color: #94a3b8 !important;
+    color: #94a3b8;
 }
 
 /* Hero Section */
@@ -310,12 +310,12 @@ body.comprehensive-demo {
 }
 
 /* Processing Information Icons */
-.processing-info i {
-    font-size: 1.5rem !important;
+.comprehensive-demo .processing-info i {
+    font-size: 1.5rem;
     margin-bottom: 8px;
 }
 
-.result-section.show {
+.comprehensive-demo .result-section.show {
     display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -440,19 +440,19 @@ body.comprehensive-demo {
     width: 100%; /* Full width for better appearance */
 }
 
-.progress-step-vertical .step-icon-small {
-    width: 24px !important; /* Increased from 18px */
-    height: 24px !important; /* Increased from 18px */
+.comprehensive-demo .progress-step-vertical .step-icon-small {
+    width: 24px; /* Increased from 18px */
+    height: 24px; /* Increased from 18px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 16px; /* Increased margin */
     margin-bottom: 0;
-    font-size: 0.8rem !important; /* Increased from 0.6rem */
+    font-size: 0.8rem; /* Increased from 0.6rem */
     transition: var(--transition-smooth);
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #e2e8f0 !important;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
     border: 1px solid rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
 }
@@ -466,20 +466,20 @@ body.comprehensive-demo {
     flex: 1; /* Take remaining space */
 }
 
-.progress-step-vertical.active .step-icon-small {
-    background: var(--primary-gradient) !important;
-    color: white !important;
+.comprehensive-demo .progress-step-vertical.active .step-icon-small {
+    background: var(--primary-gradient);
+    color: white;
     box-shadow: var(--shadow-glow);
 }
 
-.progress-step-vertical.completed .step-icon-small {
-    background: var(--success-color) !important;
-    color: white !important;
+.comprehensive-demo .progress-step-vertical.completed .step-icon-small {
+    background: var(--success-color);
+    color: white;
 }
 
-.progress-step-vertical.error .step-icon-small {
-    background: var(--error-color) !important;
-    color: white !important;
+.comprehensive-demo .progress-step-vertical.error .step-icon-small {
+    background: var(--error-color);
+    color: white;
 }
 
 .pipeline-arrow-vertical {
@@ -685,8 +685,8 @@ body.comprehensive-demo {
     transition: all 0.2s ease;
 }
 
-#processingInfoSidebar .bg-dark:hover {
-    background-color: rgba(0, 0, 0, 0.4) !important;
+.comprehensive-demo #processingInfoSidebar .bg-dark:hover {
+    background-color: rgba(0, 0, 0, 0.4);
     transform: translateX(2px);
 }
 
@@ -712,20 +712,20 @@ body.comprehensive-demo {
 }
 
 /* Enhanced Input Area Background */
-#textInput {
-    min-height: 240px !important;
+.comprehensive-demo #textInput {
+    min-height: 240px;
     font-size: 16px;
     line-height: 1.5;
     resize: vertical;
     padding: 1.5rem; /* Increased padding for better appearance */
-    background-color: rgba(255, 255, 255, 0.12) !important; /* More prominent background */
-    border: 2px solid rgba(139, 92, 246, 0.3) !important; /* Thicker border */
+    background-color: rgba(255, 255, 255, 0.12); /* More prominent background */
+    border: 2px solid rgba(139, 92, 246, 0.3); /* Thicker border */
 }
 
-#textInput:focus {
-    background-color: rgba(255, 255, 255, 0.18) !important;
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25) !important;
+.comprehensive-demo #textInput:focus {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25);
     transform: scale(1.01); /* Subtle scale on focus */
 }
 
@@ -738,18 +738,18 @@ body.comprehensive-demo {
     transition: var(--transition-smooth);
 }
 
-.progress-step-horizontal .step-icon-small {
-    width: 18px !important;
-    height: 18px !important;
+.comprehensive-demo .progress-step-horizontal .step-icon-small {
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0.25rem;
-    font-size: 0.7rem !important;
+    font-size: 0.7rem;
     transition: var(--transition-smooth);
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #cbd5e1 !important;
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
     border: 1px solid rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
 }
@@ -762,23 +762,23 @@ body.comprehensive-demo {
     transition: var(--transition-smooth);
 }
 
-.progress-step-horizontal.active .step-icon-small {
-    background: var(--primary-gradient) !important;
-    color: white !important;
+.comprehensive-demo .progress-step-horizontal.active .step-icon-small {
+    background: var(--primary-gradient);
+    color: white;
     transform: scale(1.1);
 }
 
-.progress-step-horizontal.active .step-label {
+.comprehensive-demo .progress-step-horizontal.active .step-label {
     color: var(--primary-color);
     font-weight: 600;
 }
 
-.progress-step-horizontal.completed .step-icon-small {
-    background: #10b981 !important;
-    color: white !important;
+.comprehensive-demo .progress-step-horizontal.completed .step-icon-small {
+    background: #10b981;
+    color: white;
 }
 
-.progress-step-horizontal.completed .step-label {
+.comprehensive-demo .progress-step-horizontal.completed .step-label {
     color: #10b981;
 }
 
@@ -805,7 +805,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.error-message.show {
+.comprehensive-demo .error-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
@@ -822,7 +822,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.success-message.show {
+.comprehensive-demo .success-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
@@ -1130,6 +1130,10 @@ body.comprehensive-demo {
 
 /* Reduced Motion Preferences - Consolidated */
 @media (prefers-reduced-motion: reduce) {
+    .comprehensive-demo .result-section-visible,
+    .comprehensive-demo .result-section.show,
+    .comprehensive-demo .error-message.show,
+    .comprehensive-demo .success-message.show,
     .step.active .step-circle,
     .spinner,
     .hero-section::before,
