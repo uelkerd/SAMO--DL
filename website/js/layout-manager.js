@@ -397,19 +397,19 @@ window.processTextWithStateManagement = function() {
         clearAllResultContent();
     }
 
-    // Hide input layout with smooth transition
-    const inputLayout = document.getElementById('inputLayout');
-    if (inputLayout) {
-        inputLayout.style.opacity = '0';
-        setTimeout(() => {
-            inputLayout.style.display = 'none';
-        }, 300);
-    }
+        // Hide input layout with smooth transition
+        const inputLayout = document.getElementById('inputLayout');
+        if (inputLayout) {
+            inputLayout.style.opacity = '0';
+            setTimeout(() => {
+                inputLayout.classList.add('d-none'); // Use CSS class instead of direct style manipulation
+            }, 300);
+        }
 
     // Show processing layout
     const processingLayout = document.getElementById('processingLayout');
     if (processingLayout) {
-        processingLayout.style.display = 'block';
+        processingLayout.classList.remove('d-none'); // Use CSS class instead of direct style manipulation
         processingLayout.style.opacity = '0';
         setTimeout(() => {
             processingLayout.style.opacity = '1';

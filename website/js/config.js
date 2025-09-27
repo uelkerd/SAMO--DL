@@ -64,13 +64,15 @@ window.SAMO_CONFIG = {
     REQUIRE_AUTH: false // Set to true for production with API key requirement
   },
 
-  // OpenAI Configuration (for client-side text generation)
-  OPENAI: {
-    API_URL: 'https://api.openai.com/v1/chat/completions',
-    MODEL: 'gpt-4o-mini',
-    MAX_TOKENS: 4000, // Increased for gpt-4o-mini
-    TEMPERATURE: 0.7
-  },
+    // OpenAI Configuration - DISABLED for security (use proxy instead)
+    // WARNING: Direct client-side OpenAI calls expose API keys!
+    // All OpenAI functionality must use the /proxy/openai endpoint
+    OPENAI: {
+        // API_URL: 'https://api.openai.com/v1/chat/completions', // DISABLED - Security risk
+        // MODEL: 'gpt-4o-mini', // DISABLED - Use proxy endpoint
+        // MAX_TOKENS: 4000, // DISABLED - Use proxy endpoint
+        // TEMPERATURE: 0.7 // DISABLED - Use proxy endpoint
+    },
 
   // UI Configuration
   UI: {
@@ -110,19 +112,19 @@ window.SAMO_CONFIG = {
   ENVIRONMENT: 'production', // 'development' or 'production'
   DEBUG: false,
 
-  // Feature flags
-  FEATURES: {
-    ENABLE_OPENAI: true, // Enabled - direct OpenAI API calls
-    ENABLE_MOCK_DATA: false, // Always use real APIs
-    ENABLE_ANALYTICS: false,
-    ENABLE_AUTH: true,
-    ENABLE_VOICE_TRANSCRIPTION: true,
-    ENABLE_BATCH_PROCESSING: true,
-    ENABLE_TEXT_SUMMARIZATION: true,
-    ENABLE_REAL_TIME_MONITORING: true,
-    ENABLE_SECURITY_TESTING: true,
-    ENABLE_WEBSOCKET_CHAT: true
-  }
+    // Feature flags
+    FEATURES: {
+        ENABLE_OPENAI: false, // DISABLED - Security risk (use /proxy/openai endpoint instead)
+        ENABLE_MOCK_DATA: false, // Always use real APIs
+        ENABLE_ANALYTICS: false,
+        ENABLE_AUTH: true,
+        ENABLE_VOICE_TRANSCRIPTION: true,
+        ENABLE_BATCH_PROCESSING: true,
+        ENABLE_TEXT_SUMMARIZATION: true,
+        ENABLE_REAL_TIME_MONITORING: true,
+        ENABLE_SECURITY_TESTING: true,
+        ENABLE_WEBSOCKET_CHAT: true
+    }
 };
 
 // Environment-specific overrides - USE DEPLOYED API FOR DEVELOPMENT
