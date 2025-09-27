@@ -529,7 +529,7 @@ I feel a bit sad about the changes."></textarea>
 
                     const emotionSpan = document.createElement('span');
                     emotionSpan.className = 'fw-bold text-capitalize';
-                    emotionSpan.textContent = emotion.emotion; // textContent automatically escapes HTML
+                    emotionSpan.textContent = emotion.emotion;
                     headerDiv.appendChild(emotionSpan);
 
                     const badgeSpan = document.createElement('span');
@@ -922,7 +922,7 @@ I feel a bit sad about the changes."></textarea>
 
                 const textContent = document.createElement('p');
                 textContent.className = 'text-muted mb-2';
-                textContent.textContent = `"${text}"`; // textContent automatically escapes HTML
+                textContent.textContent = `"${text}"`;
                 itemDiv.appendChild(textContent);
 
                 const badgesDiv = document.createElement('div');
@@ -1001,7 +1001,7 @@ I feel a bit sad about the changes."></textarea>
                 summaryContainer.appendChild(summaryTitle);
 
                 const summaryText = document.createElement('p');
-                summaryText.textContent = summary; // textContent automatically escapes HTML
+                summaryText.textContent = summary;
                 summaryContainer.appendChild(summaryText);
 
                 // Add emotional context if available
@@ -1195,14 +1195,23 @@ I feel a bit sad about the changes."></textarea>
                 const successCount = responses.filter(r => r.ok).length;
                 const rateLimitedCount = responses.filter(r => r.status === 429).length;
 
-                container.innerHTML = `
-                    <div class="alert alert-info">
-                        <strong>Rate Limit Test Results:</strong><br>
-                        Successful requests: ${successCount}<br>
-                        Rate limited requests: ${rateLimitedCount}<br>
-                        Rate limiting is working correctly!
-                    </div>
-                `;
+                // Safer DOM manipulation to avoid XSS
+                container.innerHTML = ""; // Clear previous content
+                const alertDiv = document.createElement("div");
+                alertDiv.className = "alert alert-info";
+                const strong = document.createElement("strong");
+                strong.textContent = "Rate Limit Test Results:";
+                alertDiv.appendChild(strong);
+                alertDiv.appendChild(document.createElement("br"));
+                const successText = document.createTextNode("Successful requests: " + successCount);
+                alertDiv.appendChild(successText);
+                alertDiv.appendChild(document.createElement("br"));
+                const rateLimitedText = document.createTextNode("Rate limited requests: " + rateLimitedCount);
+                alertDiv.appendChild(rateLimitedText);
+                alertDiv.appendChild(document.createElement("br"));
+                const infoText = document.createTextNode("Rate limiting is working correctly!");
+                alertDiv.appendChild(infoText);
+                container.appendChild(alertDiv);
             } catch (error) {
                 container.innerHTML = '<div class="alert alert-warning">Rate limit test completed (simulated).</div>';
             }

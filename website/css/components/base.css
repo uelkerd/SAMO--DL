@@ -60,6 +60,8 @@ body.comprehensive-demo {
 }
 
 /* Reduced Motion Preferences */
+/* Universal selector is the standard approach for accessibility compliance */
+/* when users have explicitly requested reduced motion */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;
