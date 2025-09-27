@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import requests
 
-HF_REPO = os.getenv("HF_REPO", "0xmnrv/samo")
+HF_REPO = os.getenv("HF_REPO", "duelker/samo-goemotions-deberta-v3-large")
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
 
 API_URL = f"https://api-inference.huggingface.co/models/{HF_REPO}"

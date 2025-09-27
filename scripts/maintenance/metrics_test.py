@@ -9,7 +9,7 @@ from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
 
-MODEL_ID = os.getenv("MODEL_ID", "0xmnrv/samo")
+MODEL_ID = os.getenv("MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
 TOKEN = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_HUB_TOKEN")
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH = int(os.getenv("BATCH_SIZE", "32"))
