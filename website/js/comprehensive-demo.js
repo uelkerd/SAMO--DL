@@ -532,7 +532,9 @@ async function generateSampleText() {
     }
 
     try {
-        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY || localStorage.getItem('openai_api_key');
+        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY
+          || sessionStorage.getItem('openai_api_key')
+          || localStorage.getItem('openai_api_key'); // kept as fallback for backward-compat
 
         if (!apiKey || apiKey.trim() === '') {
             showInlineError('⚠️ OpenAI API key required for AI text generation. Click "Manage API Key" to set up.', 'textInput');
@@ -641,7 +643,7 @@ async function generateSampleText() {
 function manageApiKey() {
     console.log('🔑 Managing API Key...');
 
-    const currentKey = localStorage.getItem('openai_api_key') || '';
+    const currentKey = sessionStorage.getItem('openai_api_key') || localStorage.getItem('openai_api_key') || '';
     const maskedKey = currentKey ? `${currentKey.substring(0, 7)}...${currentKey.substring(currentKey.length - 4)}` : 'Not set';
 
     const newKey = prompt(
@@ -657,11 +659,13 @@ function manageApiKey() {
     }
 
     if (newKey.trim() === '') {
+        sessionStorage.removeItem('openai_api_key');
         localStorage.removeItem('openai_api_key');
         console.log('🔑 API Key removed');
         alert('✅ API Key removed successfully');
     } else if (newKey.startsWith('sk-')) {
-        localStorage.setItem('openai_api_key', newKey.trim());
+        // Prefer sessionStorage to avoid long-lived persistence
+        sessionStorage.setItem('openai_api_key', newKey.trim());
         console.log('🔑 API Key updated');
         alert('✅ API Key saved successfully');
     } else {
