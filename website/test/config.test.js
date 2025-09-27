@@ -113,7 +113,11 @@ describe('SAMO Configuration', () => {
         }
       };
 
-      // Config is already loaded in beforeEach, but we need to reload it to test merging
+      // Reload config module to exercise server config merging
+      vi.resetModules();
+      delete window.SAMO_CONFIG;
+      await import('../js/config.js');
+
       expect(window.SAMO_CONFIG.API.BASE_URL).toBe('https://custom-api.example.com');
       expect(window.SAMO_CONFIG.FEATURES.ENABLE_AUTH).toBe(false);
       // Other features should remain default
