@@ -1130,10 +1130,10 @@ body.comprehensive-demo {
 
 /* Reduced Motion Preferences - Consolidated */
 @media (prefers-reduced-motion: reduce) {
-    .result-section-visible,
-    .result-section.show,
-    .error-message.show,
-    .success-message.show,
+    .comprehensive-demo .result-section-visible,
+    .comprehensive-demo .result-section.show,
+    .comprehensive-demo .error-message.show,
+    .comprehensive-demo .success-message.show,
     .step.active .step-circle,
     .spinner,
     .hero-section::before,
