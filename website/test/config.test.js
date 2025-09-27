@@ -50,23 +50,25 @@ describe('SAMO Configuration', () => {
 
   describe('Environment Handling', () => {
     it('should detect localhost development environment', () => {
-      // Mock localhost
-      const originalHostname = window.location.hostname;
-      Object.defineProperty(window.location, 'hostname', {
-        value: 'localhost',
-        writable: true
-      });
+      // Mock localhost location and reload config
+      const originalLocation = window.location;
 
-      // Config is already loaded in beforeEach
+      // Replace location with localhost URL (JSDOM compatible)
+      delete window.location;
+      window.location = new URL('http://localhost/');
+
+      // Reset modules and reload config with mocked location
+      vi.resetModules();
+      delete window.SAMO_CONFIG;
+      await import('../js/config.js');
 
       expect(window.SAMO_CONFIG.ENVIRONMENT).toBe('development');
       expect(window.SAMO_CONFIG.DEBUG).toBe(true);
 
-      // Restore
-      Object.defineProperty(window.location, 'hostname', {
-        value: originalHostname,
-        writable: true
-      });
+      // Restore original location and reset modules
+      delete window.location;
+      window.location = originalLocation;
+      vi.resetModules();
     });
 
     it('should use production settings by default', () => {
