@@ -27,7 +27,7 @@ window.SAMO_CONFIG = {
       READY: '/ready',
       TRANSCRIBE: '/transcribe',
       OPENAI_PROXY: '/proxy/openai',
-      
+
       // Authentication endpoints
       AUTH: {
         REGISTER: '/auth/register',
@@ -133,18 +133,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     // Use local unified API server (has the correct /analyze/emotion endpoints)
     // This server has the exact endpoints the frontend expects
     window.SAMO_CONFIG.API.BASE_URL = 'https://localhost:8002';
-    window.SAMO_CONFIG.API.ENDPOINTS = {
-        EMOTION: '/analyze/emotion',
-        SUMMARIZE: '/analyze/summarize',
-        VOICE_JOURNAL: '/analyze/voice-journal',
-        HEALTH: '/health',
-        JOURNAL: '/analyze/journal',
-        READY: '/ready',
-        TRANSCRIBE: '/transcribe',
-        OPENAI_PROXY: '/proxy/openai'
-    };
+    // Note: ENDPOINTS remain unchanged from production config (no override needed)
 
-    console.log('🔧 Running in localhost development mode - using deployed Cloud Run API');
+    console.log('🔧 Running in localhost development mode - using local API server at https://localhost:8002');
 }
 
 // Helper function to get API URL with fallback
