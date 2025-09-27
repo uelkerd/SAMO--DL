@@ -8,6 +8,24 @@ class NotificationManager {
     constructor() {
         this.activeToasts = new Set();
         this.maxToasts = 3; // Limit concurrent toasts
+
+        // Create or reuse a container for proper toast stacking
+        this.container = document.getElementById('toastContainer') || (() => {
+            const c = document.createElement('div');
+            c.id = 'toastContainer';
+            c.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 10000;
+                pointer-events: none;
+            `;
+            document.body.appendChild(c);
+            return c;
+        })();
     }
 
     /**
@@ -23,9 +41,29 @@ class NotificationManager {
             return;
         }
 
+        // Ensure container exists (recreate if cleaned up)
+        if (!this.container || !this.container.parentNode) {
+            this.container = document.getElementById('toastContainer') || (() => {
+                const c = document.createElement('div');
+                c.id = 'toastContainer';
+                c.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    z-index: 10000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(c);
+                return c;
+            })();
+        }
+
         // Create toast element
         const toast = this.createToast(message, type);
-        document.body.appendChild(toast);
+        this.container.appendChild(toast);
         this.activeToasts.add(toast);
 
         // Animate in
@@ -84,6 +122,10 @@ class NotificationManager {
         const toast = document.createElement('div');
         toast.className = `notification-toast toast-${type}`;
 
+        // Add accessibility attributes
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+
         // Set background colors based on type
         const colors = {
             success: '#28a745',
@@ -93,14 +135,11 @@ class NotificationManager {
         };
 
         toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            position: relative;
             padding: 12px 20px;
             border-radius: 6px;
             color: white;
             font-weight: 500;
-            z-index: 10000;
             opacity: 0;
             transform: translateY(-20px);
             transition: all 0.3s ease;
@@ -108,10 +147,13 @@ class NotificationManager {
             word-wrap: break-word;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             background-color: ${colors[type] || colors.info};
+            pointer-events: auto;
         `;
 
         // Add close button
-        const closeBtn = document.createElement('span');
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.setAttribute('aria-label', 'Close notification');
         closeBtn.textContent = '×';
         closeBtn.style.cssText = `
             float: right;
@@ -120,8 +162,11 @@ class NotificationManager {
             font-size: 18px;
             font-weight: bold;
             opacity: 0.8;
+            background: transparent;
+            border: none;
+            color: inherit;
         `;
-        closeBtn.onclick = () => this.removeToast(toast);
+        closeBtn.addEventListener('click', () => this.removeToast(toast));
 
         // Add message text
         const textNode = document.createTextNode(message);
@@ -151,6 +196,12 @@ class NotificationManager {
                 toast.parentNode.removeChild(toast);
             }
             this.activeToasts.delete(toast);
+
+            // Clean up container when no toasts remain
+            if (this.activeToasts.size === 0 && this.container.parentNode) {
+                this.container.parentNode.removeChild(this.container);
+                this.container = null;
+            }
         }, 300);
     }
 
