@@ -1,10 +1,10 @@
 # patch_config_and_upload.py
 # pip install -U transformers huggingface_hub
 import os
-import tempfile
-from transformers import AutoConfig
-from huggingface_hub import HfApi, HfFolder
 import sys
+import tempfile
+from huggingface_hub import HfApi, HfFolder
+from transformers import AutoConfig
 
 # Add src to path to import constants
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))

@@ -7,8 +7,8 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from sklearn.metrics import f1_score, accuracy_score
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Add src to path to import constants
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
