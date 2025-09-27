@@ -64,6 +64,12 @@ const LayoutManager = {
     // Start processing (sets guard)
     startProcessing() {
         if (this.isProcessing) {
+            // Guard against null processingStartTime to prevent NaN calculations
+            if (this.processingStartTime == null) {
+                console.warn('⚠️ Missing processingStartTime; forcing reset...');
+                this.forceResetProcessing();
+                return false;
+            }
             // Check if processing has been stuck for too long
             const timeElapsed = Date.now() - this.processingStartTime;
             if (timeElapsed > this.maxProcessingTime) {
@@ -305,7 +311,7 @@ const LayoutManager = {
 
         if (stepElement && stepIcon) {
             // Remove existing state classes
-            stepElement.classList.remove('active', 'completed', 'error');
+            stepElement.classList.remove('pending', 'active', 'completed', 'error');
             stepIcon.classList.remove('pending', 'active', 'completed', 'error');
 
             // Add new state
