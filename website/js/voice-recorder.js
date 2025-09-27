@@ -132,10 +132,11 @@ class VoiceRecorder {
 
     async onRecordingStop() {
         try {
-            // Create audio blob
-            const audioBlob = new Blob(this.audioChunks, {
-                type: this.getSupportedMimeType()
-            });
+            // Create audio blob using the recorder's actual MIME type for accuracy
+            const chosenType = (this.mediaRecorder && typeof this.mediaRecorder.mimeType === 'string')
+                ? this.mediaRecorder.mimeType
+                : this.getSupportedMimeType();
+            const audioBlob = new Blob(this.audioChunks, { type: chosenType });
 
             console.log(`📄 Audio blob created: ${audioBlob.size} bytes, type: ${audioBlob.type}`);
 
