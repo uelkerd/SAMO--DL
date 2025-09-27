@@ -399,10 +399,11 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         try:
             # Prefer loading our HF Hub model; fallback to local BERT if unavailable
             try:
-                from src.models.emotion_detection.hf_loader import (
+                from src.models.emotion_detection.hf_loader import \
                     load_emotion_model_multi_source
+                hf_model_id = os.getenv(
+                    "EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large"
                 )
-                hf_model_id = os.getenv("EMOTION_MODEL_ID", "duelker/samo-goemotions-deberta-v3-large")
                 hf_token = os.getenv("HF_TOKEN")
                 local_dir = os.getenv("EMOTION_MODEL_LOCAL_DIR")
                 archive_url = os.getenv("EMOTION_MODEL_ARCHIVE_URL")
