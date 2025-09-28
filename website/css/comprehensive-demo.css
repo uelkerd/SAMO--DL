@@ -1,4 +1,10 @@
-/* Comprehensive Demo Styles - Extracted from HTML for better maintainability */
+/* Comprehensive Demo Styles - Extracted from HTML for better maintainability
+ *
+ * NOTE: This stylesheet uses !important declarations extensively to override
+ * Bootstrap's default styles. While !important is generally an anti-pattern,
+ * it's necessary here due to Bootstrap's high specificity. Future refactoring
+ * should consider using CSS-in-JS or scoped CSS modules to avoid this issue.
+ */
 
 /* CSS Variables */
 :root {
@@ -1084,18 +1090,24 @@ body.comprehensive-demo {
 
 /* Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
-    * {
+    .hero-section::before,
+    .floating-card,
+    .audio-bar,
+    .hero-content,
+    .feature-card,
+    .comprehensive-demo .navbar,
+    .comprehensive-demo .btn-primary,
+    .loading-spinner,
+    .result-section,
+    .progress-step,
+    .progress-step-vertical,
+    .pipeline-arrow-vertical,
+    .step-icon,
+    .audio-visualizer,
+    .emotion-badge,
+    .gradient-text {
         animation: none !important;
         transition: none !important;
-    }
-    .hero-section::before {
-        animation: none !important;
-    }
-    .floating-card {
-        animation: none !important;
-    }
-    .audio-bar {
-        animation: none !important;
     }
 }
 

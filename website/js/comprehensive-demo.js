@@ -102,20 +102,8 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
 
         try {
-            // Use VOICE_JOURNAL endpoint for audio analysis flows (no auth header)
-            const config = {
-                method: 'POST',
-                body: formData
-            };
-            const response = await fetch(`${this.baseURL}${this.endpoints.VOICE_JOURNAL}`, config);
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
-                throw new Error(msg);
-            }
-
-            return await response.json();
+            // Use makeRequest method for proper timeout and error handling
+            return await this.makeRequest(this.endpoints.VOICE_JOURNAL, formData, 'POST', true);
         } catch (error) {
             console.error('Transcription error:', error);
             throw error;
@@ -1243,7 +1231,7 @@ async function testWithRealAPI() {
         let testText = document.getElementById('textInput').value || "I am so excited and happy today! This is wonderful news!";
 
         // Check text length limit
-        const MAX_TEXT_LENGTH = 400;
+        const MAX_TEXT_LENGTH = window.SAMO_CONFIG?.LIMITS?.TEXT_MAX ?? 400;
         if (testText.length > MAX_TEXT_LENGTH) {
             console.log(`⚠️ Text too long (${testText.length} chars), truncating to ${MAX_TEXT_LENGTH} chars`);
             addToProgressConsole(`Text truncated from ${testText.length} to ${MAX_TEXT_LENGTH} characters`, 'warning');
@@ -1704,14 +1692,16 @@ function resetToInputScreen() {
     console.log('✅ Reset completed');
 }
 
-// Make functions globally available
-window.generateSampleText = generateSampleText;
-window.processText = processText;
-window.testWithRealAPI = testWithRealAPI;
-window.callSummarizationAPI = callSummarizationAPI;
-window.updateElement = updateElement;
-window.showResultsSections = showResultsSections;
-window.addToProgressConsole = addToProgressConsole;
-window.clearProgressConsole = clearProgressConsole;
-window.createEmotionChart = createEmotionChart;
-window.resetToInputScreen = resetToInputScreen;
+// Make functions globally available under a namespace to avoid pollution
+window.SamoDemo = {
+    generateSampleText,
+    processText,
+    testWithRealAPI,
+    callSummarizationAPI,
+    updateElement,
+    showResultsSections,
+    addToProgressConsole,
+    clearProgressConsole,
+    createEmotionChart,
+    resetToInputScreen,
+};
