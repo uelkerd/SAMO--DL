@@ -49,9 +49,6 @@ class NotificationManager {
             return;
         }
 
-        // Ensure container exists (recreate if cleaned up)
-        this.ensureContainer();
-
         // Create toast element
         const toast = this.createToast(message, type);
         this.container.appendChild(toast);
@@ -117,46 +114,16 @@ class NotificationManager {
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
-        // Set background colors based on type
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            info: '#17a2b8',
-            warning: '#ffc107'
-        };
-
-        toast.style.cssText = `
-            position: relative;
-            padding: 12px 20px;
-            border-radius: 6px;
-            color: ${type === 'warning' ? '#212529' : 'white'};
-            font-weight: 500;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
-            max-width: 400px;
-            word-wrap: break-word;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            background-color: ${colors[type] || colors.info};
-            pointer-events: auto;
-        `;
+        // Set initial animation state
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
 
         // Add close button
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
+        closeBtn.className = 'toast-close-btn';
         closeBtn.setAttribute('aria-label', 'Close notification');
         closeBtn.textContent = '×';
-        closeBtn.style.cssText = `
-            float: right;
-            margin-left: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            opacity: 0.8;
-            background: transparent;
-            border: none;
-            color: inherit;
-        `;
         closeBtn.addEventListener('click', () => this.removeToast(toast));
 
         // Add message text
@@ -187,12 +154,6 @@ class NotificationManager {
                 toast.parentNode.removeChild(toast);
             }
             this.activeToasts.delete(toast);
-
-            // Clean up container when no toasts remain
-            if (this.activeToasts.size === 0 && this.container.parentNode) {
-                this.container.parentNode.removeChild(this.container);
-                // Do not set this.container to null to avoid race conditions
-            }
         }, 300);
     }
 

@@ -16,6 +16,13 @@
     --error-color: #ef4444;
     --success-color: #10b981;
 
+    /* Notification Colors */
+    --notification-success-bg: #28a745;
+    --notification-error-bg: #dc3545;
+    --notification-info-bg: #17a2b8;
+    --notification-warning-bg: #ffc107;
+    --notification-warning-text: #212529;
+
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --shadow-glow: 0 10px 40px rgba(139, 92, 246, 0.3);

@@ -30,3 +30,55 @@
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
+
+/* Notification Toasts */
+.notification-toast {
+    position: relative;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    word-wrap: break-word;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    pointer-events: auto;
+    margin-bottom: 8px;
+}
+
+.notification-toast.toast-success {
+    background-color: var(--notification-success-bg);
+    color: white;
+}
+
+.notification-toast.toast-error {
+    background-color: var(--notification-error-bg);
+    color: white;
+}
+
+.notification-toast.toast-info {
+    background-color: var(--notification-info-bg);
+    color: white;
+}
+
+.notification-toast.toast-warning {
+    background-color: var(--notification-warning-bg);
+    color: var(--notification-warning-text);
+}
+
+.toast-close-btn {
+    float: right;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0.8;
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    line-height: 1;
+}
+
+.toast-close-btn:hover {
+    opacity: 1;
+}

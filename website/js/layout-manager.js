@@ -51,8 +51,8 @@ const LayoutManager = {
         this.activeRequests.clear();
         this.currentState = 'initial';
         // Also clear any UI elements that might be stuck
-        if (typeof clearAllResultContent === 'function') {
-            clearAllResultContent();
+        if (this.dependencies.clearAllResultContent) {
+            this.dependencies.clearAllResultContent();
         }
     },
 
@@ -75,6 +75,7 @@ const LayoutManager = {
             if (timeElapsed > this.maxProcessingTime) {
                 console.warn(`⚠️ Processing stuck for ${timeElapsed/1000}s, forcing reset...`);
                 this.forceResetProcessing();
+                return false;
             } else {
                 console.warn('⚠️ Processing already in progress, ignoring request');
                 console.warn('⚠️ Current state:', this.currentState);
@@ -150,18 +151,17 @@ const LayoutManager = {
         this.currentState = 'processing';
 
         // IMMEDIATELY clear all result content to prevent remnants during processing
-        if (typeof clearAllResultContent === 'function') {
-            clearAllResultContent();
+        if (this.dependencies.clearAllResultContent) {
+            this.dependencies.clearAllResultContent();
         }
 
         // Hide input layout with smooth transition
-        const inputLayout = document.getElementById('inputLayout');
-        if (inputLayout) {
-            inputLayout.style.opacity = '0';
-            inputLayout.style.transform = 'translateY(-20px)';
+        if (this.dependencies.inputLayout) {
+            this.dependencies.inputLayout.style.opacity = '0';
+            this.dependencies.inputLayout.style.transform = 'translateY(-20px)';
 
             setTimeout(() => {
-                inputLayout.classList.add('d-none');
+                this.dependencies.inputLayout.classList.add('d-none');
             }, 300);
         }
 
