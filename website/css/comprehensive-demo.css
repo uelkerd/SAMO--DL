@@ -1,4 +1,10 @@
-/* Comprehensive Demo Styles - Extracted from HTML for better maintainability */
+/* Comprehensive Demo Styles - Extracted from HTML for better maintainability
+ *
+ * NOTE: This stylesheet uses !important declarations extensively to override
+ * Bootstrap's default styles. While !important is generally an anti-pattern,
+ * it's necessary here due to Bootstrap's high specificity. Future refactoring
+ * should consider using CSS-in-JS or scoped CSS modules to avoid this issue.
+ */
 
 /* CSS Variables */
 :root {
@@ -42,24 +48,13 @@
     vertical-align: middle;
 }
 
-/* Info icon styling */
-.comprehensive-demo .info-icon {
+/* Text input styling */
+#textInput {
+    min-height: 240px !important;
     font-size: 16px;
-    color: #6b7280;
-    margin-left: 6px;
-    cursor: help;
-    opacity: 0.7;
-    transition: var(--transition-smooth);
-    vertical-align: middle;
+    line-height: 1.5;
+    resize: vertical;
 }
-
-.info-icon:hover {
-    color: var(--primary-color);
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-/* Text input styling - consolidated below */
 
 /* Base Styles */
 body.comprehensive-demo {
@@ -72,120 +67,19 @@ body.comprehensive-demo {
     padding-top: 80px; /* Account for fixed navbar */
 }
 
-/* Mobile Responsive Design - Consolidated */
-@media (max-width: 768px) {
-    body.comprehensive-demo {
-        background-attachment: scroll;
-    }
-
-    .progress-pipeline {
-        flex-direction: column;
-        gap: 1.5rem;
-        padding: 2rem 1rem;
-    }
-
-    .pipeline-arrow {
-        transform: rotate(90deg);
-        font-size: 1.5rem;
-    }
-
-    .progress-step-horizontal {
-        min-width: 100px;
-    }
-
-    .progress-step-horizontal .step-label {
-        font-size: 0.8rem;
-    }
-
-    .demo-container {
-        padding: 30px 20px;
-        margin: -50px 15px 30px 15px;
-    }
-
-    .hero-section {
-        padding: 80px 0;
-    }
-
-    /* Stack title and flow vertically on mobile */
-    #titleWithFlow .d-flex {
-        flex-direction: column;
-        gap: 0.75rem;
-        text-align: center;
-    }
-
-    .progress-pipeline-horizontal {
-        gap: 0.25rem;
-        padding: 0.4rem 0.6rem;
-        justify-content: center;
-    }
-
-    .progress-step-horizontal {
-        min-width: 40px;
-    }
-
-    .progress-step-horizontal .step-icon-small {
-        width: 16px !important;
-        height: 16px !important;
-        font-size: 0.6rem !important;
-    }
-
-    .progress-step-horizontal .step-label {
-        font-size: 0.5rem;
-    }
-
-    .pipeline-arrow {
-        font-size: 0.7rem;
-    }
-
-    /* Stack buttons vertically on mobile */
-    .d-flex.gap-3.justify-content-center {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem !important;
-    }
-
-    .btn-lg {
-        min-width: 200px;
-        width: 100%;
-        max-width: 300px;
-    }
-
-    /* Full width input on mobile */
-    #textInput {
-        min-height: 180px !important;
-        padding: 1rem;
-    }
-
-    /* Compact processing info on mobile */
-    #processingInfoSidebar .bg-dark {
-        padding: 0.5rem !important;
-    }
-
-    #processingInfoSidebar .feature-card {
-        padding: 1rem;
-    }
-
-    /* Results layout adjustments */
-    #resultsLayout .col-lg-8,
-    #resultsLayout .col-lg-4 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-}
-
 /* Result sections */
 .result-section-hidden {
     display: none !important;
 }
 
-.comprehensive-demo .result-section-visible {
-    display: block;
+.result-section-visible {
+    display: block !important;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Ensure all text is visible - scoped to comprehensive demo */
 .comprehensive-demo .text-muted {
-    color: #cbd5e1;
+    color: #cbd5e1 !important;
 }
 
 /* Scoped to demo container only */
@@ -194,16 +88,16 @@ body.comprehensive-demo {
 }
 
 /* Feature card text improvements */
-.comprehensive-demo .feature-card .text-muted {
-    color: #cbd5e1;
+.feature-card .text-muted {
+    color: #cbd5e1 !important;
 }
 
-.comprehensive-demo .feature-card h5, .comprehensive-demo .feature-card h6 {
-    color: #f1f5f9;
+.feature-card h5, .feature-card h6 {
+    color: #f1f5f9 !important;
 }
 
-.comprehensive-demo .feature-card small {
-    color: #cbd5e1;
+.feature-card small {
+    color: #cbd5e1 !important;
 }
 
 /* Scoped form controls to demo container */
@@ -221,7 +115,7 @@ body.comprehensive-demo {
 }
 
 .comprehensive-demo .form-control::placeholder {
-    color: #94a3b8;
+    color: #94a3b8 !important;
 }
 
 /* Hero Section */
@@ -244,9 +138,45 @@ body.comprehensive-demo {
     z-index: 2;
 }
 
-/* Demo Container - Consolidated */
+/* Demo Container - Full Width Professional Design */
+.demo-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-glass);
+    padding: 3rem;
+    margin: 2rem 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    color: #e2e8f0;
+}
 
-/* Feature Cards - Consolidated */
+/* Feature Cards */
+.feature-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-glass);
+    transition: var(--transition-bounce);
+    color: #e2e8f0;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+}
+
+.feature-card.active {
+    background: var(--primary-gradient);
+    border-color: var(--accent-color);
+    color: white;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
 
 /* Navigation */
 .comprehensive-demo .navbar {
@@ -310,12 +240,12 @@ body.comprehensive-demo {
 }
 
 /* Processing Information Icons */
-.comprehensive-demo .processing-info i {
-    font-size: 1.5rem;
+.processing-info i {
+    font-size: 1.5rem !important;
     margin-bottom: 8px;
 }
 
-.comprehensive-demo .result-section.show {
+.result-section.show {
     display: block;
     animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -402,7 +332,17 @@ body.comprehensive-demo {
     100% { height: 40px; }
 }
 
-/* Reduced motion rules consolidated above */
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .step.active .step-circle,
+    .spinner {
+        animation: none !important;
+    }
+    .btn:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+}
 
 /* Progress Steps */
 .progress-step {
@@ -440,19 +380,19 @@ body.comprehensive-demo {
     width: 100%; /* Full width for better appearance */
 }
 
-.comprehensive-demo .progress-step-vertical .step-icon-small {
-    width: 24px; /* Increased from 18px */
-    height: 24px; /* Increased from 18px */
+.progress-step-vertical .step-icon-small {
+    width: 24px !important; /* Increased from 18px */
+    height: 24px !important; /* Increased from 18px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 16px; /* Increased margin */
     margin-bottom: 0;
-    font-size: 0.8rem; /* Increased from 0.6rem */
+    font-size: 0.8rem !important; /* Increased from 0.6rem */
     transition: var(--transition-smooth);
-    background: rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
     border: 1px solid rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
 }
@@ -466,20 +406,20 @@ body.comprehensive-demo {
     flex: 1; /* Take remaining space */
 }
 
-.comprehensive-demo .progress-step-vertical.active .step-icon-small {
-    background: var(--primary-gradient);
-    color: white;
+.progress-step-vertical.active .step-icon-small {
+    background: var(--primary-gradient) !important;
+    color: white !important;
     box-shadow: var(--shadow-glow);
 }
 
-.comprehensive-demo .progress-step-vertical.completed .step-icon-small {
-    background: var(--success-color);
-    color: white;
+.progress-step-vertical.completed .step-icon-small {
+    background: var(--success-color) !important;
+    color: white !important;
 }
 
-.comprehensive-demo .progress-step-vertical.error .step-icon-small {
-    background: var(--error-color);
-    color: white;
+.progress-step-vertical.error .step-icon-small {
+    background: var(--error-color) !important;
+    color: white !important;
 }
 
 .pipeline-arrow-vertical {
@@ -685,8 +625,8 @@ body.comprehensive-demo {
     transition: all 0.2s ease;
 }
 
-.comprehensive-demo #processingInfoSidebar .bg-dark:hover {
-    background-color: rgba(0, 0, 0, 0.4);
+#processingInfoSidebar .bg-dark:hover {
+    background-color: rgba(0, 0, 0, 0.4) !important;
     transform: translateX(2px);
 }
 
@@ -712,20 +652,20 @@ body.comprehensive-demo {
 }
 
 /* Enhanced Input Area Background */
-.comprehensive-demo #textInput {
-    min-height: 240px;
+#textInput {
+    min-height: 240px !important;
     font-size: 16px;
     line-height: 1.5;
     resize: vertical;
     padding: 1.5rem; /* Increased padding for better appearance */
-    background-color: rgba(255, 255, 255, 0.12); /* More prominent background */
-    border: 2px solid rgba(139, 92, 246, 0.3); /* Thicker border */
+    background-color: rgba(255, 255, 255, 0.12) !important; /* More prominent background */
+    border: 2px solid rgba(139, 92, 246, 0.3) !important; /* Thicker border */
 }
 
-.comprehensive-demo #textInput:focus {
-    background-color: rgba(255, 255, 255, 0.18);
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25);
+#textInput:focus {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.3rem rgba(139, 92, 246, 0.25) !important;
     transform: scale(1.01); /* Subtle scale on focus */
 }
 
@@ -738,18 +678,18 @@ body.comprehensive-demo {
     transition: var(--transition-smooth);
 }
 
-.comprehensive-demo .progress-step-horizontal .step-icon-small {
-    width: 18px;
-    height: 18px;
+.progress-step-horizontal .step-icon-small {
+    width: 18px !important;
+    height: 18px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0.25rem;
-    font-size: 0.7rem;
+    font-size: 0.7rem !important;
     transition: var(--transition-smooth);
-    background: rgba(255, 255, 255, 0.1);
-    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e1 !important;
     border: 1px solid rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
 }
@@ -762,23 +702,23 @@ body.comprehensive-demo {
     transition: var(--transition-smooth);
 }
 
-.comprehensive-demo .progress-step-horizontal.active .step-icon-small {
-    background: var(--primary-gradient);
-    color: white;
+.progress-step-horizontal.active .step-icon-small {
+    background: var(--primary-gradient) !important;
+    color: white !important;
     transform: scale(1.1);
 }
 
-.comprehensive-demo .progress-step-horizontal.active .step-label {
+.progress-step-horizontal.active .step-label {
     color: var(--primary-color);
     font-weight: 600;
 }
 
-.comprehensive-demo .progress-step-horizontal.completed .step-icon-small {
-    background: #10b981;
-    color: white;
+.progress-step-horizontal.completed .step-icon-small {
+    background: #10b981 !important;
+    color: white !important;
 }
 
-.comprehensive-demo .progress-step-horizontal.completed .step-label {
+.progress-step-horizontal.completed .step-label {
     color: #10b981;
 }
 
@@ -791,7 +731,27 @@ body.comprehensive-demo {
 }
 
 
-/* Responsive Design for Progress Pipeline - consolidated above */
+/* Responsive Design for Progress Pipeline */
+@media (max-width: 768px) {
+    .progress-pipeline {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 2rem 1rem;
+    }
+
+    .pipeline-arrow {
+        transform: rotate(90deg);
+        font-size: 1.5rem;
+    }
+
+    .progress-step-horizontal {
+        min-width: 100px;
+    }
+
+    .step-label {
+        font-size: 0.8rem;
+    }
+}
 
 /* Error Messages */
 .error-message {
@@ -805,7 +765,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.comprehensive-demo .error-message.show {
+.error-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
@@ -822,7 +782,7 @@ body.comprehensive-demo {
     display: none;
 }
 
-.comprehensive-demo .success-message.show {
+.success-message.show {
     display: block;
     animation: fadeInUp 0.3s ease-out;
 }
@@ -921,8 +881,8 @@ body.comprehensive-demo {
     padding: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
-    display: block;
-    visibility: visible;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .emotion-bar:hover {
@@ -1128,31 +1088,26 @@ body.comprehensive-demo {
     outline-offset: 2px;
 }
 
-/* Reduced Motion Preferences - Consolidated */
+/* Reduced Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
-    .comprehensive-demo .result-section-visible,
-    .comprehensive-demo .result-section.show,
-    .comprehensive-demo .error-message.show,
-    .comprehensive-demo .success-message.show,
-    .step.active .step-circle,
-    .spinner,
     .hero-section::before,
     .floating-card,
     .audio-bar,
-    .emotion-bar-fill::after,
+    .hero-content,
     .feature-card,
-    .btn,
-    .btn:hover,
+    .comprehensive-demo .navbar,
+    .comprehensive-demo .btn-primary,
+    .loading-spinner,
+    .result-section,
+    .progress-step,
     .progress-step-vertical,
-    .progress-step-horizontal,
-    .process-step,
-    .model-detail-card,
-    .stat-item,
-    .emotion-bar,
-    .summary-bar {
+    .pipeline-arrow-vertical,
+    .step-icon,
+    .audio-visualizer,
+    .emotion-badge,
+    .gradient-text {
         animation: none !important;
         transition: none !important;
-        transform: none !important;
     }
 }
 
@@ -1172,7 +1127,82 @@ body.comprehensive-demo {
     }
 }
 
-/* Mobile responsive rules consolidated above */
+@media (max-width: 768px) {
+    .demo-container {
+        padding: 30px 20px;
+        margin: -50px 15px 30px 15px;
+    }
+
+    .hero-section {
+        padding: 80px 0;
+    }
+
+    /* Stack title and flow vertically on mobile */
+    #titleWithFlow .d-flex {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+
+    .progress-pipeline-horizontal {
+        gap: 0.25rem;
+        padding: 0.4rem 0.6rem;
+        justify-content: center;
+    }
+
+    .progress-step-horizontal {
+        min-width: 40px;
+    }
+
+    .progress-step-horizontal .step-icon-small {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.6rem !important;
+    }
+
+    .progress-step-horizontal .step-label {
+        font-size: 0.5rem;
+    }
+
+    .pipeline-arrow {
+        font-size: 0.7rem;
+    }
+
+    /* Stack buttons vertically on mobile */
+    .d-flex.gap-3.justify-content-center {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem !important;
+    }
+
+    .btn-lg {
+        min-width: 200px;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* Full width input on mobile */
+    #textInput {
+        min-height: 180px !important;
+        padding: 1rem;
+    }
+
+    /* Compact processing info on mobile */
+    #processingInfoSidebar .bg-dark {
+        padding: 0.5rem !important;
+    }
+
+    #processingInfoSidebar .feature-card {
+        padding: 1rem;
+    }
+
+    /* Results layout adjustments */
+    #resultsLayout .col-lg-8,
+    #resultsLayout .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
 
 @media (max-width: 576px) {
     .demo-container {

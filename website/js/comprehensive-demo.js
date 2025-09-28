@@ -18,122 +18,45 @@ class SAMOAPIClient {
             HEALTH: '/health',
             READY: '/ready',
             TRANSCRIBE: '/transcribe',
-            VOICE_JOURNAL: '/analyze/voice-journal'  // Match actual API endpoint
+            VOICE_JOURNAL: '/analyze/voice-journal'
         };
-
-        // Ensure VOICE_JOURNAL has a fallback if missing from config
-        if (!this.endpoints.VOICE_JOURNAL) {
-            this.endpoints.VOICE_JOURNAL = '/analyze/voice-journal';
-        }
-
-        // Optimized timeout configuration for better UX
-        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 15000; // Reduced from 20s to 15s
-        this.coldStartTimeout = window.SAMO_CONFIG?.API?.COLD_START_TIMEOUT || 45000; // Reduced from 60s to 45s
-        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 1; // Reduced to 1 for faster feedback
-        this.isColdStart = true; // Track if this is the first request
-    }
-
-    getApiKey() {
-        // Try to get API key from various sources
-        // 1. From SAMO_CONFIG (server-injected)
-        if (window.SAMO_CONFIG?.API?.API_KEY) {
-            return window.SAMO_CONFIG.API.API_KEY;
-        }
-
-        // 2. From localStorage (user-set)
-        const storedKey = localStorage.getItem('samo_api_key');
-        if (storedKey && storedKey.trim()) {
-            return storedKey.trim();
-        }
-
-        // 3. From environment variable (if available in browser context)
-        if (window.SAMO_CONFIG?.API?.API_KEY_ENV) {
-            return window.SAMO_CONFIG.API.API_KEY_ENV;
-        }
-
-        return null;
+        this.timeout = window.SAMO_CONFIG?.API?.TIMEOUT || 45000;
+        this.retryAttempts = window.SAMO_CONFIG?.API?.RETRY_ATTEMPTS || 3;
     }
 
     async makeRequest(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null) {
         return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, this.retryAttempts);
     }
 
-    // Helper method to build query string for deployed API format
-    buildQueryString(data) {
-        if (!data || typeof data !== 'object') return '';
-        const params = new URLSearchParams();
-        for (const [key, value] of Object.entries(data)) {
-            if (value !== null && value !== undefined) {
-                params.append(key, value);
-            }
-        }
-        return params.toString();
-    }
-
-    async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = null) {
-        // Use class defaults if not specified
-        if (attemptsLeft === null) attemptsLeft = this.retryAttempts;
-
+    async makeRequestWithRetry(endpoint, data, method = 'POST', isFormData = false, timeoutMs = null, attemptsLeft = 3) {
         const config = {
             method,
-            headers: { 'Accept': 'application/json' }
+            headers: {}
         };
         const controller = new AbortController();
-        let abortReason = null; // Track abort reason
-
-        // Use cold start timeout for first request, regular timeout otherwise
-        const timeout = timeoutMs || (this.isColdStart ? this.coldStartTimeout : this.timeout);
-        const timer = setTimeout(() => {
-            abortReason = 'timeout';
-            controller.abort();
-        }, timeout);
+        const timeout = timeoutMs || this.timeout;
+        const timer = setTimeout(() => controller.abort(new Error('Request timeout')), timeout);
         config.signal = controller.signal;
 
-        // Track this request in LayoutManager if available
-        if (typeof LayoutManager !== 'undefined') {
-            LayoutManager.addActiveRequest(controller);
-        }
-
-        // Add API key for production endpoints if available
-        const apiKey = this.getApiKey();
-        if (apiKey) {
-            config.headers['X-API-Key'] = apiKey;
-        }
+        // Remove API key requirement for now - using public endpoints
+        // if (this.apiKey) {
+        //     config.headers['X-API-Key'] = this.apiKey;
+        // }
 
         if (data && method === 'POST') {
             if (isFormData) {
                 // For FormData, don't set Content-Type header - let browser set it with boundary
                 config.body = data;
             } else {
-                // Send JSON data in request body (proper REST API format)
                 config.headers['Content-Type'] = 'application/json';
                 config.body = JSON.stringify(data);
             }
         } else if (method === 'GET') {
-            // Optional: set Accept if needed
-            config.headers['Accept'] = 'application/json';
+            config.headers['Content-Type'] = 'application/json';
         }
 
         try {
-            let url = `${this.baseURL}${endpoint}`;
-
-            // For GET requests with data, append query parameters
-            if (data && method === 'GET') {
-                const queryParams = this.buildQueryString(data);
-                if (queryParams) {
-                    url += (url.includes('?') ? '&' : '?') + queryParams;
-                }
-            }
-
-            // Log retry attempt info for user feedback
-            const attemptNumber = this.retryAttempts - attemptsLeft + 1;
-            if (attemptNumber > 1) {
-                console.log(`🔄 Retry attempt ${attemptNumber}/${this.retryAttempts} for ${endpoint}`);
-                if (typeof addToProgressConsole === 'function') {
-                    addToProgressConsole(`Retry attempt ${attemptNumber}/${this.retryAttempts} - ${endpoint}`, 'warning');
-                }
-            }
-
+            const url = `${this.baseURL}${endpoint}`;
             const response = await fetch(url, config);
 
             if (!response.ok) {
@@ -145,12 +68,6 @@ class SAMOAPIClient {
                     if (attemptsLeft > 1) {
                         const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000; // Exponential backoff
                         console.warn(`Request failed (${response.status}), retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`);
-
-                        // Provide user feedback about retry
-                        if (typeof addToProgressConsole === 'function') {
-                            addToProgressConsole(`Request failed (${response.status}), retrying in ${backoffDelay/1000}s...`, 'warning');
-                        }
-
                         await new Promise(resolve => setTimeout(resolve, backoffDelay));
                         return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
                     }
@@ -163,44 +80,20 @@ class SAMOAPIClient {
                 throw new Error(msg);
             }
 
-            // Mark cold start as complete after first successful request
-            if (this.isColdStart) {
-                this.isColdStart = false;
-                console.log('✅ Cold start completed, future requests will use faster timeout');
-            }
-
             return await response.json();
         } catch (error) {
             // Handle network errors with retry
-            const msg = String(error?.message || '').toLowerCase();
-            if ((error.name === 'AbortError' || abortReason === 'timeout' || msg.includes('timeout') || msg.includes('network') || msg.includes('failed to fetch')) && attemptsLeft > 1) {
+            if ((error.name === 'AbortError' || error.message.includes('timeout') || error.message.includes('network')) && attemptsLeft > 1) {
                 const backoffDelay = Math.pow(2, this.retryAttempts - attemptsLeft) * 1000;
                 console.warn(`Network error, retrying in ${backoffDelay}ms. Attempts left: ${attemptsLeft - 1}`, error.message);
-
-                // Provide user feedback about network retry
-                if (typeof addToProgressConsole === 'function') {
-                    addToProgressConsole(`Network error, retrying in ${backoffDelay/1000}s...`, 'warning');
-                }
-
                 await new Promise(resolve => setTimeout(resolve, backoffDelay));
                 return this.makeRequestWithRetry(endpoint, data, method, isFormData, timeoutMs, attemptsLeft - 1);
-            }
-
-            // Check if it was a timeout and throw appropriate error
-            if (abortReason === 'timeout') {
-                console.error(`Request timeout after ${timeout/1000}s`);
-                throw new Error(`Request timeout after ${timeout/1000}s`);
             }
 
             console.error('API request failed:', error);
             throw error;
         } finally {
             clearTimeout(timer);
-
-            // Remove request from LayoutManager tracking
-            if (typeof LayoutManager !== 'undefined') {
-                LayoutManager.removeActiveRequest(controller);
-            }
         }
     }
 
@@ -209,7 +102,7 @@ class SAMOAPIClient {
         formData.append('audio_file', audioFile);
 
         try {
-            // Use VOICE_JOURNAL endpoint for audio analysis flows with proper timeout handling
+            // Use makeRequest method for proper timeout and error handling
             return await this.makeRequest(this.endpoints.VOICE_JOURNAL, formData, 'POST', true);
         } catch (error) {
             console.error('Transcription error:', error);
@@ -219,51 +112,37 @@ class SAMOAPIClient {
 
     async summarizeText(text) {
         try {
-            // Use makeRequest method for proper timeout and error handling
-            const response = await this.makeRequest(this.endpoints.SUMMARIZE, { text }, 'POST');
+            // Use query parameters instead of JSON body for summarize API
+            const url = `${this.baseURL}${this.endpoints.SUMMARIZE}?text=${encodeURIComponent(text)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Length': '0'
+                }
+            });
 
-            // The makeRequest method already handles JSON parsing, so response is the data
-            return response;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+
+            return await response.json();
         } catch (error) {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
-
-                // Inform user about fallback to mock data
-                if (typeof addToProgressConsole === 'function') {
-                    addToProgressConsole('⚠️ API unavailable, using mock summarization for demo', 'warning');
-                }
-
-                const mockResponse = this.getMockSummaryResponse(text);
-                mockResponse.fallback_reason = error.message;
-                return mockResponse;
+                return this.getMockSummaryResponse(text);
             }
             throw error;
         }
     }
 
     getMockSummaryResponse(text) {
-        // Improved mock summarization response for demo purposes
+        // Mock summarization response for demo purposes
         const words = text.split(' ');
-
-        // Create a more intelligent summary by taking key sentences
-        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
-        let summary;
-
-        if (sentences.length >= 2) {
-            // Take first and last sentences for a basic summary
-            summary = sentences[0].trim() + '. ' + sentences[sentences.length - 1].trim() + '.';
-        } else {
-            // Fallback to word truncation
-            summary = words.slice(0, Math.max(15, Math.floor(words.length * 0.4))).join(' ') + '...';
-        }
-
-        // Ensure summary is not too long
-        if (summary.length > text.length * 0.6) {
-            summary = words.slice(0, Math.floor(words.length * 0.4)).join(' ') + '...';
-        }
-
-        console.log('🤖 Generated mock summary:', summary);
+        const summaryLength = Math.max(10, Math.floor(words.length * 0.3));
+        const summary = words.slice(0, summaryLength).join(' ') + '...';
 
         return {
             summary: summary,
@@ -278,8 +157,22 @@ class SAMOAPIClient {
 
     async detectEmotions(text) {
         try {
-            // Use makeRequest method for proper timeout and error handling
-            const data = await this.makeRequest(this.endpoints.EMOTION, { text }, 'POST');
+            // Use query parameters instead of JSON body for emotion API
+            const url = `${this.baseURL}${this.endpoints.EMOTION}?text=${encodeURIComponent(text)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Length': '0'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const msg = errorData.message || errorData.error || `HTTP ${response.status}`;
+                throw new Error(msg);
+            }
+
+            const data = await response.json();
 
             // Extract top 5 emotions and sort by confidence
             const emotions = data.emotions || {};
@@ -296,15 +189,7 @@ class SAMOAPIClient {
             // If API is not available, return mock data for demo purposes
             if (error.message.includes('Rate limit') || error.message.includes('API key') || error.message.includes('Service temporarily') || error.message.includes('Abuse detected') || error.message.includes('Client blocked')) {
                 console.warn('API not available, using mock data for demo:', error.message);
-
-                // Inform user about fallback to mock data
-                if (typeof addToProgressConsole === 'function') {
-                    addToProgressConsole('⚠️ API unavailable, using mock emotion detection for demo', 'warning');
-                }
-
-                const mockResponse = this.getMockEmotionResponse(text);
-                mockResponse.fallback_reason = error.message;
-                return mockResponse;
+                return this.getMockEmotionResponse(text);
             }
             throw error;
         }
@@ -418,44 +303,714 @@ class SAMOAPIClient {
     }
 }
 
+class ComprehensiveDemo {
+    constructor() {
+        this.apiClient = new SAMOAPIClient();
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.isRecording = false;
+        this.chart = null;
+        this.performanceOptimizer = new PerformanceOptimizer();
 
-// Global API client instance
-window.apiClient = null;
+        // Add cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            this.cleanup();
+        });
+
+        // Periodic cleanup to prevent memory buildup
+        this.cleanupInterval = setInterval(() => {
+            this.periodicCleanup();
+        }, 30000); // Every 30 seconds
+
+        this.initializeElements();
+        this.bindEvents();
+    }
+
+    initializeElements() {
+        // Input elements
+        this.audioFileInput = document.getElementById('audioFile');
+        this.textInput = document.getElementById('textInput');
+        this.recordBtn = document.getElementById('recordBtn');
+        this.stopBtn = document.getElementById('stopBtn');
+        this.processBtn = document.getElementById('processBtn');
+        this.clearBtn = document.getElementById('clearBtn');
+
+        // Visual elements
+        this.audioVisualizer = document.getElementById('audioVisualizer');
+        this.loadingSection = document.getElementById('loadingSection');
+        this.resultSection = document.getElementById('resultSection');
+
+        // Progress steps
+        this.steps = {
+            step1: document.getElementById('step1'),
+            step2: document.getElementById('step2'),
+            step3: document.getElementById('step3'),
+            step4: document.getElementById('step4')
+        };
+
+        // Result containers
+        this.transcriptionResults = document.getElementById('transcriptionResults');
+        this.summarizationResults = document.getElementById('summarizationResults');
+        this.emotionResults = document.getElementById('emotionResults');
+    }
+
+    bindEvents() {
+        this.processBtn.addEventListener('click', () => this.processInput());
+        this.clearBtn.addEventListener('click', () => this.clearAll());
+        this.recordBtn.addEventListener('click', () => this.startRecording());
+        this.stopBtn.addEventListener('click', () => this.stopRecording());
+        this.audioFileInput.addEventListener('change', () => this.handleFileUpload());
+    }
+
+    async processInput() {
+        const audioFile = this.audioFileInput.files[0];
+        const text = this.textInput.value.trim();
+
+        if (!audioFile && !text) {
+            this.showError('Please upload an audio file or enter text to process.');
+            return;
+        }
+
+        this.showLoading();
+        this.resetProgressSteps();
+        this.hideResults();
+
+        try {
+            // Update progress
+            this.updateProgressStep('step1', 'completed');
+            this.updateLoadingMessage('Processing with AI...');
+
+            const results = await this.apiClient.processCompleteWorkflow(audioFile, text);
+
+            // Update progress steps
+            if (results.transcription) {
+                this.updateProgressStep('step2', 'completed');
+                this.showTranscriptionResults(results.transcription);
+            }
+
+            if (results.summary) {
+                this.updateProgressStep('step3', 'completed');
+                this.showSummarizationResults(results.summary, results);
+            }
+
+            if (results.emotions) {
+                this.updateProgressStep('step4', 'completed');
+                this.showEmotionResults(results.emotions);
+            }
+
+            this.updateProcessingInfo(results);
+            this.hideLoading();
+            this.showResults();
+
+        } catch (error) {
+            console.error('Processing failed:', error);
+            this.hideLoading();
+            this.showError(`Processing failed: ${error.message}`);
+        }
+    }
+
+    showLoading() {
+        this.loadingSection.classList.add('show');
+        this.resultSection.classList.remove('show');
+        this.loadingSection.setAttribute('aria-busy', 'true');
+        this.resultSection.setAttribute('aria-busy', 'false');
+    }
+
+    hideLoading() {
+        this.loadingSection.classList.remove('show');
+    }
+
+    updateLoadingMessage(message) {
+        document.getElementById('loadingMessage').textContent = message;
+    }
+
+    resetProgressSteps() {
+        Object.values(this.steps).forEach(step => {
+            step.classList.remove('completed', 'active');
+            const icon = step.querySelector('.step-icon');
+            if (icon) {
+                icon.classList.remove('completed', 'active');
+                icon.classList.add('pending');
+            }
+        });
+    }
+
+    updateProgressStep(stepId, status) {
+        const step = this.steps[stepId];
+        const icon = step.querySelector('.step-icon');
+
+        step.classList.remove('completed', 'active');
+        if (icon) {
+            icon.classList.remove('completed', 'active', 'pending');
+
+            if (status === 'completed') {
+                step.classList.add('completed');
+                icon.classList.add('completed');
+            } else if (status === 'active') {
+                step.classList.add('active');
+                icon.classList.add('active');
+            } else {
+                icon.classList.add('pending');
+            }
+        }
+    }
+
+    showTranscriptionResults(transcription) {
+        // Some API responses use 'text', others use 'transcription'. Normalize here for consistency.
+        const text = transcription.text || transcription.transcription || 'Transcription not available';
+        const confidence = transcription.confidence || 'N/A';
+        const duration = transcription.duration || 'N/A';
+
+        document.getElementById('transcriptionText').textContent = text;
+        document.getElementById('transcriptionConfidence').textContent =
+            typeof confidence === 'number' ? `${Math.round(confidence * 100)}%` : confidence;
+        document.getElementById('transcriptionDuration').textContent =
+            typeof duration === 'number' ? `${duration.toFixed(2)}s` : duration;
+
+        this.transcriptionResults.style.display = 'block';
+    }
+
+    showSummarizationResults(summary, results = null) {
+        const summaryText = summary.summary || summary.text || 'Summary not available';
+        const summaryLength = summaryText.length;
+
+        // Determine original text length from available sources
+        let originalLength = 0;
+        if (results) {
+            // Try to get original text from various sources in order of preference
+            if (results.originalText) {
+                originalLength = (results.originalText || '').length;
+            } else if (results.transcription) {
+                const transcribedText = results.transcription.text || results.transcription.transcription;
+                originalLength = transcribedText ? transcribedText.length : 0;
+            } else if (results.inputText) {
+                originalLength = results.inputText.length;
+            }
+        }
+
+        document.getElementById('summaryText').textContent = summaryText;
+        document.getElementById('originalLength').textContent = originalLength;
+        document.getElementById('summaryLength').textContent = summaryLength;
+
+        this.summarizationResults.style.display = 'block';
+    }
+
+    showEmotionResults(emotions) {
+        // Handle different response formats
+        let emotionData = [];
+        if (Array.isArray(emotions)) {
+            emotionData = emotions;
+        } else if (emotions.emotions) {
+            emotionData = emotions.emotions;
+        } else if (emotions.predictions) {
+            emotionData = emotions.predictions;
+        } else if (emotions.probabilities) {
+            // Handle probabilities object format: {probabilities: {label: prob}}
+            emotionData = Object.entries(emotions.probabilities).map(([label, prob]) => ({
+                emotion: label,
+                confidence: prob
+            }));
+        }
+
+        // Use performance optimizer to normalize emotion data
+        const normalizedEmotions = this.performanceOptimizer.optimizeEmotionData(emotionData);
+        console.log('🔍 Normalized emotions for chart:', normalizedEmotions);
+        console.log('🔍 Normalized emotions length:', normalizedEmotions.length);
+
+        // Create emotion badges (only show top 5)
+        const badgesContainer = document.getElementById('emotionBadges');
+        badgesContainer.textContent = '';
+
+        // Only show top 5 emotions as badges
+        const top5Emotions = normalizedEmotions.slice(0, 5);
+        top5Emotions.forEach(emotion => {
+            const confidence = Math.max(0, Math.min(1, emotion.confidence)) * 100; // Clamp between 0-100
+            const emotionName = emotion.emotion || 'Unknown';
+
+            const badge = document.createElement('span');
+            badge.className = 'emotion-badge';
+            badge.style.backgroundColor = this.getEmotionColor(emotionName);
+            badge.textContent = `${emotionName}: ${confidence.toFixed(1)}%`;
+            badgesContainer.appendChild(badge);
+        });
+
+        // Create emotion chart (only top 5 emotions)
+        const chartData = normalizedEmotions.slice(0, 5);
+        console.log('🔍 Creating chart with data:', chartData);
+        this.createEmotionChart(chartData);
+
+        // Show emotion details (only top 5)
+        this.showEmotionDetails(chartData);
+
+        this.emotionResults.style.display = 'block';
+    }
+
+    createEmotionChart(emotionData) {
+        const ctx = document.getElementById('emotionChart');
+        if (!ctx) {
+            console.error('Emotion chart canvas not found');
+            return;
+        }
+
+        // Destroy existing chart properly
+        if (this.chart) {
+            try {
+                this.chart.destroy();
+                this.chart = null;
+            } catch (error) {
+                console.warn('Error destroying chart:', error);
+                this.chart = null;
+            }
+        }
+
+        // Use the basic chart directly since we have Chart.js
+        this.createBasicChart(ctx, emotionData);
+    }
+
+    createBasicChart(ctx, emotionData) {
+        // Fallback chart creation if performance optimizer fails
+        console.log('🔍 createBasicChart called with:', emotionData);
+        console.log('🔍 emotionData type:', typeof emotionData);
+        console.log('🔍 emotionData length:', emotionData?.length);
+
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js not loaded!');
+            this.showChartError('Chart.js library not loaded. Please refresh the page.');
+            return;
+        }
+
+        if (!Array.isArray(emotionData) || emotionData.length === 0) {
+            console.error('❌ Invalid emotion data for chart:', emotionData);
+            return;
+        }
+
+        const labels = emotionData.map(e => e.emotion || e.label);
+        const data = emotionData.map(e => (e.confidence || e.score) * 100);
+        const colors = labels.map(label => this.getEmotionColor(label));
+
+        console.log('🔍 Chart labels:', labels);
+        console.log('🔍 Chart data:', data);
+        console.log('🔍 Chart colors:', colors);
+
+        try {
+            this.chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Confidence (%)',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: colors.map((c) =>
+                        c.startsWith('rgba(')
+                          ? c.replace(/rgba\((\d+\s*,\s*\d+\s*,\s*\d+),\s*[\d.]+\)/, 'rgba($1, 1)')
+                          : c
+                    ),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(139, 92, 246, 0.1)',
+                            borderColor: 'rgba(139, 92, 246, 0.2)'
+                        },
+                        ticks: {
+                            color: '#cbd5e1',
+                            maxRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(139, 92, 246, 0.1)',
+                            borderColor: 'rgba(139, 92, 246, 0.2)'
+                        },
+                        ticks: {
+                            color: '#cbd5e1',
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 15, 35, 0.9)',
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#e2e8f0',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+
+        } catch (error) {
+            console.error('❌ Error creating chart:', error);
+            this.showChartError('Failed to create chart: ' + error.message);
+        }
+    }
+
+    /**
+     * Show chart error message
+     */
+    showChartError(message) {
+        const chartContainer = document.getElementById('emotionChart');
+        if (chartContainer) {
+            const parent = chartContainer.parentElement;
+            if (parent) {
+                // Clear existing content safely
+                parent.textContent = '';
+
+                // Create alert container
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning';
+                alertDiv.setAttribute('role', 'alert');
+
+                // Create heading
+                const heading = document.createElement('h6');
+                heading.className = 'alert-heading';
+
+                const warningIcon = document.createElement('span');
+                warningIcon.className = 'material-icons me-2';
+                warningIcon.textContent = 'warning';
+
+                heading.appendChild(warningIcon);
+                heading.appendChild(document.createTextNode('Chart Error'));
+
+                // Create message paragraph
+                const messagePara = document.createElement('p');
+                messagePara.className = 'mb-0';
+                messagePara.textContent = message; // Safe text content
+
+                // Create separator
+                const hr = document.createElement('hr');
+
+                // Create instruction paragraph
+                const instructionPara = document.createElement('p');
+                instructionPara.className = 'mb-0 small';
+                instructionPara.textContent = 'Please refresh the page and try again.';
+
+                // Assemble the alert
+                alertDiv.appendChild(heading);
+                alertDiv.appendChild(messagePara);
+                alertDiv.appendChild(hr);
+                alertDiv.appendChild(instructionPara);
+
+                parent.appendChild(alertDiv);
+            }
+        }
+    }
+
+    showEmotionDetails(emotionData) {
+        const detailsContainer = document.getElementById('emotionDetails');
+        if (!detailsContainer) {
+            console.error('❌ emotionDetails container not found');
+            return;
+        }
+        const title = document.createElement('h6');
+        title.className = 'fw-bold mb-3';
+        title.textContent = 'Top Emotions';
+        detailsContainer.textContent = '';
+        detailsContainer.appendChild(title);
+
+        // Sort by confidence and show top 5
+        const sortedEmotions = emotionData
+            .sort((a, b) => (b.confidence || b.score) - (a.confidence || a.score))
+            .slice(0, 5);
+
+        sortedEmotions.forEach((emotion, index) => {
+            const confidence = (emotion.confidence || emotion.score) * 100;
+            const emotionName = emotion.emotion || emotion.label;
+
+            const detailItem = document.createElement('div');
+            detailItem.className = 'mb-3';
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'd-flex justify-content-between align-items-center mb-1';
+
+            const emotionLabel = document.createElement('span');
+            emotionLabel.className = 'fw-bold';
+            emotionLabel.textContent = `${index + 1}. ${emotionName}`;
+
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.style.backgroundColor = this.getEmotionColor(emotionName);
+            badge.textContent = `${Math.round(confidence)}%`;
+
+            headerDiv.appendChild(emotionLabel);
+            headerDiv.appendChild(badge);
+
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'progress';
+            progressDiv.style.height = '8px';
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.style.width = `${confidence}%`;
+            progressBar.style.backgroundColor = this.getEmotionColor(emotionName);
+
+            progressDiv.appendChild(progressBar);
+
+            detailItem.appendChild(headerDiv);
+            detailItem.appendChild(progressDiv);
+            detailsContainer.appendChild(detailItem);
+        });
+    }
+
+    getEmotionColor(emotion) {
+        const colors = {
+            'joy': 'rgba(34, 197, 94, 0.8)',
+            'happiness': 'rgba(34, 197, 94, 0.8)',
+            'excitement': 'rgba(34, 197, 94, 0.8)',
+            'sadness': 'rgba(59, 130, 246, 0.8)',
+            'grief': 'rgba(59, 130, 246, 0.8)',
+            'anger': 'rgba(239, 68, 68, 0.8)',
+            'annoyance': 'rgba(239, 68, 68, 0.8)',
+            'fear': 'rgba(245, 158, 11, 0.8)',
+            'nervousness': 'rgba(245, 158, 11, 0.8)',
+            'surprise': 'rgba(139, 92, 246, 0.8)',
+            'love': 'rgba(244, 63, 94, 0.8)',
+            'caring': 'rgba(244, 63, 94, 0.8)',
+            'gratitude': 'rgba(16, 185, 129, 0.8)',
+            'pride': 'rgba(16, 185, 129, 0.8)',
+            'optimism': 'rgba(16, 185, 129, 0.8)',
+            'disgust': 'rgba(107, 114, 128, 0.8)',
+            'confusion': 'rgba(107, 114, 128, 0.8)',
+            'neutral': 'rgba(107, 114, 128, 0.8)'
+        };
+        return colors[emotion] || 'rgba(139, 92, 246, 0.8)';
+    }
+
+    updateProcessingInfo(results) {
+        // Format processing time for better readability
+        const formatProcessingTime = (ms) => {
+            if (ms >= 1000) {
+                return `${(ms / 1000).toFixed(2)}s`;
+            }
+            return `${ms}ms`;
+        };
+        document.getElementById('totalTime').textContent = formatProcessingTime(results.processingTime);
+        document.getElementById('processingStatus').textContent = 'Success';
+        document.getElementById('processingStatus').className = 'text-success';
+        document.getElementById('modelsUsed').textContent = results.modelsUsed.join(', ');
+
+        // Calculate average confidence - handle different response formats
+        const em = results.emotions;
+        if (em) {
+            let avg = null;
+            if (Array.isArray(em)) {
+                avg = em.reduce((s, e) => s + (e.confidence || e.score || 0), 0) / Math.max(em.length, 1);
+            } else if (em.probabilities && typeof em.probabilities === 'object') {
+                const vals = Object.values(em.probabilities);
+                avg = vals.reduce((s, v) => s + (Number(v) || 0), 0) / Math.max(vals.length, 1);
+            }
+            if (avg != null) {
+                document.getElementById('avgConfidence').textContent = `${Math.round(avg * 100)}%`;
+            } else {
+                document.getElementById('avgConfidence').textContent = 'N/A';
+            }
+        } else {
+            document.getElementById('avgConfidence').textContent = 'N/A';
+        }
+    }
+
+    showResults() {
+        this.resultSection.classList.add('show');
+    }
+
+    hideResults() {
+        this.resultSection.classList.remove('show');
+        this.resultSection.setAttribute('aria-busy', 'false');
+        this.transcriptionResults.style.display = 'none';
+        this.summarizationResults.style.display = 'none';
+        this.emotionResults.style.display = 'none';
+    }
+
+    clearAll() {
+        this.audioFileInput.value = '';
+        this.textInput.value = '';
+        this.hideResults();
+        this.resetProgressSteps();
+        this.stopRecording();
+    }
+
+    async startRecording() {
+        try {
+            if (typeof window.MediaRecorder === 'undefined') {
+                this.showError('Recording not supported in this browser.');
+                return;
+            }
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.audioChunks = [];
+
+            this.mediaRecorder.ondataavailable = (event) => {
+                this.audioChunks.push(event.data);
+            };
+
+            this.mediaRecorder.onstop = () => {
+                // Use the actual MediaRecorder MIME type instead of hardcoded 'audio/wav'
+                const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+                const fileExtension = mimeType.includes('webm') ? 'webm' :
+                                    mimeType.includes('mp4') ? 'mp4' :
+                                    mimeType.includes('ogg') ? 'ogg' : 'wav';
+
+                const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+                const audioFile = new File([audioBlob], `recording.${fileExtension}`, { type: mimeType });
+
+                // Create a new FileList-like object
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(audioFile);
+                this.audioFileInput.files = dataTransfer.files;
+
+                // Hide visualizer
+                this.audioVisualizer.style.display = 'none';
+            };
+
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            this.recordBtn.disabled = true;
+            this.stopBtn.disabled = false;
+            this.audioVisualizer.style.display = 'flex';
+
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            this.showError('Could not start recording. Please check microphone permissions.');
+        }
+    }
+
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            this.isRecording = false;
+            this.recordBtn.disabled = false;
+            this.stopBtn.disabled = true;
+        }
+    }
+
+    handleFileUpload() {
+        if (this.audioFileInput.files[0]) {
+            // Clear text input when audio is uploaded
+            this.textInput.value = '';
+        }
+    }
+
+    showError(message) {
+        if (!this.errorMsgEl) {
+            // Create error message element if it doesn't exist
+            this.errorMsgEl = document.createElement('div');
+            this.errorMsgEl.className = 'error-message';
+            this.errorMsgEl.setAttribute('role', 'alert');
+            this.errorMsgEl.setAttribute('aria-live', 'assertive');
+            this.textInput.parentNode.insertBefore(this.errorMsgEl, this.textInput.nextSibling);
+        }
+        this.errorMsgEl.textContent = message;
+        this.errorMsgEl.classList.add('show');
+    }
+
+    clearError() {
+        if (this.errorMsgEl) {
+            this.errorMsgEl.textContent = '';
+            this.errorMsgEl.classList.remove('show');
+        }
+    }
+
+    /**
+     * Clean up resources to prevent memory leaks
+     */
+    cleanup() {
+        console.log('🧹 Cleaning up resources...');
+
+        // Destroy chart
+        if (this.chart) {
+            try {
+                this.chart.destroy();
+                this.chart = null;
+            } catch (error) {
+                console.warn('Error destroying chart during cleanup:', error);
+            }
+        }
+
+        // Clean up performance optimizer
+        if (this.performanceOptimizer && typeof this.performanceOptimizer.destroy === 'function') {
+            this.performanceOptimizer.destroy();
+        }
+
+        // Stop media recording if active
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            try {
+                this.mediaRecorder.stop();
+            } catch (error) {
+                console.warn('Error stopping media recorder:', error);
+            }
+        }
+
+        // Clear audio chunks
+        this.audioChunks = [];
+
+        // Clear cleanup interval
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+        }
+
+        console.log('✅ Cleanup completed');
+    }
+
+    /**
+     * Periodic cleanup to prevent memory buildup
+     */
+    periodicCleanup() {
+        // Only run if performance optimizer is available
+        if (this.performanceOptimizer && typeof this.performanceOptimizer.cleanupMemory === 'function') {
+            this.performanceOptimizer.cleanupMemory();
+        }
+
+        // Clear any old audio chunks
+        if (this.audioChunks.length > 10) {
+            this.audioChunks = this.audioChunks.slice(-5);
+        }
+    }
+}
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, initializing demo...');
-    console.log('🔧 Using simple-demo-functions.js for chart implementation');
+    // Initialize the comprehensive demo
+    new ComprehensiveDemo();
+    console.log('🔧 ComprehensiveDemo initialized for enhanced functionality');
+});
 
-    // Initialize global API client
-    try {
-        if (!window.apiClient) {
-            window.apiClient = new SAMOAPIClient();
-            console.log('✅ Global API client initialized');
-        } else {
-            console.log('ℹ️ Global API client already initialized');
-        }
-    } catch (error) {
-        console.error('❌ Failed to initialize API client:', error);
-    }
-
-    // Smooth scrolling for in-page navigation links
-    document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            // Only handle if the link is for the current page
-            if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (!href) return;
-                const target = document.querySelector(href);
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+// Smooth scrolling for in-page navigation links
+// Only applies to anchors within the main navigation to avoid interfering with external or footer anchors
+document.querySelectorAll('nav a[href^="#"], .navbar a[href^="#"], #main-nav a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        // Only handle if the link is for the current page
+        if (location.pathname === anchor.pathname && location.hostname === anchor.hostname) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            if (!href) return;
+            const target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
-        });
+        }
     });
 });
 
@@ -498,33 +1053,6 @@ function showInlineMessage(message, targetElementId, type = 'error') {
 async function generateSampleText() {
     console.log('✨ Generating AI-powered sample journal text...');
 
-    // Define sample texts for fallback
-    const sampleTexts = [
-        "Today started like any other day, but something unexpected happened that completely changed my mood. I woke up feeling restless, as if something important was waiting for me just beyond the horizon. The morning sunlight streaming through my window felt warmer than usual, and I found myself lingering in bed longer than I should have, savoring the quiet moments before the day officially began. Walking through the park, I noticed things I'd never seen before despite passing this way hundreds of times. That's when I realized what I was feeling – a profound sense of gratitude mixed with a gentle melancholy for time that has passed.",
-
-        "After a long conversation with someone close to me, I'm left feeling quite contemplative and unexpectedly vulnerable. It's funny how a simple exchange of words can peel back layers of what we often bury deep inside us. We discussed dreams that feel too big, disappointments that still sting, and the strange comfort found in knowing that someone else understands the complexity of simply being human. Now, sitting here in the quiet aftermath, I feel emotionally exhausted but also somehow lighter.",
-
-        "I've been struggling with a decision that's been weighing heavily on my mind for weeks. The rational part of me knows what I should do, but my heart keeps pulling me in a different direction. It's that familiar tug-of-war between what feels safe and what feels authentic. Sometimes I wonder if we're meant to feel this conflicted about the paths we choose, or if clarity is something that comes only in hindsight. Tonight, I'm choosing to sit with the uncertainty rather than rush toward an answer.",
-
-        "There's something magical about rainy afternoons that makes me incredibly nostalgic. The sound of droplets against my window takes me back to childhood days when the world felt both infinite and completely contained within the walls of our small house. I remember how my grandmother used to say that rain was just the sky's way of crying happy tears. Looking back, I think she might have been onto something profound about finding beauty in moments of release.",
-
-        "I had one of those moments today where everything felt perfectly aligned. It wasn't anything dramatic – just a simple conversation with a stranger at the coffee shop who smiled genuinely and asked how my day was going. But something about that brief connection reminded me that kindness is still everywhere if we're paying attention. It's amazing how a single moment of human warmth can shift your entire perspective on the day.",
-
-        "I've been thinking a lot about the concept of home lately. Not just the physical space where I live, but that feeling of belonging that seems to come and go like the tide. Sometimes I feel most at home in unexpected places – a quiet corner of a library, a park bench under my favorite tree, or even in the middle of a crowded room filled with laughter. Maybe home isn't a place at all, but a feeling we carry within us.",
-
-        "Tonight I'm sitting on my balcony watching the city lights twinkle below, and I'm overwhelmed by how many stories are unfolding simultaneously around me. Behind each lit window is someone living their own complex narrative of hopes, fears, dreams, and disappointments. It's both humbling and comforting to remember that we're all just trying to figure it out as we go along. Sometimes feeling small in the grand scheme of things is exactly what we need.",
-
-        "I picked up a book today that I loved in college and was surprised by how differently it resonated with me now. The same words that once felt revolutionary now feel like old friends offering gentle wisdom. It made me realize how much I've changed without even noticing. Growth isn't always dramatic or obvious – sometimes it's just the quiet accumulation of experiences that slowly shift how we see the world.",
-
-        "There's something bittersweet about cleaning out old belongings and finding forgotten treasures from different phases of my life. Each item tells a story about who I used to be, the dreams I once had, and the paths I chose not to take. It's like archaeological evidence of my own becoming. I'm learning to feel grateful for all the versions of myself that led me here, even the ones that felt lost at the time.",
-
-        "I had a moment of pure joy today while listening to my favorite song on repeat. It's one of those tracks that never gets old, that seems to capture something essential about being alive. Music has this incredible ability to transport us instantly to emotional spaces we might struggle to access otherwise. Sometimes I think musicians are just emotional translators, helping us understand feelings we didn't even know we had.",
-
-        "The anxiety I've been carrying lately feels like a heavy backpack I forgot I was wearing. It's only when I consciously set it down that I realize how much energy it was taking just to carry it around. I'm learning that acknowledging difficult emotions doesn't make them stronger – it actually gives them permission to move through me instead of getting stuck. Today I'm practicing the art of gentle self-compassion.",
-
-        "I spent the morning in my garden, hands deep in the soil, and felt more grounded than I have in weeks. There's something deeply satisfying about nurturing something from seed to bloom. It reminds me that growth takes time, that patience is its own form of faith, and that some of the most beautiful things happen slowly, underground, before we can see any evidence of progress. Maybe I need to remember this about my own life too."
-    ];
-
     const textInput = document.getElementById('textInput');
     if (textInput) {
         textInput.value = '🤖 Generating AI text...';
@@ -533,9 +1061,7 @@ async function generateSampleText() {
     }
 
     try {
-        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY
-          || sessionStorage.getItem('openai_api_key')
-          || localStorage.getItem('openai_api_key'); // kept as fallback for backward-compat
+        let apiKey = window.SAMO_CONFIG?.OPENAI?.API_KEY || localStorage.getItem('openai_api_key');
 
         if (!apiKey || apiKey.trim() === '') {
             showInlineError('⚠️ OpenAI API key required for AI text generation. Click "Manage API Key" to set up.', 'textInput');
@@ -563,50 +1089,45 @@ async function generateSampleText() {
         const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
         console.log('🤖 Generating AI text with OpenAI API...');
 
-        // Update user with loading feedback
-        if (textInput) {
-            textInput.value = '🤖 Generating unique AI text with OpenAI...';
-        }
-
-        // Make actual OpenAI API call
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const openaiConfig = window.SAMO_CONFIG.OPENAI;
+        const response = await fetch(openaiConfig.API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': `Bearer ${apiKey.trim()}`
             },
             body: JSON.stringify({
-                model: window.SAMO_CONFIG?.OPENAI?.MODEL || 'gpt-4o-mini',
+                model: openaiConfig.MODEL,
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are an AI that creates realistic, emotional journal entries. Write a personal, introspective journal entry that expresses genuine human emotions and experiences. The entry should be 150-300 words, feel authentic, and contain a mix of emotions suitable for emotion detection analysis.'
+                        content: 'You are a creative writing assistant that generates authentic, emotionally rich personal journal entries. Write in first person, include specific details and genuine emotions.'
                     },
                     {
                         role: 'user',
-                        content: `Write a journal entry that continues this thought: "${randomPrompt}"`
+                        content: `Write a personal journal entry that continues this thought: "${randomPrompt}" - Make it authentic and emotionally detailed.`
                     }
                 ],
-                max_tokens: window.SAMO_CONFIG?.OPENAI?.MAX_TOKENS || 400,
-                temperature: window.SAMO_CONFIG?.OPENAI?.TEMPERATURE || 0.7
+                max_tokens: openaiConfig.MAX_TOKENS,
+                temperature: openaiConfig.TEMPERATURE + 0.1
             })
         });
 
         if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`OpenAI API error: ${response.status} ${errorData.error?.message || ''}`);
         }
 
         const data = await response.json();
-        const generatedText = data.choices[0]?.message?.content;
-
-        if (!generatedText) {
-            throw new Error('No text generated from OpenAI API');
+        if (!data.choices?.[0]?.message) {
+            throw new Error('Invalid response format from OpenAI API');
         }
 
-        console.log('✅ OpenAI API generated unique text successfully');
+        const generatedText = data.choices[0].message.content.trim();
+        console.log('✅ AI text generated successfully');
 
         if (textInput) {
-            textInput.value = generatedText.trim();
+            textInput.value = generatedText;
             textInput.style.borderColor = '#10b981';
             textInput.style.boxShadow = '0 0 0 0.2rem rgba(16, 185, 129, 0.25)';
             setTimeout(() => {
@@ -615,88 +1136,28 @@ async function generateSampleText() {
             }, 2000);
         }
 
-        showInlineSuccess('✅ Unique AI text generated with OpenAI!', 'textInput');
-        return; // Exit here - don't fall back to sample texts
+        showInlineSuccess('✅ AI text generated successfully!', 'textInput');
 
     } catch (error) {
         console.error('❌ Error generating AI text:', error);
-        console.log('🔄 Falling back to curated sample texts...');
-
-        // Fall back to curated sample texts if OpenAI API fails
-        const randomIndex = Math.floor(Math.random() * sampleTexts.length);
-        const fallbackText = sampleTexts[randomIndex];
+        showInlineError(`❌ Failed to generate AI text: ${error.message}`, 'textInput');
 
         if (textInput) {
-            textInput.value = fallbackText;
-            textInput.style.borderColor = '#f59e0b';
-            textInput.style.boxShadow = '0 0 0 0.2rem rgba(245, 158, 11, 0.25)';
+            textInput.value = '';
+            textInput.style.borderColor = '#ef4444';
+            textInput.style.boxShadow = '0 0 0 0.2rem rgba(239, 68, 68, 0.25)';
             setTimeout(() => {
                 textInput.style.borderColor = '';
                 textInput.style.boxShadow = '';
-            }, 2000);
+            }, 3000);
         }
-
-        showInlineError(`⚠️ OpenAI API unavailable, using sample text (${randomIndex + 1} of ${sampleTexts.length})`, 'textInput');
     }
 }
-
-// API Key Management Function
-function manageApiKey() {
-    console.log('🔑 Managing API Key...');
-
-    const currentKey = sessionStorage.getItem('openai_api_key') || localStorage.getItem('openai_api_key') || '';
-    const maskedKey = currentKey ? `${currentKey.substring(0, 7)}...${currentKey.substring(currentKey.length - 4)}` : 'Not set';
-
-    const newKey = prompt(
-        `Current OpenAI API Key: ${maskedKey}\n\n` +
-        'Enter your OpenAI API Key (or leave empty to remove):\n\n' +
-        'Note: This key is stored locally in your browser and is only used for generating sample text.',
-        ''
-    );
-
-    if (newKey === null) {
-        console.log('🔑 API Key management cancelled');
-        return;
-    }
-
-    if (newKey.trim() === '') {
-        sessionStorage.removeItem('openai_api_key');
-        localStorage.removeItem('openai_api_key');
-        console.log('🔑 API Key removed');
-        alert('✅ API Key removed successfully');
-    } else if (newKey.startsWith('sk-')) {
-        // Prefer sessionStorage to avoid long-lived persistence
-        sessionStorage.setItem('openai_api_key', newKey.trim());
-        console.log('🔑 API Key updated');
-        alert('✅ API Key saved successfully');
-    } else {
-        console.log('🔑 Invalid API Key format');
-        alert('❌ Invalid API Key format. OpenAI API keys should start with "sk-"');
-    }
-}
-
-// Reflect API key state on the button, if present
-function updateApiKeyButtonStatus() {
-    const btn = document.getElementById('apiKeyBtn');
-    if (!btn) return;
-    const hasKey = !!(sessionStorage.getItem('openai_api_key') || localStorage.getItem('openai_api_key'));
-    btn.textContent = hasKey ? 'Change API Key' : 'Manage API Key';
-    btn.classList.toggle('btn-success', hasKey);
-    btn.classList.toggle('btn-outline-secondary', !hasKey);
-}
-window.updateApiKeyButtonStatus = updateApiKeyButtonStatus;
 
 // Essential Processing Functions (restored from simple-demo-functions.js)
 
-async function processText(skipStateCheck = false) {
+async function processText() {
     console.log('🚀 Processing text...');
-
-    // Check if processing is already in progress (skip if state management is handled externally)
-    if (!skipStateCheck && typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
-        console.warn('⚠️ Processing blocked - operation already in progress');
-        return;
-    }
-
     const text = document.getElementById('textInput').value;
     console.log('🔍 Text from input:', text);
     console.log('🔍 Text length:', text.length);
@@ -710,16 +1171,6 @@ async function processText(skipStateCheck = false) {
 
 async function testWithRealAPI() {
     console.log('🌐 Testing with real API...');
-
-    // Ensure processing state is properly set
-    if (typeof LayoutManager !== 'undefined' && !LayoutManager.isProcessing) {
-        console.warn('⚠️ testWithRealAPI called without processing state - setting now');
-        if (!LayoutManager.showProcessingState()) {
-            console.error('❌ Failed to set processing state in testWithRealAPI');
-            return;
-        }
-    }
-
     const startTime = performance.now();
 
     // Initialize progress console
@@ -763,6 +1214,16 @@ async function testWithRealAPI() {
 
             chartContainer.appendChild(loadingDiv);
 
+            // Update progress messages
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Loading DeBERTa v3 Large model (this may take a moment)...';
+            }, 5000);
+
+            setTimeout(() => {
+                const msg = document.getElementById('emotionLoadingMessage');
+                if (msg) msg.textContent = 'Processing your text with AI emotion analysis...';
+            }, 15000);
         }
 
         updateElement('primaryEmotion', 'Loading...');
@@ -780,12 +1241,31 @@ async function testWithRealAPI() {
         addToProgressConsole(`Text prepared for analysis (${testText.length} characters)`, 'success');
         addToProgressConsole('🧠 Initializing DeBERTa v3 Large emotion model...', 'processing');
         console.log('🔥 Calling emotion API...');
+        const apiUrl = `https://samo-unified-api-optimized-frrnetyhfa-uc.a.run.app/analyze/emotion?text=${encodeURIComponent(testText)}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort('Request timeout after 90 seconds - API may be experiencing cold start delays'), 90000); // Increased for cold starts
+
         addToProgressConsole('🌐 Sending request to emotion analysis API...', 'processing');
-        // Reuse global client; leverage high-level API with built-in fallbacks
-        const apiClient = window.apiClient || (window.apiClient = new SAMOAPIClient());
-        const data = await apiClient.detectEmotions(testText);
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Length': '0',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            addToProgressConsole(`API call failed: ${response.status} ${response.statusText}`, 'error');
+            throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        }
 
         addToProgressConsole('✅ Emotion analysis API response received', 'success');
+        const data = await response.json();
         console.log('✅ Real API response:', data);
 
         // Process emotion data
@@ -844,13 +1324,7 @@ async function testWithRealAPI() {
         showResultsSections();
 
     } catch (error) {
-        console.error('❌ Error in testWithRealAPI:', error.message, error.status, error.response?.data);
-
-        // Reset processing state on error
-        if (typeof LayoutManager !== 'undefined' && LayoutManager.isProcessing) {
-            LayoutManager.endProcessing();
-            console.log('🔧 Processing state reset due to error');
-        }
+        console.error('❌ Error in testWithRealAPI:', error);
 
         // Update processing status to error
         updateElement('processingStatusCompact', 'Error');
@@ -870,80 +1344,73 @@ async function testWithRealAPI() {
             addToProgressConsole(`Processing failed: ${error.message}`, 'error');
             showInlineError(`❌ Failed to process text: ${error.message}`, 'textInput');
         }
-
-        // IMMEDIATELY return to initial state on error (no delay)
-        if (typeof LayoutManager !== 'undefined') {
-            LayoutManager.resetToInitialState();
-        }
     }
 }
 
 async function callSummarizationAPI(text) {
     console.log('📝 Calling real summarization API...');
-    console.log('📝 Input text length:', text.length);
-    console.log('📝 Input text preview:', text.substring(0, 100) + '...');
     addToProgressConsole('🌐 Sending request to summarization API...', 'processing');
 
     try {
-        const apiClient = window.apiClient || (window.apiClient = new SAMOAPIClient());
-        const data = await apiClient.summarizeText(text);
+        const params = new URLSearchParams({
+            text: text
+        });
 
-        addToProgressConsole('✅ Summarization API response received', 'success');
-        console.log('✅ Summarization API response (full):', JSON.stringify(data, null, 2));
+        const apiUrl = `${window.SAMO_CONFIG.API.BASE_URL}${window.SAMO_CONFIG.API.ENDPOINTS.SUMMARIZE}?${params.toString()}`;
 
-        // Extract summary from response - be more thorough in extraction
-        addToProgressConsole('🔍 Processing summarization results...', 'processing');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
 
-        // Log all possible fields to debug response structure
-        console.log('📝 Response fields available:', Object.keys(data));
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Length': '0',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            signal: controller.signal
+        });
 
-        let summaryText = data.summary || data.text || data.summarized_text || data.result || data.output || data.generated_text;
+        clearTimeout(timeoutId);
 
-        // Check if the response is nested
-        if (!summaryText && data.data) {
-            summaryText = data.data.summary || data.data.text || data.data.summarized_text || data.data.result || data.data.output;
+        if (!response.ok) {
+            addToProgressConsole(`Summarization API failed: ${response.status} ${response.statusText}`, 'error');
+            throw new Error(`Summarization API failed: ${response.status} ${response.statusText}`);
         }
 
-        // Log the extracted summary
-        console.log('📝 Extracted summary text:', summaryText);
+        addToProgressConsole('✅ Summarization API response received', 'success');
+        const data = await response.json();
+        console.log('✅ Summarization API response:', data);
 
-        if (summaryText && summaryText.trim()) {
+        // Extract summary from response
+        addToProgressConsole('🔍 Processing summarization results...', 'processing');
+        const possibleFields = ['summary', 'text', 'summarized_text', 'result', 'output'];
+        let summaryText = null;
+
+        for (const field of possibleFields) {
+            if (data[field] && typeof data[field] === 'string') {
+                summaryText = data[field];
+                break;
+            }
+        }
+
+        if (summaryText) {
             updateElement('summaryText', summaryText);
             updateElement('originalLength', text.length);
             updateElement('summaryLength', summaryText.length);
             addToProgressConsole(`Summary generated successfully (${summaryText.length} characters)`, 'success');
-            console.log('✅ Summary successfully displayed');
         } else {
             console.warn('⚠️ No valid summary found in response');
-            console.warn('⚠️ Full response structure:', JSON.stringify(data, null, 2));
             addToProgressConsole('No valid summary found in API response', 'warning');
-            updateElement('summaryText', 'Summary not available - API response did not contain summary text');
+            updateElement('summaryText', 'Summary not available');
         }
 
         return summaryText;
 
     } catch (error) {
         console.error('❌ Error in callSummarizationAPI:', error);
-        console.error('❌ Error details:', {
-            message: error.message,
-            stack: error.stack,
-            name: error.name
-        });
-
-        // More specific error messages
-        let errorMessage = 'Failed to generate summary';
-        if (error.message.includes('Failed to fetch')) {
-            errorMessage = 'Network error: Could not connect to summarization API';
-        } else if (error.message.includes('timeout')) {
-            errorMessage = 'Request timeout: Summarization API took too long to respond';
-        } else if (error.message.includes('500')) {
-            errorMessage = 'Server error: Summarization API encountered an internal error';
-        } else if (error.message.includes('404')) {
-            errorMessage = 'API endpoint not found: Please check API configuration';
-        }
-
-        addToProgressConsole(`Summarization failed: ${errorMessage}`, 'error');
-        updateElement('summaryText', errorMessage);
+        addToProgressConsole(`Summarization failed: ${error.message}`, 'error');
+        updateElement('summaryText', 'Failed to generate summary');
         return null;
     }
 }
@@ -975,10 +1442,10 @@ function showResultsSections() {
 
 // Progress Console Functions
 function addToProgressConsole(message, type = 'info') {
-    const consoleEl = document.getElementById('progressConsole');
+    const console = document.getElementById('progressConsole');
     const consoleRow = document.getElementById('progressConsoleRow');
 
-    if (!consoleEl) return;
+    if (!console) return;
 
     // Show console if hidden
     if (consoleRow) {
@@ -1015,36 +1482,33 @@ function addToProgressConsole(message, type = 'info') {
     const messageDiv = document.createElement('div');
     messageDiv.className = className;
 
-    // Create timestamp span safely
+    // Create elements safely to prevent XSS
     const timestampSpan = document.createElement('span');
     timestampSpan.className = 'text-muted';
     timestampSpan.textContent = `[${timestamp}]`;
 
-    // Create icon span safely
     const iconSpan = document.createElement('span');
-    iconSpan.textContent = icon;
+    iconSpan.textContent = ` ${icon} `;
 
-    // Create message span safely
     const messageSpan = document.createElement('span');
-    messageSpan.textContent = ` ${message}`;
+    messageSpan.textContent = message;
 
-    // Append elements safely
     messageDiv.appendChild(timestampSpan);
     messageDiv.appendChild(iconSpan);
     messageDiv.appendChild(messageSpan);
 
-    consoleEl.appendChild(messageDiv);
-    consoleEl.scrollTop = consoleEl.scrollHeight;
+    console.appendChild(messageDiv);
+    console.scrollTop = console.scrollHeight;
 }
 
 function clearProgressConsole() {
-    const consoleEl = document.getElementById('progressConsole');
-    if (consoleEl) {
-        consoleEl.textContent = '';
+    const console = document.getElementById('progressConsole');
+    if (console) {
+        console.textContent = '';
         const readyDiv = document.createElement('div');
         readyDiv.className = 'text-success';
         readyDiv.textContent = 'SAMO-DL Processing Console Ready...';
-        consoleEl.appendChild(readyDiv);
+        console.appendChild(readyDiv);
     }
 }
 
@@ -1055,20 +1519,12 @@ function updateElement(id, value) {
         if (element) {
             if (id === 'summaryText') {
                 // Special handling for summary text - use dark-theme compatible styling
-                // Clear existing content safely
-                element.textContent = '';
-
-                // Create container div safely
-                const containerDiv = document.createElement('div');
-                containerDiv.className = 'p-3 bg-dark border border-secondary rounded text-light';
-
-                // Set text content safely
-                const textContent = value !== null && value !== undefined ? value : 'No summary available';
-                containerDiv.textContent = textContent;
-
-                // Append to element
-                element.appendChild(containerDiv);
-
+                // Create wrapper div with safe content to prevent XSS
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-3 bg-dark border border-secondary rounded text-light';
+                wrapper.textContent = value !== null && value !== undefined ? value : 'No summary available';
+                element.textContent = ''; // Clear existing content
+                element.appendChild(wrapper);
                 console.log(`✅ Updated summary text: ${value}`);
                 // Only add success message if it's actually a successful summary (not an error message)
                 if (value && !value.includes('Failed to') && !value.includes('not available')) {
@@ -1100,7 +1556,7 @@ function createEmotionChart(emotionData) {
         }
 
         // Clear any existing content
-        chartContainer.textContent = '';
+        chartContainer.innerHTML = '';
 
         if (!emotionData || emotionData.length === 0) {
             const noDataDiv = document.createElement('div');
@@ -1114,7 +1570,7 @@ function createEmotionChart(emotionData) {
         // Take top 5 emotions
         const top5Emotions = emotionData.slice(0, 5);
 
-        // Create simple bar chart with Bootstrap classes using DOM methods
+        // Create simple bar chart with Bootstrap classes using safe DOM manipulation
         const emotionBarsDiv = document.createElement('div');
         emotionBarsDiv.className = 'emotion-bars';
 
@@ -1126,30 +1582,30 @@ function createEmotionChart(emotionData) {
             const colors = ['primary', 'success', 'warning', 'info', 'secondary'];
             const colorClass = colors[index % colors.length];
 
-            // Create main container div
-            const emotionDiv = document.createElement('div');
-            emotionDiv.className = 'mb-2';
+            // Create emotion bar container
+            const barContainer = document.createElement('div');
+            barContainer.className = 'mb-2';
 
-            // Create header div
+            // Create header with emotion name and confidence
             const headerDiv = document.createElement('div');
             headerDiv.className = 'd-flex justify-content-between align-items-center mb-1';
 
-            // Create name span
-            const nameSpan = document.createElement('small');
-            nameSpan.className = 'fw-bold text-capitalize';
-            nameSpan.textContent = name;
+            const nameSmall = document.createElement('small');
+            nameSmall.className = 'fw-bold text-capitalize';
+            nameSmall.textContent = name;
 
-            // Create confidence span
-            const confidenceSpan = document.createElement('small');
-            confidenceSpan.className = 'text-muted';
-            confidenceSpan.textContent = `${confidence}%`;
+            const confidenceSmall = document.createElement('small');
+            confidenceSmall.className = 'text-muted';
+            confidenceSmall.textContent = `${confidence}%`;
 
-            // Create progress container
+            headerDiv.appendChild(nameSmall);
+            headerDiv.appendChild(confidenceSmall);
+
+            // Create progress bar
             const progressDiv = document.createElement('div');
             progressDiv.className = 'progress';
             progressDiv.style.height = '20px';
 
-            // Create progress bar
             const progressBar = document.createElement('div');
             progressBar.className = `progress-bar bg-${colorClass}`;
             progressBar.style.width = `${percentage}%`;
@@ -1158,17 +1614,15 @@ function createEmotionChart(emotionData) {
             progressBar.setAttribute('aria-valuemin', '0');
             progressBar.setAttribute('aria-valuemax', '100');
 
-            // Assemble the structure
-            headerDiv.appendChild(nameSpan);
-            headerDiv.appendChild(confidenceSpan);
             progressDiv.appendChild(progressBar);
-            emotionDiv.appendChild(headerDiv);
-            emotionDiv.appendChild(progressDiv);
-            emotionBarsDiv.appendChild(emotionDiv);
+
+            // Assemble the bar container
+            barContainer.appendChild(headerDiv);
+            barContainer.appendChild(progressDiv);
+
+            emotionBarsDiv.appendChild(barContainer);
         });
 
-        // Clear existing content and append new content safely
-        chartContainer.textContent = '';
         chartContainer.appendChild(emotionBarsDiv);
 
         addToProgressConsole(`Emotion chart created with ${top5Emotions.length} emotions`, 'success');
@@ -1178,7 +1632,6 @@ function createEmotionChart(emotionData) {
         addToProgressConsole(`Error creating emotion chart: ${error.message}`, 'error');
         const chartContainer = document.getElementById('emotionChart');
         if (chartContainer) {
-            chartContainer.textContent = '';
             const errorDiv = document.createElement('div');
             errorDiv.className = 'text-danger text-center p-3';
             errorDiv.textContent = 'Error creating chart';
@@ -1190,9 +1643,6 @@ function createEmotionChart(emotionData) {
 // Reset demo to input screen
 function resetToInputScreen() {
     console.log('🔄 Resetting to input screen...');
-
-    // IMMEDIATELY clear all result content to prevent remnants
-    clearAllResultContent();
 
     // Clear text input
     const textInput = document.getElementById('textInput');
@@ -1224,76 +1674,22 @@ function resetToInputScreen() {
     const inputLayout = document.getElementById('inputLayout');
 
     if (resultsLayout && inputLayout) {
-        console.log('🔄 Transitioning layouts: results -> input');
-
-        // IMMEDIATELY show input layout (don't wait for animation)
-        inputLayout.classList.remove('d-none');
-        inputLayout.style.display = 'block'; // Force display
-        inputLayout.style.opacity = '1';
-        inputLayout.style.transform = 'translateY(0)';
-        console.log('✅ Input layout should now be visible');
-
-        // Animate results layout out
+        // Animate transition back to input
         resultsLayout.style.opacity = '0';
         resultsLayout.style.transform = 'translateY(20px)';
 
         setTimeout(() => {
             resultsLayout.classList.add('d-none');
-            console.log('✅ Results layout hidden');
+            inputLayout.classList.remove('d-none');
+
+            setTimeout(() => {
+                inputLayout.style.opacity = '1';
+                inputLayout.style.transform = 'translateY(0)';
+            }, 50);
         }, 300);
-    } else {
-        console.error('❌ Layout elements not found:', { resultsLayout: !!resultsLayout, inputLayout: !!inputLayout });
     }
 
     console.log('✅ Reset completed');
-}
-
-// NEW: Function to immediately clear all result content
-function clearAllResultContent() {
-    console.log('🧹 Clearing all result content immediately...');
-
-    // Clear emotion analysis results
-    updateElement('primaryEmotion', '-');
-    updateElement('emotionalIntensity', '-');
-    updateElement('sentimentScore', '-');
-    updateElement('confidenceRange', '-');
-    updateElement('modelDetails', '-');
-
-    // Clear emotion chart
-    const emotionChart = document.getElementById('emotionChart');
-    if (emotionChart) {
-        emotionChart.textContent = '';
-    }
-
-    // Clear emotion badges
-    const emotionBadges = document.getElementById('emotionBadges');
-    if (emotionBadges) {
-        emotionBadges.textContent = '';
-    }
-
-    // Clear emotion details
-    const emotionDetails = document.getElementById('emotionDetails');
-    if (emotionDetails) {
-        emotionDetails.textContent = '';
-    }
-
-    // Clear summarization results
-    const summaryText = document.getElementById('summaryText');
-    if (summaryText) {
-        summaryText.textContent = '';
-    }
-    updateElement('originalLength', '-');
-    updateElement('summaryLength', '-');
-
-    // Clear transcription results
-    const transcriptionText = document.getElementById('transcriptionText');
-    if (transcriptionText) {
-        transcriptionText.textContent = '';
-    }
-    updateElement('transcriptionConfidence', '-');
-    updateElement('transcriptionDuration', '-');
-
-    console.log('✅ All result content cleared');
 }
 
 // Make functions globally available under a namespace to avoid pollution
@@ -1308,7 +1704,4 @@ window.SamoDemo = {
     clearProgressConsole,
     createEmotionChart,
     resetToInputScreen,
-    clearAllResultContent,
-    manageApiKey,
-    clearAll: clearAllResultContent, // Alias for clearAll function
 };
