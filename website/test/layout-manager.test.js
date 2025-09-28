@@ -33,6 +33,8 @@ describe('LayoutManager', () => {
 
       expect(forceResetSpy).toHaveBeenCalled();
       expect(result).toBe(false);
+
+      forceResetSpy.mockRestore();
     });
 
     it('should not compute NaN when processingStartTime is null', () => {
