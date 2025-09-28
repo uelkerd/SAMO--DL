@@ -10,6 +10,14 @@ class NotificationManager {
         this.maxToasts = 3; // Limit concurrent toasts
 
         // Create or reuse a container for proper toast stacking
+        this.ensureContainer();
+    }
+
+    /**
+     * Ensure container exists, creating it if necessary
+     * @private
+     */
+    ensureContainer() {
         this.container = document.getElementById('toastContainer') || (() => {
             const c = document.createElement('div');
             c.id = 'toastContainer';
@@ -42,24 +50,7 @@ class NotificationManager {
         }
 
         // Ensure container exists (recreate if cleaned up)
-        if (!this.container || !this.container.parentNode) {
-            this.container = document.getElementById('toastContainer') || (() => {
-                const c = document.createElement('div');
-                c.id = 'toastContainer';
-                c.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                    z-index: 10000;
-                    pointer-events: none;
-                `;
-                document.body.appendChild(c);
-                return c;
-            })();
-        }
+        this.ensureContainer();
 
         // Create toast element
         const toast = this.createToast(message, type);
@@ -200,7 +191,7 @@ class NotificationManager {
             // Clean up container when no toasts remain
             if (this.activeToasts.size === 0 && this.container.parentNode) {
                 this.container.parentNode.removeChild(this.container);
-                this.container = null;
+                // Do not set this.container to null to avoid race conditions
             }
         }, 300);
     }
