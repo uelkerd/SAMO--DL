@@ -5,8 +5,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-// Load config using require to avoid ES module issues
-require('../js/config.js');
+// Load config using ES6 import for browser compatibility
+import '../js/config.js';
 
 describe('SAMO Configuration', () => {
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe('SAMO Configuration', () => {
     it('should redact sensitive patterns', () => {
       const testObj = {
         api_key: 'secret123',
-        API_KEY: 'another_secret', // skipcq: SCT-A000 - test data for redaction testing
+        API_KEY: 'another_secret', // skipiq: SCT-A000 - test data for redaction testing
         token: 'token_value',
         normal_field: 'normal_value',
         nested: {

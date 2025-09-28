@@ -193,7 +193,7 @@ class VoiceRecorder {
             }
 
             // Use API client to transcribe
-            if (apiClient && typeof apiClient.transcribeAudio === 'function') {
+            if (typeof apiClient.transcribeAudio === 'function') {
                 console.log('🔄 Sending audio for transcription...');
                 const result = await apiClient.transcribeAudio(audioFile);
 
