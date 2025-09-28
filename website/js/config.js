@@ -174,14 +174,14 @@ window.SAMO_CONFIG.getWebSocketUrl = function(endpoint) {
 };
 
 // Deep merge utility function
-function deepMerge(target, source) {
+window.SAMO_CONFIG.deepMerge = function(target, source) {
     const result = { ...target };
 
     for (const key in source) {
         if (Object.prototype.hasOwnProperty.call(source, key)) {
             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
                 // Recursively merge objects
-                result[key] = deepMerge(target[key] || {}, source[key]);
+                result[key] = this.deepMerge(target[key] || {}, source[key]);
             } else {
                 // Replace primitives and arrays
                 result[key] = source[key];
@@ -190,21 +190,21 @@ function deepMerge(target, source) {
     }
 
     return result;
-}
+};
 
 // Server-side configuration injection (if available)
 if (window.SAMO_SERVER_CONFIG) {
-    window.SAMO_CONFIG = deepMerge(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
+    window.SAMO_CONFIG = window.SAMO_CONFIG.deepMerge(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
 }
 
 // Recursive redaction utility function
-function redactSensitiveValues(obj) {
+window.SAMO_CONFIG.redactSensitiveValues = function(obj) {
     if (obj === null || typeof obj !== 'object') {
         return obj;
     }
 
     if (Array.isArray(obj)) {
-        return obj.map(item => redactSensitiveValues(item));
+        return obj.map(item => this.redactSensitiveValues(item));
     }
 
     const result = {};
@@ -222,18 +222,18 @@ function redactSensitiveValues(obj) {
         if (isSensitive) {
             result[key] = 'REDACTED';
         } else if (value && typeof value === 'object') {
-            result[key] = redactSensitiveValues(value);
+            result[key] = this.redactSensitiveValues(value);
         } else {
             result[key] = value;
         }
     }
 
     return result;
-}
+};
 
 // Only log config in debug mode and redact sensitive fields
 if (window.SAMO_CONFIG && window.SAMO_CONFIG.DEBUG) {
-    const sanitizedConfig = redactSensitiveValues(window.SAMO_CONFIG);
+    const sanitizedConfig = window.SAMO_CONFIG.redactSensitiveValues(window.SAMO_CONFIG);
     console.log('🔧 SAMO Configuration loaded (debug mode):', sanitizedConfig);
 }
 

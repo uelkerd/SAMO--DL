@@ -40,41 +40,52 @@ describe('SAMO Configuration', () => {
         api_key: 'secret123',
         API_KEY: 'another_secret', // skipiq: SCT-A000 - test data for redaction testing
         token: 'token_value',
+        authorization: 'Bearer some-token',
         normal_field: 'normal_value',
         nested: {
           password: 'secret_pass',
           safe_field: 'safe'
-        }
+        },
+        items: [
+          { secret: 'item_secret' },
+          { value: 'item_value' }
+        ]
       };
 
-      // Access the internal redaction function (would be better to expose it for testing)
-      // For now, test the redaction behavior indirectly through config loading
-      expect(window.SAMO_CONFIG).toBeDefined();
+      // Test the exposed redactSensitiveValues function
+      const redacted = window.SAMO_CONFIG.redactSensitiveValues(testObj);
+
+      expect(redacted.api_key).toBe('REDACTED');
+      expect(redacted.API_KEY).toBe('REDACTED');
+      expect(redacted.token).toBe('REDACTED');
+      expect(redacted.authorization).toBe('REDACTED');
+      expect(redacted.normal_field).toBe('normal_value');
+      expect(redacted.nested.password).toBe('REDACTED');
+      expect(redacted.nested.safe_field).toBe('safe');
+      expect(redacted.items[0].secret).toBe('REDACTED');
+      expect(redacted.items[1].value).toBe('item_value');
     });
   });
 
   describe('Environment Handling', () => {
-    it('should detect localhost development environment', () => {
+    it('should detect localhost development environment', async () => {
       // Mock localhost location
       const originalLocation = window.location;
-
-      // Replace location with localhost URL (JSDOM compatible)
       delete window.location;
       window.location = new URL('http://localhost/');
 
-      // Re-run the environment detection logic from config.js
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        window.SAMO_CONFIG.ENVIRONMENT = 'development';
-        window.SAMO_CONFIG.DEBUG = true;
-        window.SAMO_CONFIG.API.BASE_URL = 'https://localhost:8002';
-      }
+      // Reset modules to force re-evaluation of config.js
+      vi.resetModules();
+      await import('../js/config.js');
 
       expect(window.SAMO_CONFIG.ENVIRONMENT).toBe('development');
       expect(window.SAMO_CONFIG.DEBUG).toBe(true);
+      expect(window.SAMO_CONFIG.API.BASE_URL).toBe('https://localhost:8002');
 
-      // Restore original location
-      delete window.location;
+      // Restore original location and modules
       window.location = originalLocation;
+      vi.resetModules();
+      await import('../js/config.js');
     });
 
     it('should use production settings by default', () => {
@@ -115,7 +126,7 @@ describe('SAMO Configuration', () => {
   });
 
   describe('Configuration Merging', () => {
-    it('should merge server-side config with defaults', () => {
+    it('should merge server-side config with defaults', async () => {
       // Simulate server config injection
       window.SAMO_SERVER_CONFIG = {
         API: {
@@ -126,27 +137,19 @@ describe('SAMO Configuration', () => {
         }
       };
 
-      // Re-run the server config merging logic from config.js
-      if (window.SAMO_SERVER_CONFIG) {
-        // Deep merge function (simplified for test)
-        function deepMerge(target, source) {
-          const result = { ...target };
-          for (const key in source) {
-            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-              result[key] = deepMerge(target[key] || {}, source[key]);
-            } else {
-              result[key] = source[key];
-            }
-          }
-          return result;
-        }
-        window.SAMO_CONFIG = deepMerge(window.SAMO_CONFIG, window.SAMO_SERVER_CONFIG);
-      }
+      // Reset modules to force re-evaluation of config.js
+      vi.resetModules();
+      await import('../js/config.js');
 
       expect(window.SAMO_CONFIG.API.BASE_URL).toBe('https://custom-api.example.com');
       expect(window.SAMO_CONFIG.FEATURES.ENABLE_AUTH).toBe(false);
       // Other features should remain default
       expect(window.SAMO_CONFIG.FEATURES.ENABLE_VOICE_TRANSCRIPTION).toBe(true);
+
+      // Cleanup
+      delete window.SAMO_SERVER_CONFIG;
+      vi.resetModules();
+      await import('../js/config.js');
     });
   });
 

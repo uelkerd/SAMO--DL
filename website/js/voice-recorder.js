@@ -455,11 +455,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎙️ Initializing voice recorder...');
 
     // Wait for API client to be available (with timeout)
-    let attempts = 0;
-    const maxAttempts = 50; // 5 seconds at 100ms intervals
-
     const waitForApiClient = () => {
+        const maxAttempts = 50; // 5 seconds at 100ms intervals
         return new Promise((resolve, reject) => {
+            let attempts = 0;
             const checkClient = () => {
                 if (window.apiClient) {
                     resolve(window.apiClient);
