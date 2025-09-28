@@ -8,7 +8,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint js/*.js",
+    "lint": "eslint js/**/*.js",
     "build": "echo 'Static site - no build needed'"
   },
   "devDependencies": {
