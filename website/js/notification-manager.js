@@ -8,32 +8,39 @@ class NotificationManager {
     constructor() {
         this.activeToasts = new Set();
         this.maxToasts = 3; // Limit concurrent toasts
-
-        // Create or reuse a container for proper toast stacking
-        this.ensureContainer();
+        this.container = document.getElementById('toastContainer') || null; // Lazily created
     }
 
     /**
-     * Ensure container exists, creating it if necessary
+     * Ensure container exists only when needed
      * @private
      */
     ensureContainer() {
-        this.container = document.getElementById('toastContainer') || (() => {
-            const c = document.createElement('div');
-            c.id = 'toastContainer';
-            c.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                z-index: 10000;
-                pointer-events: none;
-            `;
-            document.body.appendChild(c);
-            return c;
-        })();
+        if (this.container && this.container.parentNode) return this.container;
+        const existing = document.getElementById('toastContainer');
+        if (existing) {
+            this.container = existing;
+            return existing;
+        }
+        if (!document.body) {
+            console.warn('⚠️ Toast container deferred until DOM is ready');
+            return null;
+        }
+        const c = document.createElement('div');
+        c.id = 'toastContainer';
+        c.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10000;
+            pointer-events: none;
+        `;
+        document.body.appendChild(c);
+        this.container = c;
+        return c;
     }
 
     /**
@@ -49,9 +56,16 @@ class NotificationManager {
             return;
         }
 
+        // Ensure container exists
+        const container = this.ensureContainer();
+        if (!container) {
+            console.warn('⚠️ Cannot show toast: DOM not ready, deferring notification');
+            return;
+        }
+
         // Create toast element
         const toast = this.createToast(message, type);
-        this.container.appendChild(toast);
+        container.appendChild(toast);
         this.activeToasts.add(toast);
 
         // Animate in
