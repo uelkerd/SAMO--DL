@@ -12,11 +12,14 @@
     "build": "echo 'Static site - no build needed'"
   },
   "devDependencies": {
-    "@vitest/ui": "^1.3.1",
-    "jsdom": "^24.0.0",
-    "vitest": "^1.3.1",
     "@vitest/coverage-v8": "^1.3.1",
-    "eslint": "^8.57.0"
+    "@vitest/ui": "^1.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "jsdom": "^24.0.0",
+    "prettier": "^3.2.5",
+    "vitest": "^1.3.1"
   },
   "type": "module",
   "engines": {
