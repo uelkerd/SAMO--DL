@@ -1,0 +1,20 @@
+{
+  "name": "samo-dl-website",
+  "version": "1.0.0",
+  "description": "SAMO-DL emotion detection platform frontend",
+  "main": "index.html",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
