@@ -181,7 +181,7 @@ const LayoutManager = {
         this.hideLoadingState();
 
         // Show results layout with smooth transition
-        const resultsLayout = document.getElementById('resultsLayout');
+        const resultsLayout = this.dependencies.resultsLayout || document.getElementById('resultsLayout');
         if (resultsLayout) {
             resultsLayout.classList.remove('d-none');
             resultsLayout.style.opacity = '0';
@@ -363,7 +363,7 @@ const LayoutManager = {
             // Update toggle button text
             if (toggleBtn) {
                 const icon = toggleBtn.querySelector('.material-icons');
-                const textNode = toggleBtn.lastChild;
+                const textNode = toggleBtn.querySelector('.label') || toggleBtn.lastChild;
 
                 if (isVisible) {
                     textNode.textContent = ' Hide Debug';
@@ -383,30 +383,30 @@ const LayoutManager = {
 
 // Enhanced processing function with state management
 window.processTextWithStateManagement = function() {
-    console.log('🚀 Processing with enhanced state management...');
+    if (window.SAMO_CONFIG?.DEBUG) console.log('🚀 Processing with enhanced state management...');
 
     // Check if processing is allowed
     if (!LayoutManager.canStartProcessing()) {
-        console.warn('⚠️ Processing blocked - operation already in progress');
-        return;
+        if (window.SAMO_CONFIG?.DEBUG) console.warn('⚠️ Processing blocked - operation already in progress');
+        return Promise.reject(new Error('Processing blocked - operation already in progress'));
     }
 
     // Start processing (sets guard) - don't call showProcessingState() here
     if (!LayoutManager.startProcessing()) {
-        console.error('❌ Failed to start processing - operation already in progress');
-        return;
+        if (window.SAMO_CONFIG?.DEBUG) console.error('❌ Failed to start processing - operation already in progress');
+        return Promise.reject(new Error('Failed to start processing - operation already in progress'));
     }
 
     // Set processing state and update UI
     LayoutManager.currentState = 'processing';
 
     // IMMEDIATELY clear all result content to prevent remnants during processing
-    if (typeof clearAllResultContent === 'function') {
-        clearAllResultContent();
+    if (LayoutManager.dependencies.clearAllResultContent) {
+        LayoutManager.dependencies.clearAllResultContent();
     }
 
         // Hide input layout with smooth transition
-        const inputLayout = document.getElementById('inputLayout');
+        const inputLayout = this?.dependencies?.inputLayout || document.getElementById('inputLayout');
         if (inputLayout) {
             inputLayout.style.opacity = '0';
             setTimeout(() => {
@@ -430,7 +430,6 @@ window.processTextWithStateManagement = function() {
     // Call the original processing function
     if (typeof processText === 'function') {
         // Set up a promise to handle the transition to results
-        const originalFunc = processText;
         const maybe = processText(true);  // Skip state check since we handle it here
         const onDone = () => {
             // Minimal delay to ensure smooth UI transition after processing completes
@@ -440,19 +439,23 @@ window.processTextWithStateManagement = function() {
             }, 50); // Reduced from 1000ms to 50ms for better perceived performance
         };
         if (maybe && typeof maybe.then === 'function') {
-            maybe.then(onDone).catch((error) => {
+            return maybe.then(onDone).catch((error) => {
                 console.error('Processing error:', error);
                 LayoutManager.resetToInitialState();
+                throw error;
             });
         } else {
             onDone();
+            return Promise.resolve();
         }
     }
+
+    return Promise.resolve();
 };
 
 // Enhanced clear function with state management
 window.clearAllWithStateManagement = function() {
-    console.log('🧹 Clearing with enhanced state management...');
+    if (window.SAMO_CONFIG?.DEBUG) console.log('🧹 Clearing with enhanced state management...');
 
     // Reset to initial state using LayoutManager (this should handle everything)
     LayoutManager.resetToInitialState();
@@ -465,9 +468,9 @@ window.clearAllWithStateManagement = function() {
 
 // Initialize LayoutManager when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🏗️ Initializing LayoutManager...');
+    if (window.SAMO_CONFIG?.DEBUG) console.log('🏗️ Initializing LayoutManager...');
     LayoutManager.init(); // Initialize with default dependencies (falls back to global scope)
-    console.log('✅ LayoutManager initialized');
+    if (window.SAMO_CONFIG?.DEBUG) console.log('✅ LayoutManager initialized');
 });
 
 // Make LayoutManager globally available

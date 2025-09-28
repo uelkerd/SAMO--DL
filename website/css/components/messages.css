@@ -39,7 +39,7 @@
     font-weight: 500;
     transition: all 0.3s ease;
     max-width: 400px;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     pointer-events: auto;
     margin-bottom: 8px;

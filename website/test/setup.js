@@ -21,15 +21,26 @@ window.SAMO_CONFIG = {
   }
 };
 
-// Mock navigator.mediaDevices for voice recording tests
-Object.defineProperty(navigator, 'mediaDevices', {
-  value: {
-    getUserMedia: vi.fn().mockResolvedValue({
-      getTracks: () => [{ stop: vi.fn() }]
-    })
-  },
-  writable: true
-});
+// Mock navigator.mediaDevices for voice recording tests (with guard)
+if (typeof navigator !== 'undefined') {
+  Object.defineProperty(navigator, 'mediaDevices', {
+    value: {
+      getUserMedia: vi.fn().mockResolvedValue({
+        getTracks: () => [{ stop: vi.fn() }]
+      })
+    },
+    writable: true
+  });
+}
+
+// Optional: matchMedia stub
+if (!window.matchMedia) {
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
+  });
+}
 
 // Mock MediaRecorder
 global.MediaRecorder = vi.fn().mockImplementation(() => ({
@@ -44,6 +55,7 @@ global.fetch = vi.fn();
 
 // Cleanup after each test
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.clearAllMocks();
   document.body.innerHTML = '';
 });

@@ -23,7 +23,7 @@ class NotificationManager {
             return existing;
         }
         if (!document.body) {
-            console.warn('⚠️ Toast container deferred until DOM is ready');
+            if (window.SAMO_CONFIG?.DEBUG) console.warn('⚠️ Toast container deferred until DOM is ready');
             return null;
         }
         const c = document.createElement('div');
@@ -52,14 +52,14 @@ class NotificationManager {
     show(message, type = 'info', duration = 3000) {
         // Limit concurrent toasts
         if (this.activeToasts.size >= this.maxToasts) {
-            console.warn('⚠️ Too many active toasts, ignoring new notification');
+            if (window.SAMO_CONFIG?.DEBUG) console.warn('⚠️ Too many active toasts, ignoring new notification');
             return;
         }
 
         // Ensure container exists
         const container = this.ensureContainer();
         if (!container) {
-            console.warn('⚠️ Cannot show toast: DOM not ready, deferring notification');
+            if (window.SAMO_CONFIG?.DEBUG) console.warn('⚠️ Cannot show toast: DOM not ready, deferring notification');
             return;
         }
 
@@ -69,10 +69,10 @@ class NotificationManager {
         this.activeToasts.add(toast);
 
         // Animate in
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             toast.style.opacity = '1';
             toast.style.transform = 'translateY(0)';
-        }, 10);
+        });
 
         // Auto-remove after duration
         setTimeout(() => {
@@ -121,16 +121,28 @@ class NotificationManager {
      * @private
      */
     createToast(message, type) {
+        // Clamp type to allowed values
+        const allowedTypes = new Set(['success', 'error', 'info', 'warning']);
+        if (!allowedTypes.has(type)) type = 'info';
+
         const toast = document.createElement('div');
-        toast.className = `notification-toast toast-${type}`;
+        toast.className = 'notification-toast';
+        toast.classList.add(`toast-${type}`);
 
         // Add accessibility attributes
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+        toast.setAttribute('aria-atomic', 'true');
 
         // Set initial animation state
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(-20px)';
+
+        // Respect reduced motion preference
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) {
+            toast.style.transition = 'none';
+        }
 
         // Add close button
         const closeBtn = document.createElement('button');
@@ -196,4 +208,4 @@ window.showError = (message) => window.NotificationManager.error(message);
 window.showInfo = (message) => window.NotificationManager.info(message);
 window.showWarning = (message) => window.NotificationManager.warning(message);
 
-console.log('🔔 Notification Manager loaded successfully');
+if (window.SAMO_CONFIG?.DEBUG) console.log('🔔 Notification Manager loaded successfully');
