@@ -1001,10 +1001,9 @@ class ComprehensiveDemo {
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM loaded, initializing demo...');
-    // DISABLED: ComprehensiveDemo class conflicts with simple-demo-functions.js
-    // Using simple-demo-functions.js instead for better stability
-    // new ComprehensiveDemo();
-    console.log('🔧 Using simple-demo-functions.js for chart implementation');
+    // Initialize the comprehensive demo
+    new ComprehensiveDemo();
+    console.log('🔧 ComprehensiveDemo initialized for enhanced functionality');
 });
 
 // Smooth scrolling for in-page navigation links
@@ -1428,19 +1427,6 @@ async function callSummarizationAPI(text) {
     }
 }
 
-function updateElement(id, value) {
-    try {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value !== null && value !== undefined ? value : '-';
-            console.log(`✅ Updated ${id}: ${value}`);
-        } else {
-            console.warn(`⚠️ Element not found: ${id}`);
-        }
-    } catch (error) {
-        console.error(`❌ Error updating element ${id}:`, error);
-    }
-}
 
 function showResultsSections() {
     console.log('👁️ Showing results sections...');
@@ -1507,7 +1493,21 @@ function addToProgressConsole(message, type = 'info') {
 
     const messageDiv = document.createElement('div');
     messageDiv.className = className;
-    messageDiv.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${icon} ${message}`;
+
+    // Create elements safely to prevent XSS
+    const timestampSpan = document.createElement('span');
+    timestampSpan.className = 'text-muted';
+    timestampSpan.textContent = `[${timestamp}]`;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = ` ${icon} `;
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message;
+
+    messageDiv.appendChild(timestampSpan);
+    messageDiv.appendChild(iconSpan);
+    messageDiv.appendChild(messageSpan);
 
     console.appendChild(messageDiv);
     console.scrollTop = console.scrollHeight;
@@ -1516,7 +1516,11 @@ function addToProgressConsole(message, type = 'info') {
 function clearProgressConsole() {
     const console = document.getElementById('progressConsole');
     if (console) {
-        console.innerHTML = '<div class="text-success">SAMO-DL Processing Console Ready...</div>';
+        console.textContent = '';
+        const readyDiv = document.createElement('div');
+        readyDiv.className = 'text-success';
+        readyDiv.textContent = 'SAMO-DL Processing Console Ready...';
+        console.appendChild(readyDiv);
     }
 }
 
@@ -1527,7 +1531,12 @@ function updateElement(id, value) {
         if (element) {
             if (id === 'summaryText') {
                 // Special handling for summary text - use dark-theme compatible styling
-                element.innerHTML = `<div class="p-3 bg-dark border border-secondary rounded text-light">${value !== null && value !== undefined ? value : 'No summary available'}</div>`;
+                // Create wrapper div with safe content to prevent XSS
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-3 bg-dark border border-secondary rounded text-light';
+                wrapper.textContent = value !== null && value !== undefined ? value : 'No summary available';
+                element.textContent = ''; // Clear existing content
+                element.appendChild(wrapper);
                 console.log(`✅ Updated summary text: ${value}`);
                 // Only add success message if it's actually a successful summary (not an error message)
                 if (value && !value.includes('Failed to') && !value.includes('not available')) {
@@ -1562,7 +1571,10 @@ function createEmotionChart(emotionData) {
         chartContainer.innerHTML = '';
 
         if (!emotionData || emotionData.length === 0) {
-            chartContainer.innerHTML = '<div class="text-muted text-center p-3">No emotion data available</div>';
+            const noDataDiv = document.createElement('div');
+            noDataDiv.className = 'text-muted text-center p-3';
+            noDataDiv.textContent = 'No emotion data available';
+            chartContainer.appendChild(noDataDiv);
             addToProgressConsole('No emotion data available for chart', 'warning');
             return;
         }
@@ -1570,8 +1582,9 @@ function createEmotionChart(emotionData) {
         // Take top 5 emotions
         const top5Emotions = emotionData.slice(0, 5);
 
-        // Create simple bar chart with Bootstrap classes
-        let chartHTML = '<div class="emotion-bars">';
+        // Create simple bar chart with Bootstrap classes using safe DOM manipulation
+        const emotionBarsDiv = document.createElement('div');
+        emotionBarsDiv.className = 'emotion-bars';
 
         top5Emotions.forEach((emotion, index) => {
             const name = emotion.emotion || emotion.label || `Emotion ${index + 1}`;
@@ -1581,27 +1594,48 @@ function createEmotionChart(emotionData) {
             const colors = ['primary', 'success', 'warning', 'info', 'secondary'];
             const colorClass = colors[index % colors.length];
 
-            chartHTML += `
-                <div class="mb-2">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small class="fw-bold text-capitalize">${name}</small>
-                        <small class="text-muted">${confidence}%</small>
-                    </div>
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar bg-${colorClass}"
-                             style="width: ${percentage}%;"
-                             role="progressbar"
-                             aria-valuenow="${confidence}"
-                             aria-valuemin="0"
-                             aria-valuemax="100">
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Create emotion bar container
+            const barContainer = document.createElement('div');
+            barContainer.className = 'mb-2';
+
+            // Create header with emotion name and confidence
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'd-flex justify-content-between align-items-center mb-1';
+
+            const nameSmall = document.createElement('small');
+            nameSmall.className = 'fw-bold text-capitalize';
+            nameSmall.textContent = name;
+
+            const confidenceSmall = document.createElement('small');
+            confidenceSmall.className = 'text-muted';
+            confidenceSmall.textContent = `${confidence}%`;
+
+            headerDiv.appendChild(nameSmall);
+            headerDiv.appendChild(confidenceSmall);
+
+            // Create progress bar
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'progress';
+            progressDiv.style.height = '20px';
+
+            const progressBar = document.createElement('div');
+            progressBar.className = `progress-bar bg-${colorClass}`;
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('role', 'progressbar');
+            progressBar.setAttribute('aria-valuenow', confidence);
+            progressBar.setAttribute('aria-valuemin', '0');
+            progressBar.setAttribute('aria-valuemax', '100');
+
+            progressDiv.appendChild(progressBar);
+
+            // Assemble the bar container
+            barContainer.appendChild(headerDiv);
+            barContainer.appendChild(progressDiv);
+
+            emotionBarsDiv.appendChild(barContainer);
         });
 
-        chartHTML += '</div>';
-        chartContainer.innerHTML = chartHTML;
+        chartContainer.appendChild(emotionBarsDiv);
 
         addToProgressConsole(`Emotion chart created with ${top5Emotions.length} emotions`, 'success');
 
@@ -1610,7 +1644,10 @@ function createEmotionChart(emotionData) {
         addToProgressConsole(`Error creating emotion chart: ${error.message}`, 'error');
         const chartContainer = document.getElementById('emotionChart');
         if (chartContainer) {
-            chartContainer.innerHTML = '<div class="text-danger text-center p-3">Error creating chart</div>';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger text-center p-3';
+            errorDiv.textContent = 'Error creating chart';
+            chartContainer.appendChild(errorDiv);
         }
     }
 }

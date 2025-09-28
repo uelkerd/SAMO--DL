@@ -14,7 +14,8 @@ window.SAMO_CONFIG = {
             JOURNAL: '/analyze/journal',
             HEALTH: '/health',
             READY: '/ready',
-            TRANSCRIBE: '/transcribe'
+            TRANSCRIBE: '/transcribe',
+            VOICE_JOURNAL: '/analyze/voice-journal'
         },
         TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
         RETRY_ATTEMPTS: 3
