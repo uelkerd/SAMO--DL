@@ -83,9 +83,9 @@ describe('LayoutManager', () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Processing stuck for')
       );
-      // After force reset, processing state is cleared, so startProcessing should succeed
-      expect(result).toBe(true);
-      expect(layoutManager.isProcessing).toBe(true); // Should be set to true after successful start
+      // After force reset due to stuck processing, startProcessing returns false to prevent auto-restart
+      expect(result).toBe(false);
+      expect(layoutManager.isProcessing).toBe(false); // Should remain false after reset
 
       forceResetSpy.mockRestore();
       consoleWarnSpy.mockRestore();
