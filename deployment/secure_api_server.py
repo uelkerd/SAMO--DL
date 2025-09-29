@@ -13,19 +13,31 @@ Security Features:
 - Abuse detection and automatic blocking
 - Request correlation and tracing
 
-⚠️  SECURITY WARNING - API KEY BYPASS:
-The require_api_key decorator includes a development bypass mechanism that
-disables authentication when CLIENT_API_KEY is not set. This creates a
-CRITICAL SECURITY VULNERABILITY in production environments where:
+⚠️  SECURITY WARNING - AUTHENTICATION BYPASS:
+The require_api_key decorator supports authentication bypass for development
+via the ALLOW_UNAUTHENTICATED=true environment variable. This creates a
+CRITICAL SECURITY VULNERABILITY if misconfigured:
+
+PRODUCTION ENVIRONMENT (FLASK_ENV=production or ENVIRONMENT=production):
+- CLIENT_API_KEY is MANDATORY - server will refuse to start without it
+- ALLOW_UNAUTHENTICATED is FORBIDDEN - server will refuse to start if set
+- Authentication is ALWAYS enforced - no bypass possible
+
+DEVELOPMENT ENVIRONMENT:
+- Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is REQUIRED
+- No automatic bypass - explicit configuration is mandatory
+- Server will refuse to start without proper authentication configuration
+
+Security implications of bypass:
 - Unauthorized clients can access protected endpoints
 - Sensitive data and AI models become publicly accessible
 - Rate limiting and abuse detection are circumvented
 
-To prevent this security risk:
+To prevent security risks:
 1. ALWAYS set CLIENT_API_KEY in production environments
 2. Use ALLOW_UNAUTHENTICATED=true ONLY for local development
-3. Monitor logs for "API key validation bypassed" warnings
-4. Never deploy with unset CLIENT_API_KEY in production
+3. Monitor logs for authentication bypass warnings
+4. Never deploy with ALLOW_UNAUTHENTICATED=true in production
 """
 
 # Import all modules first
@@ -75,16 +87,19 @@ app = Flask(__name__)
 auth_bypass_allowed = False
 
 def validate_security_configuration():
-    """Validate security configuration at startup and set auth bypass flag."""
+    """Validate security configuration at startup and set auth bypass flag.
+    
+    Security Configuration Logic:
+    - Production: CLIENT_API_KEY is REQUIRED, ALLOW_UNAUTHENTICATED is forbidden
+    - Development: Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is required
+    - No automatic bypass - explicit configuration is always required
+    """
     global auth_bypass_allowed
 
     client_api_key = os.environ.get("CLIENT_API_KEY")
     allow_unauthenticated = os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
     flask_env = os.environ.get("FLASK_ENV", "").lower()
     is_production = flask_env == "production" or os.environ.get("ENVIRONMENT", "").lower() == "production"
-
-    # Determine if authentication bypass is allowed
-    auth_bypass_allowed = allow_unauthenticated and not is_production
 
     # Production environment validation
     if is_production:
@@ -99,31 +114,40 @@ def validate_security_configuration():
             raise RuntimeError("CLIENT_API_KEY must be set in production environment")
 
         if allow_unauthenticated:
-            warning_msg = (
-                "⚠️  SECURITY WARNING: ALLOW_UNAUTHENTICATED=true is set in production environment!\n"
-                "This disables API key authentication and creates a security vulnerability.\n"
-                "Consider removing ALLOW_UNAUTHENTICATED or setting it to false for production."
+            error_msg = (
+                "🚨 CRITICAL SECURITY ERROR: ALLOW_UNAUTHENTICATED=true is set in production environment!\n"
+                "This disables API key authentication and creates a severe security vulnerability.\n"
+                "ALLOW_UNAUTHENTICATED is forbidden in production - remove this environment variable."
             )
-            logger.warning(warning_msg)
-            print(f"\n{warning_msg}\n")
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError("ALLOW_UNAUTHENTICATED is forbidden in production environment")
+
+        # Production: authentication is always required
+        auth_bypass_allowed = False
+        logger.info("🔐 Production mode: API key authentication is enforced")
+        print("🔐 Production mode: API key authentication is enforced")
 
     # Development environment validation
     else:
         if not client_api_key and not allow_unauthenticated:
-            warning_msg = (
-                "⚠️  DEVELOPMENT WARNING: Neither CLIENT_API_KEY nor ALLOW_UNAUTHENTICATED is set.\n"
-                "API key validation will be bypassed for development convenience.\n"
-                "To explicitly allow this, set ALLOW_UNAUTHENTICATED=true.\n"
-                "To enable authentication, set CLIENT_API_KEY environment variable."
+            error_msg = (
+                "🚨 CONFIGURATION ERROR: Neither CLIENT_API_KEY nor ALLOW_UNAUTHENTICATED is set.\n"
+                "In development, you must explicitly choose one of:\n"
+                "1. Set CLIENT_API_KEY=<your-key> to enable authentication\n"
+                "2. Set ALLOW_UNAUTHENTICATED=true to disable authentication (development only)\n"
+                "No automatic bypass is allowed - explicit configuration is required."
             )
-            logger.warning(warning_msg)
-            print(f"\n{warning_msg}\n")
-            # Allow bypass in development when neither is set
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError("Authentication configuration is required in development")
+
+        if allow_unauthenticated:
             auth_bypass_allowed = True
-        elif allow_unauthenticated:
-            logger.info("🔓 Development mode: Authentication bypass enabled via ALLOW_UNAUTHENTICATED=true")
+            logger.warning("🔓 Development mode: Authentication bypass enabled via ALLOW_UNAUTHENTICATED=true")
             print("🔓 Development mode: Authentication bypass enabled")
         elif client_api_key:
+            auth_bypass_allowed = False
             logger.info("🔐 Development mode: API key authentication enabled")
             print("🔐 Development mode: API key authentication enabled")
 
