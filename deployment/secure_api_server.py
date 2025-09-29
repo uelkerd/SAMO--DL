@@ -83,19 +83,17 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 
-# Global authentication bypass flag (set at startup)
-auth_bypass_allowed = False
-
 def validate_security_configuration():
-    """Validate security configuration at startup and set auth bypass flag.
+    """Validate security configuration at startup and return auth bypass flag.
     
     Security Configuration Logic:
     - Production: CLIENT_API_KEY is REQUIRED, ALLOW_UNAUTHENTICATED is forbidden
     - Development: Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is required
     - No automatic bypass - explicit configuration is always required
+    
+    Returns:
+        bool: True if authentication bypass is allowed, False otherwise
     """
-    global auth_bypass_allowed
-
     client_api_key = os.environ.get("CLIENT_API_KEY")
     allow_unauthenticated = os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
     flask_env = os.environ.get("FLASK_ENV", "").lower()
@@ -156,9 +154,11 @@ def validate_security_configuration():
         logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
     else:
         logger.info("✅ API key authentication is enforced")
+    
+    return auth_bypass_allowed
 
-# Validate security configuration at startup
-validate_security_configuration()
+# Validate security configuration at startup and store the result
+auth_bypass_allowed = validate_security_configuration()
 
 # Security configurations
 rate_limit_config = RateLimitConfig(
