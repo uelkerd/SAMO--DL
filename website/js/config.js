@@ -48,7 +48,8 @@ window.SAMO_CONFIG = {
     TIMEOUTS: {
       DEFAULT: 10000,    // 10 seconds
       LONG_RUNNING: 30000, // 30 seconds
-      WEBSOCKET: 5000    // 5 seconds
+      WEBSOCKET: 5000,   // 5 seconds
+      API_CLIENT_INIT: 5000 // 5 seconds for API client initialization
     },
 
     // Rate limiting configuration
@@ -60,7 +61,7 @@ window.SAMO_CONFIG = {
     // Legacy compatibility - keep these for backward compatibility
     TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
     RETRY_ATTEMPTS: 3,
-    API_KEY: null, // Set via server injection or user input // skipcq: SCT-A000
+    // NOTE: API keys must never be stored or referenced in client-side code. All key management should be handled securely on the server.
     REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== 'undefined') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production
   },
 

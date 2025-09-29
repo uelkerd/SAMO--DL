@@ -187,9 +187,9 @@ class VoiceRecorder {
             });
 
             // Use injected API client (dependency injection)
-            const apiClient = this.apiClient;
+            const { apiClient } = this;
             if (!apiClient) {
-                throw new Error('API client not provided. VoiceRecorder requires an apiClient dependency.');
+                throw new Error('API client not available for transcription. Please ensure apiClient is properly initialized.');
             }
 
             // Use API client to transcribe
@@ -460,19 +460,23 @@ window.voiceRecorder = null;
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎙️ Initializing voice recorder...');
 
-    // Wait for API client to be available (with timeout)
+    // Wait for API client to be available (with configurable timeout)
     const waitForApiClient = () => {
-        const maxAttempts = 50; // 5 seconds at 100ms intervals
+        // Use configurable timeout from SAMO_CONFIG or default to 5 seconds
+        const timeoutMs = (window.SAMO_CONFIG?.API?.TIMEOUTS?.API_CLIENT_INIT || 5000);
+        const pollInterval = 100; // 100ms intervals
+        const maxAttempts = Math.ceil(timeoutMs / pollInterval);
+
         return new Promise((resolve, reject) => {
             let attempts = 0;
             const checkClient = () => {
                 if (window.apiClient) {
                     resolve(window.apiClient);
                 } else if (attempts >= maxAttempts) {
-                    reject(new Error('API client not available within timeout'));
+                    reject(new Error(`API client not available within ${timeoutMs}ms timeout`));
                 } else {
                     attempts++;
-                    setTimeout(checkClient, 100);
+                    setTimeout(checkClient, pollInterval);
                 }
             };
             checkClient();

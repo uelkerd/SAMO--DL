@@ -40,34 +40,45 @@ configContent = configContent.replace(
   ''
 );
 
-// Match the REQUIRE_AUTH line in any of its known forms
-const requireAuthPattern =
-  /REQUIRE_AUTH:\s*(?:\(typeof window\.PROD_REQUIRE_AUTH !== ["']undefined["']\)\s*\?\s*window\.PROD_REQUIRE_AUTH\s*:\s*true|true|false)\s*(?:\/\/.*)?$/m;
+// Define simple patterns for known REQUIRE_AUTH formats
+const requireAuthPatterns = [
+  /^REQUIRE_AUTH:\s*\(typeof window\.PROD_REQUIRE_AUTH !== ['"]undefined['"]\)\s*\?\s*window\.PROD_REQUIRE_AUTH\s*:\s*true\s*(?:\/\/.*)?$/,
+  /^REQUIRE_AUTH:\s*true\s*(?:\/\/.*)?$/,
+  /^REQUIRE_AUTH:\s*false\s*(?:\/\/.*)?$/
+];
 
-if (!requireAuthPattern.test(configContent)) {
-  throw new Error('Unable to locate REQUIRE_AUTH in config.js');
+// Split config into lines and find the REQUIRE_AUTH line
+const configLines = configContent.split('\n');
+let found = false;
+
+for (let i = 0; i < configLines.length; i++) {
+  for (const pattern of requireAuthPatterns) {
+    if (pattern.test(configLines[i])) {
+      found = true;
+      if (isProduction) {
+        console.log('📦 Production build - enabling authentication');
+        configLines[i] = 'REQUIRE_AUTH: true // Production build - authentication required';
+        // Prepend production header after replacement
+        configContent = PRODUCTION_HEADER + configLines.join('\n');
+      } else if (isDevelopment) {
+        console.log('🛠️  Development build - disabling authentication for convenience');
+        configLines[i] = 'REQUIRE_AUTH: false // Development build - authentication disabled';
+        configContent = configLines.join('\n');
+      } else {
+        console.log('⚠️  No build type specified, using default configuration');
+        configLines[i] = "REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== 'undefined') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production";
+        configContent = configLines.join('\n');
+      }
+      break;
+    }
+  }
+  if (found) {
+    break;
+  }
 }
 
-if (isProduction) {
-  console.log('📦 Production build - enabling authentication');
-  configContent =
-    PRODUCTION_HEADER +
-    configContent.replace(
-      requireAuthPattern,
-      'REQUIRE_AUTH: true // Production build - authentication required'
-    );
-} else if (isDevelopment) {
-  console.log('🛠️  Development build - disabling authentication for convenience');
-  configContent = configContent.replace(
-    requireAuthPattern,
-    'REQUIRE_AUTH: false // Development build - authentication disabled'
-  );
-} else {
-  console.log('⚠️  No build type specified, using default configuration');
-  configContent = configContent.replace(
-    requireAuthPattern,
-    'REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== \'undefined\') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production'
-  );
+if (!found) {
+  throw new Error('Unable to locate REQUIRE_AUTH in config.js');
 }
 
 // Write back to the same file (for static site deployment)
