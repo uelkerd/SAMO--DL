@@ -69,10 +69,12 @@ describe('SAMO Configuration', () => {
 
   describe('Environment Handling', () => {
     it('should detect localhost development environment', async () => {
-      // Mock localhost location
+      // Mock localhost location using defineProperty for jsdom compatibility
       const originalLocation = window.location;
-      delete window.location;
-      window.location = new URL('http://localhost/');
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: new URL('http://localhost/')
+      });
 
       // Reset modules to force re-evaluation of config.js
       vi.resetModules();
@@ -83,7 +85,10 @@ describe('SAMO Configuration', () => {
       expect(window.SAMO_CONFIG.API.BASE_URL).toBe('https://localhost:8002');
 
       // Restore original location and modules
-      window.location = originalLocation;
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: originalLocation
+      });
       vi.resetModules();
       await import('../js/config.js');
     });
