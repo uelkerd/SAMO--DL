@@ -61,7 +61,7 @@ window.SAMO_CONFIG = {
     TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
     RETRY_ATTEMPTS: 3,
     API_KEY: null, // Set via server injection or user input // skipcq: SCT-A000
-    REQUIRE_AUTH: true // Secure default; overridden to false only for localhost dev
+    REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== 'undefined') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production
   },
 
     // OpenAI Configuration - DISABLED for security (use proxy instead)
