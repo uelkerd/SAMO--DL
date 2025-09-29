@@ -136,10 +136,16 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     const scheme = window.location.protocol === 'https:' ? 'https' : 'http';
     const host = window.location.hostname === '127.0.0.1' ? '127.0.0.1' : 'localhost';
     window.SAMO_CONFIG.API.BASE_URL = `${scheme}://${host}:8002`;
-    window.SAMO_CONFIG.API.REQUIRE_AUTH = false; // Disable auth for local dev convenience
+
+    // Only override REQUIRE_AUTH for localhost if not in production build
+    // This allows testing production auth behavior locally when needed
+    if (window.SAMO_CONFIG.API.REQUIRE_AUTH !== true) {
+        window.SAMO_CONFIG.API.REQUIRE_AUTH = false; // Disable auth for local dev convenience
+    }
     // Note: ENDPOINTS remain unchanged from production config (no override needed)
 
     console.log(`🔧 Running in localhost development mode - using local API server at ${window.SAMO_CONFIG.API.BASE_URL}`);
+    console.log(`🔐 Authentication required: ${window.SAMO_CONFIG.API.REQUIRE_AUTH}`);
 }
 
 // Optional: deep-freeze config in production (disabled for now due to testing complexity)
