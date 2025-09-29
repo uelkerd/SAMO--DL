@@ -93,14 +93,26 @@ describe('SAMO Configuration', () => {
       await import('../js/config.js');
     });
 
-    it('should use production settings by default', () => {
-      // Reset to production defaults for this test
-      window.SAMO_CONFIG.ENVIRONMENT = 'production';
-      window.SAMO_CONFIG.DEBUG = false;
-      window.SAMO_CONFIG.API.BASE_URL = 'https://samo-unified-api-frrnetyhfa-uc.a.run.app';
+    it('should use production settings by default', async () => {
+      // Mock production environment (non-localhost)
+      const originalLocation = window.location;
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: new URL('https://samo-app.example.com/')
+      });
 
-      expect(window.SAMO_CONFIG.ENVIRONMENT).toBe('production');
-      expect(window.SAMO_CONFIG.DEBUG).toBe(false);
+      try {
+        vi.resetModules();
+        await import('../js/config.js');
+        expect(window.SAMO_CONFIG.ENVIRONMENT).toBe('production');
+        expect(window.SAMO_CONFIG.DEBUG).toBe(false);
+        expect(window.SAMO_CONFIG.API.BASE_URL).toMatch(/^https?:\/\/.+/);
+      } finally {
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          value: originalLocation
+        });
+      }
     });
   });
 
@@ -120,13 +132,13 @@ describe('SAMO Configuration', () => {
 
     it('should handle missing base URL gracefully', () => {
       const originalBaseUrl = window.SAMO_CONFIG.API.BASE_URL;
-      window.SAMO_CONFIG.API.BASE_URL = null;
-
-      const result = window.SAMO_CONFIG.getApiUrl('/test');
-      expect(result).toBeNull();
-
-      // Restore
-      window.SAMO_CONFIG.API.BASE_URL = originalBaseUrl;
+      try {
+        window.SAMO_CONFIG.API.BASE_URL = null;
+        const result = window.SAMO_CONFIG.getApiUrl('/test');
+        expect(result).toBeNull();
+      } finally {
+        window.SAMO_CONFIG.API.BASE_URL = originalBaseUrl;
+      }
     });
   });
 

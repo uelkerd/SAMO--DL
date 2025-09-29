@@ -142,11 +142,28 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     console.log(`🔧 Running in localhost development mode - using local API server at ${window.SAMO_CONFIG.API.BASE_URL}`);
 }
 
+// Optional: deep-freeze config in production (disabled for now due to testing complexity)
+// TODO: Re-enable with more sophisticated detection to avoid interfering with tests
+// if (window.SAMO_CONFIG.ENVIRONMENT === 'production' && !window.__TESTING__) {
+//   (function deepFreeze(obj) {
+//     Object.getOwnPropertyNames(obj).forEach((prop) => {
+//       const value = obj[prop];
+//       if (value && typeof value === 'object') deepFreeze(value);
+//     });
+//     return Object.freeze(obj);
+//   })(window.SAMO_CONFIG);
+// }
+
 // Helper function to get API URL with fallback
 window.SAMO_CONFIG.getApiUrl = function(endpoint) {
   const baseUrl = this.API.BASE_URL;
   if (!baseUrl) {
     console.warn('SAMO_CONFIG.API.BASE_URL is not set. Please configure your API endpoint.');
+    return null;
+  }
+
+  if (typeof endpoint !== 'string' || endpoint.length === 0) {
+    console.warn('SAMO_CONFIG.getApiUrl called with invalid endpoint:', endpoint);
     return null;
   }
 
@@ -162,6 +179,11 @@ window.SAMO_CONFIG.getWebSocketUrl = function(endpoint) {
   const baseUrl = this.API.BASE_URL;
   if (!baseUrl) {
     console.warn('SAMO_CONFIG.API.BASE_URL is not set. Cannot create WebSocket URL.');
+    return null;
+  }
+
+  if (typeof endpoint !== 'string' || endpoint.length === 0) {
+    console.warn('SAMO_CONFIG.getWebSocketUrl called with invalid endpoint:', endpoint);
     return null;
   }
 

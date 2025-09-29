@@ -5,17 +5,52 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-// Mock MediaRecorder API
-const mockMediaRecorder = vi.fn(() => ({
-  start: vi.fn(),
-  stop: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  state: 'inactive',
-  stream: {
-    getTracks: vi.fn(() => [{ stop: vi.fn() }])
-  }
-}));
+// Mock MediaRecorder API with event semantics
+const createMockMediaRecorder = () => {
+  const listeners = {};
+  let state = 'inactive';
+
+  const instance = {
+    start: vi.fn((timeslice) => {
+      state = 'recording';
+      // Simulate dataavailable event emission
+      setTimeout(() => {
+        if (listeners.dataavailable) {
+          listeners.dataavailable.forEach(callback => {
+            callback({ data: new Blob(['mock audio data'], { type: 'audio/webm' }) });
+          });
+        }
+      }, 100);
+    }),
+    stop: vi.fn(() => {
+      state = 'inactive';
+      // Simulate stop event emission
+      setTimeout(() => {
+        if (listeners.stop) {
+          listeners.stop.forEach(callback => callback());
+        }
+      }, 50);
+    }),
+    addEventListener: vi.fn((event, callback) => {
+      if (!listeners[event]) listeners[event] = [];
+      listeners[event].push(callback);
+    }),
+    removeEventListener: vi.fn((event, callback) => {
+      if (listeners[event]) {
+        const index = listeners[event].indexOf(callback);
+        if (index > -1) listeners[event].splice(index, 1);
+      }
+    }),
+    get state() { return state; },
+    stream: {
+      getTracks: vi.fn(() => [{ stop: vi.fn() }])
+    }
+  };
+
+  return instance;
+};
+
+const mockMediaRecorder = vi.fn(() => createMockMediaRecorder());
 
 global.MediaRecorder = mockMediaRecorder;
 global.MediaRecorder.isTypeSupported = vi.fn(() => true);
