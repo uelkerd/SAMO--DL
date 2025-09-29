@@ -2,15 +2,14 @@
   "name": "samo-dl-website",
   "version": "1.0.0",
   "description": "SAMO-DL emotion detection platform frontend",
-  "main": "index.html",
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint js/**/*.js",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write \"**/*.{html,css,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{html,css,js,json,md}\"",
     "build": "echo 'Static site - no build needed'"
   },
   "devDependencies": {
