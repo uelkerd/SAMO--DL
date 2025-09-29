@@ -42,7 +42,7 @@ configContent = configContent.replace(
 
 // Match the REQUIRE_AUTH line in any of its known forms
 const requireAuthPattern =
-  /REQUIRE_AUTH:\s*(?:\(typeof window\.PROD_REQUIRE_AUTH !== 'undefined'\)\s*\?\s*window\.PROD_REQUIRE_AUTH\s*:\s*true|true|false)\s*\/\/.*$/m;
+  /REQUIRE_AUTH:\s*(?:\(typeof window\.PROD_REQUIRE_AUTH !== ["']undefined["']\)\s*\?\s*window\.PROD_REQUIRE_AUTH\s*:\s*true|true|false)\s*(?:\/\/.*)?$/m;
 
 if (!requireAuthPattern.test(configContent)) {
   throw new Error('Unable to locate REQUIRE_AUTH in config.js');
