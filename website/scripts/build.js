@@ -16,6 +16,13 @@ const args = process.argv.slice(2);
 const isProduction = args.includes('--prod');
 const isDevelopment = args.includes('--dev');
 
+// Validate mutual exclusivity of build flags
+if (isProduction && isDevelopment) {
+  console.error('❌ Error: Cannot specify both --prod and --dev flags');
+  console.error('   Use either --prod for production build or --dev for development build');
+  process.exit(1);
+}
+
 console.log('🔨 Building SAMO-DL website...');
 
 // Source and destination paths
