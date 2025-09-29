@@ -144,7 +144,7 @@ def validate_security_configuration():
             bypass_allowed = True
             logger.warning("🔓 Development mode: Authentication bypass enabled via ALLOW_UNAUTHENTICATED=true")
             print("🔓 Development mode: Authentication bypass enabled")
-        elif client_api_key:
+        else:  # client_api_key is True
             bypass_allowed = False
             logger.info("🔐 Development mode: API key authentication enabled")
             print("🔐 Development mode: API key authentication enabled")
