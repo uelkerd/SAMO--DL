@@ -1,17 +1,17 @@
 /**
  * Voice Recording Module for SAMO Demo
  * Handles microphone access, audio recording, and integration with the demo interface
- * 
+ *
  * @typedef {Object} TranscriptionResult
  * @property {string} [text] - The transcribed text content
  * @property {number} [confidence] - Confidence score (0-1) for the transcription
  * @property {any} [error] - Error information if transcription failed
  * @property {Object} [transcription] - Alternative transcription object format
  * @property {string} [transcription.text] - Transcribed text in nested format
- * 
+ *
  * @typedef {Object} ApiClientInterface
  * @property {function(File): Promise<TranscriptionResult>} transcribeAudio - Transcribes audio file to text
- * 
+ *
  * @param {ApiClientInterface|null} apiClient - API client implementing the transcription interface
  */
 class VoiceRecorder {
@@ -290,7 +290,7 @@ class VoiceRecorder {
         }
 
         // Validate that we have some form of transcription text
-        const hasText = result.text || 
+        const hasText = result.text ||
                        (result.transcription && (typeof result.transcription === 'string' || result.transcription.text)) ||
                        (typeof result === 'string');
 

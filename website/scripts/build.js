@@ -40,7 +40,7 @@ const headerMatches = configContent.match(headerPattern);
 
 if (headerMatches) {
   const headerCount = headerMatches.length;
-  
+
   if (headerCount > 1) {
     console.error('❌ Error: Multiple production headers found in config.js');
     console.error(`   Found ${headerCount} occurrences of the production header.`);

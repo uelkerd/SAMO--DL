@@ -138,7 +138,7 @@ describe('VoiceRecorder', () => {
       // Verify DOM elements exist from beforeEach
       expect(document.getElementById('recordBtn')).toBe(mockRecordBtn);
       expect(document.getElementById('stopBtn')).toBe(mockStopBtn);
-      
+
       // This test will verify that afterEach properly cleans up
       // The cleanup will be verified by the next test not finding duplicate elements
     });
@@ -147,7 +147,7 @@ describe('VoiceRecorder', () => {
       // Verify we have exactly one of each element (no duplicates from previous tests)
       const recordBtns = document.querySelectorAll('#recordBtn');
       const stopBtns = document.querySelectorAll('#stopBtn');
-      
+
       expect(recordBtns).toHaveLength(1);
       expect(stopBtns).toHaveLength(1);
       expect(recordBtns[0]).toBe(mockRecordBtn);

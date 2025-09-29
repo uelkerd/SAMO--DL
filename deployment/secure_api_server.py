@@ -525,7 +525,7 @@ def require_admin_api_key(f):
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
-        
+
         # Handle None values early and use constant-time comparison
         if not expected_key or not api_key or not secrets.compare_digest(str(expected_key), str(api_key)):
             logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
