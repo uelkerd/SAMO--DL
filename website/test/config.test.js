@@ -82,7 +82,7 @@ describe('SAMO Configuration', () => {
 
       expect(window.SAMO_CONFIG.ENVIRONMENT).toBe('development');
       expect(window.SAMO_CONFIG.DEBUG).toBe(true);
-      expect(window.SAMO_CONFIG.API.BASE_URL).toBe('https://localhost:8002');
+      expect(window.SAMO_CONFIG.API.BASE_URL).toBe('http://localhost:8002');
 
       // Restore original location and modules
       Object.defineProperty(window, 'location', {

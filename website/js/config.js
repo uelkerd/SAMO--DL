@@ -132,13 +132,14 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     window.SAMO_CONFIG.ENVIRONMENT = 'development';
     window.SAMO_CONFIG.DEBUG = true;
 
-    // Use local unified API server (has the correct /analyze/emotion endpoints)
-    // This server has the exact endpoints the frontend expects
-    window.SAMO_CONFIG.API.BASE_URL = 'https://localhost:8002';
+    // Use local unified API server; match page scheme to avoid cert/mixed-content issues
+    const scheme = window.location.protocol === 'https:' ? 'https' : 'http';
+    const host = window.location.hostname === '127.0.0.1' ? '127.0.0.1' : 'localhost';
+    window.SAMO_CONFIG.API.BASE_URL = `${scheme}://${host}:8002`;
     window.SAMO_CONFIG.API.REQUIRE_AUTH = false; // Disable auth for local dev convenience
     // Note: ENDPOINTS remain unchanged from production config (no override needed)
 
-    console.log('🔧 Running in localhost development mode - using local API server at https://localhost:8002');
+    console.log(`🔧 Running in localhost development mode - using local API server at ${window.SAMO_CONFIG.API.BASE_URL}`);
 }
 
 // Helper function to get API URL with fallback
