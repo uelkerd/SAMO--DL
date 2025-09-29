@@ -231,6 +231,9 @@ class VoiceRecorder {
                 window.LayoutManager.endProcessing();
                 console.log('🔧 Processing state reset due to transcription error');
             }
+
+            // Re-throw the error so tests can catch it
+            throw error;
         } finally {
             if (processingShown) {
                 this.hideProcessingState();
@@ -446,6 +449,9 @@ class VoiceRecorder {
         }
     }
 }
+
+// Export the VoiceRecorder class for testing
+window.VoiceRecorder = VoiceRecorder;
 
 // Global voice recorder instance
 window.voiceRecorder = null;
