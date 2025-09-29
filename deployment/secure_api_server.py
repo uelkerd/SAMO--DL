@@ -30,6 +30,7 @@ To prevent this security risk:
 
 # Import all modules first
 import os
+import secrets
 from flask import Flask, request, jsonify, g
 import werkzeug
 import logging
@@ -76,15 +77,15 @@ auth_bypass_allowed = False
 def validate_security_configuration():
     """Validate security configuration at startup and set auth bypass flag."""
     global auth_bypass_allowed
-    
+
     client_api_key = os.environ.get("CLIENT_API_KEY")
     allow_unauthenticated = os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
     flask_env = os.environ.get("FLASK_ENV", "").lower()
     is_production = flask_env == "production" or os.environ.get("ENVIRONMENT", "").lower() == "production"
-    
+
     # Determine if authentication bypass is allowed
     auth_bypass_allowed = allow_unauthenticated and not is_production
-    
+
     # Production environment validation
     if is_production:
         if not client_api_key:
@@ -96,7 +97,7 @@ def validate_security_configuration():
             logger.error(error_msg)
             print(f"\n{error_msg}\n")
             raise RuntimeError("CLIENT_API_KEY must be set in production environment")
-        
+
         if allow_unauthenticated:
             warning_msg = (
                 "⚠️  SECURITY WARNING: ALLOW_UNAUTHENTICATED=true is set in production environment!\n"
@@ -105,7 +106,7 @@ def validate_security_configuration():
             )
             logger.warning(warning_msg)
             print(f"\n{warning_msg}\n")
-    
+
     # Development environment validation
     else:
         if not client_api_key and not allow_unauthenticated:
@@ -125,7 +126,7 @@ def validate_security_configuration():
         elif client_api_key:
             logger.info("🔐 Development mode: API key authentication enabled")
             print("🔐 Development mode: API key authentication enabled")
-    
+
     # Log final configuration
     if auth_bypass_allowed:
         logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
@@ -524,7 +525,9 @@ def require_admin_api_key(f):
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
-        if not expected_key or api_key != expected_key:
+        
+        # Handle None values early and use constant-time comparison
+        if not expected_key or not api_key or not secrets.compare_digest(str(expected_key), str(api_key)):
             logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
@@ -535,7 +538,7 @@ def require_api_key(f):
 
     Validates client API key to ensure only authorized clients can access
     protected prediction and analysis endpoints.
-    
+
     Authentication bypass is controlled by the global auth_bypass_allowed flag,
     which is set at startup based on environment configuration.
     """
@@ -544,7 +547,7 @@ def require_api_key(f):
         # Check if authentication bypass is allowed (set at startup)
         if auth_bypass_allowed:
             return f(*args, **kwargs)
-        
+
         # Authentication is required - validate API key
         api_key = request.headers.get("X-API-Key")
         expected_key = os.environ.get("CLIENT_API_KEY")
@@ -563,7 +566,8 @@ def require_api_key(f):
                 "message": "Include X-API-Key header with valid API key"
             }), 401
 
-        if api_key != expected_key:
+        # Use constant-time comparison to prevent timing attacks
+        if not secrets.compare_digest(str(expected_key), str(api_key)):
             logger.warning("Invalid API key attempt from %s", request.remote_addr)
             return jsonify({"error": "Unauthorized: invalid API key"}), 401
 
