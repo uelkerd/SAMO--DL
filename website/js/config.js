@@ -60,7 +60,7 @@ window.SAMO_CONFIG = {
     // Legacy compatibility - keep these for backward compatibility
     TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
     RETRY_ATTEMPTS: 3,
-    API_KEY: null, // Set via server injection or user input
+    API_KEY: null, // Set via server injection or user input // skipcq: SCT-A000
     REQUIRE_AUTH: false // Set to true for production with API key requirement
   },
 
@@ -209,11 +209,11 @@ window.SAMO_CONFIG.redactSensitiveValues = function(obj) {
 
     const result = {};
     const SENSITIVE_PATTERNS = [
-      /^(api[-_]?key|authorization|x[-_]?api[-_]?key|bearer)$/i,
-      /^(token|access[_-]?token|refresh[_-]?token)$/i,
-      /^(secret|client[_-]?secret)$/i,
-      /^(password|passwd)$/i,
-      /^(credential|credentials|auth|authkey)$/i
+      /^(api[-_]?key|authorization|x[-_]?api[-_]?key|bearer)$/i, // skipcq: SCT-A000 - security pattern definitions
+      /^(token|access[_-]?token|refresh[_-]?token)$/i, // skipcq: SCT-A000 - security pattern definitions
+      /^(secret|client[_-]?secret)$/i, // skipcq: SCT-A000 - security pattern definitions
+      /^(password|passwd)$/i, // skipcq: SCT-A000 - security pattern definitions
+      /^(credential|credentials|auth|authkey)$/i // skipcq: SCT-A000 - security pattern definitions
     ];
 
     for (const [key, value] of Object.entries(obj)) {
