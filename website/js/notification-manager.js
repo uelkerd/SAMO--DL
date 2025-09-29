@@ -139,7 +139,8 @@ class NotificationManager {
         toast.style.transform = 'translateY(-20px)';
 
         // Respect reduced motion preference
-        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const mediaQuery = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+        const reduceMotion = mediaQuery && mediaQuery.matches;
         if (reduceMotion) {
             toast.style.transition = 'none';
         }
