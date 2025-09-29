@@ -158,6 +158,7 @@ def validate_security_configuration():
     
     return bypass_allowed
 
+
 # Validate security configuration at startup and store the result
 auth_bypass_allowed = validate_security_configuration()
 
