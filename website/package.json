@@ -7,11 +7,11 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint js/**/*.js",
+    "lint": "npm run lint:all",
     "lint:css": "stylelint css/**/*.css",
     "lint:html": "htmlhint \"**/*.html\"",
     "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
-    "lint:all": "npm run lint && npm run lint:css && npm run lint:html && npm run lint:md",
+    "lint:all": "eslint js/**/*.js && stylelint css/**/*.css && htmlhint \"**/*.html\" && markdownlint \"**/*.md\" --ignore node_modules",
     "format": "prettier --write \"**/*.{html,css,js,json,md}\" \"!node_modules/**/*\" \"!dist/**/*\" \"!build/**/*\" \"!.next/**/*\"",
     "format:check": "prettier --check \"**/*.{html,css,js,json,md}\" \"!node_modules/**/*\" \"!dist/**/*\" \"!build/**/*\" \"!.next/**/*\"",
     "build": "echo 'Static site - no build needed'"
