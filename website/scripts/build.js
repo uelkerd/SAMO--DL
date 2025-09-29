@@ -34,11 +34,28 @@ let configContent = fs.readFileSync(configPath, 'utf8');
 // Normalize and inject build-time variables
 const PRODUCTION_HEADER = '// Build-time injected production configuration\nwindow.PROD_REQUIRE_AUTH = true;\n\n';
 
-// Strip any previously injected production header
-configContent = configContent.replace(
-  /^\/\/ Build-time injected production configuration\nwindow\.PROD_REQUIRE_AUTH = true;\n\n/,
-  ''
-);
+// Safely strip any previously injected production header
+const headerPattern = /^\/\/ Build-time injected production configuration\nwindow\.PROD_REQUIRE_AUTH = true;\n\n/gm;
+const headerMatches = configContent.match(headerPattern);
+
+if (headerMatches) {
+  const headerCount = headerMatches.length;
+  
+  if (headerCount > 1) {
+    console.error('❌ Error: Multiple production headers found in config.js');
+    console.error(`   Found ${headerCount} occurrences of the production header.`);
+    console.error('   This indicates a corrupted or malformed config file.');
+    console.error('   Please manually clean up the config file and try again.');
+    process.exit(1);
+  } else if (headerCount === 1) {
+    console.log('🧹 Removing existing production header...');
+    // Replace only the first occurrence to be safe
+    configContent = configContent.replace(headerPattern, '');
+  }
+  // If headerCount === 0, no action needed (file is clean)
+} else {
+  console.log('ℹ️  No existing production header found - config file is clean');
+}
 
 // Define simple patterns for known REQUIRE_AUTH formats
 const requireAuthPatterns = [
