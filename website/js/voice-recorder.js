@@ -1,8 +1,19 @@
 /**
  * Voice Recording Module for SAMO Demo
  * Handles microphone access, audio recording, and integration with the demo interface
+ * 
+ * @typedef {Object} TranscriptionResult
+ * @property {string} [text] - The transcribed text content
+ * @property {number} [confidence] - Confidence score (0-1) for the transcription
+ * @property {any} [error] - Error information if transcription failed
+ * @property {Object} [transcription] - Alternative transcription object format
+ * @property {string} [transcription.text] - Transcribed text in nested format
+ * 
+ * @typedef {Object} ApiClientInterface
+ * @property {function(File): Promise<TranscriptionResult>} transcribeAudio - Transcribes audio file to text
+ * 
+ * @param {ApiClientInterface|null} apiClient - API client implementing the transcription interface
  */
-
 class VoiceRecorder {
     constructor(apiClient = null) {
         this.mediaRecorder = null;
@@ -192,18 +203,26 @@ class VoiceRecorder {
                 throw new Error('API client not available for transcription. Please ensure apiClient is properly initialized.');
             }
 
-            // Use API client to transcribe
-            if (typeof apiClient.transcribeAudio === 'function') {
-                console.log('🔄 Sending audio for transcription...');
-                const result = await apiClient.transcribeAudio(audioFile);
-
-                console.log('✅ Transcription successful:', result);
-
-                // Display results in the UI
-                this.displayTranscriptionResults(result);
-            } else {
+            // Validate API client method exists
+            if (typeof apiClient.transcribeAudio !== 'function') {
                 throw new Error('API client transcribeAudio method not available');
             }
+
+            // Validate File argument
+            if (!(audioFile instanceof File)) {
+                throw new Error(`Invalid audio file argument: expected File instance, got ${typeof audioFile}`);
+            }
+
+            console.log('🔄 Sending audio for transcription...');
+            const result = await apiClient.transcribeAudio(audioFile);
+
+            console.log('✅ Transcription successful:', result);
+
+            // Validate result shape before processing
+            this.validateTranscriptionResult(result);
+
+            // Display results in the UI
+            this.displayTranscriptionResults(result);
 
         } catch (error) {
             console.error('Failed to transcribe audio:', error);
@@ -239,6 +258,50 @@ class VoiceRecorder {
                 this.hideProcessingState();
             }
         }
+    }
+
+    /**
+     * Validate transcription result shape and handle malformed responses
+     * @param {any} result - The result from transcribeAudio API call
+     * @throws {Error} If result is malformed or indicates failure
+     */
+    validateTranscriptionResult(result) {
+        // Check if result is null, undefined, or not an object
+        if (result === null || result === undefined) {
+            console.error('❌ Transcription result is null or undefined');
+            throw new Error('Transcription service returned no result');
+        }
+
+        if (typeof result !== 'object') {
+            console.error('❌ Transcription result is not an object:', typeof result, result);
+            throw new Error(`Transcription service returned invalid result type: ${typeof result}`);
+        }
+
+        // Check for explicit error indicators
+        if (result.error) {
+            console.error('❌ Transcription service returned error:', result.error);
+            throw new Error(`Transcription failed: ${result.error}`);
+        }
+
+        // Check for success field (if present)
+        if (result.success === false) {
+            console.error('❌ Transcription service indicated failure:', result);
+            throw new Error('Transcription service reported failure');
+        }
+
+        // Validate that we have some form of transcription text
+        const hasText = result.text || 
+                       (result.transcription && (typeof result.transcription === 'string' || result.transcription.text)) ||
+                       (typeof result === 'string');
+
+        if (!hasText) {
+            console.error('❌ Transcription result missing text content:', result);
+            console.error('Raw response for debugging:', JSON.stringify(result, null, 2));
+            throw new Error('Transcription completed but no text was returned');
+        }
+
+        // Log successful validation
+        console.log('✅ Transcription result validation passed');
     }
 
     /**
