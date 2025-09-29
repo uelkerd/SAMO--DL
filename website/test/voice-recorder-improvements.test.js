@@ -2,6 +2,8 @@
  * Tests for improved voice recorder initialization
  */
 
+import { describe, test, beforeEach, afterEach, vi } from 'vitest';
+
 describe('Voice Recorder Improvements', () => {
     let mockApiClient;
     let mockApiClientManager;
@@ -9,15 +11,15 @@ describe('Voice Recorder Improvements', () => {
     beforeEach(() => {
         // Mock API client
         mockApiClient = {
-            transcribe: jest.fn(),
-            analyzeEmotion: jest.fn()
+            transcribe: vi.fn(),
+            analyzeEmotion: vi.fn()
         };
 
         // Mock API client manager
         mockApiClientManager = {
-            waitForApiClient: jest.fn(),
-            isApiClientAvailable: jest.fn(),
-            notifyApiClientReady: jest.fn()
+            waitForApiClient: vi.fn(),
+            isApiClientAvailable: vi.fn(),
+            notifyApiClientReady: vi.fn()
         };
 
         // Reset global state
@@ -44,8 +46,8 @@ describe('Voice Recorder Improvements', () => {
     describe('Dependency Injection', () => {
         test('should accept API client via dependency injection', async () => {
             // Mock the VoiceRecorder constructor
-            const MockVoiceRecorder = jest.fn().mockImplementation(() => ({
-                init: jest.fn().mockResolvedValue(undefined)
+            const MockVoiceRecorder = vi.fn().mockImplementation(() => ({
+                init: vi.fn().mockResolvedValue(undefined)
             }));
 
             // Replace the global VoiceRecorder
@@ -53,9 +55,12 @@ describe('Voice Recorder Improvements', () => {
             window.VoiceRecorder = MockVoiceRecorder;
 
             try {
+                // Reset modules to ensure fresh import picks up mocked global
+                vi.resetModules();
+
                 // Import the initialization function
                 const { initializeVoiceRecorder } = await import('../js/voice-recorder.js');
-                
+
                 // Test with injected API client
                 await initializeVoiceRecorder({
                     apiClient: mockApiClient,
@@ -76,16 +81,19 @@ describe('Voice Recorder Improvements', () => {
             mockApiClientManager.waitForApiClient.mockResolvedValue(mockApiClient);
 
             // Mock the VoiceRecorder constructor
-            const MockVoiceRecorder = jest.fn().mockImplementation(() => ({
-                init: jest.fn().mockResolvedValue(undefined)
+            const MockVoiceRecorder = vi.fn().mockImplementation(() => ({
+                init: vi.fn().mockResolvedValue(undefined)
             }));
 
             const originalVoiceRecorder = window.VoiceRecorder;
             window.VoiceRecorder = MockVoiceRecorder;
 
             try {
+                // Reset modules to ensure fresh import picks up mocked global
+                vi.resetModules();
+
                 const { initializeVoiceRecorder } = await import('../js/voice-recorder.js');
-                
+
                 await initializeVoiceRecorder({
                     apiClientManager: mockApiClientManager
                 });
@@ -104,22 +112,25 @@ describe('Voice Recorder Improvements', () => {
 
     describe('Event-based Initialization', () => {
         test('should dispatch voiceRecorderReady event on success', async () => {
-            const eventListener = jest.fn();
+            const eventListener = vi.fn();
             window.addEventListener('voiceRecorderReady', eventListener);
 
             // Mock successful initialization
             mockApiClientManager.waitForApiClient.mockResolvedValue(mockApiClient);
 
-            const MockVoiceRecorder = jest.fn().mockImplementation(() => ({
-                init: jest.fn().mockResolvedValue(undefined)
+            const MockVoiceRecorder = vi.fn().mockImplementation(() => ({
+                init: vi.fn().mockResolvedValue(undefined)
             }));
 
             const originalVoiceRecorder = window.VoiceRecorder;
             window.VoiceRecorder = MockVoiceRecorder;
 
             try {
+                // Reset modules to ensure fresh import picks up mocked global
+                vi.resetModules();
+
                 const { initializeVoiceRecorder } = await import('../js/voice-recorder.js');
-                
+
                 await initializeVoiceRecorder({
                     apiClientManager: mockApiClientManager
                 });
@@ -141,22 +152,25 @@ describe('Voice Recorder Improvements', () => {
         });
 
         test('should dispatch voiceRecorderReady event with error details on failure', async () => {
-            const eventListener = jest.fn();
+            const eventListener = vi.fn();
             window.addEventListener('voiceRecorderReady', eventListener);
 
             // Mock API client manager failure
             mockApiClientManager.waitForApiClient.mockRejectedValue(new Error('API client timeout'));
 
-            const MockVoiceRecorder = jest.fn().mockImplementation(() => ({
-                init: jest.fn().mockResolvedValue(undefined)
+            const MockVoiceRecorder = vi.fn().mockImplementation(() => ({
+                init: vi.fn().mockResolvedValue(undefined)
             }));
 
             const originalVoiceRecorder = window.VoiceRecorder;
             window.VoiceRecorder = MockVoiceRecorder;
 
             try {
+                // Reset modules to ensure fresh import picks up mocked global
+                vi.resetModules();
+
                 const { initializeVoiceRecorder } = await import('../js/voice-recorder.js');
-                
+
                 await initializeVoiceRecorder({
                     apiClientManager: mockApiClientManager
                 });
@@ -191,16 +205,19 @@ describe('Voice Recorder Improvements', () => {
 
             mockApiClientManager.waitForApiClient.mockResolvedValue(mockApiClient);
 
-            const MockVoiceRecorder = jest.fn().mockImplementation(() => ({
-                init: jest.fn().mockResolvedValue(undefined)
+            const MockVoiceRecorder = vi.fn().mockImplementation(() => ({
+                init: vi.fn().mockResolvedValue(undefined)
             }));
 
             const originalVoiceRecorder = window.VoiceRecorder;
             window.VoiceRecorder = MockVoiceRecorder;
 
             try {
+                // Reset modules to ensure fresh import picks up mocked global
+                vi.resetModules();
+
                 const { initializeVoiceRecorder } = await import('../js/voice-recorder.js');
-                
+
                 await initializeVoiceRecorder({
                     apiClientManager: mockApiClientManager,
                     config: customConfig
