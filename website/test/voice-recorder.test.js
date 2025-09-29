@@ -201,17 +201,19 @@ describe('VoiceRecorder', () => {
       expect(global.MediaRecorder.isTypeSupported('audio/webm')).toBe(true);
     });
 
-    it('should handle unsupported browsers gracefully', () => {
+    it('should handle unsupported browsers gracefully', async () => {
       const originalMediaRecorder = global.MediaRecorder;
       global.MediaRecorder = undefined;
 
-      // Should not throw when MediaRecorder is unavailable
-      expect(() => {
+      try {
         const recorder = new window.VoiceRecorder(mockApiClient);
-        recorder.startRecording();
-      }).not.toThrow();
-
-      global.MediaRecorder = originalMediaRecorder;
+        // startRecording should handle MediaRecorder unavailability gracefully and return false
+        const result = await recorder.startRecording();
+        expect(result).toBe(false);
+      } finally {
+        // Always restore MediaRecorder even if the test fails
+        global.MediaRecorder = originalMediaRecorder;
+      }
     });
   });
 });
