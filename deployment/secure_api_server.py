@@ -83,6 +83,7 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 
+
 def validate_security_configuration():
     """Validate security configuration at startup and return auth bypass flag.
     
@@ -556,6 +557,7 @@ def require_admin_api_key(f):
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
         return f(*args, **kwargs)
     return decorated_function
+
 
 def require_api_key(f):
     """Decorator to require API key via X-API-Key header for protected endpoints.
