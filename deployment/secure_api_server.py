@@ -166,8 +166,8 @@ def validate_security_configuration():
 auth_bypass_allowed = validate_security_configuration()
 
 # Store the normalized API key globally for use in authentication
-client_api_key_raw = os.environ.get("CLIENT_API_KEY")
-CLIENT_API_KEY = client_api_key_raw.strip() if client_api_key_raw is not None else None
+raw_api_key = os.environ.get("CLIENT_API_KEY")
+CLIENT_API_KEY = raw_api_key.strip() if raw_api_key is not None else None
 
 # Security configurations
 rate_limit_config = RateLimitConfig(
