@@ -24,27 +24,43 @@ const configPath = path.join(__dirname, '..', 'js', 'config.js');
 // Read the config file
 let configContent = fs.readFileSync(configPath, 'utf8');
 
-// Inject build-time variables
+// Normalize and inject build-time variables
+const PRODUCTION_HEADER = '// Build-time injected production configuration\nwindow.PROD_REQUIRE_AUTH = true;\n\n';
+
+// Strip any previously injected production header
+configContent = configContent.replace(
+  /^\/\/ Build-time injected production configuration\nwindow\.PROD_REQUIRE_AUTH = true;\n\n/,
+  ''
+);
+
+// Match the REQUIRE_AUTH line in any of its known forms
+const requireAuthPattern =
+  /REQUIRE_AUTH:\s*(?:\(typeof window\.PROD_REQUIRE_AUTH !== 'undefined'\)\s*\?\s*window\.PROD_REQUIRE_AUTH\s*:\s*true|true|false)\s*\/\/.*$/m;
+
+if (!requireAuthPattern.test(configContent)) {
+  throw new Error('Unable to locate REQUIRE_AUTH in config.js');
+}
+
 if (isProduction) {
   console.log('📦 Production build - enabling authentication');
-  // Replace the REQUIRE_AUTH line to inject window.PROD_REQUIRE_AUTH = true
-  configContent = configContent.replace(
-    'REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== \'undefined\') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production',
-    'REQUIRE_AUTH: true // Production build - authentication required'
-  );
-
-  // Add the global injection at the top of the config
-  configContent = '// Build-time injected production configuration\nwindow.PROD_REQUIRE_AUTH = true;\n\n' + configContent;
-
+  configContent =
+    PRODUCTION_HEADER +
+    configContent.replace(
+      requireAuthPattern,
+      'REQUIRE_AUTH: true // Production build - authentication required'
+    );
 } else if (isDevelopment) {
   console.log('🛠️  Development build - disabling authentication for convenience');
-  // For development, leave REQUIRE_AUTH as false via localhost override
   configContent = configContent.replace(
-    'REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== \'undefined\') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production',
+    requireAuthPattern,
     'REQUIRE_AUTH: false // Development build - authentication disabled'
   );
 } else {
   console.log('⚠️  No build type specified, using default configuration');
+  configContent = configContent.replace(
+    requireAuthPattern,
+    'REQUIRE_AUTH: (typeof window.PROD_REQUIRE_AUTH !== \'undefined\') ? window.PROD_REQUIRE_AUTH : true // Build-time injected for production'
+  );
 }
 
 // Write back to the same file (for static site deployment)

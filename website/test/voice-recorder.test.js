@@ -80,56 +80,54 @@ describe('VoiceRecorder', () => {
       }))
     };
 
-    // Mock window object for browser environment
-    global.window = {
-      VoiceRecorder: class VoiceRecorder {
-        constructor(apiClient) {
-          this.apiClient = apiClient;
-          this.isRecording = false;
-          this.mediaRecorder = null;
-          this.audioChunks = [];
-        }
+    // Attach to existing window (do not replace it)
+    global.window.VoiceRecorder = class VoiceRecorder {
+      constructor(apiClient) {
+        this.apiClient = apiClient;
+        this.isRecording = false;
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+      }
 
-        async init() {
-          // Initialize voice recorder
+      async init() {
+        // Initialize voice recorder
+        return true;
+      }
+
+      async startRecording() {
+        if (this.isRecording) return false;
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          this.mediaRecorder = new MediaRecorder(stream);
+          this.isRecording = true;
           return true;
+        } catch (error) {
+          console.error('Failed to start recording:', error);
+          return false;
+        }
+      }
+
+      stopRecording() {
+        if (!this.isRecording || !this.mediaRecorder) return false;
+
+        this.mediaRecorder.stop();
+        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        this.isRecording = false;
+        return true;
+      }
+
+      async processAudio(audioBlob) {
+        if (!this.apiClient) {
+          throw new Error('API client not provided');
         }
 
-        async startRecording() {
-          if (this.isRecording) return false;
+        return await this.apiClient.transcribeAudio(audioBlob);
+      }
 
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.mediaRecorder = new MediaRecorder(stream);
-            this.isRecording = true;
-            return true;
-          } catch (error) {
-            console.error('Failed to start recording:', error);
-            return false;
-          }
-        }
-
-        stopRecording() {
-          if (!this.isRecording || !this.mediaRecorder) return false;
-
-          this.mediaRecorder.stop();
-          this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-          this.isRecording = false;
-          return true;
-        }
-
-        async processAudio(audioBlob) {
-          if (!this.apiClient) {
-            throw new Error('API client not provided');
-          }
-
-          return await this.apiClient.transcribeAudio(audioBlob);
-        }
-
-        displayTranscriptionResults(result) {
-          // Mock display function
-          console.log('Transcription result:', result);
-        }
+      displayTranscriptionResults(result) {
+        // Mock display function
+        console.log('Transcription result:', result);
       }
     };
 
@@ -142,6 +140,8 @@ describe('VoiceRecorder', () => {
     if (voiceRecorder && voiceRecorder.isRecording) {
       voiceRecorder.stopRecording();
     }
+    // Remove test-only global to avoid leaking into other suites
+    delete global.window.VoiceRecorder;
   });
 
   describe('Initialization', () => {
