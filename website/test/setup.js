@@ -34,19 +34,22 @@ if (typeof navigator !== 'undefined') {
 }
 
 // Enhanced matchMedia mock for proper test environment support
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use addEventListener instead. Included for legacy code compatibility.
-    removeListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use removeEventListener instead. Included for legacy code compatibility.
-    dispatchEvent: vi.fn()
-  }))
-});
+// Only override if matchMedia is not already available (e.g., in certain test environments)
+if (!window.matchMedia) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use addEventListener instead. Included for legacy code compatibility.
+      removeListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use removeEventListener instead. Included for legacy code compatibility.
+      dispatchEvent: vi.fn()
+    }))
+  });
+}
 
 // Mock MediaRecorder
 global.MediaRecorder = vi.fn().mockImplementation(() => ({
