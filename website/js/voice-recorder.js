@@ -519,43 +519,80 @@ window.VoiceRecorder = VoiceRecorder;
 // Global voice recorder instance
 window.voiceRecorder = null;
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async function() {
+/**
+ * Initialize voice recorder with dependency injection support
+ * @param {Object} options - Initialization options
+ * @param {Object} options.apiClient - Optional API client instance (for testing)
+ * @param {Object} options.apiClientManager - Optional API client manager (for testing)
+ * @param {Object} options.config - Optional configuration overrides
+ */
+async function initializeVoiceRecorder(options = {}) {
+    const {
+        apiClient = null,
+        apiClientManager = window.ApiClientManager,
+        config = window.SAMO_CONFIG
+    } = options;
+
     console.log('🎙️ Initializing voice recorder...');
 
-    // Wait for API client to be available (with configurable timeout)
-    const waitForApiClient = () => {
-        // Use configurable timeout from SAMO_CONFIG or default to 5 seconds
-        const timeoutMs = (window.SAMO_CONFIG?.API?.TIMEOUTS?.API_CLIENT_INIT || 5000);
-        const pollInterval = 100; // 100ms intervals
-        const maxAttempts = Math.ceil(timeoutMs / pollInterval);
-
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const checkClient = () => {
-                if (window.apiClient) {
-                    resolve(window.apiClient);
-                } else if (attempts >= maxAttempts) {
-                    reject(new Error(`API client not available within ${timeoutMs}ms timeout`));
-                } else {
-                    attempts++;
-                    setTimeout(checkClient, pollInterval);
-                }
-            };
-            checkClient();
-        });
-    };
-
     try {
-        const apiClient = await waitForApiClient();
-        window.voiceRecorder = new VoiceRecorder(apiClient);
+        let resolvedApiClient = apiClient;
+
+        // If no API client provided, try to get one
+        if (!resolvedApiClient) {
+            if (!apiClientManager) {
+                throw new Error('API client manager not available');
+            }
+
+            // Use hybrid approach: try event-based first, fallback to polling
+            const initOptions = {
+                timeoutMs: config?.API?.TIMEOUTS?.API_CLIENT_INIT || 5000,
+                useEventBased: true
+            };
+
+            resolvedApiClient = await apiClientManager.waitForApiClient(initOptions);
+        }
+
+        // Create voice recorder with resolved API client
+        window.voiceRecorder = new VoiceRecorder(resolvedApiClient);
         await window.voiceRecorder.init();
         console.log('✅ Voice recorder initialized with API client');
+
+        // Notify that voice recorder is ready
+        const event = new CustomEvent('voiceRecorderReady', {
+            detail: { voiceRecorder: window.voiceRecorder }
+        });
+        window.dispatchEvent(event);
+
     } catch (error) {
         console.error('❌ Failed to initialize voice recorder:', error);
+        
         // Fallback: create without API client (will show clear error if transcription attempted)
         window.voiceRecorder = new VoiceRecorder(null);
         await window.voiceRecorder.init();
         console.warn('⚠️ Voice recorder initialized without API client - transcription will fail');
+
+        // Notify that voice recorder is ready (but with limited functionality)
+        const event = new CustomEvent('voiceRecorderReady', {
+            detail: { 
+                voiceRecorder: window.voiceRecorder,
+                limitedFunctionality: true,
+                error: error.message
+            }
+        });
+        window.dispatchEvent(event);
     }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check if API client utilities are available
+    if (!window.ApiClientManager) {
+        console.warn('⚠️ ApiClientManager not available, using fallback initialization');
+        await initializeVoiceRecorder({ apiClientManager: null });
+        return;
+    }
+
+    // Use the new initialization function
+    await initializeVoiceRecorder();
 });
