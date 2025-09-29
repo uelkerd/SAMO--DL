@@ -149,13 +149,31 @@ class VoiceRecorder {
 
     async onRecordingStop() {
         try {
-            // Create audio blob using the recorder's actual MIME type for accuracy
-            const chosenType = (this.mediaRecorder && typeof this.mediaRecorder.mimeType === 'string')
-                ? this.mediaRecorder.mimeType
-                : this.getSupportedMimeType();
+            // Determine MIME type with proper fallback handling and validation
+            let chosenType;
+            let usedFallback = false;
+
+            if (this.mediaRecorder && typeof this.mediaRecorder.mimeType === 'string') {
+                chosenType = this.mediaRecorder.mimeType;
+            } else {
+                chosenType = this.getSupportedMimeType();
+                usedFallback = true;
+                console.warn('⚠️ MediaRecorder.mimeType not available, falling back to getSupportedMimeType()');
+            }
+
+            // Validate that the chosen type is actually supported
+            if (!this.isValidMimeType(chosenType)) {
+                console.warn(`⚠️ Chosen MIME type '${chosenType}' is not supported, using safe default`);
+                chosenType = 'audio/webm'; // Safe default
+                usedFallback = true;
+            }
+
+            // Create audio blob with validated MIME type
             const audioBlob = new Blob(this.audioChunks, { type: chosenType });
 
-            console.log(`📄 Audio blob created: ${audioBlob.size} bytes, type: ${audioBlob.type}`);
+            // Enhanced logging with MIME type decision details
+            const fallbackInfo = usedFallback ? ' (fallback used)' : ' (from MediaRecorder)';
+            console.log(`📄 Audio blob created: ${audioBlob.size} bytes, type: ${audioBlob.type}${fallbackInfo}`);
 
             // Process the recorded audio
             await this.processRecordedAudio(audioBlob);
@@ -375,6 +393,18 @@ class VoiceRecorder {
         }
     }
 
+    /**
+     * Validate that a MIME type is supported and not null/undefined
+     * @param {string} mimeType - The MIME type to validate
+     * @returns {boolean} True if the MIME type is valid and supported
+     */
+    isValidMimeType(mimeType) {
+        return mimeType &&
+               typeof mimeType === 'string' &&
+               mimeType.trim().length > 0 &&
+               MediaRecorder.isTypeSupported(mimeType);
+    }
+
     getSupportedMimeType() {
         const types = [
             'audio/webm;codecs=opus',
@@ -385,10 +415,12 @@ class VoiceRecorder {
 
         for (const type of types) {
             if (MediaRecorder.isTypeSupported(type)) {
+                console.log(`✅ Found supported MIME type: ${type}`);
                 return type;
             }
         }
 
+        console.warn('⚠️ No supported MIME types found, using fallback');
         return 'audio/webm'; // fallback
     }
 
@@ -566,7 +598,7 @@ async function initializeVoiceRecorder(options = {}) {
 
     } catch (error) {
         console.error('❌ Failed to initialize voice recorder:', error);
-        
+
         // Fallback: create without API client (will show clear error if transcription attempted)
         window.voiceRecorder = new VoiceRecorder(null);
         await window.voiceRecorder.init();
@@ -574,7 +606,7 @@ async function initializeVoiceRecorder(options = {}) {
 
         // Notify that voice recorder is ready (but with limited functionality)
         const event = new CustomEvent('voiceRecorderReady', {
-            detail: { 
+            detail: {
                 voiceRecorder: window.voiceRecorder,
                 limitedFunctionality: true,
                 error: error.message

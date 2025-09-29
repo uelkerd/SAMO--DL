@@ -86,16 +86,19 @@ app = Flask(__name__)
 
 def validate_security_configuration():
     """Validate security configuration at startup and return auth bypass flag.
-    
+
     Security Configuration Logic:
     - Production: CLIENT_API_KEY is REQUIRED, ALLOW_UNAUTHENTICATED is forbidden
     - Development: Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is required
     - No automatic bypass - explicit configuration is always required
-    
+
     Returns:
         bool: True if authentication bypass is allowed, False otherwise
     """
-    client_api_key = os.environ.get("CLIENT_API_KEY")
+    # Get raw environment variable and normalize it
+    client_api_key_raw = os.environ.get("CLIENT_API_KEY")
+    client_api_key = client_api_key_raw.strip() if client_api_key_raw is not None else None
+
     allow_unauthenticated = os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
     flask_env = os.environ.get("FLASK_ENV", "").lower()
     is_production = flask_env == "production" or os.environ.get("ENVIRONMENT", "").lower() == "production"
@@ -155,12 +158,16 @@ def validate_security_configuration():
         logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
     else:
         logger.info("✅ API key authentication is enforced")
-    
+
     return bypass_allowed
 
 
 # Validate security configuration at startup and store the result
 auth_bypass_allowed = validate_security_configuration()
+
+# Store the normalized API key globally for use in authentication
+client_api_key_raw = os.environ.get("CLIENT_API_KEY")
+CLIENT_API_KEY = client_api_key_raw.strip() if client_api_key_raw is not None else None
 
 # Security configurations
 rate_limit_config = RateLimitConfig(
@@ -577,7 +584,7 @@ def require_api_key(f):
 
         # Authentication is required - validate API key
         api_key = request.headers.get("X-API-Key")
-        expected_key = os.environ.get("CLIENT_API_KEY")
+        expected_key = CLIENT_API_KEY
 
         if not expected_key:
             logger.error("CLIENT_API_KEY not set but authentication bypass is disabled - this should not happen")

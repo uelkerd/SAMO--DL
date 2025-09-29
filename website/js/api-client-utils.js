@@ -6,7 +6,7 @@
 class ApiClientManager {
     constructor() {
         this.initializationPromise = null;
-        this.eventListeners = new Set();
+        this.eventListeners = new Map(); // Map<string, {eventName, callback}>
         this.isInitialized = false;
     }
 
@@ -109,12 +109,24 @@ class ApiClientManager {
     }
 
     /**
+     * Generate a unique key for event listener tracking
+     * @param {string} eventName - Event name
+     * @param {Function} callback - Event callback
+     * @returns {string} Unique key for the listener
+     */
+    _generateListenerKey(eventName, callback) {
+        // Use eventName + callback reference for uniqueness
+        return `${eventName}:${callback.toString().slice(0, 50)}:${Date.now()}`;
+    }
+
+    /**
      * Add event listener for API client events
      * @param {string} eventName - Event name
      * @param {Function} callback - Event callback
      */
     addEventListener(eventName, callback) {
-        this.eventListeners.add({ eventName, callback });
+        const key = this._generateListenerKey(eventName, callback);
+        this.eventListeners.set(key, { eventName, callback });
         window.addEventListener(eventName, callback);
     }
 
@@ -124,8 +136,15 @@ class ApiClientManager {
      * @param {Function} callback - Event callback
      */
     removeEventListener(eventName, callback) {
-        this.eventListeners.delete({ eventName, callback });
-        window.removeEventListener(eventName, callback);
+        // Find the key for this specific eventName + callback combination
+        for (const [key, listener] of this.eventListeners.entries()) {
+            if (listener.eventName === eventName && listener.callback === callback) {
+                this.eventListeners.delete(key);
+                window.removeEventListener(eventName, callback);
+                return;
+            }
+        }
+        console.warn(`Event listener not found for event: ${eventName}`);
     }
 
     /**
@@ -164,7 +183,7 @@ class ApiClientManager {
                 if (attempt === maxRetries) {
                     throw new Error(`Failed to get API client after ${maxRetries} attempts: ${error.message}`);
                 }
-                
+
                 console.warn(`⚠️ API client initialization attempt ${attempt} failed, retrying in ${retryDelay}ms...`, error.message);
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
