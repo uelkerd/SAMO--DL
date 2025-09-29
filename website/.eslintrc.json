@@ -21,7 +21,7 @@
     {
       "files": ["test/**/*.js"],
       "env": {
-        "jest": true
+        "vitest/globals": true
       }
     }
   ]
