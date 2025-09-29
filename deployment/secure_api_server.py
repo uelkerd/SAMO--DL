@@ -122,7 +122,7 @@ def validate_security_configuration():
             raise RuntimeError("ALLOW_UNAUTHENTICATED is forbidden in production environment")
 
         # Production: authentication is always required
-        auth_bypass_allowed = False
+        bypass_allowed = False
         logger.info("🔐 Production mode: API key authentication is enforced")
         print("🔐 Production mode: API key authentication is enforced")
 
@@ -141,21 +141,21 @@ def validate_security_configuration():
             raise RuntimeError("Authentication configuration is required in development")
 
         if allow_unauthenticated:
-            auth_bypass_allowed = True
+            bypass_allowed = True
             logger.warning("🔓 Development mode: Authentication bypass enabled via ALLOW_UNAUTHENTICATED=true")
             print("🔓 Development mode: Authentication bypass enabled")
         elif client_api_key:
-            auth_bypass_allowed = False
+            bypass_allowed = False
             logger.info("🔐 Development mode: API key authentication enabled")
             print("🔐 Development mode: API key authentication enabled")
 
     # Log final configuration
-    if auth_bypass_allowed:
+    if bypass_allowed:
         logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
     else:
         logger.info("✅ API key authentication is enforced")
     
-    return auth_bypass_allowed
+    return bypass_allowed
 
 # Validate security configuration at startup and store the result
 auth_bypass_allowed = validate_security_configuration()
