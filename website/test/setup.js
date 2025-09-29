@@ -42,8 +42,8 @@ Object.defineProperty(window, 'matchMedia', {
     onchange: null,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-    addListener: vi.fn(), // deprecated but some code might use it
-    removeListener: vi.fn(), // deprecated but some code might use it
+    addListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use addEventListener instead. Included for legacy code compatibility.
+    removeListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use removeEventListener instead. Included for legacy code compatibility.
     dispatchEvent: vi.fn()
   }))
 });
