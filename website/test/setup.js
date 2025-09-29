@@ -33,14 +33,20 @@ if (typeof navigator !== 'undefined') {
   });
 }
 
-// Optional: matchMedia stub
-if (!window.matchMedia) {
-  window.matchMedia = vi.fn().mockReturnValue({
+// Enhanced matchMedia mock for proper test environment support
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
+    media: query,
+    onchange: null,
     addEventListener: vi.fn(),
-    removeEventListener: vi.fn()
-  });
-}
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(), // deprecated but some code might use it
+    removeListener: vi.fn(), // deprecated but some code might use it
+    dispatchEvent: vi.fn()
+  }))
+});
 
 // Mock MediaRecorder
 global.MediaRecorder = vi.fn().mockImplementation(() => ({
