@@ -61,7 +61,7 @@ window.SAMO_CONFIG = {
     TIMEOUT: 45000, // 45 seconds (emotion analysis can take ~28s)
     RETRY_ATTEMPTS: 3,
     API_KEY: null, // Set via server injection or user input // skipcq: SCT-A000
-    REQUIRE_AUTH: false // Set to true for production with API key requirement
+    REQUIRE_AUTH: true // Secure default; overridden to false only for localhost dev
   },
 
     // OpenAI Configuration - DISABLED for security (use proxy instead)
@@ -135,6 +135,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     // Use local unified API server (has the correct /analyze/emotion endpoints)
     // This server has the exact endpoints the frontend expects
     window.SAMO_CONFIG.API.BASE_URL = 'https://localhost:8002';
+    window.SAMO_CONFIG.API.REQUIRE_AUTH = false; // Disable auth for local dev convenience
     // Note: ENDPOINTS remain unchanged from production config (no override needed)
 
     console.log('🔧 Running in localhost development mode - using local API server at https://localhost:8002');
