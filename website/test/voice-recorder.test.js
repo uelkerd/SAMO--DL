@@ -191,26 +191,30 @@ describe('VoiceRecorder', () => {
   });
 
   describe('Audio Processing', () => {
-    it('should process audio successfully', async () => {
+    it('should process audio, call the API client, and display results', async () => {
       const mockBlob = new Blob(['audio data'], { type: 'audio/wav' });
+      const mockTranscriptionResult = {
+        transcription: { text: 'Hello world' },
+        confidence: 0.95
+      };
+      mockApiClient.transcribeAudio.mockResolvedValue(mockTranscriptionResult);
 
-      // Mock the processRecordedAudio method to test the core functionality
-      const originalProcessRecordedAudio = voiceRecorder.processRecordedAudio;
-      voiceRecorder.processRecordedAudio = vi.fn().mockImplementation(async (audioBlob) => {
-        if (!voiceRecorder.apiClient) {
-          throw new Error('API client not provided');
-        }
-        return await voiceRecorder.apiClient.transcribeAudio(audioBlob);
-      });
+      // Mock dependencies of processRecordedAudio to isolate the test
+      voiceRecorder.showProcessingState = vi.fn(() => true);
+      voiceRecorder.hideProcessingState = vi.fn();
+      voiceRecorder.displayTranscriptionResults = vi.fn();
+      voiceRecorder.getExtensionFromMimeType = vi.fn().mockReturnValue('wav');
 
-      const result = await voiceRecorder.processRecordedAudio(mockBlob);
+      await voiceRecorder.processRecordedAudio(mockBlob);
 
-      expect(result.transcription).toBe('Hello world');
-      expect(result.confidence).toBe(0.95);
-      expect(mockApiClient.transcribeAudio).toHaveBeenCalledWith(mockBlob);
+      // Verify that the API client was called with a File object
+      expect(mockApiClient.transcribeAudio).toHaveBeenCalledOnce();
+      const audioFile = mockApiClient.transcribeAudio.mock.calls[0][0];
+      expect(audioFile).toBeInstanceOf(File);
+      expect(audioFile.name).toBe('recording.wav');
 
-      // Restore original method
-      voiceRecorder.processRecordedAudio = originalProcessRecordedAudio;
+      // Verify that results are displayed
+      expect(voiceRecorder.displayTranscriptionResults).toHaveBeenCalledWith(mockTranscriptionResult);
     });
 
     it('should throw error when API client is missing', async () => {
@@ -231,21 +235,26 @@ describe('VoiceRecorder', () => {
   describe('Security and Validation', () => {
     it('should validate audio input types', async () => {
       const invalidBlob = new Blob(['text data'], { type: 'text/plain' });
+      const mockTranscriptionResult = {
+        transcription: { text: 'Some text' },
+        confidence: 0.8
+      };
+      mockApiClient.transcribeAudio.mockResolvedValue(mockTranscriptionResult);
 
-      // Mock processRecordedAudio to test validation
-      const originalProcessRecordedAudio = voiceRecorder.processRecordedAudio;
-      voiceRecorder.processRecordedAudio = vi.fn().mockImplementation(async (audioBlob) => {
-        if (!voiceRecorder.apiClient) {
-          throw new Error('API client not provided');
-        }
-        return await voiceRecorder.apiClient.transcribeAudio(audioBlob);
-      });
+      // Mock dependencies of processRecordedAudio to isolate the test
+      voiceRecorder.showProcessingState = vi.fn(() => true);
+      voiceRecorder.hideProcessingState = vi.fn();
+      voiceRecorder.displayTranscriptionResults = vi.fn();
+      voiceRecorder.getExtensionFromMimeType = vi.fn().mockReturnValue('txt');
 
       // Should still process as the validation is typically done on the server
-      await expect(voiceRecorder.processRecordedAudio(invalidBlob)).resolves.toBeDefined();
+      await voiceRecorder.processRecordedAudio(invalidBlob);
 
-      // Restore original method
-      voiceRecorder.processRecordedAudio = originalProcessRecordedAudio;
+      // Verify that the API client was called with a File object
+      expect(mockApiClient.transcribeAudio).toHaveBeenCalledOnce();
+      const audioFile = mockApiClient.transcribeAudio.mock.calls[0][0];
+      expect(audioFile).toBeInstanceOf(File);
+      expect(audioFile.name).toBe('recording.txt');
     });
 
     it('should handle permission errors', async () => {
