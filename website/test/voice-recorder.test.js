@@ -69,10 +69,21 @@ global.navigator = {
 describe('VoiceRecorder', () => {
   let voiceRecorder;
   let mockApiClient;
+  let mockRecordBtn;
+  let mockStopBtn;
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
+
+    // Create DOM elements that VoiceRecorder expects
+    mockRecordBtn = document.createElement('button');
+    mockRecordBtn.id = 'recordBtn';
+    document.body.appendChild(mockRecordBtn);
+
+    mockStopBtn = document.createElement('button');
+    mockStopBtn.id = 'stopBtn';
+    document.body.appendChild(mockStopBtn);
 
     // Mock API client
     mockApiClient = {
@@ -87,36 +98,60 @@ describe('VoiceRecorder', () => {
   });
 
   afterEach(() => {
-    // Clean up
+    // Clean up recording state
     if (voiceRecorder && voiceRecorder.isRecording) {
       voiceRecorder.stopRecording();
     }
+
+    // Clean up DOM elements to prevent test pollution
+    if (mockRecordBtn && mockRecordBtn.parentNode) {
+      mockRecordBtn.parentNode.removeChild(mockRecordBtn);
+    }
+    if (mockStopBtn && mockStopBtn.parentNode) {
+      mockStopBtn.parentNode.removeChild(mockStopBtn);
+    }
+
+    // Clear any remaining elements from document.body as failsafe
+    const remainingButtons = document.body.querySelectorAll('#recordBtn, #stopBtn');
+    remainingButtons.forEach(btn => {
+      if (btn.parentNode) {
+        btn.parentNode.removeChild(btn);
+      }
+    });
   });
 
   describe('Initialization', () => {
     it('should initialize successfully with API client', async () => {
-      // Mock DOM elements that the real VoiceRecorder expects
-      const mockRecordBtn = document.createElement('button');
-      mockRecordBtn.id = 'recordBtn';
-      document.body.appendChild(mockRecordBtn);
-
-      const mockStopBtn = document.createElement('button');
-      mockStopBtn.id = 'stopBtn';
-      document.body.appendChild(mockStopBtn);
-
+      // DOM elements are already created in beforeEach
       const result = await voiceRecorder.init();
       expect(result).toBe(true);
       expect(voiceRecorder.apiClient).toBe(mockApiClient);
-
-      // Clean up DOM elements
-      document.body.removeChild(mockRecordBtn);
-      document.body.removeChild(mockStopBtn);
     });
 
     it('should fail without API client', () => {
       expect(() => new window.VoiceRecorder(null)).not.toThrow();
       const recorder = new window.VoiceRecorder(null);
       expect(recorder.apiClient).toBe(null);
+    });
+
+    it('should clean up DOM elements after each test', () => {
+      // Verify DOM elements exist from beforeEach
+      expect(document.getElementById('recordBtn')).toBe(mockRecordBtn);
+      expect(document.getElementById('stopBtn')).toBe(mockStopBtn);
+      
+      // This test will verify that afterEach properly cleans up
+      // The cleanup will be verified by the next test not finding duplicate elements
+    });
+
+    it('should have fresh DOM elements for each test', () => {
+      // Verify we have exactly one of each element (no duplicates from previous tests)
+      const recordBtns = document.querySelectorAll('#recordBtn');
+      const stopBtns = document.querySelectorAll('#stopBtn');
+      
+      expect(recordBtns).toHaveLength(1);
+      expect(stopBtns).toHaveLength(1);
+      expect(recordBtns[0]).toBe(mockRecordBtn);
+      expect(stopBtns[0]).toBe(mockStopBtn);
     });
   });
 
