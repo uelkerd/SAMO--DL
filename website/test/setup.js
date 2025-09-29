@@ -33,12 +33,21 @@ if (typeof navigator !== 'undefined') {
   });
 }
 
-// Optional: matchMedia stub
+// Enhanced matchMedia mock for proper test environment support
+// Only override if matchMedia is not already available (e.g., in certain test environments)
 if (!window.matchMedia) {
-  window.matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn()
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use addEventListener instead. Included for legacy code compatibility.
+      removeListener: vi.fn(), // Deprecated since Chrome 64, Firefox 65, Safari 14; use removeEventListener instead. Included for legacy code compatibility.
+      dispatchEvent: vi.fn()
+    }))
   });
 }
 
