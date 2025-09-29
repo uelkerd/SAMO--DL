@@ -85,12 +85,12 @@ app = Flask(__name__)
 
 def validate_security_configuration():
     """Validate security configuration at startup and return auth bypass flag.
-    
+
     Security Configuration Logic:
     - Production: CLIENT_API_KEY is REQUIRED, ALLOW_UNAUTHENTICATED is forbidden
     - Development: Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is required
     - No automatic bypass - explicit configuration is always required
-    
+
     Returns:
         bool: True if authentication bypass is allowed, False otherwise
     """
@@ -154,7 +154,7 @@ def validate_security_configuration():
         logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
     else:
         logger.info("✅ API key authentication is enforced")
-    
+
     return auth_bypass_allowed
 
 # Validate security configuration at startup and store the result
