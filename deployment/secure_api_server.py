@@ -12,6 +12,20 @@ Security Features:
 - IP whitelist/blacklist support
 - Abuse detection and automatic blocking
 - Request correlation and tracing
+
+⚠️  SECURITY WARNING - API KEY BYPASS:
+The require_api_key decorator includes a development bypass mechanism that
+disables authentication when CLIENT_API_KEY is not set. This creates a
+CRITICAL SECURITY VULNERABILITY in production environments where:
+- Unauthorized clients can access protected endpoints
+- Sensitive data and AI models become publicly accessible
+- Rate limiting and abuse detection are circumvented
+
+To prevent this security risk:
+1. ALWAYS set CLIENT_API_KEY in production environments
+2. Use ALLOW_UNAUTHENTICATED=true ONLY for local development
+3. Monitor logs for "API key validation bypassed" warnings
+4. Never deploy with unset CLIENT_API_KEY in production
 """
 
 # Import all modules first
@@ -55,6 +69,71 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Global authentication bypass flag (set at startup)
+auth_bypass_allowed = False
+
+def validate_security_configuration():
+    """Validate security configuration at startup and set auth bypass flag."""
+    global auth_bypass_allowed
+    
+    client_api_key = os.environ.get("CLIENT_API_KEY")
+    allow_unauthenticated = os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
+    flask_env = os.environ.get("FLASK_ENV", "").lower()
+    is_production = flask_env == "production" or os.environ.get("ENVIRONMENT", "").lower() == "production"
+    
+    # Determine if authentication bypass is allowed
+    auth_bypass_allowed = allow_unauthenticated and not is_production
+    
+    # Production environment validation
+    if is_production:
+        if not client_api_key:
+            error_msg = (
+                "🚨 CRITICAL SECURITY ERROR: CLIENT_API_KEY is not set in production environment!\n"
+                "This creates a severe security vulnerability allowing unauthorized access to all protected endpoints.\n"
+                "Please set CLIENT_API_KEY environment variable before starting the server."
+            )
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError("CLIENT_API_KEY must be set in production environment")
+        
+        if allow_unauthenticated:
+            warning_msg = (
+                "⚠️  SECURITY WARNING: ALLOW_UNAUTHENTICATED=true is set in production environment!\n"
+                "This disables API key authentication and creates a security vulnerability.\n"
+                "Consider removing ALLOW_UNAUTHENTICATED or setting it to false for production."
+            )
+            logger.warning(warning_msg)
+            print(f"\n{warning_msg}\n")
+    
+    # Development environment validation
+    else:
+        if not client_api_key and not allow_unauthenticated:
+            warning_msg = (
+                "⚠️  DEVELOPMENT WARNING: Neither CLIENT_API_KEY nor ALLOW_UNAUTHENTICATED is set.\n"
+                "API key validation will be bypassed for development convenience.\n"
+                "To explicitly allow this, set ALLOW_UNAUTHENTICATED=true.\n"
+                "To enable authentication, set CLIENT_API_KEY environment variable."
+            )
+            logger.warning(warning_msg)
+            print(f"\n{warning_msg}\n")
+            # Allow bypass in development when neither is set
+            auth_bypass_allowed = True
+        elif allow_unauthenticated:
+            logger.info("🔓 Development mode: Authentication bypass enabled via ALLOW_UNAUTHENTICATED=true")
+            print("🔓 Development mode: Authentication bypass enabled")
+        elif client_api_key:
+            logger.info("🔐 Development mode: API key authentication enabled")
+            print("🔐 Development mode: API key authentication enabled")
+    
+    # Log final configuration
+    if auth_bypass_allowed:
+        logger.warning("⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled")
+    else:
+        logger.info("✅ API key authentication is enforced")
+
+# Validate security configuration at startup
+validate_security_configuration()
 
 # Security configurations
 rate_limit_config = RateLimitConfig(
@@ -456,16 +535,26 @@ def require_api_key(f):
 
     Validates client API key to ensure only authorized clients can access
     protected prediction and analysis endpoints.
+    
+    Authentication bypass is controlled by the global auth_bypass_allowed flag,
+    which is set at startup based on environment configuration.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Check if authentication bypass is allowed (set at startup)
+        if auth_bypass_allowed:
+            return f(*args, **kwargs)
+        
+        # Authentication is required - validate API key
         api_key = request.headers.get("X-API-Key")
         expected_key = os.environ.get("CLIENT_API_KEY")
 
-        # If no expected key is set, bypass validation (for development)
         if not expected_key:
-            logger.warning("CLIENT_API_KEY not set - API key validation bypassed for development")
-            return f(*args, **kwargs)
+            logger.error("CLIENT_API_KEY not set but authentication bypass is disabled - this should not happen")
+            return jsonify({
+                "error": "Server configuration error",
+                "message": "API key validation is required but not configured"
+            }), 500
 
         if not api_key:
             logger.warning("Missing API key in request from %s", request.remote_addr)
