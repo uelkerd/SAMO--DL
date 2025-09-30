@@ -642,7 +642,7 @@ def require_admin_api_key(f):
 
         # Handle None values early and use constant-time comparison
         if (not expected_key or not api_key or
-            not secrets.compare_digest(str(expected_key), str(api_key))):
+                not secrets.compare_digest(str(expected_key), str(api_key))):
             logger.warning(
                 "Unauthorized admin access attempt from %s", request.remote_addr
             )
@@ -1166,7 +1166,8 @@ def get_metrics():
                 'sanitization_warnings': metrics['sanitization_warnings'],
                 'security_violations': metrics['security_violations'],
                 'success_rate': (
-                    f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%"
+                    f"{(metrics['successful_requests'] / "
+                    f"max(metrics['total_requests'], 1)) * 100:.2f}%"
                 ),
                 'average_response_time_ms': round(
                     metrics['average_response_time'] * 1000, 2
