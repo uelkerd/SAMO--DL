@@ -1170,13 +1170,6 @@ def get_metrics():
                 ),
                 'average_response_time_ms': round(
                     metrics['average_response_time'] * 1000, 2
-                ),
-                'requests_per_minute': (
-                    metrics['total_requests'] /
-                    max(
-                        (datetime.now() - metrics['start_time']).total_seconds() / 60,
-                        1
-                    )
                 )
             },
             'emotion_distribution': dict(metrics['emotion_distribution']),
