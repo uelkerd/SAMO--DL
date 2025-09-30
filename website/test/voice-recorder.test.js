@@ -221,7 +221,7 @@ describe('VoiceRecorder', () => {
       const recorderWithoutClient = new window.VoiceRecorder(null);
       const mockBlob = new Blob(['audio data'], { type: 'audio/wav' });
 
-      await expect(recorderWithoutClient.processRecordedAudio(mockBlob)).rejects.toThrow('API client not provided');
+      await expect(recorderWithoutClient.processRecordedAudio(mockBlob)).rejects.toThrow('API client not available for transcription');
     });
 
     it('should handle API errors gracefully', async () => {

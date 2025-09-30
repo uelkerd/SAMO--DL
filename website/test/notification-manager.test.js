@@ -62,6 +62,9 @@ describe('NotificationManager', () => {
       // Mock console.warn
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
+      // Enable debug mode for this test
+      window.SAMO_CONFIG = { DEBUG: true };
+
       // Add max toasts
       for (let i = 0; i < 3; i++) {
         notificationManager.show(`Message ${i}`);
@@ -75,6 +78,7 @@ describe('NotificationManager', () => {
       );
 
       consoleWarnSpy.mockRestore();
+      delete window.SAMO_CONFIG;
     });
   });
 

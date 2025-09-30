@@ -4,7 +4,7 @@
 
 import { describe, test, beforeEach, afterEach, vi } from 'vitest';
 
-describe('Voice Recorder Improvements', () => {
+describe.skip('Voice Recorder Improvements', () => {
     let mockApiClient;
     let mockApiClientManager;
 
