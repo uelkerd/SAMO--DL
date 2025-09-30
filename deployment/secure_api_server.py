@@ -1154,6 +1154,9 @@ def nlp_emotion_batch():
 def get_metrics():
     """Get detailed security metrics endpoint."""
     with metrics_lock:
+        success_rate_pct = (
+            metrics['successful_requests'] / max(metrics['total_requests'], 1)
+        ) * 100
         return jsonify({
             'server_metrics': {
                 'uptime_seconds': (
@@ -1165,9 +1168,7 @@ def get_metrics():
                 'rate_limited_requests': metrics['rate_limited_requests'],
                 'sanitization_warnings': metrics['sanitization_warnings'],
                 'security_violations': metrics['security_violations'],
-                'success_rate': (
-                    f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%"
-                ),
+                'success_rate': f"{success_rate_pct:.2f}%",
                 'average_response_time_ms': round(
                     metrics['average_response_time'] * 1000, 2
                 )
