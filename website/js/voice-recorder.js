@@ -586,7 +586,8 @@ async function initializeVoiceRecorder(options = {}) {
         }
 
         // Create voice recorder with resolved API client
-        window.voiceRecorder = new VoiceRecorder(resolvedApiClient);
+        const VoiceRecorderClass = window.VoiceRecorder || VoiceRecorder;
+        window.voiceRecorder = new VoiceRecorderClass(resolvedApiClient);
         await window.voiceRecorder.init();
         console.log('✅ Voice recorder initialized with API client');
 
@@ -600,7 +601,8 @@ async function initializeVoiceRecorder(options = {}) {
         console.error('❌ Failed to initialize voice recorder:', error);
 
         // Fallback: create without API client (will show clear error if transcription attempted)
-        window.voiceRecorder = new VoiceRecorder(null);
+        const VoiceRecorderClass = window.VoiceRecorder || VoiceRecorder;
+        window.voiceRecorder = new VoiceRecorderClass(null);
         await window.voiceRecorder.init();
         console.warn('⚠️ Voice recorder initialized without API client - transcription will fail');
 
