@@ -12,10 +12,37 @@ Security Features:
 - IP whitelist/blacklist support
 - Abuse detection and automatic blocking
 - Request correlation and tracing
+
+⚠️  SECURITY WARNING - AUTHENTICATION BYPASS:
+The require_api_key decorator supports authentication bypass for development
+via the ALLOW_UNAUTHENTICATED=true environment variable. This creates a
+CRITICAL SECURITY VULNERABILITY if misconfigured:
+
+PRODUCTION ENVIRONMENT (FLASK_ENV=production or ENVIRONMENT=production):
+- CLIENT_API_KEY is MANDATORY - server will refuse to start without it
+- ALLOW_UNAUTHENTICATED is FORBIDDEN - server will refuse to start if set
+- Authentication is ALWAYS enforced - no bypass possible
+
+DEVELOPMENT ENVIRONMENT:
+- Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is REQUIRED
+- No automatic bypass - explicit configuration is mandatory
+- Server will refuse to start without proper authentication configuration
+
+Security implications of bypass:
+- Unauthorized clients can access protected endpoints
+- Sensitive data and AI models become publicly accessible
+- Rate limiting and abuse detection are circumvented
+
+To prevent security risks:
+1. ALWAYS set CLIENT_API_KEY in production environments
+2. Use ALLOW_UNAUTHENTICATED=true ONLY for local development
+3. Monitor logs for authentication bypass warnings
+4. Never deploy with ALLOW_UNAUTHENTICATED=true in production
 """
 
 # Import all modules first
 import os
+import secrets
 from flask import Flask, request, jsonify, g
 import werkzeug
 import logging
@@ -55,6 +82,118 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
+
+
+def validate_security_configuration():
+    """Validate security configuration at startup and return auth bypass flag.
+
+    Security Configuration Logic:
+    - Production: CLIENT_API_KEY is REQUIRED, ALLOW_UNAUTHENTICATED is forbidden
+    - Development: Either CLIENT_API_KEY OR ALLOW_UNAUTHENTICATED=true is required
+    - No automatic bypass - explicit configuration is always required
+
+    Returns:
+        bool: True if authentication bypass is allowed, False otherwise
+    """
+    # Get raw environment variable and normalize it
+    client_api_key_raw = os.environ.get("CLIENT_API_KEY")
+    client_api_key = (
+        client_api_key_raw.strip() if client_api_key_raw is not None else None
+    )
+
+    allow_unauthenticated = (
+        os.environ.get("ALLOW_UNAUTHENTICATED", "").lower() == "true"
+    )
+    flask_env = os.environ.get("FLASK_ENV", "").lower()
+    is_production = (
+        flask_env == "production" or
+        os.environ.get("ENVIRONMENT", "").lower() == "production"
+    )
+
+    # Production environment validation
+    if is_production:
+        if not client_api_key:
+            error_msg = (
+                "🚨 CRITICAL SECURITY ERROR: CLIENT_API_KEY is not set in "
+                "production environment!\n"
+                "This creates a severe security vulnerability allowing unauthorized "
+                "access to all protected endpoints.\n"
+                "Please set CLIENT_API_KEY environment variable before starting the "
+                "server."
+            )
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError(
+                "CLIENT_API_KEY must be set in production environment"
+            )
+
+        if allow_unauthenticated:
+            error_msg = (
+                "🚨 CRITICAL SECURITY ERROR: ALLOW_UNAUTHENTICATED=true is set in "
+                "production environment!\n"
+                "This disables API key authentication and creates a severe security "
+                "vulnerability.\n"
+                "ALLOW_UNAUTHENTICATED is forbidden in production - remove this "
+                "environment variable."
+            )
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError(
+                "ALLOW_UNAUTHENTICATED is forbidden in production environment"
+            )
+
+        # Production: authentication is always required
+        bypass_allowed = False
+        logger.info("🔐 Production mode: API key authentication is enforced")
+        print("🔐 Production mode: API key authentication is enforced")
+
+    # Development environment validation
+    else:
+        if not client_api_key and not allow_unauthenticated:
+            error_msg = (
+                "🚨 CONFIGURATION ERROR: Neither CLIENT_API_KEY nor "
+                "ALLOW_UNAUTHENTICATED is set.\n"
+                "In development, you must explicitly choose one of:\n"
+                "1. Set CLIENT_API_KEY=<your-key> to enable authentication\n"
+                "2. Set ALLOW_UNAUTHENTICATED=true to disable authentication "
+                "(development only)\n"
+                "No automatic bypass is allowed - explicit configuration is required."
+            )
+            logger.error(error_msg)
+            print(f"\n{error_msg}\n")
+            raise RuntimeError(
+                "Authentication configuration is required in development"
+            )
+
+        if allow_unauthenticated:
+            bypass_allowed = True
+            logger.warning(
+                "🔓 Development mode: Authentication bypass enabled via "
+                "ALLOW_UNAUTHENTICATED=true"
+            )
+            print("🔓 Development mode: Authentication bypass enabled")
+        else:  # client_api_key is True
+            bypass_allowed = False
+            logger.info("🔐 Development mode: API key authentication enabled")
+            print("🔐 Development mode: API key authentication enabled")
+
+    # Log final configuration
+    if bypass_allowed:
+        logger.warning(
+            "⚠️  AUTHENTICATION BYPASS ENABLED - API key validation is disabled"
+        )
+    else:
+        logger.info("✅ API key authentication is enforced")
+
+    return bypass_allowed
+
+
+# Validate security configuration at startup and store the result
+auth_bypass_allowed = validate_security_configuration()
+
+# Store the normalized API key globally for use in authentication
+raw_api_key = os.environ.get("CLIENT_API_KEY")
+CLIENT_API_KEY = raw_api_key.strip() if raw_api_key is not None else None
 
 # Security configurations
 rate_limit_config = RateLimitConfig(
@@ -102,12 +241,19 @@ metrics = {
 
 metrics_lock = threading.Lock()
 
-def update_metrics(response_time, success=True, emotion=None, error_type=None, rate_limited=False, sanitization_warnings=0):
+def update_metrics(
+    response_time,
+    success=True,
+    emotion=None,
+    error_type=None,
+    rate_limited=False,
+    sanitization_warnings=0
+):
     """Update monitoring metrics."""
     with metrics_lock:
         metrics['total_requests'] += 1
         metrics['response_times'].append(response_time)
-        
+
         if rate_limited:
             metrics['rate_limited_requests'] += 1
         elif success:
@@ -118,13 +264,15 @@ def update_metrics(response_time, success=True, emotion=None, error_type=None, r
             metrics['failed_requests'] += 1
             if error_type:
                 metrics['error_counts'][error_type] += 1
-        
+
         if sanitization_warnings > 0:
             metrics['sanitization_warnings'] += sanitization_warnings
-        
+
         # Update average response time
         if metrics['response_times']:
-            metrics['average_response_time'] = sum(metrics['response_times']) / len(metrics['response_times'])
+            metrics['average_response_time'] = (
+                sum(metrics['response_times']) / len(metrics['response_times'])
+            )
 
 def secure_endpoint(f):
     """Decorator for secure endpoint handling."""
@@ -133,40 +281,53 @@ def secure_endpoint(f):
         start_time = time.time()
         client_ip = request.remote_addr
         user_agent = request.headers.get('User-Agent', '')
-        
+
         try:
             # Rate limiting
-            allowed, reason, rate_limit_meta = rate_limiter.allow_request(client_ip, user_agent)
+            allowed, reason, rate_limit_meta = rate_limiter.allow_request(
+                client_ip, user_agent
+            )
             if not allowed:
                 response_time = time.time() - start_time
-                update_metrics(response_time, success=False, error_type='rate_limited', rate_limited=True)
+                update_metrics(
+                    response_time,
+                    success=False,
+                    error_type='rate_limited',
+                    rate_limited=True
+                )
                 logger.warning("Rate limit exceeded: %s from %s", reason, client_ip)
                 return jsonify({
                     'error': 'Rate limit exceeded',
                     'message': reason,
                     'retry_after': rate_limit_config.window_size_seconds
                 }), 429
-            
+
             # Content type validation
             if request.method == 'POST':
                 content_type = request.headers.get('Content-Type', '')
                 if not input_sanitizer.validate_content_type(content_type):
                     response_time = time.time() - start_time
-                    update_metrics(response_time, success=False, error_type='invalid_content_type')
-                    logger.warning("Invalid content type: %s from %s", content_type, client_ip)
+                    update_metrics(
+                        response_time,
+                        success=False,
+                        error_type='invalid_content_type'
+                    )
+                    logger.warning(
+                        "Invalid content type: %s from %s", content_type, client_ip
+                    )
                     return jsonify({
                         'error': 'Invalid content type',
                         'message': 'Content-Type must be application/json'
                     }), 400
-            
+
             # Process request
             result = f(*args, **kwargs)
-            
+
             # Release rate limit slot
             rate_limiter.release_request(client_ip, user_agent)
-            
+
             return result
-            
+
         except Exception as e:
             # Release rate limit slot on error
             rate_limiter.release_request(client_ip, user_agent)
@@ -176,7 +337,7 @@ def secure_endpoint(f):
             # Log detailed error on server but return generic message to user
             logger.error("Endpoint error: %s", str(e), exc_info=True)
             return jsonify({'error': 'Internal server error occurred'}), 500
-    
+
     return decorated_function
 
 
@@ -196,7 +357,10 @@ class SecureEmotionDetectionModel:
         # Resolve model directory (allow override via env var for tests/dev)
         default_model_dir = Path(__file__).resolve().parent.parent / 'model'
         env_model_dir = os.environ.get("SECURE_MODEL_DIR")
-        self.model_path = Path(env_model_dir).expanduser().resolve() if env_model_dir else default_model_dir
+        self.model_path = (
+            Path(env_model_dir).expanduser().resolve()
+            if env_model_dir else default_model_dir
+        )
         logger.info("Loading secure model from: %s", self.model_path)
 
         # Default emotions list available even if model isn't loaded
@@ -208,23 +372,28 @@ class SecureEmotionDetectionModel:
 
         # In CI/TESTING, or when model directory is missing/invalid, run in stub mode
         if os.environ.get("TESTING") or os.environ.get("CI"):
-            logger.warning("TEST/CI environment detected. Running secure model in stub mode.")
-            self.tokenizer = None
-            self.model = None
-            self.loaded = False
-            return
-
-        # If the local model directory is missing, skip heavy loading to keep imports working
-        if not self.model_path.exists() or not self.model_path.is_dir():
             logger.warning(
-                "Secure model directory not found. Running in stub mode (no HF model will be loaded)."
+                "TEST/CI environment detected. Running secure model in stub mode."
             )
             self.tokenizer = None
             self.model = None
             self.loaded = False
             return
 
-        # If directory exists but lacks required files, also stub to avoid HF hub lookups
+        # If the local model directory is missing, skip heavy loading to keep
+        # imports working
+        if not self.model_path.exists() or not self.model_path.is_dir():
+            logger.warning(
+                "Secure model directory not found. Running in stub mode "
+                "(no HF model will be loaded)."
+            )
+            self.tokenizer = None
+            self.model = None
+            self.loaded = False
+            return
+
+        # If directory exists but lacks required files, also stub to avoid
+        # HF hub lookups
         required_all = [
             self.model_path / 'config.json',
             self.model_path / 'tokenizer.json',
@@ -241,11 +410,18 @@ class SecureEmotionDetectionModel:
 
         try:
             # Lazy import heavy deps only when not in stub mode and path checks passed
-            from transformers import AutoTokenizer, AutoModelForSequenceClassification  # type: ignore
+            from transformers import (
+                AutoTokenizer,
+                AutoModelForSequenceClassification
+            )  # type: ignore
             import torch  # type: ignore
 
-            self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path), local_files_only=True)
-            self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path), local_files_only=True)
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                str(self.model_path), local_files_only=True
+            )
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                str(self.model_path), local_files_only=True
+            )
 
             # Move to GPU if available
             try:
@@ -262,18 +438,23 @@ class SecureEmotionDetectionModel:
             logger.info("✅ Secure model loaded successfully")
 
         except Exception as e:
-            logger.error("❌ Failed to load secure model: %s. Falling back to stub mode.", str(e))
+            logger.error(
+                "❌ Failed to load secure model: %s. Falling back to stub mode.",
+                str(e)
+            )
             self.tokenizer = None
             self.model = None
             self.loaded = False
-        
+
     def predict(self, text, confidence_threshold=None):
         """Make a secure prediction."""
         start_time = time.time()
-        
+
         try:
             if not getattr(self, 'loaded', False):
-                raise RuntimeError("SecureEmotionDetectionModel is not loaded; prediction unavailable.")
+                raise RuntimeError(
+                    "SecureEmotionDetectionModel is not loaded; prediction unavailable."
+                )
             # Ensure torch is available within function scope for linter/runtime
             try:
                 import torch  # type: ignore
@@ -284,20 +465,26 @@ class SecureEmotionDetectionModel:
             sanitized_text, warnings = input_sanitizer.sanitize_text(text, "emotion")
             if warnings:
                 logger.warning("Sanitization warnings: %s", warnings)
-            
+
             # Tokenize input
-            inputs = self.tokenizer(sanitized_text, return_tensors='pt', truncation=True, padding=True, max_length=512)
-            
+            inputs = self.tokenizer(
+                sanitized_text,
+                return_tensors='pt',
+                truncation=True,
+                padding=True,
+                max_length=512
+            )
+
             if torch.cuda.is_available():
                 inputs = {k: v.to('cuda') for k, v in inputs.items()}
-            
+
             # Get prediction
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 probabilities = torch.softmax(outputs.logits, dim=1)
                 predicted_label = torch.argmax(probabilities, dim=1).item()
                 confidence = probabilities[0][predicted_label].item()
-                
+
                 # Apply confidence threshold if specified
                 if confidence_threshold and confidence < confidence_threshold:
                     predicted_emotion = "uncertain"
@@ -308,21 +495,24 @@ class SecureEmotionDetectionModel:
                     predicted_emotion = self.model.config.id2label[str(predicted_label)]
                 else:
                     predicted_emotion = f"unknown_{predicted_label}"
-                
+
                 # Get all probabilities
                 all_probs = probabilities[0].cpu().numpy()
-            
+
             prediction_time = time.time() - start_time
-            logger.info("Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)", 
-                       prediction_time, sanitized_text[:50], predicted_emotion, confidence)
-            
+            logger.info(
+                "Secure prediction completed in %.3fs: '%s...' → %s (conf: %.3f)",
+                prediction_time, sanitized_text[:50], predicted_emotion, confidence
+            )
+
             # Create secure response
             return {
                 'text': sanitized_text,
                 'predicted_emotion': predicted_emotion,
                 'confidence': float(confidence),
                 'probabilities': {
-                    emotion: float(prob) for emotion, prob in zip(self.emotions, all_probs)
+                    emotion: float(prob)
+                    for emotion, prob in zip(self.emotions, all_probs)
                 },
                 'model_version': '2.0',
                 'model_type': 'secure_emotion_detection',
@@ -338,10 +528,13 @@ class SecureEmotionDetectionModel:
                     'correlation_id': getattr(g, 'correlation_id', None)
                 }
             }
-            
+
         except Exception as e:
             prediction_time = time.time() - start_time
-            logger.error("Secure prediction failed after %.3fs: %s", prediction_time, str(e))
+            logger.error(
+                "Secure prediction failed after %.3fs: %s",
+                prediction_time, str(e)
+            )
             raise
 
 # Secure model factory for explicit creation and testability
@@ -350,7 +543,8 @@ logger.info("🔒 Secure model will be created via factory function")
 def create_secure_model():
     """Factory function to create a SecureEmotionDetectionModel or a stub in CI/TEST.
 
-    This avoids implicit global state and makes the creation path explicit and mockable in tests.
+    This avoids implicit global state and makes the creation path explicit
+    and mockable in tests.
     """
     if os.environ.get("TESTING") or os.environ.get("CI"):
         class _Stub:
@@ -445,9 +639,59 @@ def require_admin_api_key(f):
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-Admin-API-Key")
         expected_key = get_admin_api_key()
-        if not expected_key or api_key != expected_key:
-            logger.warning("Unauthorized admin access attempt from %s", request.remote_addr)
+
+        # Handle None values early and use constant-time comparison
+        if (not expected_key or not api_key or
+                not secrets.compare_digest(str(expected_key), str(api_key))):
+            logger.warning(
+                "Unauthorized admin access attempt from %s", request.remote_addr
+            )
             return jsonify({"error": "Unauthorized: admin API key required"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def require_api_key(f):
+    """Decorator to require API key via X-API-Key header for protected endpoints.
+
+    Validates client API key to ensure only authorized clients can access
+    protected prediction and analysis endpoints.
+
+    Authentication bypass is controlled by the global auth_bypass_allowed flag,
+    which is set at startup based on environment configuration.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if authentication bypass is allowed (set at startup)
+        if auth_bypass_allowed:
+            return f(*args, **kwargs)
+
+        # Authentication is required - validate API key
+        api_key = request.headers.get("X-API-Key")
+        expected_key = CLIENT_API_KEY
+
+        if not expected_key:
+            logger.error(
+                "CLIENT_API_KEY not set but authentication bypass is disabled - "
+                "this should not happen"
+            )
+            return jsonify({
+                "error": "Server configuration error",
+                "message": "API key validation is required but not configured"
+            }), 500
+
+        if not api_key:
+            logger.warning("Missing API key in request from %s", request.remote_addr)
+            return jsonify({
+                "error": "Unauthorized: API key required",
+                "message": "Include X-API-Key header with valid API key"
+            }), 401
+
+        # Use constant-time comparison to prevent timing attacks
+        if not secrets.compare_digest(str(expected_key), str(api_key)):
+            logger.warning("Invalid API key attempt from %s", request.remote_addr)
+            return jsonify({"error": "Unauthorized: invalid API key"}), 401
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -572,7 +816,7 @@ def _build_single_response(
 def health_check():
     """Secure health check endpoint."""
     start_time = time.time()
-    
+
     try:
         mdl = get_secure_model()
         response = {
@@ -592,15 +836,17 @@ def health_check():
                 'failed_requests': metrics['failed_requests'],
                 'rate_limited_requests': metrics['rate_limited_requests'],
                 'sanitization_warnings': metrics['sanitization_warnings'],
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2)
+                'average_response_time_ms': round(
+                    metrics['average_response_time'] * 1000, 2
+                )
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='health_check_error')
@@ -608,11 +854,12 @@ def health_check():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
+@require_api_key
 @secure_endpoint
 def predict():
     """Secure prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         # Parse and validate request data
         try:
@@ -622,12 +869,12 @@ def predict():
             update_metrics(response_time, success=False, error_type='invalid_json')
             logger.error("Invalid JSON in request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
-        
+
         if not data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_data')
             return jsonify({'error': 'No data provided'}), 400
-        
+
         # Sanitize and validate request
         try:
             sanitized_data, warnings = input_sanitizer.validate_emotion_request(data)
@@ -636,14 +883,14 @@ def predict():
             update_metrics(response_time, success=False, error_type='validation_error')
             logger.warning("Validation error: %s from %s", str(e), request.remote_addr)
             return jsonify({'error': str(e)}), 400
-        
+
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning("Security anomalies detected: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
-        
+
         # Make secure prediction
         model_instance = get_secure_model()
         if not getattr(model_instance, 'loaded', False):
@@ -652,21 +899,21 @@ def predict():
             sanitized_data['text'],
             confidence_threshold=sanitized_data.get('confidence_threshold')
         )
-        
+
         # Add sanitization warnings to response
         if warnings:
             result['security']['sanitization_warnings'] = warnings
-        
+
         response_time = time.time() - start_time
         update_metrics(
-            response_time, 
-            success=True, 
+            response_time,
+            success=True,
             emotion=result['predicted_emotion'],
             sanitization_warnings=len(warnings)
         )
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='prediction_error')
@@ -674,11 +921,12 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/predict_batch', methods=['POST'])
+@require_api_key
 @secure_endpoint
 def predict_batch():
     """Secure batch prediction endpoint."""
     start_time = time.time()
-    
+
     try:
         # Parse and validate request data
         try:
@@ -688,28 +936,30 @@ def predict_batch():
             update_metrics(response_time, success=False, error_type='invalid_json')
             logger.error("Invalid JSON in batch request from %s", request.remote_addr)
             return jsonify({'error': 'Invalid JSON format'}), 400
-        
+
         if not data:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='missing_data')
             return jsonify({'error': 'No data provided'}), 400
-        
+
         # Sanitize and validate request
         try:
             sanitized_data, warnings = input_sanitizer.validate_batch_request(data)
         except ValueError as e:
             response_time = time.time() - start_time
             update_metrics(response_time, success=False, error_type='validation_error')
-            logger.warning("Batch validation error: %s from %s", str(e), request.remote_addr)
+            logger.warning(
+                "Batch validation error: %s from %s", str(e), request.remote_addr
+            )
             return jsonify({'error': str(e)}), 400
-        
+
         # Detect anomalies
         anomalies = input_sanitizer.detect_anomalies(data)
         if anomalies:
             logger.warning("Security anomalies detected in batch: %s", anomalies)
             with metrics_lock:
                 metrics['security_violations'] += 1
-        
+
         # Make secure batch predictions
         results = []
         model_instance = get_secure_model()
@@ -722,14 +972,14 @@ def predict_batch():
                     confidence_threshold=sanitized_data.get('confidence_threshold')
                 )
                 results.append(result)
-        
+
         response_time = time.time() - start_time
         update_metrics(
-            response_time, 
+            response_time,
             success=True,
             sanitization_warnings=len(warnings)
         )
-        
+
         return jsonify({
             'predictions': results,
             'count': len(results),
@@ -740,7 +990,7 @@ def predict_batch():
                 'correlation_id': getattr(g, 'correlation_id', None)
             }
         })
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(
@@ -751,6 +1001,7 @@ def predict_batch():
 
 
 @app.route('/nlp/emotion', methods=['POST'])
+@require_api_key
 @secure_endpoint
 def nlp_emotion():
     """Classify emotion distribution for a single input text."""
@@ -805,6 +1056,7 @@ def nlp_emotion():
 
 
 @app.route('/nlp/emotion/batch', methods=['POST'])
+@require_api_key
 @secure_endpoint
 def nlp_emotion_batch():
     """Classify emotion distributions for a batch of input texts."""
@@ -902,18 +1154,24 @@ def nlp_emotion_batch():
 def get_metrics():
     """Get detailed security metrics endpoint."""
     with metrics_lock:
+        success_rate_pct = (
+            metrics['successful_requests'] / max(metrics['total_requests'], 1)
+        ) * 100
         return jsonify({
             'server_metrics': {
-                'uptime_seconds': (datetime.now() - metrics['start_time']).total_seconds(),
+                'uptime_seconds': (
+                    datetime.now() - metrics['start_time']
+                ).total_seconds(),
                 'total_requests': metrics['total_requests'],
                 'successful_requests': metrics['successful_requests'],
                 'failed_requests': metrics['failed_requests'],
                 'rate_limited_requests': metrics['rate_limited_requests'],
                 'sanitization_warnings': metrics['sanitization_warnings'],
                 'security_violations': metrics['security_violations'],
-                'success_rate': f"{(metrics['successful_requests'] / max(metrics['total_requests'], 1)) * 100:.2f}%",
-                'average_response_time_ms': round(metrics['average_response_time'] * 1000, 2),
-                'requests_per_minute': metrics['total_requests'] / max((datetime.now() - metrics['start_time']).total_seconds() / 60, 1)
+                'success_rate': f"{success_rate_pct:.2f}%",
+                'average_response_time_ms': round(
+                    metrics['average_response_time'] * 1000, 2
+                )
             },
             'emotion_distribution': dict(metrics['emotion_distribution']),
             'error_counts': dict(metrics['error_counts']),
@@ -932,7 +1190,7 @@ def add_to_blacklist():
         data = request.get_json()
         if not data or 'ip' not in data:
             return jsonify({'error': 'IP address required'}), 400
-        
+
         ip = data['ip']
         rate_limiter.add_to_blacklist(ip)
         logger.info("Added %s to blacklist", ip)
@@ -949,7 +1207,7 @@ def add_to_whitelist():
         data = request.get_json()
         if not data or 'ip' not in data:
             return jsonify({'error': 'IP address required'}), 400
-        
+
         ip = data['ip']
         rate_limiter.add_to_whitelist(ip)
         logger.info("Added %s to whitelist", ip)
@@ -963,14 +1221,18 @@ def add_to_whitelist():
 def home():
     """Secure home endpoint with API documentation."""
     start_time = time.time()
-    
+
     try:
         response = {
             'message': 'Secure Emotion Detection API',
             'version': '2.0',
             'security_features': {
-                'rate_limiting': f'{rate_limit_config.requests_per_minute} requests per minute',
-                'input_sanitization': 'XSS, SQL injection, and command injection protection',
+                'rate_limiting': (
+                    f'{rate_limit_config.requests_per_minute} requests per minute'
+                ),
+                'input_sanitization': (
+                    'XSS, SQL injection, and command injection protection'
+                ),
                 'security_headers': 'CSP, HSTS, X-Frame-Options, and more',
                 'abuse_detection': 'Automatic blocking of abusive clients',
                 'request_correlation': 'Request ID and correlation ID tracking',
@@ -1010,12 +1272,12 @@ def home():
                 }
             }
         }
-        
+
         response_time = time.time() - start_time
         update_metrics(response_time, success=True)
-        
+
         return jsonify(response)
-        
+
     except Exception as e:
         response_time = time.time() - start_time
         update_metrics(response_time, success=False, error_type='documentation_error')
@@ -1068,8 +1330,11 @@ if __name__ == '__main__':
     logger.info("        -H 'Content-Type: application/json' \\")
     logger.info("        -d '{\"text\": \"I am feeling happy today!\"}'")
     logger.info("")
-    logger.info("🔒 Rate limiting: %s requests per minute", rate_limit_config.requests_per_minute)
+    logger.info(
+        "🔒 Rate limiting: %s requests per minute",
+        rate_limit_config.requests_per_minute
+    )
     logger.info("🛡️ Security monitoring: Comprehensive logging and metrics enabled")
     logger.info("=" * 60)
-    
-    app.run(host='0.0.0.0', port=8000, debug=False) 
+
+    app.run(host='0.0.0.0', port=8000, debug=False)
