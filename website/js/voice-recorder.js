@@ -628,3 +628,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Use the new initialization function
     await initializeVoiceRecorder();
 });
+
+// Export for testing
+export { initializeVoiceRecorder };

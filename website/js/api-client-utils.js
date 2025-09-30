@@ -105,7 +105,7 @@ class ApiClientManager {
         const event = new CustomEvent('apiClientReady', {
             detail: { apiClient }
         });
-        this.dispatchEvent(event);
+        window.dispatchEvent(event);
     }
 
     /**
