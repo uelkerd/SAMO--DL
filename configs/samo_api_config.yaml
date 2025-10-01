@@ -1,0 +1,65 @@
+# SAMO API Configuration
+# This file configures the unified API server for SAMO-DL
+
+api:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false  # Never enable in production
+  version: "1.0.0"
+  docs_enabled: true  # Enable Swagger docs in dev
+
+security:
+  api_key_required: true
+  rate_limit:
+    requests_per_minute: 100
+    burst_size: 10
+  cors:
+    allowed_origins: ["*"]  # Restrict to specific domains in production
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["Content-Type", "Authorization", "X-API-Key", "X-Requested-With"]
+
+models:
+  emotion:
+    provider: "hf"  # Hugging Face
+    model_name: "j-hartmann/emotion-english-distilroberta-base"
+    local_only: false  # Use local if true, fallback to HF Hub
+    model_dir: "/app/models/emotion"
+    batch_size: 32
+  whisper:
+    provider: "openai"  # OpenAI Whisper
+    model_name: "openai/whisper-base"
+    local_only: false
+    model_dir: "/app/models/whisper"
+    max_audio_duration: 30  # seconds
+  t5:
+    provider: "hf"  # Hugging Face T5
+    model_name: "t5-small"
+    local_only: false
+    model_dir: "/app/models/t5"
+    max_input_length: 512
+    max_output_length: 128
+
+logging:
+  level: "INFO"  # DEBUG for development
+  format: "json"  # json or human-readable
+  include_request_id: true
+
+server:
+  workers: 4  # Gunicorn workers
+  timeout: 120  # Request timeout in seconds
+
+# Environment-specific overrides
+environments:
+  development:
+    api:
+      debug: true
+      docs_enabled: true
+    security:
+      api_key_required: false  # Disable in dev for easier testing
+  production:
+    api:
+      debug: false
+      docs_enabled: false
+    security:
+      cors:
+        allowed_origins: ["https://yourdomain.com"]
