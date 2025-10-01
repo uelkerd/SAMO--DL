@@ -1,0 +1,50 @@
+{
+  "created_at": "2025-01-09T00:00:00",
+  "prs": {
+    "1": {
+      "branch": "feat/dl-add-t5-summarization-model-only",
+      "description": "Add T5 summarization model for journal entries",
+      "files": [
+        "src/models/summarization/samo_t5_summarizer.py",
+        "configs/samo_t5_config.yaml",
+        "test_samo_t5_standalone.py"
+      ],
+      "estimated_lines": 200,
+      "phase": 1,
+      "status": "completed",
+      "created_at": "2025-01-09T02:40:00",
+      "completed_at": "2025-01-09T02:45:00",
+      "pr_url": "https://github.com/uelkerd/SAMO--DL/pull/146",
+      "performance_metrics": {
+        "confidence": 0.823,
+        "compression_ratio": 0.28,
+        "processing_time": 5.31,
+        "device": "mps"
+      }
+    },
+    "2": {
+      "branch": "feat/dl-add-whisper-transcription-model-only",
+      "description": "Add Whisper transcription model for voice processing",
+      "files": [
+        "src/models/voice_processing/samo_whisper_transcriber.py",
+        "configs/samo_whisper_config.yaml",
+        "test_samo_whisper_standalone.py"
+      ],
+      "estimated_lines": 400,
+      "phase": 1,
+      "status": "completed",
+      "created_at": "2025-01-09T03:00:00",
+      "completed_at": "2025-01-09T03:15:00",
+      "pr_url": "https://github.com/uelkerd/SAMO--DL/pull/147",
+      "performance_metrics": {
+        "average_confidence": 0.732,
+        "real_time_factor": 7.3,
+        "total_audio_processed": 225.4,
+        "total_processing_time": 31.0,
+        "success_rate": "3/3 files"
+      }
+    }
+  },
+  "current_phase": 1,
+  "overall_progress": 2
+}
