@@ -14,7 +14,7 @@ PyJWT==2.8.0
 # Utilities
 python-dotenv==1.0.1
 pyyaml==6.0.2
-requests==2.32.4
+requests==2.33.0
 certifi==2024.12.14
 click==8.1.8
 loguru==0.7.2
